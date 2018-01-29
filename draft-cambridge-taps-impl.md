@@ -52,6 +52,10 @@ determined on monday afternoon.
 
 ## HTTP over TLS as a pseudotransport
 
+# Rendezvous and Environment Discovery
+
+## ICE and STUN
+
 # IANA Considerations
 
 RFC-EDITOR: Please remove this section before publication.
