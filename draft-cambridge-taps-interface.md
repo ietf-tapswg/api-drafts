@@ -41,11 +41,20 @@ take some first principles (beyond those in the architecture) from post sockets.
 
 # Pre-Establishment
 
+## Resolving Remote Endpoints
+
+note here: resolution should be flexible, and should accept URLS and URL-like
+things. It should be possible to place
+
 # Establishing Connections
 
 # Sending Data
 
+## Sender-side Framing over Stream Protocols
+
 # Receiving Data
+
+## Receiver-side Deframing over Stream Protocols
 
 # Responding to Events
 

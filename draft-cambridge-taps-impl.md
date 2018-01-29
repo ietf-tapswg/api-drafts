@@ -40,6 +40,8 @@ determined on monday afternoon.
 
 # General Considerations for Racing During Establishment
 
+don't race when you can't race.
+
 # Specific Transport Protocol Considerations
 
 ## TCP
