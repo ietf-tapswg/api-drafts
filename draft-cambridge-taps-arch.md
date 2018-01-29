@@ -45,9 +45,7 @@ what are the initial design principles
 
 # Interface Architecture and Terminology
 
-draw a picture
-
-list of phases
+introduce, list phases
 
 1. Pre-Establishment
 
@@ -59,35 +57,23 @@ list of phases
 
 5. Termination
 
+## Objects
+
+draw a picture
+
 ## Pre-Establishment
-
-### Objects
-
-### Actions
 
 ## Establishment
 
-### Objects
-
-### Actions
-
 ## Data Transfer
-
-### Objects
-
-### Actions
 
 ## Event Handling
 
-### Objects
-
-### Actions
-
 ## Termination
 
-### Objects
+## Internal Terminology
 
-### Actions
+...things you probably need to implement this, but is not
 
 # IANA Considerations
 
