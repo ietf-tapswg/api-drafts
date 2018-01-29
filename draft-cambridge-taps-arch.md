@@ -1,5 +1,5 @@
 ---
-title: An Architecture for Interfaces to Transport services
+title: An Architecture for Interfaces to Transport Services
 abbrev: TAPS Architecture
 docname: draft-cambridge-taps-arch-latest
 date:
@@ -44,6 +44,45 @@ glossary with forward references
 what are the initial design principles
 
 # Interface Architecture and Terminology
+
+introduce architecture overview diagram
+
+~~~~~~~~~~
+
+  +------------------------------------------------------+
+  |                    Application                       |
+  +-|----------------+-----^------+----------^-----------+
+    |                |     |      |          |
+  pre-             send    |      |       events
+  establishment      |  receive   v          |
+    |                |     ^    terminate    |
+    |                |     |      +          |
+    |             +--v-----+------v--+       |
+  +-v-------------+    Connection    +-------+----------+
+  |  Transport    +--------+---------+                  |
+  |  Services              |                            |
+  |  API                   |                            |
+  +------------------------|----------------------------+
+                           |
+  +------------------------|----------------------------+
+  |  Transport             |                            |
+  |  System                |        +-----------------+ |
+  |                        |        | Path  / TS State| |
+  |  (Path Info Gathering) |        | Cache / Cache   | |
+  |                        |        +-----------------+ |
+  |  (Connection Racing)   |                            |
+  |                        |        +-----------------+ |
+  |                        |        | System / User   | |
+  |                        |        | Policy / Config | |
+  |             +----------v-----+  +-----------------+ |
+  |             |    Protocol    |                      |
+  +-------------+     Stack      +----------------------+
+                |    Instance    |
+                +-------+--------+
+                        V
+              Network Layer Interface
+~~~~~~~~~~
+{: #fig-abstractions title="Concepts and Relationships in the Transport Services Interface Architecture"}
 
 introduce, list phases
 
