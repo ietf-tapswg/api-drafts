@@ -29,6 +29,11 @@ author:
     role: editor
     org: University of Oslo
   -
+    ins: G. Fairhurst
+    name: Gorry Fairhurst
+    org: University of Aberdeen
+    email: gorry@erg.abdn.ac.uk
+  -
     ins: M. Kuehlewind
     name: Mirja Kuehlewind
     org: ETH Zurich
