@@ -2,7 +2,7 @@
 title: An Abstract Application Layer Interface to Transport Services
 abbrev: TAPS Interface
 docname: draft-cambridge-taps-interface-latest
-date: 
+date:
 category: info
 
 ipr: trust200902
@@ -33,9 +33,13 @@ this will be the TAPS Abstract API definition document.
 
 # Introduction
 
+why does this document exist...
+
 # Design Principles
 
-# Pre-Establishment 
+take some first principles (beyond those in the architecture) from post sockets. asynchronicity and message orientation are key here.
+
+# Pre-Establishment
 
 # Establishing Connections
 

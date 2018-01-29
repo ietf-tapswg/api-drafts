@@ -2,7 +2,7 @@
 title: Implementing Interfaces to Transport Services
 abbrev: TAPS Implementation
 docname: draft-cambridge-taps-impl-latest
-date: 
+date:
 category: info
 
 ipr: trust200902
@@ -34,7 +34,7 @@ this will be the TAPS API Implementation Considerations document
 # Introduction
 
 note that these are basically just brian's idea here; further structure to be
-determined on monday afternoon. 
+determined on monday afternoon.
 
 # Implementing Pre-Establishment
 
@@ -60,4 +60,4 @@ This document has no actions for IANA.
 
 # Security Considerations
 
-be paranoid
+explicitly point out that implementations need to be careful about downgrade.

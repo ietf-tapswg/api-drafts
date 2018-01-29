@@ -2,7 +2,7 @@
 title: An Architecture for Interfaces to Transport services
 abbrev: TAPS Architecture
 docname: draft-cambridge-taps-arch-latest
-date: 
+date:
 category: info
 
 ipr: trust200902
@@ -33,7 +33,7 @@ this will be the TAPS Interface Architecture document.
 
 # Introduction
 
-why does this document exist
+why does this document exist...
 
 # Terminology
 
@@ -41,7 +41,7 @@ glossary with forward references
 
 # Design Principles
 
-what are the initial design principles 
+what are the initial design principles
 
 # Interface Architecture and Terminology
 
