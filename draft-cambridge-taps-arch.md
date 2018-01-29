@@ -15,15 +15,41 @@ pi: [toc, sortrefs, symrefs]
 
 author:
   -
-    ins: B. Trammell
+    ins: T. Pauly
+    name: Tommy Pauly
     role: editor
+    org: Apple Inc.
+    street: 1 Infinite Loop
+    city: Cupertino, California 95014
+    country: United States of America
+    email: tpauly@apple.com
+  -
+    ins: B. Trammell
     name: Brian Trammell
+    role: editor
     org: ETH Zurich
     email: ietf@trammell.ch
     street: Gloriastrasse 35
     city: 8092 Zurich
     country: Switzerland
-
+  -
+    ins: A. Brunstrom
+    name: Anna Brunstrom
+    org: Karlstad University
+    email: anna.brunstrom@kau.se
+  -
+    ins: G. Fairhurst
+    name: Gorry Fairhurst
+    org: University of Aberdeen
+    email: gorry@erg.abdn.ac.uk
+  -
+    ins: C. Perkins
+    name: Colin Perkins
+    org: University of Glasgow
+    street: School of Computing Science
+    city: Glasgow  G12 8QQ
+    country: United Kingdom
+    email: csp@csperkins.org
 
 --- abstract
 

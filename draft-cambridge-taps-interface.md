@@ -16,14 +16,39 @@ pi: [toc, sortrefs, symrefs]
 author:
   -
     ins: B. Trammell
-    role: editor
     name: Brian Trammell
+    role: editor
     org: ETH Zurich
     email: ietf@trammell.ch
     street: Gloriastrasse 35
     city: 8092 Zurich
     country: Switzerland
-
+  -
+    ins: M. Welzl
+    name: Michael Welzl
+    role: editor
+    org: University of Oslo
+  -
+    ins: M. Kuehlewind
+    name: Mirja Kuehlewind
+    org: ETH Zurich
+    email: mirja.kuehlewind@tik.ee.ethz.ch
+    street: Gloriastrasse 35
+    city: 8092 Zurich
+    country: Switzerland
+  -
+    ins: C. Perkins
+    name: Colin Perkins
+    org: University of Glasgow
+    street: School of Computing Science
+    city: Glasgow  G12 8QQ
+    country: United Kingdom
+    email: csp@csperkins.org
+  -
+    ins: P. Tiesel
+    name: Philipp S. Tiesel
+    org: TU Berlin
+    email: philipp@inet.tu-berlin.de
 
 --- abstract
 
@@ -39,16 +64,29 @@ why does this document exist...
 
 take some first principles (beyond those in the architecture) from post sockets. asynchronicity and message orientation are key here.
 
+# API Summary
+
 # Pre-Establishment
 
 ## Resolving Remote Endpoints
 
 note here: resolution should be flexible, and should accept URLS and URL-like
-things. It should be possible to place
+things. binding to transport or pseudotransport happens via pre-establishment
+properties.
+
+## Transport Parameters
+
+list parameters to bind to a connection before establishing it
+
+## Cryptographic Parameters
 
 # Establishing Connections
 
+## Connect Parameters
+
 # Sending Data
+
+## Send Parameters
 
 ## Sender-side Framing over Stream Protocols
 
