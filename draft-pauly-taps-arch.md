@@ -1,7 +1,7 @@
 ---
-title: Transport Services Architecture
+title: An Architecture for Transport Services
 abbrev: TAPS Architecture
-docname: draft-cambridge-taps-arch-latest
+docname: draft-pauly-taps-arch-latest
 date:
 category: info
 
@@ -94,7 +94,7 @@ This document is developed in parallel with the specification of the Transport S
 
 3. The Transport Services API MAY expose features or policy requirements that only apply to some transport protocols, and thus may limit the permissible transport protocols and transport protocol options on a per-connection basis.
 
-4. Since Transport Services does not define its own transport protocols, but rather provides an interface to existing and future protools, an application using the Transport Services API MUST be able to communicate with peers or servers that use alternate implementations. 
+4. Since Transport Services does not define its own transport protocols, but rather provides an interface to existing and future protools, an application using the Transport Services API MUST be able to communicate with peers or servers that use alternate implementations.
 
 5. In order to preserve flexibility and compatibility with future protocols, features in the Transport Services API SHOULD NOT reference particular transport protocols. Mappings of API features in the Transport System document, on the other, MUST explain the ramifications of each feature on each existing protocol (which will need to be supplemented and updated in the future).
 
@@ -114,7 +114,7 @@ introduce architecture overview diagram
 
   +------------------------------------------------------+
   |                    Application                       |
-  +-|----------------+-----^------+----------^-----------+
+  +-+----------------+-----^------+----------^-----------+
     |                |     |      |          |
   pre-             send    |      |       events
   establishment      |  receive   v          |
@@ -177,7 +177,7 @@ There are several high-level phases of functions that any Transport Services API
 
 Connection
 
->> A Connection is the fundamental object used by an application for all interaction with a peer and data transfer. It is generally capable of bi-directional communication. It has state that represents the capability of being able to send or receive content between its local and remote endpoints. This capability may be based merely on the existence of a route between the two endpoints and an application's permission to send and receive on its local endpoint; or may represent successful protocol handshakes at one or more layers that are pre-requistes to receiving content. 
+>> A Connection is the fundamental object used by an application for all interaction with a peer and data transfer. It is generally capable of bi-directional communication. It has state that represents the capability of being able to send or receive content between its local and remote endpoints. This capability may be based merely on the existence of a route between the two endpoints and an application's permission to send and receive on its local endpoint; or may represent successful protocol handshakes at one or more layers that are pre-requistes to receiving content.
 
 Listener
 
@@ -211,7 +211,7 @@ Protocol Properties
 
 > Specific Protocol Properties
 
->>> Specific Protocol Properties refers to the subset of Protocol Properties options that apply to a single protocol (transport protocol, IP, or security protocol). The presence of such a properties does not necessarily require that a specific protocol must be used, but that if this protocol is employed, a particular set of options should be used. This is critical to allow compatibility with protocol propertiess on peers. 
+>>> Specific Protocol Properties refers to the subset of Protocol Properties options that apply to a single protocol (transport protocol, IP, or security protocol). The presence of such a properties does not necessarily require that a specific protocol must be used, but that if this protocol is employed, a particular set of options should be used. This is critical to allow compatibility with protocol propertiess on peers.
 
 ## Establishment
 
