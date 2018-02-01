@@ -139,11 +139,11 @@ The following notations, which can be combined, are used in this document:
 
 >> An Action is performed on an Object.
 
-- Object -> Event()
+- Object -> Event&lt;>
 
 >> An Object sends an Event.
 
-- Action(Parameters) / Event(Parameters)
+- Action(parameter, parameter, ...) / Event&lt;parameter, parameter, ...>
 
 >> An Action takes a set of Parameters; an Event contains a set of Parameters.
 
@@ -182,7 +182,7 @@ realize.
 
 # API Summary
 
-summarize API here
+\[TASK: write three paragraph summary here, should state how all this works for common cases from the application's PoV.]
 
 In the following sections, we describe the details of application interaction with Objects through Actions and Events in each phase of a connection, following the phases described in {{TAPS-ARCH}}.
 
@@ -190,43 +190,83 @@ In the following sections, we describe the details of application interaction wi
 
 Establishment begins with the creation of a Connection...
 
+Connection := NewConnection(remoteSpecifier, transportParameters, cryptographicParameters)
+
 ## Resolving Remote Endpoints
 
-note here: resolution should be flexible, and should accept URLS and URL-like
+\[TASK: write me. note: resolution should be flexible, and should accept URLS and URL-like
 things. binding to transport or pseudotransport happens via pre-establishment
-properties.
+properties. resolution happens as part of connection creation.]
 
 ## Specifying Transport Parameters
 
-list parameters to bind to a connection before establishing it
+\[TASK: write me. list parameters to bind to a connection before establishing
+it. look at minset for this. note that the API should have sensible and
+well-defined defaults.]
 
 ## Specifying Cryptographic Parameters
 
-list cryptographic parameters supported during pre-establishment
+\[TASK: write me. separate out cryptographic parameters, since these bind to a local and a remote. chris?]
 
 # Establishing Connections
 
-## Active Open: Connect
+## Active Open: Initiate
+
+Connection.Initiate()
+
+Connection -> Ready&lt;>
 
 ## Passive Open: Listen
 
+Connection.Listen()
+
+Connection -> ConnectionReceived&lt;remoteSpecifier>
+
 ## Peer to Peer Establishment: Rendezvous
+
+Connection.Rendezvous()
+
+Connection -> Ready&lt;>
 
 ## Connection Groups
 
 # Sending Data
 
+Connection.Send(Content, ...)
+
+Connection -> Sent&lt;>
+
+Connection -> SendError&lt;>
+
 ## Send Parameters
 
 ## Sender-side Framing over Stream Protocols
 
+Connection.FrameWith(Framer)
+
+Octets := Framer.Frame(Content)
+
 # Receiving Data
+
+Connection -> Received&lt;Content>
+
+Connection -> ReceiveError&lt;>
 
 ## Receiver-side Deframing over Stream Protocols
 
-# Responding to Events
+Connection.DeframeWith(Deframer)
 
-# Error Handling
+Content := Deframer.Deframe(OctetStream)
+
+# Connection Termination
+
+Connection.Close()
+
+Connection -> Finished&lt;>
+
+Connection.Abort()
+
+Connection -> ConnectionError&lt;>
 
 # IANA Considerations
 
