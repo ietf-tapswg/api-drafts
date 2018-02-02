@@ -141,24 +141,28 @@ In order to preserve flexibility and compatibility with future protocols, top-le
 
 It is important to note that neither the Transport Services API nor the Implementation document defines new protocols that require any changes on peers. The Transport Services system must be deployable on one side only, as a way to allow an application to make better use of available capabilities on a system, and protocols features that may be supported by peers across the network.
 
-# Interface Architecture and Terminology
+# Transport Services Architecture and Concepts
 
-The terminology defined in this document is intended primarily for use in Internet Drafts and specifications. While the concepts and terms may be used in specific implementations, it is expected that there will remain a variety of terms used by running code.
+The concepts defined in this document are intended primarily for use in Internet Drafts and specifications. While the specific terminology may be used in specific implementations, it is expected that there will remain a variety of terms used by running code.
 
-introduce architecture overview diagram
+The architecture divides the concepts for Transport Services into two categories:
+- API concepts, which are meant to be exposed to applications
+- System-implementation concepts, which are meant to be internally used when building systems that implement Transport Services.
+
+The following diagram summarizes the top-level concepts in the architecture and how they relate to one another.
 
 ~~~~~~~~~~
 
   +------------------------------------------------------+
   |                    Application                       |
-  +-+----------------+-----^------+----------^-----------+
-    |                |     |      |          |
-  pre-             send    |      |       events
-  establishment      |  receive   v          |
-    |                |     ^    terminate    |
-    |                |     |      +          |
-    |             +--v-----+------v--+       |
-  +-v-------------+    Connection    +-------+----------+
+  +-+------------------^----------+----------^-----------+
+    |                  |          |          |
+  pre-               data         |        events
+  establishment    transfer       |          |
+    |                  |      terminate      |
+    |                  |          |          |
+    |             +----v----------v--+       |
+  +-v-------------+      Objects     +-------+----------+
   |  Transport    +--------+---------+                  |
   |  Services              |                            |
   |  API                   |                            |
@@ -167,13 +171,13 @@ introduce architecture overview diagram
   +------------------------|----------------------------+
   |  Transport             |                            |
   |  System                |        +-----------------+ |
-  |                        |        | Path  / TS State| |
-  |  (Path Info Gathering) |        | Cache / Cache   | |
-  |                        |        +-----------------+ |
-  |  (Connection Racing)   |                            |
-  |                        |        +-----------------+ |
-  |                        |        | System / User   | |
-  |                        |        | Policy / Config | |
+  |  Implementation        |        |   Association   | |
+  |                        |        |      Cache      | |
+  |  (Candidate Gathering) |        +-----------------+ |
+  |                        |                            |
+  |  (Candidate Racing)    |        +-----------------+ |
+  |                        |        |     System      | |
+  |                        |        |     Policy      | |
   |             +----------v-----+  +-----------------+ |
   |             |    Protocol    |                      |
   +-------------+     Stack      +----------------------+
@@ -182,35 +186,35 @@ introduce architecture overview diagram
                         V
               Network Layer Interface
 ~~~~~~~~~~
-{: #fig-abstractions title="Concepts and Relationships in the Transport Services Interface Architecture"}
+{: #fig-abstractions title="Concepts and Relationships in the Transport Services Architecture"}
 
-The Transport Services API defines the set of objects, parameters, and functions provided to an application when using a transport networking stack. The consumer of this interface is code in an application which can treat networking transports as a generic tool.
+## Transport Services API Concepts
 
-These concepts are defined to be protocol-independent and as forward-looking as possible. While it is a requirement that the concepts are applicable to the least common denominator for transport (today, TCP streams), they must also allow the use of a variety of protocols that provides various other benefits.
+Fundamentally, a Transport Services API needs to provide basic objects that allow applications to establish communication and send and receive data {{objects}}. These may be exposed as handles or referenced objects, depending on the language.
 
-There are several high-level phases of functions that any Transport Services API must provide:
+Beyond the basic objects, there are several high-level groups of actions that any Transport Services API must provide:
 
-Pre-Establishment
+Pre-Establishment {{preestablishment}}
 
->> Properties encompasses the parameters that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. For any system that provides generic Transport Services, this properties should primarily offer knobs that apply across multiple transports. Properties may have a large impact on the rest of the the aspects of the interface: it can modify how establishment occurs, it can influence the expectations around data transfer, it determines the set of events that will be supported.
+>> Pre-Establishment encompasses the parameters that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. For any system that provides generic Transport Services, these properties should primarily offer knobs that apply across multiple transports. Properties may have a large impact on the rest of the the aspects of the interface: they can modify how establishment occurs, they can influence the expectations around data transfer, and they determine the set of events that will be supported.
 
-Establishment
+Establishment {{establishment}}
 
->> Establishment focuses on the objects that an application interacts with to prepare to transfer data. These objects themselves are defined with specific terminology, along with the terms for the most important actions that can be taken on the objects.
+>> Establishment focuses on the actions that an application takes the transport objects to prepare for data transfer. 
 
-Data Transfer
+Data Transfer {{datatransfer}}
 
 >> Data Transfer consists of how an application represents data to be sent and received, the functions required to send and receive that data, and how the application is notified of the status of its data transfer.
 
-Event Handling
+Event Handling {{events}}
 
 >> Events define the set of properties that an application may be notified of during the lifetime of transport objects. These may also provide opportunities for the application to interact with the underlying transport.
 
-Termination
+Termination {{termination}}
 
 >> Termination focuses on the methods by which data transmission is ceased, and state is torn down in the transport.
 
-## Objects
+### Objects {#objects}
 
 Connection
 
@@ -220,7 +224,7 @@ Listener
 
 >> A Listener is any object that can be used to prepare a Connection with a remote endpoint without initiation by the local application. That is, it can passively accept initiations for Connections made by another endpoint.
 
-## Pre-Establishment
+### Pre-Establishment {#preestablishment}
 
 Endpoint
 
@@ -236,33 +240,27 @@ Local Endpoint
 
 Path Selection Properties
 
->> Path Selection Properties consists of any option that an application may set to influence the selection of path between itself and the Remote Endpoint. These options can come in the form of requirements, prohibitions, or preferences. Examples of options which may influence path selection include the interface type (such as a Wi-Fi Ethernet connection, or a Cellular LTE connection), characteristics of the path that are locally known like Maximum Transmission Unit (MTU), or expected throughput or latency.
+>> Path Selection Properties consist of the options that an application may set to influence the selection of path between itself and the Remote Endpoint. These options can come in the form of requirements, prohibitions, or preferences. Examples of options which may influence path selection include the interface type (such as a Wi-Fi Ethernet connection, or a Cellular LTE connection), characteristics of the path that are locally known like Maximum Transmission Unit (MTU), or expected throughput or latency.
 
-Protocol Properties
+Protocol Selection Properties
 
->> Protocol Properties consists of any option that an application may set to influence the selection of transport protocol, configure the behavior of transport protocols, or influence the behavior of other protocols such as IP and security protocols.
+>> Protocol Selection Properties consist of the options that an application may set to influence the selection of transport protocol, configure the behavior of generic transport protocol features. These options come in the form of requirements, prohibitions, and preferences. Examples include reliability, service class, multipath support, and fast open support. 
 
-> Protocol Selection Properties
+Specific Protocol Properties
 
->>> Generic Protocol Properties refers to the subset of Protocol Properties options that apply across multiple or all transport protocols. These options come in the form of requirements, prohibitions, and preferences. Examples include reliability, service class, multipath support, and fast open support.
+>> Specific Protocol Properties refers to the subset of Protocol Properties options that apply to a single protocol (transport protocol, IP, or security protocol). The presence of such a properties does not necessarily require that a specific protocol must be used, but that if this protocol is employed, a particular set of options should be used. This is critical to allow compatibility with protocol propertiess on peers.
 
-> Specific Protocol Properties
-
->>> Specific Protocol Properties refers to the subset of Protocol Properties options that apply to a single protocol (transport protocol, IP, or security protocol). The presence of such a properties does not necessarily require that a specific protocol must be used, but that if this protocol is employed, a particular set of options should be used. This is critical to allow compatibility with protocol propertiess on peers.
-
-## Establishment
-
-The terminology of Establishment is divided into two sections: Objects that are the focus of an application's interaction, and Actions that the application can take on these Objects to establish connectivity.
+### Establishment {#establishment}
 
 Initiate
 
->> Initiate is the primary action that an application can take to create a Connection to a remote endpoint, and prepare any required local or remote state to be able to send and/or receive content. [NOTE: Make clear that this works for simulataneous open for peer to peer]
+>> Initiate is the primary action that an application can take to create a Connection to a remote endpoint, and prepare any required local or remote state to be able to send and/or receive content. For some protocols, this may initiate a server-to-client style handshake; for other protocols, this may just establish local state; and for peer-to-peer protocols, this may begin the process of a simulatenous open.
 
 Listen
 
 >> Listen is the action of marking a Listener as willing to accept incoming Connections.
 
-## Data Transfer
+### Data Transfer {#datatransfer}
 
 Content
 
@@ -270,37 +268,41 @@ Content
 
 Send
 
->> Send is the action to transmit Content over a Connection to a remote endpoint. The interface to sending may include options specific to how this content is to be sent, as well as ways to notify the application of the status of the sending operation.
+>> Send is the action to transmit Content over a Connection to a remote endpoint. The interface to sending may include options specific to how this content is to be sent. Status of the send operation may be delivered back to the application in an event {{events}}.
 
 Receive
 
->> Receive is the indication that the application is ready to asynchronously accept Content over a Connection from a remote endpoint [reference the event that is delivered upon reception]. The interface to receiving may include options specific to the content that is to be delivered to the application, as well as ways to notify the application of errors.
+>> Receive is the indication that the application is ready to asynchronously accept Content over a Connection from a remote endpoint, while will be delivered in an event {{events}}. The interface to receiving may include options specific to the content that is to be delivered to the application.
 
-## Event Handling
+### Event Handling {#events}
+
+This list of events that can be delivered to an application is not exhaustive, but gives the top-level categories of events. The API may expand this list.
 
 Connection Ready
 
->> A Ready event signals to an application that a given Connection is ready to send and/or receive Content. If the Connection relies on handshakes to establish state between peers, then it is assumed that these steps have been taken.
+>> A Connection Ready event signals to an application that a given Connection is ready to send and/or receive Content. If the Connection relies on handshakes to establish state between peers, then it is assumed that these steps have been taken.
 
 Connection Finished
 
->> A Failed event signals to an application that a given Connection is unable to be used for sending or receiving Content. This should deliver a useful error to the application.
+>> A Connection Finished event signals to an application that a given Connection is no longer usable for sending or receiving Content. This should deliver a useful error to the application.
 
 Connection Received
 
->> An Accept event signals to an application that a given Listener has passively received a Connection.
+>> A Connection Received event signals to an application that a given Listener has passively received a Connection.
 
 Content Received
 
+>> A Content Received event delivers received content to the application, based on a Receive action. This may include an error if the action failed.
+
 Content Sent
 
->> Sent from stack, or acked, or whatever. May be send error.
+>> A Content Sent event notifies the application of the status of its Send action. This may be an error, an indication that content has been processed by the protocol stack, or potentially has been acknowledged by a peer.
 
 Path Properties Changed
 
-[API may expand this list]
+>> A Path Properties Changed event notifies the application that some property of the connection has changed that may influence how and where data is sent and/or received.
 
-## Termination
+### Termination {#termination}
 
 Close
 
@@ -310,13 +312,13 @@ Abort
 
 >> Abort is the action an application may take on a Connection to indicate that it no longer intends to send data, will not be willing to receive data, and that the protocol should signal this state to the remote endpoint if applicable.
 
-## Transport System Terminology
+## Transport System Implementation Concepts
 
-The Transport System defines the set of objects used internally to a system or library to provide the functionality of transport networking, as required by the abstract interface.
+The Transport System Implementation Concepts define the set of objects used internally to a system or library to provide the functionality of transport networking, as required by the abstract interface.
 
 Connection Group
 
->> Multiplexing! A group of connections.
+>> For multiplexing transport protocols, a Connection Group is a set of Connections that can be multiplexed together.
 
 Path
 
@@ -330,15 +332,15 @@ Protocol Stack
 
 >> A Protocol Stack is a set of Protocol Instances (including relevant application, security, transport, or Internet protocols) that are used together to establish connectivity or send and receive content. A single stack may simple (a single transport protocol instance over IP), or complex (multiple application protocol streams going through a single security and transport protocol, over IP; or, a multi-path transport protocol over multiple transport subflows).
 
-Policy
+System Policy
 
->> Decides gathering and racing
+>> A Transport Service system's policy defines the algorithm it uses to take connection properties from the application, and determine how it will gather candidate paths and protocols {{gathering}} and race the candidates during establishment {{racing}}.
 
-Persistent State
+Association Cache
 
->> History and cache (DNS, TLS, routes)
+>> The association cache holds the state that the implementation keeps for each set of associated endpoints that have been used previously. This can include DNS results, TLS session state, previous success and quality of transport protocols over certain paths.
 
-### Gathering
+### Gathering {#gathering}
 
 Path Candidate Identification/Gathering
 
@@ -348,7 +350,7 @@ Protocol Candidate Identification/Gathering
 
 >> Protocol Selection represents the act of choosing one or more sets of protocol options that are available to use based on the Protocol Properties provided by the application, and a Transport Services system's policies and heuristics.
 
-### Racing
+### Racing {#racing}
 
 Protocol Option Racing
 
