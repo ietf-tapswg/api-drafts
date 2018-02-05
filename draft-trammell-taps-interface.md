@@ -190,37 +190,81 @@ In the following sections, we describe the details of application interaction wi
 
 Establishment begins with the creation of a Connection...
 
-Connection := NewConnection(remoteSpecifier, transportParameters, cryptographicParameters)
+Connection := NewConnection(localSpecifier, remoteSpecifier, transportParameters, cryptographicParameters)
 
-## Resolving Remote Endpoints
 
-\[TASK: write me. note: resolution should be flexible, and should accept URLS and URL-like
-things. binding to transport or pseudotransport happens via pre-establishment
-properties. resolution happens as part of connection creation.]
 
-## Specifying Transport Parameters
+## Resolving Remote Endpoints {#resolving}
+
+\[TASK: write me. note: resolution should be flexible, and should accept URLS
+and URL-like things. binding to transport or pseudotransport happens via
+pre-establishment properties. resolution happens as part of connection
+creation.]
+
+## Specifying Transport Parameters {#transport-params}
 
 \[TASK: write me. list parameters to bind to a connection before establishing
 it. look at minset for this. note that the API should have sensible and
 well-defined defaults.]
 
-## Specifying Cryptographic Parameters
+## Specifying Cryptographic Parameters {#crypto-params}
 
-\[TASK: write me. separate out cryptographic parameters, since these bind to a local and a remote. chris?]
+\[TASK: write me. separate out cryptographic parameters, since these bind to a
+local and a remote. chris?]
 
 # Establishing Connections
 
-## Active Open: Initiate
+Before a Connection can be used for data transfer, it must be established.
+Establishment ends the pre-establishment phase; all transport and
+cryptographic parameter specification must be complete before establishment,
+as these parameters will be used to select candidate Paths and Protocol Stacks
+for the Connection. Establishment may be active, using the Initiate() Action;
+passive, using the Listen() Action; or simultaneous for peer-to-peer, using
+the Rendezvous() Action. These Actions are described in the subsections below.
+
+## Active Open: Initiate {#initiate}
+
+Active open is the action of establishing a connection to an endpoint presumed
+to be listening for incoming connection requests, commonly used by clients in
+client-server interactions. Active open is supported by this Interface through
+the Initiate action:
 
 Connection.Initiate()
 
+Before calling Initiate(), the caller must have initialized the Connection
+during the pre-establishment phase with local and remote endpoint specifiers,
+as well as all parameters necessary for candidate selection. After calling
+Initiate, no further parameters may be bound to the Connection.
+
+Once Initiate is called, the candidate Protocol Stack(s) may cause one or more
+transport-layer connections to be created to the specified remote endpoint.
+The caller may immediately begin sending Content on the Connection (see
+{{sending}}) after calling Initate, though it may wait for one of the
+following events before doing so.
+
 Connection -> Ready&lt;>
+
+The Ready event occurs after Initiate has established a transport-layer
+connection on at least one usable candidate Protocol Stack over at least one
+candidate Path. No Receive events will occur until after the Ready event for
+connections established using Initiate.
+
+Connection -> InitiateError&lt;>
+
+An InitiateError occurs either when the set of local and remote specifiers and
+transport and cryptographic parameters cannot be fulfilled on a connection for
+initiation (e.g. the set of available Paths and/or Protocol Stacks meeting the
+constraints is empty), when the remote specifier cannot be resolved, or when
+no transport-layer connection can be established to the remote endpoint (e.g.
+because the remote endpoint is not accepting connections, or is not routable).
 
 ## Passive Open: Listen
 
 Connection.Listen()
 
-Connection -> ConnectionReceived&lt;remoteSpecifier>
+Connection -> ConnectionReceived&lt;Connection>
+
+Connection -> ListenError&lt;>
 
 ## Peer to Peer Establishment: Rendezvous
 
@@ -228,9 +272,11 @@ Connection.Rendezvous()
 
 Connection -> Ready&lt;>
 
+Connection -> RendezvousError&lt;>
+
 ## Connection Groups
 
-# Sending Data
+# Sending Data {#sending}
 
 Connection.Send(Content, ...)
 
@@ -258,6 +304,9 @@ Connection.DeframeWith(Deframer)
 
 Content := Deframer.Deframe(OctetStream)
 
+\[NOTE: somewhere we should capture the idea that a Content has metadata that
+comes from the stack. This set of actions doesn't allow for that as is.]
+
 # Connection Termination
 
 Connection.Close()
@@ -267,6 +316,11 @@ Connection -> Finished&lt;>
 Connection.Abort()
 
 Connection -> ConnectionError&lt;>
+
+# Event and Error Handling
+
+\[NOTE: point out that events and errors may be handled differently, although
+they are the modeled the same in this specification.]
 
 # IANA Considerations
 
