@@ -260,7 +260,7 @@ no transport-layer connection can be established to the remote endpoint (e.g.
 because the remote endpoint is not accepting connections, or the application
 is prohibited from opening a connection by the operating system).
 
-## Passive Open: Listen
+## Passive Open: Listen {#listen}
 
 Passive open is the action of waiting for connections from remote endpoints,
 commonly used by servers in client-server interactions. Passive open is
@@ -289,7 +289,7 @@ cryptographic parameters cannot be fulfilled for listening, when the local
 specifier cannot be resolved, or when the application is prohibited from
 listening by the operating system.
 
-## Peer to Peer Establishment: Rendezvous
+## Peer to Peer Establishment: Rendezvous {#rendezvous}
 
 Connection.Rendezvous()
 
@@ -297,23 +297,111 @@ Connection -> Ready&lt;>
 
 Connection -> RendezvousError&lt;>
 
-## Connection Groups
+## Connection Groups {#groups}
 
 # Sending Data {#sending}
 
+Once a Connection has been established, it can be used for sending data. Data
+is sent by passing a Content object and additional properties
+{{send-props}} to the Send action on an established connection:
+
 Connection.Send(Content, ...)
 
-Connection -> Sent&lt;>
+The type of the Content to be passed is dependent on the implementation, and
+on the constraints on the Protocol Stacks implied by the Connection's
+transport parameters. It may itself contain an array of octets to be
+transmitted in the transport protocol payload, or be transformable to an array
+of octets by a sender-side framer (see {{send-framing}}).
 
-Connection -> SendError&lt;>
+Like all Actions in this interface, the Send action is asynchronous. However,
+a Send call may block until there is sufficient buffer space in the
+implementation and/or the underlying Protocol Stack to handle the Content, in
+order to provide sender-side backpressure to the application when transmission
+is limited by transport channel capacity.
 
-## Send Parameters
+Connection -> Sent&lt;contentRef>
 
-## Sender-side Framing over Stream Protocols
+The Sent event occurs when a previous Send action has completed, i.e. when the
+data derived from the Content has been passed down or through the underlying
+Protocol Stack and is no longer the responsbility of the implementation of
+this interface. The exact disposition of Content when the Sent event occurs is
+specific to the implementation and the constraints on the Protocol Stacks
+implied by the Connection's transport parameters. The Sent event contains an
+implementation-specific reference to the Content to which it applies.
+
+Connection -> Expired&lt;contentRef>
+
+The Expired event occurs when a previous Send action expired before
+completion; i.e. when the data derived from the Content was not sent before
+its Lifetime (see {{send-lifetime}}) expired. This is separate from SendError,
+as it is an expected behavior for partially reliable transports. The Expired
+event contains an implementation-specific reference to the Content to which it
+applies.
+
+Connection -> SendError&lt;contentRef>
+
+A SendError occurs when Content could not be sent due to an error condition:
+some failure of the underlying Protocol Stack, or a set of send parameters not
+consistent with the Connection's transport parameters.
+
+## Send Properties {#send-props}
+
+The Send action takes five per-Content properties which control how it will be
+sent down to the underlying Protocol Stack and transmitted. Note that some of
+these properties are not compatible with transport parameters; attempting to
+Send with such an incompatibility yields a SendError.
+
+### Lifetime {#send-lifetime}
+
+Lifetime specifies how long a particular Content can wait to be sent to the
+remote endpoint before it is irrelevant and no longer needs to be
+(re-)transmitted. When a Content's Lifetime is infinite, it must be
+transmitted reliably. The type and units of Lifetime are
+implementation-specific.
+
+### Niceness {#send-niceness}
+
+Niceness represents an unbounded hierarchy of priorities of Content, relative
+to other Content sent over the same Connection and/or Connection Group (see
+{{groups}}). It is most naturally represented as a non-negative integer.
+Content with Niceness 0 will yield to Content with Niceness 1, which will
+yield to Content with Niceness 2, and so on. Niceness may be used as a
+sender-side scheduling construct only, or be used to specify priorities on the
+wire for Protocol Stacks supporting prioritization.
+
+Note that this inversion of normal schemes for expressing priority has a
+convenient property: priority increases as both Niceness and Lifetime
+decrease.
+
+### Ordered {#send-ordered}
+
+Ordered is a boolean property. If true, this Content should be delivered after
+the last Content passed to the same Connection via the Send action; if false,
+this Content may be delivered before the last Content passed to the same
+Connection.
+
+### Immediate {#send-immediate}
+
+Immediate is a boolean property. If true, the caller prefers immediacy to
+efficiency for this Content, and the Content should not be bundled with other
+Content into the same transmission by the underlying Protocol Stack.
+
+### Idempotent {#send-idempotent}
+
+Idempotent is a boolean property. If true, the application-layer entity in the
+Content is safe to send to the remote endpoint more than once for a single
+Send action. It is used to mark data safe for certain 0-RTT establishment
+techniques, where retransmission of the 0-RTT data may cause the remote
+application to receive the Content multiple times.
+
+\[NOTE: we need some way to signal to the transport that we want to wait for
+0RTT data on Initiate. Probably a transport parameter]
+
+## Sender-side Framing over Stream Protocols {#send-framing}
 
 Connection.FrameWith(Framer)
 
-Octets := Framer.Frame(Content)
+OctetArray := Framer.Frame(Content)
 
 # Receiving Data {#receiving}
 
@@ -321,7 +409,9 @@ Connection -> Received&lt;Content>
 
 Connection -> ReceiveError&lt;>
 
-## Receiver-side Deframing over Stream Protocols
+## Application-Layer Backpressure at the Receiver {#receive-backpressure}
+
+## Receiver-side Deframing over Stream Protocols {#receive-framing}
 
 Connection.DeframeWith(Deframer)
 
