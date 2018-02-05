@@ -226,15 +226,16 @@ the Rendezvous() Action. These Actions are described in the subsections below.
 
 Active open is the action of establishing a connection to an endpoint presumed
 to be listening for incoming connection requests, commonly used by clients in
-client-server interactions. Active open is supported by this Interface through
+client-server interactions. Active open is supported by this interface through
 the Initiate action:
 
 Connection.Initiate()
 
-Before calling Initiate(), the caller must have initialized the Connection
+Before calling Initiate, the caller must have initialized the Connection
 during the pre-establishment phase with local and remote endpoint specifiers,
 as well as all parameters necessary for candidate selection. After calling
-Initiate, no further parameters may be bound to the Connection.
+Initiate, no further parameters may be bound to the Connection, and no
+subsequent establishment call may be made on the Connection.
 
 Once Initiate is called, the candidate Protocol Stack(s) may cause one or more
 transport-layer connections to be created to the specified remote endpoint.
@@ -246,8 +247,8 @@ Connection -> Ready&lt;>
 
 The Ready event occurs after Initiate has established a transport-layer
 connection on at least one usable candidate Protocol Stack over at least one
-candidate Path. No Receive events will occur until after the Ready event for
-connections established using Initiate.
+candidate Path. No Receive events (see {{receiving}}) will occur until after
+the Ready event for connections established using Initiate.
 
 Connection -> InitiateError&lt;>
 
@@ -256,15 +257,37 @@ transport and cryptographic parameters cannot be fulfilled on a connection for
 initiation (e.g. the set of available Paths and/or Protocol Stacks meeting the
 constraints is empty), when the remote specifier cannot be resolved, or when
 no transport-layer connection can be established to the remote endpoint (e.g.
-because the remote endpoint is not accepting connections, or is not routable).
+because the remote endpoint is not accepting connections, or the application
+is prohibited from opening a connection by the operating system).
 
 ## Passive Open: Listen
 
+Passive open is the action of waiting for connections from remote endpoints,
+commonly used by servers in client-server interactions. Passive open is
+supported by this interface through the Listen action:
+
 Connection.Listen()
+
+Before calling Listen, the caller must have initialized the Connection
+during the pre-establishment phase with local endpoint specifiers,
+as well as all parameters necessary for Protocol Stack selection. After calling
+Listen, no further parameters may be bound to the Connection, and no subsequent
+establishment call may be made on the Connection.
 
 Connection -> ConnectionReceived&lt;Connection>
 
+The ConnectionReceived event occurs when a remote endpoint has established a
+transport-layer connection to this Connection, causing a new Connection to be
+created. The resulting Connection is contained within the ConnectionReceived
+event, and is ready to use as soon as it is passed to the application via the
+event.
+
 Connection -> ListenError&lt;>
+
+A ListenError occurs either when the set of local specifier, transport and
+cryptographic parameters cannot be fulfilled for listening, when the local
+specifier cannot be resolved, or when the application is prohibited from
+listening by the operating system.
 
 ## Peer to Peer Establishment: Rendezvous
 
@@ -292,7 +315,7 @@ Connection.FrameWith(Framer)
 
 Octets := Framer.Frame(Content)
 
-# Receiving Data
+# Receiving Data {#receiving}
 
 Connection -> Received&lt;Content>
 
