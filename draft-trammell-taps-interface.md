@@ -198,11 +198,46 @@ during pre-establishment, forward-reference {{send-framing}} and
 
 ## Resolving Remote Endpoints {#resolving}
 
-\[TASK: write me. note: resolution should be flexible, and should accept URLS
-and URL-like things. binding to transport or pseudotransport happens via
-pre-establishment properties. resolution happens as part of connection
-creation.]
+Name resolution is no explicit step of an transport service API.
+Therefore, name resolution may be deferred until connection establishment
+to incorporate transport parameters.
+Instead, a remoteSpecifier object representing the remote endpoint is created
+providing an appropriate endpoint representation, which include ip-addresses,
+hostnames and URLs:
 
+remoteSpecifier := Endpoint()
+remoteSpecifier.withUrl("https://example.com")
+
+remoteSpecifier := Endpoint()
+remoteSpecifier.withHostname("example.com"
+remoteSpecifier.withService("https")
+
+remoteSpecifier := Endpoint()
+remoteSpecifier.withIPv6Address(2001:db8:4920:e29d:a420:7461:7073:0a)
+remoteSpecifier.withPort(443)
+
+remoteSpecifier := Endpoint()
+remoteSpecifier.withIPv4Address(192.0.2.21)
+remoteSpecifier.withPort(443)
+
+Implementations may also support add additional endpoint representations and
+provide a single Endpoint() call that takes different endpoint representations.
+
+Endpoint representations may imply transport protocols, pseudotransport protocols,
+or families of protocols, e.g., remoteSpecifier.withUrl("https://example.com") 
+implies either using HTTP over TLS over TCP or using HTTP over QUIC over UDP.
+Whether the protocols implied by the endpoint representation are provided by the
+transport system is implementation specific, but MUST BE tunable using 
+pre-establishment properties.
+Implementations SHOULD provide all parts of the implied transport stack they
+implement unless specified otherwise using pre-establishment properties.
+For example, the transport system may provide TLS over TCP in the above example
+and let the application implement HTTP pseudo-transport itself.
+
+\[TASK: match with #initiate / #listen / #rendezvous and make sure the transport
+stack used is communicated ]
+   
+   
 ## Specifying Transport Parameters {#transport-params}
 
 \[TASK: write me. list parameters to bind to a connection before establishing
