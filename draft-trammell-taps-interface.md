@@ -85,6 +85,9 @@ normative:
       -
         ins: C. Wood
 
+informative:
+  I-D.pauly-taps-transport-security:
+
 --- abstract
 
 This document describes an abstract programming interface to the transport
@@ -190,7 +193,7 @@ In the following sections, we describe the details of application interaction wi
 
 Establishment begins with the creation of a Connection...
 
-Connection := NewConnection(remoteSpecifier, transportParameters, cryptographicParameters)
+Connection := NewConnection(remoteSpecifier, transportParameters, securityParameters, securityCallbacks)
 
 ## Resolving Remote Endpoints
 
@@ -204,9 +207,32 @@ properties. resolution happens as part of connection creation.]
 it. look at minset for this. note that the API should have sensible and
 well-defined defaults.]
 
-## Specifying Cryptographic Parameters
+## Specifying Security Parameters and Callbacks
 
-\[TASK: write me. separate out cryptographic parameters, since these bind to a local and a remote. chris?]
+Common parameters such as TLS ciphersuites are known to implementations. Clients SHOULD
+use common safe defaults for these values whenever possible. However, as discussed in 
+{{I-D.pauly-taps-transport-security}}, many transport security protocols require specific
+security parameters and constraints from the client at the time of configuration and 
+actively during a handshake. Security configuration parameters include:
+
+- Local identity and private keys: Used to perform private key operations and prove one's
+identity to remote peers. (Note, if private keys are not available, e.g., since they are
+stored in HSMs, handshake callbacks MUST be used. See below for details.)
+- Supported algorithms (key Exchange, signatures, and ciphersuites): Used to restrict what
+parameters are used by underlying transport security protocols.
+- Session cache: Used to tune cache capacity, lifetime, re-use, and eviction policies.
+- Authentication delegate: Used to perform peer authentication out-of-band. 
+- Pre-shared keying material: Used to install pre-shared keying material established 
+out-of-band.
+
+Security decisions, especially pertaining to trust, are not static. Thus, once configured, 
+parameters must also be supplied during live handshakes. These are best handled as 
+client-provided callbacks. Security handshake callbacks include:
+
+- Trust verification callback: Invoked when a peer's trust must be validated before the 
+handshake protocol can proceed. 
+- Identity challenge callback: Invoked when a private key operation is required, e.g., when
+local authentication is requested by a remote. 
 
 # Establishing Connections
 
