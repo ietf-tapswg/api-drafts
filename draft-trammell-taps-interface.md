@@ -405,7 +405,7 @@ application to receive the Content multiple times.
 \[NOTE: we need some way to signal to the transport that we want to wait for
 0RTT data on Initiate. Probably a transport parameter]
 
-## Sender-side Framing over Stream Protocols {#send-framing}
+## Sender-side Framing {#send-framing}
 
 Sender-side framing allows a caller to provide the interface with a function
 that takes Content of an appropriate type and returns an array of octets, the
@@ -423,22 +423,69 @@ receiver-side framing (see {{receive-framing}}).
 
 # Receiving Data {#receiving}
 
+Once a Connection is established, Content may be received on it. The interface
+notifies the application that content has been received via the Received
+event:
+
 Connection -> Received&lt;Content>
+
+As with sending, the type of the Content to be passed is dependent on the
+implementation, and on the constraints on the Protocol Stacks implied by the
+Connection's transport parameters. The Content may also contain metadata from
+protocols in the Protocol Stack for logging and debugging purposes.
+
+The Content object must provide some method to retrieve an octet array
+containing application data, corresponding to a single message within the
+underlying Protocol Stack's framing.  See {{receive-framing}} for handling
+framing in situations where the Protocol Stack provides octet-stream transport
+only.
 
 Connection -> ReceiveError&lt;>
 
+A ReceiveError occurs when data is received by the underlying Protocol Stack
+that cannot be fully retrieved or deframed, or when some other indication is
+recieved that reception has failed. Such conditions that irrevocably lead the
+the termination of the Connection are signaled using ConnectionError instead
+(see {{termination}}).
+
 ## Application-Layer Backpressure at the Receiver {#receive-backpressure}
+
+Implementations of this interface must provide some way for the application to
+indicate that it is temporarily not ready to receive new Content. Since the
+mechanisms of event handling are implementation-platform specific, this
+document does not specify the exact nature of this
 
 ## Receiver-side Deframing over Stream Protocols {#receive-framing}
 
+The Receive event is intended to be fired once per application-layer Content
+sent by the remote endpoint; i.e., it is a desired property of this interface
+that a Send at one end of a Connection maps to exactly one Receive on the
+other end. This is possible with Protocol Stacks that provide a mechanism
+message boundary preservation, but is not the case over Protocol Stacks that
+provide a simple octet stream transport.
+
+For preserving message boundaries over stream transports, this interface
+provides receiver-side deframing. This facility is based on the observation
+that, since many of our current application protocols evolved over TCP, which
+does not provide message boundary preservation, and since many these protocols
+require message boundaries to function, each application layer protocol has
+defined its own framing. A Deframer allows an application to push this
+deframing down into the interface, in order to transform an octet stream into
+a sequence of Content.
+
+Concretely, receiver-side deframing allows a caller to provide the interface
+with a function that takes an octet stream, as provided by the underlying
+Protocol Stack, reads and returns a sigle Content of an appropriate type for
+the application and platform, and leaves the octet stream at the start of the
+next Content. It consists of a Deframer object with a single Action, Deframe.
+Since the Deframer depends on the protocol used at the application layer, it
+is bound to the Connection during the pre-establishment phase:
+
 Connection.DeframeWith(Deframer)
 
-Content := Deframer.Deframe(OctetStream)
+Content := Deframer.Deframe(OctetStream, ...)
 
-\[NOTE: somewhere we should capture the idea that a Content has metadata that
-comes from the stack. This set of actions doesn't allow for that as is.]
-
-# Connection Termination
+# Connection Termination {#termination}
 
 Connection.Close()
 
