@@ -313,6 +313,12 @@ transport parameters. It may itself contain an array of octets to be
 transmitted in the transport protocol payload, or be transformable to an array
 of octets by a sender-side framer (see {{send-framing}}).
 
+If Send is called on a Connection which has not yet been established, an
+Initiate action will be implicitly performed simultaneously with the Send. Used
+together with the Idempotent property (see {{send-idempotent}}), this can be used
+to send data during establishment for 0-RTT session resumption on Protocol
+Stacks that support it.
+
 Like all Actions in this interface, the Send action is asynchronous. However,
 a Send call may block until there is sufficient buffer space in the
 implementation and/or the underlying Protocol Stack to handle the Content, in
