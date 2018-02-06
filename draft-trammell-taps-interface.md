@@ -192,7 +192,9 @@ Establishment begins with the creation of a Connection...
 
 Connection := NewConnection(localSpecifier, remoteSpecifier, transportParameters, cryptographicParameters)
 
-
+\[NOTE: note also that framers and deframers should be bound to connections
+during pre-establishment, forward-reference {{send-framing}} and
+{{receive-framing}}]
 
 ## Resolving Remote Endpoints {#resolving}
 
@@ -314,10 +316,10 @@ transmitted in the transport protocol payload, or be transformable to an array
 of octets by a sender-side framer (see {{send-framing}}).
 
 If Send is called on a Connection which has not yet been established, an
-Initiate action will be implicitly performed simultaneously with the Send. Used
-together with the Idempotent property (see {{send-idempotent}}), this can be used
-to send data during establishment for 0-RTT session resumption on Protocol
-Stacks that support it.
+Initiate action will be implicitly performed simultaneously with the Send.
+Used together with the Idempotent property (see {{send-idempotent}}), this can
+be used to send data during establishment for 0-RTT session resumption on
+Protocol Stacks that support it.
 
 Like all Actions in this interface, the Send action is asynchronous. However,
 a Send call may block until there is sufficient buffer space in the
@@ -405,9 +407,19 @@ application to receive the Content multiple times.
 
 ## Sender-side Framing over Stream Protocols {#send-framing}
 
+Sender-side framing allows a caller to provide the interface with a function
+that takes Content of an appropriate type and returns an array of octets, the
+on-the-wire representation of the content to be handed down to the Protocol
+Stack. It consists of a Framer object with a single Action, Frame. Since the
+Framer depends on the protocol used at the application layer, it is bound to
+the Connection during the pre-establishment phase:
+
 Connection.FrameWith(Framer)
 
 OctetArray := Framer.Frame(Content)
+
+Sender-side framing is a convenience feature of the interface, for parity with
+receiver-side framing (see {{receive-framing}}).
 
 # Receiving Data {#receiving}
 
