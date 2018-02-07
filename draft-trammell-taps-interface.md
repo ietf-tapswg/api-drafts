@@ -69,6 +69,8 @@ author:
     email: cawood@apple.com
 
 normative:
+  I-D.ietf-tsvwg-sctp-ndata:
+  I-D.ietf-tsvwg-rtcweb-qos:
   TAPS-ARCH:
     title: An Architecture for Transport Services
     docname: draft-pauly-taps-arch-00
@@ -245,9 +247,450 @@ stack used is communicated ]
    
 ## Specifying Transport Parameters {#transport-params}
 
-\[TASK: write me. list parameters to bind to a connection before establishing
-it. look at minset for this. note that the API should have sensible and
-well-defined defaults.]
+When creating a connection, an application needs to specify transport
+parameters reflecting its requirements and preferences regarding its
+communication. These Transport parameters include Protocol Selection
+Properties, Protocol Properties (configuration of a transport protocol once it
+has been selected), Path Selection Properties, and Socket Intents (hints to the
+TAPS system what to optimize for).
+
+Some Protocol Selection Properties are strict requirements that the application
+relies on, while others are hints of what transport features would be helpful
+for the application. For example, if an application asks for reliable data
+transfer, choosing a transport protocol such as UDP, which does not have this
+feature, will break the application's functionality. On the other hand, the
+option to disable checksums when sending an individual message can help
+optimize for low latency, but if not present, it will most likely not break the
+fundamental assumptions of the application.
+
+Moreover, there can be conflicts between properties set by the application: If
+multiple features are requested which are offered by different protocols, it
+may not be possible to satisfy all requirements. Consequently, a TAPS system
+must prioritize transport parameters and consider the relevant trade-offs, see
+also {{?TAPS-MINSET=I-D.ietf-taps-minset}}.
+
+\[Should it be possible for an application to specify which properties are most
+important to it, or to set properties as required?]
+
+There need to be sensible defaults for the Protocol Selection Properties. The
+defaults given in the following section represent a configuration that can be
+implemented over TCP. An alternate set of default Protocol Selection Properties
+would represent a configuration that can be implemented over UDP.
+
+Note that some parameters can also be set later in the lifetime of a
+connection. However, Protocol Selection Properties and Path Selection
+Properties must be specified before Initiate() to be useful. For other
+properties, it is beneficial for the application to set them as early as
+possible in order to help the TAPS system optimize.
+
+Some properties may apply to connection groups.
+
+\[Task: Elaborate on connection groups, reference 6.4]
+
+Connection := Create(ProtocolSelectionProperties, ProtocolProperties,
+PathSelectionProperties, SocketIntents)
+
+Connection.Configure(ProtocolProperties, SocketIntents)
+
+Connection.QueryProperties()
+
+\[Add call to clone a connection here?]
+
+
+### Protocol Selection Properties {#protocol-selection-props}
+
+Reliable Data Transfer
+
+This boolean property specifies whether the application needs the transport
+protocol to ensure that data is received completely and without corruption on
+the other side. This property applies to connections and connection groups.
+This is a strict requirement. The default is to enable Reliable Data Transfer.
+
+Notification of peer closing/aborting
+
+This boolean property specifies whether the application needs the transport
+protocol to inform it in case the connection terminates. This property applies
+to connections and connection groups. This is a strict requirement. The default
+is to enable such notifications.
+
+Preservation of data ordering
+
+This boolean property specifies whether the application needs the transport
+protocol to assure that data is received by the application on the other end in
+the same order as it was sent. This property applies to connections and
+connection groups. This is a strict requirement. The default is to preserve data
+ordering.
+
+Option to configure reliability for individual messages
+
+This boolean property specifies whether an application considers it useful to
+indicate its reliability requirements on a per-message basis. This property
+applies to connections and connection groups. This is not a strict requirement.
+The default is to not have this option.
+
+Option of unordered message delivery
+
+This boolean property specifies whether an application allows messages to be
+delivered in a different order than they were sent, potentially at the benefit
+of lower latency for individual messages. This property applies to connections
+and connection groups. This is not a strict requirement. The
+default is to not have this option, so all data arrives strictly in-order.
+
+Option to request not to delay acknowledgement (SACK) of a message
+
+This boolean property specifies whether an application considers it useful to
+request for a message that its acknowledgement be sent out as early as possible
+(SACK) instead of potentially being bundled with other acknowledgements. This
+property applies to connections and connection groups. This is not a strict
+requirement. The default is to not have this option.
+
+Option to hand over a message to reliably transfer (possibly multiple times)
+before connection establishment (0-RTT idempotent)
+
+This boolean property specifies whether an application would like to supply a
+message to the transport protocol before connection establishment, which will
+then be reliably transferred to the other side before or during connection
+establishment, potentially multiple times. See also {{send-idempotent}}. This
+property applies to connections and connection groups. This is a strict
+requirement. The default is to not have this option.
+
+Option to assign priority or weight per connection in a group
+
+This boolean property specifies whether an application considers it useful to
+have the option to explicitly prioritize between multiple connections within a
+connection group. This property applies to connection groups. This is not a
+strict requirement. The default is to not have this option.
+
+Option to choose a scheduler between connections in a group
+
+This boolean property specifies whether an application considers it useful to
+have the option to explicitly set a scheduler between the connections within a
+connection group. This property applies to connection groups. This is not a
+strict requirement. The default is to not have this option.
+
+Suggest a timeout to the peer
+
+This boolean property specifies whether an application considers it useful to
+propose a timeout until the connection is assumed to be lost. This
+property applies to connections and connection groups. This is not a strict
+requirement. The default is to have this option.
+
+Notification of excessive retransmissions (early warning before abortion threshold)
+
+This boolean property specifies whether an application considers it useful to
+be informed in case sent data was retransmitted more often than a certain
+threshold. This property applies to connections and connection groups. This is
+not a strict requirement. The default is to have this option.
+
+Notification of ICMP error message arrival
+
+This boolean property specifies whether an application considers it useful to
+be informed in case an ICMP error message is received related to this
+connection. This property applies to connections and connection groups. This is
+not a strict requirement. The default is to have this option.
+
+Specify checksum coverage used by sender
+
+This boolean property specifies whether the application considers it useful to
+have the option to specify what parts of the transmitted data should be covered
+by the transport protocol checksum. This property applies to connections and
+connection groups. This is not a strict requirement, as it signifies a
+reduction in reliability. The default is full checksum coverage without being
+able to change it.
+
+Option to disable checksum when sending an individual message
+
+This boolean property specifies whether the application considers it useful to
+have the option to disable checksums for individual messages. This property
+applies to connections and connection groups. This is not a strict requirement,
+as it signifies a reduction in reliability. The default is full checksum
+coverage without the option to disable it.
+
+Specify minimum checksum coverage required by receiver
+
+This boolean property specifies whether the application considers it useful to
+have the option to specify what parts of the received data it needs to be
+covered by the checksum. This property applies to connections and connection
+groups. This is not a strict requirement, as it signifies a reduction in
+reliability. The default is full checksum coverage without being able to change
+it.
+
+Option to disable checksum requirement when receiving an individual message
+
+This boolean property specifies whether an application considers it useful to
+have the option to communicate to the remote endpoint that it does not require
+an individual message to be covered by a checksum. This property applies to
+connections and connection groups. This is not a strict requirement, as it
+signifies a reduction in reliability. The default is full checksum coverage
+without the option to disable it.
+
+### Protocol Properties {#protocol-props}
+
+Protocol Properties represent the configuration of a transport protocols once
+it has been selected. A transport protocol may not support all Protocol
+Properties, depending on the available transport features. An application
+should specify the Protocol Properties as early as possible to help the TAPS
+system optimize. However, a TAPS system will only actually set those protocol
+properties that are actually supported by the chosen transport protocol. Some
+of these properties can also be set on individual messages, similar to the
+properties in {{send-props}}.
+
+The default settings of these properties depends on the chosen protocol and on
+the system configuration.
+
+Set timeout for aborting connection
+
+This numeric property specifies how long to wait before aborting a connection.
+It is given in seconds. This property applies to connections and connection
+groups.
+
+Set timeout to suggest to the peer
+
+This numeric property specifies the timeout to propose to the peer. It is given
+in seconds. This property applies to connections and connection groups.
+
+Set retransmissions before "Excessive Retransmissions"
+
+This numeric property specifies after how many retransmissions to inform the
+application about "Excessive Retransmissions". It applies to connections and
+connection groups.
+
+Set whether to use a checksum for sending
+
+This boolean property specifies whether to use a checksum for sending messages
+on this connection. The default is to use checksums. This property applies to
+connections, connection groups, and messages.
+
+Set length of send checksum
+
+This numeric property specifies the length of the checksum of messages sent on
+this connection. It is given in Bytes. This property applies to connections,
+connection groups, and messages.
+
+Set whether to require a checksum for receiving
+
+This boolean property specifies whether to communicate to the remote endpoint
+that it does not require messages on this connection to be covered by a
+checksum. This property applies to connections, connection groups, and
+messages.
+
+Set required minimum coverage of the checksum
+
+This numeric property specifies the part of the received data that needs to be
+covered by a checksum. It is given in Bytes. This property applies to
+connections, connection groups, and messages.
+
+Set scheduler for connections in a group
+
+This property specifies which scheduler should be used among connections within
+a connection group. It applies to connection groups. For now we suggest we
+suggest the schedulers defined in {{I-D.ietf-tsvwg-sctp-ndata}}.
+
+Configure the priority of a connection for the scheduler
+
+This property specifies what priority to assign to a connection within a
+connection group. It applies to a connection. We suggest the priority as
+described in {{I-D.ietf-tsvwg-sctp-ndata}}.
+
+Set low watermark for buffer to nofity the application
+
+This numeric property specifies the buffer threshold below which the
+application wants to be informed. It is given in Bytes. This property applies
+to connections and connection group.
+
+Maximum Message Size Before Connection Establishment
+
+This numeric property can be queried by the application after creating a
+connection. It represents the maximum message size that can be sent before or
+during connection establishment, see also {{send-idempotent}}. It is given in
+Bytes.
+
+
+### Path Selection Properties {#path-selection-props}
+
+Not all transport protocols work on all paths. Thus, transport protocol
+selection is tied to path selection, which may involve choosing between
+multiple local interfaces that are connected to different access networks.
+
+Path Selection Properties are requirements, prohibitions, or preferences, that
+an application has regarding path selection. These properties should be
+specified as early as possible in order to help the TAPS system optimize.
+However, they may also be specified later.
+
+Interface Type to prefer
+
+This property specifies which kind of access network interface, e.g., WiFi,
+Ethernet, or LTE, to prefer over others for this connection, in case they are
+available.  This is not a strict requirement. The default is to use the default
+interface configured in the system policy.
+
+Interface Type to prohibit
+
+This property specifies which kind of access network interface, e.g., WiFi,
+Ethternet, or LTE, to not use for this connection. This is a strict requirement
+and connection establishment will fail if no other interface is available. The
+default is to not prohibit any particular interface.
+
+
+### Socket Intents {#socket-intents}
+
+Socket Intents are a group of properties expressing what an application wants
+to achieve, knows, assumes or prefers regarding its communication. They are not
+strict requirements. In particular, they should not be used to express any
+Quality of Service expectations that an application might have. Instead, an
+application should express its intentions and its expected traffic
+characteristics in order to help the TAPS system make decisions that best match
+it, but on a best-effort basis. Even though Socket Intents do not represent
+Quality of Service requirements, a TAPS system may use them to determine a DSCP
+value, e.g. similar to Table 1 in {{I-D.ietf-tsvwg-rtcweb-qos}}.
+
+Socket Intents can influence protocol selection, protocol configuration, path
+selection, and endpoint selection. For example, setting the "Timeliness" Intent
+to "Interactive" may lead the TAPS system to disable the Nagle algorithm for a
+connection, while setting the "Timeliness" to "Background" may lead it to
+setting the DSCP value to "scavenger". If the "Size to be Sent" Intent is set
+on a series of messages, it may influence path selection, e.g., when the TAPS
+system schedules big messages over an interface with higher bandwidth, and
+small messages over an interface with lower latency.
+
+Specifying Socket Intents is not mandatory. An application can specify any
+combination of Socket Intents. All Socket Intents can be specified for
+connections and connection groups. Some Intents can also be specified for
+individual messages, similar to the properties in {{send-props}}.
+
+
+Traffic Category
+
+This Intent specifies what the application expect the dominating traffic
+pattern to be. It applies to connections and connection groups
+
+Possible Category values are:
+
+Query:
+: Single request / response style workload, latency bound
+
+Control:
+: Long lasting low bandwidth control channel, not bandwidth bound
+
+Stream:
+: Stream of bytes/messages with steady data rate
+
+Bulk:
+: Bulk transfer of large messages, presumably bandwidth bound
+
+The default is to not assume any particular traffic pattern. Most categories
+suggest the use of other intents to further describe the traffic pattern
+anticipated, e.g., the bulk category suggesting the use of the Message Size
+intents or the stream category suggesting the Stream Bitrate and Duration
+intents.
+
+
+Size to be Sent / Received
+
+This Intent specifies what the application expects the size of a transfer to be.
+It is a numeric property and given in Bytes. It can also apply to individual
+messages.
+
+
+Duration
+
+This Intent specifies what the application expects the lifetime of a transfer
+to be. It is a numeric property and given in milliseconds. It applies to
+connections and connection groups.
+
+
+Stream Bitrate Sent / Received
+
+This Intent specifies what the application expects the bitrate of a transfer to
+be. It is a numeric property and given in Bytes per second. It applies to
+connections and connection groups.
+
+
+Burstiness
+
+This Intent specifies what the application expects the sender-side burst
+characteristics of the traffic to be. The application can provide hints about
+the anticipated communication pattern, i.e., how it expects the number of sent
+bytes to vary over time and the expected length of sequences of consecutively
+sent messages. Note that the actual burst characteristics will depend on the
+network, especially at the receiver side. This Intents applies to connections
+and connection groups.
+
+Possible Burstiness values are:
+
+No Bursts:
+: Application sends traffic at a constant rate
+
+Regular Bursts:
+: Application sends bursts of traffic periodically
+
+Random Bursts:
+: Application sends bursts of traffic irregularly
+
+Bulk:
+: Application sends a bulk of traffic
+
+The default is to not assume any particular burst characteristics.
+
+
+Timeliness
+
+This Intent specifies what delay characteristcs the applications prefers. It
+provides hints for the TAPS system whether to optimize for low latency or other
+criteria. Note that setting this Intents does not imply any guarantees on
+whether an application's requirements can actually be satisfied. This Intents
+applies to connections, connection groups, or messages.
+
+Stream:
+: Delay and packet delay variation should be kept as low as possible
+
+Interactive:
+: Delay should be kept as low as possible, but some variation is tolerable
+
+Transfer:
+: Delay and packet delay variation should be reasonable, but are not critical
+
+Background:
+: Delay and packet delay variation is no concern
+
+The default is "Transfer".
+
+
+Disruption Resilience
+
+This Intent describes what an application knows about its own ability to deal with disruption of its communication, e.g., connection loss. It provides hints of how well an application assumes it can recover from such disturbances and can have an impact on the tradeoff between providing failover techniques and resource utilization. This Intent applies to connections, connection groups, and messages.
+
+Sensitive:
+: Disruptions result in application failure, disrupting user experience
+
+Recoverable:
+: Disruptions are inconvenient for the application, but can be recovered from
+
+Resilient:
+: Disruptions have minimal impact for the application
+
+The default is "Sensitive".
+
+
+Cost Preferences
+
+This Intent describes what an application prefers regarding monetary costs, e.g., whether it considers it acceptable to utilize limited data volume. It provides hints to the TAPS system on how to handle tradeoffs between cost and performance or reliability.
+This Intent applies to connections, connection groups, and messages.
+
+No Expense:
+: Avoid transports associated with monetary cost
+
+Optimize Cost:
+: Prefer inexpensive transports and accept service degradation
+
+Balance Cost:
+: Use system policy to balance cost and other criteria
+
+Ignore Cost:
+: Ignore cost, choose transport solely based on other criteria
+
+The default is "Balance Cost".
+
 
 ## Specifying Cryptographic Parameters {#crypto-params}
 
