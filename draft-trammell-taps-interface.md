@@ -819,7 +819,7 @@ The priority setting is purely advisory; no guarantees are given.
 Connection Groups should be created (i.e., the Clone action should be used)
 as early as possible, ideally already during the Pre-Establishment phase, in order
 to aid the Transport System in choosing and configuring the right protocols
-(see also {{#transport-params}}).
+(see also {{transport-params}}).
 
 # Sending Data {#sending}
 
