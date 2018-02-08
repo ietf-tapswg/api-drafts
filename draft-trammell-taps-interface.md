@@ -1012,11 +1012,19 @@ Content := Deframer.Deframe(OctetStream, ...)
 
 # Connection Termination {#termination}
 
+Close terminates a Connection after satisfying all the requirements that were specified regarding the delivery of Content that the application has already given to the transport system. For example, if reliable delivery was requested for Content handed over before calling Close, the transport system will ensure that such Content is indeed delivered. If the peer still has data to send, it cannot be received after this call.
+
 Connection.Close()
+
+This event can (i.e., this is not guaranteed to happen) inform the application that the peer has closed the Connection:
 
 Connection -> Finished&lt;>
 
+Abort terminates a Connection without delivering remaining data:
+
 Connection.Abort()
+
+This event can (i.e., this is not guaranteed to happen) inform the application that the other side has aborted the Connection:
 
 Connection -> ConnectionError&lt;>
 
