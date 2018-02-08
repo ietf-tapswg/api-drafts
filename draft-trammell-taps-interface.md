@@ -872,9 +872,14 @@ yield to Content with Niceness 2, and so on. Niceness may be used as a
 sender-side scheduling construct only, or be used to specify priorities on the
 wire for Protocol Stacks supporting prioritization.
 
+\[Task: decide whether / how to keep this (issue #32)]
+
 Note that this inversion of normal schemes for expressing priority has a
 convenient property: priority increases as both Niceness and Lifetime
 decrease.
+
+\[MICHAEL: not convinced  :-)  still awkward, still a Unix artifact if you ask me]
+
 
 ### Ordered {#send-ordered}
 
