@@ -841,21 +841,23 @@ Used together with the Idempotent property (see {{send-idempotent}}), this can
 be used to send data during establishment for 0-RTT session resumption on
 Protocol Stacks that support it.
 
-Like all Actions in this interface, the Send action is asynchronous. However,
-a Send call may block until there is sufficient buffer space in the
-implementation and/or the underlying Protocol Stack to handle the Content, in
-order to provide sender-side backpressure to the application when transmission
-is limited by transport channel capacity.
+Like all Actions in this interface, the Send action is asynchronous.
 
 Connection -> Sent&lt;contentRef>
 
 The Sent event occurs when a previous Send action has completed, i.e. when the
 data derived from the Content has been passed down or through the underlying
-Protocol Stack and is no longer the responsbility of the implementation of
+Protocol Stack and is no longer the responsibility of the implementation of
 this interface. The exact disposition of Content when the Sent event occurs is
 specific to the implementation and the constraints on the Protocol Stacks
 implied by the Connection's transport parameters. The Sent event contains an
 implementation-specific reference to the Content to which it applies.
+
+Sent events allow an application to obtain an understanding of the amount
+of buffering it creates. That is, if an application calls the Send action multiple
+times without waiting for a Sent event, it has created more buffer inside the
+transport system than an application that only issues a Send after this event fires.
+
 
 Connection -> Expired&lt;contentRef>
 
@@ -910,8 +912,7 @@ decrease.
 
 Ordered is a boolean property. If true, this Content should be delivered after
 the last Content passed to the same Connection via the Send action; if false,
-this Content may be delivered before the last Content passed to the same
-Connection.
+this Content may be delivered out of order.
 
 ### Immediate {#send-immediate}
 
