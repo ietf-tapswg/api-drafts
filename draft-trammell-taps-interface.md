@@ -800,18 +800,26 @@ Groups of Connections can be created using Clone action:
 
 Connection := Connection.Clone()
 
-Calling this once yields a group of two Connections: the parent Connection, whose
-Clone action was called, and the resulting clone. Calling Clone on any of these two
+Calling this once yields a group of two Connections: the parent Connection -- whose
+Clone action was called -- and the resulting clone. Calling Clone on any of these two
 Connections adds a third Connection to the group, and so on.
-
 All Connections in a group are entangled. This means that they automatically share
 all properties: changing a parameter for one of them also changes the parameter
 for all others, closing one of them also closes all others, etc.
-There is only one Protocol Property that is not entangled: a priority. The priority, which
-can be represented as a non-negative integer, expresses how the application
-wants to divide the available network capacity among all connections in the group.
-.... TODO, GOING FOR LUNCH NOW  :-)
-also point back at {{#transport-params}} to say that it should be done early...
+
+There is only one Protocol Property that is not entangled, i.e. it is a separate
+per-Connection Property for individual Connections in the group: a priority.
+This priority, which can be represented as a non-negative integer or float, expresses
+a desired share of the Connection Group's available network capacity, such that an
+ideal transport system implementation would assign the Connection the capacity
+share P x C/sum_P, where P = priority, C = total available capacity and sum_P = sum
+of all priority values that are used for the Connections in the same Connection Group.
+The priority setting is purely advisory; no guarantees are given.
+ 
+Connection Groups should be created (i.e., the Clone action should be used)
+as early as possible, ideally already during the Pre-Establishment phase, in order
+to aid the Transport System in choosing and configuring the right protocols
+(see also {{#transport-params}}).
 
 # Sending Data {#sending}
 
