@@ -899,14 +899,9 @@ yield to Content with Niceness 2, and so on. Niceness may be used as a
 sender-side scheduling construct only, or be used to specify priorities on the
 wire for Protocol Stacks supporting prioritization.
 
-\[Task: decide whether / how to keep this (issue #32)]
-
 Note that this inversion of normal schemes for expressing priority has a
 convenient property: priority increases as both Niceness and Lifetime
 decrease.
-
-\[MICHAEL: not convinced  :-)  still awkward, still a Unix artifact if you ask me]
-
 
 ### Ordered {#send-ordered}
 
@@ -917,7 +912,8 @@ this Content may be delivered out of order.
 ### Immediate {#send-immediate}
 
 Immediate is a boolean property. If true, the caller prefers immediacy to
-efficiency for this Content, and the Content should not be bundled with other
+efficient capacity usage for this Content. For example, this means that
+the Content should not be bundled with other
 Content into the same transmission by the underlying Protocol Stack.
 
 ### Idempotent {#send-idempotent}
@@ -930,6 +926,7 @@ application to receive the Content multiple times.
 
 \[NOTE: we need some way to signal to the transport that we want to wait for
 0RTT data on Initiate. Probably a transport parameter]
+\[MICHAEL: why? As an app programmer, I can just use Send instead of Initiate.]
 
 ## Sender-side Framing {#send-framing}
 
@@ -970,7 +967,7 @@ Connection -> ReceiveError&lt;>
 
 A ReceiveError occurs when data is received by the underlying Protocol Stack
 that cannot be fully retrieved or deframed, or when some other indication is
-recieved that reception has failed. Such conditions that irrevocably lead the
+received that reception has failed. Such conditions that irrevocably lead the
 the termination of the Connection are signaled using ConnectionError instead
 (see {{termination}}).
 
@@ -979,21 +976,21 @@ the termination of the Connection are signaled using ConnectionError instead
 Implementations of this interface must provide some way for the application to
 indicate that it is temporarily not ready to receive new Content. Since the
 mechanisms of event handling are implementation-platform specific, this
-document does not specify the exact nature of this
+document does not specify the exact nature of this interface.
 
 ## Receiver-side Deframing over Stream Protocols {#receive-framing}
 
 The Receive event is intended to be fired once per application-layer Content
 sent by the remote endpoint; i.e., it is a desired property of this interface
 that a Send at one end of a Connection maps to exactly one Receive on the
-other end. This is possible with Protocol Stacks that provide a mechanism
+other end. This is possible with Protocol Stacks that provide
 message boundary preservation, but is not the case over Protocol Stacks that
 provide a simple octet stream transport.
 
 For preserving message boundaries over stream transports, this interface
 provides receiver-side deframing. This facility is based on the observation
 that, since many of our current application protocols evolved over TCP, which
-does not provide message boundary preservation, and since many these protocols
+does not provide message boundary preservation, and since many of these protocols
 require message boundaries to function, each application layer protocol has
 defined its own framing. A Deframer allows an application to push this
 deframing down into the interface, in order to transform an octet stream into
