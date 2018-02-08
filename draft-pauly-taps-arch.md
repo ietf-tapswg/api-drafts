@@ -307,11 +307,11 @@ Path Properties Changed
 
 Close
 
->> Close is the action an application may take on a Connection to indicate that it no longer intends to send data.
+>> Close is the action an application may take on a Connection to indicate that it no longer intends to send data, is no longer willing to receive data, and that the protocol should signal this state to the remote endpoint if applicable.
 
 Abort
 
->> Abort is the action an application may take on a Connection to indicate that it no longer intends to send data, will not be willing to receive data, and that the protocol should signal this state to the remote endpoint if applicable.
+>> Abort is an action the application may take on a Connection to indicate a Close, but with the additional indication that the transport system should not attempt to deliver any outstanding data.
 
 ## Transport System Implementation Concepts
 
