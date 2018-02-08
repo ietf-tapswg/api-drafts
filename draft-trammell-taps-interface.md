@@ -160,7 +160,7 @@ itself; they are equivalent to actions on a per-application global context.
 How these abstract concepts map into concrete implementations of this API in a
 given language on a given platform is largely dependent on the features of the
 language and the platform. Actions could be implemented as functions or method
-calls, for instance, and Events could be implemented though via callback
+calls, for instance, and Events could be implemented via callback
 passing or other asynchronous calling conventions.
 
 # Design Principles {#principles}
@@ -205,11 +205,11 @@ during pre-establishment, forward-reference {{send-framing}} and
 
 ## Resolving Remote Endpoints {#resolving}
 
-Name resolution is no explicit step of an transport service API.
+Name resolution is no explicit step of a transport service API.
 Therefore, name resolution may be deferred until connection establishment
 to incorporate transport parameters.
 Instead, a remoteSpecifier object representing the remote endpoint is created
-providing an appropriate endpoint representation, which include ip-addresses,
+providing an appropriate endpoint representation, which include IP addresses,
 hostnames and URLs:
 
 remoteSpecifier := Endpoint()
@@ -227,7 +227,7 @@ remoteSpecifier := Endpoint()
 remoteSpecifier.withIPv4Address(192.0.2.21)
 remoteSpecifier.withPort(443)
 
-Implementations may also support add additional endpoint representations and
+Implementations may also support additional endpoint representations and
 provide a single Endpoint() call that takes different endpoint representations.
 
 Endpoint representations may imply transport protocols, pseudotransport protocols,
