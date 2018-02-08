@@ -187,7 +187,7 @@ The following diagram summarizes the top-level concepts in the architecture and 
                         V
               Network Layer Interface
 ~~~~~~~~~~
-{: #fig-abstractions title="Concepts and Relationships in the Transport Services Architecture"}
+{: #fig-abstractions title="Concepts and Relationships in the Transport Services Architecture \[MICHAEL: I think it's bad that establishment is missing from the figure - but I understand it could get messy. Maybe writing "(pre-)establishment" could help, to indicate that there is both pre-establishment and establishment ?]"}
 
 ## Transport Services API Concepts
 
@@ -201,7 +201,7 @@ Pre-Establishment {{preestablishment}}
 
 Establishment {{establishment}}
 
->> Establishment focuses on the actions that an application takes the transport objects to prepare for data transfer. 
+>> Establishment focuses on the actions that an application takes \[MICHAEL: on? with?] the transport objects to prepare for data transfer.
 
 Data Transfer {{datatransfer}}
 
@@ -233,11 +233,11 @@ Endpoint
 
 Remote Endpoint
 
->> The Remote Endpoint in a properties represents the application's view of a peer that can participate in a transport connection.
+>> The Remote Endpoint in a properties \[MICHAEL: I can't parse "in a properties" here. Should this be removed?] represents the application's view of a peer that can participate in a transport connection.
 
 Local Endpoint
 
->> The Local Endpoint in a properties represents the application's view of itself that it wants to use for transport connections. This may be optional, or may be generic (a wildcard address, for example).
+>> The Local Endpoint in a properties \[MICHAEL: I can't parse "in a properties" here. Should this be removed?] represents the application's view of itself that it wants to use for transport connections. This may be optional, or may be generic (a wildcard address, for example).
 
 Path Selection Properties
 
@@ -249,7 +249,7 @@ Protocol Selection Properties
 
 Specific Protocol Properties
 
->> Specific Protocol Properties refers to the subset of Protocol Properties options that apply to a single protocol (transport protocol, IP, or security protocol). The presence of such a properties does not necessarily require that a specific protocol must be used, but that if this protocol is employed, a particular set of options should be used. This is critical to allow compatibility with protocol propertiess on peers.
+>> Specific Protocol Properties refers to the subset of Protocol Properties options that apply to a single protocol (transport protocol, IP, or security protocol). The presence of such Properties does not necessarily require that a specific protocol must be used, but that if this protocol is employed, a particular set of options should be used. This is critical to allow compatibility with Protocol Properties on peers.
 
 ### Establishment {#establishment}
 
@@ -269,11 +269,11 @@ Content
 
 Send
 
->> Send is the action to transmit Content over a Connection to a remote endpoint. The interface to sending may include options specific to how this content is to be sent. Status of the send operation may be delivered back to the application in an event {{events}}.
+>> Send is the action to transmit Content over a Connection to a remote endpoint. The interface to Send may include options specific to how this Content is to be sent. Status of the Send operation may be delivered back to the application in an event {{events}}.
 
 Receive
 
->> Receive is the indication that the application is ready to asynchronously accept Content over a Connection from a remote endpoint, while will be delivered in an event {{events}}. The interface to receiving may include options specific to the content that is to be delivered to the application.
+>> Receive is the indication that the application is ready to asynchronously accept Content over a Connection from a Remote Endpoint, while the Content itself will be delivered in an event {{events}}. The interface to Receive may include options specific to the Content that is to be delivered to the application.
 
 ### Event Handling {#events}
 
@@ -297,11 +297,11 @@ Content Received
 
 Content Sent
 
->> A Content Sent event notifies the application of the status of its Send action. This may be an error, an indication that content has been processed by the protocol stack, or potentially has been acknowledged by a peer.
+>> A Content Sent event notifies the application of the status of its Send action. This may be an error, an indication that Content has been processed by the protocol stack, or potentially \[MICHAEL: Why "potentially" - because you're not sure about it? If it may be such an indication, "potentially" should be removed (this seems like the right thing to do for me).] an indication that Content has been acknowledged by a peer.
 
 Path Properties Changed
 
->> A Path Properties Changed event notifies the application that some property of the connection has changed that may influence how and where data is sent and/or received.
+>> A Path Properties Changed event notifies the application that some property of the Connection has changed that may influence how and where data is sent and/or received.
 
 ### Termination {#termination}
 
@@ -331,29 +331,33 @@ Protocol Instance
 
 Protocol Stack
 
->> A Protocol Stack is a set of Protocol Instances (including relevant application, security, transport, or Internet protocols) that are used together to establish connectivity or send and receive content. A single stack may simple (a single transport protocol instance over IP), or complex (multiple application protocol streams going through a single security and transport protocol, over IP; or, a multi-path transport protocol over multiple transport subflows).
+>> A Protocol Stack is a set of Protocol Instances (including relevant application, security, transport, or Internet protocols) that are used together to establish connectivity or send and receive content. A single stack may be simple (a single transport protocol instance over IP), or complex (multiple application protocol streams going through a single security and transport protocol, over IP; or, a multi-path transport protocol over multiple transport subflows).
 
 System Policy
 
->> A Transport Service system's policy defines the algorithm it uses to take connection properties from the application, and determine how it will gather candidate paths and protocols {{gathering}} and race the candidates during establishment {{racing}}.
+>> A Transport Service System Policy defines the algorithm it uses to take connection properties from the application, and determine how it will gather candidate paths and protocols {{gathering}} and race the candidates during establishment {{racing}}.
 
 Association Cache
 
->> The association cache holds the state that the implementation keeps for each set of associated endpoints that have been used previously. This can include DNS results, TLS session state, previous success and quality of transport protocols over certain paths.
+>> The Association Cache holds the state that the implementation keeps for each set of associated endpoints that have been used previously. This can include DNS results, TLS session state, previous success and quality of transport protocols over certain paths.
 
 ### Gathering {#gathering}
 
 Path Candidate Identification/Gathering
 
 >> Path Selection represents the act of choosing one or more paths that are available to use based on the Path Selection Properties provided by the application, and a Transport Services system's policies and heuristics.
+\[MICHAEL: I find it awkward that the terms and headline here talk about "Gathering" but then this description doesn't. Maybe because "Path Selection" and "Protocol Selection" are indeed clearer, easier terms than this Identification/Gathering stuff?]
 
 Protocol Candidate Identification/Gathering
 
 >> Protocol Selection represents the act of choosing one or more sets of protocol options that are available to use based on the Protocol Properties provided by the application, and a Transport Services system's policies and heuristics.
+\[MICHAEL: Same as above, here...]
 
 ### Racing {#racing}
 
 Protocol Option Racing
+
+\[MICHAEL: About all the definitions below: I believe you can't "attempt a stack", you can only attempt to *use* a stack. Not easy to fix in a nice way because of the "scheduling attempts for", but I think as it stands, this is grammatically broken. Then again, I'm no native speaker!]
 
 >> Protocol Racing is the act of attempting, or scheduling attempts for, multiple Protocol Stacks that differ based on the composition of protocols or the options used for protocols.
 
