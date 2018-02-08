@@ -283,9 +283,13 @@ Properties must be specified before Initiate() to be useful. For other
 properties, it is beneficial for the application to set them as early as
 possible in order to help the TAPS system optimize.
 
-Some properties may apply to connection groups.
-
-\[Task: Elaborate on connection groups, reference 6.4]
+Connections can be cloned at any time, before or after establishment.
+A cloned connection and its parent are entangled: they share the same properties,
+changing any parameter for one of them also changes the parameter for the other,
+connecting one of them also connects the other, etc. There is only one exception:
+priority assignment ((see also {{groups}} for more details).
+Cloning connections during pre-establishment is encouraged, as it
+informs the transport system about the intent to use Connection Groups.
 
 Connection := Create(ProtocolSelectionProperties, ProtocolProperties,
 PathSelectionProperties, SocketIntents)
@@ -294,7 +298,7 @@ Connection.Configure(ProtocolProperties, SocketIntents)
 
 Connection.QueryProperties()
 
-\[Add call to clone a connection here?]
+Connection := Connection.Clone()
 
 
 ### Protocol Selection Properties {#protocol-selection-props}
