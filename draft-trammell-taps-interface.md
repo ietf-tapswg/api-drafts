@@ -878,7 +878,9 @@ Connection -> Received&lt;Content>
 As with sending, the type of the Content to be passed is dependent on the
 implementation, and on the constraints on the Protocol Stacks implied by the
 Connection's transport parameters. The Content may also contain metadata from
-protocols in the Protocol Stack for logging and debugging purposes.
+protocols in the Protocol Stack for logging and debugging purposes. In particular,
+when this information is available, the value of the Explicit Congestion Notification
+(ECN) field is contained in such metadata.
 
 The Content object must provide some method to retrieve an octet array
 containing application data, corresponding to a single message within the
