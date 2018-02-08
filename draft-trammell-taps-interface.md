@@ -796,6 +796,23 @@ Connection -> RendezvousError&lt;>
 
 ## Connection Groups {#groups}
 
+Groups of Connections can be created using Clone action:
+
+Connection := Connection.Clone()
+
+Calling this once yields a group of two Connections: the parent Connection, whose
+Clone action was called, and the resulting clone. Calling Clone on any of these two
+Connections adds a third Connection to the group, and so on.
+
+All Connections in a group are entangled. This means that they automatically share
+all properties: changing a parameter for one of them also changes the parameter
+for all others, closing one of them also closes all others, etc.
+There is only one Protocol Property that is not entangled: a priority. The priority, which
+can be represented as a non-negative integer, expresses how the application
+wants to divide the available network capacity among all connections in the group.
+.... TODO, GOING FOR LUNCH NOW  :-)
+also point back at {{#transport-params}} to say that it should be done early...
+
 # Sending Data {#sending}
 
 Once a Connection has been established, it can be used for sending data. Data
