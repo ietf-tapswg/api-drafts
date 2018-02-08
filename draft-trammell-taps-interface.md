@@ -738,6 +738,8 @@ The Ready event occurs after Initiate has established a transport-layer
 connection on at least one usable candidate Protocol Stack over at least one
 candidate Path. No Receive events (see {{receiving}}) will occur until after
 the Ready event for connections established using Initiate.
+\[MICHAEL: This is a difficult read. Can we phrase this as "...will occur before the Ready event for connections...",
+or did you have a specific reason to write "until after the Ready event"?]
 
 Connection -> InitiateError&lt;>
 
@@ -766,10 +768,16 @@ establishment call may be made on the Connection.
 Connection -> ConnectionReceived&lt;Connection>
 
 The ConnectionReceived event occurs when a remote endpoint has established a
-transport-layer connection to this Connection, causing a new Connection to be
+transport-layer connection to this Connection or when the remote endpoint has
+sent its first Content, causing a new Connection to be
 created. The resulting Connection is contained within the ConnectionReceived
 event, and is ready to use as soon as it is passed to the application via the
 event.
+
+\[MICHAEL: JFYI, just to explain why I added "or when the remote endpoint has
+sent its first Content" above: in case the connection is in fact a
+stream, nothing may happen on the wire when doing Connect, and the
+first thing the listener gets may already be the first data block.]
 
 Connection -> ListenError&lt;>
 
