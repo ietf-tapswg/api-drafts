@@ -97,6 +97,9 @@ normative:
       -
         ins: C. Wood
 
+informative:
+  I-D.pauly-taps-transport-security:
+
 --- abstract
 
 This document describes an abstract programming interface to the transport
@@ -334,11 +337,11 @@ indicate its reliability requirements on a per-Content basis. This property
 applies to connections and connection groups. This is not a strict requirement.
 The default is to not have this option.
 
-Option to request not to delay acknowledgement (SACK) of Content
+Option to request not to delay acknowledgment (SACK) of Content
 
 This boolean property specifies whether an application considers it useful to
-request for Content that its acknowledgement be sent out as early as possible
-(SACK) instead of potentially being bundled with other acknowledgements. This
+request for Content that its acknowledgment be sent out as early as possible
+(SACK) instead of potentially being bundled with other acknowledgments. This
 property applies to connections and connection groups. This is not a strict
 requirement. The default is to not have this option.
 
@@ -451,7 +454,7 @@ interface configured in the system policy.
 Interface Type to prohibit
 
 This property specifies which kind of access network interface, e.g., WiFi,
-Ethternet, or LTE, to not use for this connection. This is a strict requirement
+Ethernet, or LTE, to not use for this connection. This is a strict requirement
 and connection establishment will fail if no other interface is available. The
 default is to not prohibit any particular interface.
 
@@ -615,11 +618,79 @@ Ignore Cost:
 
 The default is "Balance Cost".
 
+## Specifying Security Parameters and Callbacks {#security-parameters}
 
-## Specifying Cryptographic Parameters {#crypto-params}
+Common parameters such as TLS ciphersuites are known to implementations. Clients SHOULD
+use common safe defaults for these values whenever possible. However, as discussed in 
+{{I-D.pauly-taps-transport-security}}, many transport security protocols require specific
+security parameters and constraints from the client at the time of configuration and 
+actively during a handshake. These configuration parameters are created as follows
 
-\[TASK: write me. separate out cryptographic parameters, since these bind to a
-local and a remote. chris?]
+~~~
+securityParameters := NewSecurityParameters()
+~~~
+
+Security configuration parameters and sample usage follow:
+
+- Local identity and private keys: Used to perform private key operations and prove one's
+identity to remote peers. (Note, if private keys are not available, e.g., since they are
+stored in HSMs, handshake callbacks MUST be used. See below for details.)
+
+~~~
+securityParameters.AddIdentity(identity)
+securityParameters.AddPrivateKey(privateKey, publicKey)
+~~~
+
+- Supported algorithms: Used to restrict what parameters are used by underlying transport security protocols. 
+When not specified, these algorithms SHOULD default to known and safe defaults for the system. Parameters include:
+ciphersuites, supported groups, and signature algorithms.
+
+~~~
+securityParameters.AddSupportedGroup(22)    // secp256k1 
+securityParameters.AddCiphersuite(0xCCA9)   // TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
+securityParameters.AddSignatureAlgorithm(7) // ed25519
+~~~
+
+- Session cache: Used to tune cache capacity, lifetime, re-use, 
+and eviction policies, e.g., LRU or FIFO.
+
+~~~
+securityParameters.SetSessionCacheCapacity(1024)     // 1024 elements
+securityParameters.SetSessionCacheLifetime(24*60*60) // 24 hours
+securityParameters.SetSessionCacheReuse(1)           // One-time use
+~~~
+
+- Pre-shared keying material: Used to install pre-shared keying material established 
+out-of-band. Each pre-shared keying material is associated with some identity that typically identifies
+its use or has some protocol-specific meaning to peers.
+
+~~~
+securityParameters.AddPreSharedKey(key, identity)
+~~~
+
+Security decisions, especially pertaining to trust, are not static. Thus, once configured, 
+parameters must also be supplied during live handshakes. These are best handled as 
+client-provided callbacks. Security handshake callbacks include:
+
+- Trust verification callback: Invoked when a peer's trust must be validated before the 
+handshake protocol can proceed. 
+
+~~~
+trustCallback := NewCallback({
+  // Handle trust, return the result
+}) 
+securityParameters.SetTrustVerificationCallback(trustCallback)
+~~~
+
+- Identity challenge callback: Invoked when a private key operation is required, e.g., when 
+local authentication is requested by a remote. 
+
+~~~
+challengeCallback := NewCallback({
+  // Handle challenge
+}) 
+securityParameters.SetIdentityChallengeCallback(challengeCallback)
+~~~
 
 # Establishing Connections
 
@@ -969,4 +1040,7 @@ This document has no actions for IANA.
 
 # Security Considerations
 
-be paranoid
+This document describes a generic API for interacting with a transport services (TAPS) system.
+Part of this API includes configuration details for transport security protocols, as discussed
+in Section {{security-parameters}}. It does not recommend use (or disuse) of specific
+algorithms or protocols. Any API-compatible transport security protocol should work in a TAPS system.
