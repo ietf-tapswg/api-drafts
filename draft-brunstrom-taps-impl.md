@@ -66,8 +66,10 @@ normative:
           ins: Michael Welzl
 
 informative:
+    RFC6458:
     RFC7413:
     RFC7540:
+    RFC8260:
     RFC8305:
     I-D.ietf-quic-transport:
     I-D.ietf-tls-tls13:
@@ -101,7 +103,7 @@ What is the basic handle an application interacts with?
 
 - For QUIC, one stream is a Connection object
 
-- For SCTP...
+- For SCTP, one stream is a Connection object
 
 # Implementing Pre-Establishment
 
@@ -468,6 +470,30 @@ Caching of round trip time (RTT), success rate with various protocols and featur
 ## UDP
 
 ## SCTP
+
+To support sender-side stream schedulers (which are implemented on the sender side),
+a receiver-side Transport System should
+always support message interleaving {{RFC8260}}.
+
+SCTP messages can be very large. To allow the reception of large messages in pieces, a "partial flag" can be
+used to inform a (native SCTP) receiving application that a
+message is incomplete. After receiving the "partial flag", this application would know that the next receive calls will only
+deliver remaining parts of the same message (i.e., no messages or partial messages will arrive on other
+streams until the message is complete) (see Section 8.1.20 in {{RFC6458}}). The "partial flag" can therefore
+facilitate the implementation of the receiver buffer in the receiving application, at the cost of limiting
+multiplexing and temporarily creating head-of-line blocking delay at the receiver.
+
+When a Transport System transfers Content, it seems natural to map Content to SCTP messages in order
+to support properties such as "Ordered" or "Lifetime" (which maps onto partially reliable delivery with
+a SCTP_PR_SCTP_TTL policy {{RFC6458}}). However, since multiplexing of
+Connections onto SCTP streams may happen, and would be hidden from the application, the
+Transport System requires a per-stream receiver buffer anyway, so this potential benefit is lost
+and the "partial flag" becomes unnecessary for the system.
+
+The problem of long messages either requiring large receiver-side buffers or getting in the way of
+multiplexing is addressed by message interleaving {{RFC8260}},
+which is yet another reason why a receivers-side transport system supporting SCTP should
+implement this mechanism.
 
 ## QUIC
 
