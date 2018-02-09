@@ -28,6 +28,11 @@ author:
     name: Michael Welzl
     role: editor
     org: University of Oslo
+    street: PO Box 1080 Blindern
+    city: 0316  Oslo
+    country: Norway
+    email: michawe@ifi.uio.no
+
   -
     ins: G. Fairhurst
     name: Gorry Fairhurst
