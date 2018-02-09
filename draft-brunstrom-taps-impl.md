@@ -328,7 +328,17 @@ For protocol stacks with multiple handshakes, the decision becomes more nuanced.
 
 ## Establishing multiplexed connections
 
-How to create a new stream on an existing connection.
+Multiplexing data streams over a connection of a single transport Protocol Instance requires, at minimum, two things: 1) the transport Protocol Instance must be able to know the beginning and the end of messages, in order to know what to assign and multiplex / demultiplex; 2) there must be an identifier that allows to decide which stream a message is assigned to. When a new stream is multiplexed on an already existing connection, there is no need for a connection establishment procedure -- every stream can be assumed to immediately be available.
+
+When the Connections that are offered to an application by the Transport System are multiplexed,
+the Transport System may implement the establishment of a new Connection by simply beginning to use
+a new stream of an already established transport connection. This, then, means that there may not
+be any "establishment" message (like a TCP SYN), but the application can simply start sending
+or receiving. Therefore, when a Transport System's "Initiate" Action is called without Content being
+handed over, it cannot be guaranteed that the other endpoint will have any way to know about this, and hence
+a passive endpoint's ConnectionReceived event may not be called upon an active endpoint's Inititate.
+Instead, calling the ConnectionReceived event may be delayed until the first Content arrives.
+
 
 ## Handling racing with "unconnected" protocols
 
