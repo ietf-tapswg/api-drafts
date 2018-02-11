@@ -210,7 +210,9 @@ In the following sections, we describe the details of application interaction wi
 
 Establishment begins with the creation of a Connection...
 
+~~~
 Connection := NewConnection(localSpecifier, remoteSpecifier, transportParameters, cryptographicParameters)
+~~~
 
 \[NOTE: note also that framers and deframers should be bound to connections
 during pre-establishment, forward-reference {{send-framing}} and
@@ -278,12 +280,12 @@ stack used is communicated ]
 When creating a connection, an application needs to specify transport
 parameters reflecting its requirements and preferences regarding its
 communication. These Transport parameters include Protocol Selection
-Properties, Protocol Properties (configuration of a transport protocol once it
-has been selected), Path Selection Properties, and Socket Intents (hints to the
-TAPS system what to optimize for).
+Properties, Protocol Properties (specific configuration of a transport protocol
+once it has been selected), Path Selection Properties, and 
+Application Intents (hints to the transport system what to optimize for).
 
-Some Protocol Selection Properties are strict requirements that the application
-relies on, while others are hints of what transport features would be helpful
+Some properties are strict requirements that the application relies on,
+while others are hints of what transport features would be helpful
 for the application. For example, if an application asks for reliable data
 transfer, choosing a transport protocol such as UDP, which does not have this
 feature, will break the application's functionality. On the other hand, the
@@ -291,48 +293,76 @@ option to not require checksums when receiving an individual Content can help
 optimize for low latency, but if not present, it will most likely not break the
 fundamental assumptions of the application.
 
-Moreover, there can be conflicts between properties set by the application: If
-multiple features are requested which are offered by different protocols, it
-may not be possible to satisfy all requirements. Consequently, a TAPS system
-must prioritize transport parameters and consider the relevant trade-offs, see
-also {{?TAPS-MINSET=I-D.ietf-taps-minset}}.
+Moreover, there can be conflicts between properties set by 
+the application: If multiple features are requested which are offered 
+by different protocols, it may not be possible to satisfy all requirements.
+Consequently, a transport system must prioritize Transport Parameters and
+consider the relevant trade-offs, see also {{?TAPS-MINSET=I-D.ietf-taps-minset}}.
+To reflect that, some Transport Parameters can be specified with different
+preference, whereby the preference is one of the following levels:
 
-\[Should it be possible for an application to specify which properties are most
-important to it, or to set properties as required?]
+   | Preference | Description                                               |
+   |------------|-----------------------------------------------------------|
+   | `intend  ` | Hint to the transport system (usually Application Intent) |
+   | `require ` | Fail if requested feature/property can not be met         |
+   | `prefer  ` | Proceed if requested feature/property can not be met      |
+   | `avid    ` | Proceed if requested feature/property can not be avoided  |
+   | `prohibit` | Fail if requested feature/property can not be avoided     |
 
+
+All properties of the Transport Parameters are collected in a 
+TransportParameters object:
+
+~~~
+transportParameters := NewTransportParameters()
+~~~
+
+The Individual properties, regardless whether thy are Protocol Selection
+Properties, Protocol Properties, Path Selection Properties, or 
+Application Intents, are then added to the TransportParameters object:
+
+~~~
+transportParameters.addProperty(preference, name, value)
+~~~
+
+For an existing connection, the Transport Parameters can be queried any time
+by using the following call on the Connection object:
+
+~~~
+transportParameters := connection.getTransportParameters()
+~~~
+
+For most properties, it is beneficial for the application to set them as early as
+possible in order to help the transport system optimize.
+Some parameters can also be set later in the lifetime of a connection.
+However, Protocol Selection Properties and Path Selection Properties MUST
+be added to the TransportParameters object before calling Initiate() and
+SHOULD result in a runtime error if changed later.
+
+Connections can be cloned at any time, before or after establishment.
+A cloned connection and its parent are entangled: they share the same
+TransportParameters object, changing any parameter for one of them also 
+changes the parameter for the other, connecting one of them also connects 
+the other, etc. 
+Cloning connections during pre-establishment is encouraged, as it
+informs the transport system about the intent to form Connection Groups.
+
+\[Note that priority assignment ((see also {{groups}} for more details) is
+not shared among cloned connections. Therefore, the priority assignment
+MUST NOT be realized using the connection level TransportParameters object.]
+
+
+
+
+### Protocol Selection Properties {#protocol-selection-props}
+
+The following properties can be adjusted before establishing a Connection.
 There need to be sensible defaults for the Protocol Selection Properties. The
 defaults given in the following section represent a configuration that can be
 implemented over TCP. An alternate set of default Protocol Selection Properties
 would represent a configuration that can be implemented over UDP.
 
-Note that some parameters can also be set later in the lifetime of a
-connection. However, Protocol Selection Properties and Path Selection
-Properties must be specified before Initiate() to be useful. For other
-properties, it is beneficial for the application to set them as early as
-possible in order to help the TAPS system optimize.
-
-Connections can be cloned at any time, before or after establishment.
-A cloned connection and its parent are entangled: they share the same properties,
-changing any parameter for one of them also changes the parameter for the other,
-connecting one of them also connects the other, etc. There is only one exception:
-priority assignment ((see also {{groups}} for more details).
-Cloning connections during pre-establishment is encouraged, as it
-informs the transport system about the intent to use Connection Groups.
-
-Connection := Create(ProtocolSelectionProperties, ProtocolProperties,
-PathSelectionProperties, SocketIntents)
-
-Connection.Configure(ProtocolProperties, SocketIntents)
-
-Connection.QueryProperties()
-
-Connection := Connection.Clone()
-
-
-### Protocol Selection Properties {#protocol-selection-props}
-
-The following properties can be adjusted before establishing a Connection. They
-all apply to Connections and Connection Groups:
+The following properties apply to Connections and Connection Groups:
 
 Reliable Data Transfer
 
@@ -479,19 +509,19 @@ and connection establishment will fail if no other interface is available. The
 default is to not prohibit any particular interface.
 
 
-### Socket Intents {#socket-intents}
+### Application Intents {#socket-intents}
 
-Socket Intents are a group of properties expressing what an application wants
+Application Intents are a group of properties expressing what an application wants
 to achieve, knows, assumes or prefers regarding its communication. They are not
 strict requirements. In particular, they should not be used to express any
 Quality of Service expectations that an application might have. Instead, an
 application should express its intentions and its expected traffic
 characteristics in order to help the TAPS system make decisions that best match
-it, but on a best-effort basis. Even though Socket Intents do not represent
+it, but on a best-effort basis. Even though Application Intents do not represent
 Quality of Service requirements, a TAPS system may use them to determine a DSCP
 value, e.g. similar to Table 1 in {{I-D.ietf-tsvwg-rtcweb-qos}}.
 
-Socket Intents can influence protocol selection, protocol configuration, path
+Application Intents can influence protocol selection, protocol configuration, path
 selection, and endpoint selection. For example, setting the "Timeliness" Intent
 to "Interactive" may lead the TAPS system to disable the Nagle algorithm for a
 connection, while setting the "Timeliness" to "Background" may lead it to
@@ -500,8 +530,8 @@ on a series of messages, it may influence path selection, e.g., when the TAPS
 system schedules big messages over an interface with higher bandwidth, and
 small messages over an interface with lower latency.
 
-Specifying Socket Intents is not mandatory. An application can specify any
-combination of Socket Intents. All Socket Intents can be specified for
+Specifying Application Intents is not mandatory. An application can specify any
+combination of Application Intents. All Application Intents can be specified for
 connections and connection groups. Some Intents can also be specified for
 individual messages, similar to the properties in {{send-props}}.
 
