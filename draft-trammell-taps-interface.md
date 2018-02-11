@@ -32,7 +32,6 @@ author:
     city: 0316  Oslo
     country: Norway
     email: michawe@ifi.uio.no
-
   -
     ins: G. Fairhurst
     name: Gorry Fairhurst
@@ -58,11 +57,17 @@ author:
     ins: P. Tiesel
     name: Philipp S. Tiesel
     org: TU Berlin
+    street: Marchstraße 23
+    city: 10587 Berlin
+    country: Germany
     email: philipp@inet.tu-berlin.de
   -
     ins: T. Enghardt
     name: Theresa Enghardt
     org: TU Berlin
+    street: Marchstraße 23
+    city: 10587 Berlin
+    country: Germany
     email: theresa@inet.tu-berlin.de
   -
     ins: C. Wood
