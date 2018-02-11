@@ -216,32 +216,47 @@ Connection := NewConnection(localSpecifier, remoteSpecifier, transportParameters
 during pre-establishment, forward-reference {{send-framing}} and
 {{receive-framing}}]
 
-## Resolving Remote Endpoints {#resolving}
+## Specifying Endpoints {#enpointspec}
 
-Name resolution is no explicit step of a transport service API.
-Therefore, name resolution may be deferred until connection establishment
-to incorporate transport parameters.
-Instead, a remoteSpecifier object representing the remote endpoint is created
-providing an appropriate endpoint representation, which include IP addresses,
-hostnames and URLs:
+\[NOTE: name resolution is no explict step within the transport API.
+Name resolution can be perfoemed whey creating endpoint objects,
+but may be deferred until connection establishment to incorporate transport parameters.]
 
-remoteSpecifier := Endpoint()
-remoteSpecifier.withUrl("https://example.com")
+The transport service API uses Endpoint objects to refer to local and remote endpoints.
+Endpoint objects can be configured using varios endpoint representation, including IP addresses,
+hostnames, URLs or inteface names as well as port numbers and service names:
 
-remoteSpecifier := Endpoint()
-remoteSpecifier.withHostname("example.com"
+~~~
+remoteSpecifier := NewEndpoint()
+remoteSpecifier("https://example.com")
+~~~
+
+~~~
+remoteSpecifier := NewEndpoint()
+remoteSpecifier.withHostname("example.com")
 remoteSpecifier.withService("https")
+~~~
 
-remoteSpecifier := Endpoint()
+~~~
+remoteSpecifier := NewEndpoint()
 remoteSpecifier.withIPv6Address(2001:db8:4920:e29d:a420:7461:7073:0a)
 remoteSpecifier.withPort(443)
+~~~
 
-remoteSpecifier := Endpoint()
+~~~
+remoteSpecifier := NewEndpoint()
 remoteSpecifier.withIPv4Address(192.0.2.21)
 remoteSpecifier.withPort(443)
+~~~
+
+~~~
+localSpecifier := NewEndpoint()
+localSpecifier.withInterface("en0")
+localSpecifier.withPort(443)
+~~~
 
 Implementations may also support additional endpoint representations and
-provide a single Endpoint() call that takes different endpoint representations.
+provide a single NewEndpoint() call that takes different endpoint representations.
 
 Endpoint representations may imply transport protocols, pseudotransport protocols,
 or families of protocols, e.g., remoteSpecifier.withUrl("https://example.com") 
