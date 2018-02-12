@@ -309,6 +309,8 @@ preference, whereby the preference is one of the following levels:
    | `avid    ` | Proceed if requested feature/property can not be avoided  |
    | `prohibit` | Fail if requested feature/property can not be avoided     |
 
+Default preference levels and possible combinations of Transport Parameters and
+preference levels are specified in {{appendix-preferences}}.
 
 All properties of the Transport Parameters are collected in a 
 TransportParameters object:
@@ -338,6 +340,8 @@ Some parameters can also be set later in the lifetime of a connection.
 However, Protocol Selection Properties and Path Selection Properties MUST
 be added to the TransportParameters object before calling Initiate() and
 SHOULD result in a runtime error if changed later.
+{{appendix-specify-query-params}} gives an overview of what Transport
+Parameters can be specified and queried during which phase.
 
 Connections can be cloned at any time, before or after establishment.
 A cloned connection and its parent are entangled: they share the same
@@ -1094,3 +1098,91 @@ This document describes a generic API for interacting with a transport services 
 Part of this API includes configuration details for transport security protocols, as discussed
 in Section {{security-parameters}}. It does not recommend use (or disuse) of specific
 algorithms or protocols. Any API-compatible transport security protocol should work in a TAPS system.
+
+
+--- back
+
+# Transport Parameters {#appendix-transport-params}
+
+This appendix provides details about the usage of the Transport Parameters
+specified in {{transport-params}}. It clarifies what preference levels an
+application can set for which Transport Parameter, and during which phase an
+application can specify and query what kinds of Transport Parameters.
+
+## Application Preferences {#appendix-preferences}
+
+As described in {{transport-params}}, an application can specify its preference
+regarding a Transport Parameter, i.e., whether a certain property is required,
+preferred, to be avoided, prohibited, or an intention. If an application does
+not set its preference regarding a Transport Parameter, default preference
+levels apply as specified in the following table. A default preference of
+"None" means that the transport system assumes that an application does not
+have any preference regarding the corresponding Transport Parameter and may not
+take this parameter into account for protocol and path selection.
+
+Not every Transport Parameter can be meaningfully assigned every preference
+level. For example, if an application explicitly prohibits selecting a
+transport protocol that allows to suggest a timeout to the peer, this
+restriction will unnecessarily limit transport protocol selection. Instead,
+the application could simply not use this feature if it is present in the
+selected transport protocol.
+
+The following table illustrates which Transport Parameter has which default
+preference level and which alternative preference levels an application may
+set.
+
+| Transport Parameter    | Require  | Prefer | Avoid | Prohibit | Default |
+|------------------------|----------|--------|-------|----------|---------|
+| Reliable Data Transfer | Yes      | Yes    | Yes   | Yes      | Require |
+| Preserve Data Ordering | Yes      | Yes    | Yes   | No       | Require |
+| Configure Reliability per Content | Yes | Yes | Yes | Yes     | Prefer  |
+| Request SACK           | Yes      | Yes    | Yes    | Yes     | Prefer  |
+| Use 0-RTT with Idempotent Content | Yes | Yes | Yes | Yes     | None    |
+| Use Connection Groups with priorities | Yes | Yes | No | No   | None    |
+| Suggest timeout to peer | Yes     | Yes    | No    | No       | Prefer  |
+| Notification of special errors | Yes | Yes | Yes   | Yes      | Prefer  |
+| Control checksum coverage | Yes   | Yes    | Yes   | Yes      | Prefer  |
+| Use a certain network interface type | Yes | Yes | Yes | Yes  | None    |
+| Application Intents    | No       | No     | No    | No       | Intend  |
+
+\[List individual Intents? Reformulate some of them as preferences?]
+
+## Specifying and Querying {#appendix-specify-query-params}
+
+An application may specify Transport Parameters for a connection within the
+Pre-Establishment Phase, i.e., before calling Initiate() on this connection, as
+described in {{transport-params}}. Specifically, Protocol Selection and Path
+Selection Properties MUST be specified during Pre-Establishment, as protocol
+and path selection occur during connection establishment. Protocol Properties,
+which express specific configuration of a transport protocol, and Application
+Intents can be specified either during pre-establishment or later in the
+lifetime of a connection. Note that it is beneficial to set these properties as
+early as possible, so the transport system can use them to optimize. An
+application may also specify Send Properties per individual Content, as
+specified in {{send-props}}.
+
+An application may query the Transport Parameters that were specified for a
+connection at all times. Additionally, an application may query the Transport
+Parameters that apply to the actual connection at all times. However, some
+parameters may not yet be available during the Pre-Establishment Phase, so the
+application can most likely only obtain limited information at that point.
+
+Note that it is possible that the transport protocol actually chosen by the
+transport system does not fully reflect the Transport Parameters that were
+originally set. For example, a certain Protocol Selection Property that an
+application specified as Preferred may not actually be present in the chosen
+configuration because none of the currently available transport protocols had
+this property.
+
+The following table provides an overview of what an application can do during
+which phase:
+
+| Property Type | Pre-Establishment | Established |
+|---------------|-------------------|-------------|
+| Set Protocol Selection Properties | Yes | No    |
+| Set Protocol Properties           | Yes | Yes   |
+| Set Path Selection Properties     | Yes | No    |
+| Set Application Intents           | Yes | Yes   |
+| Set Send Properties               | Yes (0-RTT) | Yes |
+| Query specified Transport Parameters | Yes | Yes |
+| Query actual Transport Parameters | Yes (limited) | Yes |
