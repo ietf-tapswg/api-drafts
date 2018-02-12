@@ -54,7 +54,7 @@ normative:
       authors:
         -
           ins: Tommy Pauly
-	-
+        -
           ins: Brian Trammell
     I-D.trammell-taps-interface:
       title: An Abstract Application Layer Interface to Transport Services
@@ -62,7 +62,7 @@ normative:
       authors:
         -
           ins: Brian Trammell
-	-
+        -
           ins: Michael Welzl
 
 informative:
@@ -254,7 +254,7 @@ Another example is racing SCTP with TCP:
 ~~~~~~~~~~
 1 [www.example.com:80, Any, Any Stream]
   1.1 [www.example.com:80, Any, SCTP]
-	 1.1.1 [192.0.2.1:80, Any, SCTP]
+    1.1.1 [192.0.2.1:80, Any, SCTP]
   1.2 [www.example.com:80, Any, TCP]
     1.2.1 [192.0.2.1:80, Any, TCP]
 ~~~~~~~~~~
@@ -433,7 +433,7 @@ that the application has handed over to the Tranport System before calling Abort
 
 - How much to tear down for multiplexed protocols, or protocols capable of multiplexing
 
-As explained in section {{#establish-mux}}, when a new stream is multiplexed on an already
+As explained in section {{establish-mux}}, when a new stream is multiplexed on an already
 existing connection of a Transport Protocol Instance, there is no need for a connection
 establishment procedure. Because the Connections that are offered by the Transport System
 can be implemented as streams that are multiplexed on a transport protocol's connection,
