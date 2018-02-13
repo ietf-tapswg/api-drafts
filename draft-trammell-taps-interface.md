@@ -513,37 +513,39 @@ and connection establishment will fail if no other interface is available. The
 default is to not prohibit any particular interface.
 
 
-### Application Intents {#socket-intents}
+### Application Intents {#intents}
 
 Application Intents are a group of properties expressing what an application wants
 to achieve, knows, assumes or prefers regarding its communication. They are not
 strict requirements. In particular, they should not be used to express any
 Quality of Service expectations that an application might have. Instead, an
 application should express its intentions and its expected traffic
-characteristics in order to help the TAPS system make decisions that best match
+characteristics in order to help the transport system make decisions that best match
 it, but on a best-effort basis. Even though Application Intents do not represent
-Quality of Service requirements, a TAPS system may use them to determine a DSCP
+Quality of Service requirements, a transport system may use them to determine a DSCP
 value, e.g. similar to Table 1 in {{I-D.ietf-tsvwg-rtcweb-qos}}.
 
 Application Intents can influence protocol selection, protocol configuration, path
 selection, and endpoint selection. For example, setting the "Timeliness" Intent
-to "Interactive" may lead the TAPS system to disable the Nagle algorithm for a
+to "Interactive" may lead the transport system to disable the Nagle algorithm for a
 connection, while setting the "Timeliness" to "Background" may lead it to
 setting the DSCP value to "scavenger". If the "Size to be Sent" Intent is set
-on a series of messages, it may influence path selection, e.g., when the TAPS
-system schedules big messages over an interface with higher bandwidth, and
-small messages over an interface with lower latency.
+on individual Content, it may influence path selection, e.g., when the TAPS
+system schedules big Content over an interface with higher bandwidth, and
+small Content over an interface with lower latency.
 
 Specifying Application Intents is not mandatory. An application can specify any
 combination of Application Intents. All Application Intents can be specified for
-connections and connection groups. Some Intents can also be specified for
-individual messages, similar to the properties in {{send-props}}.
+connections and cloning a Connection to form a Connection Group will clone the
+associated Intents along with the other transport parameters. Some Intents can
+also be specified for individual Content, similar to the properties in
+{{send-props}}.
 
 
 Traffic Category
 
 This Intent specifies what the application expect the dominating traffic
-pattern to be. It applies to connections and connection groups
+pattern to be.
 
 Possible Category values are:
 
@@ -554,10 +556,10 @@ Control:
 : Long lasting low bandwidth control channel, not bandwidth bound
 
 Stream:
-: Stream of bytes/messages with steady data rate
+: Stream of bytes/Content with steady data rate
 
 Bulk:
-: Bulk transfer of large messages, presumably bandwidth bound
+: Bulk transfer of large Content, presumably bandwidth bound
 
 The default is to not assume any particular traffic pattern. Most categories
 suggest the use of other intents to further describe the traffic pattern
@@ -569,58 +571,29 @@ intents.
 Size to be Sent / Received
 
 This Intent specifies what the application expects the size of a transfer to be.
-It is a numeric property and given in Bytes. It can also apply to individual
-messages.
+It is a numeric property and given in Bytes. This Intent can also apply to
+individual Content.
 
 
 Duration
 
 This Intent specifies what the application expects the lifetime of a transfer
-to be. It is a numeric property and given in milliseconds. It applies to
-connections and connection groups.
+to be. It is a numeric property and given in milliseconds.
 
 
 Stream Bitrate Sent / Received
 
 This Intent specifies what the application expects the bitrate of a transfer to
-be. It is a numeric property and given in Bytes per second. It applies to
-connections and connection groups.
-
-
-Burstiness
-
-This Intent specifies what the application expects the sender-side burst
-characteristics of the traffic to be. The application can provide hints about
-the anticipated communication pattern, i.e., how it expects the number of sent
-bytes to vary over time and the expected length of sequences of consecutively
-sent messages. Note that the actual burst characteristics will depend on the
-network, especially at the receiver side. This Intents applies to connections
-and connection groups.
-
-Possible Burstiness values are:
-
-No Bursts:
-: Application sends traffic at a constant rate
-
-Regular Bursts:
-: Application sends bursts of traffic periodically
-
-Random Bursts:
-: Application sends bursts of traffic irregularly
-
-Bulk:
-: Application sends a bulk of traffic
-
-The default is to not assume any particular burst characteristics.
+be. It is a numeric property and given in Bytes per second.
 
 
 Timeliness
 
 This Intent specifies what delay characteristcs the applications prefers. It
-provides hints for the TAPS system whether to optimize for low latency or other
+provides hints for the transport system whether to optimize for low latency or other
 criteria. Note that setting this Intents does not imply any guarantees on
-whether an application's requirements can actually be satisfied. This Intents
-applies to connections, connection groups, or messages.
+whether an application's requirements can actually be satisfied. This Intent
+can also apply to individual Content.
 
 Stream:
 : Delay and packet delay variation should be kept as low as possible
@@ -639,7 +612,11 @@ The default is "Transfer".
 
 Disruption Resilience
 
-This Intent describes what an application knows about its own ability to deal with disruption of its communication, e.g., connection loss. It provides hints of how well an application assumes it can recover from such disturbances and can have an impact on the tradeoff between providing failover techniques and resource utilization. This Intent applies to connections, connection groups, and messages.
+This Intent describes what an application knows about its own ability to deal
+with disruption of its communication, e.g., connection loss. It provides hints
+of how well an application assumes it can recover from such disturbances and
+can have an impact on the tradeoff between providing failover techniques and
+resource utilization. This Intent can also apply to individual Content.
 
 Sensitive:
 : Disruptions result in application failure, disrupting user experience
@@ -655,8 +632,11 @@ The default is "Sensitive".
 
 Cost Preferences
 
-This Intent describes what an application prefers regarding monetary costs, e.g., whether it considers it acceptable to utilize limited data volume. It provides hints to the TAPS system on how to handle tradeoffs between cost and performance or reliability.
-This Intent applies to connections, connection groups, and messages.
+This Intent describes what an application prefers regarding monetary costs,
+e.g., whether it considers it acceptable to utilize limited data volume. It
+provides hints to the transport system on how to handle tradeoffs between cost
+and performance or reliability. This Intent can also apply to individual
+Content.
 
 No Expense:
 : Avoid transports associated with monetary cost
