@@ -122,7 +122,7 @@ The following considerations were used in the design of this architecture.
 
 Functionality that is common across multiple transport protocols should be accessible through a unified set of API calls. An application should be able to implement logic for its basic use of transport networking (establishing the transport, and sending and receiving content) once, and expect that implementation to continue to function as the transports change.
 
-Any Transport Services API must expose the basic set of transport networking features. This implies, at a minimum, the ability to use the equivalent of both TCP and UDP socket interfaces.
+Any Transport Services API must expose the distilled minimal set of features offered by transport protocols {{I-D.ietf-taps-minset}}. 
 
 ## Access to Specialized Features
 
@@ -136,7 +136,7 @@ Other specialized features, however, may be strictly required by an application 
 
 The Transport Services API is envisioned as the abstract model for a family of APIs that share a common way to expose transport features and encourage flexibility. The abstract API definition {{I-D.trammell-taps-interface}} describes this interface and is aimed at application developers.
 
-Implementations that provide the Transport Services API {{I-D.brunstrom-taps-impl}}, on the other hand, will vary due to system-specific support and the needs of the deployment scenario. It is expected that all implementations of Transport Services will offer the entire mandatory API, but that some features will not be functional in certain implementations. For example, all implementations should offer sufficient APIs to use basic transport protocols like TCP and UDP, but it is possible that a very constrained device may not have a full TCP implementation.
+Implementations that provide the Transport Services API {{I-D.brunstrom-taps-impl}}, on the other hand, will vary due to system-specific support and the needs of the deployment scenario. It is expected that all implementations of Transport Services will offer the entire mandatory API, but that some features will not be functional in certain implementations. All implementations must offer sufficient APIs to use the distilled minimal set of features offered by transport protocols {{I-D.ietf-taps-minset}}, including API support for TCP and UDP transport, but it is possible that some very constrained devices might not have, for example, a full TCP implementation.
 
 In order to preserve flexibility and compatibility with future protocols, top-level features in the Transport Services API should avoid referencing particular transport protocols. Mappings of these API features in the Implementation document, on the other hand, must explain the ramifications of each feature on existing protocols. It is expected that the Implementation document will be updated and supplemented as new protocols and protocol features are developed.
 
