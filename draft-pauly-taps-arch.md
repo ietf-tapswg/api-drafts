@@ -120,7 +120,7 @@ The following considerations were used in the design of this architecture.
 
 ## Common APIs for Common Features
 
-Functionality that all identified transport protocols share in common should be accessible through a unified set of API calls. An application should be able to implement logic for its basic use of transport networking (establishing the transport, and sending and receiving content) once, and expect that implementation to continue to function as the transports change.
+Functionality that is common across multiple transport protocols should be accessible through a unified set of API calls. An application should be able to implement logic for its basic use of transport networking (establishing the transport, and sending and receiving content) once, and expect that implementation to continue to function as the transports change.
 
 Any Transport Services API must expose the basic set of transport networking features. This implies, at a minimum, the ability to use the equivalent of both TCP and UDP socket interfaces.
 
