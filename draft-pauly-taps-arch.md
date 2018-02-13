@@ -93,7 +93,7 @@ This document provides an overview of the architecture of Transport Services, a 
 
 # Introduction
 
-This document provides an overview of the architecture of Transport Services, a system for exposing the features of transport protocols to applications. This architecture serves as a basis for Application Programming Interfaces (APIs) and implementations that provide flexibile transport networking services. It defines the common set of terminology and concepts to be used in more detailed discussion of transport services.
+This document provides an overview of the architecture of Transport Services, a system for exposing the features of transport protocols to applications. This architecture serves as a basis for Application Programming Interfaces (APIs) and implementations that provide flexible transport networking services. It defines the common set of terminology and concepts to be used in more detailed discussion of transport services.
 
 Many APIs to perform transport networking have been deployed, perhaps the most widely known and imitated being the BSD socket() interface. The names for calls into these interfaces and events returned from these interfaces vary depending on the intended application, even when the functions are analogous. Similarly, terminology for the implementation of protocols offering transport services vary based on the context of the protocols themselves. This variety can lead to confusion when trying to define the fundamental commonalities between APIs and distill the nuanced differences.
 
@@ -103,7 +103,7 @@ This document is developed in parallel with the specification of the Transport S
 
 # Background
 
-The architecture of Transport Services is based on the survey of Services Provided by IETF Tranport Protocols and Congestion Control Mechanisms {{RFC8095}}, and the distilled minimal set of the features offered by trasport protocols {{I-D.ietf-taps-minset}}. This work identified the common features and patterns across all transport protocols developed thus far.
+The architecture of Transport Services is based on the survey of Services Provided by IETF Transport Protocols and Congestion Control Mechanisms {{RFC8095}}, and the distilled minimal set of the features offered by transport protocols {{I-D.ietf-taps-minset}}. This work identified the common features and patterns across all transport protocols developed thus far.
 
 Since transport security is an increasingly relevant aspect of using transport protocols on the Internet, this architecture also considers the impact of transport security protocols on the feature set exposed by transport services {{I-D.pauly-taps-transport-security}}.
 
@@ -128,7 +128,7 @@ Any Transport Services API must expose the basic set of transport networking fea
 
 Since applications will often need to control fine-grained details of transport protocols in order to optimize their behavior and ensure compatibility with remote peers, a Transport Services system also needs to allow more specialized protocol features to be used. The interface for these specialized options should be treated differently from the common options in order to ensure flexibility.
 
-A specialized feature may be required by an application only when using a specific protocol, and not when using others. For example, if an application is using UDP, it may require control over the checksum or fragmentation behavior for UDP; if it used a protocol to frame its content over a bytestream like TCP, it would not need these options. In such cases, the API should expose the features in such a way that they take effect when a particular protocol is selected, but do not imply that only that protocol may be used if there are equivalent options.
+A specialized feature may be required by an application only when using a specific protocol, and not when using others. For example, if an application is using UDP, it may require control over the checksum or fragmentation behavior for UDP; if it used a protocol to frame its content over a byte stream like TCP, it would not need these options. In such cases, the API should expose the features in such a way that they take effect when a particular protocol is selected, but do not imply that only that protocol may be used if there are equivalent options.
 
 Other specialized features, however, may be strictly required by an application and thus constrain the set of protocols that can be used. For example, if an application requires encryption of its transport content, it must be guaranteed that only combinations of protocols that include a transport security protocol.\[MICHAEL: "...are used?" - but also the "combinations that include" seems strange here. Suggest: "it must be guaranteed that a chosen transport protocol that can encrypt data."] A Transport Services API must allow applications to define such requirements and constrain the system's options. Since such options are not part of the core, common features, however, it should be simple for an application to modify its set of constraints and change the set of allowable protocol features without changing the core implementation.
 
@@ -197,7 +197,7 @@ Beyond the basic objects, there are several high-level groups of actions that an
 
 Pre-Establishment {{preestablishment}}
 
->> Pre-Establishment encompasses the parameters that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. For any system that provides generic Transport Services, these properties should primarily offer knobs that apply across multiple transports. Properties may have a large impact on the rest of the the aspects of the interface: they can modify how establishment occurs, they can influence the expectations around data transfer, and they determine the set of events that will be supported.
+>> Pre-Establishment encompasses the parameters that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. For any system that provides generic Transport Services, these properties should primarily offer knobs that apply across multiple transports. Properties may have a large impact on the rest of the aspects of the interface: they can modify how establishment occurs, they can influence the expectations around data transfer, and they determine the set of events that will be supported.
 
 Establishment {{establishment}}
 
@@ -219,7 +219,7 @@ Termination {{termination}}
 
 Connection
 
->> A Connection is the fundamental object used by an application for all interaction with a peer and data transfer. It is generally capable of bi-directional communication. It has state that represents the capability of being able to send or receive content between its local and remote endpoints. This capability may be based merely on the existence of a route between the two endpoints and an application's permission to send and receive on its local endpoint; or may represent successful protocol handshakes at one or more layers that are pre-requistes to receiving content.
+>> A Connection is the fundamental object used by an application for all interaction with a peer and data transfer. It is generally capable of bi-directional communication. It has state that represents the capability of being able to send or receive content between its local and remote endpoints. This capability may be based merely on the existence of a route between the two endpoints and an application's permission to send and receive on its local endpoint; or may represent successful protocol handshakes at one or more layers that are pre-requisites to receiving content.
 
 Listener
 
@@ -237,7 +237,7 @@ Remote Endpoint
 
 Local Endpoint
 
->> The Local Endpoint in a properties \[MICHAEL: I can't parse "in a properties" here. Should this be removed?] represents the application's view of itself that it wants to use for transport connections. This may be optional, or may be generic (a wildcard address, for example).
+>> The Local Endpoint in a properties \[MICHAEL: I can't parse "in a properties" here. Should this be removed?] represents the application's view of itself that it wants to use for transport connections. This may be optional, or may be generic (a wild card address, for example).
 
 Path Selection Properties
 
@@ -255,7 +255,7 @@ Specific Protocol Properties
 
 Initiate
 
->> Initiate is the primary action that an application can take to create a Connection to a remote endpoint, and prepare any required local or remote state to be able to send and/or receive content. For some protocols, this may initiate a server-to-client style handshake; for other protocols, this may just establish local state; and for peer-to-peer protocols, this may begin the process of a simulatenous open.
+>> Initiate is the primary action that an application can take to create a Connection to a remote endpoint, and prepare any required local or remote state to be able to send and/or receive content. For some protocols, this may initiate a server-to-client style handshake; for other protocols, this may just establish local state; and for peer-to-peer protocols, this may begin the process of a simultaneous open.
 
 Listen
 
@@ -265,7 +265,7 @@ Listen
 
 Content
 
->> Content is a unit of data that can be respresented as bytes that can be transferred between two endpoints over a transport connection. The bytes within a unit of Content are assumed to be ordered within the unit itself. That is, if an application does not care about the order in which a peer receives two distinct spans of bytes, those spans of bytes are considered independent units of Content. Content may or may not be usable if incomplete or corrupted. Boundaries of Content may or may not be understood or transmitted by transport protocols. That is, what one application considers to be two units of Content sent on a stream-based transport may be treated as a single unit of Content by the application on the other side.
+>> Content is a unit of data that can be represented as bytes that can be transferred between two endpoints over a transport connection. The bytes within a unit of Content are assumed to be ordered within the unit itself. That is, if an application does not care about the order in which a peer receives two distinct spans of bytes, those spans of bytes are considered independent units of Content. Content may or may not be usable if incomplete or corrupted. Boundaries of Content may or may not be understood or transmitted by transport protocols. That is, what one application considers to be two units of Content sent on a stream-based transport may be treated as a single unit of Content by the application on the other side.
 
 Send
 
@@ -331,7 +331,7 @@ Protocol Instance
 
 Protocol Stack
 
->> A Protocol Stack is a set of Protocol Instances (including relevant application, security, transport, or Internet protocols) that are used together to establish connectivity or send and receive content. A single stack may be simple (a single transport protocol instance over IP), or complex (multiple application protocol streams going through a single security and transport protocol, over IP; or, a multi-path transport protocol over multiple transport subflows).
+>> A Protocol Stack is a set of Protocol Instances (including relevant application, security, transport, or Internet protocols) that are used together to establish connectivity or send and receive content. A single stack may be simple (a single transport protocol instance over IP), or complex (multiple application protocol streams going through a single security and transport protocol, over IP; or, a multi-path transport protocol over multiple transport sub-flows).
 
 System Policy
 
@@ -377,4 +377,4 @@ This document has no actions for IANA.
 
 # Security Considerations
 
-TAPS does not recommend use of specific security protocols or algorithms. Its goal is to offer ease of use for existing protocols by providing a generic security-related interface. Each provided interface mimics an existing protocol-specific interface provided by supported security protocols. For example, trust verification callbacks are common parts of TLS APIs. TAPS exposes one for similar purposes. Clients must take care to use security APIs appropriately. In cases where clients use said interface to provide sensitive keying material, e.g., access to private keys or copies of pre-shared keys (PSKs), key use must be validated. For example, clients SHOULD NOT use PSK material created for ESP with IETF-QUIC, and clients MUST NOT use private keys intended for server authentication as a key for client authentication. Moreover, unlike certain transport features such as TFO or ECN which can fall back to standard configurations, TAPS systems MUST NOT permit fallbacks for security protocols. For example, if a clients requests TLS, yet TLS or the desired version are not available, its connection MUST fail. Clients are responsible for implementing protocol or version fallback using a TAPS API if so desired. 
+TAPS does not recommend use of specific security protocols or algorithms. Its goal is to offer ease of use for existing protocols by providing a generic security-related interface. Each provided interface mimics an existing protocol-specific interface provided by supported security protocols. For example, trust verification callbacks are common parts of TLS APIs. TAPS exposes one for similar purposes. Clients must take care to use security APIs appropriately. In cases where clients use said interface to provide sensitive keying material, e.g., access to private keys or copies of pre-shared keys (PSKs), key use must be validated. For example, clients SHOULD NOT use PSK material created for ESP with IETF-QUIC, and clients MUST NOT use private keys intended for server authentication as a key for client authentication. Moreover, unlike certain transport features such as TFO or ECN which can fall back to standard configurations, TAPS systems MUST NOT permit fallback for security protocols. For example, if a clients requests TLS, yet TLS or the desired version are not available, its connection MUST fail. Clients are responsible for implementing protocol or version fallback using a TAPS API if so desired. 
