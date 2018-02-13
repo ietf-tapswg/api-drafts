@@ -134,7 +134,7 @@ Other specialized features, however, may be strictly required by an application 
 
 ## Scope for API and Implementation Definitions
 
-The Transport Services API is envisioned as the abstract model for a family of APIs that all share a common way to expose transport features and encourage flexibility. The API definition {{I-D.trammell-taps-interface}} is aimed at explaining to application developers how to use this interface.
+The Transport Services API is envisioned as the abstract model for a family of APIs that share a common way to expose transport features and encourage flexibility. The abstract API definition {{I-D.trammell-taps-interface}} describes this interface and is aimed at application developers.
 
 Implementations that provide the Transport Services API {{I-D.brunstrom-taps-impl}}, on the other hand, will vary due to system-specific support and the needs of the deployment scenario. It is expected that all implementations of Transport Services will offer the entire mandatory API, but that some features will not be functional in certain implementations. For example, all implementations should offer sufficient APIs to use basic transport protocols like TCP and UDP, but it is possible that a very constrained device may not have a full TCP implementation.
 
@@ -144,11 +144,11 @@ It is important to note that neither the Transport Services API nor the Implemen
 
 # Transport Services Architecture and Concepts
 
-The concepts defined in this document are intended primarily for use in Internet Drafts and specifications. While the specific terminology may be used in specific implementations, it is expected that there will remain a variety of terms used by running code.
+The concepts defined in this document are intended primarily for use in the documents and specifications that describe the Transport Services architecture and API. While the specific terminology may be used in some implementations, it is expected that there will remain a variety of terms used by running code.
 
 The architecture divides the concepts for Transport Services into two categories:
-- API concepts, which are meant to be exposed to applications
-- System-implementation concepts, which are meant to be internally used when building systems that implement Transport Services.
+1) API concepts, which are meant to be exposed to applications; and 
+2) System-implementation concepts, which are meant to be internally used when building systems that implement Transport Services.
 
 The following diagram summarizes the top-level concepts in the architecture and how they relate to one another.
 
@@ -195,31 +195,21 @@ Fundamentally, a Transport Services API needs to provide basic objects that allo
 
 Beyond the basic objects, there are several high-level groups of actions that any Transport Services API must provide:
 
-Pre-Establishment {{preestablishment}}
+* Pre-Establishment ({{preestablishment}}) encompasses the parameters that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. For any system that provides generic Transport Services, these properties should primarily offer knobs that apply across multiple transports. Properties may have a large impact on the rest of the aspects of the interface: they can modify how establishment occurs, they can influence the expectations around data transfer, and they determine the set of events that will be supported.
 
->> Pre-Establishment encompasses the parameters that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. For any system that provides generic Transport Services, these properties should primarily offer knobs that apply across multiple transports. Properties may have a large impact on the rest of the aspects of the interface: they can modify how establishment occurs, they can influence the expectations around data transfer, and they determine the set of events that will be supported.
+* Establishment ({{establishment}}) focuses on the actions that an application takes \[MICHAEL: on? with?] the transport objects to prepare for data transfer.
 
-Establishment {{establishment}}
+* Data Transfer ({{datatransfer}}) consists of how an application represents data to be sent and received, the functions required to send and receive that data, and how the application is notified of the status of its data transfer.
 
->> Establishment focuses on the actions that an application takes \[MICHAEL: on? with?] the transport objects to prepare for data transfer.
+* Event Handling ({{events}}) defines the set of properties that an application may be notified of during the lifetime of transport objects. These may also provide opportunities for the application to interact with the underlying transport.
 
-Data Transfer {{datatransfer}}
-
->> Data Transfer consists of how an application represents data to be sent and received, the functions required to send and receive that data, and how the application is notified of the status of its data transfer.
-
-Event Handling {{events}}
-
->> Events define the set of properties that an application may be notified of during the lifetime of transport objects. These may also provide opportunities for the application to interact with the underlying transport.
-
-Termination {{termination}}
-
->> Termination focuses on the methods by which data transmission is ceased, and state is torn down in the transport.
+* Termination ({{termination}}) focuses on the methods by which data transmission is ceased, and state is torn down in the transport.
 
 ### Objects {#objects}
 
 Connection
 
->> A Connection is the fundamental object used by an application for all interaction with a peer and data transfer. It is generally capable of bi-directional communication. It has state that represents the capability of being able to send or receive content between its local and remote endpoints. This capability may be based merely on the existence of a route between the two endpoints and an application's permission to send and receive on its local endpoint; or may represent successful protocol handshakes at one or more layers that are pre-requisites to receiving content.
+>> A Connection is the fundamental object used by an application for all interaction with a peer and data transfer. It is generally capable of bi-directional communication. It has state that represents the capability of being able to send or receive content between its local and remote endpoints. This capability may be based merely on the existence of a path between the two endpoints and an application's permission to send and receive on its local endpoint; or may represent successful protocol handshakes at one or more layers that are pre-requisites to receiving content.
 
 Listener
 
