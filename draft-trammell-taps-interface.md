@@ -279,12 +279,35 @@ stack used is communicated ]
 
 When creating a connection, an application needs to specify transport
 parameters reflecting its requirements and preferences regarding its
-communication. These Transport parameters include Protocol Selection
-Properties, Protocol Properties (specific configuration of a transport protocol
-once it has been selected), Path Selection Properties, and 
-Application Intents (hints to the transport system what to optimize for).
+communication. These Transport parameters include 
+*Transport Preferences* (towards protocol selection and path selection) as well as 
+*Application Intents* (hints to the transport system what to optimize for) and 
+*Protocol Parameters* (to instrument transport protocols).
 
-Some properties are strict requirements that the application relies on,
+All Transport Parameters are organized as key-value pairs occupying a single
+name space with Send Parameters (see {{send-params}}). While Application
+Intents and Protocol Parameters take parameter specific values, Transport
+Preferences use one of the fixed levels.
+
+Transport Preferences drive protocol selection and path selection on connection
+establishment. To reflect the needs of an individual connection, they can be
+specified with different preference, whereby the preference is one of the
+following levels:
+
+   | Preference   | Effect                                                    |
+   |--------------|-----------------------------------------------------------|
+   | `require `   | Fail if requested feature/property can not be met         |
+   | `prefer  `   | Proceed if requested feature/property can not be met      |
+   | `don't care` | None / clear defaults                                     |
+   | `avid    `   | Proceed if requested feature/property can not be avoided  |
+   | `prohibit`   | Fail if requested feature/property can not be avoided     |
+
+There need to be sensible defaults for the Protocol Selection Properties.
+Default preference levels and possible combinations of Transport Parameters and
+preference levels are specified in {{appendix-preferences}}.
+The following properties can be adjusted before establishing a Connection.
+
+Some parameters express strict requirements that the application relies on,
 while others are hints of what transport features would be helpful
 for the application. For example, if an application asks for reliable data
 transfer, choosing a transport protocol such as UDP, which does not have this
@@ -292,39 +315,39 @@ feature, will break the application's functionality. On the other hand, the
 option to not require checksums when receiving an individual Content can help
 optimize for low latency, but if not present, it will most likely not break the
 fundamental assumptions of the application.
-
-Moreover, there can be conflicts between properties set by 
+Moreover, there can be conflicts between parameters set by 
 the application: If multiple features are requested which are offered 
 by different protocols, it may not be possible to satisfy all requirements.
 Consequently, a transport system must prioritize Transport Parameters and
 consider the relevant trade-offs, see also {{?TAPS-MINSET=I-D.ietf-taps-minset}}.
-To reflect that, some Transport Parameters can be specified with different
-preference, whereby the preference is one of the following levels:
 
-   | Preference | Description                                               |
-   |------------|-----------------------------------------------------------|
-   | `intend  ` | Hint to the transport system (usually Application Intent) |
-   | `require ` | Fail if requested feature/property can not be met         |
-   | `prefer  ` | Proceed if requested feature/property can not be met      |
-   | `avid    ` | Proceed if requested feature/property can not be avoided  |
-   | `prohibit` | Fail if requested feature/property can not be avoided     |
 
-Default preference levels and possible combinations of Transport Parameters and
-preference levels are specified in {{appendix-preferences}}.
+### Transport Parameters Object 
 
-All properties of the Transport Parameters are collected in a 
-TransportParameters object:
+All transport parameters used in the pre-establishment phase are collected
+in a *TransportParameters* object.
+For the sake of convenience, we suggests implementing TransportParameters
+class as sub-class of an existing Dictionary or Set class to allow in-place notion
+of Transport Parameters.
 
 ~~~
 transportParameters := NewTransportParameters()
 ~~~
 
-The Individual properties, regardless whether thy are Protocol Selection
-Properties, Protocol Properties, Path Selection Properties, or 
-Application Intents, are then added to the TransportParameters object:
+The Individual parameters are then added to the TransportParameters object.
+While Protocol Parameters and Application Intents use the `add` call, 
+Transport Preferences use special calls for the levels defined in {{transport-params}}. 
 
 ~~~
-transportParameters.addProperty(preference, name, value)
+transportParameters.add(intent, value)
+
+transportParameters.add(parameter, value)
+
+transportParameters.require(preference)
+transportParameters.prefer(preference)
+transportParameters.dontcare(preference)
+transportParameters.avid(preference)
+transportParameters.prohibit(preference)
 ~~~
 
 For an existing connection, the Transport Parameters can be queried any time
@@ -334,14 +357,17 @@ by using the following call on the Connection object:
 transportParameters := connection.getTransportParameters()
 ~~~
 
-For most properties, it is beneficial for the application to set them as early as
-possible in order to help the transport system optimize.
-Some parameters can also be set later in the lifetime of a connection.
-However, Protocol Selection Properties and Path Selection Properties MUST
-be added to the TransportParameters object before calling Initiate() and
-SHOULD result in a runtime error if changed later.
-{{appendix-specify-query-params}} gives an overview of what Transport
-Parameters can be specified and queried during which phase.
+Most properties are only considered for connection establishment and can
+not be changed later on. {{appendix-specify-query-params}} gives an overview 
+of what Transport Parameters can be specified and queried during which phase.
+
+- Protocol Selection Properties MUST be added to the TransportParameters object
+  before establishing a connection and SHOULD result in a runtime error if
+  changed later.
+   
+- Path Selection Properties MAY be changed but only effect future connection
+  migrations or path selection for multipath protocols.
+
 
 Connections can be cloned at any time, before or after establishment.
 A cloned connection and its parent are entangled: they share the same
@@ -357,10 +383,8 @@ MUST NOT be realized using the connection level TransportParameters object.]
 
 
 
+### Protocol Selection Preferences {#protocol-selection-props}
 
-### Protocol Selection Properties {#protocol-selection-props}
-
-The following properties can be adjusted before establishing a Connection.
 There need to be sensible defaults for the Protocol Selection Properties. The
 defaults given in the following section represent a configuration that can be
 implemented over TCP. An alternate set of default Protocol Selection Properties
@@ -368,7 +392,7 @@ would represent a configuration that can be implemented over UDP.
 
 The following properties apply to Connections and Connection Groups:
 
-Reliable Data Transfer
+#### Reliable Data Transfer
 
 This boolean property specifies whether the application needs the transport
 protocol to ensure that data is received completely and without corruption on
@@ -376,7 +400,7 @@ the other side. This also entails being notified when a Connection is closed
 or aborted. This property applies to connections and connection groups.
 This is a strict requirement. The default is to enable Reliable Data Transfer.
 
-Preservation of data ordering
+#### Preservation of data ordering
 
 This boolean property specifies whether the application needs the transport
 protocol to assure that data is received by the application on the other end in
@@ -384,14 +408,14 @@ the same order as it was sent. This property applies to connections and
 connection groups. This is a strict requirement. The default is to preserve data
 ordering.
 
-Option to configure reliability for individual Content
+#### Configure reliability for individual Content
 
 This boolean property specifies whether an application considers it useful to
 indicate its reliability requirements on a per-Content basis. This property
 applies to connections and connection groups. This is not a strict requirement.
 The default is to not have this option.
 
-Option to request not to delay acknowledgment (SACK) of Content
+#### Request not to delay acknowledgment (SACK) of Content
 
 This boolean property specifies whether an application considers it useful to
 request for Content that its acknowledgment be sent out as early as possible
@@ -399,7 +423,7 @@ request for Content that its acknowledgment be sent out as early as possible
 property applies to connections and connection groups. This is not a strict
 requirement. The default is to not have this option.
 
-Option to use 0-RTT session establishment with idempotent Content
+#### Use 0-RTT session establishment with idempotent Content
 
 This boolean property specifies whether an application would like to supply a
 Content to the transport protocol before Connection establishment, which will
@@ -408,20 +432,20 @@ establishment, potentially multiple times. See also {{send-idempotent}}.
 This is a strict
 requirement. The default is to not have this option.
 
-Option to use Connection Groups with priorities
+#### Use Connection Groups with priorities
 
 This boolean property specifies whether an application considers it useful to
 create Connection Groups and explicitly prioritize between Connections
 within a Connection Group.
 
-Suggest a timeout to the peer
+#### Suggest a timeout to the peer
 
 This boolean property specifies whether an application considers it useful to
 propose a timeout until the connection is assumed to be lost. This
 property applies to Connections and Connection Groups. This is not a strict
 requirement. The default is to have this option.
 
-Notification of special errors (excessive retransmissions, ICMP error message arrival)
+#### Notification of special errors (excessive retransmissions, ICMP error message arrival)
 
 This boolean property specifies whether an application considers it useful to
 be informed in case sent data was retransmitted more often than a certain
@@ -429,7 +453,7 @@ threshold, or when an ICMP error message arrives. This property applies to
 Connections and Connection Groups. This is
 not a strict requirement. The default is to have this option.
 
-Control checksum coverage on sending or receiving
+#### Control checksum coverage on sending or receiving
 
 This boolean property specifies whether the application considers it useful to
 enable / disable / configure a checksum when sending Content, or decide whether to
@@ -438,53 +462,6 @@ This property applies to Connections and
 Connection Groups. This is not a strict requirement, as it signifies a
 reduction in reliability. The default is full checksum coverage without being
 able to change it, and requiring a checksum when receiving.
-
-
-### Protocol Properties {#protocol-props}
-
-Protocol Properties represent the configuration of a transport protocols once
-it has been selected. A transport protocol may not support all Protocol
-Properties, depending on the available transport features. An application
-should specify the Protocol Properties as early as possible to help the TAPS
-system optimize. However, a TAPS system will only actually set those protocol
-properties that are actually supported by the chosen transport protocol. These
-property all apply to Connections and Connection groups.
-The default settings of these properties depends on the chosen protocol and on
-the system configuration.
-
-Set timeout for aborting Connection
-
-This numeric property specifies how long to wait before aborting a Connection.
-It is given in seconds.
-
-Set timeout to suggest to the peer
-
-This numeric property specifies the timeout to propose to the peer. It is given
-in seconds.
-
-Set retransmissions before "Excessive Retransmissions"
-
-This numeric property specifies after how many retransmissions to inform the
-application about "Excessive Retransmissions".
-
-Set required minimum coverage of the checksum for receiving
-
-This numeric property specifies the part of the received data that needs to be
-covered by a checksum. It is given in Bytes. A value of 0 means that no checksum
-is required, and a special value (e.g., -1) indicates full checksum coverage.
-
-Set scheduler for connections in a group
-
-This property specifies which scheduler should be used among Connections within
-a Connection Group. It applies to connection groups. For now we suggest we
-the schedulers defined in {{I-D.ietf-tsvwg-sctp-ndata}}.
-
-Maximum Content Size Before Connection Establishment
-
-This numeric property can be queried by the application after creating a
-Connection. It represents the maximum Content size that can be sent before or
-during Connection establishment, see also {{send-idempotent}}. It is given in
-Bytes.
 
 
 ### Path Selection Properties {#path-selection-props}
@@ -498,20 +475,67 @@ an application has regarding path selection. These properties should be
 specified as early as possible in order to help the TAPS system optimize.
 However, they may also be specified later.
 
-Interface Type to prefer
+#### Interface Type to prefer
 
 This property specifies which kind of access network interface, e.g., WiFi,
 Ethernet, or LTE, to prefer over others for this connection, in case they are
 available.  This is not a strict requirement. The default is to use the default
 interface configured in the system policy.
 
-Interface Type to prohibit
+#### Interface Type to prohibit
 
 This property specifies which kind of access network interface, e.g., WiFi,
 Ethernet, or LTE, to not use for this connection. This is a strict requirement
 and connection establishment will fail if no other interface is available. The
 default is to not prohibit any particular interface.
 
+
+
+### Protocol Parameters {#protocol-props}
+
+Protocol Parameters represent the configuration of a transport protocols once
+it has been selected. A transport protocol may not support all Protocol
+Properties, depending on the available transport features. An application
+should specify the Protocol Parameters as early as possible to help the TAPS
+system optimize. However, a TAPS system will only actually set those protocol
+properties that are actually supported by the chosen transport protocol. These
+property all apply to Connections and Connection groups.
+The default settings of these properties depends on the chosen protocol and on
+the system configuration.
+
+#### Set timeout for aborting Connection
+
+This numeric property specifies how long to wait before aborting a Connection.
+It is given in seconds.
+
+#### Set timeout to suggest to the peer
+
+This numeric property specifies the timeout to propose to the peer. It is given
+in seconds.
+
+#### Set retransmissions before "Excessive Retransmissions"
+
+This numeric property specifies after how many retransmissions to inform the
+application about "Excessive Retransmissions".
+
+#### Set required minimum coverage of the checksum for receiving
+
+This numeric property specifies the part of the received data that needs to be
+covered by a checksum. It is given in Bytes. A value of 0 means that no checksum
+is required, and a special value (e.g., -1) indicates full checksum coverage.
+
+#### Set scheduler for connections in a group
+
+This property specifies which scheduler should be used among Connections within
+a Connection Group. It applies to connection groups. For now we suggest we
+the schedulers defined in {{I-D.ietf-tsvwg-sctp-ndata}}.
+
+#### Maximum Content Size Before Connection Establishment
+
+This numeric property can be queried by the application after creating a
+Connection. It represents the maximum Content size that can be sent before or
+during Connection establishment, see also {{send-idempotent}}. It is given in
+Bytes.
 
 ### Application Intents {#intents}
 
@@ -539,10 +563,10 @@ combination of Application Intents. All Application Intents can be specified for
 connections and cloning a Connection to form a Connection Group will clone the
 associated Intents along with the other transport parameters. Some Intents can
 also be specified for individual Content, similar to the properties in
-{{send-props}}.
+{{send-params}}.
 
 
-Traffic Category
+#### Traffic Category
 
 This Intent specifies what the application expect the dominating traffic
 pattern to be.
@@ -568,7 +592,7 @@ intents or the stream category suggesting the Stream Bitrate and Duration
 intents.
 
 
-Size to be Sent / Received
+#### Size to be Sent / Received
 
 This Intent specifies what the application expects the size of a transfer to be.
 It is a numeric property and given in Bytes. This Intent can also apply to
@@ -587,7 +611,7 @@ This Intent specifies what the application expects the bitrate of a transfer to
 be. It is a numeric property and given in Bytes per second.
 
 
-Timeliness
+#### Timeliness
 
 This Intent specifies what delay characteristcs the applications prefers. It
 provides hints for the transport system whether to optimize for low latency or other
@@ -610,7 +634,7 @@ Background:
 The default is "Transfer".
 
 
-Disruption Resilience
+#### Disruption Resilience
 
 This Intent describes what an application knows about its own ability to deal
 with disruption of its communication, e.g., connection loss. It provides hints
@@ -630,7 +654,7 @@ Resilient:
 The default is "Sensitive".
 
 
-Cost Preferences
+#### Cost Preferences
 
 This Intent describes what an application prefers regarding monetary costs,
 e.g., whether it considers it acceptable to utilize limited data volume. It
@@ -651,6 +675,8 @@ Ignore Cost:
 : Ignore cost, choose transport solely based on other criteria
 
 The default is "Balance Cost".
+
+
 
 ## Specifying Security Parameters and Callbacks {#security-parameters}
 
@@ -849,8 +875,8 @@ to aid the Transport System in choosing and configuring the right protocols
 # Sending Data {#sending}
 
 Once a Connection has been established, it can be used for sending data. Data
-is sent by passing a Content object and additional properties
-{{send-props}} to the Send action on an established connection:
+is sent by passing a Content object and additional parameters
+{{send-params}} to the Send action on an established connection:
 
 Connection.Send(Content, ...)
 
@@ -899,14 +925,25 @@ A SendError occurs when Content could not be sent due to an error condition:
 some failure of the underlying Protocol Stack, or a set of send parameters not
 consistent with the Connection's transport parameters.
 
-## Send Properties {#send-props}
 
-The Send action takes six per-Content properties which control how it will be
-sent down to the underlying Protocol Stack and transmitted. Note that some of
-these properties are not compatible with transport parameters; attempting to
-Send with such an incompatibility yields a SendError.
+## Send Parameters {#send-params}
 
-### Lifetime {#send-lifetime}
+The Send action takes per-Content send parameters which control how the contents
+will be sent down to the underlying Protocol Stack and transmitted.
+The Send Parameters share a single namespace with the 
+Transport Parameters (see {{transport-params}}).
+This allows to specify Protocol Parameters and that can be overridden on a per
+content basis or Application Intents that apply to a specific content.
+See {{appendix-specify-query-params}} for an overview.
+Note that some of these properties are not compatible with transport parameters;
+attempting to Send with such an incompatibility yields a SendError.
+
+The Send Parameters are organized in *Content Parameters*,
+*Protocol Parameters*, *Path Selection Properties* and *Application Intents*.
+
+### Content Parameters
+
+#### Lifetime {#send-lifetime}
 
 Lifetime specifies how long a particular Content can wait to be sent to the
 remote endpoint before it is irrelevant and no longer needs to be
@@ -914,7 +951,7 @@ remote endpoint before it is irrelevant and no longer needs to be
 transmitted reliably. The type and units of Lifetime are
 implementation-specific.
 
-### Niceness {#send-niceness}
+#### Niceness {#send-niceness}
 
 Niceness represents an unbounded hierarchy of priorities of Content, relative
 to other Content sent over the same Connection and/or Connection Group (see
@@ -928,20 +965,20 @@ Note that this inversion of normal schemes for expressing priority has a
 convenient property: priority increases as both Niceness and Lifetime
 decrease.
 
-### Ordered {#send-ordered}
+#### Ordered {#send-ordered}
 
 Ordered is a boolean property. If true, this Content should be delivered after
 the last Content passed to the same Connection via the Send action; if false,
 this Content may be delivered out of order.
 
-### Immediate {#send-immediate}
+#### Immediate {#send-immediate}
 
 Immediate is a boolean property. If true, the caller prefers immediacy to
 efficient capacity usage for this Content. For example, this means that
 the Content should not be bundled with other
 Content into the same transmission by the underlying Protocol Stack.
 
-### Idempotent {#send-idempotent}
+#### Idempotent {#send-idempotent}
 
 Idempotent is a boolean property. If true, the application-layer entity in the
 Content is safe to send to the remote endpoint more than once for a single
@@ -953,12 +990,80 @@ application to receive the Content multiple times.
 0RTT data on Initiate. Probably a transport parameter]
 \[MICHAEL: why? As an app programmer, I can just use Send instead of Initiate.]
 
-### Checksum {#send-checksum}
+#### Checksum {#send-checksum}
 
 This numeric property specifies the length of the checksum to be used on the Content.
 A value of 0 means that no checksum is required, and a special value (e.g. -1) can
 be used to indicate full checksum coverage (which is also the default). Only
 full coverage is guaranteed, any other requests are advisory.
+
+###Protocol Parameters
+
+
+###Path Selection Properties
+
+Path selection properties only apply to multi-path aware transports and
+influence which of the established paths to use for a specific content.
+
+
+###Application Intents
+
+#### Size to be Sent / Received
+
+This Intent specifies what the application expects the size of a transfer to be.
+It is a numeric property and given in Bytes. This Intent can also apply to
+individual Content.
+
+
+#### Stream Bitrate Sent / Received
+
+This Intent specifies what the application expects the bitrate of a transfer to
+be. It is a numeric property and given in Bytes per second.
+
+#### Timeliness
+
+This Intent specifies what delay characteristcs the applications prefers. It
+provides hints for the transport system whether to optimize for low latency or other
+criteria. Note that setting this Intents does not imply any guarantees on
+whether an application's requirements can actually be satisfied. This Intent
+can also apply to individual Content.
+
+Stream:
+: Delay and packet delay variation should be kept as low as possible
+
+Interactive:
+: Delay should be kept as low as possible, but some variation is tolerable
+
+Transfer:
+: Delay and packet delay variation should be reasonable, but are not critical
+
+Background:
+: Delay and packet delay variation is no concern
+
+The default is "Transfer".
+
+
+#### Cost Preferences
+
+This Intent describes what an application prefers regarding monetary costs,
+e.g., whether it considers it acceptable to utilize limited data volume. It
+provides hints to the transport system on how to handle tradeoffs between cost
+and performance or reliability. This Intent can also apply to individual
+Content.
+
+No Expense:
+: Avoid transports associated with monetary cost
+
+Optimize Cost:
+: Prefer inexpensive transports and accept service degradation
+
+Balance Cost:
+: Use system policy to balance cost and other criteria
+
+Ignore Cost:
+: Ignore cost, choose transport solely based on other criteria
+
+The default is "Balance Cost".
 
 
 ## Sender-side Framing {#send-framing}
@@ -1133,13 +1238,13 @@ An application may specify Transport Parameters for a connection within the
 Pre-Establishment Phase, i.e., before calling Initiate() on this connection, as
 described in {{transport-params}}. Specifically, Protocol Selection and Path
 Selection Properties MUST be specified during Pre-Establishment, as protocol
-and path selection occur during connection establishment. Protocol Properties,
+and path selection occur during connection establishment. Protocol Parameters,
 which express specific configuration of a transport protocol, and Application
 Intents can be specified either during pre-establishment or later in the
 lifetime of a connection. Note that it is beneficial to set these properties as
 early as possible, so the transport system can use them to optimize. An
 application may also specify Send Properties per individual Content, as
-specified in {{send-props}}.
+specified in {{send-params}}.
 
 An application may query the Transport Parameters that were specified for a
 connection at all times. Additionally, an application may query the Transport
@@ -1160,7 +1265,7 @@ which phase:
 | Property Type | Pre-Establishment | Established |
 |---------------|-------------------|-------------|
 | Set Protocol Selection Properties | Yes | No    |
-| Set Protocol Properties           | Yes | Yes   |
+| Set Protocol Parameters           | Yes | Yes   |
 | Set Path Selection Properties     | Yes | No    |
 | Set Application Intents           | Yes | Yes   |
 | Set Send Properties               | Yes (0-RTT) | Yes |
