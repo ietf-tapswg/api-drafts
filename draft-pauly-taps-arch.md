@@ -368,3 +368,8 @@ This document has no actions for IANA.
 # Security Considerations
 
 TAPS does not recommend use of specific security protocols or algorithms. Its goal is to offer ease of use for existing protocols by providing a generic security-related interface. Each provided interface mimics an existing protocol-specific interface provided by supported security protocols. For example, trust verification callbacks are common parts of TLS APIs. TAPS exposes one for similar purposes. Clients must take care to use security APIs appropriately. In cases where clients use said interface to provide sensitive keying material, e.g., access to private keys or copies of pre-shared keys (PSKs), key use must be validated. For example, clients SHOULD NOT use PSK material created for ESP with IETF-QUIC, and clients MUST NOT use private keys intended for server authentication as a key for client authentication. Moreover, unlike certain transport features such as TFO or ECN which can fall back to standard configurations, TAPS systems MUST NOT permit fallback for security protocols. For example, if a clients requests TLS, yet TLS or the desired version are not available, its connection MUST fail. Clients are responsible for implementing protocol or version fallback using a TAPS API if so desired. 
+
+# Acknowledgements
+
+This work has received funding from the European Union's Horizon 2020 research and
+innovation programme under grant agreement No. 644334 (NEAT).

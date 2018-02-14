@@ -1079,6 +1079,11 @@ Part of this API includes configuration details for transport security protocols
 in Section {{security-parameters}}. It does not recommend use (or disuse) of specific
 algorithms or protocols. Any API-compatible transport security protocol should work in a TAPS system.
 
+# Acknowledgements
+
+This work has received funding from the European Union's Horizon 2020 research and
+innovation programme under grant agreement No. 644334 (NEAT).
+
 
 --- back
 
