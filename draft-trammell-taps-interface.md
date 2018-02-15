@@ -1043,6 +1043,20 @@ Connection.DeframeWith(Deframer)
 
 Content := Deframer.Deframe(OctetStream, ...)
 
+# Maintenance
+
+The application can access the following properties on an established Connection:
+
+* Transport Features of the protocols that were selected. These features correspond to the properties given in {{protocol-selection-props}} and can only be queried.
+* Protocol Properties of the protocols in use. These properties correspond to the properties given {{protocol-props}} and can be set and queried.
+* Path Properties of the path(s) in use. These properties can be derived from the local provisioning domain, measurements by the protocol stack, or other sources. They can only be queried.
+
+~~~
+Properties := Connection.getProperties()
+~~~
+
+{{appendix-specify-query-params}} gives a more detailed overview of the different types of properties that can be set and queried at different times.
+
 # Connection Termination {#termination}
 
 Close terminates a Connection after satisfying all the requirements that were specified regarding the delivery of Content that the application has already given to the transport system. For example, if reliable delivery was requested for Content handed over before calling Close, the transport system will ensure that such Content is indeed delivered. If the peer still has data to send, it cannot be received after this call.
