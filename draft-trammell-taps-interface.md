@@ -1133,6 +1133,20 @@ Connection.DeframeWith(Deframer)
 
 Content := Deframer.Deframe(OctetStream, ...)
 
+# Maintenance
+
+The application can access the following properties on an established Connection:
+
+* Transport Features of the protocols that were selected. These features correspond to the properties given in {{protocol-selection-props}} and can only be queried.
+* Protocol Properties of the protocols in use. These properties correspond to the properties given {{protocol-props}} and can be set and queried.
+* Path Properties of the path(s) in use. These properties can be derived from the local provisioning domain, measurements by the protocol stack, or other sources. They can only be queried.
+
+~~~
+Properties := Connection.getProperties()
+~~~
+
+{{appendix-specify-query-params}} gives a more detailed overview of the different types of properties that can be set and queried at different times.
+
 # Connection Termination {#termination}
 
 Close terminates a Connection after satisfying all the requirements that were specified regarding the delivery of Content that the application has already given to the transport system. For example, if reliable delivery was requested for Content handed over before calling Close, the transport system will ensure that such Content is indeed delivered. If the peer still has data to send, it cannot be received after this call.
@@ -1168,6 +1182,11 @@ This document describes a generic API for interacting with a transport services 
 Part of this API includes configuration details for transport security protocols, as discussed
 in Section {{security-parameters}}. It does not recommend use (or disuse) of specific
 algorithms or protocols. Any API-compatible transport security protocol should work in a TAPS system.
+
+# Acknowledgements
+
+This work has received funding from the European Union's Horizon 2020 research and
+innovation programme under grant agreement No. 644334 (NEAT).
 
 
 --- back
@@ -1205,54 +1224,74 @@ set.
 |------------------------|----------|--------|-------|----------|---------|
 | Reliable Data Transfer | Yes      | Yes    | Yes   | Yes      | Require |
 | Preserve Data Ordering | Yes      | Yes    | Yes   | No       | Require |
-| Configure Reliability per Content | Yes | Yes | Yes | Yes     | Prefer  |
-| Request SACK           | Yes      | Yes    | Yes    | Yes     | Prefer  |
+| Configure Reliability per Content | Yes | Yes | Yes | Yes     | None    |
+| Request SACK           | Yes      | Yes    | Yes    | Yes     | None    |
 | Use 0-RTT with Idempotent Content | Yes | Yes | Yes | Yes     | None    |
 | Use Connection Groups with priorities | Yes | Yes | No | No   | None    |
-| Suggest timeout to peer | Yes     | Yes    | No    | No       | Prefer  |
-| Notification of special errors | Yes | Yes | Yes   | Yes      | Prefer  |
-| Control checksum coverage | Yes   | Yes    | Yes   | Yes      | Prefer  |
+| Suggest timeout to peer | Yes     | Yes    | No    | No       | None    |
+| Notification of special errors | Yes | Yes | Yes   | Yes      | None    |
+| Control checksum coverage | Yes   | Yes    | Yes   | Yes      | None    |
 | Use a certain network interface type | Yes | Yes | Yes | Yes  | None    |
 | Application Intents    | No       | No     | No    | No       | Intend  |
 
 \[List individual Intents? Reformulate some of them as preferences?]
 
-## Specifying and Querying {#appendix-specify-query-params}
+## Specifying and Querying Parameters {#appendix-specify-query-params}
 
-An application may specify Transport Parameters for a connection within the
-Pre-Establishment Phase, i.e., before calling Initiate() on this connection, as
-described in {{transport-params}}. Specifically, Protocol Selection and Path
-Selection Properties MUST be specified during Pre-Establishment, as protocol
-and path selection occur during connection establishment. Protocol Properties,
-which express specific configuration of a transport protocol, and Application
-Intents can be specified either during pre-establishment or later in the
-lifetime of a connection. Note that it is beneficial to set these properties as
-early as possible, so the transport system can use them to optimize. An
-application may also specify Send Parameters per individual Content, as
-specified in {{send-params}}.
+In this appendix we give an overview of the different types of properties, the
+objects to which they apply, and at what time an application can query them.
 
-An application may query the Transport Parameters that were specified for a
-connection at all times. Additionally, an application may query the Transport
-Parameters that apply to the actual connection at all times. However, some
-parameters may not yet be available during the Pre-Establishment Phase, so the
-application can most likely only obtain limited information at that point.
+During the Pre-Establishment phase, an application may specify Transport
+Parameters for a Connection as described in {{transport-params}}.
+Specifically, Protocol Selection Properties, Path Selection Properties, and
+Application Intents for the Connection MUST be specified during
+Pre-Establishment, as protocol and path selection occur during connection
+establishment. An application may query the Transport Parameters that were
+specified for a Connection at all times.
 
-Note that it is possible that the transport protocol actually chosen by the
-transport system does not fully reflect the Transport Parameters that were
+Transport Features represent the actual capabilities of specific Protocol
+Stacks. They are expressed in the same vocabulary as Protocol Selection
+Properties, but have a Boolean value expressing whether a Protocol Stack
+support the given Transport Feature or not. An application may query the
+Transport Features of Protocol Stacks at all times. Once a Connection is
+established, an application may query the Transport Features of the actually
+chosen protocols, the Protocol Stack Instances, for this Connection.
+
+Note that it is possible that the Protocol Stack Instances actually chosen by
+the transport system do not fully reflect the Transport Parameters that were
 originally set. For example, a certain Protocol Selection Property that an
 application specified as Preferred may not actually be present in the chosen
-configuration because none of the currently available transport protocols had
-this property.
+Protocol Stack Instances because none of the currently available transport
+protocols had this feature.
 
-The following table provides an overview of what an application can do during
-which phase:
+Protocol Stacks and Protocol Stack Instances also have Protocol Properties,
+which represent the specific configuration of a transport protocol. Their
+default values can be queried at all times, and an application can override
+these defaults for a specific Connection by specifying Protocol Properties
+either during pre-establishment or later in the lifetime of a Connection. This
+configuration is applied on the Protocol Stack Instance once it is bound to the
+Connection.
 
-| Property Type | Pre-Establishment | Established |
-|---------------|-------------------|-------------|
-| Set Protocol Selection Preferences | Yes | No    |
-| Set Path Selection Preferences     | Yes | No    |
-| Set Protocol Properties           | Yes | Yes   |
-| Set Application Intents           | Yes | Yes   |
-| Set Content Properties               | Yes (0-RTT) | Yes |
-| Query specified Transport Parameters | Yes | Yes |
-| Query actual Transport Parameters | Yes (limited) | Yes |
+Note that some Protocol Properties set during Pre-Establishment may not apply
+to the actually chosen protocol later, and consequently not be set in the
+resulting Protocol Stack Instance. However, it is beneficial for an application
+to set these properties as early as possible, so the transport system can use
+them to optimize.
+
+Finally, an application may query the properties of the available paths and the
+properties of the path(s) chosen for a Connection at all times.
+
+An application may also specify Send Properties per individual Content, as
+specified in {{send-props}}.
+
+The following table shows the types of existing properties and what an
+application can do with them during what phase:
+
+| Property Type                  | Applies to | Pre-Establishment | Established |
+|--------------------------------|------------|-------------------|-------------|
+| Transport Parameters           | Connection | Set, Query        | Query       |
+| Protocol Features              | ProtocolStack, ProtocolStackInstance | Query | Query |
+| Protocol Property defaults     | ProtocolStack | Query          | Query       |
+| Protocol Properties            | ProtocolStackInstance | Set    | Set, Query  |
+| Path Properties                | Path       | Query             | Query       |
+| Send Properties                | Content    | Set               | Set         |
