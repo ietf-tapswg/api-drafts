@@ -282,30 +282,12 @@ parameters reflecting its requirements and preferences regarding its
 communication. These Transport parameters include 
 *Transport Preferences* (towards protocol selection and path selection) as well as 
 *Application Intents* (hints to the transport system what to optimize for) and 
-*Protocol Parameters* (to instrument transport protocols).
+*Protocol Properties* (to configure transport protocols).
 
-All Transport Parameters are organized as key-value pairs occupying a single
-name space with Send Parameters (see {{send-params}}). While Application
-Intents and Protocol Parameters take parameter specific values, Transport
-Preferences use one of the fixed levels.
-
-Transport Preferences drive protocol selection and path selection on connection
-establishment. To reflect the needs of an individual connection, they can be
-specified with different preference, whereby the preference is one of the
-following levels:
-
-   | Preference   | Effect                                                    |
-   |--------------|-----------------------------------------------------------|
-   | `require `   | Fail if requested feature/property can not be met         |
-   | `prefer  `   | Proceed if requested feature/property can not be met      |
-   | `don't care` | None / clear defaults                                     |
-   | `avid    `   | Proceed if requested feature/property can not be avoided  |
-   | `prohibit`   | Fail if requested feature/property can not be avoided     |
-
-There need to be sensible defaults for the Protocol Selection Properties.
-Default preference levels and possible combinations of Transport Parameters and
-preference levels are specified in {{appendix-preferences}}.
-The following properties can be adjusted before establishing a Connection.
+All Transport Parameters are organized within a single name space, that is
+shared with Send Parameters (see {{send-params}}). While Application
+Intents and Protocol Properties take parameter specific values, Transport
+Preferences use one of five fixed levels (see {{transport-prefs}}).
 
 Some parameters express strict requirements that the application relies on,
 while others are hints of what transport features would be helpful
@@ -321,70 +303,41 @@ by different protocols, it may not be possible to satisfy all requirements.
 Consequently, a transport system must prioritize Transport Parameters and
 consider the relevant trade-offs, see also {{?TAPS-MINSET=I-D.ietf-taps-minset}}.
 
+Default preference levels and possible combinations of Transport Parameters and
+preference levels are specified in {{appendix-preferences}}.
 
-### Transport Parameters Object 
 
-All transport parameters used in the pre-establishment phase are collected
-in a *TransportParameters* object.
-For the sake of convenience, we suggests implementing TransportParameters
-class as sub-class of an existing Dictionary or Set class to allow in-place notion
-of Transport Parameters.
 
-~~~
-transportParameters := NewTransportParameters()
-~~~
+### Transport Preferences {#transport-prefs}
 
-The Individual parameters are then added to the TransportParameters object.
-While Protocol Parameters and Application Intents use the `add` call, 
-Transport Preferences use special calls for the levels defined in {{transport-params}}. 
+Transport Preferences drive protocol selection and path selection on connection
+establishment. 
+Not all transport protocols work on all paths. Thus, transport protocol
+selection is tied to path selection, which may involve choosing between
+multiple local interfaces that are connected to different access networks.
 
-~~~
-transportParameters.add(intent, value)
+Transport Preferences should be specified as early as possible to take effect
+and may not be changed after establishing a connection:
 
-transportParameters.add(parameter, value)
-
-transportParameters.require(preference)
-transportParameters.prefer(preference)
-transportParameters.dontcare(preference)
-transportParameters.avid(preference)
-transportParameters.prohibit(preference)
-~~~
-
-For an existing connection, the Transport Parameters can be queried any time
-by using the following call on the Connection object:
-
-~~~
-transportParameters := connection.getTransportParameters()
-~~~
-
-Most properties are only considered for connection establishment and can
-not be changed later on. {{appendix-specify-query-params}} gives an overview 
-of what Transport Parameters can be specified and queried during which phase.
-
-- Protocol Selection Properties MUST be added to the TransportParameters object
-  before establishing a connection and SHOULD result in a runtime error if
-  changed later.
-   
-- Path Selection Properties MAY be changed but only effect future connection
+- Preferences effecting protocol selection MUST be added to the
+  TransportParameters object before establishing a connection. 
+  Changing them later SHOULD result in a runtime error. 
+- Preferences effecting path selection MAY be changed but only effect future connection
   migrations or path selection for multipath protocols.
 
+To reflect the needs of an individual connection, they can be
+specified with different preference, whereby the preference is one of the
+following levels:
 
-Connections can be cloned at any time, before or after establishment.
-A cloned connection and its parent are entangled: they share the same
-TransportParameters object, changing any parameter for one of them also 
-changes the parameter for the other, connecting one of them also connects 
-the other, etc. 
-Cloning connections during pre-establishment is encouraged, as it
-informs the transport system about the intent to form Connection Groups.
+   | Preference   | Effect                                                    |
+   |--------------|-----------------------------------------------------------|
+   | `require `   | Fail if requested feature/property can not be met         |
+   | `prefer  `   | Proceed if requested feature/property can not be met      |
+   | `don't care` | None / clear defaults                                     |
+   | `avid    `   | Proceed if requested feature/property can not be avoided  |
+   | `prohibit`   | Fail if requested feature/property can not be avoided     |
 
-\[Note that priority assignment ((see also {{groups}} for more details) is
-not shared among cloned connections. Therefore, the priority assignment
-MUST NOT be realized using the connection level TransportParameters object.]
-
-
-
-### Protocol Selection Preferences {#protocol-selection-props}
-
+There need to be sensible defaults for the Transport Preferences.
 There need to be sensible defaults for the Protocol Selection Properties. The
 defaults given in the following section represent a configuration that can be
 implemented over TCP. An alternate set of default Protocol Selection Properties
@@ -464,17 +417,6 @@ reduction in reliability. The default is full checksum coverage without being
 able to change it, and requiring a checksum when receiving.
 
 
-### Path Selection Properties {#path-selection-props}
-
-Not all transport protocols work on all paths. Thus, transport protocol
-selection is tied to path selection, which may involve choosing between
-multiple local interfaces that are connected to different access networks.
-
-Path Selection Properties are requirements, prohibitions, or preferences, that
-an application has regarding path selection. These properties should be
-specified as early as possible in order to help the TAPS system optimize.
-However, they may also be specified later.
-
 #### Interface Type to prefer
 
 This property specifies which kind of access network interface, e.g., WiFi,
@@ -491,12 +433,12 @@ default is to not prohibit any particular interface.
 
 
 
-### Protocol Parameters {#protocol-props}
+### Protocol Properties {#protocol-props}
 
-Protocol Parameters represent the configuration of a transport protocols once
+Protocol Properties represent the configuration of a transport protocols once
 it has been selected. A transport protocol may not support all Protocol
 Properties, depending on the available transport features. An application
-should specify the Protocol Parameters as early as possible to help the TAPS
+should specify the Protocol Properties as early as possible to help the TAPS
 system optimize. However, a TAPS system will only actually set those protocol
 properties that are actually supported by the chosen transport protocol. These
 property all apply to Connections and Connection groups.
@@ -675,6 +617,60 @@ Ignore Cost:
 : Ignore cost, choose transport solely based on other criteria
 
 The default is "Balance Cost".
+
+
+
+### Transport Parameters Object 
+
+All transport parameters used in the pre-establishment phase are collected
+in a *TransportParameters* object.
+For the sake of convenience, we suggests implementing TransportParameters
+class as sub-class of an existing Dictionary or Set class to allow in-place notion
+of Transport Parameters.
+
+~~~
+transportParameters := NewTransportParameters()
+~~~
+
+The Individual parameters are then added to the TransportParameters object.
+While Protocol Properties and Application Intents use the `add` call, 
+Transport Preferences use special calls for the levels defined in {{transport-params}}. 
+
+~~~
+transportParameters.add(intent, value)
+
+transportParameters.add(parameter, value)
+
+transportParameters.require(preference)
+transportParameters.prefer(preference)
+transportParameters.dontcare(preference)
+transportParameters.avid(preference)
+transportParameters.prohibit(preference)
+~~~
+
+For an existing connection, the Transport Parameters can be queried any time
+by using the following call on the Connection object:
+
+~~~
+transportParameters := connection.getTransportParameters()
+~~~
+
+\[Note that most properties are only considered for connection establishment
+and can not be changed later on. {{appendix-specify-query-params}} gives an
+overview of what Transport Parameters can be specified and queried during which
+phase. ]
+
+Connections can be cloned at any time, before or after establishment.
+A cloned connection and its parent are entangled: they share the same
+TransportParameters object, changing any parameter for one of them also 
+changes the parameter for the other, connecting one of them also connects 
+the other, etc. 
+Cloning connections during pre-establishment is encouraged, as it
+informs the transport system about the intent to form Connection Groups.
+
+\[Note that priority assignment ((see also {{groups}} for more details) is
+not shared among cloned connections. Therefore, the priority assignment
+MUST NOT be realized using the connection level TransportParameters object.]
 
 
 
@@ -878,7 +874,7 @@ Once a Connection has been established, it can be used for sending data. Data
 is sent by passing a Content object and additional parameters
 {{send-params}} to the Send action on an established connection:
 
-Connection.Send(Content, ...)
+Connection.Send(Content, SentParameters)
 
 The type of the Content to be passed is dependent on the implementation, and
 on the constraints on the Protocol Stacks implied by the Connection's
@@ -928,20 +924,31 @@ consistent with the Connection's transport parameters.
 
 ## Send Parameters {#send-params}
 
-The Send action takes per-Content send parameters which control how the contents
-will be sent down to the underlying Protocol Stack and transmitted.
-The Send Parameters share a single namespace with the 
-Transport Parameters (see {{transport-params}}).
-This allows to specify Protocol Parameters and that can be overridden on a per
-content basis or Application Intents that apply to a specific content.
+The Send action takes per-Content send parameters which control how the
+contents will be sent down to the underlying Protocol Stack and transmitted.
+
+If Send Parameters should be overridden for a specific content, an 
+empty sent parameter Object can be acquired and all desired Send Parameters
+can be added to that object. A Send Parameters object can be reused for
+sending multiple contents with the same properties.
+
+~~~
+sentParameters := NewSentParameters()
+sentParameters.add(parameter, value)
+~~~
+
+The Send Parameters are organized in *Content Properties*,
+*Protocol Properties*, and *Application Intents*.
+The Send Parameters share a single namespace with the Transport Parameters (see
+{{transport-params}}). This allows to specify Protocol Properties and that can
+be overridden on a per content basis or Application Intents that apply to a
+specific content.
 See {{appendix-specify-query-params}} for an overview.
-Note that some of these properties are not compatible with transport parameters;
-attempting to Send with such an incompatibility yields a SendError.
 
-The Send Parameters are organized in *Content Parameters*,
-*Protocol Parameters*, *Path Selection Properties* and *Application Intents*.
+\[Note that some of these parameters are not compatible with transport
+parameters; attempting to Send with such an incompatibility yields a SendError.]
 
-### Content Parameters
+### Content Properties
 
 #### Lifetime {#send-lifetime}
 
@@ -997,51 +1004,29 @@ A value of 0 means that no checksum is required, and a special value (e.g. -1) c
 be used to indicate full checksum coverage (which is also the default). Only
 full coverage is guaranteed, any other requests are advisory.
 
-###Protocol Parameters
+###Protocol Properties
 
-
-###Path Selection Properties
-
-Path selection properties only apply to multi-path aware transports and
-influence which of the established paths to use for a specific content.
-
+\[NOTE: this will be mostly protocol specific stuff as urgent data for TCP - maybe also move Checksum here]
 
 ###Application Intents
 
-#### Size to be Sent / Received
+#### Size to be Received
 
-This Intent specifies what the application expects the size of a transfer to be.
-It is a numeric property and given in Bytes. This Intent can also apply to
-individual Content.
+On a bi-directional connection, this Intent specifies what amount of data the
+application expects to receive in reply to the content sent.
+It is a numeric property and given in Bytes.
 
+#### Stream Bitrate Sent
 
-#### Stream Bitrate Sent / Received
+This Intent specifies what bitrate the application wishes the content to be
+sent with. This is useful as input for any transport that does packet pacing.
+It is a numeric property and given in Bytes per second.
 
-This Intent specifies what the application expects the bitrate of a transfer to
-be. It is a numeric property and given in Bytes per second.
+#### Stream Bitrate Received
 
-#### Timeliness
-
-This Intent specifies what delay characteristcs the applications prefers. It
-provides hints for the transport system whether to optimize for low latency or other
-criteria. Note that setting this Intents does not imply any guarantees on
-whether an application's requirements can actually be satisfied. This Intent
-can also apply to individual Content.
-
-Stream:
-: Delay and packet delay variation should be kept as low as possible
-
-Interactive:
-: Delay should be kept as low as possible, but some variation is tolerable
-
-Transfer:
-: Delay and packet delay variation should be reasonable, but are not critical
-
-Background:
-: Delay and packet delay variation is no concern
-
-The default is "Transfer".
-
+On a bi-directional connection, this Intent specifies what bitrate the
+application expects to receive in reply to the content sent.
+It is a numeric property and given in Bytes per second.
 
 #### Cost Preferences
 
@@ -1238,12 +1223,12 @@ An application may specify Transport Parameters for a connection within the
 Pre-Establishment Phase, i.e., before calling Initiate() on this connection, as
 described in {{transport-params}}. Specifically, Protocol Selection and Path
 Selection Properties MUST be specified during Pre-Establishment, as protocol
-and path selection occur during connection establishment. Protocol Parameters,
+and path selection occur during connection establishment. Protocol Properties,
 which express specific configuration of a transport protocol, and Application
 Intents can be specified either during pre-establishment or later in the
 lifetime of a connection. Note that it is beneficial to set these properties as
 early as possible, so the transport system can use them to optimize. An
-application may also specify Send Properties per individual Content, as
+application may also specify Send Parameters per individual Content, as
 specified in {{send-params}}.
 
 An application may query the Transport Parameters that were specified for a
@@ -1264,10 +1249,10 @@ which phase:
 
 | Property Type | Pre-Establishment | Established |
 |---------------|-------------------|-------------|
-| Set Protocol Selection Properties | Yes | No    |
-| Set Protocol Parameters           | Yes | Yes   |
-| Set Path Selection Properties     | Yes | No    |
+| Set Protocol Selection Preferences | Yes | No    |
+| Set Path Selection Preferences     | Yes | No    |
+| Set Protocol Properties           | Yes | Yes   |
 | Set Application Intents           | Yes | Yes   |
-| Set Send Properties               | Yes (0-RTT) | Yes |
+| Set Content Properties               | Yes (0-RTT) | Yes |
 | Query specified Transport Parameters | Yes | Yes |
 | Query actual Transport Parameters | Yes (limited) | Yes |
