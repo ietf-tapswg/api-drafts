@@ -109,7 +109,29 @@ What is the basic handle an application interacts with?
 
 ## Configuration-time errors
 
-Invalid or impossible combinations properties should error out quickly to avoid unexpected results
+When an application creates a new Connection, it specifies Transport Parameters reflecting its preferences regarding Protocol and Path Selection.
+
+The transport system should have a list of supported protocols available, which each have Transport Features reflecting the capabilities of the protocol. Once an application specifies Transport Paratemeters, the transport system should match the required and prohibited properties against the Transport Features of the available protocols.
+
+In the following cases the NewConnection() call should fail immediately:
+
+- The application requested Transport Parameters which include requirements or prohibitions that cannot be satisfied by any of the available protocols. For example, if an application requires "Option to configure reliability for individual Content", but no such protocol is available on the host running the transport system, e.g., because SCTP is not supported by the operating system, this should result in an error.
+- The application requested Transport Parameters which exclude each other, i.e., the required and prohibited properties cannot be satisfied by the same protocol. For example, if an application prohibits "Reliable Data Transfer" but then requires "Configure Reliability per Content", this mismatch should result in an error.
+
+It is important to fail as early as possible in such cases in order to avoid allocating resources, e.g., to endpoint resolution, only to find out later that there is no protocol that satisfies the requirements.
+
+\[The following probably belongs in later sections.]
+
+Some errors will only become apparent after Initiate() has been called and Candidate Gathering and Racing has started or after it is complete.
+
+In the following cases the Initiate() call should fail or the transport system should notify the application with an Error:
+
+- During Candidate Gathering, the transport system finds that there are no usable Candidates to Race.
+- During Candidate Racing, the transport system finds that none of the configurations that satisfy all requirements given in the Transport Parameters actually work over the available paths.
+
+In the following cases the transport system should notify the application with a Warning:
+
+- At any point, the application attempts to set a Protocol Property which does not apply to the actually chosen protocol. In this case, the transport system should fail gracefully, i.e., give a warning to the application, but not terminate the Connection.
 
 ## Role of system policy
 
