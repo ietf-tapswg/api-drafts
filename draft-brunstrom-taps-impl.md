@@ -423,7 +423,6 @@ It is also possible that protocol stacks within a particular leaf node use 0-RTT
 Appendix A.1 of {{I-D.ietf-taps-minset}} explains, using primitives that are described in {{RFC8303}} and {{RFC8304}}, how to implement changing the following protocol properties of an established connection with the TCP and UDP. Below, we amend this description for other protocols (if applicable):
 * Set timeout for aborting Connection: for SCTP, this can be done using the primitive CHANGE_TIMEOUT.SCTP described in section 4 of {{RFC8303}}.
 * Set timeout to suggest to the peer
-* Request not to delay acknowledgment (SACK) of Content: for SCTP, this can be done using the primitive CONFIG_DELAYED_SACK.SCTP described in section 4 of {{RFC8303}}.
 * Set retransmissions before “Excessive Retransmissions”
 * Set required minimum coverage of the checksum for receiving: for UDP-Lite, this can be done using the primitive SET_MIN_CHECKSUM_COVERAGE.UDP-Lite described in section 4 of {{RFC8303}}.
 * Set scheduler for connections in a group: for SCTP, this can be done using the primitive SET_STREAM_SCHEDULER.SCTP described in section 4 of {{RFC8303}}.
