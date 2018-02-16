@@ -64,6 +64,7 @@ normative:
           ins: Brian Trammell
         -
           ins: Michael Welzl
+   I-D.ietf-taps-minset:
 
 informative:
     RFC6458:
@@ -415,7 +416,21 @@ It is also possible that protocol stacks within a particular leaf node use 0-RTT
 
 0-RTT handshakes often rely on previous state, such as TCP Fast Open cookies, previously established TLS tickets, or out-of-band distributed pre-shared keys (PSKs). Implementations should be aware of security concerns around using these tokens across multiple addresses or paths when racing. In the case of TLS, any given ticket or PSK SHOULD only be used on one leaf node. If implementations have multiple tickets available from a previous connection, each leaf node attempt MUST use a different ticket. In effect, each leaf node will send the same early application data, yet encoded (encrypted) differently on the wire.
 
-# Implementing Maintenance Events
+# Implementing Maintenance
+
+## Changing Protocol Properties
+
+Appendix A.1 of {{I-D.ietf-taps-minset}} explains, using primitives that are described in {{RFC8303}} and {{RFC8304}}, how to implement changing the following protocol properties of an established connection with the TCP and UDP. Below, we amend this description for other protocols (if applicable):
+* Set timeout for aborting Connection: for SCTP, this can be done using the primitive CHANGE_TIMEOUT.SCTP described in section 4 of {{RFC8303}}.
+* Set timeout to suggest to the peer
+* Request not to delay acknowledgment (SACK) of Content: for SCTP, this can be done using the primitive CONFIG_DELAYED_SACK.SCTP described in section 4 of {{RFC8303}}.
+* Set retransmissions before “Excessive Retransmissions”
+* Set required minimum coverage of the checksum for receiving: for UDP-Lite, this can be done using the primitive SET_MIN_CHECKSUM_COVERAGE.UDP-Lite described in section 4 of {{RFC8303}}.
+* Set scheduler for connections in a group: for SCTP, this can be done using the primitive SET_STREAM_SCHEDULER.SCTP described in section 4 of {{RFC8303}}.
+* Set priority for a connection in a group: for SCTP, this can be done using the primitive CONFIGURE_STREAM_SCHEDULER.SCTP described in section 4 of {{RFC8303}}.
+
+
+## Maintenance Events
 
 Implications of a network change on a protocol
 
