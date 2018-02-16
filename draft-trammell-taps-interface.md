@@ -1115,17 +1115,25 @@ Connection.DeframeWith(Deframer)
 
 Content := Deframer.Deframe(OctetStream, ...)
 
-# Maintenance
+# Introspection {#introspection}
 
-The application can access the following properties on an established Connection:
-
-* Transport Features of the protocols that were selected. These features correspond to the properties given in {{transport-params}} and can only be queried.
-* Protocol Properties of the protocols in use. These properties correspond to the properties given {{protocol-props}} and can be set and queried.
-* Path Properties of the path(s) in use. These properties can be derived from the local provisioning domain, measurements by the protocol stack, or other sources. They can only be queried.
+At any point, the application can set and query the properties of a Connection. Depending on the phase the connection is in, the connection properties will include different information.
 
 ~~~
-Properties := Connection.getProperties()
+connectionProperties := Connection.getProperties()
 ~~~
+
+~~~
+Connection.setProperties()
+~~~
+
+Connection properties may include:
+
+* The status of the Connection, which can be one of the following: Pre-Establishment, Establishment in progress, Established, Listening, Rendezvous in progress, Closed.
+* Transport Features of the protocols that conform to the Required and Prohibited Transport Preferences, which might be selected by the transport system during Establishment. These features correspond to the properties given in {{transport-params}} and can only be queried.
+* Transport Features of the protocols that were selected, once the Connection has been established. These features correspond to the properties given in {{transport-params}} and can only be queried.
+* Protocol Properties of the protocols in use, once the Connection has been established. These properties correspond to the properties given {{protocol-props}} and can be set and queried.
+* Path Properties of the path(s) in use, once the Connection has been established. These properties can be derived from the local provisioning domain, measurements by the protocol stack, or other sources. They can only be queried.
 
 {{appendix-specify-query-params}} gives a more detailed overview of the different types of properties that can be set and queried at different times.
 
