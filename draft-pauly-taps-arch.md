@@ -214,13 +214,13 @@ Beyond the basic objects, there are several high-level groups of actions that an
  |   +---------------+     :      +------------+ Connection:
  |                         :      ^   ^    |     Finished  :
  +-- Local Endpoint        :      |   |    |               :
- |                         :      |   |    +-----+         :
- +-- Remote Endpoint       :      |   |          |Content  :
- |                         :      |   |Send()    |Received :
- +-- Path Selection        :      | +---------+  |         :
- |   Properties            :      | | Content |<-+         :
- |                         :      | +---------+            :
- +-- Protocol Selection    :      |                        :
+ |                         :      |   |    +---------+     :
+ +-- Remote Endpoint       :      |   |              |     :
+ |                         :      |   |Send()        |     :
+ +-- Path Selection        :      | +---------+      v     :
+ |   Properties            :      | | Content |  Content   :
+ |                         :      | | to send |  Received  :
+ +-- Protocol Selection    :      | +---------+            :
  |   Properties            :      |                        :
  |                         :      |                        :
  +-- Specific Protocol     :      |                        :
