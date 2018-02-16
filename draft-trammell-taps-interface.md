@@ -229,6 +229,12 @@ the security parameters (see {{security-parameters}}):
 
 ~~~
 
+The Local Endpoint MUST be specified if the Preconnection is used to Listen()
+for incoming connections, but is OPTIONAL if it is used to Initiate()
+connections. The Remote Endpoint MUST be specified in the Preconnection is used
+to Initiate() connections, but is OPTIONAL if it is used to Listen() for
+incoming connections.
+
 \[NOTE: note also that framers and de-framers should be bound to the
 Preconnection object during pre-establishment, forward-reference
 {{send-framing}} and {{receive-framing}}]
