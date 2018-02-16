@@ -345,91 +345,82 @@ would represent a configuration that can be implemented over UDP.
 
 The following properties apply to Connections and Connection Groups:
 
-#### Reliable Data Transfer
+* Reliable Data Transfer:
+  This boolean property specifies whether the application needs the
+  transport protocol to ensure that data is received completely and without
+  corruption on the other side. This also entails being notified when a
+  Connection is closed or aborted. This property applies to connections and
+  connection groups.  This is a strict requirement. The default is to
+  enable Reliable Data Transfer.
 
-This boolean property specifies whether the application needs the transport
-protocol to ensure that data is received completely and without corruption on
-the other side. This also entails being notified when a Connection is closed
-or aborted. This property applies to connections and connection groups.
-This is a strict requirement. The default is to enable Reliable Data Transfer.
+* Preservation of data ordering:
+  This boolean property specifies whether the application needs the
+  transport protocol to assure that data is received by the application on
+  the other end in the same order as it was sent. This property applies to
+  connections and connection groups. This is a strict requirement. The
+  default is to preserve data ordering.
 
-#### Preservation of data ordering
+* Configure reliability for individual Content:
+  This boolean property specifies whether an application considers it
+  useful to indicate its reliability requirements on a per-Content basis.
+  This property applies to connections and connection groups. This is not a
+  strict requirement.  The default is to not have this option.
 
-This boolean property specifies whether the application needs the transport
-protocol to assure that data is received by the application on the other end in
-the same order as it was sent. This property applies to connections and
-connection groups. This is a strict requirement. The default is to preserve data
-ordering.
+* Request not to delay acknowledgment (SACK) of Content:
+  This boolean property specifies whether an application considers it
+  useful to request for Content that its acknowledgment be sent out as
+  early as possible (SACK) instead of potentially being bundled with other
+  acknowledgments. This property applies to connections and connection
+  groups. This is not a strict requirement. The default is to not have this
+  option.
 
-#### Configure reliability for individual Content
+* Use 0-RTT session establishment with idempotent Content:
+  This boolean property specifies whether an application would like to
+  supply a Content to the transport protocol before Connection
+  establishment, which will then be reliably transferred to the other side
+  before or during connection establishment, potentially multiple times.
+  See also {{send-idempotent}}.  This is a strict requirement. The default
+  is to not have this option.
 
-This boolean property specifies whether an application considers it useful to
-indicate its reliability requirements on a per-Content basis. This property
-applies to connections and connection groups. This is not a strict requirement.
-The default is to not have this option.
+* Use Connection Groups with priorities:
+  This boolean property specifies whether an application considers it
+  useful to create Connection Groups and explicitly prioritize between
+  Connections within a Connection Group.
 
-#### Request not to delay acknowledgment (SACK) of Content
+* Suggest a timeout to the peer:
+  This boolean property specifies whether an application considers it
+  useful to propose a timeout until the connection is assumed to be lost.
+  This property applies to Connections and Connection Groups. This is not a
+  strict requirement. The default is to have this option.
 
-This boolean property specifies whether an application considers it useful to
-request for Content that its acknowledgment be sent out as early as possible
-(SACK) instead of potentially being bundled with other acknowledgments. This
-property applies to connections and connection groups. This is not a strict
-requirement. The default is to not have this option.
+* Notification of special errors (excessive retransmissions, ICMP error message arrival):
+  This boolean property specifies whether an application considers it
+  useful to be informed in case sent data was retransmitted more often than
+  a certain threshold, or when an ICMP error message arrives. This property
+  applies to Connections and Connection Groups. This is not a strict
+  requirement. The default is to have this option.
 
-#### Use 0-RTT session establishment with idempotent Content
-
-This boolean property specifies whether an application would like to supply a
-Content to the transport protocol before Connection establishment, which will
-then be reliably transferred to the other side before or during connection
-establishment, potentially multiple times. See also {{send-idempotent}}.
-This is a strict
-requirement. The default is to not have this option.
-
-#### Use Connection Groups with priorities
-
-This boolean property specifies whether an application considers it useful to
-create Connection Groups and explicitly prioritize between Connections
-within a Connection Group.
-
-#### Suggest a timeout to the peer
-
-This boolean property specifies whether an application considers it useful to
-propose a timeout until the connection is assumed to be lost. This
-property applies to Connections and Connection Groups. This is not a strict
-requirement. The default is to have this option.
-
-#### Notification of special errors (excessive retransmissions, ICMP error message arrival)
-
-This boolean property specifies whether an application considers it useful to
-be informed in case sent data was retransmitted more often than a certain
-threshold, or when an ICMP error message arrives. This property applies to
-Connections and Connection Groups. This is
-not a strict requirement. The default is to have this option.
-
-#### Control checksum coverage on sending or receiving
-
-This boolean property specifies whether the application considers it useful to
-enable / disable / configure a checksum when sending Content, or decide whether to
-require a checksum or not when receiving Content.
-This property applies to Connections and
-Connection Groups. This is not a strict requirement, as it signifies a
-reduction in reliability. The default is full checksum coverage without being
-able to change it, and requiring a checksum when receiving.
+* Control checksum coverage on sending or receiving:
+  This boolean property specifies whether the application considers it
+  useful to enable / disable / configure a checksum when sending Content,
+  or decide whether to require a checksum or not when receiving Content.
+  This property applies to Connections and Connection Groups. This is not a
+  strict requirement, as it signifies a reduction in reliability. The
+  default is full checksum coverage without being able to change it, and
+  requiring a checksum when receiving.
 
 
-#### Interface Type to prefer
+* Interface Type to prefer:
+  This property specifies which kind of access network interface, e.g.,
+  WiFi, Ethernet, or LTE, to prefer over others for this connection, in
+  case they are available.  This is not a strict requirement. The default
+  is to use the default interface configured in the system policy.
 
-This property specifies which kind of access network interface, e.g., WiFi,
-Ethernet, or LTE, to prefer over others for this connection, in case they are
-available.  This is not a strict requirement. The default is to use the default
-interface configured in the system policy.
-
-#### Interface Type to prohibit
-
-This property specifies which kind of access network interface, e.g., WiFi,
-Ethernet, or LTE, to not use for this connection. This is a strict requirement
-and connection establishment will fail if no other interface is available. The
-default is to not prohibit any particular interface.
+* Interface Type to prohibit:
+  This property specifies which kind of access network interface, e.g.,
+  WiFi, Ethernet, or LTE, to not use for this connection. This is a strict
+  requirement and connection establishment will fail if no other interface
+  is available. The default is to not prohibit any particular interface.
 
 
 
@@ -445,39 +436,34 @@ property all apply to Connections and Connection groups.
 The default settings of these properties depends on the chosen protocol and on
 the system configuration.
 
-#### Set timeout for aborting Connection
+* Set timeout for aborting Connection:
+  This numeric property specifies how long to wait before aborting a
+  Connection.  It is given in seconds.
 
-This numeric property specifies how long to wait before aborting a Connection.
-It is given in seconds.
+* Set timeout to suggest to the peer:
+  This numeric property specifies the timeout to propose to the peer. It is
+  given in seconds.
 
-#### Set timeout to suggest to the peer
+* Set retransmissions before "Excessive Retransmissions":
+  This numeric property specifies after how many retransmissions to inform
+  the application about "Excessive Retransmissions".
 
-This numeric property specifies the timeout to propose to the peer. It is given
-in seconds.
+* Set required minimum coverage of the checksum for receiving:
+  This numeric property specifies the part of the received data that needs
+  to be covered by a checksum. It is given in Bytes. A value of 0 means
+  that no checksum is required, and a special value (e.g., -1) indicates
+  full checksum coverage.
 
-#### Set retransmissions before "Excessive Retransmissions"
+* Set scheduler for connections in a group:
+  This property specifies which scheduler should be used among Connections
+  within a Connection Group. It applies to connection groups. For now we
+  suggest we the schedulers defined in {{I-D.ietf-tsvwg-sctp-ndata}}.
 
-This numeric property specifies after how many retransmissions to inform the
-application about "Excessive Retransmissions".
-
-#### Set required minimum coverage of the checksum for receiving
-
-This numeric property specifies the part of the received data that needs to be
-covered by a checksum. It is given in Bytes. A value of 0 means that no checksum
-is required, and a special value (e.g., -1) indicates full checksum coverage.
-
-#### Set scheduler for connections in a group
-
-This property specifies which scheduler should be used among Connections within
-a Connection Group. It applies to connection groups. For now we suggest we
-the schedulers defined in {{I-D.ietf-tsvwg-sctp-ndata}}.
-
-#### Maximum Content Size Before Connection Establishment
-
-This numeric property can be queried by the application after creating a
-Connection. It represents the maximum Content size that can be sent before or
-during Connection establishment, see also {{send-idempotent}}. It is given in
-Bytes.
+* Maximum Content Size Before Connection Establishment:
+  This numeric property can be queried by the application after creating a
+  Connection. It represents the maximum Content size that can be sent
+  before or during Connection establishment, see also {{send-idempotent}}.
+  It is given in Bytes.
 
 ### Application Intents {#intents}
 
