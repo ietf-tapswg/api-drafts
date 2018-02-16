@@ -1137,7 +1137,7 @@ Content := Deframer.Deframe(OctetStream, ...)
 
 The application can access the following properties on an established Connection:
 
-* Transport Features of the protocols that were selected. These features correspond to the properties given in {{protocol-selection-props}} and can only be queried.
+* Transport Features of the protocols that were selected. These features correspond to the properties given in {{transport-params}} and can only be queried.
 * Protocol Properties of the protocols in use. These properties correspond to the properties given {{protocol-props}} and can be set and queried.
 * Path Properties of the path(s) in use. These properties can be derived from the local provisioning domain, measurements by the protocol stack, or other sources. They can only be queried.
 
@@ -1412,7 +1412,7 @@ Finally, an application may query the properties of the available paths and the
 properties of the path(s) chosen for a Connection at all times.
 
 An application may also specify Send Properties per individual Content, as
-specified in {{send-props}}.
+specified in {{send-params}}.
 
 The following table shows the types of existing properties and what an
 application can do with them during what phase:
