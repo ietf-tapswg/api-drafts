@@ -285,12 +285,11 @@ provide one for reasons unrelated to transport.
 
 ## Specifying Transport Parameters {#transport-params}
 
-When creating a connection, an application needs to specify transport
-parameters reflecting its requirements and preferences regarding its
-communication. These Transport parameters include
-*Transport Preferences* (towards protocol selection and path selection) as well as
-*Application Intents* (hints to the transport system what to optimize for) and
-*Protocol Properties* (to configure transport protocols).
+A Preconnection object holds parameters reflecting the application's
+requirements and preferences for the transport.  These include Transport
+Preferences (towards protocol selection and path selection) as well as
+Application Intents (hints to the transport system what to optimize for)
+and Protocol Properties (to configure transport protocols).
 
 All Transport Parameters are organized within a single name space, that is
 shared with Send Parameters (see {{send-params}}). While Application
@@ -324,14 +323,10 @@ Not all transport protocols work on all paths. Thus, transport protocol
 selection is tied to path selection, which may involve choosing between
 multiple local interfaces that are connected to different access networks.
 
-Transport Preferences should be specified as early as possible to take effect
-and may not be changed after establishing a connection:
-
-- Preferences effecting protocol selection MUST be added to the
-  TransportParameters object before establishing a connection.
-  Changing them later SHOULD result in a runtime error.
-- Preferences effecting path selection MAY be changed but only effect future connection
-  migrations or path selection for multipath protocols.
+The Transport Preferences form part of the information used to create a
+Preconnection object. As such, they can be configured during the
+pre-establishment phase, but cannot be changed once a Connection has been
+established.
 
 To reflect the needs of an individual connection, they can be
 specified with different preference, whereby the preference is one of the
@@ -434,19 +429,21 @@ The following properties apply to Connections and Connection Groups:
 
 ### Protocol Properties {#protocol-props}
 
-Protocol Properties represent the configuration of a transport protocols once
+Protocol Properties represent the configuration of a transport protocol once
 it has been selected. A transport protocol may not support all Protocol
-Properties, depending on the available transport features. An application
-should specify the Protocol Properties as early as possible to help the TAPS
-system optimize. However, a TAPS system will only actually set those protocol
-properties that are actually supported by the chosen transport protocol. These
-property all apply to Connections and Connection groups.
+Properties, depending on the available transport features. 
+As with Transport Preferences ({{transport-prefs}}), Protocol Properties are
+specified on the Preconnection object, and are using during initiation of a
+Connection to help the system choose an appropriate transport.
+The system will only actually set those protocol properties that are actually 
+supported by the chosen transport protocol. 
+These property all apply to Connections and Connection groups.
 The default settings of these properties depends on the chosen protocol and on
 the system configuration.
 
 * Set timeout for aborting Connection:
   This numeric property specifies how long to wait before aborting a
-  Connection.  It is given in seconds.
+  Connection attempt.  It is given in seconds.
 
 * Set timeout to suggest to the peer:
   This numeric property specifies the timeout to propose to the peer. It is
@@ -468,8 +465,7 @@ the system configuration.
   suggest we the schedulers defined in {{I-D.ietf-tsvwg-sctp-ndata}}.
 
 * Maximum Content Size Before Connection Establishment:
-  This numeric property can be queried by the application after creating a
-  Connection. It represents the maximum Content size that can be sent
+  This numeric property represents the maximum Content size that can be sent
   before or during Connection establishment, see also {{send-idempotent}}.
   It is given in Bytes.
 
@@ -495,11 +491,14 @@ system schedules big Content over an interface with higher bandwidth, and
 small Content over an interface with lower latency.
 
 Specifying Application Intents is not mandatory. An application can specify any
-combination of Application Intents. All Application Intents can be specified for
-connections and cloning a Connection to form a Connection Group will clone the
-associated Intents along with the other transport parameters. Some Intents can
-also be specified for individual Content, similar to the properties in
-{{send-params}}.
+combination of Application Intents. 
+If specified, Application Intents are defined as parameters passed to the
+Preconnection object, and may influence the Connection established from
+that Preconnection.
+If a Connection is cloned to form a Connection Group, and associated
+Application Intents are cloned along with the other transport parameters.
+Some Intents can also be specified for individual Content, similar to the
+properties in {{send-params}}.
 
 
 #### Traffic Category
@@ -541,15 +540,15 @@ This Intent specifies what the application expects the lifetime of a transfer
 to be. It is a numeric property and given in milliseconds.
 
 
-Stream Bitrate Sent / Received
+Stream Bit-rate Sent / Received
 
-This Intent specifies what the application expects the bitrate of a transfer to
+This Intent specifies what the application expects the bit-rate of a transfer to
 be. It is a numeric property and given in Bytes per second.
 
 
 #### Timeliness
 
-This Intent specifies what delay characteristcs the applications prefers. It
+This Intent specifies what delay characteristics the applications prefers. It
 provides hints for the transport system whether to optimize for low latency or other
 criteria. Note that setting this Intents does not imply any guarantees on
 whether an application's requirements can actually be satisfied. This Intent
@@ -575,7 +574,7 @@ The default is "Transfer".
 This Intent describes what an application knows about its own ability to deal
 with disruption of its communication, e.g., connection loss. It provides hints
 of how well an application assumes it can recover from such disturbances and
-can have an impact on the tradeoff between providing failover techniques and
+can have an impact on the trade-off between providing failover techniques and
 resource utilization. This Intent can also apply to individual Content.
 
 Sensitive:
@@ -594,7 +593,7 @@ The default is "Sensitive".
 
 This Intent describes what an application prefers regarding monetary costs,
 e.g., whether it considers it acceptable to utilize limited data volume. It
-provides hints to the transport system on how to handle tradeoffs between cost
+provides hints to the transport system on how to handle trade-offs between cost
 and performance or reliability. This Intent can also apply to individual
 Content.
 
@@ -617,10 +616,10 @@ The default is "Balance Cost".
 ### Transport Parameters Object
 
 All transport parameters used in the pre-establishment phase are collected
-in a *TransportParameters* object.
+in a TransportParameters object that is passed to the Preconnection object.
 For the sake of convenience, we suggests implementing TransportParameters
-class as sub-class of an existing Dictionary or Set class to allow in-place notion
-of Transport Parameters.
+class as sub-class of an existing Dictionary or Set class to allow in-place 
+notion of Transport Parameters.
 
 ~~~
 transportParameters := NewTransportParameters()
@@ -653,6 +652,9 @@ transportParameters := connection.getTransportParameters()
 and can not be changed later on. {{appendix-specify-query-params}} gives an
 overview of what Transport Parameters can be specified and queried during which
 phase. ]
+
+\[Note: We need to more clearly separate out parameters that can be changed
+once a connection has been established from those that cannot. (csp)]
 
 Connections can be cloned at any time, before or after establishment.
 A cloned connection and its parent are entangled: they share the same
