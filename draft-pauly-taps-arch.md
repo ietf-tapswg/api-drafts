@@ -247,9 +247,9 @@ Beyond the basic objects, there are several high-level groups of actions that an
 
 * Endpoint: An Endpoint represents one side of a transport connection. It is a concept that represents how an application views itself or a peer that may vary in levels of specificity. Examples include "IP address + port", "hostname + port", and "DNS service name".
 
-* Remote Endpoint: The Remote Endpoint in a properties \[MICHAEL: I can't parse "in a properties" here. Should this be removed?] represents the application's view of a peer that can participate in a transport connection.
+* Remote Endpoint: The Remote Endpoint represents the application's name for a peer that can participate in a transport connection. For example, a DNS name for the peer.
 
-* Local Endpoint: The Local Endpoint in a properties \[MICHAEL: I can't parse "in a properties" here. Should this be removed?] represents the application's view of itself that it wants to use for transport connections. This may be optional, or may be generic (a wild card address, for example).
+* Local Endpoint: The Local Endpoint represents the application's name for itself that it wants to use for transport connections. For example, a local interface name or address.
 
 * Path Selection Properties: The Path Selection Properties consist of the options that an application may set on a Preconnection to influence the selection of path between itself and the Remote Endpoint. These options can come in the form of requirements, prohibitions, or preferences. Examples of options which may influence path selection include the interface type (such as a Wi-Fi Ethernet connection, or a Cellular LTE connection), characteristics of the path that are locally known like Maximum Transmission Unit (MTU), or expected throughput or latency.
 
@@ -259,7 +259,7 @@ Beyond the basic objects, there are several high-level groups of actions that an
 
 ### Establishment Actions {#establishment}
 
-* Initiate() is the primary action that an application can take to create a Connection to a remote endpoint, and prepare any required local or remote state to be able to send and/or receive content. For some protocols, this may initiate a server-to-client style handshake; for other protocols, this may just establish local state; and for peer-to-peer protocols, this may begin the process of a simultaneous open. The Initiate() action consumes a Preconnection object and creates a Connection object.
+* Initiate() is the primary action that an application can take to create a Connection to a remote endpoint, and prepare any required local or remote state to be able to send and/or receive content. For some protocols, this may initiate a server-to-client style handshake; for other protocols, this may just establish local state; and for peer-to-peer protocols, this may begin the process of a simultaneous open. The Initiate() action consumes a Preconnection object and creates a Connection object. Resolution of the remote endpoint identifier occurs during the Initiate() call.
 
 * Listen() is the action of marking a Listener as willing to accept incoming Connections. It consumes a Preconnection object. The Listener will then create Connection objects as incoming connections are accepted.
 
