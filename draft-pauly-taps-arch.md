@@ -297,57 +297,31 @@ This list of events that can be delivered to an application is not exhaustive, b
 
 The Transport System Implementation Concepts define the set of objects used internally to a system or library to provide the functionality of transport networking, as required by the abstract interface.
 
-Connection Group
+* Connection Group: For multiplexing transport protocols, a Connection Group is a set of Connections that can be multiplexed together.
 
->> For multiplexing transport protocols, a Connection Group is a set of Connections that can be multiplexed together.
+* Path: A Path represents an available set of properties of a network route on which packets may be sent or received.
 
-Path
+* Protocol Instance: A Protocol Instance is a single instance of one protocol, including any state it has necessary to establish connectivity or send and receive content.
 
->> A Path represents an available set of properties of a network route on which packets may be sent or received.
+* Protocol Stack: A Protocol Stack is a set of Protocol Instances (including relevant application, security, transport, or Internet protocols) that are used together to establish connectivity or send and receive content. A single stack may be simple (a single transport protocol instance over IP), or complex (multiple application protocol streams going through a single security and transport protocol, over IP; or, a multi-path transport protocol over multiple transport sub-flows).
 
-Protocol Instance
+* System Policy: A Transport Service System Policy defines the algorithm it uses to take connection properties from the application, and determine how it will gather candidate paths and protocols {{gathering}} and race the candidates during establishment {{racing}}.
 
->> A Protocol Instance is a single instance of one protocol, including any state it has necessary to establish connectivity or send and receive content.
-
-Protocol Stack
-
->> A Protocol Stack is a set of Protocol Instances (including relevant application, security, transport, or Internet protocols) that are used together to establish connectivity or send and receive content. A single stack may be simple (a single transport protocol instance over IP), or complex (multiple application protocol streams going through a single security and transport protocol, over IP; or, a multi-path transport protocol over multiple transport sub-flows).
-
-System Policy
-
->> A Transport Service System Policy defines the algorithm it uses to take connection properties from the application, and determine how it will gather candidate paths and protocols {{gathering}} and race the candidates during establishment {{racing}}.
-
-Association Cache
-
->> The Association Cache holds the state that the implementation keeps for each set of associated endpoints that have been used previously. This can include DNS results, TLS session state, previous success and quality of transport protocols over certain paths.
+* Association Cache: The Association Cache holds the state that the implementation keeps for each set of associated endpoints that have been used previously. This can include DNS results, TLS session state, previous success and quality of transport protocols over certain paths.
 
 ### Gathering {#gathering}
 
-Path Candidate Identification/Gathering
+* Path Selection: Path Selection represents the act of choosing one or more paths that are available to use based on the Path Selection Properties provided by the application, and a Transport Services system's policies and heuristics.
 
->> Path Selection represents the act of choosing one or more paths that are available to use based on the Path Selection Properties provided by the application, and a Transport Services system's policies and heuristics.
-\[MICHAEL: I find it awkward that the terms and headline here talk about "Gathering" but then this description doesn't. Maybe because "Path Selection" and "Protocol Selection" are indeed clearer, easier terms than this Identification/Gathering stuff?]
-
-Protocol Candidate Identification/Gathering
-
->> Protocol Selection represents the act of choosing one or more sets of protocol options that are available to use based on the Protocol Properties provided by the application, and a Transport Services system's policies and heuristics.
-\[MICHAEL: Same as above, here...]
+* Protocol Selection: Protocol Selection represents the act of choosing one or more sets of protocol options that are available to use based on the Protocol Properties provided by the application, and a Transport Services system's policies and heuristics.
 
 ### Racing {#racing}
 
-Protocol Option Racing
+* Protocol Option Racing: Protocol Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on the composition of protocols or the options used for protocols.
 
-\[MICHAEL: About all the definitions below: I believe you can't "attempt a stack", you can only attempt to *use* a stack. Not easy to fix in a nice way because of the "scheduling attempts for", but I think as it stands, this is grammatically broken. Then again, I'm no native speaker!]
+* Path Racing: Path Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on a selection from the available Paths.
 
->> Protocol Racing is the act of attempting, or scheduling attempts for, multiple Protocol Stacks that differ based on the composition of protocols or the options used for protocols.
-
-Path Racing
-
->> Path Racing is the act of attempting, or scheduling attempts for, multiple Protocol Stacks that differ based on a selection from the available Paths.
-
-Endpoint Racing
-
->> Endpoint Racing is the act of attempting, or scheduling attempts for, multiple Protocol Stacks that differ based on the specific representation of the remote and local endpoints, such as IP addresses resolved from a DNS hostname.
+* Endpoint Racing: Endpoint Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on the specific representation of the remote and local endpoints, such as IP addresses resolved from a DNS hostname.
 
 # IANA Considerations
 
