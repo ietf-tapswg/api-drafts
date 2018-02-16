@@ -233,57 +233,35 @@ Beyond the basic objects, there are several high-level groups of actions that an
 
 * Listen() is the action of marking a Listener as willing to accept incoming Connections. It consumes a Preconnection object. The Listener will then create Connection objects as incoming connections are accepted.
 
-### Data Transfer {#datatransfer}
+### Data Transfer Objects and Actions {#datatransfer}
 
-Content
+* Content: A Content object is a unit of data that can be represented as bytes that can be transferred between two endpoints over a transport connection. The bytes within a unit of Content are assumed to be ordered within the unit itself. That is, if an application does not care about the order in which a peer receives two distinct spans of bytes, those spans of bytes are considered independent units of Content. Content may or may not be usable if incomplete or corrupted. Boundaries of Content may or may not be understood or transmitted by transport protocols. That is, what one application considers to be two units of Content sent on a stream-based transport may be treated as a single unit of Content by the application on the other side.
 
->> Content is a unit of data that can be represented as bytes that can be transferred between two endpoints over a transport connection. The bytes within a unit of Content are assumed to be ordered within the unit itself. That is, if an application does not care about the order in which a peer receives two distinct spans of bytes, those spans of bytes are considered independent units of Content. Content may or may not be usable if incomplete or corrupted. Boundaries of Content may or may not be understood or transmitted by transport protocols. That is, what one application considers to be two units of Content sent on a stream-based transport may be treated as a single unit of Content by the application on the other side.
+* Send() is the action to transmit Content over a Connection to a remote endpoint. The interface to Send may include options specific to how this Content is to be sent. Status of the Send operation may be delivered back to the application in an event {{events}}.
 
-Send
-
->> Send is the action to transmit Content over a Connection to a remote endpoint. The interface to Send may include options specific to how this Content is to be sent. Status of the Send operation may be delivered back to the application in an event {{events}}.
-
-Receive
-
->> Receive is the indication that the application is ready to asynchronously accept Content over a Connection from a Remote Endpoint, while the Content itself will be delivered in an event {{events}}. The interface to Receive may include options specific to the Content that is to be delivered to the application.
+* Receive() is an action that indicates that the application is ready to asynchronously accept Content over a Connection from a Remote Endpoint, while the Content itself will be delivered in an event {{events}}. The interface to Receive may include options specific to the Content that is to be delivered to the application.
 
 ### Event Handling {#events}
 
 This list of events that can be delivered to an application is not exhaustive, but gives the top-level categories of events. The API may expand this list.
 
-Connection Ready
+* Connection Ready: A Connection Ready event signals to an application that a given Connection is ready to send and/or receive Content. If the Connection relies on handshakes to establish state between peers, then it is assumed that these steps have been taken.
 
->> A Connection Ready event signals to an application that a given Connection is ready to send and/or receive Content. If the Connection relies on handshakes to establish state between peers, then it is assumed that these steps have been taken.
+* Connection Finished: A Connection Finished event signals to an application that a given Connection is no longer usable for sending or receiving Content. This should deliver a useful error to the application.
 
-Connection Finished
+* Connection Received: A Connection Received event signals to an application that a given Listener has passively received a Connection.
 
->> A Connection Finished event signals to an application that a given Connection is no longer usable for sending or receiving Content. This should deliver a useful error to the application.
+* Content Received: A Content Received event delivers received content to the application, based on a Receive action. This may include an error if the action failed.
 
-Connection Received
+* Content Sent: A Content Sent event notifies the application of the status of its Send action. This may be an error, an indication that Content has been processed by the protocol stack, or potentially \[MICHAEL: Why "potentially" - because you're not sure about it? If it may be such an indication, "potentially" should be removed (this seems like the right thing to do for me).] an indication that Content has been acknowledged by a peer.
 
->> A Connection Received event signals to an application that a given Listener has passively received a Connection.
+* Path Properties Changed: A Path Properties Changed event notifies the application that some property of the Connection has changed that may influence how and where data is sent and/or received.
 
-Content Received
+### Termination Actions {#termination}
 
->> A Content Received event delivers received content to the application, based on a Receive action. This may include an error if the action failed.
+* Close() is the action an application may take on a Connection to indicate that it no longer intends to send data, is no longer willing to receive data, and that the protocol should signal this state to the remote endpoint if applicable.
 
-Content Sent
-
->> A Content Sent event notifies the application of the status of its Send action. This may be an error, an indication that Content has been processed by the protocol stack, or potentially \[MICHAEL: Why "potentially" - because you're not sure about it? If it may be such an indication, "potentially" should be removed (this seems like the right thing to do for me).] an indication that Content has been acknowledged by a peer.
-
-Path Properties Changed
-
->> A Path Properties Changed event notifies the application that some property of the Connection has changed that may influence how and where data is sent and/or received.
-
-### Termination {#termination}
-
-Close
-
->> Close is the action an application may take on a Connection to indicate that it no longer intends to send data, is no longer willing to receive data, and that the protocol should signal this state to the remote endpoint if applicable.
-
-Abort
-
->> Abort is an action the application may take on a Connection to indicate a Close, but with the additional indication that the transport system should not attempt to deliver any outstanding data.
+* Abort() is an action the application may take on a Connection to indicate a Close, but with the additional indication that the transport system should not attempt to deliver any outstanding data.
 
 ## Transport System Implementation Concepts
 
