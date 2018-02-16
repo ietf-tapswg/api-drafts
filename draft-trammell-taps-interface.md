@@ -990,10 +990,6 @@ A value of 0 means that no checksum is required, and a special value (e.g. -1) c
 be used to indicate full checksum coverage (which is also the default). Only
 full coverage is guaranteed, any other requests are advisory.
 
-###Protocol Properties
-
-\[NOTE: this will be mostly protocol specific stuff as urgent data for TCP - maybe also move Checksum here]
-
 ###Application Intents
 
 #### Size to be Received
