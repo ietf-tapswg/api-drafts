@@ -208,30 +208,46 @@ In the following sections, we describe the details of application interaction wi
 
 # Pre-Establishment Phase
 
-Establishment begins with the creation of a Connection...
+The pre-establishment phase allows applications to specify parameters for
+the connections they're about to make, or to query the API about potential
+connections they could make.
+
+A Preconnection object represents a potential connection. It has state that
+describes parameters of a Connection that might exist in the future.  This
+state comprises information about the local and remote endpoints (see
+{{endpointspec}}), the transport parameters (see {{transport-params}}), and
+the security parameters (see {{security-parameters}}):
 
 ~~~
-Connection := NewConnection(localSpecifier, remoteSpecifier, transportParameters, cryptographicParameters)
-~~~
+   localEndpoint   := ...
+   remoteEndpoint  := ...
+   transportParams := ...
+   securityParams  := ...
 
-\[NOTE: note also that framers and deframers should be bound to connections
-during pre-establishment, forward-reference {{send-framing}} and
-{{receive-framing}}]
-
-## Specifying Endpoints {#enpointspec}
-
-\[NOTE: name resolution is no explict step within the transport API.
-Name resolution can be perfoemed whey creating endpoint objects,
-but may be deferred until connection establishment to incorporate transport parameters.]
-
-The transport service API uses Endpoint objects to refer to local and remote endpoints.
-Endpoint objects can be configured using varios endpoint representation, including IP addresses,
-hostnames, URLs or inteface names as well as port numbers and service names:
+   preConnection := NewPreconnection(localEndpoint, remoteEndpoint,
+                                     transportParams, securityParams);
 
 ~~~
-remoteSpecifier := NewEndpoint()
-remoteSpecifier("https://example.com")
-~~~
+
+The Local Endpoint MUST be specified if the Preconnection is used to Listen()
+for incoming connections, but is OPTIONAL if it is used to Initiate()
+connections. The Remote Endpoint MUST be specified in the Preconnection is used
+to Initiate() connections, but is OPTIONAL if it is used to Listen() for
+incoming connections.
+
+\[NOTE: note also that framers and de-framers should be bound to the
+Preconnection object during pre-establishment, forward-reference
+{{send-framing}} and {{receive-framing}}]
+
+
+
+
+## Specifying Endpoints {#endpointspec}
+
+The transport services API uses Endpoint objects to refer to local and remote endpoints.
+Endpoint objects can be configured using various representations of endpoint identifiers, 
+including IP addresses, hostnames, or interface names as well as port
+numbers and service names:
 
 ~~~
 remoteSpecifier := NewEndpoint()
@@ -260,29 +276,26 @@ localSpecifier.withPort(443)
 Implementations may also support additional endpoint representations and
 provide a single NewEndpoint() call that takes different endpoint representations.
 
-Endpoint representations may imply transport protocols, pseudotransport protocols,
-or families of protocols, e.g., remoteSpecifier.withUrl("https://example.com")
-implies either using HTTP over TLS over TCP or using HTTP over QUIC over UDP.
-Whether the protocols implied by the endpoint representation are provided by the
-transport system is implementation specific, but MUST BE tunable using
-pre-establishment properties.
-Implementations SHOULD provide all parts of the implied transport stack they
-implement unless specified otherwise using pre-establishment properties.
-For example, the transport system may provide TLS over TCP in the above example
-and let the application implement HTTP pseudo-transport itself.
 
 \[TASK: match with #initiate / #listen / #rendezvous and make sure the transport
 stack used is communicated ]
 
+The transport services API resolves names internally, when Initiate() is
+called to transform a Preconnection object into a Connection. The API does
+not need an explicit name resolution method, although it may be useful to
+provide one for reasons unrelated to transport.
+
+\[NOTE: the API needs MUST be explicit about when name resolution occurs,
+        since the act of resolving a name leaks information, and there
+        may be security implications if this happens unexpectedly.]
 
 ## Specifying Transport Parameters {#transport-params}
 
-When creating a connection, an application needs to specify transport
-parameters reflecting its requirements and preferences regarding its
-communication. These Transport parameters include
-*Transport Preferences* (towards protocol selection and path selection) as well as
-*Application Intents* (hints to the transport system what to optimize for) and
-*Protocol Properties* (to configure transport protocols).
+A Preconnection object holds parameters reflecting the application's
+requirements and preferences for the transport.  These include Transport
+Preferences (towards protocol selection and path selection) as well as
+Application Intents (hints to the transport system what to optimize for)
+and Protocol Properties (to configure transport protocols).
 
 All Transport Parameters are organized within a single name space, that is
 shared with Send Parameters (see {{send-params}}). While Application
@@ -316,14 +329,10 @@ Not all transport protocols work on all paths. Thus, transport protocol
 selection is tied to path selection, which may involve choosing between
 multiple local interfaces that are connected to different access networks.
 
-Transport Preferences should be specified as early as possible to take effect
-and may not be changed after establishing a connection:
-
-- Preferences effecting protocol selection MUST be added to the
-  TransportParameters object before establishing a connection.
-  Changing them later SHOULD result in a runtime error.
-- Preferences effecting path selection MAY be changed but only effect future connection
-  migrations or path selection for multipath protocols.
+The Transport Preferences form part of the information used to create a
+Preconnection object. As such, they can be configured during the
+pre-establishment phase, but cannot be changed once a Connection has been
+established.
 
 To reflect the needs of an individual connection, they can be
 specified with different preference, whereby the preference is one of the
@@ -426,19 +435,21 @@ The following properties apply to Connections and Connection Groups:
 
 ### Protocol Properties {#protocol-props}
 
-Protocol Properties represent the configuration of a transport protocols once
+Protocol Properties represent the configuration of a transport protocol once
 it has been selected. A transport protocol may not support all Protocol
-Properties, depending on the available transport features. An application
-should specify the Protocol Properties as early as possible to help the TAPS
-system optimize. However, a TAPS system will only actually set those protocol
-properties that are actually supported by the chosen transport protocol. These
-property all apply to Connections and Connection groups.
+Properties, depending on the available transport features. 
+As with Transport Preferences ({{transport-prefs}}), Protocol Properties are
+specified on the Preconnection object, and are using during initiation of a
+Connection to help the system choose an appropriate transport.
+The system will only actually set those protocol properties that are actually 
+supported by the chosen transport protocol. 
+These properties all apply to Connections and Connection groups.
 The default settings of these properties depends on the chosen protocol and on
 the system configuration.
 
 * Set timeout for aborting Connection:
   This numeric property specifies how long to wait before aborting a
-  Connection.  It is given in seconds.
+  Connection attempt.  It is given in seconds.
 
 * Set timeout to suggest to the peer:
   This numeric property specifies the timeout to propose to the peer. It is
@@ -460,8 +471,7 @@ the system configuration.
   suggest we the schedulers defined in {{I-D.ietf-tsvwg-sctp-ndata}}.
 
 * Maximum Content Size Before Connection Establishment:
-  This numeric property can be queried by the application after creating a
-  Connection. It represents the maximum Content size that can be sent
+  This numeric property represents the maximum Content size that can be sent
   before or during Connection establishment, see also {{send-idempotent}}.
   It is given in Bytes.
 
@@ -487,11 +497,14 @@ system schedules big Content over an interface with higher bandwidth, and
 small Content over an interface with lower latency.
 
 Specifying Application Intents is not mandatory. An application can specify any
-combination of Application Intents. All Application Intents can be specified for
-connections and cloning a Connection to form a Connection Group will clone the
-associated Intents along with the other transport parameters. Some Intents can
-also be specified for individual Content, similar to the properties in
-{{send-params}}.
+combination of Application Intents. 
+If specified, Application Intents are defined as parameters passed to the
+Preconnection object, and may influence the Connection established from
+that Preconnection.
+If a Connection is cloned to form a Connection Group, and associated
+Application Intents are cloned along with the other transport parameters.
+Some Intents can also be specified for individual Content, similar to the
+properties in {{send-params}}.
 
 
 #### Traffic Category
@@ -533,15 +546,15 @@ This Intent specifies what the application expects the lifetime of a transfer
 to be. It is a numeric property and given in milliseconds.
 
 
-Stream Bitrate Sent / Received
+Stream Bit-rate Sent / Received
 
-This Intent specifies what the application expects the bitrate of a transfer to
+This Intent specifies what the application expects the bit-rate of a transfer to
 be. It is a numeric property and given in Bytes per second.
 
 
 #### Timeliness
 
-This Intent specifies what delay characteristcs the applications prefers. It
+This Intent specifies what delay characteristics the applications prefers. It
 provides hints for the transport system whether to optimize for low latency or other
 criteria. Note that setting this Intents does not imply any guarantees on
 whether an application's requirements can actually be satisfied. This Intent
@@ -567,7 +580,7 @@ The default is "Transfer".
 This Intent describes what an application knows about its own ability to deal
 with disruption of its communication, e.g., connection loss. It provides hints
 of how well an application assumes it can recover from such disturbances and
-can have an impact on the tradeoff between providing failover techniques and
+can have an impact on the trade-off between providing failover techniques and
 resource utilization. This Intent can also apply to individual Content.
 
 Sensitive:
@@ -586,7 +599,7 @@ The default is "Sensitive".
 
 This Intent describes what an application prefers regarding monetary costs,
 e.g., whether it considers it acceptable to utilize limited data volume. It
-provides hints to the transport system on how to handle tradeoffs between cost
+provides hints to the transport system on how to handle trade-offs between cost
 and performance or reliability. This Intent can also apply to individual
 Content.
 
@@ -609,10 +622,10 @@ The default is "Balance Cost".
 ### Transport Parameters Object
 
 All transport parameters used in the pre-establishment phase are collected
-in a *TransportParameters* object.
+in a TransportParameters object that is passed to the Preconnection object.
 For the sake of convenience, we suggests implementing TransportParameters
-class as sub-class of an existing Dictionary or Set class to allow in-place notion
-of Transport Parameters.
+class as sub-class of an existing Dictionary or Set class to allow in-place 
+notion of Transport Parameters.
 
 ~~~
 transportParameters := NewTransportParameters()
@@ -645,6 +658,9 @@ transportParameters := connection.getTransportParameters()
 and can not be changed later on. {{appendix-specify-query-params}} gives an
 overview of what Transport Parameters can be specified and queried during which
 phase. ]
+
+\[Note: We need to more clearly separate out parameters that can be changed
+once a connection has been established from those that cannot. (csp)]
 
 Connections can be cloned at any time, before or after establishment.
 A cloned connection and its parent are entangled: they share the same
@@ -751,13 +767,14 @@ to be listening for incoming connection requests, commonly used by clients in
 client-server interactions. Active open is supported by this interface through
 the Initiate action:
 
-Connection.Initiate()
+Connection := Preconnection.Initiate()
 
-Before calling Initiate, the caller must have initialized the Connection
-during the pre-establishment phase with local and remote endpoint specifiers,
-as well as all parameters necessary for candidate selection. After calling
-Initiate, no further parameters may be bound to the Connection, and no
-subsequent establishment call may be made on the Connection.
+Before calling Initiate, the caller must have populated a Preconnection
+object with local and remote endpoint specifiers, as well as all parameters
+necessary for candidate selection. After calling Initiate, no further
+parameters may be bound to the Connection. The Initiate() call consumes
+the Preconnection and creates a Connection object. A Preconnection can
+only be initiated once.
 
 Once Initiate is called, the candidate Protocol Stack(s) may cause one or more
 transport-layer connections to be created to the specified remote endpoint.
@@ -790,18 +807,19 @@ Passive open is the action of waiting for connections from remote endpoints,
 commonly used by servers in client-server interactions. Passive open is
 supported by this interface through the Listen action:
 
-Connection.Listen()
+Preconnection.Listen()
 
-Before calling Listen, the caller must have initialized the Connection
-during the pre-establishment phase with local endpoint specifiers,
-as well as all parameters necessary for Protocol Stack selection. After calling
-Listen, no further parameters may be bound to the Connection, and no subsequent
-establishment call may be made on the Connection.
+Before calling Listen, the caller must have initialized the Preconnection
+during the pre-establishment phase with local endpoint specifiers, as well
+as all parameters necessary for Protocol Stack selection. 
+The Listen() action consumes the Preconnection. Once Listen() has been
+called, no further parameters may be bound to the Preconnection, and no
+subsequent establishment call may be made on the Preconnection.
 
-Connection -> ConnectionReceived&lt;Connection>
+Preconnection -> ConnectionReceived&lt;Connection>
 
 The ConnectionReceived event occurs when a remote endpoint has established a
-transport-layer connection to this Connection or when the remote endpoint has
+transport-layer connection to this Preconnection or when the remote endpoint has
 sent its first Content, causing a new Connection to be
 created. The resulting Connection is contained within the ConnectionReceived
 event, and is ready to use as soon as it is passed to the application via the
@@ -812,7 +830,7 @@ sent its first Content" above: in case the connection is in fact a
 stream, nothing may happen on the wire when doing Connect, and the
 first thing the listener gets may already be the first data block.]
 
-Connection -> ListenError&lt;>
+Preconnection -> ListenError&lt;>
 
 A ListenError occurs either when the set of local specifier, transport and
 cryptographic parameters cannot be fulfilled for listening, when the local
@@ -821,11 +839,11 @@ listening by the operating system.
 
 ## Peer to Peer Establishment: Rendezvous {#rendezvous}
 
-Connection.Rendezvous()
+Preconnection.Rendezvous()
 
-Connection -> Ready&lt;>
+Preconnection -> Ready&lt;>
 
-Connection -> RendezvousError&lt;>
+Preconnection -> RendezvousError&lt;>
 
 ## Connection Groups {#groups}
 
