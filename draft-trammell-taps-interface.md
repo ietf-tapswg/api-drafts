@@ -343,11 +343,11 @@ following levels:
    | `require `   | Fail if requested feature/property can not be met         |
    | `prefer  `   | Proceed if requested feature/property can not be met      |
    | `don't care` | None / clear defaults                                     |
-   | `avid    `   | Proceed if requested feature/property can not be avoided  |
+   | `avoid   `   | Proceed if requested feature/property can not be avoided  |
    | `prohibit`   | Fail if requested feature/property can not be avoided     |
 
-There need to be sensible defaults for the Transport Preferences.
-There need to be sensible defaults for the Protocol Selection Properties. The
+There need to be sensible defaults for the Transport Preferences as well as
+Protocol Selection Properties. The
 defaults given in the following section represent a configuration that can be
 implemented over TCP. An alternate set of default Protocol Selection Properties
 would represent a configuration that can be implemented over UDP.
@@ -375,10 +375,10 @@ The following properties apply to Connections and Connection Groups:
   This property applies to connections and connection groups. This is not a
   strict requirement.  The default is to not have this option.
 
-* Request not to delay acknowledgment (SACK) of Content:
+* Request not to delay acknowledgment of Content:
   This boolean property specifies whether an application considers it
   useful to request for Content that its acknowledgment be sent out as
-  early as possible (SACK) instead of potentially being bundled with other
+  early as possible instead of potentially being bundled with other
   acknowledgments. This property applies to connections and connection
   groups. This is not a strict requirement. The default is to not have this
   option.
@@ -394,7 +394,8 @@ The following properties apply to Connections and Connection Groups:
 * Use Connection Groups with priorities:
   This boolean property specifies whether an application considers it
   useful to create Connection Groups and explicitly prioritize between
-  Connections within a Connection Group.
+  Connections within a Connection Group.  This is not a strict requirement.
+  The default is to not have this option.
 
 * Suggest a timeout to the peer:
   This boolean property specifies whether an application considers it
@@ -417,7 +418,6 @@ The following properties apply to Connections and Connection Groups:
   strict requirement, as it signifies a reduction in reliability. The
   default is full checksum coverage without being able to change it, and
   requiring a checksum when receiving.
-
 
 * Interface Type to prefer:
   This property specifies which kind of access network interface, e.g.,
@@ -538,6 +538,10 @@ intents.
 This Intent specifies what the application expects the size of a transfer to be.
 It is a numeric property and given in Bytes. This Intent can also apply to
 individual Content.
+\[MICHAEL: This is messy. Whatever can apply to individual Content and REALLY
+makes sense there, should be a Content Property. When we have a Content Property,
+we don't need it here as well (remember, we already talked about how implementations
+can offer such things easily per connection). But, is this REALLY per Content or not?]
 
 
 Duration
@@ -559,6 +563,8 @@ provides hints for the transport system whether to optimize for low latency or o
 criteria. Note that setting this Intents does not imply any guarantees on
 whether an application's requirements can actually be satisfied. This Intent
 can also apply to individual Content.
+\[MICHAEL: I think we should remove the last sentence. We already have priorities there,
+and a lifetime - so we have several hints regarding the importance or urgency of specific Content.]
 
 Stream:
 : Delay and packet delay variation should be kept as low as possible
@@ -573,26 +579,6 @@ Background:
 : Delay and packet delay variation is no concern
 
 The default is "Transfer".
-
-
-#### Disruption Resilience
-
-This Intent describes what an application knows about its own ability to deal
-with disruption of its communication, e.g., connection loss. It provides hints
-of how well an application assumes it can recover from such disturbances and
-can have an impact on the trade-off between providing failover techniques and
-resource utilization. This Intent can also apply to individual Content.
-
-Sensitive:
-: Disruptions result in application failure, disrupting user experience
-
-Recoverable:
-: Disruptions are inconvenient for the application, but can be recovered from
-
-Resilient:
-: Disruptions have minimal impact for the application
-
-The default is "Sensitive".
 
 
 #### Cost Preferences
@@ -623,9 +609,11 @@ The default is "Balance Cost".
 
 All transport parameters used in the pre-establishment phase are collected
 in a TransportParameters object that is passed to the Preconnection object.
-For the sake of convenience, we suggests implementing TransportParameters
-class as sub-class of an existing Dictionary or Set class to allow in-place 
+For the sake of convenience, we suggest implementing TransportParameters
+class as a sub-class of an existing Dictionary or Set class to allow in-place
 notion of Transport Parameters.
+\[MICHAEL: I can't parse "in-place notion" and I also think that the last sentence gets too deep into
+implementation details.]
 
 ~~~
 transportParameters := NewTransportParameters()
@@ -643,7 +631,7 @@ transportParameters.add(parameter, value)
 transportParameters.require(preference)
 transportParameters.prefer(preference)
 transportParameters.dontcare(preference)
-transportParameters.avid(preference)
+transportParameters.avoid(preference)
 transportParameters.prohibit(preference)
 ~~~
 
@@ -654,10 +642,10 @@ by using the following call on the Connection object:
 transportParameters := connection.getTransportParameters()
 ~~~
 
-\[Note that most properties are only considered for connection establishment
+Note that most properties are only considered for connection establishment
 and can not be changed later on. {{appendix-specify-query-params}} gives an
 overview of what Transport Parameters can be specified and queried during which
-phase. ]
+phase.
 
 \[Note: We need to more clearly separate out parameters that can be changed
 once a connection has been established from those that cannot. (csp)]
@@ -670,9 +658,9 @@ the other, etc.
 Cloning connections during pre-establishment is encouraged, as it
 informs the transport system about the intent to form Connection Groups.
 
-\[Note that priority assignment ((see also {{groups}} for more details) is
+Note that priority assignment ((see also {{groups}} for more details) is
 not shared among cloned connections. Therefore, the priority assignment
-MUST NOT be realized using the connection level TransportParameters object.]
+MUST NOT be realized using the connection level TransportParameters object.
 
 
 
@@ -791,9 +779,10 @@ the Ready event for connections established using Initiate.
 \[MICHAEL: This is a difficult read. Can we phrase this as "...will occur before the Ready event for connections...",
 or did you have a specific reason to write "until after the Ready event"?]
 
-Connection -> InitiateError&lt;>
+Connection -> Error&lt;contentRef, error>
 
-An InitiateError occurs either when the set of local and remote specifiers and
+An error with empty contentRef and error identifier "InitiateError"
+occurs either when the set of local and remote specifiers and
 transport and cryptographic parameters cannot be fulfilled on a connection for
 initiation (e.g. the set of available Paths and/or Protocol Stacks meeting the
 constraints is empty), when the remote specifier cannot be resolved, or when
@@ -825,14 +814,10 @@ created. The resulting Connection is contained within the ConnectionReceived
 event, and is ready to use as soon as it is passed to the application via the
 event.
 
-\[MICHAEL: JFYI, just to explain why I added "or when the remote endpoint has
-sent its first Content" above: in case the connection is in fact a
-stream, nothing may happen on the wire when doing Connect, and the
-first thing the listener gets may already be the first data block.]
+PreConnection -> Error&lt;contentRef, error>
 
-Preconnection -> ListenError&lt;>
-
-A ListenError occurs either when the set of local specifier, transport and
+An error with empty contentRef and error identifier "ListenError" occurs either when
+the set of local specifier, transport and
 cryptographic parameters cannot be fulfilled for listening, when the local
 specifier cannot be resolved, or when the application is prohibited from
 listening by the operating system.
@@ -843,7 +828,10 @@ Preconnection.Rendezvous()
 
 Preconnection -> Ready&lt;>
 
-Preconnection -> RendezvousError&lt;>
+PreConnection -> Error&lt;contentRef, error>
+
+An error with empty contentRef and error identifier "RendezvousError" occurs when...
+
 
 ## Connection Groups {#groups}
 
@@ -878,7 +866,7 @@ Once a Connection has been established, it can be used for sending data. Data
 is sent by passing a Content object and additional parameters
 {{send-params}} to the Send action on an established connection:
 
-Connection.Send(Content, SentParameters)
+Connection.Send(Content, sendParameters)
 
 The type of the Content to be passed is dependent on the implementation, and
 on the constraints on the Protocol Stacks implied by the Connection's
@@ -919,30 +907,44 @@ as it is an expected behavior for partially reliable transports. The Expired
 event contains an implementation-specific reference to the Content to which it
 applies.
 
-Connection -> SendError&lt;contentRef>
+Connection -> Error&lt;contentRef, error>
 
-A SendError occurs when Content could not be sent due to an error condition:
+An error with error identifier "SendError" occurs when Content could not be
+sent due to an error condition:
 some failure of the underlying Protocol Stack, or a set of send parameters not
 consistent with the Connection's transport parameters.
 
 
 ## Send Parameters {#send-params}
 
+\[MICHAEL: Here, things get really messy (even after I cleaned them up a bit). First, I see no need
+to have app intents defined both per-connection (in an earlier section) AND per-content. If they really
+make sense per-content, they should be defined here and not in the other section. However, some
+of the ones here VERY obviously don't fit a single piece of content: stream bitrate
+sent / stream bitrate received. This is about a number that, by nature, is a longer term average.
+Sure, an application may want to change it whenever, and it can --- but that doesn't make it
+something that really relates to a single piece of content. These two make so little sense here that
+I decided to remove them for you. For the others, please make up your mind where they fit / what they
+relate to.  Second, whatever will remain doesn't need its own "app intents" heading: it will only
+relate to content, genuinely making it a "content property". I leave the heading in there now just so
+the app intents stuff stands out a bit more, but when you're done removing things, please remove
+this heading and make what's left a part of the Content Properties.]
+
+
 The Send action takes per-Content send parameters which control how the
 contents will be sent down to the underlying Protocol Stack and transmitted.
 
 If Send Parameters should be overridden for a specific content, an
 empty sent parameter Object can be acquired and all desired Send Parameters
-can be added to that object. A Send Parameters object can be reused for
+can be added to that object. A sendParameters object can be reused for
 sending multiple contents with the same properties.
 
 ~~~
-sentParameters := NewSentParameters()
-sentParameters.add(parameter, value)
+sendParameters := NewSendParameters()
+sendParameters.add(parameter, value)
 ~~~
 
-The Send Parameters are organized in *Content Properties*,
-*Protocol Properties*, and *Application Intents*.
+The Send Parameters are organized in *Content Properties* and *Application Intents*.
 The Send Parameters share a single namespace with the Transport Parameters (see
 {{transport-params}}). This allows to specify Protocol Properties and that can
 be overridden on a per content basis or Application Intents that apply to a
@@ -1001,36 +1003,34 @@ application to receive the Content multiple times.
 0RTT data on Initiate. Probably a transport parameter]
 \[MICHAEL: why? As an app programmer, I can just use Send instead of Initiate.]
 
-#### Checksum {#send-checksum}
+#### Integritycheck_length {#integritycheck_length}
 
 This numeric property specifies the length of the checksum to be used on the Content.
 A value of 0 means that no checksum is required, and a special value (e.g. -1) can
 be used to indicate full checksum coverage (which is also the default). Only
 full coverage is guaranteed, any other requests are advisory.
 
-###Protocol Properties
+#### ACK_immediately {#ack_immediately}
 
-\[NOTE: this will be mostly protocol specific stuff as urgent data for TCP - maybe also move Checksum here]
+This boolean property specifies, if true, that an application wants this
+Content to be immediately acknowledged by the receiver. In case of
+reliable transmission, this informs the transport protocol on the sender
+side faster that it can remove the Content from its buffer; therefore
+this property can be useful for latency-critical applications that maintain
+tight control over the send buffer (see {{#sending}}).
 
-###Application Intents
+### Application Intents
+
+\[MICHAEL: see my comment in the other app intents section about this one: make
+a decision, let it be either about Content or not. No point having it in both places.]
 
 #### Size to be Received
 
 On a bi-directional connection, this Intent specifies what amount of data the
 application expects to receive in reply to the content sent.
 It is a numeric property and given in Bytes.
-
-#### Stream Bitrate Sent
-
-This Intent specifies what bitrate the application wishes the content to be
-sent with. This is useful as input for any transport that does packet pacing.
-It is a numeric property and given in Bytes per second.
-
-#### Stream Bitrate Received
-
-On a bi-directional connection, this Intent specifies what bitrate the
-application expects to receive in reply to the content sent.
-It is a numeric property and given in Bytes per second.
+\[MICHAEL: see my comment in the other app intents section about this one: make
+a decision, let it be either about Content or not. No point having it in both places.]
 
 #### Cost Preferences
 
@@ -1092,9 +1092,10 @@ underlying Protocol Stack's framing.  See {{receive-framing}} for handling
 framing in situations where the Protocol Stack provides octet-stream transport
 only.
 
-Connection -> ReceiveError&lt;>
+Connection -> Error&lt;contentRef, error>
 
-A ReceiveError occurs when data is received by the underlying Protocol Stack
+An error with error identifier "ReceiveError" occurs when
+data is received by the underlying Protocol Stack
 that cannot be fully retrieved or deframed, or when some other indication is
 received that reception has failed. Such conditions that irrevocably lead the
 the termination of the Connection are signaled using ConnectionError instead
@@ -1159,15 +1160,16 @@ Connection.Close()
 
 This event can (i.e., this is not guaranteed to happen) inform the application that the peer has closed the Connection:
 
-Connection -> Finished&lt;>
+Connection -> Closed&lt;>
 
 Abort terminates a Connection without delivering remaining data:
 
 Connection.Abort()
 
-This event can (i.e., this is not guaranteed to happen) inform the application that the other side has aborted the Connection:
+An error with error identifier "ConnectionError" can (i.e., this is not guaranteed to happen) inform the application that the other side has aborted the Connection:
 
 Connection -> ConnectionError&lt;>
+
 
 # Event and Error Handling
 
@@ -1280,7 +1282,8 @@ type SendParameters struct {
 	Ordered bool
 	Immediate bool
 	Idempotent bool
-	CorruptionTolerant bool
+	Integritycheck_length uint
+    ACK_immediately bool
 }
 
 type Preconnection interface {
@@ -1306,6 +1309,8 @@ type Connection interface {
 }
 
 type Content interface {
+\[MICHAEL: We need something here for metadata, for a receiver -
+at least ECN must be a part of this metadata.]
 	Bytes() []byte
 }
 
@@ -1359,7 +1364,7 @@ set.
 | Reliable Data Transfer | Yes      | Yes    | Yes   | Yes      | Require |
 | Preserve Data Ordering | Yes      | Yes    | Yes   | No       | Require |
 | Configure Reliability per Content | Yes | Yes | Yes | Yes     | None    |
-| Request SACK           | Yes      | Yes    | Yes    | Yes     | None    |
+| Request immediate ACK  | Yes      | Yes    | Yes    | Yes     | None    |
 | Use 0-RTT with Idempotent Content | Yes | Yes | Yes | Yes     | None    |
 | Use Connection Groups with priorities | Yes | Yes | No | No   | None    |
 | Suggest timeout to peer | Yes     | Yes    | No    | No       | None    |
@@ -1369,6 +1374,7 @@ set.
 | Application Intents    | No       | No     | No    | No       | Intend  |
 
 \[List individual Intents? Reformulate some of them as preferences?]
+
 
 ## Specifying and Querying Parameters {#appendix-specify-query-params}
 
