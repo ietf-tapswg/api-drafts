@@ -283,6 +283,19 @@ Another example is racing SCTP with TCP:
 
 Implementations that support racing protocols and protocol options SHOULD maintain a history of which protocols and protocol options successfully established, on a per-network basis. This information can influence future racing decisions to prioritize or prune branches.
 
+### Ranking Branches
+
+The transport system ranks brances in the order in which it will attempt to connect later. Ranking can be based on application preferences, expected performance, system policy, or other criteria.
+
+For example, a transport system can use Application Intents, defined in {{I-D.trammell-taps-interface}}, to rank branches in the following ways:
+
+* Traffic Category
+* Size to be Sent / Received: If the application indicates the size of the Content it expects to receive, the transport system can predict the completion time of the transfer on each of the available paths based on current performance estimates. It can then rank the path with the lower expected completion time higher, so for small Content where the download is latency-bound, the path with the lower latency estimate is tried first, while for larger Content which is bandwidth-bound, the path with the higher observed bitrate is tried first.
+* Bitrate to be Sent / Received
+* Timeliness: If the application indicates a preference for lower latency for the new Connection, the path with the lower latency will be ranked higher and thus tried first.
+* Cost Preferences: If the application indicates a preference to avoid expensive paths, such paths will be ranked lower. If the application indicates that it prohibits using expensive paths, paths that are associated with a cost will be purged from the decision tree.
+
+
 ## Branching Order-of-Operations
 
 Branch types must occur in a specific order relative to one another to avoid creating leaf nodes with invalid or incompatible settings. In the example above, it would be invalid to branch for derived endpoints (the DNS results for www.example.com) before branching between interface paths, since usable DNS results on one network may not necessarily be the same as DNS results on another network due to local network entities, supported address families, or enterprise network configurations. Implementations must be careful to branch in an order that results in usable leaf nodes whenever there are multiple branch types that could be used from a single node.
@@ -354,6 +367,17 @@ If a leaf node has successfully completed its connection, all other attempts SHO
 Implementations may select the criteria by which a leaf node is considered to be successfully connected differently on a per-protocol basis. If the only protocol being used is a transport protocol with a clear handshake, like TCP, then the obvious choice is to declare that node "connected" when the last packet of the three-way handshake has been received. If the only protocol being used is an "unconnected" protocol, like UDP, the implementation may consider the node fully "connected" the moment it determines a route is present, before sending any packets on the network.
 
 For protocol stacks with multiple handshakes, the decision becomes more nuanced. If the protocol stack involves both TLS and TCP, an implementation MAY determine that a leaf node is connected after the TCP handshake is complete, or it MAY wait for the TLS handshake to complete as well. The benefit of declaring completion when the TCP handshake finishes, and thus stopping the race for other branches of the tree, is that there will be less burden on the network from other connection attempts. On the other hand, by waiting until the TLS handshake is complete, an implementation avoids the scenario in which a TCP handshake completes quickly, but TLS negotiation is either very slow or fails altogether in particular network conditions or to a particular endpoint.
+
+### Protocol Configuration
+
+Once a connection is established and a transport protocol has been chosen, any Protocol Properties given by the application which apply to the transport protocol are configured on the transport protocol.
+
+Additionally, a transport system may configure a transport protocol according to following Application Intents:
+
+* Traffic Category
+* Size to be Sent / Received
+* Timeliness: If an application indicates a preference for low latency, the transport system may disable the Nagle algorithm on a TCP connection.
+* Bitrate to be Sent / Received: If an application indicates a certain bitrate it wants to send, the transport system may limit the bitrate of the outgoing communication.
 
 ## Establishing multiplexed connections {#establish-mux}
 
