@@ -205,51 +205,33 @@ Beyond the basic objects, there are several high-level groups of actions that an
 
 * Termination ({{termination}}) focuses on the methods by which data transmission is ceased, and state is torn down in the transport.
 
-### Objects {#objects}
+### Basic Objects {#objects}
 
-Connection
+* Preconnection: A Preconnection object is a representation of a potential connection. It has state that describes a Connection that might exist in the future: the Local Endpoint from which that Connection will be established, the Remote Endpoint to which it will connect, and Path Selection Properties, Protocol Selection Properties, and Specific Protocol Properties that influence the choice of transport that Connection will use. A Preconnection can be fully specified and represent a single possible Connection, or it can be partially specified such that it represents a family of possible Connections. 
 
->> A Connection is the fundamental object used by an application for all interaction with a peer and data transfer. It is generally capable of bi-directional communication. It has state that represents the capability of being able to send or receive content between its local and remote endpoints. This capability may be based merely on the existence of a path between the two endpoints and an application's permission to send and receive on its local endpoint; or may represent successful protocol handshakes at one or more layers that are pre-requisites to receiving content.
+* Connection: A Connection object represents an active transport protocol instance that can send and/or receive Content between a Local Endpoint and a Remote Endpoint. It holds state pertaining to the underlying transport protocol instance and any ongoing data transfer. 
 
-Listener
-
->> A Listener is any object that can be used to prepare a Connection with a remote endpoint without initiation by the local application. That is, it can passively accept initiations for Connections made by another endpoint.
+* Listener: A Listener object accepts incoming transport protocol connections from Remote Endpoints  and generates corresponding Connection objects. It is created from a Preconnection object that specifies the type of incoming connections it will accept.
 
 ### Pre-Establishment {#preestablishment}
 
-Endpoint
+* Endpoint: An Endpoint represents one side of a transport connection. It is a concept that represents how an application views itself or a peer that may vary in levels of specificity. Examples include "IP address + port", "hostname + port", and "DNS service name".
 
->> An Endpoint represents one side of a transport connection. It is a concept that represents how an application views itself or a peer that may vary in levels of specificity. Examples include "IP address + port", "hostname + port", and "DNS service name".
+* Remote Endpoint: The Remote Endpoint in a properties \[MICHAEL: I can't parse "in a properties" here. Should this be removed?] represents the application's view of a peer that can participate in a transport connection.
 
-Remote Endpoint
+* Local Endpoint: The Local Endpoint in a properties \[MICHAEL: I can't parse "in a properties" here. Should this be removed?] represents the application's view of itself that it wants to use for transport connections. This may be optional, or may be generic (a wild card address, for example).
 
->> The Remote Endpoint in a properties \[MICHAEL: I can't parse "in a properties" here. Should this be removed?] represents the application's view of a peer that can participate in a transport connection.
+* Path Selection Properties: The Path Selection Properties consist of the options that an application may set on a Preconnection to influence the selection of path between itself and the Remote Endpoint. These options can come in the form of requirements, prohibitions, or preferences. Examples of options which may influence path selection include the interface type (such as a Wi-Fi Ethernet connection, or a Cellular LTE connection), characteristics of the path that are locally known like Maximum Transmission Unit (MTU), or expected throughput or latency.
 
-Local Endpoint
+* Protocol Selection Properties: The Protocol Selection Properties consist of the options that an application may set on a Preconnection to influence the selection of transport protocol, configure the behavior of generic transport protocol features. These options come in the form of requirements, prohibitions, and preferences. Examples include reliability, service class, multipath support, and fast open support. 
 
->> The Local Endpoint in a properties \[MICHAEL: I can't parse "in a properties" here. Should this be removed?] represents the application's view of itself that it wants to use for transport connections. This may be optional, or may be generic (a wild card address, for example).
+* Specific Protocol Properties: The Specific Protocol Properties refer to the subset of Protocol Properties options that apply to a single protocol (transport protocol, IP, or security protocol). The presence of such Properties on a Preconnection does not necessarily require that a specific protocol must be used when a Connection is established from that Preconnection, but that if this protocol is employed, a particular set of options should be used. This is critical to allow compatibility with Protocol Properties on peers.
 
-Path Selection Properties
+### Establishment Actions {#establishment}
 
->> Path Selection Properties consist of the options that an application may set to influence the selection of path between itself and the Remote Endpoint. These options can come in the form of requirements, prohibitions, or preferences. Examples of options which may influence path selection include the interface type (such as a Wi-Fi Ethernet connection, or a Cellular LTE connection), characteristics of the path that are locally known like Maximum Transmission Unit (MTU), or expected throughput or latency.
+* Initiate() is the primary action that an application can take to create a Connection to a remote endpoint, and prepare any required local or remote state to be able to send and/or receive content. For some protocols, this may initiate a server-to-client style handshake; for other protocols, this may just establish local state; and for peer-to-peer protocols, this may begin the process of a simultaneous open. The Initiate() action consumes a Preconnection object and creates a Connection object.
 
-Protocol Selection Properties
-
->> Protocol Selection Properties consist of the options that an application may set to influence the selection of transport protocol, configure the behavior of generic transport protocol features. These options come in the form of requirements, prohibitions, and preferences. Examples include reliability, service class, multipath support, and fast open support. 
-
-Specific Protocol Properties
-
->> Specific Protocol Properties refers to the subset of Protocol Properties options that apply to a single protocol (transport protocol, IP, or security protocol). The presence of such Properties does not necessarily require that a specific protocol must be used, but that if this protocol is employed, a particular set of options should be used. This is critical to allow compatibility with Protocol Properties on peers.
-
-### Establishment {#establishment}
-
-Initiate
-
->> Initiate is the primary action that an application can take to create a Connection to a remote endpoint, and prepare any required local or remote state to be able to send and/or receive content. For some protocols, this may initiate a server-to-client style handshake; for other protocols, this may just establish local state; and for peer-to-peer protocols, this may begin the process of a simultaneous open.
-
-Listen
-
->> Listen is the action of marking a Listener as willing to accept incoming Connections.
+* Listen() is the action of marking a Listener as willing to accept incoming Connections. It consumes a Preconnection object. The Listener will then create Connection objects as incoming connections are accepted.
 
 ### Data Transfer {#datatransfer}
 
