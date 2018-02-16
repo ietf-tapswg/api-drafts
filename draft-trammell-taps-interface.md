@@ -761,13 +761,14 @@ to be listening for incoming connection requests, commonly used by clients in
 client-server interactions. Active open is supported by this interface through
 the Initiate action:
 
-Connection.Initiate(Preconnection)
+Connection := Preconnection.Initiate()
 
-Before calling Initiate, the caller must have initialized the Connection
-during the pre-establishment phase with local and remote endpoint specifiers,
-as well as all parameters necessary for candidate selection. After calling
-Initiate, no further parameters may be bound to the Connection, and no
-subsequent establishment call may be made on the Connection.
+Before calling Initiate, the caller must have populated a Preconnection
+object with local and remote endpoint specifiers, as well as all parameters
+necessary for candidate selection. After calling Initiate, no further
+parameters may be bound to the Connection. The Initiate() call consumes
+the Preconnection and creates a Connection object. A Preconnection can
+only be initiated once.
 
 Once Initiate is called, the candidate Protocol Stack(s) may cause one or more
 transport-layer connections to be created to the specified remote endpoint.
@@ -800,18 +801,19 @@ Passive open is the action of waiting for connections from remote endpoints,
 commonly used by servers in client-server interactions. Passive open is
 supported by this interface through the Listen action:
 
-Connection.Listen()
+Preconnection.Listen()
 
-Before calling Listen, the caller must have initialized the Connection
-during the pre-establishment phase with local endpoint specifiers,
-as well as all parameters necessary for Protocol Stack selection. After calling
-Listen, no further parameters may be bound to the Connection, and no subsequent
-establishment call may be made on the Connection.
+Before calling Listen, the caller must have initialized the Preconnection
+during the pre-establishment phase with local endpoint specifiers, as well
+as all parameters necessary for Protocol Stack selection. 
+The Listen() action consumes the Preconnection. Once Listen() has been
+called, no further parameters may be bound to the Preconnection, and no
+subsequent establishment call may be made on the Preconnection.
 
-Connection -> ConnectionReceived&lt;Connection>
+Preconnection -> ConnectionReceived&lt;Connection>
 
 The ConnectionReceived event occurs when a remote endpoint has established a
-transport-layer connection to this Connection or when the remote endpoint has
+transport-layer connection to this Preconnection or when the remote endpoint has
 sent its first Content, causing a new Connection to be
 created. The resulting Connection is contained within the ConnectionReceived
 event, and is ready to use as soon as it is passed to the application via the
@@ -822,7 +824,7 @@ sent its first Content" above: in case the connection is in fact a
 stream, nothing may happen on the wire when doing Connect, and the
 first thing the listener gets may already be the first data block.]
 
-Connection -> ListenError&lt;>
+Preconnection -> ListenError&lt;>
 
 A ListenError occurs either when the set of local specifier, transport and
 cryptographic parameters cannot be fulfilled for listening, when the local
@@ -831,11 +833,11 @@ listening by the operating system.
 
 ## Peer to Peer Establishment: Rendezvous {#rendezvous}
 
-Connection.Rendezvous()
+Preconnection.Rendezvous()
 
-Connection -> Ready&lt;>
+Preconnection -> Ready&lt;>
 
-Connection -> RendezvousError&lt;>
+Preconnection -> RendezvousError&lt;>
 
 ## Connection Groups {#groups}
 
