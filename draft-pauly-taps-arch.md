@@ -205,6 +205,36 @@ Beyond the basic objects, there are several high-level groups of actions that an
 
 * Termination ({{termination}}) focuses on the methods by which data transmission is ceased, and state is torn down in the transport.
 
+~~~~~~~~~~
+     Pre-Establishment     :       Established             : Termination
+     -----------------     :       -----------             : -----------
+                           :                     Close()   :
+     +---------------+ Initiate() +------------+ Abort()   :
+ +-->| Preconnection |----------->| Connection |---------------> Closed
+ |   +---------------+     :      +------------+ Connection:
+ |                         :      ^   ^    |     Finished  :
+ +-- Local Endpoint        :      |   |    |               :
+ |                         :      |   |    +-----+         :
+ +-- Remote Endpoint       :      |   |          |Content  :
+ |                         :      |   |Send()    |Received :
+ +-- Path Selection        :      | +---------+  |         :
+ |   Properties            :      | | Content |<-+         :
+ |                         :      | +---------+            :
+ +-- Protocol Selection    :      |                        :
+ |   Properties            :      |                        :
+ |                         :      |                        :
+ +-- Specific Protocol     :      |                        :
+ |   Properties            :      |                        :
+ |                         :      |                        :
+ |   +----------+          :      |                        :
+ +-->| Listener |-----------------+                        :
+     +----------+ Connection Received                      :
+           ^               :                               :
+           |               :                               :
+        Listen()           :                               :
+~~~~~~~~~~
+{: #fig-lifetime title="The lifetime of a connection"}
+
 ### Basic Objects {#objects}
 
 * Preconnection: A Preconnection object is a representation of a potential connection. It has state that describes a Connection that might exist in the future: the Local Endpoint from which that Connection will be established, the Remote Endpoint to which it will connect, and Path Selection Properties, Protocol Selection Properties, and Specific Protocol Properties that influence the choice of transport that Connection will use. A Preconnection can be fully specified and represent a single possible Connection, or it can be partially specified such that it represents a family of possible Connections. 
