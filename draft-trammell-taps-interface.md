@@ -261,10 +261,10 @@ Implementations may also support additional endpoint representations and
 provide a single NewEndpoint() call that takes different endpoint representations.
 
 Endpoint representations may imply transport protocols, pseudotransport protocols,
-or families of protocols, e.g., remoteSpecifier.withUrl("https://example.com") 
+or families of protocols, e.g., remoteSpecifier.withUrl("https://example.com")
 implies either using HTTP over TLS over TCP or using HTTP over QUIC over UDP.
 Whether the protocols implied by the endpoint representation are provided by the
-transport system is implementation specific, but MUST BE tunable using 
+transport system is implementation specific, but MUST BE tunable using
 pre-establishment properties.
 Implementations SHOULD provide all parts of the implied transport stack they
 implement unless specified otherwise using pre-establishment properties.
@@ -273,15 +273,15 @@ and let the application implement HTTP pseudo-transport itself.
 
 \[TASK: match with #initiate / #listen / #rendezvous and make sure the transport
 stack used is communicated ]
-   
-   
+
+
 ## Specifying Transport Parameters {#transport-params}
 
 When creating a connection, an application needs to specify transport
 parameters reflecting its requirements and preferences regarding its
-communication. These Transport parameters include 
-*Transport Preferences* (towards protocol selection and path selection) as well as 
-*Application Intents* (hints to the transport system what to optimize for) and 
+communication. These Transport parameters include
+*Transport Preferences* (towards protocol selection and path selection) as well as
+*Application Intents* (hints to the transport system what to optimize for) and
 *Protocol Properties* (to configure transport protocols).
 
 All Transport Parameters are organized within a single name space, that is
@@ -297,8 +297,8 @@ feature, will break the application's functionality. On the other hand, the
 option to not require checksums when receiving an individual Content can help
 optimize for low latency, but if not present, it will most likely not break the
 fundamental assumptions of the application.
-Moreover, there can be conflicts between parameters set by 
-the application: If multiple features are requested which are offered 
+Moreover, there can be conflicts between parameters set by
+the application: If multiple features are requested which are offered
 by different protocols, it may not be possible to satisfy all requirements.
 Consequently, a transport system must prioritize Transport Parameters and
 consider the relevant trade-offs, see also {{?TAPS-MINSET=I-D.ietf-taps-minset}}.
@@ -311,7 +311,7 @@ preference levels are specified in {{appendix-preferences}}.
 ### Transport Preferences {#transport-prefs}
 
 Transport Preferences drive protocol selection and path selection on connection
-establishment. 
+establishment.
 Not all transport protocols work on all paths. Thus, transport protocol
 selection is tied to path selection, which may involve choosing between
 multiple local interfaces that are connected to different access networks.
@@ -320,8 +320,8 @@ Transport Preferences should be specified as early as possible to take effect
 and may not be changed after establishing a connection:
 
 - Preferences effecting protocol selection MUST be added to the
-  TransportParameters object before establishing a connection. 
-  Changing them later SHOULD result in a runtime error. 
+  TransportParameters object before establishing a connection.
+  Changing them later SHOULD result in a runtime error.
 - Preferences effecting path selection MAY be changed but only effect future connection
   migrations or path selection for multipath protocols.
 
@@ -620,7 +620,7 @@ The default is "Balance Cost".
 
 
 
-### Transport Parameters Object 
+### Transport Parameters Object
 
 All transport parameters used in the pre-establishment phase are collected
 in a *TransportParameters* object.
@@ -633,8 +633,8 @@ transportParameters := NewTransportParameters()
 ~~~
 
 The Individual parameters are then added to the TransportParameters object.
-While Protocol Properties and Application Intents use the `add` call, 
-Transport Preferences use special calls for the levels defined in {{transport-params}}. 
+While Protocol Properties and Application Intents use the `add` call,
+Transport Preferences use special calls for the levels defined in {{transport-params}}.
 
 ~~~
 transportParameters.add(intent, value)
@@ -662,9 +662,9 @@ phase. ]
 
 Connections can be cloned at any time, before or after establishment.
 A cloned connection and its parent are entangled: they share the same
-TransportParameters object, changing any parameter for one of them also 
-changes the parameter for the other, connecting one of them also connects 
-the other, etc. 
+TransportParameters object, changing any parameter for one of them also
+changes the parameter for the other, connecting one of them also connects
+the other, etc.
 Cloning connections during pre-establishment is encouraged, as it
 informs the transport system about the intent to form Connection Groups.
 
@@ -677,9 +677,9 @@ MUST NOT be realized using the connection level TransportParameters object.]
 ## Specifying Security Parameters and Callbacks {#security-parameters}
 
 Common parameters such as TLS ciphersuites are known to implementations. Clients SHOULD
-use common safe defaults for these values whenever possible. However, as discussed in 
+use common safe defaults for these values whenever possible. However, as discussed in
 {{I-D.pauly-taps-transport-security}}, many transport security protocols require specific
-security parameters and constraints from the client at the time of configuration and 
+security parameters and constraints from the client at the time of configuration and
 actively during a handshake. These configuration parameters are created as follows
 
 ~~~
@@ -697,17 +697,17 @@ securityParameters.AddIdentity(identity)
 securityParameters.AddPrivateKey(privateKey, publicKey)
 ~~~
 
-- Supported algorithms: Used to restrict what parameters are used by underlying transport security protocols. 
+- Supported algorithms: Used to restrict what parameters are used by underlying transport security protocols.
 When not specified, these algorithms SHOULD default to known and safe defaults for the system. Parameters include:
 ciphersuites, supported groups, and signature algorithms.
 
 ~~~
-securityParameters.AddSupportedGroup(22)    // secp256k1 
+securityParameters.AddSupportedGroup(22)    // secp256k1
 securityParameters.AddCiphersuite(0xCCA9)   // TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
 securityParameters.AddSignatureAlgorithm(7) // ed25519
 ~~~
 
-- Session cache: Used to tune cache capacity, lifetime, re-use, 
+- Session cache: Used to tune cache capacity, lifetime, re-use,
 and eviction policies, e.g., LRU or FIFO.
 
 ~~~
@@ -716,7 +716,7 @@ securityParameters.SetSessionCacheLifetime(24*60*60) // 24 hours
 securityParameters.SetSessionCacheReuse(1)           // One-time use
 ~~~
 
-- Pre-shared keying material: Used to install pre-shared keying material established 
+- Pre-shared keying material: Used to install pre-shared keying material established
 out-of-band. Each pre-shared keying material is associated with some identity that typically identifies
 its use or has some protocol-specific meaning to peers.
 
@@ -724,27 +724,27 @@ its use or has some protocol-specific meaning to peers.
 securityParameters.AddPreSharedKey(key, identity)
 ~~~
 
-Security decisions, especially pertaining to trust, are not static. Thus, once configured, 
-parameters must also be supplied during live handshakes. These are best handled as 
+Security decisions, especially pertaining to trust, are not static. Thus, once configured,
+parameters must also be supplied during live handshakes. These are best handled as
 client-provided callbacks. Security handshake callbacks include:
 
-- Trust verification callback: Invoked when a peer's trust must be validated before the 
-handshake protocol can proceed. 
+- Trust verification callback: Invoked when a peer's trust must be validated before the
+handshake protocol can proceed.
 
 ~~~
 trustCallback := NewCallback({
   // Handle trust, return the result
-}) 
+})
 securityParameters.SetTrustVerificationCallback(trustCallback)
 ~~~
 
-- Identity challenge callback: Invoked when a private key operation is required, e.g., when 
-local authentication is requested by a remote. 
+- Identity challenge callback: Invoked when a private key operation is required, e.g., when
+local authentication is requested by a remote.
 
 ~~~
 challengeCallback := NewCallback({
   // Handle challenge
-}) 
+})
 securityParameters.SetIdentityChallengeCallback(challengeCallback)
 ~~~
 
@@ -862,7 +862,7 @@ ideal transport system implementation would assign the Connection the capacity
 share P x C/sum_P, where P = priority, C = total available capacity and sum_P = sum
 of all priority values that are used for the Connections in the same Connection Group.
 The priority setting is purely advisory; no guarantees are given.
- 
+
 Connection Groups should be created (i.e., the Clone action should be used)
 as early as possible, ideally already during the Pre-Establishment phase, in order
 to aid the Transport System in choosing and configuring the right protocols
@@ -927,7 +927,7 @@ consistent with the Connection's transport parameters.
 The Send action takes per-Content send parameters which control how the
 contents will be sent down to the underlying Protocol Stack and transmitted.
 
-If Send Parameters should be overridden for a specific content, an 
+If Send Parameters should be overridden for a specific content, an
 empty sent parameter Object can be acquired and all desired Send Parameters
 can be added to that object. A Send Parameters object can be reused for
 sending multiple contents with the same properties.
@@ -1186,10 +1186,140 @@ algorithms or protocols. Any API-compatible transport security protocol should w
 # Acknowledgements
 
 This work has received funding from the European Union's Horizon 2020 research and
-innovation programme under grant agreement No. 644334 (NEAT).
-
+innovation programme under grant agreements No. 644334 (NEAT) and No. 688421 (MAMI).
 
 --- back
+
+# Sample API definition in Go {#appendix-api-sketch}
+
+This document defines an abstract interface. To illustrate how this would map concretely into a programming language, this appendix contains an API interface definition in Go, using callbacks for event handling. The documentation for the API sketch is available online at https://godoc.org/github.com/mami-project/postsocket.
+
+~~~~~~~
+package postsocket
+
+import (
+	"crypto/tls"
+	"io"
+	"net"
+	"time"
+)
+
+type TransportContext interface {
+	NewTransportParameters() TransportParameters
+	NewSecurityParameters() SecurityParameters
+	NewRemote() Remote
+	NewLocal() Local
+	DefaultSendParameters() SendParameters
+
+	SetEventHandler(evh EventHandler)
+	SetFramingHandler(fh FramingHandler)
+
+  Preconnect(evh EventHandler, fh FramingHandler,
+             rem Remote, loc Local,
+             tp TransportParameters,
+             sp SecurityParameters) (Preconnection, error)
+
+  Initiate(rem Remote, loc Local,
+           tp TransportParameters,
+           sp SecurityParameters) (Connection, error)
+  Rendezvous(rem Remote, loc Local,
+             tp TransportParameters,
+             sp SecurityParameters) (Connection, error)
+  Listen(loc Local,
+         tp TransportParameters,
+         sp SecurityParameters) (Connection, error)
+}
+
+type Remote interface {
+	WithHostname(hostname string) Remote
+	WithAddress(address net.IP) Remote
+	WithPort(port uint16) Remote
+	WithServiceName(svc string) Remote
+}
+
+type Local interface {
+	WithInterface(iface string) Local
+	WithHostname(hostname string) Local
+	WithAddress(address net.IP) Local
+	WithPort(port uint16) Local
+	WithServiceName(svc string) Local
+}
+
+type ParameterIdentifier int
+
+const (
+	TransportFullyReliable = iota
+	// ... and so on
+)
+
+type TransportParameters interface {
+	Require(p ParameterIdentifier, v int) TransportParameters
+	Prefer(p ParameterIdentifier, v int) TransportParameters
+	Avoid(p ParameterIdentifier, v int) TransportParameters
+	Prohibit(p ParameterIdentifier, v int) TransportParameters
+}
+
+type SecurityParameters interface {
+	AddIdentity(c tls.Certificate) SecurityParameters
+	AddPSK(c tls.Certificate, k []byte) SecurityParameters
+	VerifyTrustWith(func(c tls.Certificate) (bool, error)) SecurityParameters
+	HandleChallengeWith(func() (bool, error)) SecurityParameters
+	Require(p ParameterIdentifier, v interface{} SecurityParameters
+	Prefer(p ParameterIdentifier, v interface{}) SecurityParameters
+	Avoid(p ParameterIdentifier, v interface{}) SecurityParameters
+	Prohibit(p ParameterIdentifier, v interface{}) SecurityParameters
+}
+
+type SendParameters struct {
+	Lifetime time.Duration
+	Niceness uint
+	Ordered bool
+	Immediate bool
+	Idempotent bool
+	CorruptionTolerant bool
+}
+
+type Preconnection interface {
+  AddSpecifier(rem Remote, loc Local,
+               tp TransportParameters, sp SecurityParameters)
+	Initiate() (Connection, error)
+	InitialSend(content interface{}, sp SendParameters) (Connection, error)
+	Rendezvous() (Connection, error)
+	Listen() (Connection, error)
+}
+
+type Connection interface {
+	Send(content interface{}, contentref interface{}, sp SendParameters) error
+
+	Clone() (Connection, error)
+	Close() error
+
+	GetEventHandler() EventHandler
+	SetEventHandler(evh EventHandler)
+
+	GetFramingHandler() FramingHandler
+	SetFramingHandler(fh FramingHandler)
+}
+
+type Content interface {
+	Bytes() []byte
+}
+
+// EventHandler defines the interface for connection event handlers.
+type EventHandler interface {
+	Ready(conn Connection, ante Connection)
+	Received(content Content, conn Connection)
+	Sent(conn Connection, contentref interface{})
+	Expired(conn Connection, contentref interface{})
+	Error(conn Connection, contentref interface{}, err error)
+	Closed(conn Connection, err error)
+}
+
+type FramingHandler interface {
+	Frame(content interface{}) ([]byte, error)
+	Deframe(in io.Reader) (Content, error)
+}
+~~~~~~~
 
 # Transport Parameters {#appendix-transport-params}
 
