@@ -274,10 +274,14 @@ provide a single NewEndpoint() call that takes different endpoint representation
 \[TASK: match with #initiate / #listen / #rendezvous and make sure the transport
 stack used is communicated ]
 
+The transport services API resolves names internally, when Initiate() is
+called to transform a Preconnection object into a Connection. The API does
+not need an explicit name resolution method, although it may be useful to
+provide one for reasons unrelated to transport.
 
-\[NOTE: name resolution is no explict step within the transport API.
-Name resolution can be perfoemed whey creating endpoint objects,
-but may be deferred until connection establishment to incorporate transport parameters.]
+\[NOTE: the API needs MUST be explicit about when name resolution occurs,
+        since the act of resolving a name leaks information, and there
+        may be security implications if this happens unexpectedly.]
 
 ## Specifying Transport Parameters {#transport-params}
 
