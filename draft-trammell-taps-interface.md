@@ -443,7 +443,7 @@ specified on the Preconnection object, and are using during initiation of a
 Connection to help the system choose an appropriate transport.
 The system will only actually set those protocol properties that are actually 
 supported by the chosen transport protocol. 
-These property all apply to Connections and Connection groups.
+These properties all apply to Connections and Connection groups.
 The default settings of these properties depends on the chosen protocol and on
 the system configuration.
 
