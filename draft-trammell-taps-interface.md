@@ -208,25 +208,40 @@ In the following sections, we describe the details of application interaction wi
 
 # Pre-Establishment Phase
 
-Establishment begins with the creation of a Connection...
+The pre-establishment phase allows applications to specify parameters for
+the connections they're about to make, or to query the API about potential
+connections they could make.
+
+A Preconnection object represents a potential connection. It has state that
+describes parameters of a Connection that might exist in the future.  This
+state comprises information about the local and remote endpoints (see
+{{endpointspec}}), the transport parameters (see {{transport-params}}), and
+the security parameters (see {{security-parameters}}):
 
 ~~~
-Connection := NewConnection(localSpecifier, remoteSpecifier, transportParameters, cryptographicParameters)
+   localEndpoint   := ...
+   remoteEndpoint  := ...
+   transportParams := ...
+   securityParams  := ...
+
+   preConnection := NewPreconnection(localEndpoint, remoteEndpoint,
+                                     transportParams, securityParams);
+
 ~~~
 
-\[NOTE: note also that framers and deframers should be bound to connections
-during pre-establishment, forward-reference {{send-framing}} and
-{{receive-framing}}]
+\[NOTE: note also that framers and de-framers should be bound to the
+Preconnection object during pre-establishment, forward-reference
+{{send-framing}} and {{receive-framing}}]
 
-## Specifying Endpoints {#enpointspec}
 
-\[NOTE: name resolution is no explict step within the transport API.
-Name resolution can be perfoemed whey creating endpoint objects,
-but may be deferred until connection establishment to incorporate transport parameters.]
 
-The transport service API uses Endpoint objects to refer to local and remote endpoints.
-Endpoint objects can be configured using varios endpoint representation, including IP addresses,
-hostnames, URLs or inteface names as well as port numbers and service names:
+
+## Specifying Endpoints {#endpointspec}
+
+The transport services API uses Endpoint objects to refer to local and remote endpoints.
+Endpoint objects can be configured using various representations of endpoint identifiers, 
+including IP addresses, hostnames, URLs or interface names as well as port
+numbers and service names:
 
 ~~~
 remoteSpecifier := NewEndpoint()
@@ -274,6 +289,10 @@ and let the application implement HTTP pseudo-transport itself.
 \[TASK: match with #initiate / #listen / #rendezvous and make sure the transport
 stack used is communicated ]
 
+
+\[NOTE: name resolution is no explict step within the transport API.
+Name resolution can be perfoemed whey creating endpoint objects,
+but may be deferred until connection establishment to incorporate transport parameters.]
 
 ## Specifying Transport Parameters {#transport-params}
 
@@ -751,7 +770,7 @@ to be listening for incoming connection requests, commonly used by clients in
 client-server interactions. Active open is supported by this interface through
 the Initiate action:
 
-Connection.Initiate()
+Connection.Initiate(Preconnection)
 
 Before calling Initiate, the caller must have initialized the Connection
 during the pre-establishment phase with local and remote endpoint specifiers,
