@@ -506,6 +506,11 @@ Application Intents are cloned along with the other transport parameters.
 Some Intents can also be specified for individual Content, similar to the
 properties in {{send-params}}.
 
+\[PHILS:: Some Intents, i.e., Traffic Category, Size to be Received, Receive
+Bit-rate, Timeliness, Cost Preferences are really useful for per-content path
+selection. As the latter is out of scope for v1, I removed them from the Send
+Parameters for now]
+
 
 #### Traffic Category
 
@@ -536,21 +541,16 @@ intents.
 #### Size to be Sent / Received
 
 This Intent specifies what the application expects the size of a transfer to be.
-It is a numeric property and given in Bytes. This Intent can also apply to
-individual Content.
-\[MICHAEL: This is messy. Whatever can apply to individual Content and REALLY
-makes sense there, should be a Content Property. When we have a Content Property,
-we don't need it here as well (remember, we already talked about how implementations
-can offer such things easily per connection). But, is this REALLY per Content or not?]
+It is a numeric property and given in Bytes. 
 
 
-Duration
+#### Duration
 
 This Intent specifies what the application expects the lifetime of a transfer
 to be. It is a numeric property and given in milliseconds.
 
 
-Stream Bit-rate Sent / Received
+#### Send / Receive Bit-rate 
 
 This Intent specifies what the application expects the bit-rate of a transfer to
 be. It is a numeric property and given in Bytes per second.
@@ -561,10 +561,7 @@ be. It is a numeric property and given in Bytes per second.
 This Intent specifies what delay characteristics the applications prefers. It
 provides hints for the transport system whether to optimize for low latency or other
 criteria. Note that setting this Intents does not imply any guarantees on
-whether an application's requirements can actually be satisfied. This Intent
-can also apply to individual Content.
-\[MICHAEL: I think we should remove the last sentence. We already have priorities there,
-and a lifetime - so we have several hints regarding the importance or urgency of specific Content.]
+whether an application's requirements can actually be satisfied. 
 
 Stream:
 : Delay and packet delay variation should be kept as low as possible
@@ -910,18 +907,28 @@ an implementation-specific reference to the Content to which it applies.
 
 ## Send Parameters {#send-params}
 
-\[MICHAEL: Here, things get really messy (even after I cleaned them up a bit). First, I see no need
-to have app intents defined both per-connection (in an earlier section) AND per-content. If they really
-make sense per-content, they should be defined here and not in the other section. However, some
-of the ones here VERY obviously don't fit a single piece of content: stream bitrate
-sent / stream bitrate received. This is about a number that, by nature, is a longer term average.
-Sure, an application may want to change it whenever, and it can --- but that doesn't make it
-something that really relates to a single piece of content. These two make so little sense here that
-I decided to remove them for you. For the others, please make up your mind where they fit / what they
-relate to.  Second, whatever will remain doesn't need its own "app intents" heading: it will only
-relate to content, genuinely making it a "content property". I leave the heading in there now just so
-the app intents stuff stands out a bit more, but when you're done removing things, please remove
-this heading and make what's left a part of the Content Properties.]
+\[MICHAEL: Here, things get really messy (even after I cleaned them up a bit).
+First, I see no need to have app intents defined both per-connection (in an
+earlier section) AND per-content. If they really make sense per-content, they
+should be defined here and not in the other section. However, some of the ones
+here VERY obviously don't fit a single piece of content: stream bitrate sent /
+stream bitrate received. This is about a number that, by nature, is a longer
+term average. Sure, an application may want to change it whenever, and it can
+--- but that doesn't make it something that really relates to a single piece of
+content. These two make so little sense here that I decided to remove them for
+you. For the others, please make up your mind where they fit / what they relate
+to. Second, whatever will remain doesn't need its own "app intents" heading: it
+will only relate to content, genuinely making it a "content property". I leave
+the heading in there now just so the app intents stuff stands out a bit more,
+but when you're done removing things, please remove this heading and make
+what's left a part of the Content Properties.]
+\[PHILS: Cleanup done. From my perspective, there are Parameters (including
+Intents), that belong in both categories. Besides those that are useful for
+per-connection and per-content path-selection (I removed those for v1), there
+remain two dual-use properties: "Send Bitrate" (path selection in connection /
+shaping and de-bursting in ) and "Timeliness" (path selection and DSCP default 
+in connection / buffering and DSCP per content) --- in both cases, I don't see
+how to achieve the functionality when having them only in one of the places.]
 
 
 The Send action takes per-Content send parameters which control how the
@@ -1011,41 +1018,38 @@ that it can remove the Content from its buffer; therefore this property can be
 useful for latency-critical applications that maintain tight control over the
 send buffer (see {{sending}}).
 
-### Application Intents
+#### Send Bitrate {#send-bitrate}
 
-\[MICHAEL: see my comment in the other app intents section about this one: make
-a decision, let it be either about Content or not. No point having it in both places.]
+This numeric property in Bytes per second specifies at what bitrate the
+application wishes the content to be sent. A transport supporting this
+feature will not exceed the requested Send Bitrate even if flow-control
+and congestion control allow higher bitrates. This helps to avid bursty
+traffic pattern on busy video streaming servers {{Trickle}}.
 
-#### Size to be Received
+\[PHILS: this my be removed if there is no consensus this this is useful. See
+https://www.usenix.org/conference/atc12/technical-sessions/presentation/ghobadi
+for a use case and implementation ]
 
-On a bi-directional connection, this Intent specifies what amount of data the
-application expects to receive in reply to the content sent.
-It is a numeric property and given in Bytes.
-\[MICHAEL: see my comment in the other app intents section about this one: make
-a decision, let it be either about Content or not. No point having it in both places.]
+#### Timeliness {#send-timeliness}
 
-#### Cost Preferences
+This specifies what delay characteristics the applications prefers for the
+given content. It provides hints for the transport system whether to optimize
+for low latency or other criteria and set the DSCP flags for packets used
+to transmit the content.
 
-This Intent describes what an application prefers regarding monetary costs,
-e.g., whether it considers it acceptable to utilize limited data volume. It
-provides hints to the transport system on how to handle tradeoffs between cost
-and performance or reliability. This Intent can also apply to individual
-Content.
+Stream:
+: Delay and packet delay variation should be kept as low as possible
 
-No Expense:
-: Avoid transports associated with monetary cost
+Interactive:
+: Delay should be kept as low as possible, but some variation is tolerable
 
-Optimize Cost:
-: Prefer inexpensive transports and accept service degradation
+Transfer:
+: Delay and packet delay variation should be reasonable, but are not critical
 
-Balance Cost:
-: Use system policy to balance cost and other criteria
+Background:
+: Delay and packet delay variation is no concern
 
-Ignore Cost:
-: Ignore cost, choose transport solely based on other criteria
-
-The default is "Balance Cost".
-
+The default is "Transfer".
 
 ## Sender-side Framing {#send-framing}
 
