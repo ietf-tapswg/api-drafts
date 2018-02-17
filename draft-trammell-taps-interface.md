@@ -245,7 +245,7 @@ Preconnection object during pre-establishment, forward-reference
 ## Specifying Endpoints {#endpointspec}
 
 The transport services API uses Endpoint objects to refer to local and remote endpoints.
-Endpoint objects can be configured using various representations of endpoint identifiers, 
+Endpoint objects can be configured using various representations of endpoint identifiers,
 including IP addresses, hostnames, or interface names as well as port
 numbers and service names:
 
@@ -437,12 +437,12 @@ The following properties apply to Connections and Connection Groups:
 
 Protocol Properties represent the configuration of a transport protocol once
 it has been selected. A transport protocol may not support all Protocol
-Properties, depending on the available transport features. 
+Properties, depending on the available transport features.
 As with Transport Preferences ({{transport-prefs}}), Protocol Properties are
 specified on the Preconnection object, and are using during initiation of a
 Connection to help the system choose an appropriate transport.
-The system will only actually set those protocol properties that are actually 
-supported by the chosen transport protocol. 
+The system will only actually set those protocol properties that are actually
+supported by the chosen transport protocol.
 These properties all apply to Connections and Connection groups.
 The default settings of these properties depends on the chosen protocol and on
 the system configuration.
@@ -497,7 +497,7 @@ system schedules big Content over an interface with higher bandwidth, and
 small Content over an interface with lower latency.
 
 Specifying Application Intents is not mandatory. An application can specify any
-combination of Application Intents. 
+combination of Application Intents.
 If specified, Application Intents are defined as parameters passed to the
 Preconnection object, and may influence the Connection established from
 that Preconnection.
@@ -609,11 +609,6 @@ The default is "Balance Cost".
 
 All transport parameters used in the pre-establishment phase are collected
 in a TransportParameters object that is passed to the Preconnection object.
-For the sake of convenience, we suggest implementing TransportParameters
-class as a sub-class of an existing Dictionary or Set class to allow in-place
-notion of Transport Parameters.
-\[MICHAEL: I can't parse "in-place notion" and I also think that the last sentence gets too deep into
-implementation details.]
 
 ~~~
 transportParameters := NewTransportParameters()
@@ -774,15 +769,12 @@ Connection -> Ready&lt;>
 
 The Ready event occurs after Initiate has established a transport-layer
 connection on at least one usable candidate Protocol Stack over at least one
-candidate Path. No Receive events (see {{receiving}}) will occur until after
+candidate Path. No Receive events (see {{receiving}}) will occur before
 the Ready event for connections established using Initiate.
-\[MICHAEL: This is a difficult read. Can we phrase this as "...will occur before the Ready event for connections...",
-or did you have a specific reason to write "until after the Ready event"?]
 
-Connection -> Error&lt;contentRef, error>
+Connection -> InitiateError&lt;>
 
-An error with empty contentRef and error identifier "InitiateError"
-occurs either when the set of local and remote specifiers and
+An InitiateError occurs either when the set of local and remote specifiers and
 transport and cryptographic parameters cannot be fulfilled on a connection for
 initiation (e.g. the set of available Paths and/or Protocol Stacks meeting the
 constraints is empty), when the remote specifier cannot be resolved, or when
@@ -800,7 +792,7 @@ Preconnection.Listen()
 
 Before calling Listen, the caller must have initialized the Preconnection
 during the pre-establishment phase with local endpoint specifiers, as well
-as all parameters necessary for Protocol Stack selection. 
+as all parameters necessary for Protocol Stack selection.
 The Listen() action consumes the Preconnection. Once Listen() has been
 called, no further parameters may be bound to the Preconnection, and no
 subsequent establishment call may be made on the Preconnection.
@@ -814,9 +806,9 @@ created. The resulting Connection is contained within the ConnectionReceived
 event, and is ready to use as soon as it is passed to the application via the
 event.
 
-PreConnection -> Error&lt;contentRef, error>
+PreConnection -> Error&lt;>
 
-An error with empty contentRef and error identifier "ListenError" occurs either when
+A ListenError occurs either when
 the set of local specifier, transport and
 cryptographic parameters cannot be fulfilled for listening, when the local
 specifier cannot be resolved, or when the application is prohibited from
@@ -828,9 +820,11 @@ Preconnection.Rendezvous()
 
 Preconnection -> Ready&lt;>
 
-PreConnection -> Error&lt;contentRef, error>
+PreConnection -> RendezvousError&lt;contentRef, error>
 
-An error with empty contentRef and error identifier "RendezvousError" occurs when...
+An RendezvousError  occurs when...
+
+\[NOTE: this section to be completed in resolution to issue #6]
 
 
 ## Connection Groups {#groups}
@@ -897,7 +891,6 @@ of buffering it creates. That is, if an application calls the Send action multip
 times without waiting for a Sent event, it has created more buffer inside the
 transport system than an application that only issues a Send after this event fires.
 
-
 Connection -> Expired&lt;contentRef>
 
 The Expired event occurs when a previous Send action expired before
@@ -907,12 +900,12 @@ as it is an expected behavior for partially reliable transports. The Expired
 event contains an implementation-specific reference to the Content to which it
 applies.
 
-Connection -> Error&lt;contentRef, error>
+Connection -> SendError&lt;contentRef>
 
-An error with error identifier "SendError" occurs when Content could not be
-sent due to an error condition:
+A SendError occurs when Content could not be sent due to an error condition:
 some failure of the underlying Protocol Stack, or a set of send parameters not
-consistent with the Connection's transport parameters.
+consistent with the Connection's transport parameters. The SendError contains
+an implementation-specific reference to the Content to which it applies.
 
 
 ## Send Parameters {#send-params}
@@ -951,7 +944,7 @@ be overridden on a per content basis or Application Intents that apply to a
 specific content.
 See {{appendix-specify-query-params}} for an overview.
 
-\[Note that some of these parameters are not compatible with transport
+\[NOTE: some of these parameters are not compatible with transport
 parameters; attempting to Send with such an incompatibility yields a SendError.]
 
 ### Content Properties
@@ -999,25 +992,24 @@ Send action. It is used to mark data safe for certain 0-RTT establishment
 techniques, where retransmission of the 0-RTT data may cause the remote
 application to receive the Content multiple times.
 
-\[NOTE: we need some way to signal to the transport that we want to wait for
-0RTT data on Initiate. Probably a transport parameter]
-\[MICHAEL: why? As an app programmer, I can just use Send instead of Initiate.]
+#### Corruption Protection Length {#send-checksum}
 
-#### Integritycheck_length {#integritycheck_length}
+This numeric property specifies the length of the section of content, starting
+from byte 0, that the application assumes will be received without corruption
+due to lower layer errors. It is used to specify options for simple integrity
+protection via checksums. By default, the entire Content is protected by
+checksum. A value of 0 means that no checksum is required, and a special value
+(e.g. -1) can be used to indicate the default. Only full coverage is
+guaranteed, any other requests are advisory.
 
-This numeric property specifies the length of the checksum to be used on the Content.
-A value of 0 means that no checksum is required, and a special value (e.g. -1) can
-be used to indicate full checksum coverage (which is also the default). Only
-full coverage is guaranteed, any other requests are advisory.
-
-#### ACK_immediately {#ack_immediately}
+#### Immediate Acknowledgment {#send-ackimmed}
 
 This boolean property specifies, if true, that an application wants this
-Content to be immediately acknowledged by the receiver. In case of
-reliable transmission, this informs the transport protocol on the sender
-side faster that it can remove the Content from its buffer; therefore
-this property can be useful for latency-critical applications that maintain
-tight control over the send buffer (see {{#sending}}).
+Content to be acknowledged immediately by the receiver. In case of reliable
+transmission, this informs the transport protocol on the sender side faster
+that it can remove the Content from its buffer; therefore this property can be
+useful for latency-critical applications that maintain tight control over the
+send buffer (see {{sending}}).
 
 ### Application Intents
 
@@ -1082,9 +1074,9 @@ Connection -> Received&lt;Content>
 As with sending, the type of the Content to be passed is dependent on the
 implementation, and on the constraints on the Protocol Stacks implied by the
 Connection's transport parameters. The Content may also contain metadata from
-protocols in the Protocol Stack for logging and debugging purposes. In particular,
-when this information is available, the value of the Explicit Congestion Notification
-(ECN) field is contained in such metadata.
+protocols in the Protocol Stack for logging and debugging purposes. In
+particular, when this information is available, the value of the Explicit
+Congestion Notification (ECN) field is contained in such metadata.
 
 The Content object must provide some method to retrieve an octet array
 containing application data, corresponding to a single message within the
@@ -1092,10 +1084,9 @@ underlying Protocol Stack's framing.  See {{receive-framing}} for handling
 framing in situations where the Protocol Stack provides octet-stream transport
 only.
 
-Connection -> Error&lt;contentRef, error>
+Connection -> ReceiveError&lt;>
 
-An error with error identifier "ReceiveError" occurs when
-data is received by the underlying Protocol Stack
+A ReceiveError occurs when data is received by the underlying Protocol Stack
 that cannot be fully retrieved or deframed, or when some other indication is
 received that reception has failed. Such conditions that irrevocably lead the
 the termination of the Connection are signaled using ConnectionError instead
@@ -1140,7 +1131,9 @@ Content := Deframer.Deframe(OctetStream, ...)
 
 # Introspection {#introspection}
 
-At any point, the application can set and query the properties of a Connection. Depending on the phase the connection is in, the connection properties will include different information.
+At any point, the application can set and query the properties of a
+Connection. Depending on the phase the connection is in, the connection
+properties will include different information.
 
 ~~~
 connectionProperties := Connection.getProperties()
@@ -1162,11 +1155,18 @@ Connection properties may include:
 
 # Connection Termination {#termination}
 
-Close terminates a Connection after satisfying all the requirements that were specified regarding the delivery of Content that the application has already given to the transport system. For example, if reliable delivery was requested for Content handed over before calling Close, the transport system will ensure that such Content is indeed delivered. If the peer still has data to send, it cannot be received after this call.
+Close terminates a Connection after satisfying all the requirements that were
+specified regarding the delivery of Content that the application has already
+given to the transport system. For example, if reliable delivery was requested
+for Content handed over before calling Close, the transport system will ensure
+that such Content is indeed delivered. If the peer still has data to send, it
+cannot be received after this call.
 
 Connection.Close()
 
-This event can (i.e., this is not guaranteed to happen) inform the application that the peer has closed the Connection:
+The Closed event can inform the application that the peer has closed the
+Connection; however, there is no guarantee that a remote close will be
+signaled.
 
 Connection -> Closed&lt;>
 
@@ -1174,7 +1174,8 @@ Abort terminates a Connection without delivering remaining data:
 
 Connection.Abort()
 
-An error with error identifier "ConnectionError" can (i.e., this is not guaranteed to happen) inform the application that the other side has aborted the Connection:
+A ConnectionError can inform the application that the other side has aborted
+the Connection; however, there is no guarantee that an abort will be signaled:
 
 Connection -> ConnectionError&lt;>
 
@@ -1212,21 +1213,21 @@ This document defines an abstract interface. To illustrate how this would map co
 package postsocket
 
 import (
-	"crypto/tls"
-	"io"
-	"net"
-	"time"
+  "crypto/tls"
+  "io"
+  "net"
+  "time"
 )
 
 type TransportContext interface {
-	NewTransportParameters() TransportParameters
-	NewSecurityParameters() SecurityParameters
-	NewRemote() Remote
-	NewLocal() Local
-	DefaultSendParameters() SendParameters
+  NewTransportParameters() TransportParameters
+  NewSecurityParameters() SecurityParameters
+  NewRemote() Remote
+  NewLocal() Local
+  DefaultSendParameters() SendParameters
 
-	SetEventHandler(evh EventHandler)
-	SetFramingHandler(fh FramingHandler)
+  SetEventHandler(evh EventHandler)
+  SetFramingHandler(fh FramingHandler)
 
   Preconnect(evh EventHandler, fh FramingHandler,
              rem Remote, loc Local,
@@ -1245,96 +1246,97 @@ type TransportContext interface {
 }
 
 type Remote interface {
-	WithHostname(hostname string) Remote
-	WithAddress(address net.IP) Remote
-	WithPort(port uint16) Remote
-	WithServiceName(svc string) Remote
+  WithHostname(hostname string) Remote
+  WithAddress(address net.IP) Remote
+  WithPort(port uint16) Remote
+  WithServiceName(svc string) Remote
 }
 
 type Local interface {
-	WithInterface(iface string) Local
-	WithHostname(hostname string) Local
-	WithAddress(address net.IP) Local
-	WithPort(port uint16) Local
-	WithServiceName(svc string) Local
+  WithInterface(iface string) Local
+  WithHostname(hostname string) Local
+  WithAddress(address net.IP) Local
+  WithPort(port uint16) Local
+  WithServiceName(svc string) Local
 }
 
 type ParameterIdentifier int
 
 const (
-	TransportFullyReliable = iota
-	// ... and so on
+  TransportFullyReliable = iota
+  // ... and so on
 )
 
 type TransportParameters interface {
-	Require(p ParameterIdentifier, v int) TransportParameters
-	Prefer(p ParameterIdentifier, v int) TransportParameters
-	Avoid(p ParameterIdentifier, v int) TransportParameters
-	Prohibit(p ParameterIdentifier, v int) TransportParameters
+  Require(p ParameterIdentifier, v int) TransportParameters
+  Prefer(p ParameterIdentifier, v int) TransportParameters
+  Avoid(p ParameterIdentifier, v int) TransportParameters
+  Prohibit(p ParameterIdentifier, v int) TransportParameters
 }
 
 type SecurityParameters interface {
-	AddIdentity(c tls.Certificate) SecurityParameters
-	AddPSK(c tls.Certificate, k []byte) SecurityParameters
-	VerifyTrustWith(func(c tls.Certificate) (bool, error)) SecurityParameters
-	HandleChallengeWith(func() (bool, error)) SecurityParameters
-	Require(p ParameterIdentifier, v interface{} SecurityParameters
-	Prefer(p ParameterIdentifier, v interface{}) SecurityParameters
-	Avoid(p ParameterIdentifier, v interface{}) SecurityParameters
-	Prohibit(p ParameterIdentifier, v interface{}) SecurityParameters
+  AddIdentity(c tls.Certificate) SecurityParameters
+  AddPSK(c tls.Certificate, k []byte) SecurityParameters
+  VerifyTrustWith(func(c tls.Certificate) (bool, error)) SecurityParameters
+  HandleChallengeWith(func() (bool, error)) SecurityParameters
+  Require(p ParameterIdentifier, v interface{} SecurityParameters
+  Prefer(p ParameterIdentifier, v interface{}) SecurityParameters
+  Avoid(p ParameterIdentifier, v interface{}) SecurityParameters
+  Prohibit(p ParameterIdentifier, v interface{}) SecurityParameters
 }
 
 type SendParameters struct {
-	Lifetime time.Duration
-	Niceness uint
-	Ordered bool
-	Immediate bool
-	Idempotent bool
-	Integritycheck_length uint
-    ACK_immediately bool
+  Lifetime time.Duration
+  Niceness uint
+  Ordered bool
+  Immediate bool
+  Idempotent bool
+  CorruptionProtection int
+  AckImmediate bool
 }
 
 type Preconnection interface {
   AddSpecifier(rem Remote, loc Local,
                tp TransportParameters, sp SecurityParameters)
-	Initiate() (Connection, error)
-	InitialSend(content interface{}, sp SendParameters) (Connection, error)
-	Rendezvous() (Connection, error)
-	Listen() (Connection, error)
+  Initiate() (Connection, error)
+  InitialSend(content interface{}, sp SendParameters) (Connection, error)
+  Rendezvous() (Connection, error)
+  Listen() (Connection, error)
 }
 
 type Connection interface {
-	Send(content interface{}, contentref interface{}, sp SendParameters) error
+  Send(content interface{}, contentref interface{}, sp SendParameters) error
 
-	Clone() (Connection, error)
-	Close() error
+  Clone() (Connection, error)
+  Close() error
 
-	GetEventHandler() EventHandler
-	SetEventHandler(evh EventHandler)
+  GetEventHandler() EventHandler
+  SetEventHandler(evh EventHandler)
 
-	GetFramingHandler() FramingHandler
-	SetFramingHandler(fh FramingHandler)
+  GetFramingHandler() FramingHandler
+  SetFramingHandler(fh FramingHandler)
 }
 
 type Content interface {
-\[MICHAEL: We need something here for metadata, for a receiver -
-at least ECN must be a part of this metadata.]
-	Bytes() []byte
+  Bytes() []byte
+  GetMetadata(key string) interface{}
 }
 
 // EventHandler defines the interface for connection event handlers.
 type EventHandler interface {
-	Ready(conn Connection, ante Connection)
-	Received(content Content, conn Connection)
-	Sent(conn Connection, contentref interface{})
-	Expired(conn Connection, contentref interface{})
-	Error(conn Connection, contentref interface{}, err error)
-	Closed(conn Connection, err error)
+  Ready(conn Connection, ante Connection)
+  Received(content Content, conn Connection)
+  Sent(conn Connection, contentref interface{})
+  Expired(conn Connection, contentref interface{})
+  Closed(conn Connection, err error)
+  // note that errors are coalesced into a single handler; the err parameter
+  // contains the type of error, and contentref is nil for all but send errors.
+  Error(conn Connection, contentref interface{}, err error)
 }
 
 type FramingHandler interface {
-	Frame(content interface{}) ([]byte, error)
-	Deframe(in io.Reader) (Content, error)
+  Frame(content interface{}) ([]byte, error)
+  Deframe(in io.Reader) (Content, error)
 }
 ~~~~~~~
 
