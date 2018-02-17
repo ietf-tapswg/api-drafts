@@ -46,7 +46,7 @@ author:
     city: Glasgow  G12 8QQ
     country: United Kingdom
     email: csp@csperkins.org
-    
+
 normative:
     I-D.pauly-taps-arch:
       title: An Architecture for Transport Services
@@ -64,21 +64,19 @@ normative:
           ins: Brian Trammell
         -
           ins: Michael Welzl
-   I-D.ietf-taps-minset:
+    I-D.ietf-taps-minset:
 
 informative:
-    RFC6458:
-    RFC7413:
-    RFC7540:
-    RFC8260:
-    RFC8305:
     I-D.ietf-quic-transport:
     I-D.ietf-tls-tls13:
     NEAT-flow-mapping:
-      authors: F. Weinrank and M. Tüxen
-      title: “Transparent Flow Mapping for NEAT“
-      seriesinfo: "Workshop on Future of Internet Transport (FIT 2017)"
-    
+      title: Transparent Flow Mapping for NEAT (in Workshop on Future of Internet Transport (FIT 2017))
+      authors:
+        -
+          ins: F. Weinrank
+        -
+          ins: M. Tuexen
+
 
 --- abstract
 
@@ -216,7 +214,7 @@ There are three types of branching from a parent node into one or more child nod
 
 If a connection originally targets a single endpoint, there may be multiple endpoints of different types that can be derived from the original. The connection library should order the derived endpoints according to application preference and expected performance.
 
-DNS hostname-to-address resolution is the most common method of endpoint derivation. When trying to connect to a hostname endpoint on a traditional IP network, the implementation SHOULD send DNS queries for both A (IPv4) and AAAA (IPv6) records if both are supported on the local link. The algorithm for ordering and racing these addresses SHOULD follow the recommendations in Happy Eyeballs {{RFC8305}}.
+DNS hostname-to-address resolution is the most common method of endpoint derivation. When trying to connect to a hostname endpoint on a traditional IP network, the implementation SHOULD send DNS queries for both A (IPv4) and AAAA (IPv6) records if both are supported on the local link. The algorithm for ordering and racing these addresses SHOULD follow the recommendations in Happy Eyeballs {{?RFC8305}}.
 
 ~~~~~~~~~~
 1 [www.example.com:80, Wi-Fi, TCP]
@@ -262,7 +260,7 @@ This approach is commonly used for connections with optional proxy server config
     1.3.1 [192.0.2.1:80, Any, HTTP/TCP]
 ~~~~~~~~~~
 
-This approach also allows a client to attempt different sets of application and transport protocols that may provide preferable characteristics when available. For example, the protocol options could involve QUIC {{I-D.ietf-quic-transport}} over UDP on one branch, and HTTP/2 {{RFC7540}} over TLS over TCP on the other:
+This approach also allows a client to attempt different sets of application and transport protocols that may provide preferable characteristics when available. For example, the protocol options could involve QUIC {{I-D.ietf-quic-transport}} over UDP on one branch, and HTTP/2 {{?RFC7540}} over TLS over TCP on the other:
 
 ~~~~~~~~~~
 1 [www.example.com:443, Any, Any HTTP]
@@ -398,7 +396,7 @@ Improve efficiency by handling multiple send operations at once for datagram or 
 
 ### Receiving content
 
-How to handle sending data in examples like TCP, UDP, and a basic Length-Value protocol. 
+How to handle sending data in examples like TCP, UDP, and a basic Length-Value protocol.
 
 Waiting for frame boundaries when necessary.
 
@@ -406,7 +404,7 @@ How to handle and notify errors when receiving.
 
 ## Handling of data for fast-open protocols {#fastopen}
 
-Several protocols allow sending higher-level protocol or application data within the first packet of their protocol establishment, such as TCP Fast Open {{RFC7413}} and TLS 1.3 {{I-D.ietf-tls-tls13}}. This approach is referred to as sending Zero-RTT (0-RTT) data. This is a desirable property, but poses challenges to an implementation that uses racing during connection establishment.
+Several protocols allow sending higher-level protocol or application data within the first packet of their protocol establishment, such as TCP Fast Open {{?RFC7413}} and TLS 1.3 {{I-D.ietf-tls-tls13}}. This approach is referred to as sending Zero-RTT (0-RTT) data. This is a desirable property, but poses challenges to an implementation that uses racing during connection establishment.
 
 If the application has 0-RTT data to send in any protocol handshakes, it needs to provide this data before the handshakes have begun. When racing, this means that the data SHOULD be provided before the process of connection establishment has begun. If the API allows the application to send 0-RTT data, it MUST provide an interface that identifies this data as idempotent data. In general, 0-RTT data may be replayed (for example, if a TCP SYN contains data, and the SYN is retransmitted, the data will be retransmitted as well), but racing means that different leaf nodes have the opportunity to send the same data independently. If data is truly idempotent, this should be permissible.
 
@@ -420,12 +418,12 @@ It is also possible that protocol stacks within a particular leaf node use 0-RTT
 
 ## Changing Protocol Properties
 
-Appendix A.1 of {{I-D.ietf-taps-minset}} explains, using primitives that are described in {{RFC8303}} and {{RFC8304}}, how to implement changing the following protocol properties of an established connection with the TCP and UDP. Below, we amend this description for other protocols (if applicable):
-* Set timeout for aborting Connection: for SCTP, this can be done using the primitive CHANGE_TIMEOUT.SCTP described in section 4 of {{RFC8303}}.
+Appendix A.1 of {{I-D.ietf-taps-minset}} explains, using primitives that are described in {{?RFC8303}} and {{?RFC8304}}, how to implement changing the following protocol properties of an established connection with the TCP and UDP. Below, we amend this description for other protocols (if applicable):
+* Set timeout for aborting Connection: for SCTP, this can be done using the primitive CHANGE_TIMEOUT.SCTP described in section 4 of {{?RFC8303}}.
 * Set timeout to suggest to the peer
 * Set retransmissions before “Excessive Retransmissions”
-* Set required minimum coverage of the checksum for receiving: for UDP-Lite, this can be done using the primitive SET_MIN_CHECKSUM_COVERAGE.UDP-Lite described in section 4 of {{RFC8303}}.
-* Set scheduler for connections in a group: for SCTP, this can be done using the primitive SET_STREAM_SCHEDULER.SCTP described in section 4 of {{RFC8303}}.
+* Set required minimum coverage of the checksum for receiving: for UDP-Lite, this can be done using the primitive SET_MIN_CHECKSUM_COVERAGE.UDP-Lite described in section 4 of {{?RFC8303}}.
+* Set scheduler for connections in a group: for SCTP, this can be done using the primitive SET_STREAM_SCHEDULER.SCTP described in section 4 of {{?RFC8303}}.
 * Set priority for a connection in a group: for SCTP, this can be done using the primitive CONFIGURE_STREAM_SCHEDULER.SCTP described in section 4 of {{RFC8303}}.
 
 
@@ -509,25 +507,25 @@ Caching of round trip time (RTT), success rate with various protocols and featur
 
 To support sender-side stream schedulers (which are implemented on the sender side),
 a receiver-side Transport System should
-always support message interleaving {{RFC8260}}.
+always support message interleaving {{?RFC8260}}.
 
 SCTP messages can be very large. To allow the reception of large messages in pieces, a "partial flag" can be
 used to inform a (native SCTP) receiving application that a
 message is incomplete. After receiving the "partial flag", this application would know that the next receive calls will only
 deliver remaining parts of the same message (i.e., no messages or partial messages will arrive on other
-streams until the message is complete) (see Section 8.1.20 in {{RFC6458}}). The "partial flag" can therefore
+streams until the message is complete) (see Section 8.1.20 in {{?RFC6458}}). The "partial flag" can therefore
 facilitate the implementation of the receiver buffer in the receiving application, at the cost of limiting
 multiplexing and temporarily creating head-of-line blocking delay at the receiver.
 
 When a Transport System transfers Content, it seems natural to map Content to SCTP messages in order
 to support properties such as "Ordered" or "Lifetime" (which maps onto partially reliable delivery with
-a SCTP_PR_SCTP_TTL policy {{RFC6458}}). However, since multiplexing of
+a SCTP_PR_SCTP_TTL policy {{?RFC6458}}). However, since multiplexing of
 Connections onto SCTP streams may happen, and would be hidden from the application, the
 Transport System requires a per-stream receiver buffer anyway, so this potential benefit is lost
 and the "partial flag" becomes unnecessary for the system.
 
 The problem of long messages either requiring large receiver-side buffers or getting in the way of
-multiplexing is addressed by message interleaving {{RFC8260}},
+multiplexing is addressed by message interleaving {{?RFC8260}},
 which is yet another reason why a receivers-side transport system supporting SCTP should
 implement this mechanism.
 
