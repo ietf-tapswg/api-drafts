@@ -759,7 +759,7 @@ only be initiated once.
 Once Initiate is called, the candidate Protocol Stack(s) may cause one or more
 transport-layer connections to be created to the specified remote endpoint.
 The caller may immediately begin sending Content on the Connection (see
-{{sending}}) after calling Initate, though it may wait for one of the
+{{sending}}) after calling Initate(), though it may wait for one of the
 following events before doing so.
 
 Connection -> Ready&lt;>
@@ -837,7 +837,7 @@ All Connections in a group are entangled. This means that they automatically sha
 all properties: changing a parameter for one of them also changes the parameter
 for all others, closing one of them also closes all others, etc.
 
-There is only one Protocol Property that is not entangled, i.e. it is a separate
+There is only one Protocol Property that is not entangled, i.e., it is a separate
 per-Connection Property for individual Connections in the group: a priority.
 This priority, which can be represented as a non-negative integer or float, expresses
 a desired share of the Connection Group's available network capacity, such that an
@@ -875,7 +875,7 @@ Like all Actions in this interface, the Send action is asynchronous.
 
 Connection -> Sent&lt;contentRef>
 
-The Sent event occurs when a previous Send action has completed, i.e. when the
+The Sent event occurs when a previous Send action has completed, i.e., when the
 data derived from the Content has been passed down or through the underlying
 Protocol Stack and is no longer the responsibility of the implementation of
 this interface. The exact disposition of Content when the Sent event occurs is
@@ -1009,7 +1009,7 @@ checksum. A value of 0 means that no checksum is required, and a special value
 (e.g. -1) can be used to indicate the default. Only full coverage is
 guaranteed, any other requests are advisory.
 
-#### Immediate Acknowledgment {#send-ackimmed}
+#### Immediate Acknowledgement {#send-ackimmed}
 
 This boolean property specifies, if true, that an application wants this
 Content to be acknowledged immediately by the receiver. In case of reliable
@@ -1096,14 +1096,14 @@ received that reception has failed. Such conditions that irrevocably lead the
 the termination of the Connection are signaled using ConnectionError instead
 (see {{termination}}).
 
-## Application-Layer Backpressure at the Receiver {#receive-backpressure}
+## Application-Layer Back-Pressure at the Receiver {#receive-backpressure}
 
 Implementations of this interface must provide some way for the application to
 indicate that it is temporarily not ready to receive new Content. Since the
 mechanisms of event handling are implementation-platform specific, this
 document does not specify the exact nature of this interface.
 
-## Receiver-side Deframing over Stream Protocols {#receive-framing}
+## Receiver-side De-framing over Stream Protocols {#receive-framing}
 
 The Receive event is intended to be fired once per application-layer Content
 sent by the remote endpoint; i.e., it is a desired property of this interface
@@ -1113,15 +1113,15 @@ message boundary preservation, but is not the case over Protocol Stacks that
 provide a simple octet stream transport.
 
 For preserving message boundaries over stream transports, this interface
-provides receiver-side deframing. This facility is based on the observation
+provides receiver-side de-framing. This facility is based on the observation
 that, since many of our current application protocols evolved over TCP, which
 does not provide message boundary preservation, and since many of these protocols
 require message boundaries to function, each application layer protocol has
 defined its own framing. A Deframer allows an application to push this
-deframing down into the interface, in order to transform an octet stream into
+de-framing down into the interface, in order to transform an octet stream into
 a sequence of Content.
 
-Concretely, receiver-side deframing allows a caller to provide the interface
+Concretely, receiver-side de-framing allows a caller to provide the interface
 with a function that takes an octet stream, as provided by the underlying
 Protocol Stack, reads and returns a sigle Content of an appropriate type for
 the application and platform, and leaves the octet stream at the start of the
