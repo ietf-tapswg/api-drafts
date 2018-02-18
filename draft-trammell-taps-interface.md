@@ -1217,6 +1217,7 @@ This document defines an abstract interface. To illustrate how this would map co
 package postsocket
 
 import (
+  "crypto"
   "crypto/tls"
   "io"
   "net"
@@ -1278,11 +1279,31 @@ type TransportParameters interface {
   Prohibit(p ParameterIdentifier, v int) TransportParameters
 }
 
+type SecurityMetadata struct {
+  cert tls.Certificate
+  // ... and so on
+}
+
+const (
+  SecurityCallbackResultSuccess = 0x00
+  SecurityCallbackResultFailure = 0x01
+  SecurityCallbackResultPending = 0x02
+)
+
+type SecurityCallbackResult int
+
 type SecurityParameters interface {
   AddIdentity(c tls.Certificate) SecurityParameters
-  AddPSK(c tls.Certificate, k []byte) SecurityParameters
-  VerifyTrustWith(func(c tls.Certificate) (bool, error)) SecurityParameters
-  HandleChallengeWith(func() (bool, error)) SecurityParameters
+  AddPrivateKey(sk crypto.PrivateKey, pk crypto.PublicKey) SecurityParameters
+  AddPreSharedKey(key []byte, identity string) SecurityParameters
+  AddSupportedGroup(g uint16) SecurityParameters
+  AddCiphersuite(cs uint16) SecurityParameters
+  AddSignatureAlgorithm(cs uint16) SecurityParameters
+  SetSessionCacheCapacity(c int) SecurityParameters
+  SetSessionCacheLifetime(t int) SecurityParameters
+  SetSessionCacheReuse(c int) SecurityParameters
+  VerifyTrustWith(func(m SecurityMetadata) (bool, error)) SecurityCallbackResult
+  HandleChallengeWith(func(m SecurityMetadata) (bool, error)) SecurityCallbackResult
   Require(p ParameterIdentifier, v interface{} SecurityParameters
   Prefer(p ParameterIdentifier, v interface{}) SecurityParameters
   Avoid(p ParameterIdentifier, v interface{}) SecurityParameters
