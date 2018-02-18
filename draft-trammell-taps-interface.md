@@ -851,6 +851,9 @@ as early as possible, ideally already during the Pre-Establishment phase, in ord
 to aid the Transport System in choosing and configuring the right protocols
 (see also {{transport-params}}).
 
+\[TASK: If Clone() is a method on Connection, it cannot be called during
+pre-establishment, since we don't have a Connection at that time (csp)]
+
 # Sending Data {#sending}
 
 Once a Connection has been established, it can be used for sending data. Data
