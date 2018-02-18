@@ -273,6 +273,11 @@ localSpecifier.withInterface("en0")
 localSpecifier.withPort(443)
 ~~~
 
+~~~
+localSpecifier := NewLocalEndpoint()
+localSpecifier.withStunServer(address, port, credentials)
+~~~
+
 Implementations may also support additional endpoint representations and
 provide a single NewEndpoint() call that takes different endpoint representations.
 
@@ -280,10 +285,20 @@ provide a single NewEndpoint() call that takes different endpoint representation
 \[TASK: match with #initiate / #listen / #rendezvous and make sure the transport
 stack used is communicated ]
 
-The transport services API resolves names internally, when Initiate() is
-called to transform a Preconnection object into a Connection. The API does
-not need an explicit name resolution method, although it may be useful to
-provide one for reasons unrelated to transport.
+Multiple endpoint identifiers can be specified for each LocalEndpoint
+and RemoteEndoint.  For example, a LocalEndpoint could be configured with
+two interface names, or a RemoteEndpoint could be specified via both IPv4
+and IPv6 addresses.  The multiple identifiers refer to the same endpoint.
+
+The transport services API will resolve names internally, when the Initiate(),
+Listen(), or Rendezvous() method is called establish a connection.
+The API does not need the application to resolve names, and premature name
+resolution can damage performance by limiting the scope for alternate path
+discovery during connection establishment.
+The Resolve() method is, however, provided to resolve a LocalEndpoint or a
+RemoteEndpoint in cases where this is required, for example with some NAT
+traversal protocols (see {{rendezvous}}).
+
 
 \[NOTE: the API needs MUST be explicit about when name resolution occurs,
         since the act of resolving a name leaks information, and there
@@ -842,7 +857,7 @@ it occurs when the first Content is received from the RemoteEndpoint. The
 resulting Connection is contained within the Rendezvoused<> event, and is
 ready to use as soon as it is passed to the application via the event.
 
-PreConnection -> RendezvousError&lt;contentRef, error>
+Preconnection -> RendezvousError&lt;contentRef, error>
 
 An RendezvousError occurs either
 when the Preconnection cannot be fulfilled for listening,
@@ -850,6 +865,22 @@ when the LocalEndpoint or RemoteEndpoint cannot be resolved,
 when no transport-layer connection can be established to the RemoteEndpoint,
 or
 when the application is prohibited from rendezvous by policy.
+
+
+When using some NAT traversal protocols, e.g., ICE {{?RFC5245}}, it is
+expected that the LocalEndpoint will be configured with some method of
+discovering NAT bindings, e.g., a STUN server. In this case, the
+LocalEndpoint may resolve to a mixture of local and server reflexive
+addresses. The Resolve() method on the Preconnection can be used to
+discover these bindings:
+
+    PreconnectionBindings := Preconnection.Resolve()
+
+The Resolve() call returns a list of Preconnection objects, that represent
+the concrete addresses, local and server reflexive, on which a Rendezvous()
+for the Preconnection will listen for incoming connections. This list can
+be passed to a peer via a signalling protocol, such as SIP or WebRTC, to
+configure the remote.
 
 
 
