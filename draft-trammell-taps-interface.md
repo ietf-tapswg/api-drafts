@@ -1152,7 +1152,7 @@ Connection.setProperties()
 
 Connection properties may include:
 
-* The status of the Connection, which can be one of the following: Pre-Establishment, Establishment in progress, Established, Listening, Rendezvous in progress, Closed.
+* The status of the Connection, which can be one of the following: Establishing, Established, Closed. \[TASK: can connections be in a Closing state? (csp)]
 * Transport Features of the protocols that conform to the Required and Prohibited Transport Preferences, which might be selected by the transport system during Establishment. These features correspond to the properties given in {{transport-params}} and can only be queried.
 * Transport Features of the protocols that were selected, once the Connection has been established. These features correspond to the properties given in {{transport-params}} and can only be queried.
 * Protocol Properties of the protocols in use, once the Connection has been established. These properties correspond to the properties given {{protocol-props}} and can be set and queried.
