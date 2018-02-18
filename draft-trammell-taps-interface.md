@@ -503,7 +503,7 @@ Preconnection object, and may influence the Connection established from
 that Preconnection.
 If a Connection is cloned to form a Connection Group, and associated
 Application Intents are cloned along with the other transport parameters.
-Some Intents can also be specified for individual Content, similar to the
+Some Intents have also corresponding Content Properties, similar to the
 properties in {{send-params}}.
 
 \[PHILS:: Some Intents, i.e., Traffic Category, Size to be Received, Receive
@@ -1024,7 +1024,7 @@ This numeric property in Bytes per second specifies at what bitrate the
 application wishes the content to be sent. A transport supporting this
 feature will not exceed the requested Send Bitrate even if flow-control
 and congestion control allow higher bitrates. This helps to avid bursty
-traffic pattern on busy video streaming servers {{Trickle}}.
+traffic pattern on busy video streaming servers.
 
 \[PHILS: this my be removed if there is no consensus this this is useful. See
 https://www.usenix.org/conference/atc12/technical-sessions/presentation/ghobadi
