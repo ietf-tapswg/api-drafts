@@ -244,38 +244,37 @@ Preconnection object during pre-establishment, forward-reference
 
 ## Specifying Endpoints {#endpointspec}
 
-The transport services API uses Endpoint objects to refer to local and remote endpoints.
-Endpoint objects can be configured using various representations of endpoint identifiers,
-including IP addresses, hostnames, or interface names as well as port
-numbers and service names:
+The transport services API uses the LocalEndpoint and RemoteEndpoint types
+to refer to the endpoints of a transport connection.
+Subtypes of these represent various different types of endpoint identifiers, 
+such as IP addresses, DNS names, and interface names, as well as port numbers 
+and service names.
 
 ~~~
-remoteSpecifier := NewEndpoint()
+remoteSpecifier := NewRemoteEndpoint()
 remoteSpecifier.withHostname("example.com")
 remoteSpecifier.withService("https")
 ~~~
 
 ~~~
-remoteSpecifier := NewEndpoint()
+remoteSpecifier := NewRemoteEndpoint()
 remoteSpecifier.withIPv6Address(2001:db8:4920:e29d:a420:7461:7073:0a)
 remoteSpecifier.withPort(443)
 ~~~
 
 ~~~
-remoteSpecifier := NewEndpoint()
+remoteSpecifier := NewRemoteEndpoint()
 remoteSpecifier.withIPv4Address(192.0.2.21)
 remoteSpecifier.withPort(443)
 ~~~
 
 ~~~
-localSpecifier := NewEndpoint()
+localSpecifier := NewLocalEndpoint()
 localSpecifier.withInterface("en0")
 localSpecifier.withPort(443)
 ~~~
 
-Implementations may also support additional endpoint representations and
-provide a single NewEndpoint() call that takes different endpoint representations.
-
+Implementations may also support additional endpoint representations. 
 
 \[TASK: match with #initiate / #listen / #rendezvous and make sure the transport
 stack used is communicated ]
