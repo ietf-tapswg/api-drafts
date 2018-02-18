@@ -213,9 +213,9 @@ Beyond the basic objects, there are several high-level groups of actions that an
  +-->| Preconnection |----------->| Connection |---------------> Closed
  |   +---------------+     :      +------------+ Connection:
  |                         :      ^   ^    |     Finished  :
- +-- Local Endpoint        :      |   |    |               :
+ +-- LocalEndpoint         :      |   |    |               :
  |                         :      |   |    +---------+     :
- +-- Remote Endpoint       :      |   |              |     :
+ +-- RemoteEndpoint        :      |   |              |     :
  |                         :      |   |Send()        |     :
  +-- Path Selection        :      | +---------+      v     :
  |   Properties            :      | | Content |  Content   :
@@ -237,21 +237,19 @@ Beyond the basic objects, there are several high-level groups of actions that an
 
 ### Basic Objects {#objects}
 
-* Preconnection: A Preconnection object is a representation of a potential connection. It has state that describes parameters of a Connection that might exist in the future: the Local Endpoint from which that Connection will be established, the Remote Endpoint to which it will connect, and Path Selection Properties, Protocol Selection Properties, and Specific Protocol Properties that influence the choice of transport that Connection will use. A Preconnection can be fully specified and represent a single possible Connection, or it can be partially specified such that it represents a family of possible Connections. The Local Endpoint MUST be specified if the Preconnection is used to Listen() for incoming connections, but is OPTIONAL if it is used to Initiate() connections. The Remote Endpoint MUST be specified in the Preconnection is used to Initiate() connections, but is OPTIONAL if it is used to Listen() for incoming connections.
+* Preconnection: A Preconnection object is a representation of a potential connection. It has state that describes parameters of a Connection that might exist in the future: the LocalEndpoint from which that Connection will be established, the RemoteEndpoint to which it will connect, and Path Selection Properties, Protocol Selection Properties, and Specific Protocol Properties that influence the choice of transport that Connection will use. A Preconnection can be fully specified and represent a single possible Connection, or it can be partially specified such that it represents a family of possible Connections. The LocalEndpoint MUST be specified if the Preconnection is used to Listen() for incoming connections, but is OPTIONAL if it is used to Initiate() connections. The RemoteEndpoint MUST be specified in the Preconnection is used to Initiate() connections, but is OPTIONAL if it is used to Listen() for incoming connections.
 
-* Connection: A Connection object represents an active transport protocol instance that can send and/or receive Content between a Local Endpoint and a Remote Endpoint. It holds state pertaining to the underlying transport protocol instance and any ongoing data transfer. This represents, for example, an active connection in a connection-oriented protocol such as TCP, or a fully-specified 5-tuple for a connectionless protocol such as UDP.
+* Connection: A Connection object represents an active transport protocol instance that can send and/or receive Content between a LocalEndpoint and a RemoteEndpoint. It holds state pertaining to the underlying transport protocol instance and any ongoing data transfer. This represents, for example, an active connection in a connection-oriented protocol such as TCP, or a fully-specified 5-tuple for a connectionless protocol such as UDP.
 
-* Listener: A Listener object accepts incoming transport protocol connections from Remote Endpoints  and generates corresponding Connection objects. It is created from a Preconnection object that specifies the type of incoming connections it will accept.
+* Listener: A Listener object accepts incoming transport protocol connections from RemoteEndpoints  and generates corresponding Connection objects. It is created from a Preconnection object that specifies the type of incoming connections it will accept.
 
 ### Pre-Establishment {#preestablishment}
 
-* Endpoint: An Endpoint represents one side of a transport connection. It is a concept that represents how an application views itself or a peer that may vary in levels of specificity. Examples include "IP address + port", "hostname + port", and "DNS service name".
+* RemoteEndpoint: The RemoteEndpoint represents the application's name for a peer that can participate in a transport connection. For example, a DNS name for the peer.
 
-* Remote Endpoint: The Remote Endpoint represents the application's name for a peer that can participate in a transport connection. For example, a DNS name for the peer.
+* LocalEndpoint: The LocalEndpoint represents the application's name for itself that it wants to use for transport connections. For example, a local interface name or address.
 
-* Local Endpoint: The Local Endpoint represents the application's name for itself that it wants to use for transport connections. For example, a local interface name or address.
-
-* Path Selection Properties: The Path Selection Properties consist of the options that an application may set on a Preconnection to influence the selection of path between itself and the Remote Endpoint. These options can come in the form of requirements, prohibitions, or preferences. Examples of options which may influence path selection include the interface type (such as a Wi-Fi Ethernet connection, or a Cellular LTE connection), characteristics of the path that are locally known like Maximum Transmission Unit (MTU), or expected throughput or latency.
+* Path Selection Properties: The Path Selection Properties consist of the options that an application may set on a Preconnection to influence the selection of path between itself and the RemoteEndpoint. These options can come in the form of requirements, prohibitions, or preferences. Examples of options which may influence path selection include the interface type (such as a Wi-Fi Ethernet connection, or a Cellular LTE connection), characteristics of the path that are locally known like Maximum Transmission Unit (MTU), or expected throughput or latency.
 
 * Protocol Selection Properties: The Protocol Selection Properties consist of the options that an application may set on a Preconnection to influence the selection of transport protocol, configure the behavior of generic transport protocol features. These options come in the form of requirements, prohibitions, and preferences. Examples include reliability, service class, multipath support, and fast open support. 
 
@@ -269,7 +267,7 @@ Beyond the basic objects, there are several high-level groups of actions that an
 
 * Send() is the action to transmit Content over a Connection to a remote endpoint. The interface to Send may include options specific to how this Content is to be sent. Status of the Send operation may be delivered back to the application in an event {{events}}.
 
-* Receive() is an action that indicates that the application is ready to asynchronously accept Content over a Connection from a Remote Endpoint, while the Content itself will be delivered in an event {{events}}. The interface to Receive may include options specific to the Content that is to be delivered to the application.
+* Receive() is an action that indicates that the application is ready to asynchronously accept Content over a Connection from a RemoteEndpoint, while the Content itself will be delivered in an event {{events}}. The interface to Receive may include options specific to the Content that is to be delivered to the application.
 
 ### Event Handling {#events}
 
@@ -321,7 +319,7 @@ The Transport System Implementation Concepts define the set of objects used inte
 
 * Path Racing: Path Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on a selection from the available Paths.
 
-* Endpoint Racing: Endpoint Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on the specific representation of the remote and local endpoints, such as IP addresses resolved from a DNS hostname.
+* Endpoint Racing: Endpoint Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on the specific representation of the RemoteEndpoint and the LocalEndpoint, such as IP addresses resolved from a DNS hostname.
 
 # IANA Considerations
 
