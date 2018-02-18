@@ -214,24 +214,22 @@ connections they could make.
 
 A Preconnection object represents a potential connection. It has state that
 describes parameters of a Connection that might exist in the future.  This
-state comprises information about the local and remote endpoints (see
-{{endpointspec}}), the transport parameters (see {{transport-params}}), and
-the security parameters (see {{security-parameters}}):
+state comprises LocalEndpoint and RemoteEndpoint objects that denote the 
+endpoints of the potential connection (see {{endpointspec}}), the transport 
+parameters (see {{transport-params}}), and the security parameters (see 
+{{security-parameters}}):
 
 ~~~
-   localEndpoint   := ...
-   remoteEndpoint  := ...
-   transportParams := ...
-   securityParams  := ...
-
-   preConnection := NewPreconnection(localEndpoint, remoteEndpoint,
-                                     transportParams, securityParams);
+   preConnection := NewPreconnection(LocalEndpoint, 
+                                     RemoteEndpoint,
+                                     TransportParams, 
+                                     SecurityParams);
 
 ~~~
 
-The Local Endpoint MUST be specified if the Preconnection is used to Listen()
+The LocalEndpoint MUST be specified if the Preconnection is used to Listen()
 for incoming connections, but is OPTIONAL if it is used to Initiate()
-connections. The Remote Endpoint MUST be specified in the Preconnection is used
+connections. The RemoteEndpoint MUST be specified in the Preconnection is used
 to Initiate() connections, but is OPTIONAL if it is used to Listen() for
 incoming connections.
 
