@@ -882,6 +882,8 @@ for the Preconnection will listen for incoming connections. This list can
 be passed to a peer via a signalling protocol, such as SIP or WebRTC, to
 configure the remote.
 
+\[NOTE: This API is sufficient for TCP-style simultaneous open, but should
+  be considered experimental for ICE-like protocols.]
 
 
 ## Connection Groups {#groups}
