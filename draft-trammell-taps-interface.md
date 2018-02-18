@@ -796,32 +796,61 @@ subsequent establishment call may be made on the Preconnection.
 
 Preconnection -> ConnectionReceived&lt;Connection>
 
-The ConnectionReceived event occurs when a remote endpoint has established a
-transport-layer connection to this Preconnection or when the remote endpoint has
-sent its first Content, causing a new Connection to be
+The ConnectionReceived event occurs when a RemoteEndpoint has established a
+transport-layer connection to this Preconnection (for connection-oriented
+transport protocols), or when the first Content has been received from the
+remote endpoint (for connectionless protocols), causing a new Connection to be
 created. The resulting Connection is contained within the ConnectionReceived
 event, and is ready to use as soon as it is passed to the application via the
 event.
 
 PreConnection -> Error&lt;>
 
-A ListenError occurs either when
-the set of local specifier, transport and
-cryptographic parameters cannot be fulfilled for listening, when the local
-specifier cannot be resolved, or when the application is prohibited from
-listening by the operating system.
+A ListenError occurs either
+when the Preconnection cannot be fulfilled for listening,
+when the LocalEndpoint (or RemoteEndpoint, if specified) cannot be resolved,
+or
+when the application is prohibited from listening by policy.
 
-## Peer to Peer Establishment: Rendezvous {#rendezvous}
+
+
+## Peer-to-Peer Establishment: Rendezvous {#rendezvous}
+
+Simultaneous peer-to-peer connection establishment is supported by the
+Rendezvous() action:
 
 Preconnection.Rendezvous()
 
-Preconnection -> Ready&lt;>
+The Preconnection object must be specified with both a LocalEndpoint and a
+RemoteEndpoint, and also the transport and security parameters needed for
+protocol stack selection. The Rendezvous() action causes the Preconnection
+to listen on the LocalEndpoint for an incoming connection from the
+RemoteEndpoint, while simultaneously trying to establish a connection from
+the LocalEndpoint to the RemoteEndpoint.
+This corresponds to a TCP simultaneous open, for example.
+
+The Rendezvous() action consumes the Preconnection. Once Rendezvous() has
+been called, no further parameters may be bound to the Preconnection, and
+no subsequent establishment call may be made on the Preconnection.
+
+Preconnection -> Rendezvoused&lt;Connection>
+
+The Rendezvoused<> event occurs when a connection is established with the
+RemoteEndpoint. For connection-oriented transports, this occurs when the
+transport-layer connection is established; for connectionless transports,
+it occurs when the first Content is received from the RemoteEndpoint. The
+resulting Connection is contained within the Rendezvoused<> event, and is
+ready to use as soon as it is passed to the application via the event.
 
 PreConnection -> RendezvousError&lt;contentRef, error>
 
-An RendezvousError  occurs when...
+An RendezvousError occurs either
+when the Preconnection cannot be fulfilled for listening,
+when the LocalEndpoint or RemoteEndpoint cannot be resolved,
+when no transport-layer connection can be established to the RemoteEndpoint,
+or
+when the application is prohibited from rendezvous by policy.
 
-\[NOTE: this section to be completed in resolution to issue #6]
 
 
 ## Connection Groups {#groups}
