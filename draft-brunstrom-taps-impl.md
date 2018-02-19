@@ -67,7 +67,13 @@ normative:
     I-D.ietf-taps-minset:
 
 informative:
+    RFC6458:
     RFC7413:
+    RFC7540:
+    RFC8260:
+    RFC8303:
+    RFC8304:
+    RFC8305:
     I-D.ietf-quic-transport:
     I-D.ietf-tls-tls13:
     NEAT-flow-mapping:
@@ -164,7 +170,7 @@ Aggregate [Endpoint: www.example.com:80] [Interface: Any]   [Protocol: TCP]
 
 Any one of these sub-entries on the aggregate connection attempt would satisfy the original application intent. The concern of this document is the algorithm defining which of these options to try, when, and in what order.
 
-## Candidate Gathering
+## Candidate Gathering {#gathering}
 
 The step of gathering candidates involves identifying which paths, protocols, and endpoints may be used for a given Connection. This list is determined by the requirements, prohibitions, and preferences of the application as specified in the Path Selection Properties and Protocol Selection Properties.
 
@@ -223,7 +229,7 @@ There are three types of branching from a parent node into one or more child nod
 
 If a connection originally targets a single endpoint, there may be multiple endpoints of different types that can be derived from the original. The connection library should order the derived endpoints according to application preference and expected performance.
 
-DNS hostname-to-address resolution is the most common method of endpoint derivation. When trying to connect to a hostname endpoint on a traditional IP network, the implementation SHOULD send DNS queries for both A (IPv4) and AAAA (IPv6) records if both are supported on the local link. The algorithm for ordering and racing these addresses SHOULD follow the recommendations in Happy Eyeballs {{?RFC8305}}.
+DNS hostname-to-address resolution is the most common method of endpoint derivation. When trying to connect to a hostname endpoint on a traditional IP network, the implementation SHOULD send DNS queries for both A (IPv4) and AAAA (IPv6) records if both are supported on the local link. The algorithm for ordering and racing these addresses SHOULD follow the recommendations in Happy Eyeballs {{RFC8305}}.
 
 ~~~~~~~~~~
 1 [www.example.com:80, Wi-Fi, TCP]
@@ -269,7 +275,7 @@ This approach is commonly used for connections with optional proxy server config
     1.3.1 [192.0.2.1:80, Any, HTTP/TCP]
 ~~~~~~~~~~
 
-This approach also allows a client to attempt different sets of application and transport protocols that may provide preferable characteristics when available. For example, the protocol options could involve QUIC {{I-D.ietf-quic-transport}} over UDP on one branch, and HTTP/2 {{?RFC7540}} over TLS over TCP on the other:
+This approach also allows a client to attempt different sets of application and transport protocols that may provide preferable characteristics when available. For example, the protocol options could involve QUIC {{I-D.ietf-quic-transport}} over UDP on one branch, and HTTP/2 {{RFC7540}} over TLS over TCP on the other:
 
 ~~~~~~~~~~
 1 [www.example.com:443, Any, Any HTTP]
@@ -428,12 +434,12 @@ It is also possible that protocol stacks within a particular leaf node use 0-RTT
 
 ## Changing Protocol Properties
 
-Appendix A.1 of {{I-D.ietf-taps-minset}} explains, using primitives that are described in {{?RFC8303}} and {{?RFC8304}}, how to implement changing the following protocol properties of an established connection with the TCP and UDP. Below, we amend this description for other protocols (if applicable):
-* Set timeout for aborting Connection: for SCTP, this can be done using the primitive CHANGE_TIMEOUT.SCTP described in section 4 of {{?RFC8303}}.
+Appendix A.1 of {{I-D.ietf-taps-minset}} explains, using primitives that are described in {{RFC8303}} and {{RFC8304}}, how to implement changing the following protocol properties of an established connection with the TCP and UDP. Below, we amend this description for other protocols (if applicable):
+* Set timeout for aborting Connection: for SCTP, this can be done using the primitive CHANGE_TIMEOUT.SCTP described in section 4 of {{RFC8303}}.
 * Set timeout to suggest to the peer
 * Set retransmissions before “Excessive Retransmissions”
-* Set required minimum coverage of the checksum for receiving: for UDP-Lite, this can be done using the primitive SET_MIN_CHECKSUM_COVERAGE.UDP-Lite described in section 4 of {{?RFC8303}}.
-* Set scheduler for connections in a group: for SCTP, this can be done using the primitive SET_STREAM_SCHEDULER.SCTP described in section 4 of {{?RFC8303}}.
+* Set required minimum coverage of the checksum for receiving: for UDP-Lite, this can be done using the primitive SET_MIN_CHECKSUM_COVERAGE.UDP-Lite described in section 4 of {{RFC8303}}.
+* Set scheduler for connections in a group: for SCTP, this can be done using the primitive SET_STREAM_SCHEDULER.SCTP described in section 4 of {{RFC8303}}.
 * Set priority for a connection in a group: for SCTP, this can be done using the primitive CONFIGURE_STREAM_SCHEDULER.SCTP described in section 4 of {{RFC8303}}.
 
 
@@ -497,15 +503,33 @@ How to handle a failure generated by protocols
 
 # Cached State
 
-Beyond a single connection's lifetime, it is useful to keep state and history.
+Beyond a single Connection's lifetime, it is useful for an implementation to keep state and history. This cached state can help improve future Connection establishment due to re-using results and credentials, and favoring paths and protocols that performed well in the past.
 
-## Protocol caches
+Cached state may be associated with different Endpoints for the same Connection, depending on the protocol generating the cached content. For example, certificates for TLS are generally associated with a hostname, and thus should be cached based on a Connection's hostname Endpoint (if applicable). On the other hand, performance characteristics of a path are more likely tied to the IP address and subnet being used.
 
-Caching for DNS, TLS, etc. Associated with sets of endpoints for future use.
+## Protocol state caches
+
+Some protocols will have long-term state to be cached in association with Endpoints. This state often has some time after which it is expired, so the implementation SHOULD allow each protocol to specify an expiration for cached content.
+
+Examples of cached protocol state include:
+
+- The DNS protocol can cache resolution answers (A and AAAA queries, for example), associated with a Time To Live (TTL) to be used for future hostname resolutions without requiring asking the DNS resolver again.
+- TLS caches session state and tickets based on a hostname, which can be used for resuming sessions with a server.
+- TCP can cache cookies for use in TCP Fast Open
+
+Cached state is primarily used during Connection establishment for a single Protocol Stack, but may be used to influence an implementation's preference between several candidate Protocol Stacks. For example, if two IP address Endpoints are otherwise equally preferred, an implementation may choose to attempt a connection to an address for which it has a TCP Fast Open cookie.
 
 ## Performance caches
 
-Caching of round trip time (RTT), success rate with various protocols and features.
+In addition to protocol state, Protocol Instances SHOULD provide data into a performance-oriented cache to help guide future protocol and path selection. Some performance information can be gathered generically across several protocols to allow predictive comparisons between protocols on given paths:
+
+- Observed Round Trip Time
+- Connection Establishment latency
+- Connection Establishment success rate
+
+These items can be cached on a per-address and per-subnet granularity, and averaged between different values. The information SHOULD be cached on a per-network basis, since it is expected that different network attachments will have different performance characteristics.
+
+An implementation should use this information, when possible, to determine preference between candidate paths, endpoints, and protocol options. Eligible options that historically had significantly better performance than others SHOULD be selected first when gathering candidates {{gathering}} to ensure better performance for the application.
 
 # Specific Transport Protocol Considerations
 
@@ -517,25 +541,25 @@ Caching of round trip time (RTT), success rate with various protocols and featur
 
 To support sender-side stream schedulers (which are implemented on the sender side),
 a receiver-side Transport System should
-always support message interleaving {{?RFC8260}}.
+always support message interleaving {{RFC8260}}.
 
 SCTP messages can be very large. To allow the reception of large messages in pieces, a "partial flag" can be
 used to inform a (native SCTP) receiving application that a
 message is incomplete. After receiving the "partial flag", this application would know that the next receive calls will only
 deliver remaining parts of the same message (i.e., no messages or partial messages will arrive on other
-streams until the message is complete) (see Section 8.1.20 in {{?RFC6458}}). The "partial flag" can therefore
+streams until the message is complete) (see Section 8.1.20 in {{RFC6458}}). The "partial flag" can therefore
 facilitate the implementation of the receiver buffer in the receiving application, at the cost of limiting
 multiplexing and temporarily creating head-of-line blocking delay at the receiver.
 
 When a Transport System transfers Content, it seems natural to map Content to SCTP messages in order
 to support properties such as "Ordered" or "Lifetime" (which maps onto partially reliable delivery with
-a SCTP_PR_SCTP_TTL policy {{?RFC6458}}). However, since multiplexing of
+a SCTP_PR_SCTP_TTL policy {{RFC6458}}). However, since multiplexing of
 Connections onto SCTP streams may happen, and would be hidden from the application, the
 Transport System requires a per-stream receiver buffer anyway, so this potential benefit is lost
 and the "partial flag" becomes unnecessary for the system.
 
 The problem of long messages either requiring large receiver-side buffers or getting in the way of
-multiplexing is addressed by message interleaving {{?RFC8260}},
+multiplexing is addressed by message interleaving {{RFC8260}},
 which is yet another reason why a receivers-side transport system supporting SCTP should
 implement this mechanism.
 
