@@ -67,6 +67,7 @@ normative:
     I-D.ietf-taps-minset:
 
 informative:
+    RFC7413:
     I-D.ietf-quic-transport:
     I-D.ietf-tls-tls13:
     NEAT-flow-mapping:
@@ -134,7 +135,15 @@ In the following cases the transport system should notify the application with a
 
 ## Role of system policy
 
-How do the implementation's default policy, a dynamic system policy, and application preferences interact.
+The implementation is responsible for combining and reconciling several different sources of protocol and path selection preferences when establishing Connections. These include, but are not necessarily limited to:
+
+1. Application preferences specified during pre-establishment
+2. Dynamic system policy
+3. Default implementation policy
+
+In general, any protocol or path used for a connection must conform to all three sources of constraints. Any violation of any of the layers should cause a protocol or path to be considered ineligble for use. For an example of application preferences leading to constraints, an application may prohibit the use of metered network interfaces for a given Connection to avoid user cost. Similarly, the system policy at a given time may prohibit the use of such a metered network interface from the application's process. Lastly, the implementation itself may default to disallowing certain network interfaces unless explicitly requested by the application and allowed by the system.
+
+It is expected that the database of system policies and the method of looking up these policies will vary across various platforms. An implementation SHOULD attempt to look up the relevant policies for the system in a dynamic way to make sure it is reflecting a fresh version of the system policy, since the system's policy regarding the application's traffic may change over time due to user or administrative changes.
 
 # Implementing Connection Establishment
 
@@ -350,7 +359,7 @@ If a leaf node has successfully completed its connection, all other attempts SHO
 
 ### Determining Successful Establishment
 
-Implementations may select the criteria by which a leaf node is considered to be successfully connected differently on a per-protocol basis. If the only protocol being used is a transport protocol with a clear handshake, like TCP, then the obvious choice is to declare that node "connected" when the last packet of the three-way handshake has been received. If the only protocol being used is an "unconnected" protocol, like UDP, the implementation may consider the node fully "connected" the moment it determines a route is present, before sending any packets on the network.
+Implementations may select the criteria by which a leaf node is considered to be successfully connected differently on a per-protocol basis. If the only protocol being used is a transport protocol with a clear handshake, like TCP, then the obvious choice is to declare that node "connected" when the last packet of the three-way handshake has been received. If the only protocol being used is an "unconnected" protocol, like UDP, the implementation may consider the node fully "connected" the moment it determines a route is present, before sending any packets on the network {{unconnected-racing}}.
 
 For protocol stacks with multiple handshakes, the decision becomes more nuanced. If the protocol stack involves both TLS and TCP, an implementation MAY determine that a leaf node is connected after the TCP handshake is complete, or it MAY wait for the TLS handshake to complete as well. The benefit of declaring completion when the TCP handshake finishes, and thus stopping the race for other branches of the tree, is that there will be less burden on the network from other connection attempts. On the other hand, by waiting until the TLS handshake is complete, an implementation avoids the scenario in which a TCP handshake completes quickly, but TLS negotiation is either very slow or fails altogether in particular network conditions or to a particular endpoint.
 
@@ -367,10 +376,11 @@ handed over, it cannot be guaranteed that the other endpoint will have any way t
 a passive endpoint's ConnectionReceived event may not be called upon an active endpoint's Inititate.
 Instead, calling the ConnectionReceived event may be delayed until the first Content arrives.
 
+## Handling racing with "unconnected" protocols {#unconnected-racing}
 
-## Handling racing with "unconnected" protocols
+While protocols that use an explicit handshake to validate a Connection to a peer can be used for racing multiple establishment attempts in parallel, "unconnected" protocols such as raw UDP do not offer a way to validate the presence of a peer or the usability of a Connection without application feedback. An implementation SHOULD consider such a protocol stack to be established as soon as a local route to the peer endpoint is confirmed.
 
-How to handle UDP, and allowing the application or anothe protocol to cause the next option to be tried.
+However, if a peer is not reachable over the network using the unconnected protocol, or content cannot be exchanged for any other reason, the application may want to attempt using another candidate Protocol Stack. The implementation SHOULD maintain the list of other candidate Protocol Stacks that were eligible to use. In the case that the application signals that the initial Protocol Stack is failing for some reason and that another option should be attempted, the Connection can be updated to point to the next candidate Protocol Stack. This can be viewed as an application-driven form of Protocol Stack racing.
 
 ## Implementing listeners
 
@@ -404,7 +414,7 @@ How to handle and notify errors when receiving.
 
 ## Handling of data for fast-open protocols {#fastopen}
 
-Several protocols allow sending higher-level protocol or application data within the first packet of their protocol establishment, such as TCP Fast Open {{?RFC7413}} and TLS 1.3 {{I-D.ietf-tls-tls13}}. This approach is referred to as sending Zero-RTT (0-RTT) data. This is a desirable property, but poses challenges to an implementation that uses racing during connection establishment.
+Several protocols allow sending higher-level protocol or application data within the first packet of their protocol establishment, such as TCP Fast Open {{RFC7413}} and TLS 1.3 {{I-D.ietf-tls-tls13}}. This approach is referred to as sending Zero-RTT (0-RTT) data. This is a desirable property, but poses challenges to an implementation that uses racing during connection establishment.
 
 If the application has 0-RTT data to send in any protocol handshakes, it needs to provide this data before the handshakes have begun. When racing, this means that the data SHOULD be provided before the process of connection establishment has begun. If the API allows the application to send 0-RTT data, it MUST provide an interface that identifies this data as idempotent data. In general, 0-RTT data may be replayed (for example, if a TCP SYN contains data, and the SYN is retransmitted, the data will be retransmitted as well), but racing means that different leaf nodes have the opportunity to send the same data independently. If data is truly idempotent, this should be permissible.
 
