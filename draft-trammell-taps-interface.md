@@ -1272,6 +1272,8 @@ algorithms or protocols. Any API-compatible transport security protocol should w
 This work has received funding from the European Union's Horizon 2020 research and
 innovation programme under grant agreements No. 644334 (NEAT) and No. 688421 (MAMI).
 
+Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work. 
+
 --- back
 
 # Sample API definition in Go {#appendix-api-sketch}
