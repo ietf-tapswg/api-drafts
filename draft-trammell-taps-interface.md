@@ -33,6 +33,14 @@ author:
     country: Norway
     email: michawe@ifi.uio.no
   -
+    ins: T. Enghardt
+    name: Theresa Enghardt
+    org: TU Berlin
+    street: Marchstraße 23
+    city: 10587 Berlin
+    country: Germany
+    email: theresa@inet.tu-berlin.de
+  -
     ins: G. Fairhurst
     name: Gorry Fairhurst
     org: University of Aberdeen
@@ -61,14 +69,6 @@ author:
     city: 10587 Berlin
     country: Germany
     email: philipp@inet.tu-berlin.de
-  -
-    ins: T. Enghardt
-    name: Theresa Enghardt
-    org: TU Berlin
-    street: Marchstraße 23
-    city: 10587 Berlin
-    country: Germany
-    email: theresa@inet.tu-berlin.de
   -
     ins: C. Wood
     name: Chris Wood
@@ -1271,6 +1271,9 @@ algorithms or protocols. Any API-compatible transport security protocol should w
 
 This work has received funding from the European Union's Horizon 2020 research and
 innovation programme under grant agreements No. 644334 (NEAT) and No. 688421 (MAMI).
+
+This work has been supported by Leibniz Prize project funds of DFG - German
+Research Foundation: Gottfried Wilhelm Leibniz-Preis 2011 (FKZ FE 570/4-1).
 
 Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work. 
 

@@ -29,6 +29,14 @@ author:
     country: United States of America
     email: tpauly@apple.com
   -
+    ins: T. Enghardt
+    name: Theresa Enghardt
+    org: TU Berlin
+    street: Marchstraße 23
+    city: 10587 Berlin
+    country: Germany
+    email: theresa@inet.tu-berlin.de
+  -
     ins: K-J. Grinnemo
     name: Karl-Johan Grinnemo
     org: Karlstad University
@@ -38,6 +46,14 @@ author:
     name: Tom Jones
     org: University of Aberdeen
     email: tom@erg.abdn.ac.uk
+  -
+    ins: P. Tiesel
+    name: Philipp S. Tiesel
+    org: TU Berlin
+    street: Marchstraße 23
+    city: 10587 Berlin
+    country: Germany
+    email: philipp@inet.tu-berlin.de
   -
     ins: C. Perkins
     name: Colin Perkins
@@ -598,4 +614,7 @@ Since results from the network can determine how a connection attempt tree is bu
 This work has received funding from the European Union's Horizon 2020 research and
 innovation programme under grant agreement No. 644334 (NEAT).
 
-Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work. 
+This work has been supported by Leibniz Prize project funds of DFG - German
+Research Foundation: Gottfried Wilhelm Leibniz-Preis 2011 (FKZ FE 570/4-1).
+
+Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work.

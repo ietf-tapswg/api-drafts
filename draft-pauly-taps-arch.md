@@ -55,6 +55,9 @@ author:
     name: Philipp S. Tiesel
     org: TU Berlin
     email: philipp@inet.tu-berlin.de
+    street: Marchstraße 23
+    city: 10587 Berlin
+    country: Germany
   -
     ins: C. Wood
     name: Chris Wood
@@ -74,7 +77,7 @@ normative:
       authors:
         -
           ins: Anna Brunstrom
-	-
+        -
           ins: Tommy Pauly
     I-D.trammell-taps-interface:
       title: An Abstract Application Layer Interface to Transport Services
@@ -82,7 +85,7 @@ normative:
       authors:
         -
           ins: Brian Trammell
-	-
+        -
           ins: Michael Welzl
 
 --- abstract
@@ -337,5 +340,8 @@ TAPS does not recommend use of specific security protocols or algorithms. Its go
 
 This work has received funding from the European Union's Horizon 2020 research and
 innovation programme under grant agreement No. 644334 (NEAT).
+
+This work has been supported by Leibniz Prize project funds of DFG - German
+Research Foundation: Gottfried Wilhelm Leibniz-Preis 2011 (FKZ FE 570/4-1).
 
 Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work. 
