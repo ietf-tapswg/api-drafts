@@ -245,7 +245,7 @@ Beyond the basic objects, there are several high-level groups of actions that an
 
 ### Pre-Establishment {#preestablishment}
 
-* Remote Endpoint: The Remote Endpoint represents the application's name for a peer that can participate in a transport connection. For example, a DNS name for the peer.
+* Remote Endpoint: The Remote Endpoint represents the application's name for a peer that can participate in a transport connection. For example, the combination of a DNS name for the peer and a service name/port.
 
 * Local Endpoint: The Local Endpoint represents the application's name for itself that it wants to use for transport connections. For example, a local interface name or address.
 
