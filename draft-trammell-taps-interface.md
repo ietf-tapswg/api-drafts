@@ -775,8 +775,11 @@ only be initiated once.
 Once Initiate is called, the candidate Protocol Stack(s) may cause one or more
 candidate transport-layer connections to be created to the specified remote
 endpoint. The caller may immediately begin sending Content on the Connection
-(see {{sending}}) after calling Initate(), though it may wait for one of the
-following events before doing so.
+(see {{sending}}) after calling Initate(); note that any idempotent data sent
+while the Connection is being established may be sent multiple times or on
+multiple candidates.
+
+The following events may be sent by the Connection after Initiate() is called:
 
 Connection -> Ready&lt;>
 
@@ -787,13 +790,14 @@ the Ready event for connections established using Initiate.
 
 Connection -> InitiateError&lt;>
 
-An InitiateError occurs either when the set of local and remote specifiers and
-transport and cryptographic parameters cannot be fulfilled on a connection for
-initiation (e.g. the set of available Paths and/or Protocol Stacks meeting the
-constraints is empty), when the remote specifier cannot be resolved, or when
-no transport-layer connection can be established to the remote endpoint (e.g.
-because the remote endpoint is not accepting connections, or the application
-is prohibited from opening a connection by the operating system).
+An InitiateError occurs either when the set of transport and cryptographic
+parameters cannot be fulfilled on a connection for initiation (e.g. the set of
+available Paths and/or Protocol Stacks meeting the constraints is empty) or
+reconciled with the local and/or remote endpoints; when the remote specifier
+cannot be resolved; or when no transport-layer connection can be established
+to the remote endpoint (e.g. because the remote endpoint is not accepting
+connections, or the application is prohibited from opening a connection by the
+operating system).
 
 ## Passive Open: Listen {#listen}
 
