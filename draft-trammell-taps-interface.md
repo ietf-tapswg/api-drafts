@@ -351,7 +351,7 @@ pre-establishment phase, but cannot be changed once a Connection has been
 established.
 
 To reflect the needs of an individual connection, they can be
-specified with different preference, whereby the preference is one of the
+specified with different preference levels from the following table , whereby the preference is one of the
 following levels:
 
    | Preference   | Effect                                                    |
@@ -773,9 +773,9 @@ the Preconnection and creates a Connection object. A Preconnection can
 only be initiated once.
 
 Once Initiate is called, the candidate Protocol Stack(s) may cause one or more
-transport-layer connections to be created to the specified remote endpoint.
-The caller may immediately begin sending Content on the Connection (see
-{{sending}}) after calling Initate(), though it may wait for one of the
+candidate transport-layer connections to be created to the specified remote
+endpoint. The caller may immediately begin sending Content on the Connection
+(see {{sending}}) after calling Initate(), though it may wait for one of the
 following events before doing so.
 
 Connection -> Ready&lt;>
