@@ -408,6 +408,12 @@ However, if a peer is not reachable over the network using the unconnected proto
 
 How to passively wait for incoming connections, and what that means for protocols with and without handshakes.
 
+### Implementing listeners for Unconnected Protocols
+
+Unconnected protocols such as UDP and UDP-lite generally do not provide the same mechanisms that connected protocols do to offer connection objects. 
+
+Implementations should perform the processing of new datagrams on a single connection object and should handle creation of Connection objects which can be passed to applications. On platforms with facilities to create a "virtual connection" for unconnected protocols implementations should use these to minimise the handling of datagram intended for already created connection objects. 
+
 # Implementing Data Transfer
 
 ## Data transfer for streams, datagrams, and frames
