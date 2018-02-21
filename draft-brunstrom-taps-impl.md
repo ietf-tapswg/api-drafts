@@ -418,6 +418,12 @@ How to handle sending data onto examples like TCP, UDP, and a basic Length-Value
 
 How to handle and notify errors when sending.
 
+#### Sending content with UDP
+
+The UDP Send Primitives described in section 3.1 of {{RFC8304}} allow applications to send data with either an explicit destination for each packet or the option to bind the destination address for each send call to a single host. The UDP send primitive also offers applications the ability to set a range of IP options which are required to build applications that can use the network effectivly. Implementation MUST expose these mechanisms or provide services to implement their transport features. 
+
+Implementations should consider the advice in the UDP Usage Guidlines (RFC8085) and create a 'connect' style for each UDP Connection object. 
+
 #### Send Completion
 
 How to determine when a send is effectively complete
