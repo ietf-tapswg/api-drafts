@@ -853,13 +853,13 @@ The Rendezvous() action consumes the Preconnection. Once Rendezvous() has
 been called, no further parameters may be bound to the Preconnection, and
 no subsequent establishment call may be made on the Preconnection.
 
-Preconnection -> Rendezvoused&lt;Connection>
+Preconnection -> RendezvousDone&lt;Connection>
 
-The Rendezvoused<> event occurs when a connection is established with the
+The RendezvousDone<> event occurs when a connection is established with the
 RemoteEndpoint. For connection-oriented transports, this occurs when the
 transport-layer connection is established; for connectionless transports,
 it occurs when the first Content is received from the RemoteEndpoint. The
-resulting Connection is contained within the Rendezvoused<> event, and is
+resulting Connection is contained within the RendezvousDone<> event, and is
 ready to use as soon as it is passed to the application via the event.
 
 Preconnection -> RendezvousError&lt;contentRef, error>
