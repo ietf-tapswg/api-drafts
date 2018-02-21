@@ -447,23 +447,21 @@ The following properties apply to Connections and Connection Groups:
   requirement and connection establishment will fail if no other interface
   is available. The default is to not prohibit any particular interface.
 
-
-
 ### Protocol Properties {#protocol-props}
 
-Protocol Properties represent the configuration of a transport protocol once
-it has been selected. A transport protocol may not support all Protocol
-Properties, depending on the available transport features.
-As with Transport Preferences ({{transport-prefs}}), Protocol Properties are
-specified on the Preconnection object, and are using during initiation of a
-Connection to help the system choose an appropriate transport.
-The system will only actually set those protocol properties that are actually
-supported by the chosen transport protocol.
-These properties all apply to Connections and Connection groups.
-The default settings of these properties depends on the chosen protocol and on
-the system configuration.
+Protocol Properties represent the configuration that protocols should use
+once they have been selected. Some properties apply generically across
+multiple transport protocols, in which case they may be used by the system
+to help select candidate protocols. Other properties only apply to specific
+protocols. As with Transport Preferences ({{transport-prefs}}), Protocol Properties are
+specified on the Preconnection object. The default settings of these properties
+will vary based on the specific protocols being used and the system's configuration.
 
-* Set timeout for aborting Connection:
+Generic Protocol Properties include:
+
+<!--- This list should be likely edited -->
+
+* Set timeout for aborting Connection establishment:
   This numeric property specifies how long to wait before aborting a
   Connection attempt.  It is given in seconds.
 
@@ -480,6 +478,8 @@ the system configuration.
   to be covered by a checksum. It is given in Bytes. A value of 0 means
   that no checksum is required, and a special value (e.g., -1) indicates
   full checksum coverage.
+  
+<!--- Should checksum coverage be considered to apply generally? This only seems useful for UDP, etc -->
 
 * Set scheduler for connections in a group:
   This property specifies which scheduler should be used among Connections
@@ -490,6 +490,14 @@ the system configuration.
   This numeric property represents the maximum Content size that can be sent
   before or during Connection establishment, see also {{send-idempotent}}.
   It is given in Bytes.
+
+In order to specify Specific Protocol Properties, the application can attach
+a set of options to the Preconnection object, associated with a specific protocol.
+For example, the application could specify a set of TCP Options to use if and only
+if TCP is selected by the system, including options such as the Maximum Segment
+Size (MSS), and options around Acknowledgement Stretching. Such properties
+should not be assumed to apply across different protocols, but must be possible
+to specify if required by the application.
 
 ### Application Intents {#intents}
 
