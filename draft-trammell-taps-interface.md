@@ -1203,7 +1203,7 @@ Connection.DeframeWith(Deframer)
 
 Content := Deframer.Deframe(OctetStream, ...)
 
-# Introspection {#introspection}
+# Setting and Querying of Connection Properties {#introspection}
 
 At any point, the application can set and query the properties of a
 Connection. Depending on the phase the connection is in, the connection
