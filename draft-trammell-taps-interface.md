@@ -338,11 +338,12 @@ preference levels are specified in {{appendix-preferences}}.
 
 ### Transport Preferences {#transport-prefs}
 
-Transport Preferences drive protocol selection and path selection on connection
-establishment.
-Not all transport protocols work on all paths. Thus, transport protocol
-selection is tied to path selection, which may involve choosing between
-multiple local interfaces that are connected to different access networks.
+Transport Preferences drive protocol selection and path selection on
+connection establishment. Since there could be paths over which some transport
+protocols are unable to operate, or remote endpoints that support only
+specific network addresses or transports, transport protocol selection is
+necessarily tied to path selection. This may involve choosing between multiple
+local interfaces that are connected to different access networks.
 
 The Transport Preferences form part of the information used to create a
 Preconnection object. As such, they can be configured during the
@@ -556,7 +557,7 @@ intents.
 #### Size to be Sent / Received
 
 This Intent specifies what the application expects the size of a transfer to be.
-It is a numeric property and given in Bytes. 
+It is a numeric property and given in Bytes.
 
 
 #### Duration
@@ -565,7 +566,7 @@ This Intent specifies what the application expects the lifetime of a transfer
 to be. It is a numeric property and given in milliseconds.
 
 
-#### Send / Receive Bit-rate 
+#### Send / Receive Bit-rate
 
 This Intent specifies what the application expects the bit-rate of a transfer to
 be. It is a numeric property and given in Bytes per second.
@@ -576,7 +577,7 @@ be. It is a numeric property and given in Bytes per second.
 This Intent specifies what delay characteristics the applications prefers. It
 provides hints for the transport system whether to optimize for low latency or other
 criteria. Note that setting this Intents does not imply any guarantees on
-whether an application's requirements can actually be satisfied. 
+whether an application's requirements can actually be satisfied.
 
 Stream:
 : Delay and packet delay variation should be kept as low as possible
@@ -991,7 +992,7 @@ what's left a part of the Content Properties.]
 Intents), that belong in both categories. Besides those that are useful for
 per-connection and per-content path-selection (I removed those for v1), there
 remain two dual-use properties: "Send Bitrate" (path selection in connection /
-shaping and de-bursting in ) and "Timeliness" (path selection and DSCP default 
+shaping and de-bursting in ) and "Timeliness" (path selection and DSCP default
 in connection / buffering and DSCP per content) --- in both cases, I don't see
 how to achieve the functionality when having them only in one of the places.]
 
@@ -1275,7 +1276,7 @@ innovation programme under grant agreements No. 644334 (NEAT) and No. 688421 (MA
 This work has been supported by Leibniz Prize project funds of DFG - German
 Research Foundation: Gottfried Wilhelm Leibniz-Preis 2011 (FKZ FE 570/4-1).
 
-Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work. 
+Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work.
 
 --- back
 
