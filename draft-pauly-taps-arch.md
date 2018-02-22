@@ -190,7 +190,7 @@ The following diagram summarizes the top-level concepts in the architecture and 
                         V
               Network Layer Interface
 ~~~~~~~~~~
-{: #fig-abstractions title="Concepts and Relationships in the Transport Services Architecture \[MICHAEL: I think it's bad that establishment is missing from the figure - but I understand it could get messy. Maybe writing '(pre-)establishment' could help, to indicate that there is both pre-establishment and establishment ?]"}
+{: #fig-abstractions title="Concepts and Relationships in the Transport Services Architecture"}
 
 ## Transport Services API Concepts
 
@@ -200,7 +200,7 @@ Beyond the basic objects, there are several high-level groups of actions that an
 
 * Pre-Establishment ({{preestablishment}}) encompasses the parameters that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. For any system that provides generic Transport Services, these properties should primarily offer knobs that apply across multiple transports. Properties may have a large impact on the rest of the aspects of the interface: they can modify how establishment occurs, they can influence the expectations around data transfer, and they determine the set of events that will be supported.
 
-* Establishment ({{establishment}}) focuses on the actions that an application takes \[MICHAEL: on? with?] the transport objects to prepare for data transfer.
+* Establishment ({{establishment}}) focuses on the actions that an application takes on the transport objects to prepare for data transfer.
 
 * Data Transfer ({{datatransfer}}) consists of how an application represents data to be sent and received, the functions required to send and receive that data, and how the application is notified of the status of its data transfer.
 
