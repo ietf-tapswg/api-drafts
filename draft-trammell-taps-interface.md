@@ -33,6 +33,14 @@ author:
     country: Norway
     email: michawe@ifi.uio.no
   -
+    ins: T. Enghardt
+    name: Theresa Enghardt
+    org: TU Berlin
+    street: Marchstraße 23
+    city: 10587 Berlin
+    country: Germany
+    email: theresa@inet.tu-berlin.de
+  -
     ins: G. Fairhurst
     name: Gorry Fairhurst
     org: University of Aberdeen
@@ -61,14 +69,6 @@ author:
     city: 10587 Berlin
     country: Germany
     email: philipp@inet.tu-berlin.de
-  -
-    ins: T. Enghardt
-    name: Theresa Enghardt
-    org: TU Berlin
-    street: Marchstraße 23
-    city: 10587 Berlin
-    country: Germany
-    email: theresa@inet.tu-berlin.de
   -
     ins: C. Wood
     name: Chris Wood
@@ -208,30 +208,46 @@ In the following sections, we describe the details of application interaction wi
 
 # Pre-Establishment Phase
 
-Establishment begins with the creation of a Connection...
+The pre-establishment phase allows applications to specify parameters for
+the connections they're about to make, or to query the API about potential
+connections they could make.
+
+A Preconnection object represents a potential connection. It has state that
+describes parameters of a Connection that might exist in the future.  This
+state comprises information about the local and remote endpoints (see
+{{endpointspec}}), the transport parameters (see {{transport-params}}), and
+the security parameters (see {{security-parameters}}):
 
 ~~~
-Connection := NewConnection(localSpecifier, remoteSpecifier, transportParameters, cryptographicParameters)
-~~~
+   localEndpoint   := ...
+   remoteEndpoint  := ...
+   transportParams := ...
+   securityParams  := ...
 
-\[NOTE: note also that framers and deframers should be bound to connections
-during pre-establishment, forward-reference {{send-framing}} and
-{{receive-framing}}]
-
-## Specifying Endpoints {#enpointspec}
-
-\[NOTE: name resolution is no explict step within the transport API.
-Name resolution can be perfoemed whey creating endpoint objects,
-but may be deferred until connection establishment to incorporate transport parameters.]
-
-The transport service API uses Endpoint objects to refer to local and remote endpoints.
-Endpoint objects can be configured using varios endpoint representation, including IP addresses,
-hostnames, URLs or inteface names as well as port numbers and service names:
+   preConnection := NewPreconnection(localEndpoint, remoteEndpoint,
+                                     transportParams, securityParams);
 
 ~~~
-remoteSpecifier := NewEndpoint()
-remoteSpecifier("https://example.com")
-~~~
+
+The Local Endpoint MUST be specified if the Preconnection is used to Listen()
+for incoming connections, but is OPTIONAL if it is used to Initiate()
+connections. The Remote Endpoint MUST be specified in the Preconnection is used
+to Initiate() connections, but is OPTIONAL if it is used to Listen() for
+incoming connections.
+
+\[NOTE: note also that framers and de-framers should be bound to the
+Preconnection object during pre-establishment, forward-reference
+{{send-framing}} and {{receive-framing}}]
+
+
+
+
+## Specifying Endpoints {#endpointspec}
+
+The transport services API uses Endpoint objects to refer to local and remote endpoints.
+Endpoint objects can be configured using various representations of endpoint identifiers,
+including IP addresses, hostnames, or interface names as well as port
+numbers and service names:
 
 ~~~
 remoteSpecifier := NewEndpoint()
@@ -257,32 +273,44 @@ localSpecifier.withInterface("en0")
 localSpecifier.withPort(443)
 ~~~
 
+~~~
+localSpecifier := NewLocalEndpoint()
+localSpecifier.withStunServer(address, port, credentials)
+~~~
+
 Implementations may also support additional endpoint representations and
 provide a single NewEndpoint() call that takes different endpoint representations.
 
-Endpoint representations may imply transport protocols, pseudotransport protocols,
-or families of protocols, e.g., remoteSpecifier.withUrl("https://example.com")
-implies either using HTTP over TLS over TCP or using HTTP over QUIC over UDP.
-Whether the protocols implied by the endpoint representation are provided by the
-transport system is implementation specific, but MUST BE tunable using
-pre-establishment properties.
-Implementations SHOULD provide all parts of the implied transport stack they
-implement unless specified otherwise using pre-establishment properties.
-For example, the transport system may provide TLS over TCP in the above example
-and let the application implement HTTP pseudo-transport itself.
 
 \[TASK: match with #initiate / #listen / #rendezvous and make sure the transport
 stack used is communicated ]
 
+Multiple endpoint identifiers can be specified for each LocalEndpoint
+and RemoteEndoint.  For example, a LocalEndpoint could be configured with
+two interface names, or a RemoteEndpoint could be specified via both IPv4
+and IPv6 addresses.  The multiple identifiers refer to the same endpoint.
+
+The transport services API will resolve names internally, when the Initiate(),
+Listen(), or Rendezvous() method is called establish a connection.
+The API does not need the application to resolve names, and premature name
+resolution can damage performance by limiting the scope for alternate path
+discovery during connection establishment.
+The Resolve() method is, however, provided to resolve a LocalEndpoint or a
+RemoteEndpoint in cases where this is required, for example with some NAT
+traversal protocols (see {{rendezvous}}).
+
+
+\[NOTE: the API needs MUST be explicit about when name resolution occurs,
+        since the act of resolving a name leaks information, and there
+        may be security implications if this happens unexpectedly.]
 
 ## Specifying Transport Parameters {#transport-params}
 
-When creating a connection, an application needs to specify transport
-parameters reflecting its requirements and preferences regarding its
-communication. These Transport parameters include
-*Transport Preferences* (towards protocol selection and path selection) as well as
-*Application Intents* (hints to the transport system what to optimize for) and
-*Protocol Properties* (to configure transport protocols).
+A Preconnection object holds parameters reflecting the application's
+requirements and preferences for the transport.  These include Transport
+Preferences (towards protocol selection and path selection) as well as
+Application Intents (hints to the transport system what to optimize for)
+and Protocol Properties (to configure transport protocols).
 
 All Transport Parameters are organized within a single name space, that is
 shared with Send Parameters (see {{send-params}}). While Application
@@ -310,23 +338,20 @@ preference levels are specified in {{appendix-preferences}}.
 
 ### Transport Preferences {#transport-prefs}
 
-Transport Preferences drive protocol selection and path selection on connection
-establishment.
-Not all transport protocols work on all paths. Thus, transport protocol
-selection is tied to path selection, which may involve choosing between
-multiple local interfaces that are connected to different access networks.
+Transport Preferences drive protocol selection and path selection on
+connection establishment. Since there could be paths over which some transport
+protocols are unable to operate, or remote endpoints that support only
+specific network addresses or transports, transport protocol selection is
+necessarily tied to path selection. This may involve choosing between multiple
+local interfaces that are connected to different access networks.
 
-Transport Preferences should be specified as early as possible to take effect
-and may not be changed after establishing a connection:
-
-- Preferences effecting protocol selection MUST be added to the
-  TransportParameters object before establishing a connection.
-  Changing them later SHOULD result in a runtime error.
-- Preferences effecting path selection MAY be changed but only effect future connection
-  migrations or path selection for multipath protocols.
+The Transport Preferences form part of the information used to create a
+Preconnection object. As such, they can be configured during the
+pre-establishment phase, but cannot be changed once a Connection has been
+established.
 
 To reflect the needs of an individual connection, they can be
-specified with different preference, whereby the preference is one of the
+specified with different preference levels from the following table , whereby the preference is one of the
 following levels:
 
    | Preference   | Effect                                                    |
@@ -334,150 +359,145 @@ following levels:
    | `require `   | Fail if requested feature/property can not be met         |
    | `prefer  `   | Proceed if requested feature/property can not be met      |
    | `don't care` | None / clear defaults                                     |
-   | `avid    `   | Proceed if requested feature/property can not be avoided  |
+   | `avoid   `   | Proceed if requested feature/property can not be avoided  |
    | `prohibit`   | Fail if requested feature/property can not be avoided     |
 
-There need to be sensible defaults for the Transport Preferences.
-There need to be sensible defaults for the Protocol Selection Properties. The
+There need to be sensible defaults for the Transport Preferences as well as
+Protocol Selection Properties. The
 defaults given in the following section represent a configuration that can be
 implemented over TCP. An alternate set of default Protocol Selection Properties
 would represent a configuration that can be implemented over UDP.
 
 The following properties apply to Connections and Connection Groups:
 
-#### Reliable Data Transfer
+* Reliable Data Transfer:
+  This boolean property specifies whether the application needs the
+  transport protocol to ensure that data is received completely and without
+  corruption on the other side. This also entails being notified when a
+  Connection is closed or aborted. This property applies to connections and
+  connection groups.  This is a strict requirement. The default is to
+  enable Reliable Data Transfer.
 
-This boolean property specifies whether the application needs the transport
-protocol to ensure that data is received completely and without corruption on
-the other side. This also entails being notified when a Connection is closed
-or aborted. This property applies to connections and connection groups.
-This is a strict requirement. The default is to enable Reliable Data Transfer.
+* Preservation of data ordering:
+  This boolean property specifies whether the application needs the
+  transport protocol to assure that data is received by the application on
+  the other end in the same order as it was sent. This property applies to
+  connections and connection groups. This is a strict requirement. The
+  default is to preserve data ordering.
 
-#### Preservation of data ordering
+* Configure reliability for individual Content:
+  This boolean property specifies whether an application considers it
+  useful to indicate its reliability requirements on a per-Content basis.
+  This property applies to connections and connection groups. This is not a
+  strict requirement.  The default is to not have this option.
 
-This boolean property specifies whether the application needs the transport
-protocol to assure that data is received by the application on the other end in
-the same order as it was sent. This property applies to connections and
-connection groups. This is a strict requirement. The default is to preserve data
-ordering.
+* Request not to delay acknowledgment of Content:
+  This boolean property specifies whether an application considers it
+  useful to request for Content that its acknowledgment be sent out as
+  early as possible instead of potentially being bundled with other
+  acknowledgments. This property applies to connections and connection
+  groups. This is not a strict requirement. The default is to not have this
+  option.
 
-#### Configure reliability for individual Content
+* Use 0-RTT session establishment with idempotent Content:
+  This boolean property specifies whether an application would like to
+  supply a Content to the transport protocol before Connection
+  establishment, which will then be reliably transferred to the other side
+  before or during connection establishment, potentially multiple times.
+  See also {{send-idempotent}}.  This is a strict requirement. The default
+  is to not have this option.
 
-This boolean property specifies whether an application considers it useful to
-indicate its reliability requirements on a per-Content basis. This property
-applies to connections and connection groups. This is not a strict requirement.
-The default is to not have this option.
+* Use Connection Groups with priorities:
+  This boolean property specifies whether an application considers it
+  useful to create Connection Groups and explicitly prioritize between
+  Connections within a Connection Group.  This is not a strict requirement.
+  The default is to not have this option.
 
-#### Request not to delay acknowledgment (SACK) of Content
+* Suggest a timeout to the peer:
+  This boolean property specifies whether an application considers it
+  useful to propose a timeout until the connection is assumed to be lost.
+  This property applies to Connections and Connection Groups. This is not a
+  strict requirement. The default is to have this option.
 
-This boolean property specifies whether an application considers it useful to
-request for Content that its acknowledgment be sent out as early as possible
-(SACK) instead of potentially being bundled with other acknowledgments. This
-property applies to connections and connection groups. This is not a strict
-requirement. The default is to not have this option.
+* Notification of special errors (excessive retransmissions, ICMP error message arrival):
+  This boolean property specifies whether an application considers it
+  useful to be informed in case sent data was retransmitted more often than
+  a certain threshold, or when an ICMP error message arrives. This property
+  applies to Connections and Connection Groups. This is not a strict
+  requirement. The default is to have this option.
 
-#### Use 0-RTT session establishment with idempotent Content
+* Control checksum coverage on sending or receiving:
+  This boolean property specifies whether the application considers it
+  useful to enable / disable / configure a checksum when sending Content,
+  or decide whether to require a checksum or not when receiving Content.
+  This property applies to Connections and Connection Groups. This is not a
+  strict requirement, as it signifies a reduction in reliability. The
+  default is full checksum coverage without being able to change it, and
+  requiring a checksum when receiving.
 
-This boolean property specifies whether an application would like to supply a
-Content to the transport protocol before Connection establishment, which will
-then be reliably transferred to the other side before or during connection
-establishment, potentially multiple times. See also {{send-idempotent}}.
-This is a strict
-requirement. The default is to not have this option.
+* Interface Type to prefer:
+  This property specifies which kind of access network interface, e.g.,
+  WiFi, Ethernet, or LTE, to prefer over others for this connection, in
+  case they are available.  This is not a strict requirement. The default
+  is to use the default interface configured in the system policy.
 
-#### Use Connection Groups with priorities
-
-This boolean property specifies whether an application considers it useful to
-create Connection Groups and explicitly prioritize between Connections
-within a Connection Group.
-
-#### Suggest a timeout to the peer
-
-This boolean property specifies whether an application considers it useful to
-propose a timeout until the connection is assumed to be lost. This
-property applies to Connections and Connection Groups. This is not a strict
-requirement. The default is to have this option.
-
-#### Notification of special errors (excessive retransmissions, ICMP error message arrival)
-
-This boolean property specifies whether an application considers it useful to
-be informed in case sent data was retransmitted more often than a certain
-threshold, or when an ICMP error message arrives. This property applies to
-Connections and Connection Groups. This is
-not a strict requirement. The default is to have this option.
-
-#### Control checksum coverage on sending or receiving
-
-This boolean property specifies whether the application considers it useful to
-enable / disable / configure a checksum when sending Content, or decide whether to
-require a checksum or not when receiving Content.
-This property applies to Connections and
-Connection Groups. This is not a strict requirement, as it signifies a
-reduction in reliability. The default is full checksum coverage without being
-able to change it, and requiring a checksum when receiving.
-
-
-#### Interface Type to prefer
-
-This property specifies which kind of access network interface, e.g., WiFi,
-Ethernet, or LTE, to prefer over others for this connection, in case they are
-available.  This is not a strict requirement. The default is to use the default
-interface configured in the system policy.
-
-#### Interface Type to prohibit
-
-This property specifies which kind of access network interface, e.g., WiFi,
-Ethernet, or LTE, to not use for this connection. This is a strict requirement
-and connection establishment will fail if no other interface is available. The
-default is to not prohibit any particular interface.
-
-
+* Interface Type to prohibit:
+  This property specifies which kind of access network interface, e.g.,
+  WiFi, Ethernet, or LTE, to not use for this connection. This is a strict
+  requirement and connection establishment will fail if no other interface
+  is available. The default is to not prohibit any particular interface.
 
 ### Protocol Properties {#protocol-props}
 
-Protocol Properties represent the configuration of a transport protocols once
-it has been selected. A transport protocol may not support all Protocol
-Properties, depending on the available transport features. An application
-should specify the Protocol Properties as early as possible to help the TAPS
-system optimize. However, a TAPS system will only actually set those protocol
-properties that are actually supported by the chosen transport protocol. These
-property all apply to Connections and Connection groups.
-The default settings of these properties depends on the chosen protocol and on
-the system configuration.
+Protocol Properties represent the configuration that protocols should use
+once they have been selected. Some properties apply generically across
+multiple transport protocols, in which case they may be used by the system
+to help select candidate protocols. Other properties only apply to specific
+protocols. As with Transport Preferences ({{transport-prefs}}), Protocol Properties are
+specified on the Preconnection object. The default settings of these properties
+will vary based on the specific protocols being used and the system's configuration.
 
-#### Set timeout for aborting Connection
+Generic Protocol Properties include:
 
-This numeric property specifies how long to wait before aborting a Connection.
-It is given in seconds.
+<!--- This list should be likely edited -->
 
-#### Set timeout to suggest to the peer
+* Set timeout for aborting Connection establishment:
+  This numeric property specifies how long to wait before aborting a
+  Connection attempt.  It is given in seconds.
 
-This numeric property specifies the timeout to propose to the peer. It is given
-in seconds.
+* Set timeout to suggest to the peer:
+  This numeric property specifies the timeout to propose to the peer. It is
+  given in seconds.
 
-#### Set retransmissions before "Excessive Retransmissions"
+* Set retransmissions before "Excessive Retransmissions":
+  This numeric property specifies after how many retransmissions to inform
+  the application about "Excessive Retransmissions".
 
-This numeric property specifies after how many retransmissions to inform the
-application about "Excessive Retransmissions".
+* Set required minimum coverage of the checksum for receiving:
+  This numeric property specifies the part of the received data that needs
+  to be covered by a checksum. It is given in Bytes. A value of 0 means
+  that no checksum is required, and a special value (e.g., -1) indicates
+  full checksum coverage.
+  
+<!--- Should checksum coverage be considered to apply generally? This only seems useful for UDP, etc -->
 
-#### Set required minimum coverage of the checksum for receiving
+* Set scheduler for connections in a group:
+  This property specifies which scheduler should be used among Connections
+  within a Connection Group. It applies to connection groups. For now we
+  suggest we the schedulers defined in {{I-D.ietf-tsvwg-sctp-ndata}}.
 
-This numeric property specifies the part of the received data that needs to be
-covered by a checksum. It is given in Bytes. A value of 0 means that no checksum
-is required, and a special value (e.g., -1) indicates full checksum coverage.
+* Maximum Content Size Before Connection Establishment:
+  This numeric property represents the maximum Content size that can be sent
+  before or during Connection establishment, see also {{send-idempotent}}.
+  It is given in Bytes.
 
-#### Set scheduler for connections in a group
-
-This property specifies which scheduler should be used among Connections within
-a Connection Group. It applies to connection groups. For now we suggest we
-the schedulers defined in {{I-D.ietf-tsvwg-sctp-ndata}}.
-
-#### Maximum Content Size Before Connection Establishment
-
-This numeric property can be queried by the application after creating a
-Connection. It represents the maximum Content size that can be sent before or
-during Connection establishment, see also {{send-idempotent}}. It is given in
-Bytes.
+In order to specify Specific Protocol Properties, the application can attach
+a set of options to the Preconnection object, associated with a specific protocol.
+For example, the application could specify a set of TCP Options to use if and only
+if TCP is selected by the system, including options such as the Maximum Segment
+Size (MSS), and options around Acknowledgement Stretching. Such properties
+should not be assumed to apply across different protocols, but must be possible
+to specify if required by the application.
 
 ### Application Intents {#intents}
 
@@ -501,11 +521,19 @@ system schedules big Content over an interface with higher bandwidth, and
 small Content over an interface with lower latency.
 
 Specifying Application Intents is not mandatory. An application can specify any
-combination of Application Intents. All Application Intents can be specified for
-connections and cloning a Connection to form a Connection Group will clone the
-associated Intents along with the other transport parameters. Some Intents can
-also be specified for individual Content, similar to the properties in
-{{send-params}}.
+combination of Application Intents.
+If specified, Application Intents are defined as parameters passed to the
+Preconnection object, and may influence the Connection established from
+that Preconnection.
+If a Connection is cloned to form a Connection Group, and associated
+Application Intents are cloned along with the other transport parameters.
+Some Intents have also corresponding Content Properties, similar to the
+properties in {{send-params}}.
+
+\[PHILS:: Some Intents, i.e., Traffic Category, Size to be Received, Receive
+Bit-rate, Timeliness, Cost Preferences are really useful for per-content path
+selection. As the latter is out of scope for v1, I removed them from the Send
+Parameters for now]
 
 
 #### Traffic Category
@@ -537,29 +565,27 @@ intents.
 #### Size to be Sent / Received
 
 This Intent specifies what the application expects the size of a transfer to be.
-It is a numeric property and given in Bytes. This Intent can also apply to
-individual Content.
+It is a numeric property and given in Bytes.
 
 
-Duration
+#### Duration
 
 This Intent specifies what the application expects the lifetime of a transfer
 to be. It is a numeric property and given in milliseconds.
 
 
-Stream Bitrate Sent / Received
+#### Send / Receive Bit-rate
 
-This Intent specifies what the application expects the bitrate of a transfer to
+This Intent specifies what the application expects the bit-rate of a transfer to
 be. It is a numeric property and given in Bytes per second.
 
 
 #### Timeliness
 
-This Intent specifies what delay characteristcs the applications prefers. It
+This Intent specifies what delay characteristics the applications prefers. It
 provides hints for the transport system whether to optimize for low latency or other
 criteria. Note that setting this Intents does not imply any guarantees on
-whether an application's requirements can actually be satisfied. This Intent
-can also apply to individual Content.
+whether an application's requirements can actually be satisfied.
 
 Stream:
 : Delay and packet delay variation should be kept as low as possible
@@ -576,31 +602,11 @@ Background:
 The default is "Transfer".
 
 
-#### Disruption Resilience
-
-This Intent describes what an application knows about its own ability to deal
-with disruption of its communication, e.g., connection loss. It provides hints
-of how well an application assumes it can recover from such disturbances and
-can have an impact on the tradeoff between providing failover techniques and
-resource utilization. This Intent can also apply to individual Content.
-
-Sensitive:
-: Disruptions result in application failure, disrupting user experience
-
-Recoverable:
-: Disruptions are inconvenient for the application, but can be recovered from
-
-Resilient:
-: Disruptions have minimal impact for the application
-
-The default is "Sensitive".
-
-
 #### Cost Preferences
 
 This Intent describes what an application prefers regarding monetary costs,
 e.g., whether it considers it acceptable to utilize limited data volume. It
-provides hints to the transport system on how to handle tradeoffs between cost
+provides hints to the transport system on how to handle trade-offs between cost
 and performance or reliability. This Intent can also apply to individual
 Content.
 
@@ -623,10 +629,7 @@ The default is "Balance Cost".
 ### Transport Parameters Object
 
 All transport parameters used in the pre-establishment phase are collected
-in a *TransportParameters* object.
-For the sake of convenience, we suggests implementing TransportParameters
-class as sub-class of an existing Dictionary or Set class to allow in-place notion
-of Transport Parameters.
+in a TransportParameters object that is passed to the Preconnection object.
 
 ~~~
 transportParameters := NewTransportParameters()
@@ -644,7 +647,7 @@ transportParameters.add(parameter, value)
 transportParameters.require(preference)
 transportParameters.prefer(preference)
 transportParameters.dontcare(preference)
-transportParameters.avid(preference)
+transportParameters.avoid(preference)
 transportParameters.prohibit(preference)
 ~~~
 
@@ -655,10 +658,13 @@ by using the following call on the Connection object:
 transportParameters := connection.getTransportParameters()
 ~~~
 
-\[Note that most properties are only considered for connection establishment
+Note that most properties are only considered for connection establishment
 and can not be changed later on. {{appendix-specify-query-params}} gives an
 overview of what Transport Parameters can be specified and queried during which
-phase. ]
+phase.
+
+\[Note: We need to more clearly separate out parameters that can be changed
+once a connection has been established from those that cannot. (csp)]
 
 Connections can be cloned at any time, before or after establishment.
 A cloned connection and its parent are entangled: they share the same
@@ -668,9 +674,9 @@ the other, etc.
 Cloning connections during pre-establishment is encouraged, as it
 informs the transport system about the intent to form Connection Groups.
 
-\[Note that priority assignment ((see also {{groups}} for more details) is
+Note that priority assignment ((see also {{groups}} for more details) is
 not shared among cloned connections. Therefore, the priority assignment
-MUST NOT be realized using the connection level TransportParameters object.]
+MUST NOT be realized using the connection level TransportParameters object.
 
 
 
@@ -765,38 +771,41 @@ to be listening for incoming connection requests, commonly used by clients in
 client-server interactions. Active open is supported by this interface through
 the Initiate action:
 
-Connection.Initiate()
+Connection := Preconnection.Initiate()
 
-Before calling Initiate, the caller must have initialized the Connection
-during the pre-establishment phase with local and remote endpoint specifiers,
-as well as all parameters necessary for candidate selection. After calling
-Initiate, no further parameters may be bound to the Connection, and no
-subsequent establishment call may be made on the Connection.
+Before calling Initiate, the caller must have populated a Preconnection
+object with local and remote endpoint specifiers, as well as all parameters
+necessary for candidate selection. After calling Initiate, no further
+parameters may be bound to the Connection. The Initiate() call consumes
+the Preconnection and creates a Connection object. A Preconnection can
+only be initiated once.
 
 Once Initiate is called, the candidate Protocol Stack(s) may cause one or more
-transport-layer connections to be created to the specified remote endpoint.
-The caller may immediately begin sending Content on the Connection (see
-{{sending}}) after calling Initate, though it may wait for one of the
-following events before doing so.
+candidate transport-layer connections to be created to the specified remote
+endpoint. The caller may immediately begin sending Content on the Connection
+(see {{sending}}) after calling Initate(); note that any idempotent data sent
+while the Connection is being established may be sent multiple times or on
+multiple candidates.
+
+The following events may be sent by the Connection after Initiate() is called:
 
 Connection -> Ready&lt;>
 
 The Ready event occurs after Initiate has established a transport-layer
 connection on at least one usable candidate Protocol Stack over at least one
-candidate Path. No Receive events (see {{receiving}}) will occur until after
+candidate Path. No Receive events (see {{receiving}}) will occur before
 the Ready event for connections established using Initiate.
-\[MICHAEL: This is a difficult read. Can we phrase this as "...will occur before the Ready event for connections...",
-or did you have a specific reason to write "until after the Ready event"?]
 
 Connection -> InitiateError&lt;>
 
-An InitiateError occurs either when the set of local and remote specifiers and
-transport and cryptographic parameters cannot be fulfilled on a connection for
-initiation (e.g. the set of available Paths and/or Protocol Stacks meeting the
-constraints is empty), when the remote specifier cannot be resolved, or when
-no transport-layer connection can be established to the remote endpoint (e.g.
-because the remote endpoint is not accepting connections, or the application
-is prohibited from opening a connection by the operating system).
+An InitiateError occurs either when the set of transport and cryptographic
+parameters cannot be fulfilled on a connection for initiation (e.g. the set of
+available Paths and/or Protocol Stacks meeting the constraints is empty) or
+reconciled with the local and/or remote endpoints; when the remote specifier
+cannot be resolved; or when no transport-layer connection can be established
+to the remote endpoint (e.g. because the remote endpoint is not accepting
+connections, or the application is prohibited from opening a connection by the
+operating system).
 
 ## Passive Open: Listen {#listen}
 
@@ -804,42 +813,91 @@ Passive open is the action of waiting for connections from remote endpoints,
 commonly used by servers in client-server interactions. Passive open is
 supported by this interface through the Listen action:
 
-Connection.Listen()
+Preconnection.Listen()
 
-Before calling Listen, the caller must have initialized the Connection
-during the pre-establishment phase with local endpoint specifiers,
-as well as all parameters necessary for Protocol Stack selection. After calling
-Listen, no further parameters may be bound to the Connection, and no subsequent
-establishment call may be made on the Connection.
+Before calling Listen, the caller must have initialized the Preconnection
+during the pre-establishment phase with local endpoint specifiers, as well
+as all parameters necessary for Protocol Stack selection.
+The Listen() action consumes the Preconnection. Once Listen() has been
+called, no further parameters may be bound to the Preconnection, and no
+subsequent establishment call may be made on the Preconnection.
 
-Connection -> ConnectionReceived&lt;Connection>
+Preconnection -> ConnectionReceived&lt;Connection>
 
-The ConnectionReceived event occurs when a remote endpoint has established a
-transport-layer connection to this Connection or when the remote endpoint has
-sent its first Content, causing a new Connection to be
+The ConnectionReceived event occurs when a RemoteEndpoint has established a
+transport-layer connection to this Preconnection (for connection-oriented
+transport protocols), or when the first Content has been received from the
+remote endpoint (for connectionless protocols), causing a new Connection to be
 created. The resulting Connection is contained within the ConnectionReceived
 event, and is ready to use as soon as it is passed to the application via the
 event.
 
-\[MICHAEL: JFYI, just to explain why I added "or when the remote endpoint has
-sent its first Content" above: in case the connection is in fact a
-stream, nothing may happen on the wire when doing Connect, and the
-first thing the listener gets may already be the first data block.]
+PreConnection -> Error&lt;>
 
-Connection -> ListenError&lt;>
+A ListenError occurs either
+when the Preconnection cannot be fulfilled for listening,
+when the LocalEndpoint (or RemoteEndpoint, if specified) cannot be resolved,
+or
+when the application is prohibited from listening by policy.
 
-A ListenError occurs either when the set of local specifier, transport and
-cryptographic parameters cannot be fulfilled for listening, when the local
-specifier cannot be resolved, or when the application is prohibited from
-listening by the operating system.
 
-## Peer to Peer Establishment: Rendezvous {#rendezvous}
 
-Connection.Rendezvous()
+## Peer-to-Peer Establishment: Rendezvous {#rendezvous}
 
-Connection -> Ready&lt;>
+Simultaneous peer-to-peer connection establishment is supported by the
+Rendezvous() action:
 
-Connection -> RendezvousError&lt;>
+Preconnection.Rendezvous()
+
+The Preconnection object must be specified with both a LocalEndpoint and a
+RemoteEndpoint, and also the transport and security parameters needed for
+protocol stack selection. The Rendezvous() action causes the Preconnection
+to listen on the LocalEndpoint for an incoming connection from the
+RemoteEndpoint, while simultaneously trying to establish a connection from
+the LocalEndpoint to the RemoteEndpoint.
+This corresponds to a TCP simultaneous open, for example.
+
+The Rendezvous() action consumes the Preconnection. Once Rendezvous() has
+been called, no further parameters may be bound to the Preconnection, and
+no subsequent establishment call may be made on the Preconnection.
+
+Preconnection -> RendezvousDone&lt;Connection>
+
+The RendezvousDone<> event occurs when a connection is established with the
+RemoteEndpoint. For connection-oriented transports, this occurs when the
+transport-layer connection is established; for connectionless transports,
+it occurs when the first Content is received from the RemoteEndpoint. The
+resulting Connection is contained within the RendezvousDone<> event, and is
+ready to use as soon as it is passed to the application via the event.
+
+Preconnection -> RendezvousError&lt;contentRef, error>
+
+An RendezvousError occurs either
+when the Preconnection cannot be fulfilled for listening,
+when the LocalEndpoint or RemoteEndpoint cannot be resolved,
+when no transport-layer connection can be established to the RemoteEndpoint,
+or
+when the application is prohibited from rendezvous by policy.
+
+
+When using some NAT traversal protocols, e.g., ICE {{?RFC5245}}, it is
+expected that the LocalEndpoint will be configured with some method of
+discovering NAT bindings, e.g., a STUN server. In this case, the
+LocalEndpoint may resolve to a mixture of local and server reflexive
+addresses. The Resolve() method on the Preconnection can be used to
+discover these bindings:
+
+    PreconnectionBindings := Preconnection.Resolve()
+
+The Resolve() call returns a list of Preconnection objects, that represent
+the concrete addresses, local and server reflexive, on which a Rendezvous()
+for the Preconnection will listen for incoming connections. This list can
+be passed to a peer via a signalling protocol, such as SIP or WebRTC, to
+configure the remote.
+
+\[NOTE: This API is sufficient for TCP-style simultaneous open, but should
+  be considered experimental for ICE-like protocols.]
+
 
 ## Connection Groups {#groups}
 
@@ -854,7 +912,7 @@ All Connections in a group are entangled. This means that they automatically sha
 all properties: changing a parameter for one of them also changes the parameter
 for all others, closing one of them also closes all others, etc.
 
-There is only one Protocol Property that is not entangled, i.e. it is a separate
+There is only one Protocol Property that is not entangled, i.e., it is a separate
 per-Connection Property for individual Connections in the group: a priority.
 This priority, which can be represented as a non-negative integer or float, expresses
 a desired share of the Connection Group's available network capacity, such that an
@@ -868,13 +926,16 @@ as early as possible, ideally already during the Pre-Establishment phase, in ord
 to aid the Transport System in choosing and configuring the right protocols
 (see also {{transport-params}}).
 
+\[TASK: If Clone() is a method on Connection, it cannot be called during
+pre-establishment, since we don't have a Connection at that time (csp)]
+
 # Sending Data {#sending}
 
 Once a Connection has been established, it can be used for sending data. Data
 is sent by passing a Content object and additional parameters
 {{send-params}} to the Send action on an established connection:
 
-Connection.Send(Content, SentParameters)
+Connection.Send(Content, sendParameters)
 
 The type of the Content to be passed is dependent on the implementation, and
 on the constraints on the Protocol Stacks implied by the Connection's
@@ -892,7 +953,7 @@ Like all Actions in this interface, the Send action is asynchronous.
 
 Connection -> Sent&lt;contentRef>
 
-The Sent event occurs when a previous Send action has completed, i.e. when the
+The Sent event occurs when a previous Send action has completed, i.e., when the
 data derived from the Content has been passed down or through the underlying
 Protocol Stack and is no longer the responsibility of the implementation of
 this interface. The exact disposition of Content when the Sent event occurs is
@@ -904,7 +965,6 @@ Sent events allow an application to obtain an understanding of the amount
 of buffering it creates. That is, if an application calls the Send action multiple
 times without waiting for a Sent event, it has created more buffer inside the
 transport system than an application that only issues a Send after this event fires.
-
 
 Connection -> Expired&lt;contentRef>
 
@@ -919,33 +979,57 @@ Connection -> SendError&lt;contentRef>
 
 A SendError occurs when Content could not be sent due to an error condition:
 some failure of the underlying Protocol Stack, or a set of send parameters not
-consistent with the Connection's transport parameters.
+consistent with the Connection's transport parameters. The SendError contains
+an implementation-specific reference to the Content to which it applies.
 
 
 ## Send Parameters {#send-params}
+
+\[MICHAEL: Here, things get really messy (even after I cleaned them up a bit).
+First, I see no need to have app intents defined both per-connection (in an
+earlier section) AND per-content. If they really make sense per-content, they
+should be defined here and not in the other section. However, some of the ones
+here VERY obviously don't fit a single piece of content: stream bitrate sent /
+stream bitrate received. This is about a number that, by nature, is a longer
+term average. Sure, an application may want to change it whenever, and it can
+--- but that doesn't make it something that really relates to a single piece of
+content. These two make so little sense here that I decided to remove them for
+you. For the others, please make up your mind where they fit / what they relate
+to. Second, whatever will remain doesn't need its own "app intents" heading: it
+will only relate to content, genuinely making it a "content property". I leave
+the heading in there now just so the app intents stuff stands out a bit more,
+but when you're done removing things, please remove this heading and make
+what's left a part of the Content Properties.]
+\[PHILS: Cleanup done. From my perspective, there are Parameters (including
+Intents), that belong in both categories. Besides those that are useful for
+per-connection and per-content path-selection (I removed those for v1), there
+remain two dual-use properties: "Send Bitrate" (path selection in connection /
+shaping and de-bursting in ) and "Timeliness" (path selection and DSCP default
+in connection / buffering and DSCP per content) --- in both cases, I don't see
+how to achieve the functionality when having them only in one of the places.]
+
 
 The Send action takes per-Content send parameters which control how the
 contents will be sent down to the underlying Protocol Stack and transmitted.
 
 If Send Parameters should be overridden for a specific content, an
 empty sent parameter Object can be acquired and all desired Send Parameters
-can be added to that object. A Send Parameters object can be reused for
+can be added to that object. A sendParameters object can be reused for
 sending multiple contents with the same properties.
 
 ~~~
-sentParameters := NewSentParameters()
-sentParameters.add(parameter, value)
+sendParameters := NewSendParameters()
+sendParameters.add(parameter, value)
 ~~~
 
-The Send Parameters are organized in *Content Properties*,
-*Protocol Properties*, and *Application Intents*.
+The Send Parameters are organized in *Content Properties* and *Application Intents*.
 The Send Parameters share a single namespace with the Transport Parameters (see
 {{transport-params}}). This allows to specify Protocol Properties and that can
 be overridden on a per content basis or Application Intents that apply to a
 specific content.
 See {{appendix-specify-query-params}} for an overview.
 
-\[Note that some of these parameters are not compatible with transport
+\[NOTE: some of these parameters are not compatible with transport
 parameters; attempting to Send with such an incompatibility yields a SendError.]
 
 ### Content Properties
@@ -993,63 +1077,57 @@ Send action. It is used to mark data safe for certain 0-RTT establishment
 techniques, where retransmission of the 0-RTT data may cause the remote
 application to receive the Content multiple times.
 
-\[NOTE: we need some way to signal to the transport that we want to wait for
-0RTT data on Initiate. Probably a transport parameter]
-\[MICHAEL: why? As an app programmer, I can just use Send instead of Initiate.]
+#### Corruption Protection Length {#send-checksum}
 
-#### Checksum {#send-checksum}
+This numeric property specifies the length of the section of content, starting
+from byte 0, that the application assumes will be received without corruption
+due to lower layer errors. It is used to specify options for simple integrity
+protection via checksums. By default, the entire Content is protected by
+checksum. A value of 0 means that no checksum is required, and a special value
+(e.g. -1) can be used to indicate the default. Only full coverage is
+guaranteed, any other requests are advisory.
 
-This numeric property specifies the length of the checksum to be used on the Content.
-A value of 0 means that no checksum is required, and a special value (e.g. -1) can
-be used to indicate full checksum coverage (which is also the default). Only
-full coverage is guaranteed, any other requests are advisory.
+#### Immediate Acknowledgement {#send-ackimmed}
 
-###Protocol Properties
+This boolean property specifies, if true, that an application wants this
+Content to be acknowledged immediately by the receiver. In case of reliable
+transmission, this informs the transport protocol on the sender side faster
+that it can remove the Content from its buffer; therefore this property can be
+useful for latency-critical applications that maintain tight control over the
+send buffer (see {{sending}}).
 
-\[NOTE: this will be mostly protocol specific stuff as urgent data for TCP - maybe also move Checksum here]
+#### Send Bitrate {#send-bitrate}
 
-###Application Intents
+This numeric property in Bytes per second specifies at what bitrate the
+application wishes the content to be sent. A transport supporting this
+feature will not exceed the requested Send Bitrate even if flow-control
+and congestion control allow higher bitrates. This helps to avid bursty
+traffic pattern on busy video streaming servers.
 
-#### Size to be Received
+\[PHILS: this my be removed if there is no consensus this this is useful. See
+https://www.usenix.org/conference/atc12/technical-sessions/presentation/ghobadi
+for a use case and implementation ]
 
-On a bi-directional connection, this Intent specifies what amount of data the
-application expects to receive in reply to the content sent.
-It is a numeric property and given in Bytes.
+#### Timeliness {#send-timeliness}
 
-#### Stream Bitrate Sent
+This specifies what delay characteristics the applications prefers for the
+given content. It provides hints for the transport system whether to optimize
+for low latency or other criteria and set the DSCP flags for packets used
+to transmit the content.
 
-This Intent specifies what bitrate the application wishes the content to be
-sent with. This is useful as input for any transport that does packet pacing.
-It is a numeric property and given in Bytes per second.
+Stream:
+: Delay and packet delay variation should be kept as low as possible
 
-#### Stream Bitrate Received
+Interactive:
+: Delay should be kept as low as possible, but some variation is tolerable
 
-On a bi-directional connection, this Intent specifies what bitrate the
-application expects to receive in reply to the content sent.
-It is a numeric property and given in Bytes per second.
+Transfer:
+: Delay and packet delay variation should be reasonable, but are not critical
 
-#### Cost Preferences
+Background:
+: Delay and packet delay variation is no concern
 
-This Intent describes what an application prefers regarding monetary costs,
-e.g., whether it considers it acceptable to utilize limited data volume. It
-provides hints to the transport system on how to handle tradeoffs between cost
-and performance or reliability. This Intent can also apply to individual
-Content.
-
-No Expense:
-: Avoid transports associated with monetary cost
-
-Optimize Cost:
-: Prefer inexpensive transports and accept service degradation
-
-Balance Cost:
-: Use system policy to balance cost and other criteria
-
-Ignore Cost:
-: Ignore cost, choose transport solely based on other criteria
-
-The default is "Balance Cost".
-
+The default is "Transfer".
 
 ## Sender-side Framing {#send-framing}
 
@@ -1078,9 +1156,12 @@ Connection -> Received&lt;Content>
 As with sending, the type of the Content to be passed is dependent on the
 implementation, and on the constraints on the Protocol Stacks implied by the
 Connection's transport parameters. The Content may also contain metadata from
-protocols in the Protocol Stack for logging and debugging purposes. In particular,
-when this information is available, the value of the Explicit Congestion Notification
-(ECN) field is contained in such metadata.
+protocols in the Protocol Stack; which metadata is available is Protocol Stack
+dependent. In particular, when this information is available, the value of the
+Explicit Congestion Notification (ECN) field is contained in such metadata.
+This information can be used for logging and debugging purposes, and for
+building applications which need access to information about the transport
+internals for their own operation.
 
 The Content object must provide some method to retrieve an octet array
 containing application data, corresponding to a single message within the
@@ -1096,14 +1177,14 @@ received that reception has failed. Such conditions that irrevocably lead the
 the termination of the Connection are signaled using ConnectionError instead
 (see {{termination}}).
 
-## Application-Layer Backpressure at the Receiver {#receive-backpressure}
+## Application-Layer Back-Pressure at the Receiver {#receive-backpressure}
 
 Implementations of this interface must provide some way for the application to
 indicate that it is temporarily not ready to receive new Content. Since the
 mechanisms of event handling are implementation-platform specific, this
 document does not specify the exact nature of this interface.
 
-## Receiver-side Deframing over Stream Protocols {#receive-framing}
+## Receiver-side De-framing over Stream Protocols {#receive-framing}
 
 The Receive event is intended to be fired once per application-layer Content
 sent by the remote endpoint; i.e., it is a desired property of this interface
@@ -1113,15 +1194,15 @@ message boundary preservation, but is not the case over Protocol Stacks that
 provide a simple octet stream transport.
 
 For preserving message boundaries over stream transports, this interface
-provides receiver-side deframing. This facility is based on the observation
+provides receiver-side de-framing. This facility is based on the observation
 that, since many of our current application protocols evolved over TCP, which
 does not provide message boundary preservation, and since many of these protocols
 require message boundaries to function, each application layer protocol has
 defined its own framing. A Deframer allows an application to push this
-deframing down into the interface, in order to transform an octet stream into
+de-framing down into the interface, in order to transform an octet stream into
 a sequence of Content.
 
-Concretely, receiver-side deframing allows a caller to provide the interface
+Concretely, receiver-side de-framing allows a caller to provide the interface
 with a function that takes an octet stream, as provided by the underlying
 Protocol Stack, reads and returns a sigle Content of an appropriate type for
 the application and platform, and leaves the octet stream at the start of the
@@ -1133,37 +1214,56 @@ Connection.DeframeWith(Deframer)
 
 Content := Deframer.Deframe(OctetStream, ...)
 
-# Maintenance
+# Setting and Querying of Connection Properties {#introspection}
 
-The application can access the following properties on an established Connection:
-
-* Transport Features of the protocols that were selected. These features correspond to the properties given in {{transport-params}} and can only be queried.
-* Protocol Properties of the protocols in use. These properties correspond to the properties given {{protocol-props}} and can be set and queried.
-* Path Properties of the path(s) in use. These properties can be derived from the local provisioning domain, measurements by the protocol stack, or other sources. They can only be queried.
+At any point, the application can set and query the properties of a
+Connection. Depending on the phase the connection is in, the connection
+properties will include different information.
 
 ~~~
-Properties := Connection.getProperties()
+connectionProperties := Connection.getProperties()
 ~~~
+
+~~~
+Connection.setProperties()
+~~~
+
+Connection properties may include:
+
+* The status of the Connection, which can be one of the following: Establishing, Established, Closed. \[TASK: can connections be in a Closing state? (csp)]
+* Transport Features of the protocols that conform to the Required and Prohibited Transport Preferences, which might be selected by the transport system during Establishment. These features correspond to the properties given in {{transport-params}} and can only be queried.
+* Transport Features of the protocols that were selected, once the Connection has been established. These features correspond to the properties given in {{transport-params}} and can only be queried.
+* Protocol Properties of the protocols in use, once the Connection has been established. These properties correspond to the properties given {{protocol-props}} and can be set and queried.
+* Path Properties of the path(s) in use, once the Connection has been established. These properties can be derived from the local provisioning domain, measurements by the protocol stack, or other sources. They can only be queried.
 
 {{appendix-specify-query-params}} gives a more detailed overview of the different types of properties that can be set and queried at different times.
 
 # Connection Termination {#termination}
 
-Close terminates a Connection after satisfying all the requirements that were specified regarding the delivery of Content that the application has already given to the transport system. For example, if reliable delivery was requested for Content handed over before calling Close, the transport system will ensure that such Content is indeed delivered. If the peer still has data to send, it cannot be received after this call.
+Close terminates a Connection after satisfying all the requirements that were
+specified regarding the delivery of Content that the application has already
+given to the transport system. For example, if reliable delivery was requested
+for Content handed over before calling Close, the transport system will ensure
+that such Content is indeed delivered. If the peer still has data to send, it
+cannot be received after this call.
 
 Connection.Close()
 
-This event can (i.e., this is not guaranteed to happen) inform the application that the peer has closed the Connection:
+The Closed event can inform the application that the peer has closed the
+Connection; however, there is no guarantee that a remote close will be
+signaled.
 
-Connection -> Finished&lt;>
+Connection -> Closed&lt;>
 
 Abort terminates a Connection without delivering remaining data:
 
 Connection.Abort()
 
-This event can (i.e., this is not guaranteed to happen) inform the application that the other side has aborted the Connection:
+A ConnectionError can inform the application that the other side has aborted
+the Connection; however, there is no guarantee that an abort will be signaled:
 
 Connection -> ConnectionError&lt;>
+
 
 # Event and Error Handling
 
@@ -1188,6 +1288,11 @@ algorithms or protocols. Any API-compatible transport security protocol should w
 This work has received funding from the European Union's Horizon 2020 research and
 innovation programme under grant agreements No. 644334 (NEAT) and No. 688421 (MAMI).
 
+This work has been supported by Leibniz Prize project funds of DFG - German
+Research Foundation: Gottfried Wilhelm Leibniz-Preis 2011 (FKZ FE 570/4-1).
+
+Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work.
+
 --- back
 
 # Sample API definition in Go {#appendix-api-sketch}
@@ -1198,21 +1303,22 @@ This document defines an abstract interface. To illustrate how this would map co
 package postsocket
 
 import (
-	"crypto/tls"
-	"io"
-	"net"
-	"time"
+  "crypto"
+  "crypto/tls"
+  "io"
+  "net"
+  "time"
 )
 
 type TransportContext interface {
-	NewTransportParameters() TransportParameters
-	NewSecurityParameters() SecurityParameters
-	NewRemote() Remote
-	NewLocal() Local
-	DefaultSendParameters() SendParameters
+  NewTransportParameters() TransportParameters
+  NewSecurityParameters() SecurityParameters
+  NewRemote() Remote
+  NewLocal() Local
+  DefaultSendParameters() SendParameters
 
-	SetEventHandler(evh EventHandler)
-	SetFramingHandler(fh FramingHandler)
+  SetEventHandler(evh EventHandler)
+  SetFramingHandler(fh FramingHandler)
 
   Preconnect(evh EventHandler, fh FramingHandler,
              rem Remote, loc Local,
@@ -1231,93 +1337,117 @@ type TransportContext interface {
 }
 
 type Remote interface {
-	WithHostname(hostname string) Remote
-	WithAddress(address net.IP) Remote
-	WithPort(port uint16) Remote
-	WithServiceName(svc string) Remote
+  WithHostname(hostname string) Remote
+  WithAddress(address net.IP) Remote
+  WithPort(port uint16) Remote
+  WithServiceName(svc string) Remote
 }
 
 type Local interface {
-	WithInterface(iface string) Local
-	WithHostname(hostname string) Local
-	WithAddress(address net.IP) Local
-	WithPort(port uint16) Local
-	WithServiceName(svc string) Local
+  WithInterface(iface string) Local
+  WithHostname(hostname string) Local
+  WithAddress(address net.IP) Local
+  WithPort(port uint16) Local
+  WithServiceName(svc string) Local
 }
 
 type ParameterIdentifier int
 
 const (
-	TransportFullyReliable = iota
-	// ... and so on
+  TransportFullyReliable = iota
+  // ... and so on
 )
 
 type TransportParameters interface {
-	Require(p ParameterIdentifier, v int) TransportParameters
-	Prefer(p ParameterIdentifier, v int) TransportParameters
-	Avoid(p ParameterIdentifier, v int) TransportParameters
-	Prohibit(p ParameterIdentifier, v int) TransportParameters
+  Require(p ParameterIdentifier, v int) TransportParameters
+  Prefer(p ParameterIdentifier, v int) TransportParameters
+  Avoid(p ParameterIdentifier, v int) TransportParameters
+  Prohibit(p ParameterIdentifier, v int) TransportParameters
 }
 
+type SecurityMetadata struct {
+  cert tls.Certificate
+  // ... and so on
+}
+
+const (
+  SecurityCallbackResultSuccess = 0x00
+  SecurityCallbackResultFailure = 0x01
+  SecurityCallbackResultPending = 0x02
+)
+
+type SecurityCallbackResult int
+
 type SecurityParameters interface {
-	AddIdentity(c tls.Certificate) SecurityParameters
-	AddPSK(c tls.Certificate, k []byte) SecurityParameters
-	VerifyTrustWith(func(c tls.Certificate) (bool, error)) SecurityParameters
-	HandleChallengeWith(func() (bool, error)) SecurityParameters
-	Require(p ParameterIdentifier, v interface{} SecurityParameters
-	Prefer(p ParameterIdentifier, v interface{}) SecurityParameters
-	Avoid(p ParameterIdentifier, v interface{}) SecurityParameters
-	Prohibit(p ParameterIdentifier, v interface{}) SecurityParameters
+  AddIdentity(c tls.Certificate) SecurityParameters
+  AddPrivateKey(sk crypto.PrivateKey, pk crypto.PublicKey) SecurityParameters
+  AddPreSharedKey(key []byte, identity string) SecurityParameters
+  AddSupportedGroup(g uint16) SecurityParameters
+  AddCiphersuite(cs uint16) SecurityParameters
+  AddSignatureAlgorithm(cs uint16) SecurityParameters
+  SetSessionCacheCapacity(c int) SecurityParameters
+  SetSessionCacheLifetime(t int) SecurityParameters
+  SetSessionCacheReuse(c int) SecurityParameters
+  VerifyTrustWith(func(m SecurityMetadata) (bool, error)) SecurityCallbackResult
+  HandleChallengeWith(func(m SecurityMetadata) (bool, error)) SecurityCallbackResult
+  Require(p ParameterIdentifier, v interface{} SecurityParameters
+  Prefer(p ParameterIdentifier, v interface{}) SecurityParameters
+  Avoid(p ParameterIdentifier, v interface{}) SecurityParameters
+  Prohibit(p ParameterIdentifier, v interface{}) SecurityParameters
 }
 
 type SendParameters struct {
-	Lifetime time.Duration
-	Niceness uint
-	Ordered bool
-	Immediate bool
-	Idempotent bool
-	CorruptionTolerant bool
+  Lifetime time.Duration
+  Niceness uint
+  Ordered bool
+  Immediate bool
+  Idempotent bool
+  CorruptionProtection int
+  AckImmediate bool
 }
 
 type Preconnection interface {
   AddSpecifier(rem Remote, loc Local,
                tp TransportParameters, sp SecurityParameters)
-	Initiate() (Connection, error)
-	InitialSend(content interface{}, sp SendParameters) (Connection, error)
-	Rendezvous() (Connection, error)
-	Listen() (Connection, error)
+  Initiate() (Connection, error)
+  InitialSend(content interface{}, sp SendParameters) (Connection, error)
+  Rendezvous() (Connection, error)
+  Listen() (Connection, error)
 }
 
 type Connection interface {
-	Send(content interface{}, contentref interface{}, sp SendParameters) error
+  Send(content interface{}, contentref interface{}, sp SendParameters) error
 
-	Clone() (Connection, error)
-	Close() error
+  Clone() (Connection, error)
+  Close() error
 
-	GetEventHandler() EventHandler
-	SetEventHandler(evh EventHandler)
+  GetEventHandler() EventHandler
+  SetEventHandler(evh EventHandler)
 
-	GetFramingHandler() FramingHandler
-	SetFramingHandler(fh FramingHandler)
+  GetFramingHandler() FramingHandler
+  SetFramingHandler(fh FramingHandler)
 }
 
 type Content interface {
-	Bytes() []byte
+  Bytes() []byte
+  GetMetadata(key string) interface{}
 }
 
 // EventHandler defines the interface for connection event handlers.
 type EventHandler interface {
-	Ready(conn Connection, ante Connection)
-	Received(content Content, conn Connection)
-	Sent(conn Connection, contentref interface{})
-	Expired(conn Connection, contentref interface{})
-	Error(conn Connection, contentref interface{}, err error)
-	Closed(conn Connection, err error)
+  Ready(conn Connection, ante Connection)
+  Received(content Content, conn Connection)
+  Sent(conn Connection, contentref interface{})
+  Expired(conn Connection, contentref interface{})
+  Closed(conn Connection, err error)
+  // note that errors are coalesced into a single handler; the err parameter
+  // contains the type of error, and contentref is nil for all but send errors.
+  Error(conn Connection, contentref interface{}, err error)
 }
 
 type FramingHandler interface {
-	Frame(content interface{}) ([]byte, error)
-	Deframe(in io.Reader) (Content, error)
+  Frame(content interface{}) ([]byte, error)
+  Deframe(in io.Reader) (Content, error)
 }
 ~~~~~~~
 
@@ -1355,7 +1485,7 @@ set.
 | Reliable Data Transfer | Yes      | Yes    | Yes   | Yes      | Require |
 | Preserve Data Ordering | Yes      | Yes    | Yes   | No       | Require |
 | Configure Reliability per Content | Yes | Yes | Yes | Yes     | None    |
-| Request SACK           | Yes      | Yes    | Yes    | Yes     | None    |
+| Request immediate ACK  | Yes      | Yes    | Yes    | Yes     | None    |
 | Use 0-RTT with Idempotent Content | Yes | Yes | Yes | Yes     | None    |
 | Use Connection Groups with priorities | Yes | Yes | No | No   | None    |
 | Suggest timeout to peer | Yes     | Yes    | No    | No       | None    |
@@ -1365,6 +1495,7 @@ set.
 | Application Intents    | No       | No     | No    | No       | Intend  |
 
 \[List individual Intents? Reformulate some of them as preferences?]
+
 
 ## Specifying and Querying Parameters {#appendix-specify-query-params}
 

@@ -29,6 +29,14 @@ author:
     country: United States of America
     email: tpauly@apple.com
   -
+    ins: T. Enghardt
+    name: Theresa Enghardt
+    org: TU Berlin
+    street: Marchstraße 23
+    city: 10587 Berlin
+    country: Germany
+    email: theresa@inet.tu-berlin.de
+  -
     ins: K-J. Grinnemo
     name: Karl-Johan Grinnemo
     org: Karlstad University
@@ -39,6 +47,14 @@ author:
     org: University of Aberdeen
     email: tom@erg.abdn.ac.uk
   -
+    ins: P. Tiesel
+    name: Philipp S. Tiesel
+    org: TU Berlin
+    street: Marchstraße 23
+    city: 10587 Berlin
+    country: Germany
+    email: philipp@inet.tu-berlin.de
+  -
     ins: C. Perkins
     name: Colin Perkins
     org: University of Glasgow
@@ -46,7 +62,7 @@ author:
     city: Glasgow  G12 8QQ
     country: United Kingdom
     email: csp@csperkins.org
-    
+
 normative:
     I-D.pauly-taps-arch:
       title: An Architecture for Transport Services
@@ -64,20 +80,26 @@ normative:
           ins: Brian Trammell
         -
           ins: Michael Welzl
+    I-D.ietf-taps-minset:
 
 informative:
     RFC6458:
     RFC7413:
     RFC7540:
     RFC8260:
+    RFC8303:
+    RFC8304:
     RFC8305:
     I-D.ietf-quic-transport:
     I-D.ietf-tls-tls13:
     NEAT-flow-mapping:
-      authors: F. Weinrank and M. Tüxen
-      title: “Transparent Flow Mapping for NEAT“
-      seriesinfo: "Workshop on Future of Internet Transport (FIT 2017)"
-    
+      title: Transparent Flow Mapping for NEAT (in Workshop on Future of Internet Transport (FIT 2017))
+      authors:
+        -
+          ins: F. Weinrank
+        -
+          ins: M. Tuexen
+
 
 --- abstract
 
@@ -135,7 +157,15 @@ In the following cases the transport system should notify the application with a
 
 ## Role of system policy
 
-How do the implementation's default policy, a dynamic system policy, and application preferences interact.
+The implementation is responsible for combining and reconciling several different sources of protocol and path selection preferences when establishing Connections. These include, but are not necessarily limited to:
+
+1. Application preferences specified during pre-establishment
+2. Dynamic system policy
+3. Default implementation policy
+
+In general, any protocol or path used for a connection must conform to all three sources of constraints. Any violation of any of the layers should cause a protocol or path to be considered ineligble for use. For an example of application preferences leading to constraints, an application may prohibit the use of metered network interfaces for a given Connection to avoid user cost. Similarly, the system policy at a given time may prohibit the use of such a metered network interface from the application's process. Lastly, the implementation itself may default to disallowing certain network interfaces unless explicitly requested by the application and allowed by the system.
+
+It is expected that the database of system policies and the method of looking up these policies will vary across various platforms. An implementation SHOULD attempt to look up the relevant policies for the system in a dynamic way to make sure it is reflecting a fresh version of the system policy, since the system's policy regarding the application's traffic may change over time due to user or administrative changes.
 
 # Implementing Connection Establishment
 
@@ -156,7 +186,7 @@ Aggregate [Endpoint: www.example.com:80] [Interface: Any]   [Protocol: TCP]
 
 Any one of these sub-entries on the aggregate connection attempt would satisfy the original application intent. The concern of this document is the algorithm defining which of these options to try, when, and in what order.
 
-## Candidate Gathering
+## Candidate Gathering {#gathering}
 
 The step of gathering candidates involves identifying which paths, protocols, and endpoints may be used for a given Connection. This list is determined by the requirements, prohibitions, and preferences of the application as specified in the Path Selection Properties and Protocol Selection Properties.
 
@@ -364,7 +394,7 @@ If a leaf node has successfully completed its connection, all other attempts SHO
 
 ### Determining Successful Establishment
 
-Implementations may select the criteria by which a leaf node is considered to be successfully connected differently on a per-protocol basis. If the only protocol being used is a transport protocol with a clear handshake, like TCP, then the obvious choice is to declare that node "connected" when the last packet of the three-way handshake has been received. If the only protocol being used is an "unconnected" protocol, like UDP, the implementation may consider the node fully "connected" the moment it determines a route is present, before sending any packets on the network.
+Implementations may select the criteria by which a leaf node is considered to be successfully connected differently on a per-protocol basis. If the only protocol being used is a transport protocol with a clear handshake, like TCP, then the obvious choice is to declare that node "connected" when the last packet of the three-way handshake has been received. If the only protocol being used is an "unconnected" protocol, like UDP, the implementation may consider the node fully "connected" the moment it determines a route is present, before sending any packets on the network {{unconnected-racing}}.
 
 For protocol stacks with multiple handshakes, the decision becomes more nuanced. If the protocol stack involves both TLS and TCP, an implementation MAY determine that a leaf node is connected after the TCP handshake is complete, or it MAY wait for the TLS handshake to complete as well. The benefit of declaring completion when the TCP handshake finishes, and thus stopping the race for other branches of the tree, is that there will be less burden on the network from other connection attempts. On the other hand, by waiting until the TLS handshake is complete, an implementation avoids the scenario in which a TCP handshake completes quickly, but TLS negotiation is either very slow or fails altogether in particular network conditions or to a particular endpoint.
 
@@ -392,10 +422,11 @@ handed over, it cannot be guaranteed that the other endpoint will have any way t
 a passive endpoint's ConnectionReceived event may not be called upon an active endpoint's Inititate.
 Instead, calling the ConnectionReceived event may be delayed until the first Content arrives.
 
+## Handling racing with "unconnected" protocols {#unconnected-racing}
 
-## Handling racing with "unconnected" protocols
+While protocols that use an explicit handshake to validate a Connection to a peer can be used for racing multiple establishment attempts in parallel, "unconnected" protocols such as raw UDP do not offer a way to validate the presence of a peer or the usability of a Connection without application feedback. An implementation SHOULD consider such a protocol stack to be established as soon as a local route to the peer endpoint is confirmed.
 
-How to handle UDP, and allowing the application or anothe protocol to cause the next option to be tried.
+However, if a peer is not reachable over the network using the unconnected protocol, or content cannot be exchanged for any other reason, the application may want to attempt using another candidate Protocol Stack. The implementation SHOULD maintain the list of other candidate Protocol Stacks that were eligible to use. In the case that the application signals that the initial Protocol Stack is failing for some reason and that another option should be attempted, the Connection can be updated to point to the next candidate Protocol Stack. This can be viewed as an application-driven form of Protocol Stack racing.
 
 ## Implementing listeners
 
@@ -421,7 +452,7 @@ Improve efficiency by handling multiple send operations at once for datagram or 
 
 ### Receiving content
 
-How to handle sending data in examples like TCP, UDP, and a basic Length-Value protocol. 
+How to handle sending data in examples like TCP, UDP, and a basic Length-Value protocol.
 
 Waiting for frame boundaries when necessary.
 
@@ -439,7 +470,20 @@ It is also possible that protocol stacks within a particular leaf node use 0-RTT
 
 0-RTT handshakes often rely on previous state, such as TCP Fast Open cookies, previously established TLS tickets, or out-of-band distributed pre-shared keys (PSKs). Implementations should be aware of security concerns around using these tokens across multiple addresses or paths when racing. In the case of TLS, any given ticket or PSK SHOULD only be used on one leaf node. If implementations have multiple tickets available from a previous connection, each leaf node attempt MUST use a different ticket. In effect, each leaf node will send the same early application data, yet encoded (encrypted) differently on the wire.
 
-# Implementing Maintenance Events
+# Implementing Maintenance
+
+## Changing Protocol Properties
+
+Appendix A.1 of {{I-D.ietf-taps-minset}} explains, using primitives that are described in {{RFC8303}} and {{RFC8304}}, how to implement changing the following protocol properties of an established connection with the TCP and UDP. Below, we amend this description for other protocols (if applicable):
+* Set timeout for aborting Connection: for SCTP, this can be done using the primitive CHANGE_TIMEOUT.SCTP described in section 4 of {{RFC8303}}.
+* Set timeout to suggest to the peer
+* Set retransmissions before “Excessive Retransmissions”
+* Set required minimum coverage of the checksum for receiving: for UDP-Lite, this can be done using the primitive SET_MIN_CHECKSUM_COVERAGE.UDP-Lite described in section 4 of {{RFC8303}}.
+* Set scheduler for connections in a group: for SCTP, this can be done using the primitive SET_STREAM_SCHEDULER.SCTP described in section 4 of {{RFC8303}}.
+* Set priority for a connection in a group: for SCTP, this can be done using the primitive CONFIGURE_STREAM_SCHEDULER.SCTP described in section 4 of {{RFC8303}}.
+
+
+## Maintenance Events
 
 Implications of a network change on a protocol
 
@@ -495,19 +539,48 @@ a Finish event upon a Close action from the peer {{NEAT-flow-mapping}}.
 
 
 
-How to handle a failure generated by protocols
+<!-- How to handle a failure generated by protocols -->
 
 # Cached State
 
-Beyond a single connection's lifetime, it is useful to keep state and history.
+Beyond a single Connection's lifetime, it is useful for an implementation to keep state and history. This cached 
+state can help improve future Connection establishment due to re-using results and credentials, and favoring paths and protocols that performed well in the past.
 
-## Protocol caches
+Cached state may be associated with different Endpoints for the same Connection, depending on the protocol generating the cached content. 
+For example, session tickets for TLS are associated with specific endpoints, and thus SHOULD be cached based on a Connection's 
+hostname Endpoint (if applicable). On the other hand, performance characteristics of a path are more likely tied to the IP address 
+and subnet being used.
 
-Caching for DNS, TLS, etc. Associated with sets of endpoints for future use.
+## Protocol state caches
+
+Some protocols will have long-term state to be cached in association with Endpoints. This state often has some time after which 
+it is expired, so the implementation SHOULD allow each protocol to specify an expiration for cached content.
+
+Examples of cached protocol state include:
+
+- The DNS protocol can cache resolution answers (A and AAAA queries, for example), associated with a Time To Live (TTL) to 
+be used for future hostname resolutions without requiring asking the DNS resolver again.
+- TLS caches session state and tickets based on a hostname, which can be used for resuming sessions with a server.
+- TCP can cache cookies for use in TCP Fast Open.
+
+Cached state is primarily used during Connection establishment for a single Protocol Stack, but may be used to influence an 
+implementation's preference between several candidate Protocol Stacks. For example, if two IP address Endpoints are otherwise 
+equally preferred, an implementation may choose to attempt a connection to an address for which it has a TCP Fast Open cookie.
+
+Applications must have a way to flush protocol cache state if desired. This may be necessary, for example, if
+application-layer identifiers rotate and clients wish to avoid linkability via trackable TLS tickets or TFO cookies.
 
 ## Performance caches
 
-Caching of round trip time (RTT), success rate with various protocols and features.
+In addition to protocol state, Protocol Instances SHOULD provide data into a performance-oriented cache to help guide future protocol and path selection. Some performance information can be gathered generically across several protocols to allow predictive comparisons between protocols on given paths:
+
+- Observed Round Trip Time
+- Connection Establishment latency
+- Connection Establishment success rate
+
+These items can be cached on a per-address and per-subnet granularity, and averaged between different values. The information SHOULD be cached on a per-network basis, since it is expected that different network attachments will have different performance characteristics.
+
+An implementation should use this information, when possible, to determine preference between candidate paths, endpoints, and protocol options. Eligible options that historically had significantly better performance than others SHOULD be selected first when gathering candidates {{gathering}} to ensure better performance for the application.
 
 # Specific Transport Protocol Considerations
 
@@ -575,3 +648,8 @@ Since results from the network can determine how a connection attempt tree is bu
 
 This work has received funding from the European Union's Horizon 2020 research and
 innovation programme under grant agreement No. 644334 (NEAT).
+
+This work has been supported by Leibniz Prize project funds of DFG - German
+Research Foundation: Gottfried Wilhelm Leibniz-Preis 2011 (FKZ FE 570/4-1).
+
+Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work.

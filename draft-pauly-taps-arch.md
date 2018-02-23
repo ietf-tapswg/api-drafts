@@ -55,6 +55,9 @@ author:
     name: Philipp S. Tiesel
     org: TU Berlin
     email: philipp@inet.tu-berlin.de
+    street: Marchstraße 23
+    city: 10587 Berlin
+    country: Germany
   -
     ins: C. Wood
     name: Chris Wood
@@ -74,7 +77,7 @@ normative:
       authors:
         -
           ins: Anna Brunstrom
-	-
+        -
           ins: Tommy Pauly
     I-D.trammell-taps-interface:
       title: An Abstract Application Layer Interface to Transport Services
@@ -82,12 +85,12 @@ normative:
       authors:
         -
           ins: Brian Trammell
-	-
+        -
           ins: Michael Welzl
 
 --- abstract
 
-This document provides an overview of the architecture of Transport Services, a system for exposing the features of transport protocols to applications. This architecture serves as a basis for Application Programming Interfaces (APIs) and implementations that provide flexibile transport networking services. It defines the common set of terminology and concepts to be used in more detailed discussion of transport services.
+This document provides an overview of the architecture of Transport Services, a system for exposing the features of transport protocols to applications. This architecture serves as a basis for Application Programming Interfaces (APIs) and implementations that provide flexible transport networking services. It defines the common set of terminology and concepts to be used in more detailed discussion of transport services.
 
 --- middle
 
@@ -122,7 +125,7 @@ The following considerations were used in the design of this architecture.
 
 Functionality that is common across multiple transport protocols should be accessible through a unified set of API calls. An application should be able to implement logic for its basic use of transport networking (establishing the transport, and sending and receiving content) once, and expect that implementation to continue to function as the transports change.
 
-Any Transport Services API must expose the distilled minimal set of features offered by transport protocols {{I-D.ietf-taps-minset}}. 
+Any Transport Services API must expose the distilled minimal set of features offered by transport protocols {{I-D.ietf-taps-minset}}.
 
 ## Access to Specialized Features
 
@@ -147,7 +150,7 @@ It is important to note that neither the Transport Services API nor the Implemen
 The concepts defined in this document are intended primarily for use in the documents and specifications that describe the Transport Services architecture and API. While the specific terminology may be used in some implementations, it is expected that there will remain a variety of terms used by running code.
 
 The architecture divides the concepts for Transport Services into two categories:
-1) API concepts, which are meant to be exposed to applications; and 
+1) API concepts, which are meant to be exposed to applications; and
 2) System-implementation concepts, which are meant to be internally used when building systems that implement Transport Services.
 
 The following diagram summarizes the top-level concepts in the architecture and how they relate to one another.
@@ -187,7 +190,7 @@ The following diagram summarizes the top-level concepts in the architecture and 
                         V
               Network Layer Interface
 ~~~~~~~~~~
-{: #fig-abstractions title="Concepts and Relationships in the Transport Services Architecture \[MICHAEL: I think it's bad that establishment is missing from the figure - but I understand it could get messy. Maybe writing '(pre-)establishment' could help, to indicate that there is both pre-establishment and establishment ?]"}
+{: #fig-abstractions title="Concepts and Relationships in the Transport Services Architecture"}
 
 ## Transport Services API Concepts
 
@@ -197,7 +200,7 @@ Beyond the basic objects, there are several high-level groups of actions that an
 
 * Pre-Establishment ({{preestablishment}}) encompasses the parameters that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. For any system that provides generic Transport Services, these properties should primarily offer knobs that apply across multiple transports. Properties may have a large impact on the rest of the aspects of the interface: they can modify how establishment occurs, they can influence the expectations around data transfer, and they determine the set of events that will be supported.
 
-* Establishment ({{establishment}}) focuses on the actions that an application takes \[MICHAEL: on? with?] the transport objects to prepare for data transfer.
+* Establishment ({{establishment}}) focuses on the actions that an application takes on the transport objects to prepare for data transfer.
 
 * Data Transfer ({{datatransfer}}) consists of how an application represents data to be sent and received, the functions required to send and receive that data, and how the application is notified of the status of its data transfer.
 
@@ -205,159 +208,123 @@ Beyond the basic objects, there are several high-level groups of actions that an
 
 * Termination ({{termination}}) focuses on the methods by which data transmission is ceased, and state is torn down in the transport.
 
-### Objects {#objects}
+~~~~~~~~~~
+     Pre-Establishment     :       Established             : Termination
+     -----------------     :       -----------             : -----------
+                           :                     Close()   :
+     +---------------+ Initiate() +------------+ Abort()   :
+ +-->| Preconnection |----------->| Connection |---------------> Closed
+ |   +---------------+     :      +------------+ Connection:
+ |                         :      ^   ^    |     Finished  :
+ +-- Local Endpoint        :      |   |    |               :
+ |                         :      |   |    +---------+     :
+ +-- Remote Endpoint       :      |   |              |     :
+ |                         :      |   |Send()        |     :
+ +-- Path Selection        :      | +---------+      v     :
+ |   Properties            :      | | Content |  Content   :
+ |                         :      | | to send |  Received  :
+ +-- Protocol Selection    :      | +---------+            :
+ |   Properties            :      |                        :
+ |                         :      |                        :
+ +-- Specific Protocol     :      |                        :
+ |   Properties            :      |                        :
+ |                         :      |                        :
+ |   +----------+          :      |                        :
+ +-->| Listener |-----------------+                        :
+     +----------+ Connection Received                      :
+           ^               :                               :
+           |               :                               :
+        Listen()           :                               :
+~~~~~~~~~~
+{: #fig-lifetime title="The lifetime of a connection"}
 
-Connection
+### Basic Objects {#objects}
 
->> A Connection is the fundamental object used by an application for all interaction with a peer and data transfer. It is generally capable of bi-directional communication. It has state that represents the capability of being able to send or receive content between its local and remote endpoints. This capability may be based merely on the existence of a path between the two endpoints and an application's permission to send and receive on its local endpoint; or may represent successful protocol handshakes at one or more layers that are pre-requisites to receiving content.
+* Preconnection: A Preconnection object is a representation of a potential connection. It has state that describes parameters of a Connection that might exist in the future: the Local Endpoint from which that Connection will be established, the Remote Endpoint to which it will connect, and Path Selection Properties, Protocol Selection Properties, and Specific Protocol Properties that influence the choice of transport that Connection will use. A Preconnection can be fully specified and represent a single possible Connection, or it can be partially specified such that it represents a family of possible Connections. The Local Endpoint MUST be specified if the Preconnection is used to Listen() for incoming connections, but is OPTIONAL if it is used to Initiate() connections. The Remote Endpoint MUST be specified in the Preconnection is used to Initiate() connections, but is OPTIONAL if it is used to Listen() for incoming connections.
 
-Listener
+* Connection: A Connection object represents an active transport protocol instance that can send and/or receive Content between a Local Endpoint and a Remote Endpoint. It holds state pertaining to the underlying transport protocol instance and any ongoing data transfer. This represents, for example, an active connection in a connection-oriented protocol such as TCP, or a fully-specified 5-tuple for a connectionless protocol such as UDP.
 
->> A Listener is any object that can be used to prepare a Connection with a remote endpoint without initiation by the local application. That is, it can passively accept initiations for Connections made by another endpoint.
+* Listener: A Listener object accepts incoming transport protocol connections from Remote Endpoints  and generates corresponding Connection objects. It is created from a Preconnection object that specifies the type of incoming connections it will accept.
 
 ### Pre-Establishment {#preestablishment}
 
-Endpoint
+* Endpoint: An Endpoint represents one side of a transport connection. It is a concept that represents how an application views itself or a peer that may vary in levels of specificity. Examples include "IP address + port", "hostname + port", and "DNS service name".
 
->> An Endpoint represents one side of a transport connection. It is a concept that represents how an application views itself or a peer that may vary in levels of specificity. Examples include "IP address + port", "hostname + port", and "DNS service name".
+* Remote Endpoint: The Remote Endpoint represents the application's name for a peer that can participate in a transport connection. For example, a DNS name for the peer.
 
-Remote Endpoint
+* Local Endpoint: The Local Endpoint represents the application's name for itself that it wants to use for transport connections. For example, a local interface name or address.
 
->> The Remote Endpoint in a properties \[MICHAEL: I can't parse "in a properties" here. Should this be removed?] represents the application's view of a peer that can participate in a transport connection.
+* Path Selection Properties: The Path Selection Properties consist of the options that an application may set on a Preconnection to influence the selection of path between itself and the Remote Endpoint. These options can come in the form of requirements, prohibitions, or preferences. Examples of options which may influence path selection include the interface type (such as a Wi-Fi Ethernet connection, or a Cellular LTE connection), characteristics of the path that are locally known like Maximum Transmission Unit (MTU), or expected throughput or latency.
 
-Local Endpoint
+* Protocol Selection Properties: The Protocol Selection Properties consist of the options that an application may set on a Preconnection to influence the selection of transport protocol, configure the behavior of generic transport protocol features. These options come in the form of requirements, prohibitions, and preferences. Examples include reliability, service class, multipath support, and fast open support.
 
->> The Local Endpoint in a properties \[MICHAEL: I can't parse "in a properties" here. Should this be removed?] represents the application's view of itself that it wants to use for transport connections. This may be optional, or may be generic (a wild card address, for example).
+* Specific Protocol Properties: The Specific Protocol Properties refer to the subset of Protocol Properties options that apply to a single protocol (transport protocol, IP, or security protocol). The presence of such Properties on a Preconnection does not necessarily require that a specific protocol must be used when a Connection is established from that Preconnection, but that if this protocol is employed, a particular set of options should be used. This is critical to allow compatibility with Protocol Properties on peers.
 
-Path Selection Properties
+### Establishment Actions {#establishment}
 
->> Path Selection Properties consist of the options that an application may set to influence the selection of path between itself and the Remote Endpoint. These options can come in the form of requirements, prohibitions, or preferences. Examples of options which may influence path selection include the interface type (such as a Wi-Fi Ethernet connection, or a Cellular LTE connection), characteristics of the path that are locally known like Maximum Transmission Unit (MTU), or expected throughput or latency.
+* Initiate() is the primary action that an application can take to create a Connection to a remote endpoint, and prepare any required local or remote state to be able to send and/or receive content. For some protocols, this may initiate a server-to-client style handshake; for other protocols, this may just establish local state; and for peer-to-peer protocols, this may begin the process of a simultaneous open. The Initiate() action consumes a Preconnection object and creates a Connection object. Resolution of the remote endpoint identifier occurs during the Initiate() call.
 
-Protocol Selection Properties
+* Listen() is the action of marking a Listener as willing to accept incoming Connections. It consumes a Preconnection object. The Listener will then create Connection objects as incoming connections are accepted.
 
->> Protocol Selection Properties consist of the options that an application may set to influence the selection of transport protocol, configure the behavior of generic transport protocol features. These options come in the form of requirements, prohibitions, and preferences. Examples include reliability, service class, multipath support, and fast open support. 
+### Data Transfer Objects and Actions {#datatransfer}
 
-Specific Protocol Properties
+* Content: A Content object is a unit of data that can be represented as bytes that can be transferred between two endpoints over a transport connection. The bytes within a unit of Content are assumed to be ordered within the unit itself. That is, if an application does not care about the order in which a peer receives two distinct spans of bytes, those spans of bytes are considered independent units of Content. Content may or may not be usable if incomplete or corrupted. Boundaries of Content may or may not be understood or transmitted by transport protocols. That is, what one application considers to be two units of Content sent on a stream-based transport may be treated as a single unit of Content by the application on the other side.
 
->> Specific Protocol Properties refers to the subset of Protocol Properties options that apply to a single protocol (transport protocol, IP, or security protocol). The presence of such Properties does not necessarily require that a specific protocol must be used, but that if this protocol is employed, a particular set of options should be used. This is critical to allow compatibility with Protocol Properties on peers.
+* Send() is the action to transmit Content over a Connection to a remote endpoint. The interface to Send may include options specific to how this Content is to be sent. Status of the Send operation may be delivered back to the application in an event {{events}}.
 
-### Establishment {#establishment}
-
-Initiate
-
->> Initiate is the primary action that an application can take to create a Connection to a remote endpoint, and prepare any required local or remote state to be able to send and/or receive content. For some protocols, this may initiate a server-to-client style handshake; for other protocols, this may just establish local state; and for peer-to-peer protocols, this may begin the process of a simultaneous open.
-
-Listen
-
->> Listen is the action of marking a Listener as willing to accept incoming Connections.
-
-### Data Transfer {#datatransfer}
-
-Content
-
->> Content is a unit of data that can be represented as bytes that can be transferred between two endpoints over a transport connection. The bytes within a unit of Content are assumed to be ordered within the unit itself. That is, if an application does not care about the order in which a peer receives two distinct spans of bytes, those spans of bytes are considered independent units of Content. Content may or may not be usable if incomplete or corrupted. Boundaries of Content may or may not be understood or transmitted by transport protocols. That is, what one application considers to be two units of Content sent on a stream-based transport may be treated as a single unit of Content by the application on the other side.
-
-Send
-
->> Send is the action to transmit Content over a Connection to a remote endpoint. The interface to Send may include options specific to how this Content is to be sent. Status of the Send operation may be delivered back to the application in an event {{events}}.
-
-Receive
-
->> Receive is the indication that the application is ready to asynchronously accept Content over a Connection from a Remote Endpoint, while the Content itself will be delivered in an event {{events}}. The interface to Receive may include options specific to the Content that is to be delivered to the application.
+* Receive() is an action that indicates that the application is ready to asynchronously accept Content over a Connection from a Remote Endpoint, while the Content itself will be delivered in an event {{events}}. The interface to Receive may include options specific to the Content that is to be delivered to the application.
 
 ### Event Handling {#events}
 
 This list of events that can be delivered to an application is not exhaustive, but gives the top-level categories of events. The API may expand this list.
 
-Connection Ready
+* Connection Ready: A Connection Ready event signals to an application that a given Connection is ready to send and/or receive Content. If the Connection relies on handshakes to establish state between peers, then it is assumed that these steps have been taken.
 
->> A Connection Ready event signals to an application that a given Connection is ready to send and/or receive Content. If the Connection relies on handshakes to establish state between peers, then it is assumed that these steps have been taken.
+* Connection Finished: A Connection Finished event signals to an application that a given Connection is no longer usable for sending or receiving Content. This should deliver a useful error to the application.
 
-Connection Finished
+* Connection Received: A Connection Received event signals to an application that a given Listener has passively received a Connection.
 
->> A Connection Finished event signals to an application that a given Connection is no longer usable for sending or receiving Content. This should deliver a useful error to the application.
+* Content Received: A Content Received event delivers received content to the application, based on a Receive action. This may include an error if the action failed.
 
-Connection Received
+* Content Sent: A Content Sent event notifies the application of the status of its Send action. This may be an error, an indication that Content has been processed by the protocol stack, or potentially \[MICHAEL: Why "potentially" - because you're not sure about it? If it may be such an indication, "potentially" should be removed (this seems like the right thing to do for me).] an indication that Content has been acknowledged by a peer.
 
->> A Connection Received event signals to an application that a given Listener has passively received a Connection.
+* Path Properties Changed: A Path Properties Changed event notifies the application that some property of the Connection has changed that may influence how and where data is sent and/or received.
 
-Content Received
+### Termination Actions {#termination}
 
->> A Content Received event delivers received content to the application, based on a Receive action. This may include an error if the action failed.
+* Close() is the action an application may take on a Connection to indicate that it no longer intends to send data, is no longer willing to receive data, and that the protocol should signal this state to the remote endpoint if applicable.
 
-Content Sent
-
->> A Content Sent event notifies the application of the status of its Send action. This may be an error, an indication that Content has been processed by the protocol stack, or potentially \[MICHAEL: Why "potentially" - because you're not sure about it? If it may be such an indication, "potentially" should be removed (this seems like the right thing to do for me).] an indication that Content has been acknowledged by a peer.
-
-Path Properties Changed
-
->> A Path Properties Changed event notifies the application that some property of the Connection has changed that may influence how and where data is sent and/or received.
-
-### Termination {#termination}
-
-Close
-
->> Close is the action an application may take on a Connection to indicate that it no longer intends to send data, is no longer willing to receive data, and that the protocol should signal this state to the remote endpoint if applicable.
-
-Abort
-
->> Abort is an action the application may take on a Connection to indicate a Close, but with the additional indication that the transport system should not attempt to deliver any outstanding data.
+* Abort() is an action the application may take on a Connection to indicate a Close, but with the additional indication that the transport system should not attempt to deliver any outstanding data.
 
 ## Transport System Implementation Concepts
 
 The Transport System Implementation Concepts define the set of objects used internally to a system or library to provide the functionality of transport networking, as required by the abstract interface.
 
-Connection Group
+* Connection Group: For multiplexing transport protocols, a Connection Group is a set of Connections that can be multiplexed together.
 
->> For multiplexing transport protocols, a Connection Group is a set of Connections that can be multiplexed together.
+* Path: A Path represents an available set of properties of a network route on which packets may be sent or received.
 
-Path
+* Protocol Instance: A Protocol Instance is a single instance of one protocol, including any state it has necessary to establish connectivity or send and receive content.
 
->> A Path represents an available set of properties of a network route on which packets may be sent or received.
+* Protocol Stack: A Protocol Stack is a set of Protocol Instances (including relevant application, security, transport, or Internet protocols) that are used together to establish connectivity or send and receive content. A single stack may be simple (a single transport protocol instance over IP), or complex (multiple application protocol streams going through a single security and transport protocol, over IP; or, a multi-path transport protocol over multiple transport sub-flows).
 
-Protocol Instance
+* System Policy: A Transport Service System Policy defines the algorithm it uses to take connection properties from the application, and determine how it will gather candidate paths and protocols {{gathering}} and race the candidates during establishment {{racing}}.
 
->> A Protocol Instance is a single instance of one protocol, including any state it has necessary to establish connectivity or send and receive content.
-
-Protocol Stack
-
->> A Protocol Stack is a set of Protocol Instances (including relevant application, security, transport, or Internet protocols) that are used together to establish connectivity or send and receive content. A single stack may be simple (a single transport protocol instance over IP), or complex (multiple application protocol streams going through a single security and transport protocol, over IP; or, a multi-path transport protocol over multiple transport sub-flows).
-
-System Policy
-
->> A Transport Service System Policy defines the algorithm it uses to take connection properties from the application, and determine how it will gather candidate paths and protocols {{gathering}} and race the candidates during establishment {{racing}}.
-
-Association Cache
-
->> The Association Cache holds the state that the implementation keeps for each set of associated endpoints that have been used previously. This can include DNS results, TLS session state, previous success and quality of transport protocols over certain paths.
+* Association Cache: The Association Cache holds the state that the implementation keeps for each set of associated endpoints that have been used previously. This can include DNS results, TLS session state, previous success and quality of transport protocols over certain paths.
 
 ### Gathering {#gathering}
 
-Path Candidate Identification/Gathering
+* Path Selection: Path Selection represents the act of choosing one or more paths that are available to use based on the Path Selection Properties provided by the application, and a Transport Services system's policies and heuristics.
 
->> Path Selection represents the act of choosing one or more paths that are available to use based on the Path Selection Properties provided by the application, and a Transport Services system's policies and heuristics.
-\[MICHAEL: I find it awkward that the terms and headline here talk about "Gathering" but then this description doesn't. Maybe because "Path Selection" and "Protocol Selection" are indeed clearer, easier terms than this Identification/Gathering stuff?]
-
-Protocol Candidate Identification/Gathering
-
->> Protocol Selection represents the act of choosing one or more sets of protocol options that are available to use based on the Protocol Properties provided by the application, and a Transport Services system's policies and heuristics.
-\[MICHAEL: Same as above, here...]
+* Protocol Selection: Protocol Selection represents the act of choosing one or more sets of protocol options that are available to use based on the Protocol Properties provided by the application, and a Transport Services system's policies and heuristics.
 
 ### Racing {#racing}
 
-Protocol Option Racing
+* Protocol Option Racing: Protocol Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on the composition of protocols or the options used for protocols.
 
-\[MICHAEL: About all the definitions below: I believe you can't "attempt a stack", you can only attempt to *use* a stack. Not easy to fix in a nice way because of the "scheduling attempts for", but I think as it stands, this is grammatically broken. Then again, I'm no native speaker!]
+* Path Racing: Path Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on a selection from the available Paths.
 
->> Protocol Racing is the act of attempting, or scheduling attempts for, multiple Protocol Stacks that differ based on the composition of protocols or the options used for protocols.
-
-Path Racing
-
->> Path Racing is the act of attempting, or scheduling attempts for, multiple Protocol Stacks that differ based on a selection from the available Paths.
-
-Endpoint Racing
-
->> Endpoint Racing is the act of attempting, or scheduling attempts for, multiple Protocol Stacks that differ based on the specific representation of the remote and local endpoints, such as IP addresses resolved from a DNS hostname.
+* Endpoint Racing: Endpoint Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on the specific representation of the remote and local endpoints, such as IP addresses resolved from a DNS hostname.
 
 # IANA Considerations
 
@@ -367,9 +334,14 @@ This document has no actions for IANA.
 
 # Security Considerations
 
-TAPS does not recommend use of specific security protocols or algorithms. Its goal is to offer ease of use for existing protocols by providing a generic security-related interface. Each provided interface mimics an existing protocol-specific interface provided by supported security protocols. For example, trust verification callbacks are common parts of TLS APIs. TAPS exposes one for similar purposes. Clients must take care to use security APIs appropriately. In cases where clients use said interface to provide sensitive keying material, e.g., access to private keys or copies of pre-shared keys (PSKs), key use must be validated. For example, clients SHOULD NOT use PSK material created for ESP with IETF-QUIC, and clients MUST NOT use private keys intended for server authentication as a key for client authentication. Moreover, unlike certain transport features such as TFO or ECN which can fall back to standard configurations, TAPS systems MUST NOT permit fallback for security protocols. For example, if a clients requests TLS, yet TLS or the desired version are not available, its connection MUST fail. Clients are responsible for implementing protocol or version fallback using a TAPS API if so desired. 
+TAPS does not recommend use of specific security protocols or algorithms. Its goal is to offer ease of use for existing protocols by providing a generic security-related interface. Each provided interface mimics an existing protocol-specific interface provided by supported security protocols. For example, trust verification callbacks are common parts of TLS APIs. TAPS exposes one for similar purposes. Clients must take care to use security APIs appropriately. In cases where clients use said interface to provide sensitive keying material, e.g., access to private keys or copies of pre-shared keys (PSKs), key use must be validated. For example, clients SHOULD NOT use PSK material created for ESP with IETF-QUIC, and clients MUST NOT use private keys intended for server authentication as a key for client authentication. Moreover, unlike certain transport features such as TFO or ECN which can fall back to standard configurations, TAPS systems MUST NOT permit fallback for security protocols. For example, if a clients requests TLS, yet TLS or the desired version are not available, its connection MUST fail. Clients are responsible for implementing protocol or version fallback using a TAPS API if so desired.
 
 # Acknowledgements
 
 This work has received funding from the European Union's Horizon 2020 research and
 innovation programme under grant agreement No. 644334 (NEAT).
+
+This work has been supported by Leibniz Prize project funds of DFG - German
+Research Foundation: Gottfried Wilhelm Leibniz-Preis 2011 (FKZ FE 570/4-1).
+
+Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work.
