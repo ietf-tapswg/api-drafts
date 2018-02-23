@@ -340,3 +340,5 @@ TAPS does not recommend use of specific security protocols or algorithms. Its go
 
 This work has received funding from the European Union's Horizon 2020 research and
 innovation programme under grant agreement No. 644334 (NEAT).
+
+Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work. 

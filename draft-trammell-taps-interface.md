@@ -284,10 +284,20 @@ provide a single NewEndpoint() call that takes different endpoint representation
 \[TASK: match with #initiate / #listen / #rendezvous and make sure the transport
 stack used is communicated ]
 
-The transport services API resolves names internally, when Initiate() is
-called to transform a Preconnection object into a Connection. The API does
-not need an explicit name resolution method, although it may be useful to
-provide one for reasons unrelated to transport.
+Multiple endpoint identifiers can be specified for each LocalEndpoint
+and RemoteEndoint.  For example, a LocalEndpoint could be configured with
+two interface names, or a RemoteEndpoint could be specified via both IPv4
+and IPv6 addresses.  The multiple identifiers refer to the same endpoint.
+
+The transport services API will resolve names internally, when the Initiate(),
+Listen(), or Rendezvous() method is called establish a connection.
+The API does not need the application to resolve names, and premature name
+resolution can damage performance by limiting the scope for alternate path
+discovery during connection establishment.
+The Resolve() method is, however, provided to resolve a LocalEndpoint or a
+RemoteEndpoint in cases where this is required, for example with some NAT
+traversal protocols (see {{rendezvous}}).
+
 
 \[NOTE: the API needs MUST be explicit about when name resolution occurs,
         since the act of resolving a name leaks information, and there
@@ -765,7 +775,7 @@ only be initiated once.
 Once Initiate is called, the candidate Protocol Stack(s) may cause one or more
 transport-layer connections to be created to the specified remote endpoint.
 The caller may immediately begin sending Content on the Connection (see
-{{sending}}) after calling Initate, though it may wait for one of the
+{{sending}}) after calling Initate(), though it may wait for one of the
 following events before doing so.
 
 Connection -> Ready&lt;>
@@ -805,29 +815,77 @@ Preconnection -> ConnectionReceived&lt;Connection>
 
 The ConnectionReceived event occurs when a RemoteEndpoint has established a
 transport-layer connection to this Preconnection (for connection-oriented
-transports), or when the RemoteEndpoint has sent its first Content (for
-connectionless transports), causing a new Connection to be created. The
-resulting Connection is contained within the ConnectionReceived event, and
-is ready to use as soon as it is passed to the application via the event.
+transport protocols), or when the first Content has been received from the
+RemoteEndpoint (for connectionless protocols), causing a new Connection to be
+created. The resulting Connection is contained within the ConnectionReceived
+event, and is ready to use as soon as it is passed to the application via the
+event.
 
 PreConnection -> Error&lt;>
 
-A ListenError occurs either when the set of LocalEndpoint specifier,
-transport and cryptographic parameters cannot be fulfilled for listening,
-when the LocalEndpoint specifier cannot be resolved, or when the
-application is prohibited from listening by the operating system.
+A ListenError occurs either
+when the Preconnection cannot be fulfilled for listening,
+when the LocalEndpoint (or RemoteEndpoint, if specified) cannot be resolved,
+or
+when the application is prohibited from listening by policy.
 
-## Peer to Peer Establishment: Rendezvous {#rendezvous}
+
+
+## Peer-to-Peer Establishment: Rendezvous {#rendezvous}
+
+Simultaneous peer-to-peer connection establishment is supported by the
+Rendezvous() action:
 
 Preconnection.Rendezvous()
 
-Preconnection -> Ready&lt;>
+The Preconnection object must be specified with both a LocalEndpoint and a
+RemoteEndpoint, and also the transport and security parameters needed for
+protocol stack selection. The Rendezvous() action causes the Preconnection
+to listen on the LocalEndpoint for an incoming connection from the
+RemoteEndpoint, while simultaneously trying to establish a connection from
+the LocalEndpoint to the RemoteEndpoint.
+This corresponds to a TCP simultaneous open, for example.
 
-PreConnection -> RendezvousError&lt;contentRef, error>
+The Rendezvous() action consumes the Preconnection. Once Rendezvous() has
+been called, no further parameters may be bound to the Preconnection, and
+no subsequent establishment call may be made on the Preconnection.
 
-An RendezvousError  occurs when...
+Preconnection -> Rendezvoused&lt;Connection>
 
-\[NOTE: this section to be completed in resolution to issue #6]
+The Rendezvoused<> event occurs when a connection is established with the
+RemoteEndpoint. For connection-oriented transports, this occurs when the
+transport-layer connection is established; for connectionless transports,
+it occurs when the first Content is received from the RemoteEndpoint. The
+resulting Connection is contained within the Rendezvoused<> event, and is
+ready to use as soon as it is passed to the application via the event.
+
+Preconnection -> RendezvousError&lt;contentRef, error>
+
+An RendezvousError occurs either
+when the Preconnection cannot be fulfilled for listening,
+when the LocalEndpoint or RemoteEndpoint cannot be resolved,
+when no transport-layer connection can be established to the RemoteEndpoint,
+or
+when the application is prohibited from rendezvous by policy.
+
+
+When using some NAT traversal protocols, e.g., ICE {{?RFC5245}}, it is
+expected that the LocalEndpoint will be configured with some method of
+discovering NAT bindings, e.g., a STUN server. In this case, the
+LocalEndpoint may resolve to a mixture of local and server reflexive
+addresses. The Resolve() method on the Preconnection can be used to
+discover these bindings:
+
+    PreconnectionBindings := Preconnection.Resolve()
+
+The Resolve() call returns a list of Preconnection objects, that represent
+the concrete addresses, local and server reflexive, on which a Rendezvous()
+for the Preconnection will listen for incoming connections. This list can
+be passed to a peer via a signalling protocol, such as SIP or WebRTC, to
+configure the remote.
+
+\[NOTE: This API is sufficient for TCP-style simultaneous open, but should
+  be considered experimental for ICE-like protocols.]
 
 
 ## Connection Groups {#groups}
@@ -843,7 +901,7 @@ All Connections in a group are entangled. This means that they automatically sha
 all properties: changing a parameter for one of them also changes the parameter
 for all others, closing one of them also closes all others, etc.
 
-There is only one Protocol Property that is not entangled, i.e. it is a separate
+There is only one Protocol Property that is not entangled, i.e., it is a separate
 per-Connection Property for individual Connections in the group: a priority.
 This priority, which can be represented as a non-negative integer or float, expresses
 a desired share of the Connection Group's available network capacity, such that an
@@ -856,6 +914,9 @@ Connection Groups should be created (i.e., the Clone action should be used)
 as early as possible, ideally already during the Pre-Establishment phase, in order
 to aid the Transport System in choosing and configuring the right protocols
 (see also {{transport-params}}).
+
+\[TASK: If Clone() is a method on Connection, it cannot be called during
+pre-establishment, since we don't have a Connection at that time (csp)]
 
 # Sending Data {#sending}
 
@@ -881,7 +942,7 @@ Like all Actions in this interface, the Send action is asynchronous.
 
 Connection -> Sent&lt;contentRef>
 
-The Sent event occurs when a previous Send action has completed, i.e. when the
+The Sent event occurs when a previous Send action has completed, i.e., when the
 data derived from the Content has been passed down or through the underlying
 Protocol Stack and is no longer the responsibility of the implementation of
 this interface. The exact disposition of Content when the Sent event occurs is
@@ -1015,7 +1076,7 @@ checksum. A value of 0 means that no checksum is required, and a special value
 (e.g. -1) can be used to indicate the default. Only full coverage is
 guaranteed, any other requests are advisory.
 
-#### Immediate Acknowledgment {#send-ackimmed}
+#### Immediate Acknowledgement {#send-ackimmed}
 
 This boolean property specifies, if true, that an application wants this
 Content to be acknowledged immediately by the receiver. In case of reliable
@@ -1102,14 +1163,14 @@ received that reception has failed. Such conditions that irrevocably lead the
 the termination of the Connection are signaled using ConnectionError instead
 (see {{termination}}).
 
-## Application-Layer Backpressure at the Receiver {#receive-backpressure}
+## Application-Layer Back-Pressure at the Receiver {#receive-backpressure}
 
 Implementations of this interface must provide some way for the application to
 indicate that it is temporarily not ready to receive new Content. Since the
 mechanisms of event handling are implementation-platform specific, this
 document does not specify the exact nature of this interface.
 
-## Receiver-side Deframing over Stream Protocols {#receive-framing}
+## Receiver-side De-framing over Stream Protocols {#receive-framing}
 
 The Receive event is intended to be fired once per application-layer Content
 sent by the remote endpoint; i.e., it is a desired property of this interface
@@ -1119,15 +1180,15 @@ message boundary preservation, but is not the case over Protocol Stacks that
 provide a simple octet stream transport.
 
 For preserving message boundaries over stream transports, this interface
-provides receiver-side deframing. This facility is based on the observation
+provides receiver-side de-framing. This facility is based on the observation
 that, since many of our current application protocols evolved over TCP, which
 does not provide message boundary preservation, and since many of these protocols
 require message boundaries to function, each application layer protocol has
 defined its own framing. A Deframer allows an application to push this
-deframing down into the interface, in order to transform an octet stream into
+de-framing down into the interface, in order to transform an octet stream into
 a sequence of Content.
 
-Concretely, receiver-side deframing allows a caller to provide the interface
+Concretely, receiver-side de-framing allows a caller to provide the interface
 with a function that takes an octet stream, as provided by the underlying
 Protocol Stack, reads and returns a sigle Content of an appropriate type for
 the application and platform, and leaves the octet stream at the start of the
@@ -1155,7 +1216,7 @@ Connection.setProperties()
 
 Connection properties may include:
 
-* The status of the Connection, which can be one of the following: Pre-Establishment, Establishment in progress, Established, Listening, Rendezvous in progress, Closed.
+* The status of the Connection, which can be one of the following: Establishing, Established, Closed. \[TASK: can connections be in a Closing state? (csp)]
 * Transport Features of the protocols that conform to the Required and Prohibited Transport Preferences, which might be selected by the transport system during Establishment. These features correspond to the properties given in {{transport-params}} and can only be queried.
 * Transport Features of the protocols that were selected, once the Connection has been established. These features correspond to the properties given in {{transport-params}} and can only be queried.
 * Protocol Properties of the protocols in use, once the Connection has been established. These properties correspond to the properties given {{protocol-props}} and can be set and queried.
@@ -1212,6 +1273,8 @@ algorithms or protocols. Any API-compatible transport security protocol should w
 
 This work has received funding from the European Union's Horizon 2020 research and
 innovation programme under grant agreements No. 644334 (NEAT) and No. 688421 (MAMI).
+
+Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work. 
 
 --- back
 
