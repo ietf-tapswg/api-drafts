@@ -81,6 +81,7 @@ normative:
         -
           ins: Michael Welzl
     I-D.ietf-taps-minset:
+    I-D.ietf-tsvwg-rtcweb-qos:
 
 informative:
     RFC6458:
@@ -99,6 +100,18 @@ informative:
           ins: F. Weinrank
         -
           ins: M. Tuexen
+    Trickle:
+      title: Trickle - Rate Limiting YouTube Video Streaming (ATC 2012)
+      url: https://www.usenix.org/system/files/conference/atc12/atc12-final236.pdf
+      authors:
+        -
+          ins: M. Ghobadi
+        -
+          ins: Y. Cheng
+        -
+          ins: A. Jain
+        -
+          ins: M. Mathis
 
 
 --- abstract
@@ -317,13 +330,28 @@ Implementations that support racing protocols and protocol options SHOULD mainta
 
 The transport system ranks brances in the order in which it will attempt to connect later. Ranking can be based on application preferences, expected performance, system policy, or other criteria.
 
-For example, a transport system can use Application Intents, defined in {{I-D.trammell-taps-interface}}, to rank branches in the following ways:
+For example, a transport system can use Application Intents, defined in {{I-D.trammell-taps-interface}}, as Path Selection Properties to rank branches in the following ways:
 
-* Traffic Category
-* Size to be Sent / Received: If the application indicates the size of the Content it expects to receive, the transport system can predict the completion time of the transfer on each of the available paths based on current performance estimates. It can then rank the path with the lower expected completion time higher, so for small Content where the download is latency-bound, the path with the lower latency estimate is tried first, while for larger Content which is bandwidth-bound, the path with the higher observed bitrate is tried first.
-* Bitrate to be Sent / Received
-* Timeliness: If the application indicates a preference for lower latency for the new Connection, the path with the lower latency will be ranked higher and thus tried first.
-* Cost Preferences: If the application indicates a preference to avoid expensive paths, such paths will be ranked lower. If the application indicates that it prohibits using expensive paths, paths that are associated with a cost will be purged from the decision tree.
+* Path property to optimize for:
+If the application indicates an Intent to optimize for either low latency or high bandwidth, the transport system can rank branches higher accordingly, so they are tried first.
+
+* Size to be Sent / Received:
+If the application indicates the size of the Content it expects to receive,
+the transport system can predict the completion time of the transfer on each of the available paths
+based on current performance estimates.
+It can then rank the path with the lower expected completion time higher,
+so for small Content where the download is latency-bound,
+the path with the lower latency estimate is tried first,
+while for larger Content which is bandwidth-bound,
+the path with the higher observed bitrate is tried first.
+This addresses the issue that the application does not necessarily know whether it is best to optimize for low latency or high throughput at the time the application is written.
+A related paper is currently under submission.
+
+* Metered or expensive paths:
+If the application indicates a preference to avoid expensive paths,
+such paths will be ranked lower.
+If the application indicates that it prohibits using expensive paths,
+paths that are associated with a cost will be purged from the decision tree.
 
 
 ## Branching Order-of-Operations
@@ -404,10 +432,9 @@ Once a connection is established and a transport protocol has been chosen, any P
 
 Additionally, a transport system may configure a transport protocol according to following Application Intents:
 
-* Traffic Category
-* Size to be Sent / Received
-* Timeliness: If an application indicates a preference for low latency, the transport system may disable the Nagle algorithm on a TCP connection.
-* Bitrate to be Sent / Received: If an application indicates a certain bitrate it wants to send, the transport system may limit the bitrate of the outgoing communication.
+* Traffic Category: Can be mapped to DSCP code point value, e.g., see [I-D.ietf-tsvwg-rtcweb-qos].
+* Optimize for low latency: If an application indicates a preference for low latency, the transport system may disable the Nagle algorithm on a TCP connection.
+* Bitrate to be Sent: If an application indicates a certain bitrate it wants to send on the connection, the transport system may limit the bitrate of the outgoing communication to that rate, for example by setting an upper bound for the TCP congestion window of a connection calculated from the Send Bitrate and the Round Trip Time. This helps to avoid bursty traffic patterns on video streaming servers, see [Trickle].
 
 ## Establishing multiplexed connections {#establish-mux}
 

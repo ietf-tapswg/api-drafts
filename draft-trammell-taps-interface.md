@@ -80,7 +80,6 @@ author:
 
 normative:
   I-D.ietf-tsvwg-sctp-ndata:
-  I-D.ietf-tsvwg-rtcweb-qos:
   TAPS-ARCH:
     title: An Architecture for Transport Services
     docname: draft-pauly-taps-arch-00
@@ -307,15 +306,8 @@ traversal protocols (see {{rendezvous}}).
 ## Specifying Transport Parameters {#transport-params}
 
 A Preconnection object holds parameters reflecting the application's
-requirements and preferences for the transport.  These include Transport
-Preferences (towards protocol selection and path selection) as well as
-Application Intents (hints to the transport system what to optimize for)
+requirements and preferences for the transport.  These include Protocol Selection and Path Selection Properties
 and Protocol Properties (to configure transport protocols).
-
-All Transport Parameters are organized within a single name space, that is
-shared with Send Parameters (see {{send-params}}). While Application
-Intents and Protocol Properties take parameter specific values, Transport
-Preferences use one of five fixed levels (see {{transport-prefs}}).
 
 Some parameters express strict requirements that the application relies on,
 while others are hints of what transport features would be helpful
@@ -325,30 +317,20 @@ feature, will break the application's functionality. On the other hand, the
 option to not require checksums when receiving an individual Content can help
 optimize for low latency, but if not present, it will most likely not break the
 fundamental assumptions of the application.
-Moreover, there can be conflicts between parameters set by
+
+Some Transport Parameters do not relate to requirements regarding the
+capabilities of a protocol or to protocol configuration, but are Application
+Intents. Intents reflect what the application wants to achieve, knows, assumes,
+or prefers regarding its own communication. They provide hints to the transport
+system what to optimize for, e.g., an application might want to optimize the
+new connection for low latency or high throughput. Intents can influence path
+selection or be generic connection properties.
+
+Note that there can be conflicts between parameters set by
 the application: If multiple features are requested which are offered
 by different protocols, it may not be possible to satisfy all requirements.
 Consequently, a transport system must prioritize Transport Parameters and
 consider the relevant trade-offs, see also {{?TAPS-MINSET=I-D.ietf-taps-minset}}.
-
-Default preference levels and possible combinations of Transport Parameters and
-preference levels are specified in {{appendix-preferences}}.
-
-
-
-### Transport Preferences {#transport-prefs}
-
-Transport Preferences drive protocol selection and path selection on
-connection establishment. Since there could be paths over which some transport
-protocols are unable to operate, or remote endpoints that support only
-specific network addresses or transports, transport protocol selection is
-necessarily tied to path selection. This may involve choosing between multiple
-local interfaces that are connected to different access networks.
-
-The Transport Preferences form part of the information used to create a
-Preconnection object. As such, they can be configured during the
-pre-establishment phase, but cannot be changed once a Connection has been
-established.
 
 To reflect the needs of an individual connection, they can be
 specified with different preference levels from the following table , whereby the preference is one of the
@@ -361,6 +343,24 @@ following levels:
    | `don't care` | None / clear defaults                                     |
    | `avoid   `   | Proceed if requested feature/property can not be avoided  |
    | `prohibit`   | Fail if requested feature/property can not be avoided     |
+
+Default preference levels and possible combinations of Transport Parameters and
+preference levels are specified in {{appendix-preferences}}.
+
+
+### Protocol Selection Properties {#protocol-selection-props}
+
+Transport Preferences drive protocol selection and path selection on
+connection establishment. Since there could be paths over which some transport
+protocols are unable to operate, or remote endpoints that support only
+specific network addresses or transports, transport protocol selection is
+necessarily tied to path selection. This may involve choosing between multiple
+local interfaces that are connected to different access networks.
+
+The Transport Preferences form part of the information used to create a
+Preconnection object. As such, they can be configured during the
+pre-establishment phase, but cannot be changed once a Connection has been
+established.
 
 There need to be sensible defaults for the Transport Preferences as well as
 Protocol Selection Properties. The
@@ -435,17 +435,34 @@ The following properties apply to Connections and Connection Groups:
   default is full checksum coverage without being able to change it, and
   requiring a checksum when receiving.
 
-* Interface Type to prefer:
+### Path Selection Properties {#path-selection-props}
+
+* Interface Type:
   This property specifies which kind of access network interface, e.g.,
-  WiFi, Ethernet, or LTE, to prefer over others for this connection, in
-  case they are available.  This is not a strict requirement. The default
+  WiFi, Ethernet, or LTE, to require, prefer, avoid, or prohibit for this connection.
+  Of course this depends on whether they are available. The default
   is to use the default interface configured in the system policy.
 
-* Interface Type to prohibit:
-  This property specifies which kind of access network interface, e.g.,
-  WiFi, Ethernet, or LTE, to not use for this connection. This is a strict
-  requirement and connection establishment will fail if no other interface
-  is available. The default is to not prohibit any particular interface.
+* Path property to optimize for:
+This Intent specifies whether the application expects the new connection to be bandwidth bound or latency bound.
+Values can be one of the following: Optimize for low latency, Optimize for high throughput.
+This Intent can help the transport system select one of multiple available paths that best match the intended traffic of the application.
+Note that setting this Intents does not imply any guarantees on whether an application's requirements can actually be satisfied.
+The default is to not assume any particular traffic category or preference.
+
+* Size to be Sent or Received:
+This Intent specifies what the application expects the size of a transfer to be.
+It is a numeric property and given in Bytes.
+The application may know this before opening a connection from metadata or after issuing an HTTP HEAD request or an HTTP request with a limited Content-Range.
+This property can be specified instead of the Path property to optimize for. The reason is that the application does not always know whether the transfer should be optimized for low latency or high throughput, as the threshold between the two categories relates to the size of the transfer and the current path characteristics. When the size is given, the transport system can calculate based on it whether to optimize for low latency or high throughput.
+
+* Metered or expensive paths:
+This Intent describes what an application prefers regarding monetary costs,
+e.g., whether it considers it acceptable to utilize limited data volume.
+The default is to prefer paths that are not associated with limits or monetary cost.
+
+
+
 
 ### Protocol Properties {#protocol-props}
 
@@ -453,7 +470,7 @@ Protocol Properties represent the configuration that protocols should use
 once they have been selected. Some properties apply generically across
 multiple transport protocols, in which case they may be used by the system
 to help select candidate protocols. Other properties only apply to specific
-protocols. As with Transport Preferences ({{transport-prefs}}), Protocol Properties are
+protocols. As with Transport Preferences ({{protocol-selection-props}}), Protocol Properties are
 specified on the Preconnection object. The default settings of these properties
 will vary based on the specific protocols being used and the system's configuration.
 
@@ -491,6 +508,17 @@ Generic Protocol Properties include:
   before or during Connection establishment, see also {{send-idempotent}}.
   It is given in Bytes.
 
+* Traffic Category:
+This Intent specifies the intended use of the Connection and corresponds to the priority of the communication for the application.
+Possible values are: Data transfer, Interactive video stream, Interactive audio stream, Background traffic. While they may be used to set DSCP code points, Intents do not represent Quality of Service requirements, but rather hints for a transport system what to optimize for on a best-effort basis.
+
+* Send Bit-rate
+This Intent specifies what the application expects the bit-rate of a transfer to
+be. It is a numeric property and given in Bytes per second. The transport system may use this Intent to limit the sending rate by placing an upper bound on a congestion window.
+
+
+
+
 In order to specify Specific Protocol Properties, the application can attach
 a set of options to the Preconnection object, associated with a specific protocol.
 For example, the application could specify a set of TCP Options to use if and only
@@ -499,130 +527,6 @@ Size (MSS), and options around Acknowledgement Stretching. Such properties
 should not be assumed to apply across different protocols, but must be possible
 to specify if required by the application.
 
-### Application Intents {#intents}
-
-Application Intents are a group of properties expressing what an application wants
-to achieve, knows, assumes or prefers regarding its communication. They are not
-strict requirements. In particular, they should not be used to express any
-Quality of Service expectations that an application might have. Instead, an
-application should express its intentions and its expected traffic
-characteristics in order to help the transport system make decisions that best match
-it, but on a best-effort basis. Even though Application Intents do not represent
-Quality of Service requirements, a transport system may use them to determine a DSCP
-value, e.g. similar to Table 1 in {{I-D.ietf-tsvwg-rtcweb-qos}}.
-
-Application Intents can influence protocol selection, protocol configuration, path
-selection, and endpoint selection. For example, setting the "Timeliness" Intent
-to "Interactive" may lead the transport system to disable the Nagle algorithm for a
-connection, while setting the "Timeliness" to "Background" may lead it to
-setting the DSCP value to "scavenger". If the "Size to be Sent" Intent is set
-on individual Content, it may influence path selection, e.g., when the TAPS
-system schedules big Content over an interface with higher bandwidth, and
-small Content over an interface with lower latency.
-
-Specifying Application Intents is not mandatory. An application can specify any
-combination of Application Intents.
-If specified, Application Intents are defined as parameters passed to the
-Preconnection object, and may influence the Connection established from
-that Preconnection.
-If a Connection is cloned to form a Connection Group, and associated
-Application Intents are cloned along with the other transport parameters.
-Some Intents have also corresponding Content Properties, similar to the
-properties in {{send-params}}.
-
-\[PHILS:: Some Intents, i.e., Traffic Category, Size to be Received, Receive
-Bit-rate, Timeliness, Cost Preferences are really useful for per-content path
-selection. As the latter is out of scope for v1, I removed them from the Send
-Parameters for now]
-
-
-#### Traffic Category
-
-This Intent specifies what the application expect the dominating traffic
-pattern to be.
-
-Possible Category values are:
-
-Query:
-: Single request / response style workload, latency bound
-
-Control:
-: Long lasting low bandwidth control channel, not bandwidth bound
-
-Stream:
-: Stream of bytes/Content with steady data rate
-
-Bulk:
-: Bulk transfer of large Content, presumably bandwidth bound
-
-The default is to not assume any particular traffic pattern. Most categories
-suggest the use of other intents to further describe the traffic pattern
-anticipated, e.g., the bulk category suggesting the use of the Message Size
-intents or the stream category suggesting the Stream Bitrate and Duration
-intents.
-
-
-#### Size to be Sent / Received
-
-This Intent specifies what the application expects the size of a transfer to be.
-It is a numeric property and given in Bytes.
-
-
-#### Duration
-
-This Intent specifies what the application expects the lifetime of a transfer
-to be. It is a numeric property and given in milliseconds.
-
-
-#### Send / Receive Bit-rate
-
-This Intent specifies what the application expects the bit-rate of a transfer to
-be. It is a numeric property and given in Bytes per second.
-
-
-#### Timeliness
-
-This Intent specifies what delay characteristics the applications prefers. It
-provides hints for the transport system whether to optimize for low latency or other
-criteria. Note that setting this Intents does not imply any guarantees on
-whether an application's requirements can actually be satisfied.
-
-Stream:
-: Delay and packet delay variation should be kept as low as possible
-
-Interactive:
-: Delay should be kept as low as possible, but some variation is tolerable
-
-Transfer:
-: Delay and packet delay variation should be reasonable, but are not critical
-
-Background:
-: Delay and packet delay variation is no concern
-
-The default is "Transfer".
-
-
-#### Cost Preferences
-
-This Intent describes what an application prefers regarding monetary costs,
-e.g., whether it considers it acceptable to utilize limited data volume. It
-provides hints to the transport system on how to handle trade-offs between cost
-and performance or reliability. This Intent can also apply to individual
-Content.
-
-No Expense:
-: Avoid transports associated with monetary cost
-
-Optimize Cost:
-: Prefer inexpensive transports and accept service degradation
-
-Balance Cost:
-: Use system policy to balance cost and other criteria
-
-Ignore Cost:
-: Ignore cost, choose transport solely based on other criteria
-
-The default is "Balance Cost".
 
 
 
@@ -985,29 +889,6 @@ an implementation-specific reference to the Content to which it applies.
 
 ## Send Parameters {#send-params}
 
-\[MICHAEL: Here, things get really messy (even after I cleaned them up a bit).
-First, I see no need to have app intents defined both per-connection (in an
-earlier section) AND per-content. If they really make sense per-content, they
-should be defined here and not in the other section. However, some of the ones
-here VERY obviously don't fit a single piece of content: stream bitrate sent /
-stream bitrate received. This is about a number that, by nature, is a longer
-term average. Sure, an application may want to change it whenever, and it can
---- but that doesn't make it something that really relates to a single piece of
-content. These two make so little sense here that I decided to remove them for
-you. For the others, please make up your mind where they fit / what they relate
-to. Second, whatever will remain doesn't need its own "app intents" heading: it
-will only relate to content, genuinely making it a "content property". I leave
-the heading in there now just so the app intents stuff stands out a bit more,
-but when you're done removing things, please remove this heading and make
-what's left a part of the Content Properties.]
-\[PHILS: Cleanup done. From my perspective, there are Parameters (including
-Intents), that belong in both categories. Besides those that are useful for
-per-connection and per-content path-selection (I removed those for v1), there
-remain two dual-use properties: "Send Bitrate" (path selection in connection /
-shaping and de-bursting in ) and "Timeliness" (path selection and DSCP default
-in connection / buffering and DSCP per content) --- in both cases, I don't see
-how to achieve the functionality when having them only in one of the places.]
-
 
 The Send action takes per-Content send parameters which control how the
 contents will be sent down to the underlying Protocol Stack and transmitted.
@@ -1095,39 +976,6 @@ transmission, this informs the transport protocol on the sender side faster
 that it can remove the Content from its buffer; therefore this property can be
 useful for latency-critical applications that maintain tight control over the
 send buffer (see {{sending}}).
-
-#### Send Bitrate {#send-bitrate}
-
-This numeric property in Bytes per second specifies at what bitrate the
-application wishes the content to be sent. A transport supporting this
-feature will not exceed the requested Send Bitrate even if flow-control
-and congestion control allow higher bitrates. This helps to avid bursty
-traffic pattern on busy video streaming servers.
-
-\[PHILS: this my be removed if there is no consensus this this is useful. See
-https://www.usenix.org/conference/atc12/technical-sessions/presentation/ghobadi
-for a use case and implementation ]
-
-#### Timeliness {#send-timeliness}
-
-This specifies what delay characteristics the applications prefers for the
-given content. It provides hints for the transport system whether to optimize
-for low latency or other criteria and set the DSCP flags for packets used
-to transmit the content.
-
-Stream:
-: Delay and packet delay variation should be kept as low as possible
-
-Interactive:
-: Delay should be kept as low as possible, but some variation is tolerable
-
-Transfer:
-: Delay and packet delay variation should be reasonable, but are not critical
-
-Background:
-: Delay and packet delay variation is no concern
-
-The default is "Transfer".
 
 ## Sender-side Framing {#send-framing}
 
@@ -1492,9 +1340,7 @@ set.
 | Notification of special errors | Yes | Yes | Yes   | Yes      | None    |
 | Control checksum coverage | Yes   | Yes    | Yes   | Yes      | None    |
 | Use a certain network interface type | Yes | Yes | Yes | Yes  | None    |
-| Application Intents    | No       | No     | No    | No       | Intend  |
-
-\[List individual Intents? Reformulate some of them as preferences?]
+| Metered or expensive paths | No   | No     | Yes   | Yes      | Avoid   |
 
 
 ## Specifying and Querying Parameters {#appendix-specify-query-params}
