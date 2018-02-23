@@ -245,9 +245,14 @@ Beyond the basic objects, there are several high-level groups of actions that an
 
 ### Pre-Establishment {#preestablishment}
 
+* Endpoint: An Endpoint represents one side of a transport connection. 
+  Endpoints can be Local Endpoints or Remote Endpoints, and respectively represent an identity
+  that the application uses for the source or destination of a connection.
+  Endpoint can vary in levels of specificity, and can be resolved to more concrete identities. 
+
 * Remote Endpoint: The Remote Endpoint represents the application's name for a peer that can participate in a transport connection. For example, the combination of a DNS name for the peer and a service name/port.
 
-* Local Endpoint: The Local Endpoint represents the application's name for itself that it wants to use for transport connections. For example, a local interface name or address.
+* Local Endpoint: The Local Endpoint represents the application's name for itself that it wants to use for transport connections. For example, a local interface name, or a local IP address and port.
 
 * Path Selection Properties: The Path Selection Properties consist of the options that an application may set on a Preconnection to influence the selection of path between itself and the Remote Endpoint. These options can come in the form of requirements, prohibitions, or preferences. Examples of options which may influence path selection include the interface type (such as a Wi-Fi Ethernet connection, or a Cellular LTE connection), characteristics of the path that are locally known like Maximum Transmission Unit (MTU), or expected throughput or latency.
 
