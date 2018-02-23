@@ -246,7 +246,7 @@ Beyond the basic objects, there are several high-level groups of actions that an
 
 ### Basic Objects {#objects}
 
-* Preconnection: A Preconnection object is a representation of a potential connection. It has state that describes parameters of a Connection that might exist in the future: the Local Endpoint from which that Connection will be established, the Remote Endpoint to which it will connect, and Path Selection Properties, Protocol Selection Properties, and Specific Protocol Properties that influence the choice of transport that Connection will use. A Preconnection can be fully specified and represent a single possible Connection, or it can be partially specified such that it represents a family of possible Connections. The Local Endpoint MUST be specified if the Preconnection is used to Listen() for incoming connections, but is OPTIONAL if it is used to Initiate() connections. The Remote Endpoint MUST be specified in the Preconnection is used to Initiate() connections, but is OPTIONAL if it is used to Listen() for incoming connections.
+* Preconnection: A Preconnection object is a representation of a potential connection. It has state that describes parameters of a Connection that might exist in the future: the Local Endpoint from which that Connection will be established, the Remote Endpoint to which it will connect, and Path Selection Properties, Protocol Selection Properties, and Specific Protocol Properties that influence the choice of transport that a Connection will use. A Preconnection can be fully specified and represent a single possible Connection, or it can be partially specified such that it represents a family of possible Connections. The Local Endpoint MUST be specified if the Preconnection is used to Listen() for incoming connections, but is OPTIONAL if it is used to Initiate() connections. The Remote Endpoint MUST be specified in the Preconnection is used to Initiate() connections, but is OPTIONAL if it is used to Listen() for incoming connections.
 
 * Connection: A Connection object represents an active transport protocol instance that can send and/or receive Content between a Local Endpoint and a Remote Endpoint. It holds state pertaining to the underlying transport protocol instance and any ongoing data transfer. This represents, for example, an active connection in a connection-oriented protocol such as TCP, or a fully-specified 5-tuple for a connectionless protocol such as UDP.
 
@@ -260,11 +260,11 @@ Beyond the basic objects, there are several high-level groups of actions that an
 
 * Local Endpoint: The Local Endpoint represents the application's name for itself that it wants to use for transport connections. For example, a local interface name or address.
 
-* Path Selection Properties: The Path Selection Properties consist of the options that an application may set on a Preconnection to influence the selection of path between itself and the Remote Endpoint. These options can come in the form of requirements, prohibitions, or preferences. Examples of options which may influence path selection include the interface type (such as a Wi-Fi Ethernet connection, or a Cellular LTE connection), characteristics of the path that are locally known like Maximum Transmission Unit (MTU), or expected throughput or latency.
+* Path Selection Properties: The Path Selection Properties consist of the options that an application may set on a Preconnection to influence the selection of path between itself and the Remote Endpoint. These options can come in the form of requirements, prohibitions, or preferences. Examples of options which may influence path selection include the interface type (such as a Wi-Fi Ethernet connection, or a Cellular LTE connection), characteristics of the path that are locally known like Maximum Transmission Unit (MTU) or discovered like Path MTU (PMTU), or predicted based on cached information like expected throughput or latency.
 
 * Protocol Selection Properties: The Protocol Selection Properties consist of the options that an application may set on a Preconnection to influence the selection of transport protocol, configure the behavior of generic transport protocol features. These options come in the form of requirements, prohibitions, and preferences. Examples include reliability, service class, multipath support, and fast open support.
 
-* Specific Protocol Properties: The Specific Protocol Properties refer to the subset of Protocol Properties options that apply to a single protocol (transport protocol, IP, or security protocol). The presence of such Properties on a Preconnection does not necessarily require that a specific protocol must be used when a Connection is established from that Preconnection, but that if this protocol is employed, a particular set of options should be used. This is critical to allow compatibility with Protocol Properties on peers.
+* Specific Protocol Properties: The Specific Protocol Properties refer to the subset of Protocol Properties options that apply to a single protocol (transport protocol, IP, or security protocol). The presence of such Properties on a Preconnection does not necessarily require that a specific protocol must be used when a Connection is established from that Preconnection, but that if this protocol is employed, a particular set of options should be used.
 
 ### Establishment Actions {#establishment}
 
@@ -286,13 +286,13 @@ This list of events that can be delivered to an application is not exhaustive, b
 
 * Connection Ready: A Connection Ready event signals to an application that a given Connection is ready to send and/or receive Content. If the Connection relies on handshakes to establish state between peers, then it is assumed that these steps have been taken.
 
-* Connection Finished: A Connection Finished event signals to an application that a given Connection is no longer usable for sending or receiving Content. This should deliver a useful error to the application.
+* Connection Finished: A Connection Finished event signals to an application that a given Connection is no longer usable for sending or receiving Content. This should deliver an error to the application that describes the nature of the termination.
 
 * Connection Received: A Connection Received event signals to an application that a given Listener has passively received a Connection.
 
-* Content Received: A Content Received event delivers received content to the application, based on a Receive action. This may include an error if the action failed.
+* Content Received: A Content Received event delivers received content to the application, based on a Receive action. This may include an error if the Receive action cannot be satisfied due to the Connection being closed.
 
-* Content Sent: A Content Sent event notifies the application of the status of its Send action. This may be an error, an indication that Content has been processed by the protocol stack, or potentially \[MICHAEL: Why "potentially" - because you're not sure about it? If it may be such an indication, "potentially" should be removed (this seems like the right thing to do for me).] an indication that Content has been acknowledged by a peer.
+* Content Sent: A Content Sent event notifies the application of the status of its Send action. This may be an error if the Content cannot be sent, or an indication that Content has been processed by the protocol stack.
 
 * Path Properties Changed: A Path Properties Changed event notifies the application that some property of the Connection has changed that may influence how and where data is sent and/or received.
 
