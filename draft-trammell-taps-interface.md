@@ -272,7 +272,14 @@ localSpecifier.withInterface("en0")
 localSpecifier.withPort(443)
 ~~~
 
-Implementations may also support additional endpoint representations. 
+~~~
+localSpecifier := NewLocalEndpoint()
+localSpecifier.withStunServer(address, port, credentials)
+~~~
+
+Implementations may also support additional endpoint representations and
+provide a single NewEndpoint() call that takes different endpoint representations.
+
 
 \[TASK: match with #initiate / #listen / #rendezvous and make sure the transport
 stack used is communicated ]
