@@ -39,9 +39,14 @@ author:
     email: anna.brunstrom@kau.se
   -
     ins: G. Fairhurst
-    name: Gorry Fairhurst
+    name: Godred Fairhurst
     org: University of Aberdeen
+    street: Department of Engineering
+    street: Fraser Noble Building
+    city: Aberdeen, AB24 3UE
+    country: Scotland
     email: gorry@erg.abdn.ac.uk
+    uri: http://www.erg.abdn.ac.uk/
   -
     ins: C. Perkins
     name: Colin Perkins
@@ -55,6 +60,9 @@ author:
     name: Philipp S. Tiesel
     org: TU Berlin
     email: philipp@inet.tu-berlin.de
+    street: Marchstraße 23
+    city: 10587 Berlin
+    country: Germany
   -
     ins: C. Wood
     name: Chris Wood
@@ -64,7 +72,7 @@ author:
     country: United States of America
     email: cawood@apple.com
 
-normative:
+informative:
     RFC8095:
     I-D.ietf-taps-minset:
     I-D.pauly-taps-transport-security:
@@ -74,7 +82,7 @@ normative:
       authors:
         -
           ins: Anna Brunstrom
-	-
+        -
           ins: Tommy Pauly
     I-D.trammell-taps-interface:
       title: An Abstract Application Layer Interface to Transport Services
@@ -82,12 +90,12 @@ normative:
       authors:
         -
           ins: Brian Trammell
-	-
+        -
           ins: Michael Welzl
 
 --- abstract
 
-This document provides an overview of the architecture of Transport Services, a system for exposing the features of transport protocols to applications. This architecture serves as a basis for Application Programming Interfaces (APIs) and implementations that provide flexibile transport networking services. It defines the common set of terminology and concepts to be used in more detailed discussion of transport services.
+This document provides an overview of the architecture of Transport Services, a system for exposing the features of transport protocols to applications. This architecture serves as a basis for Application Programming Interfaces (APIs) and implementations that provide flexible transport networking services. It defines the common set of terminology and concepts to be used in more detailed discussion of transport services.
 
 --- middle
 
@@ -114,7 +122,7 @@ One of the key insights to come from identifying the minimal set of features pro
 
 The goal of the Transport Services architecture is to redefine the interface between applications and transports in a way that allows the transport layer to evolve and improve without fundamentally changing the contract with the application. This requires a careful consideration of how to expose the capabilities of protocols.
 
-There are several degrees in which a Transport Services system can offer flexibility to an application: it can provide access to multiple sets of protocols and protocol features, it can use these protocols across multiple networks that may have different performance and functional characteristics, and it can communicate with different addresses for a peer to optimize performance. Beyond these, if the API for the system remains the same over time, new protocols and features may be added to the system's implementation without requiring significant changes in applications for adoption.
+There are several degrees in which a Transport Services system can offer flexibility to an application: it can provide access to multiple sets of protocols and protocol features, it can use these protocols across multiple paths that may have different performance and functional characteristics, and it can communicate with different Remote Endpoints to optimize performance. Beyond these, if the API for the system remains the same over time, new protocols and features may be added to the system's implementation without requiring significant changes in applications for adoption.
 
 The following considerations were used in the design of this architecture.
 
@@ -122,11 +130,11 @@ The following considerations were used in the design of this architecture.
 
 Functionality that is common across multiple transport protocols should be accessible through a unified set of API calls. An application should be able to implement logic for its basic use of transport networking (establishing the transport, and sending and receiving content) once, and expect that implementation to continue to function as the transports change.
 
-Any Transport Services API must expose the distilled minimal set of features offered by transport protocols {{I-D.ietf-taps-minset}}. 
+Any Transport Services API must expose the distilled minimal set of features offered by transport protocols {{I-D.ietf-taps-minset}}.
 
 ## Access to Specialized Features
 
-Since applications will often need to control fine-grained details of transport protocols in order to optimize their behavior and ensure compatibility with remote peers, a Transport Services system also needs to allow more specialized protocol features to be used. The interface for these specialized options should be treated differently from the common options in order to ensure flexibility.
+Since applications will often need to control fine-grained details of transport protocols to optimize their behavior and ensure compatibility with remote peers, a Transport Services system also needs to allow more specialized protocol features to be used. The interface for these specialized options should be treated differently from the common options to ensure flexibility.
 
 A specialized feature may be required by an application only when using a specific protocol, and not when using others. For example, if an application is using UDP, it may require control over the checksum or fragmentation behavior for UDP; if it used a protocol to frame its content over a byte stream like TCP, it would not need these options. In such cases, the API should expose the features in such a way that they take effect when a particular protocol is selected, but do not imply that only that protocol may be used if there are equivalent options.
 
@@ -136,18 +144,18 @@ Other specialized features, however, may be strictly required by an application 
 
 The Transport Services API is envisioned as the abstract model for a family of APIs that share a common way to expose transport features and encourage flexibility. The abstract API definition {{I-D.trammell-taps-interface}} describes this interface and is aimed at application developers.
 
-Implementations that provide the Transport Services API {{I-D.brunstrom-taps-impl}}, on the other hand, will vary due to system-specific support and the needs of the deployment scenario. It is expected that all implementations of Transport Services will offer the entire mandatory API, but that some features will not be functional in certain implementations. All implementations must offer sufficient APIs to use the distilled minimal set of features offered by transport protocols {{I-D.ietf-taps-minset}}, including API support for TCP and UDP transport, but it is possible that some very constrained devices might not have, for example, a full TCP implementation.
+Implementations that provide the Transport Services API {{I-D.brunstrom-taps-impl}} will vary due to system-specific support and the needs of the deployment scenario. It is expected that all implementations of Transport Services will offer the entire mandatory API, but that some features will not be functional in certain implementations. All implementations must offer sufficient APIs to use the distilled minimal set of features offered by transport protocols {{I-D.ietf-taps-minset}}, including API support for TCP and UDP transport, but it is possible that some very constrained devices might not have, for example, a full TCP implementation.
 
 In order to preserve flexibility and compatibility with future protocols, top-level features in the Transport Services API should avoid referencing particular transport protocols. Mappings of these API features in the Implementation document, on the other hand, must explain the ramifications of each feature on existing protocols. It is expected that the Implementation document will be updated and supplemented as new protocols and protocol features are developed.
 
-It is important to note that neither the Transport Services API nor the Implementation document defines new protocols that require any changes on peers. The Transport Services system must be deployable on one side only, as a way to allow an application to make better use of available capabilities on a system, and protocols features that may be supported by peers across the network.
+It is important to note that neither the Transport Services API nor the Implementation document defines new protocols that require any changes on remote hosts. The Transport Services system must be deployable on one side only, as a way to allow an application to make better use of available capabilities on a system, and protocols features that may be supported by peers across the network.
 
 # Transport Services Architecture and Concepts
 
 The concepts defined in this document are intended primarily for use in the documents and specifications that describe the Transport Services architecture and API. While the specific terminology may be used in some implementations, it is expected that there will remain a variety of terms used by running code.
 
 The architecture divides the concepts for Transport Services into two categories:
-1) API concepts, which are meant to be exposed to applications; and 
+1) API concepts, which are meant to be exposed to applications; and
 2) System-implementation concepts, which are meant to be internally used when building systems that implement Transport Services.
 
 The following diagram summarizes the top-level concepts in the architecture and how they relate to one another.
@@ -156,14 +164,14 @@ The following diagram summarizes the top-level concepts in the architecture and 
 
   +------------------------------------------------------+
   |                    Application                       |
-  +-+------------------^----------+----------^-----------+
-    |                  |          |          |
-  pre-               data         |        events
-  establishment    transfer       |          |
-    |                  |      terminate      |
-    |                  |          |          |
-    |             +----v----------v--+       |
-  +-v-------------+      Objects     +-------+----------+
+  +-+----------------+------^-------+--------^-----------+
+    |                |      |       |        |
+  pre-               |     data     |      events
+  establishment      |   transfer   |        |
+    |        establishment  |   terminate    |
+    |                |      |       |        |
+    |             +--v------v-------v+       |
+  +-v-------------+   Basic Objects  +-------+----------+
   |  Transport    +--------+---------+                  |
   |  Services              |                            |
   |  API                   |                            |
@@ -187,21 +195,22 @@ The following diagram summarizes the top-level concepts in the architecture and 
                         V
               Network Layer Interface
 ~~~~~~~~~~
-{: #fig-abstractions title="Concepts and Relationships in the Transport Services Architecture \[MICHAEL: I think it's bad that establishment is missing from the figure - but I understand it could get messy. Maybe writing '(pre-)establishment' could help, to indicate that there is both pre-establishment and establishment ?]"}
+{: #fig-abstractions title="Concepts and Relationships in the Transport Services Architecture"}
+
 
 ## Transport Services API Concepts
 
-Fundamentally, a Transport Services API needs to provide basic objects that allow applications to establish communication and send and receive data {{objects}}. These may be exposed as handles or referenced objects, depending on the language.
+Fundamentally, a Transport Services API needs to provide basic objects {{objects}} that allow applications to establish communication and send and receive data {{objects}}. These may be exposed as handles or referenced objects, depending on the language.
 
 Beyond the basic objects, there are several high-level groups of actions that any Transport Services API must provide:
 
-* Pre-Establishment ({{preestablishment}}) encompasses the parameters that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. For any system that provides generic Transport Services, these properties should primarily offer knobs that apply across multiple transports. Properties may have a large impact on the rest of the aspects of the interface: they can modify how establishment occurs, they can influence the expectations around data transfer, and they determine the set of events that will be supported.
+* Pre-Establishment ({{preestablishment}}) encompasses the parameters that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. For any system that provides generic Transport Services, these properties should primarily offer knobs that are applicable to multiple transports. Properties may have a large impact on the rest of the aspects of the interface: they can modify how establishment occurs, they can influence the expectations around data transfer, and they determine the set of events that will be supported.
 
-* Establishment ({{establishment}}) focuses on the actions that an application takes \[MICHAEL: on? with?] the transport objects to prepare for data transfer.
+* Establishment ({{establishment}}) focuses on the actions that an application takes on the transport objects to prepare for data transfer.
 
 * Data Transfer ({{datatransfer}}) consists of how an application represents data to be sent and received, the functions required to send and receive that data, and how the application is notified of the status of its data transfer.
 
-* Event Handling ({{events}}) defines the set of properties that an application may be notified of during the lifetime of transport objects. These may also provide opportunities for the application to interact with the underlying transport.
+* Event Handling ({{events}}) defines the set of properties about which an application can receive notifications during the lifetime of transport objects. Events can also provide opportunities for the application to interact with the underlying transport by querying state or updating maintenance options.
 
 * Termination ({{termination}}) focuses on the methods by which data transmission is ceased, and state is torn down in the transport.
 
@@ -237,7 +246,7 @@ Beyond the basic objects, there are several high-level groups of actions that an
 
 ### Basic Objects {#objects}
 
-* Preconnection: A Preconnection object is a representation of a potential connection. It has state that describes parameters of a Connection that might exist in the future: the Local Endpoint from which that Connection will be established, the Remote Endpoint to which it will connect, and Path Selection Properties, Protocol Selection Properties, and Specific Protocol Properties that influence the choice of transport that Connection will use. A Preconnection can be fully specified and represent a single possible Connection, or it can be partially specified such that it represents a family of possible Connections. The Local Endpoint MUST be specified if the Preconnection is used to Listen() for incoming connections, but is OPTIONAL if it is used to Initiate() connections. The Remote Endpoint MUST be specified in the Preconnection is used to Initiate() connections, but is OPTIONAL if it is used to Listen() for incoming connections.
+* Preconnection: A Preconnection object is a representation of a potential connection. It has state that describes parameters of a Connection that might exist in the future: the Local Endpoint from which that Connection will be established, the Remote Endpoint to which it will connect, and Path Selection Properties, Protocol Selection Properties, and Specific Protocol Properties that influence the choice of transport that a Connection will use. A Preconnection can be fully specified and represent a single possible Connection, or it can be partially specified such that it represents a family of possible Connections. The Local Endpoint MUST be specified if the Preconnection is used to Listen() for incoming connections, but is OPTIONAL if it is used to Initiate() connections. The Remote Endpoint MUST be specified in the Preconnection is used to Initiate() connections, but is OPTIONAL if it is used to Listen() for incoming connections.
 
 * Connection: A Connection object represents an active transport protocol instance that can send and/or receive Content between a Local Endpoint and a Remote Endpoint. It holds state pertaining to the underlying transport protocol instance and any ongoing data transfer. This represents, for example, an active connection in a connection-oriented protocol such as TCP, or a fully-specified 5-tuple for a connectionless protocol such as UDP.
 
@@ -254,11 +263,11 @@ Beyond the basic objects, there are several high-level groups of actions that an
 
 * Local Endpoint: The Local Endpoint represents the application's name for itself that it wants to use for transport connections. For example, a local interface name, or a local IP address and port.
 
-* Path Selection Properties: The Path Selection Properties consist of the options that an application may set on a Preconnection to influence the selection of path between itself and the Remote Endpoint. These options can come in the form of requirements, prohibitions, or preferences. Examples of options which may influence path selection include the interface type (such as a Wi-Fi Ethernet connection, or a Cellular LTE connection), characteristics of the path that are locally known like Maximum Transmission Unit (MTU), or expected throughput or latency.
+* Path Selection Properties: The Path Selection Properties consist of the options that an application may set on a Preconnection to influence the selection of path between itself and the Remote Endpoint. These options can come in the form of requirements, prohibitions, or preferences. Examples of options which may influence path selection include the interface type (such as a Wi-Fi Ethernet connection, or a Cellular LTE connection), characteristics of the path that are locally known like Maximum Transmission Unit (MTU) or discovered like Path MTU (PMTU), or predicted based on cached information like expected throughput or latency.
 
-* Protocol Selection Properties: The Protocol Selection Properties consist of the options that an application may set on a Preconnection to influence the selection of transport protocol, configure the behavior of generic transport protocol features. These options come in the form of requirements, prohibitions, and preferences. Examples include reliability, service class, multipath support, and fast open support. 
+* Protocol Selection Properties: The Protocol Selection Properties consist of the options that an application may set on a Preconnection to influence the selection of transport protocol, configure the behavior of generic transport protocol features. These options come in the form of requirements, prohibitions, and preferences. Examples include reliability, service class, multipath support, and fast open support.
 
-* Specific Protocol Properties: The Specific Protocol Properties refer to the subset of Protocol Properties options that apply to a single protocol (transport protocol, IP, or security protocol). The presence of such Properties on a Preconnection does not necessarily require that a specific protocol must be used when a Connection is established from that Preconnection, but that if this protocol is employed, a particular set of options should be used. This is critical to allow compatibility with Protocol Properties on peers.
+* Specific Protocol Properties: The Specific Protocol Properties refer to the subset of Protocol Properties options that apply to a single protocol (transport protocol, IP, or security protocol). The presence of such Properties on a Preconnection does not necessarily require that a specific protocol must be used when a Connection is established from that Preconnection, but that if this protocol is employed, a particular set of options should be used.
 
 ### Establishment Actions {#establishment}
 
@@ -280,13 +289,13 @@ This list of events that can be delivered to an application is not exhaustive, b
 
 * Connection Ready: A Connection Ready event signals to an application that a given Connection is ready to send and/or receive Content. If the Connection relies on handshakes to establish state between peers, then it is assumed that these steps have been taken.
 
-* Connection Finished: A Connection Finished event signals to an application that a given Connection is no longer usable for sending or receiving Content. This should deliver a useful error to the application.
+* Connection Finished: A Connection Finished event signals to an application that a given Connection is no longer usable for sending or receiving Content. This should deliver an error to the application that describes the nature of the termination.
 
 * Connection Received: A Connection Received event signals to an application that a given Listener has passively received a Connection.
 
-* Content Received: A Content Received event delivers received content to the application, based on a Receive action. This may include an error if the action failed.
+* Content Received: A Content Received event delivers received content to the application, based on a Receive action. This may include an error if the Receive action cannot be satisfied due to the Connection being closed.
 
-* Content Sent: A Content Sent event notifies the application of the status of its Send action. This may be an error, an indication that Content has been processed by the protocol stack, or potentially \[MICHAEL: Why "potentially" - because you're not sure about it? If it may be such an indication, "potentially" should be removed (this seems like the right thing to do for me).] an indication that Content has been acknowledged by a peer.
+* Content Sent: A Content Sent event notifies the application of the status of its Send action. This may be an error if the Content cannot be sent, or an indication that Content has been processed by the protocol stack.
 
 * Path Properties Changed: A Path Properties Changed event notifies the application that some property of the Connection has changed that may influence how and where data is sent and/or received.
 
@@ -334,11 +343,14 @@ This document has no actions for IANA.
 
 # Security Considerations
 
-TAPS does not recommend use of specific security protocols or algorithms. Its goal is to offer ease of use for existing protocols by providing a generic security-related interface. Each provided interface mimics an existing protocol-specific interface provided by supported security protocols. For example, trust verification callbacks are common parts of TLS APIs. TAPS exposes one for similar purposes. Clients must take care to use security APIs appropriately. In cases where clients use said interface to provide sensitive keying material, e.g., access to private keys or copies of pre-shared keys (PSKs), key use must be validated. For example, clients SHOULD NOT use PSK material created for ESP with IETF-QUIC, and clients MUST NOT use private keys intended for server authentication as a key for client authentication. Moreover, unlike certain transport features such as TFO or ECN which can fall back to standard configurations, TAPS systems MUST NOT permit fallback for security protocols. For example, if a clients requests TLS, yet TLS or the desired version are not available, its connection MUST fail. Clients are responsible for implementing protocol or version fallback using a TAPS API if so desired. 
+TAPS does not recommend use of specific security protocols or algorithms. Its goal is to offer ease of use for existing protocols by providing a generic security-related interface. Each provided interface mimics an existing protocol-specific interface provided by supported security protocols. For example, trust verification callbacks are common parts of TLS APIs. TAPS exposes one for similar purposes. Clients must take care to use security APIs appropriately. In cases where clients use said interface to provide sensitive keying material, e.g., access to private keys or copies of pre-shared keys (PSKs), key use must be validated. For example, clients SHOULD NOT use PSK material created for ESP with IETF-QUIC, and clients MUST NOT use private keys intended for server authentication as a key for client authentication. Moreover, unlike certain transport features such as TFO or ECN which can fall back to standard configurations, TAPS systems MUST NOT permit fallback for security protocols. For example, if a clients requests TLS, yet TLS or the desired version are not available, its connection MUST fail. Clients are responsible for implementing protocol or version fallback using a TAPS API if so desired.
 
 # Acknowledgements
 
 This work has received funding from the European Union's Horizon 2020 research and
 innovation programme under grant agreement No. 644334 (NEAT).
 
-Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work. 
+This work has been supported by Leibniz Prize project funds of DFG - German
+Research Foundation: Gottfried Wilhelm Leibniz-Preis 2011 (FKZ FE 570/4-1).
+
+Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work.

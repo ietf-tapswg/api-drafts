@@ -33,10 +33,23 @@ author:
     country: Norway
     email: michawe@ifi.uio.no
   -
+    ins: T. Enghardt
+    name: Theresa Enghardt
+    org: TU Berlin
+    street: Marchstraße 23
+    city: 10587 Berlin
+    country: Germany
+    email: theresa@inet.tu-berlin.de
+  -
     ins: G. Fairhurst
-    name: Gorry Fairhurst
+    name: Godred Fairhurst
     org: University of Aberdeen
+    street: Department of Engineering
+    street: Fraser Noble Building
+    city: Aberdeen, AB24 3UE
+    country: Scotland
     email: gorry@erg.abdn.ac.uk
+    uri: http://www.erg.abdn.ac.uk/
   -
     ins: M. Kuehlewind
     name: Mirja Kuehlewind
@@ -61,14 +74,6 @@ author:
     city: 10587 Berlin
     country: Germany
     email: philipp@inet.tu-berlin.de
-  -
-    ins: T. Enghardt
-    name: Theresa Enghardt
-    org: TU Berlin
-    street: Marchstraße 23
-    city: 10587 Berlin
-    country: Germany
-    email: theresa@inet.tu-berlin.de
   -
     ins: C. Wood
     name: Chris Wood
@@ -337,11 +342,12 @@ preference levels are specified in {{appendix-preferences}}.
 
 ### Transport Preferences {#transport-prefs}
 
-Transport Preferences drive protocol selection and path selection on connection
-establishment.
-Not all transport protocols work on all paths. Thus, transport protocol
-selection is tied to path selection, which may involve choosing between
-multiple local interfaces that are connected to different access networks.
+Transport Preferences drive protocol selection and path selection on
+connection establishment. Since there could be paths over which some transport
+protocols are unable to operate, or remote endpoints that support only
+specific network addresses or transports, transport protocol selection is
+necessarily tied to path selection. This may involve choosing between multiple
+local interfaces that are connected to different access networks.
 
 The Transport Preferences form part of the information used to create a
 Preconnection object. As such, they can be configured during the
@@ -349,7 +355,7 @@ pre-establishment phase, but cannot be changed once a Connection has been
 established.
 
 To reflect the needs of an individual connection, they can be
-specified with different preference, whereby the preference is one of the
+specified with different preference levels from the following table , whereby the preference is one of the
 following levels:
 
    | Preference   | Effect                                                    |
@@ -445,23 +451,21 @@ The following properties apply to Connections and Connection Groups:
   requirement and connection establishment will fail if no other interface
   is available. The default is to not prohibit any particular interface.
 
-
-
 ### Protocol Properties {#protocol-props}
 
-Protocol Properties represent the configuration of a transport protocol once
-it has been selected. A transport protocol may not support all Protocol
-Properties, depending on the available transport features.
-As with Transport Preferences ({{transport-prefs}}), Protocol Properties are
-specified on the Preconnection object, and are using during initiation of a
-Connection to help the system choose an appropriate transport.
-The system will only actually set those protocol properties that are actually
-supported by the chosen transport protocol.
-These properties all apply to Connections and Connection groups.
-The default settings of these properties depends on the chosen protocol and on
-the system configuration.
+Protocol Properties represent the configuration that protocols should use
+once they have been selected. Some properties apply generically across
+multiple transport protocols, in which case they may be used by the system
+to help select candidate protocols. Other properties only apply to specific
+protocols. As with Transport Preferences ({{transport-prefs}}), Protocol Properties are
+specified on the Preconnection object. The default settings of these properties
+will vary based on the specific protocols being used and the system's configuration.
 
-* Set timeout for aborting Connection:
+Generic Protocol Properties include:
+
+<!--- This list should be likely edited -->
+
+* Set timeout for aborting Connection establishment:
   This numeric property specifies how long to wait before aborting a
   Connection attempt.  It is given in seconds.
 
@@ -478,6 +482,8 @@ the system configuration.
   to be covered by a checksum. It is given in Bytes. A value of 0 means
   that no checksum is required, and a special value (e.g., -1) indicates
   full checksum coverage.
+  
+<!--- Should checksum coverage be considered to apply generally? This only seems useful for UDP, etc -->
 
 * Set scheduler for connections in a group:
   This property specifies which scheduler should be used among Connections
@@ -488,6 +494,14 @@ the system configuration.
   This numeric property represents the maximum Content size that can be sent
   before or during Connection establishment, see also {{send-idempotent}}.
   It is given in Bytes.
+
+In order to specify Specific Protocol Properties, the application can attach
+a set of options to the Preconnection object, associated with a specific protocol.
+For example, the application could specify a set of TCP Options to use if and only
+if TCP is selected by the system, including options such as the Maximum Segment
+Size (MSS), and options around Acknowledgement Stretching. Such properties
+should not be assumed to apply across different protocols, but must be possible
+to specify if required by the application.
 
 ### Application Intents {#intents}
 
@@ -555,7 +569,7 @@ intents.
 #### Size to be Sent / Received
 
 This Intent specifies what the application expects the size of a transfer to be.
-It is a numeric property and given in Bytes. 
+It is a numeric property and given in Bytes.
 
 
 #### Duration
@@ -564,7 +578,7 @@ This Intent specifies what the application expects the lifetime of a transfer
 to be. It is a numeric property and given in milliseconds.
 
 
-#### Send / Receive Bit-rate 
+#### Send / Receive Bit-rate
 
 This Intent specifies what the application expects the bit-rate of a transfer to
 be. It is a numeric property and given in Bytes per second.
@@ -575,7 +589,7 @@ be. It is a numeric property and given in Bytes per second.
 This Intent specifies what delay characteristics the applications prefers. It
 provides hints for the transport system whether to optimize for low latency or other
 criteria. Note that setting this Intents does not imply any guarantees on
-whether an application's requirements can actually be satisfied. 
+whether an application's requirements can actually be satisfied.
 
 Stream:
 : Delay and packet delay variation should be kept as low as possible
@@ -773,10 +787,13 @@ the Preconnection and creates a Connection object. A Preconnection can
 only be initiated once.
 
 Once Initiate is called, the candidate Protocol Stack(s) may cause one or more
-transport-layer connections to be created to the specified remote endpoint.
-The caller may immediately begin sending Content on the Connection (see
-{{sending}}) after calling Initate(), though it may wait for one of the
-following events before doing so.
+candidate transport-layer connections to be created to the specified remote
+endpoint. The caller may immediately begin sending Content on the Connection
+(see {{sending}}) after calling Initate(); note that any idempotent data sent
+while the Connection is being established may be sent multiple times or on
+multiple candidates.
+
+The following events may be sent by the Connection after Initiate() is called:
 
 Connection -> Ready&lt;>
 
@@ -787,13 +804,14 @@ the Ready event for connections established using Initiate.
 
 Connection -> InitiateError&lt;>
 
-An InitiateError event occurs either when the set of local and remote specifiers and
-transport and cryptographic parameters cannot be fulfilled on a connection for
-initiation (e.g. the set of available Paths and/or Protocol Stacks meeting the
-constraints is empty), when the RemoteEndpoint cannot be resolved, or when
-no transport-layer connection can be established to the RemoteEndpoint (e.g.,
-because the RemoteEndpoint is not accepting connections, or the application
-is prohibited from opening a connection by the operating system).
+An InitiateError occurs either when the set of transport and cryptographic
+parameters cannot be fulfilled on a connection for initiation (e.g. the set of
+available Paths and/or Protocol Stacks meeting the constraints is empty) or
+reconciled with the local and/or remote endpoints; when the remote specifier
+cannot be resolved; or when no transport-layer connection can be established
+to the remote endpoint (e.g. because the remote endpoint is not accepting
+connections, or the application is prohibited from opening a connection by the
+operating system).
 
 ## Passive Open: Listen {#listen}
 
@@ -850,13 +868,13 @@ The Rendezvous() action consumes the Preconnection. Once Rendezvous() has
 been called, no further parameters may be bound to the Preconnection, and
 no subsequent establishment call may be made on the Preconnection.
 
-Preconnection -> Rendezvoused&lt;Connection>
+Preconnection -> RendezvousDone&lt;Connection>
 
-The Rendezvoused<> event occurs when a connection is established with the
+The RendezvousDone<> event occurs when a connection is established with the
 RemoteEndpoint. For connection-oriented transports, this occurs when the
 transport-layer connection is established; for connectionless transports,
 it occurs when the first Content is received from the RemoteEndpoint. The
-resulting Connection is contained within the Rendezvoused<> event, and is
+resulting Connection is contained within the RendezvousDone<> event, and is
 ready to use as soon as it is passed to the application via the event.
 
 Preconnection -> RendezvousError&lt;contentRef, error>
@@ -993,7 +1011,7 @@ what's left a part of the Content Properties.]
 Intents), that belong in both categories. Besides those that are useful for
 per-connection and per-content path-selection (I removed those for v1), there
 remain two dual-use properties: "Send Bitrate" (path selection in connection /
-shaping and de-bursting in ) and "Timeliness" (path selection and DSCP default 
+shaping and de-bursting in ) and "Timeliness" (path selection and DSCP default
 in connection / buffering and DSCP per content) --- in both cases, I don't see
 how to achieve the functionality when having them only in one of the places.]
 
@@ -1145,9 +1163,12 @@ Connection -> Received&lt;Content>
 As with sending, the type of the Content to be passed is dependent on the
 implementation, and on the constraints on the Protocol Stacks implied by the
 Connection's transport parameters. The Content may also contain metadata from
-protocols in the Protocol Stack for logging and debugging purposes. In
-particular, when this information is available, the value of the Explicit
-Congestion Notification (ECN) field is contained in such metadata.
+protocols in the Protocol Stack; which metadata is available is Protocol Stack
+dependent. In particular, when this information is available, the value of the
+Explicit Congestion Notification (ECN) field is contained in such metadata.
+This information can be used for logging and debugging purposes, and for
+building applications which need access to information about the transport
+internals for their own operation.
 
 The Content object must provide some method to retrieve an octet array
 containing application data, corresponding to a single message within the
@@ -1200,7 +1221,7 @@ Connection.DeframeWith(Deframer)
 
 Content := Deframer.Deframe(OctetStream, ...)
 
-# Introspection {#introspection}
+# Setting and Querying of Connection Properties {#introspection}
 
 At any point, the application can set and query the properties of a
 Connection. Depending on the phase the connection is in, the connection
@@ -1274,7 +1295,10 @@ algorithms or protocols. Any API-compatible transport security protocol should w
 This work has received funding from the European Union's Horizon 2020 research and
 innovation programme under grant agreements No. 644334 (NEAT) and No. 688421 (MAMI).
 
-Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work. 
+This work has been supported by Leibniz Prize project funds of DFG - German
+Research Foundation: Gottfried Wilhelm Leibniz-Preis 2011 (FKZ FE 570/4-1).
+
+Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work.
 
 --- back
 
