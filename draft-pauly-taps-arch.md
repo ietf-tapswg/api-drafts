@@ -39,9 +39,14 @@ author:
     email: anna.brunstrom@kau.se
   -
     ins: G. Fairhurst
-    name: Gorry Fairhurst
+    name: Godred Fairhurst
     org: University of Aberdeen
+    street: Department of Engineering
+    street: Fraser Noble Building
+    city: Aberdeen, AB24 3UE
+    country: Scotland
     email: gorry@erg.abdn.ac.uk
+    uri: http://www.erg.abdn.ac.uk/
   -
     ins: C. Perkins
     name: Colin Perkins

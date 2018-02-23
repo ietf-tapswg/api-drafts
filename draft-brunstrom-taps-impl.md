@@ -157,7 +157,7 @@ In the following cases the transport system should notify the application with a
 
 ## Role of system policy
 
-The system policy is responsible for combining and reconciling several different sources of preferences when establishing Connections. These include, but are not limited to:
+The implementation is responsible for combining and reconciling several different sources of preferences when establishing Connections. These include, but are not limited to:
 
 1. Application preferences, i.e., preferences specified during the pre-establishment such as Local Endpoint, Remote Endpoint, Path Selection Properties, and Protocol Selection Properties.
 2. Dynamic system policy, i.e., policy compiled from internally and externally acquired information about available network interfaces, supported transport protocols, and current/previous Connections. Examples of ways to externally retrieve policy-support information are through OS-specific statistics/measurement tools and tools that reside on middleboxes and routers.

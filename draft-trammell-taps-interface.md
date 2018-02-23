@@ -42,9 +42,14 @@ author:
     email: theresa@inet.tu-berlin.de
   -
     ins: G. Fairhurst
-    name: Gorry Fairhurst
+    name: Godred Fairhurst
     org: University of Aberdeen
+    street: Department of Engineering
+    street: Fraser Noble Building
+    city: Aberdeen, AB24 3UE
+    country: Scotland
     email: gorry@erg.abdn.ac.uk
+    uri: http://www.erg.abdn.ac.uk/
   -
     ins: M. Kuehlewind
     name: Mirja Kuehlewind
