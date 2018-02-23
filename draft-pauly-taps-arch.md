@@ -190,7 +190,8 @@ The following diagram summarizes the top-level concepts in the architecture and 
                         V
               Network Layer Interface
 ~~~~~~~~~~
-{: #fig-abstractions title="Concepts and Relationships in the Transport Services Architecture"}
+{: #fig-abstractions title="Concepts and Relationships in the Transport Services Architecture\[MICHAEL: "I think it's bad that establishment is missing from the figure - but I understand it could get messy. Maybe writing '(pre-)estabilshment' could help, to indicate that there is bot pre-establishment and establishment?"]"}
+
 
 ## Transport Services API Concepts
 
