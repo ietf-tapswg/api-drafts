@@ -157,15 +157,15 @@ In the following cases the transport system should notify the application with a
 
 ## Role of system policy
 
-The implementation is responsible for combining and reconciling several different sources of protocol and path selection preferences when establishing Connections. These include, but are not necessarily limited to:
+The system policy is responsible for combining and reconciling several different sources of preferences when establishing Connections. These include, but are not limited to:
 
-1. Application preferences specified during pre-establishment
-2. Dynamic system policy
-3. Default implementation policy
+1. Application preferences, i.e., preferences specified during the pre-establishment such as Local Endpoint, Remote Endpoint, Path Selection Properties, and Protocol Selection Properties.
+2. Dynamic system policy, i.e., policy compiled from internally and externally acquired information about available network interfaces, supported transport protocols, and current/previous Connections. Examples of ways to externally retrieve policy-support information are through OS-specific statistics/measurement tools and tools that reside on middleboxes and routers.
+3. Default implementation policy, i.e., predefined policy by OS or application.
 
 In general, any protocol or path used for a connection must conform to all three sources of constraints. Any violation of any of the layers should cause a protocol or path to be considered ineligble for use. For an example of application preferences leading to constraints, an application may prohibit the use of metered network interfaces for a given Connection to avoid user cost. Similarly, the system policy at a given time may prohibit the use of such a metered network interface from the application's process. Lastly, the implementation itself may default to disallowing certain network interfaces unless explicitly requested by the application and allowed by the system.
 
-It is expected that the database of system policies and the method of looking up these policies will vary across various platforms. An implementation SHOULD attempt to look up the relevant policies for the system in a dynamic way to make sure it is reflecting a fresh version of the system policy, since the system's policy regarding the application's traffic may change over time due to user or administrative changes.
+It is expected that the database of system policies and the method of looking up these policies will vary across various platforms. An implementation SHOULD attempt to look up the relevant policies for the system in a dynamic way to make sure it is reflecting an accurate version of the system policy, since the system's policy regarding the application's traffic may change over time due to user or administrative changes.
 
 # Implementing Connection Establishment
 
@@ -519,28 +519,28 @@ a Finish event upon a Close action from the peer {{NEAT-flow-mapping}}.
 
 # Cached State
 
-Beyond a single Connection's lifetime, it is useful for an implementation to keep state and history. This cached 
+Beyond a single Connection's lifetime, it is useful for an implementation to keep state and history. This cached
 state can help improve future Connection establishment due to re-using results and credentials, and favoring paths and protocols that performed well in the past.
 
-Cached state may be associated with different Endpoints for the same Connection, depending on the protocol generating the cached content. 
-For example, session tickets for TLS are associated with specific endpoints, and thus SHOULD be cached based on a Connection's 
-hostname Endpoint (if applicable). On the other hand, performance characteristics of a path are more likely tied to the IP address 
+Cached state may be associated with different Endpoints for the same Connection, depending on the protocol generating the cached content.
+For example, session tickets for TLS are associated with specific endpoints, and thus SHOULD be cached based on a Connection's
+hostname Endpoint (if applicable). On the other hand, performance characteristics of a path are more likely tied to the IP address
 and subnet being used.
 
 ## Protocol state caches
 
-Some protocols will have long-term state to be cached in association with Endpoints. This state often has some time after which 
+Some protocols will have long-term state to be cached in association with Endpoints. This state often has some time after which
 it is expired, so the implementation SHOULD allow each protocol to specify an expiration for cached content.
 
 Examples of cached protocol state include:
 
-- The DNS protocol can cache resolution answers (A and AAAA queries, for example), associated with a Time To Live (TTL) to 
+- The DNS protocol can cache resolution answers (A and AAAA queries, for example), associated with a Time To Live (TTL) to
 be used for future hostname resolutions without requiring asking the DNS resolver again.
 - TLS caches session state and tickets based on a hostname, which can be used for resuming sessions with a server.
 - TCP can cache cookies for use in TCP Fast Open.
 
-Cached state is primarily used during Connection establishment for a single Protocol Stack, but may be used to influence an 
-implementation's preference between several candidate Protocol Stacks. For example, if two IP address Endpoints are otherwise 
+Cached state is primarily used during Connection establishment for a single Protocol Stack, but may be used to influence an
+implementation's preference between several candidate Protocol Stacks. For example, if two IP address Endpoints are otherwise
 equally preferred, an implementation may choose to attempt a connection to an address for which it has a TCP Fast Open cookie.
 
 Applications must have a way to flush protocol cache state if desired. This may be necessary, for example, if
