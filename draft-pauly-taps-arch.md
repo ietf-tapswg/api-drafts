@@ -72,7 +72,7 @@ author:
     country: United States of America
     email: cawood@apple.com
 
-normative:
+informative:
     RFC8095:
     I-D.ietf-taps-minset:
     I-D.pauly-taps-transport-security:
@@ -122,7 +122,7 @@ One of the key insights to come from identifying the minimal set of features pro
 
 The goal of the Transport Services architecture is to redefine the interface between applications and transports in a way that allows the transport layer to evolve and improve without fundamentally changing the contract with the application. This requires a careful consideration of how to expose the capabilities of protocols.
 
-There are several degrees in which a Transport Services system can offer flexibility to an application: it can provide access to multiple sets of protocols and protocol features, it can use these protocols across multiple networks that may have different performance and functional characteristics, and it can communicate with different addresses for a peer to optimize performance. Beyond these, if the API for the system remains the same over time, new protocols and features may be added to the system's implementation without requiring significant changes in applications for adoption.
+There are several degrees in which a Transport Services system can offer flexibility to an application: it can provide access to multiple sets of protocols and protocol features, it can use these protocols across multiple paths that may have different performance and functional characteristics, and it can communicate with different Remote Endpoints to optimize performance. Beyond these, if the API for the system remains the same over time, new protocols and features may be added to the system's implementation without requiring significant changes in applications for adoption.
 
 The following considerations were used in the design of this architecture.
 
@@ -134,7 +134,7 @@ Any Transport Services API must expose the distilled minimal set of features off
 
 ## Access to Specialized Features
 
-Since applications will often need to control fine-grained details of transport protocols in order to optimize their behavior and ensure compatibility with remote peers, a Transport Services system also needs to allow more specialized protocol features to be used. The interface for these specialized options should be treated differently from the common options in order to ensure flexibility.
+Since applications will often need to control fine-grained details of transport protocols to optimize their behavior and ensure compatibility with remote peers, a Transport Services system also needs to allow more specialized protocol features to be used. The interface for these specialized options should be treated differently from the common options to ensure flexibility.
 
 A specialized feature may be required by an application only when using a specific protocol, and not when using others. For example, if an application is using UDP, it may require control over the checksum or fragmentation behavior for UDP; if it used a protocol to frame its content over a byte stream like TCP, it would not need these options. In such cases, the API should expose the features in such a way that they take effect when a particular protocol is selected, but do not imply that only that protocol may be used if there are equivalent options.
 
@@ -144,11 +144,11 @@ Other specialized features, however, may be strictly required by an application 
 
 The Transport Services API is envisioned as the abstract model for a family of APIs that share a common way to expose transport features and encourage flexibility. The abstract API definition {{I-D.trammell-taps-interface}} describes this interface and is aimed at application developers.
 
-Implementations that provide the Transport Services API {{I-D.brunstrom-taps-impl}}, on the other hand, will vary due to system-specific support and the needs of the deployment scenario. It is expected that all implementations of Transport Services will offer the entire mandatory API, but that some features will not be functional in certain implementations. All implementations must offer sufficient APIs to use the distilled minimal set of features offered by transport protocols {{I-D.ietf-taps-minset}}, including API support for TCP and UDP transport, but it is possible that some very constrained devices might not have, for example, a full TCP implementation.
+Implementations that provide the Transport Services API {{I-D.brunstrom-taps-impl}} will vary due to system-specific support and the needs of the deployment scenario. It is expected that all implementations of Transport Services will offer the entire mandatory API, but that some features will not be functional in certain implementations. All implementations must offer sufficient APIs to use the distilled minimal set of features offered by transport protocols {{I-D.ietf-taps-minset}}, including API support for TCP and UDP transport, but it is possible that some very constrained devices might not have, for example, a full TCP implementation.
 
 In order to preserve flexibility and compatibility with future protocols, top-level features in the Transport Services API should avoid referencing particular transport protocols. Mappings of these API features in the Implementation document, on the other hand, must explain the ramifications of each feature on existing protocols. It is expected that the Implementation document will be updated and supplemented as new protocols and protocol features are developed.
 
-It is important to note that neither the Transport Services API nor the Implementation document defines new protocols that require any changes on peers. The Transport Services system must be deployable on one side only, as a way to allow an application to make better use of available capabilities on a system, and protocols features that may be supported by peers across the network.
+It is important to note that neither the Transport Services API nor the Implementation document defines new protocols that require any changes on remote hosts. The Transport Services system must be deployable on one side only, as a way to allow an application to make better use of available capabilities on a system, and protocols features that may be supported by peers across the network.
 
 # Transport Services Architecture and Concepts
 
@@ -164,14 +164,14 @@ The following diagram summarizes the top-level concepts in the architecture and 
 
   +------------------------------------------------------+
   |                    Application                       |
-  +-+------------------^----------+----------^-----------+
-    |                  |          |          |
-  pre-               data         |        events
-  establishment    transfer       |          |
-    |                  |      terminate      |
-    |                  |          |          |
-    |             +----v----------v--+       |
-  +-v-------------+      Objects     +-------+----------+
+  +-+----------------+------^-------+--------^-----------+
+    |                |      |       |        |
+  pre-               |     data     |      events
+  establishment      |   transfer   |        |
+    |        establishment  |   terminate    |
+    |                |      |       |        |
+    |             +--v------v-------v+       |
+  +-v-------------+   Basic Objects  +-------+----------+
   |  Transport    +--------+---------+                  |
   |  Services              |                            |
   |  API                   |                            |
@@ -195,22 +195,22 @@ The following diagram summarizes the top-level concepts in the architecture and 
                         V
               Network Layer Interface
 ~~~~~~~~~~
-{: #fig-abstractions title="Concepts and Relationships in the Transport Services Architecture\[MICHAEL: "I think it's bad that establishment is missing from the figure - but I understand it could get messy. Maybe writing '(pre-)estabilshment' could help, to indicate that there is bot pre-establishment and establishment?"]"}
+{: #fig-abstractions title="Concepts and Relationships in the Transport Services Architecture"}
 
 
 ## Transport Services API Concepts
 
-Fundamentally, a Transport Services API needs to provide basic objects that allow applications to establish communication and send and receive data {{objects}}. These may be exposed as handles or referenced objects, depending on the language.
+Fundamentally, a Transport Services API needs to provide basic objects {{objects}} that allow applications to establish communication and send and receive data {{objects}}. These may be exposed as handles or referenced objects, depending on the language.
 
 Beyond the basic objects, there are several high-level groups of actions that any Transport Services API must provide:
 
-* Pre-Establishment ({{preestablishment}}) encompasses the parameters that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. For any system that provides generic Transport Services, these properties should primarily offer knobs that apply across multiple transports. Properties may have a large impact on the rest of the aspects of the interface: they can modify how establishment occurs, they can influence the expectations around data transfer, and they determine the set of events that will be supported.
+* Pre-Establishment ({{preestablishment}}) encompasses the parameters that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. For any system that provides generic Transport Services, these properties should primarily offer knobs that are applicable to multiple transports. Properties may have a large impact on the rest of the aspects of the interface: they can modify how establishment occurs, they can influence the expectations around data transfer, and they determine the set of events that will be supported.
 
 * Establishment ({{establishment}}) focuses on the actions that an application takes on the transport objects to prepare for data transfer.
 
 * Data Transfer ({{datatransfer}}) consists of how an application represents data to be sent and received, the functions required to send and receive that data, and how the application is notified of the status of its data transfer.
 
-* Event Handling ({{events}}) defines the set of properties that an application may be notified of during the lifetime of transport objects. These may also provide opportunities for the application to interact with the underlying transport.
+* Event Handling ({{events}}) defines the set of properties about which an application can receive notifications during the lifetime of transport objects. Events can also provide opportunities for the application to interact with the underlying transport by querying state or updating maintenance options.
 
 * Termination ({{termination}}) focuses on the methods by which data transmission is ceased, and state is torn down in the transport.
 
