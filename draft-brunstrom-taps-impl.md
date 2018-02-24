@@ -395,7 +395,7 @@ Instead, calling the ConnectionReceived event may be delayed until the first Mes
 
 While protocols that use an explicit handshake to validate a Connection to a peer can be used for racing multiple establishment attempts in parallel, "unconnected" protocols such as raw UDP do not offer a way to validate the presence of a peer or the usability of a Connection without application feedback. An implementation SHOULD consider such a protocol stack to be established as soon as a local route to the peer endpoint is confirmed.
 
-However, if a peer is not reachable over the network using the unconnected protocol, or content cannot be exchanged for any other reason, the application may want to attempt using another candidate Protocol Stack. The implementation SHOULD maintain the list of other candidate Protocol Stacks that were eligible to use. In the case that the application signals that the initial Protocol Stack is failing for some reason and that another option should be attempted, the Connection can be updated to point to the next candidate Protocol Stack. This can be viewed as an application-driven form of Protocol Stack racing.
+However, if a peer is not reachable over the network using the unconnected protocol, or data cannot be exchanged for any other reason, the application may want to attempt using another candidate Protocol Stack. The implementation SHOULD maintain the list of other candidate Protocol Stacks that were eligible to use. In the case that the application signals that the initial Protocol Stack is failing for some reason and that another option should be attempted, the Connection can be updated to point to the next candidate Protocol Stack. This can be viewed as an application-driven form of Protocol Stack racing.
 
 ## Implementing listeners
 
@@ -411,27 +411,29 @@ Implementations should wait for incoming packets for unconnected protocols on a 
 
 ## Data transfer for streams, datagrams, and frames
 
-### Sending content
+The most basic mapping for sending a Message is an abstraction of datagrams, in which the transport protocol naturally deals in discrete packets. Each Message here corresponds to a single datagram. Generally, these will be short enough that sending and receiving will always use a complete Message.
 
-How to handle sending data onto examples like TCP, UDP, and a basic Length-Value protocol.
+For protocols that expose byte-streams, the only delineation provided by the protocol is the end of the stream in a given direction. Each Message in this case corresponds to the entire stream of bytes in a direction. These Messages may be quite long, in which case they can be sent in multiple parts.
 
-How to handle and notify errors when sending.
+Protocols that provide the framing (such as length-value protocols, or protocols that use delimeters) provide data boundaries that may be longer than a traditional packet datagram. Each Message for framing protocols corresponds to a single frame, which may be sent either as a complete Message, or in multiple parts.
+
+### Sending Messages
+
+The effect of the application sending a Message is determined by the top-level protocol in the established Protocol Stack. That is, if the top-level protocol provides an abstraction of framed messages over a connection, the application will be able to send multiple Messages on that connection, even if the framing protocol is built on a byte-stream protocol like TCP.
 
 #### Send Completion
 
-How to determine when a send is effectively complete
+The application should be notified whenever a Message or partial Message has been consumed by the Protocol Stack, or has failed to send. This meaning of the Message being consumed by the stack may vary depending on the protocol. For a basic datagram protocol like UDP, this may correspond to the time when the packet is sent into the interface driver. For a protocol that buffers data in queues, like TCP, this may correspond to when the data has entered the send buffer.
 
 #### Batching Sends
 
-Improve efficiency by handling multiple send operations at once for datagram or frame based protocols
+Since sending a Message may involve a context switch between the application and the transport system, sending patterns that involve multiple small Messages can incur high overhead if each needs to be enqueued separately. To avoid this, the application should have a way to indicate a batch of Send actions, during which time the implementation will hold off on processing Messages until the batch is complete. This can also help context switches when enqueuing data in the interface driver if the operation can be batched.
 
-### Receiving content
+### Receiving Messages
 
-How to handle sending data in examples like TCP, UDP, and a basic Length-Value protocol.
+Similar to sending, Receiving a Message is determined by the top-level protocol in the established Protocol Stack. The main difference with Receiving is that the size and boundaries of the Message are not known beforehand. The application can communicate in its Receive action the parameters for the Message, which can help the implementation know how much data to deliver and when. For example, if the application only wants to receive a complete Message, the implementation should wait until an entire Message (datagram, stream, or frame) is read before delivering any Message content to the application. Alternatively, the application can specify the minimum number of bytes of Message content it wants to receive (which may be just a single byte) to control the flow of received data.
 
-Waiting for frame boundaries when necessary.
-
-How to handle and notify errors when receiving.
+If a Connection becomes finished before a requested Receive action can be satisfied, the implementation should deliver any partial Message content outstanding, or if none is available, an indication that there will be no more received Messages.
 
 ## Handling of data for fast-open protocols {#fastopen}
 
