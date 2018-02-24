@@ -410,9 +410,9 @@ How to passively wait for incoming connections, and what that means for protocol
 
 ### Implementing listeners for Unconnected Protocols
 
-Unconnected protocols such as UDP and UDP-lite generally do not provide the same mechanisms that connected protocols do to offer connection objects. 
+Unconnected protocols such as UDP and UDP-lite generally do not provide the same mechanisms that connected protocols do to offer Connection objects. 
 
-Implementations should perform the processing of new datagrams on a single connection object and should handle creation of Connection objects which can be passed to applications. On platforms with facilities to create a "virtual connection" for unconnected protocols implementations should use these to minimise the handling of datagram intended for already created connection objects. 
+Implementations should wait for incoming packets for unconnected protocols on a listening port and should perform five-tuple matching of packets to either existing Connection objects or the creation of new Connection objects. On platforms with facilities to create a "virtual connection" for unconnected protocols implementations should use these mechanisms to minimise the handling of datagrams intended for already created Connection objects. 
 
 # Implementing Data Transfer
 
