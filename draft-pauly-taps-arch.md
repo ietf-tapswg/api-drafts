@@ -179,8 +179,8 @@ The following diagram summarizes the top-level concepts in the architecture and 
   +------------------------|----------------------------+
   |  Transport             |                            |
   |  System                |        +-----------------+ |
-  |  Implementation        |        |   Association   | |
-  |                        |        |      Cache      | |
+  |  Implementation        |        |     Cached      | |
+  |                        |        |      State      | |
   |  (Candidate Gathering) |        +-----------------+ |
   |                        |                            |
   |  (Candidate Racing)    |        +-----------------+ |
@@ -188,8 +188,7 @@ The following diagram summarizes the top-level concepts in the architecture and 
   |                        |        |     Policy      | |
   |             +----------v-----+  +-----------------+ |
   |             |    Protocol    |                      |
-  +-------------+     Stack      +----------------------+
-                |    Instance    |
+  +-------------+    Stack(s)    +----------------------+
                 +-------+--------+
                         V
               Network Layer Interface
@@ -318,7 +317,7 @@ The Transport System Implementation Concepts define the set of objects used inte
 
 * System Policy: A Transport Service System Policy defines the algorithm it uses to take connection properties from the application, and determine how it will gather candidate paths and protocols {{gathering}} and race the candidates during establishment {{racing}}.
 
-* Association Cache: The Association Cache holds the state that the implementation keeps for each set of associated endpoints that have been used previously. This can include DNS results, TLS session state, previous success and quality of transport protocols over certain paths.
+* Cached State: Cached State is the state and history that the implementation keeps for each set of associated endpoints that have been used previously. This can include DNS results, TLS session state, previous success and quality of transport protocols over certain paths.
 
 ### Gathering {#gathering}
 

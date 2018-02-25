@@ -571,9 +571,9 @@ An implementation should use this information, when possible, to determine prefe
 
 Connection lifetime for TCP translates fairly simply into the the abstraction presented to an application. When the TCP three-way handshake is complete, its layer of the Protocol Stack can be considered Ready (established). This event will cause racing of Protocol Stack options to complete if TCP is the top-level protocol, at which point the application can be notified that the Connection is Ready to send and receive.
 
-If the application sends a Close, that can translate to a graceful termination of the TCP connection, which is sending a FIN to close the sending stream. If the application sends an Abort, then the TCP state can be closed abruptly, leading to a RST being sent to the peer.
+If the application sends a Close, that can translate to a graceful termination of the TCP connection, which is performed by sending a FIN to the remote endpoint. If the application sends an Abort, then the TCP state can be closed abruptly, leading to a RST being sent to the peer.
 
-Without a layer of framing above TCP, the cleanest abstraction for sending and receiving Messages over TCP is to treat each direction of the stream of bytes as a single Message, terminated by a FIN. That means that if the application can send partial Messages on the Connection to continue writing, but marking the Message complete corresponds to closing the sending stream. Similarly, when the application receives the final portion of a Message, it knows that the receiving stream has been closed.
+Without a layer of framing above TCP, the cleanest abstraction for sending and receiving Messages over TCP is to treat each direction of the stream of bytes as a single Message, terminated by a FIN. That means that if the application can make several Send calls to enqueue subsequent data chunks for the same Message to continue writing, but marking the Message complete corresponds to closing the sending stream. Similarly, when the application receives the final portion of a Message, it knows that the receiving stream has been closed.
 
 ## UDP
 
