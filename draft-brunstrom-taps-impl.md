@@ -557,7 +557,7 @@ be used for future hostname resolutions without requiring asking the DNS resolve
 - TLS caches session state and tickets based on a hostname, which can be used for resuming sessions with a server.
 - TCP can cache cookies for use in TCP Fast Open.
 
-Cached state is primarily used during Connection establishment for a single Protocol Stack, but may be used to influence an
+Cached protocol state is primarily used during Connection establishment for a single Protocol Stack, but may be used to influence an
 implementation's preference between several candidate Protocol Stacks. For example, if two IP address Endpoints are otherwise
 equally preferred, an implementation may choose to attempt a connection to an address for which it has a TCP Fast Open cookie.
 
@@ -572,7 +572,7 @@ In addition to protocol state, Protocol Instances SHOULD provide data into a per
 - Connection Establishment latency
 - Connection Establishment success rate
 
-These items can be cached on a per-address and per-subnet granularity, and averaged between different values. The information SHOULD be cached on a per-network basis, since it is expected that different network attachments will have different performance characteristics.
+These items can be cached on a per-address and per-subnet granularity, and averaged between different values. The information SHOULD be cached on a per-network basis, since it is expected that different network attachments will have different performance characteristics. Besides Protocol Instances, other system entities may also provide data into performance-oriented caches. This could for instance be signal strength information reported by radio modems like Wi-Fi and mobile broadband or information about the battery-level of the device.
 
 An implementation should use this information, when possible, to determine preference between candidate paths, endpoints, and protocol options. Eligible options that historically had significantly better performance than others SHOULD be selected first when gathering candidates {{gathering}} to ensure better performance for the application.
 
