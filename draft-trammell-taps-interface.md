@@ -488,7 +488,7 @@ Generic Protocol Properties include:
 * Set scheduler for connections in a group:
   This property specifies which scheduler should be used among Connections
   within a Connection Group. It applies to connection groups. For now we
-  suggest we the schedulers defined in {{I-D.ietf-tsvwg-sctp-ndata}}.
+  suggest the schedulers defined in {{I-D.ietf-tsvwg-sctp-ndata}}.
 
 * Maximum Content Size Before Connection Establishment:
   This numeric property represents the maximum Content size that can be sent
@@ -1014,6 +1014,14 @@ remain two dual-use properties: "Send Bitrate" (path selection in connection /
 shaping and de-bursting in ) and "Timeliness" (path selection and DSCP default
 in connection / buffering and DSCP per content) --- in both cases, I don't see
 how to achieve the functionality when having them only in one of the places.]
+\[MICHAEL: Thanks for cleaning. I think whatever makes sense per-content
+can be placed there and only there. If you then want to make them per-connection,
+this is a minor implementation detail: an implementation could simply use the
+same data structure to always hand over upon sending, so if you want to change
+this once and keep it the same for all subsequent calls, you just change the data
+structure once. I don't think this implementation detail warrants the extra
+document length of having these in both places for us (and if you want to hint
+at this possibility, it's just one sentence to add).]
 
 
 The Send action takes per-Content send parameters which control how the

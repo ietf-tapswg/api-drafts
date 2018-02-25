@@ -62,6 +62,15 @@ author:
     city: Glasgow  G12 8QQ
     country: United Kingdom
     email: csp@csperkins.org
+ -
+    ins: M. Welzl
+    name: Michael Welzl
+    role: editor
+    org: University of Oslo
+    street: PO Box 1080 Blindern
+    city: 0316  Oslo
+    country: Norway
+    email: michawe@ifi.uio.no
 
 normative:
     I-D.pauly-taps-arch:
@@ -421,6 +430,13 @@ Protocols that provide the framing (such as length-value protocols, or protocols
 
 The effect of the application sending a Message is determined by the top-level protocol in the established Protocol Stack. That is, if the top-level protocol provides an abstraction of framed messages over a connection, the application will be able to send multiple Messages on that connection, even if the framing protocol is built on a byte-stream protocol like TCP.
 
+#### Send Parameters
+
+- Lifetime: this SHOULD be implemented by removing the Message from a send buffer after the Lifetime has expired. The send buffer can be inside the transport system, or it can be maintained by the underlying transport protocol (e.g., in case of SCTP, such control over the SCTP send buffer can be exercised using the partial reliability extension {{!RFC8303}}. Since unnecessarily sending a Message after  its Lifetime expiry reduces efficiency but will not lead to incorrect behavior, a transport system MAY ignore this parameter.
+
+- Niceness: \[MICHAEL: I wrote this text but now I'm no longer sure this can work - to be removed or fixed: when the transport protocol supports multi-streaming and only one of these streams is currently used, a possible implementation of Niceness is to open multiple streams and schedule Messages to these streams with a priority that ensures that Messages will correctly yield to each other based on their Niceness. A transport system MAY ignore this parameter.]
+\[MICHAEL: this can only work if there's a TAPS transport system on the receiver side as well; we need to explain that, in case the receiving app is only expecting a single connection, such multiple streams will map onto this single connection. This also limits the mapping of Connections to Streams later in the process, though.]
+
 #### Send Completion
 
 The application should be notified whenever a Message or partial Message has been consumed by the Protocol Stack, or has failed to send. This meaning of the Message being consumed by the stack may vary depending on the protocol. For a basic datagram protocol like UDP, this may correspond to the time when the packet is sent into the interface driver. For a protocol that buffers data in queues, like TCP, this may correspond to when the data has entered the send buffer.
@@ -452,12 +468,13 @@ It is also possible that protocol stacks within a particular leaf node use 0-RTT
 ## Changing Protocol Properties
 
 Appendix A.1 of {{I-D.ietf-taps-minset}} explains, using primitives that are described in {{!RFC8303}} and {{!RFC8304}}, how to implement changing the following protocol properties of an established connection with the TCP and UDP. Below, we amend this description for other protocols (if applicable):
-* Set timeout for aborting Connection: for SCTP, this can be done using the primitive CHANGE_TIMEOUT.SCTP described in section 4 of {{!RFC8303}}.
-* Set timeout to suggest to the peer
-* Set retransmissions before “Excessive Retransmissions”
-* Set required minimum coverage of the checksum for receiving: for UDP-Lite, this can be done using the primitive SET_MIN_CHECKSUM_COVERAGE.UDP-Lite described in section 4 of {{!RFC8303}}.
-* Set scheduler for connections in a group: for SCTP, this can be done using the primitive SET_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
-* Set priority for a connection in a group: for SCTP, this can be done using the primitive CONFIGURE_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
+
+- Set timeout for aborting Connection: for SCTP, this can be done using the primitive CHANGE_TIMEOUT.SCTP described in section 4 of {{!RFC8303}}.
+- Set timeout to suggest to the peer
+- Set retransmissions before “Excessive Retransmissions”
+- Set required minimum coverage of the checksum for receiving: for UDP-Lite, this can be done using the primitive SET_MIN_CHECKSUM_COVERAGE.UDP-Lite described in section 4 of {{!RFC8303}}.
+- Set scheduler for connections in a group: for SCTP, this can be done using the primitive SET_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
+- Set priority for a connection in a group: for SCTP, this can be done using the primitive CONFIGURE_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
 
 
 ## Maintenance Events
