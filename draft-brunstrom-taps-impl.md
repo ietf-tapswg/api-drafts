@@ -62,6 +62,14 @@ author:
     city: Glasgow G12 8QQ
     country: United Kingdom
     email: csp@csperkins.org
+  -
+    ins: M. Welzl
+    name: Michael Welzl
+    org: University of Oslo
+    street: PO Box 1080 Blindern
+    city: 0316  Oslo
+    country: Norway
+    email: michawe@ifi.uio.no
 
 normative:
     I-D.pauly-taps-arch:
@@ -425,7 +433,20 @@ The effect of the application sending a Message is determined by the top-level p
 
 - Lifetime should be implemented by removing the Message from its queue of pending Messages after the Lifetime has expired. A queue of pending Messages within the transport system implementation that have yet to be handed to the Protocol Stack can always support this property, but once a Message has been sent into the send buffer of a protocol, only certain protocols may support de-queueing a message. For example, TCP cannot remove bytes from its send buffer, while in case of SCTP, such control over the SCTP send buffer can be exercised using the partial reliability extension {{!RFC8303}}. When there is no standing queue of Messages within the system, and the Protocol Stack does not support removing a Message from its buffer, this property may be ignored.
 
-- Niceness represents the ability to de-prioritize a Message in favor of other Messages. This can be implemented by the system re-ordering Messages that have yet to be handed to the Protocol Stack, or by giving relative priority hints to protocols that support priorities per Message. For example, an implementation of HTTP/2 could choose to send Messages of different niceness on streams of different priority. 
+- Niceness represents the ability to de-prioritize a Message in favor of other Messages. This can be implemented by the system re-ordering Messages that have yet to be handed to the Protocol Stack, or by giving relative priority hints to protocols that support priorities per Message. For example, an implementation of HTTP/2 could choose to send Messages of different niceness on streams of different priority.
+
+- Ordered: when this is false, it disables the requirement of in-order-delivery for protocols that support configurable ordering.
+
+- Immediate: when this is true, the Message should be sent immediately, even when this comes at the cost of using the network capacity less efficiently. For example, small messages can sometimes be bundled to fit into a single data packet for the sake of reducing header overhead; such bundling SHOULD not be used in case this parameter is true. For example, in case of TCP, the Nagle algorithm SHOULD be disabled when Immediate=true.
+
+- Idempotent: when this is true, it means that the Message can be used by mechanisms that might transfer it multiple times -- e.g., as a result of racing multiple transports or as part of TCP Fast Open.
+
+- Corruption Protection Length: when this is set to any value other than -1, it limits the required checksum in protocols that allow limiting the checksum length (e.g. UDP-Lite).
+
+- Immediate Acknowledgement: TBD
+
+- Timeliness: TODO
+
 
 #### Send Completion
 
