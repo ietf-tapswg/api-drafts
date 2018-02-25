@@ -917,7 +917,7 @@ Clone action was called -- and the resulting clone. Calling Clone on any of thes
 Connections adds a third Connection to the group, and so on.
 All Connections in a group are entangled. This means that they automatically share
 all properties: changing a parameter for one of them also changes the parameter
-for all others, closing one of them also closes all others, etc.
+for all others.
 
 There is only one Protocol Property that is not entangled, i.e., it is a separate
 per-Connection Property for individual Connections in the group: a priority.
