@@ -24,7 +24,7 @@ author:
     name: Tommy Pauly
     role: editor
     org: Apple Inc.
-    street: 1 Infinite Loop
+    street: One Apple Park Way
     city: Cupertino, California 95014
     country: United States of America
     email: tpauly@apple.com
@@ -59,18 +59,9 @@ author:
     name: Colin Perkins
     org: University of Glasgow
     street: School of Computing Science
-    city: Glasgow  G12 8QQ
+    city: Glasgow G12 8QQ
     country: United Kingdom
     email: csp@csperkins.org
- -
-    ins: M. Welzl
-    name: Michael Welzl
-    role: editor
-    org: University of Oslo
-    street: PO Box 1080 Blindern
-    city: 0316  Oslo
-    country: Norway
-    email: michawe@ifi.uio.no
 
 normative:
     I-D.pauly-taps-arch:
@@ -432,10 +423,9 @@ The effect of the application sending a Message is determined by the top-level p
 
 #### Send Parameters
 
-- Lifetime: this SHOULD be implemented by removing the Message from a send buffer after the Lifetime has expired. The send buffer can be inside the transport system, or it can be maintained by the underlying transport protocol (e.g., in case of SCTP, such control over the SCTP send buffer can be exercised using the partial reliability extension {{!RFC8303}}. Since unnecessarily sending a Message after  its Lifetime expiry reduces efficiency but will not lead to incorrect behavior, a transport system MAY ignore this parameter.
+- Lifetime should be implemented by removing the Message from its queue of pending Messages after the Lifetime has expired. A queue of pending Messages within the transport system implementation that have yet to be handed to the Protocol Stack can always support this property, but once a Message has been sent into the send buffer of a protocol, only certain protocols may support de-queueing a message. For example, TCP cannot remove bytes from its send buffer, while in case of SCTP, such control over the SCTP send buffer can be exercised using the partial reliability extension {{!RFC8303}}. When there is no standing queue of Messages within the system, and the Protocol Stack does not support removing a Message from its buffer, this property may be ignored.
 
-- Niceness: \[MICHAEL: I wrote this text but now I'm no longer sure this can work - to be removed or fixed: when the transport protocol supports multi-streaming and only one of these streams is currently used, a possible implementation of Niceness is to open multiple streams and schedule Messages to these streams with a priority that ensures that Messages will correctly yield to each other based on their Niceness. A transport system MAY ignore this parameter.]
-\[MICHAEL: this can only work if there's a TAPS transport system on the receiver side as well; we need to explain that, in case the receiving app is only expecting a single connection, such multiple streams will map onto this single connection. This also limits the mapping of Connections to Streams later in the process, though.]
+- Niceness represents the ability to de-prioritize a Message in favor of other Messages. This can be implemented by the system re-ordering Messages that have yet to be handed to the Protocol Stack, or by giving relative priority hints to protocols that support priorities per Message. For example, an implementation of HTTP/2 could choose to send Messages of different niceness on streams of different priority. 
 
 #### Send Completion
 
@@ -475,7 +465,6 @@ Appendix A.1 of {{I-D.ietf-taps-minset}} explains, using primitives that are des
 - Set required minimum coverage of the checksum for receiving: for UDP-Lite, this can be done using the primitive SET_MIN_CHECKSUM_COVERAGE.UDP-Lite described in section 4 of {{!RFC8303}}.
 - Set scheduler for connections in a group: for SCTP, this can be done using the primitive SET_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
 - Set priority for a connection in a group: for SCTP, this can be done using the primitive CONFIGURE_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
-
 
 ## Maintenance Events
 
