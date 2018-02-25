@@ -203,7 +203,7 @@ Fundamentally, a Transport Services API needs to provide basic objects {{objects
 
 Beyond the basic objects, there are several high-level groups of actions that any Transport Services API must provide:
 
-* Pre-Establishment ({{preestablishment}}) encompasses the parameters that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. For any system that provides generic Transport Services, these properties should primarily offer knobs that are applicable to multiple transports. Properties may have a large impact on the rest of the aspects of the interface: they can modify how establishment occurs, they can influence the expectations around data transfer, and they determine the set of events that will be supported.
+* Pre-Establishment ({{preestablishment}}) encompasses the properties that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. For any system that provides generic Transport Services, these properties should primarily offer knobs that are applicable to multiple transports. Properties may have a large impact on the rest of the aspects of the interface: they can modify how establishment occurs, they can influence the expectations around data transfer, and they determine the set of events that will be supported.
 
 * Establishment ({{establishment}}) focuses on the actions that an application takes on the transport objects to prepare for data transfer.
 
