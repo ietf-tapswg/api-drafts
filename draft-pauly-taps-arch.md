@@ -211,6 +211,8 @@ Beyond the basic objects, there are several high-level groups of actions that an
 
 * Termination ({{termination}}) focuses on the methods by which data transmission is ceased, and state is torn down in the transport.
 
+The diagram below provides a high-level view of the actions taken during the lifetime of a connection.
+
 ~~~~~~~~~~
      Pre-Establishment     :       Established             : Termination
      -----------------     :       -----------             : -----------
@@ -306,7 +308,7 @@ This list of events that can be delivered to an application is not exhaustive, b
 
 The Transport System Implementation Concepts define the set of objects used internally to a system or library to provide the functionality of transport networking, as required by the abstract interface.
 
-* Connection Group: For multiplexing transport protocols, a Connection Group is a set of Connections that can be multiplexed together.
+* Connection Group: A Connections Group is a set of Connections that share properties. For multiplexing transport protocols, the Connection Group defines the set of Connections that can be multiplexed together.
 
 * Path: A Path represents an available set of properties of a network route on which packets may be sent or received.
 
