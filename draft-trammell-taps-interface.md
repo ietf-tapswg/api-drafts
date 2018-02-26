@@ -1021,12 +1021,27 @@ underlying Protocol Stack's framing.  See {{receive-framing}} for handling
 framing in situations where the Protocol Stack provides octet-stream transport
 only.
 
-Note that as with sending, the Message object passed to Received may represent
-a partial message, larger than the maximum message size than can be received
-atomically. In this case, the Message object passed contains an indication
+The Message object passed to Received is complete and atomic, unless one of the following
+conditions holds:
+
+* the underlying protocol stack supports message boundary preservation, and
+  the size of the Message is larger than the buffers available for a single
+  message;
+* the underlying protocol stack does not support message boundary
+  preservation, and the deframer (see {{receive-framing}}) cannot determine
+  the end of the message using the buffer space it has available; or
+* the underlying protocol stack does not support message boundary
+  preservation, and no deframer was supplied by the application
+
+In this case, the Message object passed to Received contains an indication
 that the object received is partial, a reference to the full Message it
-belongs to, as well as the byte range of the data content within the partial
-Message.
+belongs to, the byte offset of the data in the partial Message within the full
+Message, and an indication whether this is the last (highest-offset) partial
+Message in the full Message.
+
+Note that in the degenerate case -- no message boundary preservation and no
+deframing -- the entire connection is represented as one large message of
+indeterminate length.
 
 ~~~
 Connection -> ReceiveError<>
