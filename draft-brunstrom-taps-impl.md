@@ -24,7 +24,7 @@ author:
     name: Tommy Pauly
     role: editor
     org: Apple Inc.
-    street: 1 Infinite Loop
+    street: One Apple Park Way
     city: Cupertino, California 95014
     country: United States of America
     email: tpauly@apple.com
@@ -59,9 +59,17 @@ author:
     name: Colin Perkins
     org: University of Glasgow
     street: School of Computing Science
-    city: Glasgow  G12 8QQ
+    city: Glasgow G12 8QQ
     country: United Kingdom
     email: csp@csperkins.org
+  -
+    ins: M. Welzl
+    name: Michael Welzl
+    org: University of Oslo
+    street: PO Box 1080 Blindern
+    city: 0316  Oslo
+    country: Norway
+    email: michawe@ifi.uio.no
 
 normative:
     I-D.pauly-taps-arch:
@@ -84,13 +92,6 @@ normative:
     I-D.ietf-tsvwg-rtcweb-qos:
 
 informative:
-    RFC6458:
-    RFC7413:
-    RFC7540:
-    RFC8260:
-    RFC8303:
-    RFC8304:
-    RFC8305:
     I-D.ietf-quic-transport:
     I-D.ietf-tls-tls13:
     NEAT-flow-mapping:
@@ -150,8 +151,8 @@ The transport system should have a list of supported protocols available, which 
 
 In the following cases the NewConnection() call should fail immediately:
 
-- The application requested Transport Parameters which include requirements or prohibitions that cannot be satisfied by any of the available protocols. For example, if an application requires "Option to configure reliability for individual Content", but no such protocol is available on the host running the transport system, e.g., because SCTP is not supported by the operating system, this should result in an error.
-- The application requested Transport Parameters which exclude each other, i.e., the required and prohibited properties cannot be satisfied by the same protocol. For example, if an application prohibits "Reliable Data Transfer" but then requires "Configure Reliability per Content", this mismatch should result in an error.
+- The application requested Transport Parameters which include requirements or prohibitions that cannot be satisfied by any of the available protocols. For example, if an application requires "Option to configure reliability for individual Messages", but no such protocol is available on the host running the transport system, e.g., because SCTP is not supported by the operating system, this should result in an error.
+- The application requested Transport Parameters which exclude each other, i.e., the required and prohibited properties cannot be satisfied by the same protocol. For example, if an application prohibits "Reliable Data Transfer" but then requires "Configure Reliability per Message", this mismatch should result in an error.
 
 It is important to fail as early as possible in such cases in order to avoid allocating resources, e.g., to endpoint resolution, only to find out later that there is no protocol that satisfies the requirements.
 
@@ -170,15 +171,15 @@ In the following cases the transport system should notify the application with a
 
 ## Role of system policy
 
-The implementation is responsible for combining and reconciling several different sources of protocol and path selection preferences when establishing Connections. These include, but are not necessarily limited to:
+The implementation is responsible for combining and reconciling several different sources of preferences when establishing Connections. These include, but are not limited to:
 
-1. Application preferences specified during pre-establishment
-2. Dynamic system policy
-3. Default implementation policy
+1. Application preferences, i.e., preferences specified during the pre-establishment such as Local Endpoint, Remote Endpoint, Path Selection Properties, and Protocol Selection Properties.
+2. Dynamic system policy, i.e., policy compiled from internally and externally acquired information about available network interfaces, supported transport protocols, and current/previous Connections. Examples of ways to externally retrieve policy-support information are through OS-specific statistics/measurement tools and tools that reside on middleboxes and routers.
+3. Default implementation policy, i.e., predefined policy by OS or application.
 
 In general, any protocol or path used for a connection must conform to all three sources of constraints. Any violation of any of the layers should cause a protocol or path to be considered ineligble for use. For an example of application preferences leading to constraints, an application may prohibit the use of metered network interfaces for a given Connection to avoid user cost. Similarly, the system policy at a given time may prohibit the use of such a metered network interface from the application's process. Lastly, the implementation itself may default to disallowing certain network interfaces unless explicitly requested by the application and allowed by the system.
 
-It is expected that the database of system policies and the method of looking up these policies will vary across various platforms. An implementation SHOULD attempt to look up the relevant policies for the system in a dynamic way to make sure it is reflecting a fresh version of the system policy, since the system's policy regarding the application's traffic may change over time due to user or administrative changes.
+It is expected that the database of system policies and the method of looking up these policies will vary across various platforms. An implementation SHOULD attempt to look up the relevant policies for the system in a dynamic way to make sure it is reflecting an accurate version of the system policy, since the system's policy regarding the application's traffic may change over time due to user or administrative changes.
 
 # Implementing Connection Establishment
 
@@ -258,7 +259,7 @@ There are three types of branching from a parent node into one or more child nod
 
 If a connection originally targets a single endpoint, there may be multiple endpoints of different types that can be derived from the original. The connection library should order the derived endpoints according to application preference and expected performance.
 
-DNS hostname-to-address resolution is the most common method of endpoint derivation. When trying to connect to a hostname endpoint on a traditional IP network, the implementation SHOULD send DNS queries for both A (IPv4) and AAAA (IPv6) records if both are supported on the local link. The algorithm for ordering and racing these addresses SHOULD follow the recommendations in Happy Eyeballs {{RFC8305}}.
+DNS hostname-to-address resolution is the most common method of endpoint derivation. When trying to connect to a hostname endpoint on a traditional IP network, the implementation SHOULD send DNS queries for both A (IPv4) and AAAA (IPv6) records if both are supported on the local link. The algorithm for ordering and racing these addresses SHOULD follow the recommendations in Happy Eyeballs {{!RFC8305}}.
 
 ~~~~~~~~~~
 1 [www.example.com:80, Wi-Fi, TCP]
@@ -304,7 +305,7 @@ This approach is commonly used for connections with optional proxy server config
     1.3.1 [192.0.2.1:80, Any, HTTP/TCP]
 ~~~~~~~~~~
 
-This approach also allows a client to attempt different sets of application and transport protocols that may provide preferable characteristics when available. For example, the protocol options could involve QUIC {{I-D.ietf-quic-transport}} over UDP on one branch, and HTTP/2 {{RFC7540}} over TLS over TCP on the other:
+This approach also allows a client to attempt different sets of application and transport protocols that may provide preferable characteristics when available. For example, the protocol options could involve QUIC {{I-D.ietf-quic-transport}} over UDP on one branch, and HTTP/2 {{!RFC7540}} over TLS over TCP on the other:
 
 ~~~~~~~~~~
 1 [www.example.com:443, Any, Any HTTP]
@@ -444,50 +445,77 @@ When the Connections that are offered to an application by the Transport System 
 the Transport System may implement the establishment of a new Connection by simply beginning to use
 a new stream of an already established transport connection. This, then, means that there may not
 be any "establishment" message (like a TCP SYN), but the application can simply start sending
-or receiving. Therefore, when a Transport System's "Initiate" Action is called without Content being
+or receiving. Therefore, when a Transport System's "Initiate" Action is called without Messages being
 handed over, it cannot be guaranteed that the other endpoint will have any way to know about this, and hence
 a passive endpoint's ConnectionReceived event may not be called upon an active endpoint's Inititate.
-Instead, calling the ConnectionReceived event may be delayed until the first Content arrives.
+Instead, calling the ConnectionReceived event may be delayed until the first Message arrives.
 
 ## Handling racing with "unconnected" protocols {#unconnected-racing}
 
 While protocols that use an explicit handshake to validate a Connection to a peer can be used for racing multiple establishment attempts in parallel, "unconnected" protocols such as raw UDP do not offer a way to validate the presence of a peer or the usability of a Connection without application feedback. An implementation SHOULD consider such a protocol stack to be established as soon as a local route to the peer endpoint is confirmed.
 
-However, if a peer is not reachable over the network using the unconnected protocol, or content cannot be exchanged for any other reason, the application may want to attempt using another candidate Protocol Stack. The implementation SHOULD maintain the list of other candidate Protocol Stacks that were eligible to use. In the case that the application signals that the initial Protocol Stack is failing for some reason and that another option should be attempted, the Connection can be updated to point to the next candidate Protocol Stack. This can be viewed as an application-driven form of Protocol Stack racing.
+However, if a peer is not reachable over the network using the unconnected protocol, or data cannot be exchanged for any other reason, the application may want to attempt using another candidate Protocol Stack. The implementation SHOULD maintain the list of other candidate Protocol Stacks that were eligible to use. In the case that the application signals that the initial Protocol Stack is failing for some reason and that another option should be attempted, the Connection can be updated to point to the next candidate Protocol Stack. This can be viewed as an application-driven form of Protocol Stack racing.
 
 ## Implementing listeners
 
 How to passively wait for incoming connections, and what that means for protocols with and without handshakes.
 
+### Implementing listeners for Unconnected Protocols
+
+Unconnected protocols such as UDP and UDP-lite generally do not provide the same mechanisms that connected protocols do to offer Connection objects. 
+
+Implementations should wait for incoming packets for unconnected protocols on a listening port and should perform five-tuple matching of packets to either existing Connection objects or the creation of new Connection objects. On platforms with facilities to create a "virtual connection" for unconnected protocols implementations should use these mechanisms to minimise the handling of datagrams intended for already created Connection objects. 
+
 # Implementing Data Transfer
 
 ## Data transfer for streams, datagrams, and frames
 
-### Sending content
+The most basic mapping for sending a Message is an abstraction of datagrams, in which the transport protocol naturally deals in discrete packets. Each Message here corresponds to a single datagram. Generally, these will be short enough that sending and receiving will always use a complete Message.
 
-How to handle sending data onto examples like TCP, UDP, and a basic Length-Value protocol.
+For protocols that expose byte-streams, the only delineation provided by the protocol is the end of the stream in a given direction. Each Message in this case corresponds to the entire stream of bytes in a direction. These Messages may be quite long, in which case they can be sent in multiple parts.
 
-How to handle and notify errors when sending.
+Protocols that provide the framing (such as length-value protocols, or protocols that use delimeters) provide data boundaries that may be longer than a traditional packet datagram. Each Message for framing protocols corresponds to a single frame, which may be sent either as a complete Message, or in multiple parts.
+
+### Sending Messages
+
+The effect of the application sending a Message is determined by the top-level protocol in the established Protocol Stack. That is, if the top-level protocol provides an abstraction of framed messages over a connection, the application will be able to send multiple Messages on that connection, even if the framing protocol is built on a byte-stream protocol like TCP.
+
+#### Send Parameters
+
+- Lifetime should be implemented by removing the Message from its queue of pending Messages after the Lifetime has expired. A queue of pending Messages within the transport system implementation that have yet to be handed to the Protocol Stack can always support this property, but once a Message has been sent into the send buffer of a protocol, only certain protocols may support de-queueing a message. For example, TCP cannot remove bytes from its send buffer, while in case of SCTP, such control over the SCTP send buffer can be exercised using the partial reliability extension {{!RFC8303}}. When there is no standing queue of Messages within the system, and the Protocol Stack does not support removing a Message from its buffer, this property may be ignored.
+
+- Niceness represents the ability to de-prioritize a Message in favor of other Messages. This can be implemented by the system re-ordering Messages that have yet to be handed to the Protocol Stack, or by giving relative priority hints to protocols that support priorities per Message. For example, an implementation of HTTP/2 could choose to send Messages of different niceness on streams of different priority.
+
+- Ordered: when this is false, it disables the requirement of in-order-delivery for protocols that support configurable ordering.
+
+- Immediate: when this is true, the Message should be sent immediately, even when this comes at the cost of using the network capacity less efficiently. For example, small messages can sometimes be bundled to fit into a single data packet for the sake of reducing header overhead; such bundling SHOULD not be used in case this parameter is true. For example, in case of TCP, the Nagle algorithm SHOULD be disabled when Immediate=true.
+
+- Idempotent: when this is true, it means that the Message can be used by mechanisms that might transfer it multiple times -- e.g., as a result of racing multiple transports or as part of TCP Fast Open.
+
+- Corruption Protection Length: when this is set to any value other than -1, it limits the required checksum in protocols that allow limiting the checksum length (e.g. UDP-Lite).
+
+- Immediate Acknowledgement: TBD
+
+- Timeliness: TODO
+
 
 #### Send Completion
 
-How to determine when a send is effectively complete
+The application should be notified whenever a Message or partial Message has been consumed by the Protocol Stack, or has failed to send. This meaning of the Message being consumed by the stack may vary depending on the protocol. For a basic datagram protocol like UDP, this may correspond to the time when the packet is sent into the interface driver. For a protocol that buffers data in queues, like TCP, this may correspond to when the data has entered the send buffer.
 
 #### Batching Sends
 
-Improve efficiency by handling multiple send operations at once for datagram or frame based protocols
+Since sending a Message may involve a context switch between the application and the transport system, sending patterns that involve multiple small Messages can incur high overhead if each needs to be enqueued separately. To avoid this, the application should have a way to indicate a batch of Send actions, during which time the implementation will hold off on processing Messages until the batch is complete. This can also help context switches when enqueuing data in the interface driver if the operation can be batched.
 
-### Receiving content
+### Receiving Messages
 
-How to handle sending data in examples like TCP, UDP, and a basic Length-Value protocol.
+Similar to sending, Receiving a Message is determined by the top-level protocol in the established Protocol Stack. The main difference with Receiving is that the size and boundaries of the Message are not known beforehand. The application can communicate in its Receive action the parameters for the Message, which can help the implementation know how much data to deliver and when. For example, if the application only wants to receive a complete Message, the implementation should wait until an entire Message (datagram, stream, or frame) is read before delivering any Message content to the application. Alternatively, the application can specify the minimum number of bytes of Message content it wants to receive (which may be just a single byte) to control the flow of received data.
 
-Waiting for frame boundaries when necessary.
-
-How to handle and notify errors when receiving.
+If a Connection becomes finished before a requested Receive action can be satisfied, the implementation should deliver any partial Message content outstanding, or if none is available, an indication that there will be no more received Messages.
 
 ## Handling of data for fast-open protocols {#fastopen}
 
-Several protocols allow sending higher-level protocol or application data within the first packet of their protocol establishment, such as TCP Fast Open {{RFC7413}} and TLS 1.3 {{I-D.ietf-tls-tls13}}. This approach is referred to as sending Zero-RTT (0-RTT) data. This is a desirable property, but poses challenges to an implementation that uses racing during connection establishment.
+Several protocols allow sending higher-level protocol or application data within the first packet of their protocol establishment, such as TCP Fast Open {{!RFC7413}} and TLS 1.3 {{I-D.ietf-tls-tls13}}. This approach is referred to as sending Zero-RTT (0-RTT) data. This is a desirable property, but poses challenges to an implementation that uses racing during connection establishment.
 
 If the application has 0-RTT data to send in any protocol handshakes, it needs to provide this data before the handshakes have begun. When racing, this means that the data SHOULD be provided before the process of connection establishment has begun. If the API allows the application to send 0-RTT data, it MUST provide an interface that identifies this data as idempotent data. In general, 0-RTT data may be replayed (for example, if a TCP SYN contains data, and the SYN is retransmitted, the data will be retransmitted as well), but racing means that different leaf nodes have the opportunity to send the same data independently. If data is truly idempotent, this should be permissible.
 
@@ -501,14 +529,14 @@ It is also possible that protocol stacks within a particular leaf node use 0-RTT
 
 ## Changing Protocol Properties
 
-Appendix A.1 of {{I-D.ietf-taps-minset}} explains, using primitives that are described in {{RFC8303}} and {{RFC8304}}, how to implement changing the following protocol properties of an established connection with the TCP and UDP. Below, we amend this description for other protocols (if applicable):
-* Set timeout for aborting Connection: for SCTP, this can be done using the primitive CHANGE_TIMEOUT.SCTP described in section 4 of {{RFC8303}}.
-* Set timeout to suggest to the peer
-* Set retransmissions before “Excessive Retransmissions”
-* Set required minimum coverage of the checksum for receiving: for UDP-Lite, this can be done using the primitive SET_MIN_CHECKSUM_COVERAGE.UDP-Lite described in section 4 of {{RFC8303}}.
-* Set scheduler for connections in a group: for SCTP, this can be done using the primitive SET_STREAM_SCHEDULER.SCTP described in section 4 of {{RFC8303}}.
-* Set priority for a connection in a group: for SCTP, this can be done using the primitive CONFIGURE_STREAM_SCHEDULER.SCTP described in section 4 of {{RFC8303}}.
+Appendix A.1 of {{I-D.ietf-taps-minset}} explains, using primitives that are described in {{!RFC8303}} and {{!RFC8304}}, how to implement changing the following protocol properties of an established connection with the TCP and UDP. Below, we amend this description for other protocols (if applicable):
 
+- Set timeout for aborting Connection: for SCTP, this can be done using the primitive CHANGE_TIMEOUT.SCTP described in section 4 of {{!RFC8303}}.
+- Set timeout to suggest to the peer
+- Set retransmissions before “Excessive Retransmissions”
+- Set required minimum coverage of the checksum for receiving: for UDP-Lite, this can be done using the primitive SET_MIN_CHECKSUM_COVERAGE.UDP-Lite described in section 4 of {{!RFC8303}}.
+- Set scheduler for connections in a group: for SCTP, this can be done using the primitive SET_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
+- Set priority for a connection in a group: for SCTP, this can be done using the primitive CONFIGURE_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
 
 ## Maintenance Events
 
@@ -570,28 +598,28 @@ a Finish event upon a Close action from the peer {{NEAT-flow-mapping}}.
 
 # Cached State
 
-Beyond a single Connection's lifetime, it is useful for an implementation to keep state and history. This cached 
+Beyond a single Connection's lifetime, it is useful for an implementation to keep state and history. This cached
 state can help improve future Connection establishment due to re-using results and credentials, and favoring paths and protocols that performed well in the past.
 
-Cached state may be associated with different Endpoints for the same Connection, depending on the protocol generating the cached content. 
-For example, session tickets for TLS are associated with specific endpoints, and thus SHOULD be cached based on a Connection's 
-hostname Endpoint (if applicable). On the other hand, performance characteristics of a path are more likely tied to the IP address 
+Cached state may be associated with different Endpoints for the same Connection, depending on the protocol generating the cached content.
+For example, session tickets for TLS are associated with specific endpoints, and thus SHOULD be cached based on a Connection's
+hostname Endpoint (if applicable). On the other hand, performance characteristics of a path are more likely tied to the IP address
 and subnet being used.
 
 ## Protocol state caches
 
-Some protocols will have long-term state to be cached in association with Endpoints. This state often has some time after which 
+Some protocols will have long-term state to be cached in association with Endpoints. This state often has some time after which
 it is expired, so the implementation SHOULD allow each protocol to specify an expiration for cached content.
 
 Examples of cached protocol state include:
 
-- The DNS protocol can cache resolution answers (A and AAAA queries, for example), associated with a Time To Live (TTL) to 
+- The DNS protocol can cache resolution answers (A and AAAA queries, for example), associated with a Time To Live (TTL) to
 be used for future hostname resolutions without requiring asking the DNS resolver again.
 - TLS caches session state and tickets based on a hostname, which can be used for resuming sessions with a server.
 - TCP can cache cookies for use in TCP Fast Open.
 
-Cached state is primarily used during Connection establishment for a single Protocol Stack, but may be used to influence an 
-implementation's preference between several candidate Protocol Stacks. For example, if two IP address Endpoints are otherwise 
+Cached protocol state is primarily used during Connection establishment for a single Protocol Stack, but may be used to influence an
+implementation's preference between several candidate Protocol Stacks. For example, if two IP address Endpoints are otherwise
 equally preferred, an implementation may choose to attempt a connection to an address for which it has a TCP Fast Open cookie.
 
 Applications must have a way to flush protocol cache state if desired. This may be necessary, for example, if
@@ -605,47 +633,75 @@ In addition to protocol state, Protocol Instances SHOULD provide data into a per
 - Connection Establishment latency
 - Connection Establishment success rate
 
-These items can be cached on a per-address and per-subnet granularity, and averaged between different values. The information SHOULD be cached on a per-network basis, since it is expected that different network attachments will have different performance characteristics.
+These items can be cached on a per-address and per-subnet granularity, and averaged between different values. The information SHOULD be cached on a per-network basis, since it is expected that different network attachments will have different performance characteristics. Besides Protocol Instances, other system entities may also provide data into performance-oriented caches. This could for instance be signal strength information reported by radio modems like Wi-Fi and mobile broadband or information about the battery-level of the device.
 
 An implementation should use this information, when possible, to determine preference between candidate paths, endpoints, and protocol options. Eligible options that historically had significantly better performance than others SHOULD be selected first when gathering candidates {{gathering}} to ensure better performance for the application.
 
 # Specific Transport Protocol Considerations
 
-## TCP
+## TCP {#tcp}
+
+Connection lifetime for TCP translates fairly simply into the the abstraction presented to an application. When the TCP three-way handshake is complete, its layer of the Protocol Stack can be considered Ready (established). This event will cause racing of Protocol Stack options to complete if TCP is the top-level protocol, at which point the application can be notified that the Connection is Ready to send and receive.
+
+If the application sends a Close, that can translate to a graceful termination of the TCP connection, which is performed by sending a FIN to the remote endpoint. If the application sends an Abort, then the TCP state can be closed abruptly, leading to a RST being sent to the peer.
+
+Without a layer of framing above TCP, the cleanest abstraction for sending and receiving Messages over TCP is to treat each direction of the stream of bytes as a single Message, terminated by a FIN. That means that if the application can make several Send calls to enqueue subsequent data chunks for the same Message to continue writing, but marking the Message complete corresponds to closing the sending stream. Similarly, when the application receives the final portion of a Message, it knows that the receiving stream has been closed.
 
 ## UDP
+
+UDP as a direct transport does not provide any handshake or connectivity state, so the notion of the transport protocol becoming Ready or established is degenerate. Once the system has validated that there is a route on which to send and receive UDP datagrams, the protocol is considered Ready. Similarly, a Close or Abort has no meaning to the on-the-wire protocol, but simply leads to the local state being torn down. 
+
+When sending and receiving messages over UDP, each Message should correspond to a single UDP datagram. The Message can contain metadata about the packet, such as the ECN bits applied to the packet.
 
 ## SCTP
 
 To support sender-side stream schedulers (which are implemented on the sender side),
 a receiver-side Transport System should
-always support message interleaving {{RFC8260}}.
+always support message interleaving {{!RFC8260}}.
 
 SCTP messages can be very large. To allow the reception of large messages in pieces, a "partial flag" can be
 used to inform a (native SCTP) receiving application that a
 message is incomplete. After receiving the "partial flag", this application would know that the next receive calls will only
 deliver remaining parts of the same message (i.e., no messages or partial messages will arrive on other
-streams until the message is complete) (see Section 8.1.20 in {{RFC6458}}). The "partial flag" can therefore
+streams until the message is complete) (see Section 8.1.20 in {{!RFC6458}}). The "partial flag" can therefore
 facilitate the implementation of the receiver buffer in the receiving application, at the cost of limiting
 multiplexing and temporarily creating head-of-line blocking delay at the receiver.
 
-When a Transport System transfers Content, it seems natural to map Content to SCTP messages in order
+When a Transport System transfers a Message, it seems natural to map the Message object to SCTP messages in order
 to support properties such as "Ordered" or "Lifetime" (which maps onto partially reliable delivery with
-a SCTP_PR_SCTP_TTL policy {{RFC6458}}). However, since multiplexing of
+a SCTP_PR_SCTP_TTL policy {{!RFC6458}}). However, since multiplexing of
 Connections onto SCTP streams may happen, and would be hidden from the application, the
 Transport System requires a per-stream receiver buffer anyway, so this potential benefit is lost
 and the "partial flag" becomes unnecessary for the system.
 
 The problem of long messages either requiring large receiver-side buffers or getting in the way of
-multiplexing is addressed by message interleaving {{RFC8260}},
+multiplexing is addressed by message interleaving {{!RFC8260}},
 which is yet another reason why a receivers-side transport system supporting SCTP should
 implement this mechanism.
 
-## QUIC
+## TLS
 
-## HTTP over TLS as a pseudotransport
+The mapping of a TLS stream abstraction into the application is equivalent to the contract provided by TCP {{tcp}}. The Ready state should be determined by the completion of the TLS handshake, which involves potentially several more round trips beyond the TCP handshake. The application should not be notified that the Connection is Ready until TLS is established.
+
+## HTTP
+
+HTTP requests and responses map naturally into Messages, since they are delineated chunks of data with metadata that can be sent over a transport. To that end, HTTP can be seen as the most prevalent framing protocol that runs on top of streams like TCP, TLS, etc.
+
+In order to use a transport Connection that provides HTTP Message support, the establishment and closing of the connection can be treated as it would without the framing protocol. Sending and receiving of Messages, however, changes to treat each Message as a well-delineated HTTP request or response, with the content of the Message representing the body, and the Headers being provided in Message metadata.
+
+## QUIC {#quic}
+
+QUIC provides a multi-streaming interface to an encrypted transport. Each stream can be viewed as equivalent to a TLS stream over TCP, so a natural mapping is to present each QUIC stream as an individual Connection. The protocol for the stream will be considered Ready whenever the underlying QUIC connection is established to the point that this stream's data can be sent. For streams after the first stream, this will likely be an immediate operation.
+
+Closing a single QUIC stream, presented to application as a Connection, does not imply closing the underlying QUIC connection itself. Rather, the implementation may choose to close the QUIC connection once all streams have been closed (possibly after some timeout), or after an individual stream Connection sends an Abort.
+
+Messages over a direct QUIC stream should be represented similarly to the TCP stream {{tcp}} (one Message per direction), unless a framing mapping is used on top of QUIC.
 
 ## HTTP/2 transport
+
+Similar to QUIC {{quic}}, HTTP/2 provides a multi-streaming interface. This will generally use HTTP as the unit of Messages over the streams, in which each stream can be represented as a transport Connection. The lifetime of streams and the HTTP/2 connection should be managed as described for QUIC. 
+
+It is possible to treat each HTTP/2 stream as a raw byte-stream instead of carrier for HTTP messages, in which case the Messages over the streams can be represented similarly to the TCP stream {{tcp}} (one Message per direction).
 
 # Rendezvous and Environment Discovery
 

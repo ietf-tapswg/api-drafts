@@ -42,9 +42,14 @@ author:
     email: theresa@inet.tu-berlin.de
   -
     ins: G. Fairhurst
-    name: Gorry Fairhurst
+    name: Godred Fairhurst
     org: University of Aberdeen
+    street: Department of Engineering
+    street: Fraser Noble Building
+    city: Aberdeen, AB24 3UE
+    country: Scotland
     email: gorry@erg.abdn.ac.uk
+    uri: http://www.erg.abdn.ac.uk/
   -
     ins: M. Kuehlewind
     name: Mirja Kuehlewind
@@ -213,24 +218,22 @@ connections they could make.
 
 A Preconnection object represents a potential connection. It has state that
 describes parameters of a Connection that might exist in the future.  This
-state comprises information about the local and remote endpoints (see
-{{endpointspec}}), the transport parameters (see {{transport-params}}), and
-the security parameters (see {{security-parameters}}):
+state comprises LocalEndpoint and RemoteEndpoint objects that denote the 
+endpoints of the potential connection (see {{endpointspec}}), the transport 
+parameters (see {{transport-params}}), and the security parameters (see 
+{{security-parameters}}):
 
 ~~~
-   localEndpoint   := ...
-   remoteEndpoint  := ...
-   transportParams := ...
-   securityParams  := ...
-
-   preConnection := NewPreconnection(localEndpoint, remoteEndpoint,
-                                     transportParams, securityParams);
+   preConnection := NewPreconnection(LocalEndpoint, 
+                                     RemoteEndpoint,
+                                     TransportParams, 
+                                     SecurityParams);
 
 ~~~
 
-The Local Endpoint MUST be specified if the Preconnection is used to Listen()
+The LocalEndpoint MUST be specified if the Preconnection is used to Listen()
 for incoming connections, but is OPTIONAL if it is used to Initiate()
-connections. The Remote Endpoint MUST be specified in the Preconnection is used
+connections. The RemoteEndpoint MUST be specified in the Preconnection is used
 to Initiate() connections, but is OPTIONAL if it is used to Listen() for
 incoming connections.
 
@@ -243,31 +246,32 @@ Preconnection object during pre-establishment, forward-reference
 
 ## Specifying Endpoints {#endpointspec}
 
-The transport services API uses Endpoint objects to refer to local and remote endpoints.
-Endpoint objects can be configured using various representations of endpoint identifiers,
-including IP addresses, hostnames, or interface names as well as port
-numbers and service names:
+The transport services API uses the LocalEndpoint and RemoteEndpoint types
+to refer to the endpoints of a transport connection.
+Subtypes of these represent various different types of endpoint identifiers, 
+such as IP addresses, DNS names, and interface names, as well as port numbers 
+and service names.
 
 ~~~
-remoteSpecifier := NewEndpoint()
+remoteSpecifier := NewRemoteEndpoint()
 remoteSpecifier.withHostname("example.com")
 remoteSpecifier.withService("https")
 ~~~
 
 ~~~
-remoteSpecifier := NewEndpoint()
+remoteSpecifier := NewRemoteEndpoint()
 remoteSpecifier.withIPv6Address(2001:db8:4920:e29d:a420:7461:7073:0a)
 remoteSpecifier.withPort(443)
 ~~~
 
 ~~~
-remoteSpecifier := NewEndpoint()
+remoteSpecifier := NewRemoteEndpoint()
 remoteSpecifier.withIPv4Address(192.0.2.21)
 remoteSpecifier.withPort(443)
 ~~~
 
 ~~~
-localSpecifier := NewEndpoint()
+localSpecifier := NewLocalEndpoint()
 localSpecifier.withInterface("en0")
 localSpecifier.withPort(443)
 ~~~
@@ -413,7 +417,7 @@ The following properties apply to Connections and Connection Groups:
   Connections within a Connection Group.  This is not a strict requirement.
   The default is to not have this option.
 
-* Suggest a timeout to the peer:
+* Suggest a timeout to the RemoteEndpoint:
   This boolean property specifies whether an application considers it
   useful to propose a timeout until the connection is assumed to be lost.
   This property applies to Connections and Connection Groups. This is not a
@@ -482,8 +486,8 @@ Generic Protocol Properties include:
   This numeric property specifies how long to wait before aborting a
   Connection attempt.  It is given in seconds.
 
-* Set timeout to suggest to the peer:
-  This numeric property specifies the timeout to propose to the peer. It is
+* Set timeout to suggest to the RemoteEndpoint:
+  This numeric property specifies the timeout to propose to the RemoteEndpoint. It is
   given in seconds.
 
 * Set retransmissions before "Excessive Retransmissions":
@@ -501,7 +505,7 @@ Generic Protocol Properties include:
 * Set scheduler for connections in a group:
   This property specifies which scheduler should be used among Connections
   within a Connection Group. It applies to connection groups. For now we
-  suggest we the schedulers defined in {{I-D.ietf-tsvwg-sctp-ndata}}.
+  suggest the schedulers defined in {{I-D.ietf-tsvwg-sctp-ndata}}.
 
 * Maximum Content Size Before Connection Establishment:
   This numeric property represents the maximum Content size that can be sent
@@ -599,7 +603,7 @@ securityParameters := NewSecurityParameters()
 Security configuration parameters and sample usage follow:
 
 - Local identity and private keys: Used to perform private key operations and prove one's
-identity to remote peers. (Note, if private keys are not available, e.g., since they are
+identity to the RemoteEndpoint. (Note, if private keys are not available, e.g., since they are
 stored in HSMs, handshake callbacks MUST be used. See below for details.)
 
 ~~~
@@ -628,7 +632,7 @@ securityParameters.SetSessionCacheReuse(1)           // One-time use
 
 - Pre-shared keying material: Used to install pre-shared keying material established
 out-of-band. Each pre-shared keying material is associated with some identity that typically identifies
-its use or has some protocol-specific meaning to peers.
+its use or has some protocol-specific meaning to the RemoteEndpoint.
 
 ~~~
 securityParameters.AddPreSharedKey(key, identity)
@@ -638,7 +642,7 @@ Security decisions, especially pertaining to trust, are not static. Thus, once c
 parameters must also be supplied during live handshakes. These are best handled as
 client-provided callbacks. Security handshake callbacks include:
 
-- Trust verification callback: Invoked when a peer's trust must be validated before the
+- Trust verification callback: Invoked when a RemoteEndpoint's trust must be validated before the
 handshake protocol can proceed.
 
 ~~~
@@ -670,15 +674,17 @@ the Rendezvous() Action. These Actions are described in the subsections below.
 
 ## Active Open: Initiate {#initiate}
 
-Active open is the action of establishing a connection to an endpoint presumed
-to be listening for incoming connection requests, commonly used by clients in
-client-server interactions. Active open is supported by this interface through
-the Initiate action:
+Active open is the action of establishing a connection to a RemoteEndpoint presumed
+to be listening for incoming connection requests. Active open is used by clients in
+client-server interactions. Active open is supported by this interface through the
+Initiate action:
 
 Connection := Preconnection.Initiate()
 
 Before calling Initiate, the caller must have populated a Preconnection
-object with local and remote endpoint specifiers, as well as all parameters
+object with a RemoteEndpoint specifier, optionally a LocalEndpoint
+specifier (if not specified, the system will attempt to determine a
+suitable LocalEndpoint), as well as all parameters
 necessary for candidate selection. After calling Initiate, no further
 parameters may be bound to the Connection. The Initiate() call consumes
 the Preconnection and creates a Connection object. A Preconnection can
@@ -720,8 +726,9 @@ supported by this interface through the Listen action:
 Preconnection.Listen()
 
 Before calling Listen, the caller must have initialized the Preconnection
-during the pre-establishment phase with local endpoint specifiers, as well
-as all parameters necessary for Protocol Stack selection.
+during the pre-establishment phase with a LocalEndpoint specifier, as well
+as all parameters necessary for Protocol Stack selection. A RemoteEndpoint
+may optionally be specified, to constrain what connections are accepted.
 The Listen() action consumes the Preconnection. Once Listen() has been
 called, no further parameters may be bound to the Preconnection, and no
 subsequent establishment call may be made on the Preconnection.
@@ -731,7 +738,7 @@ Preconnection -> ConnectionReceived&lt;Connection>
 The ConnectionReceived event occurs when a RemoteEndpoint has established a
 transport-layer connection to this Preconnection (for connection-oriented
 transport protocols), or when the first Content has been received from the
-remote endpoint (for connectionless protocols), causing a new Connection to be
+RemoteEndpoint (for connectionless protocols), causing a new Connection to be
 created. The resulting Connection is contained within the ConnectionReceived
 event, and is ready to use as soon as it is passed to the application via the
 event.
@@ -814,7 +821,7 @@ Clone action was called -- and the resulting clone. Calling Clone on any of thes
 Connections adds a third Connection to the group, and so on.
 All Connections in a group are entangled. This means that they automatically share
 all properties: changing a parameter for one of them also changes the parameter
-for all others, closing one of them also closes all others, etc.
+for all others.
 
 There is only one Protocol Property that is not entangled, i.e., it is a separate
 per-Connection Property for individual Connections in the group: a priority.
@@ -1092,12 +1099,12 @@ Close terminates a Connection after satisfying all the requirements that were
 specified regarding the delivery of Content that the application has already
 given to the transport system. For example, if reliable delivery was requested
 for Content handed over before calling Close, the transport system will ensure
-that such Content is indeed delivered. If the peer still has data to send, it
+that such Content is indeed delivered. If the RemoteEndpoint still has data to send, it
 cannot be received after this call.
 
 Connection.Close()
 
-The Closed event can inform the application that the peer has closed the
+The Closed event can inform the application that the RemoteEndpoint has closed the
 Connection; however, there is no guarantee that a remote close will be
 signaled.
 
@@ -1319,7 +1326,7 @@ take this parameter into account for protocol and path selection.
 
 Not every Transport Parameter can be meaningfully assigned every preference
 level. For example, if an application explicitly prohibits selecting a
-transport protocol that allows to suggest a timeout to the peer, this
+transport protocol that allows to suggest a timeout to the RemoteEndpoint, this
 restriction will unnecessarily limit transport protocol selection. Instead,
 the application could simply not use this feature if it is present in the
 selected transport protocol.
@@ -1336,7 +1343,7 @@ set.
 | Request immediate ACK  | Yes      | Yes    | Yes    | Yes     | None    |
 | Use 0-RTT with Idempotent Content | Yes | Yes | Yes | Yes     | None    |
 | Use Connection Groups with priorities | Yes | Yes | No | No   | None    |
-| Suggest timeout to peer | Yes     | Yes    | No    | No       | None    |
+| Suggest timeout to RemoteEndpoint | Yes     | Yes    | No    | No       | None    |
 | Notification of special errors | Yes | Yes | Yes   | Yes      | None    |
 | Control checksum coverage | Yes   | Yes    | Yes   | Yes      | None    |
 | Use a certain network interface type | Yes | Yes | Yes | Yes  | None    |
