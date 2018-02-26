@@ -310,7 +310,9 @@ traversal protocols (see {{rendezvous}}).
 ## Specifying Transport Parameters {#transport-params}
 
 A Preconnection object holds parameters reflecting the application's
-requirements and preferences for the transport.  These include Protocol Selection and Path Selection Properties
+requirements and preferences for the transport.  These include Transport
+Preferences (towards protocol selection and path selection) as well as
+Application Intents (hints to the transport system what to optimize for)
 and Protocol Properties (to configure transport protocols).
 
 Some parameters express strict requirements that the application relies on,
@@ -336,23 +338,12 @@ by different protocols, it may not be possible to satisfy all requirements.
 Consequently, a transport system must prioritize Transport Parameters and
 consider the relevant trade-offs, see also {{?TAPS-MINSET=I-D.ietf-taps-minset}}.
 
-To reflect the needs of an individual connection, they can be
-specified with different preference levels from the following table , whereby the preference is one of the
-following levels:
-
-   | Preference   | Effect                                                    |
-   |--------------|-----------------------------------------------------------|
-   | `require `   | Fail if requested feature/property can not be met         |
-   | `prefer  `   | Proceed if requested feature/property can not be met      |
-   | `don't care` | None / clear defaults                                     |
-   | `avoid   `   | Proceed if requested feature/property can not be avoided  |
-   | `prohibit`   | Fail if requested feature/property can not be avoided     |
-
 Default preference levels and possible combinations of Transport Parameters and
 preference levels are specified in {{appendix-preferences}}.
 
 
-### Protocol Selection Properties {#protocol-selection-props}
+
+### Transport Preferences {#transport-prefs}
 
 Transport Preferences drive protocol selection and path selection on
 connection establishment. Since there could be paths over which some transport
@@ -365,6 +356,18 @@ The Transport Preferences form part of the information used to create a
 Preconnection object. As such, they can be configured during the
 pre-establishment phase, but cannot be changed once a Connection has been
 established.
+
+To reflect the needs of an individual connection, they can be
+specified with different preference levels from the following table , whereby the preference is one of the
+following levels:
+
+   | Preference   | Effect                                                    |
+   |--------------|-----------------------------------------------------------|
+   | `require `   | Fail if requested feature/property can not be met         |
+   | `prefer  `   | Proceed if requested feature/property can not be met      |
+   | `don't care` | None / clear defaults                                     |
+   | `avoid   `   | Proceed if requested feature/property can not be avoided  |
+   | `prohibit`   | Fail if requested feature/property can not be avoided     |
 
 There need to be sensible defaults for the Transport Preferences as well as
 Protocol Selection Properties. The
@@ -439,15 +442,13 @@ The following properties apply to Connections and Connection Groups:
   default is full checksum coverage without being able to change it, and
   requiring a checksum when receiving.
 
-### Path Selection Properties {#path-selection-props}
-
 * Interface Type:
   This property specifies which kind of access network interface, e.g.,
   WiFi, Ethernet, or LTE, to require, prefer, avoid, or prohibit for this connection.
   Of course this depends on whether they are available. The default
   is to use the default interface configured in the system policy.
 
-* Traffic Category:
+* Capacity Profile
   This Intent specifies the dominating traffic pattern that the application
   expects for this Connection. Possible values are: Query (latency bound), Bulk
   (bandwidth bound), Stream (steady data rate), or Background traffic
@@ -489,7 +490,7 @@ Protocol Properties represent the configuration that protocols should use
 once they have been selected. Some properties apply generically across
 multiple transport protocols, in which case they may be used by the system
 to help select candidate protocols. Other properties only apply to specific
-protocols. As with Transport Preferences ({{protocol-selection-props}}), Protocol Properties are
+protocols. As with Transport Preferences ({{transport-prefs}}), Protocol Properties are
 specified on the Preconnection object. The default settings of these properties
 will vary based on the specific protocols being used and the system's configuration.
 
