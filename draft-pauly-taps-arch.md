@@ -129,7 +129,7 @@ The following considerations were used in the design of this architecture.
 
 Functionality that is common across multiple transport protocols should be accessible through a unified set of API calls. An application should be able to implement logic for its basic use of transport networking (establishing the transport, and sending and receiving data) once, and expect that implementation to continue to function as the transports change.
 
-Any Transport Services API must expose the distilled minimal set of features offered by transport protocols {{I-D.ietf-taps-minset}}.
+Any Transport Services API must allow access to the distilled minimal set of features offered by transport protocols {{I-D.ietf-taps-minset}}.
 
 ## Access to Specialized Features
 
@@ -147,7 +147,7 @@ Implementations that provide the Transport Services API {{draft-brunstrom-taps-i
 
 In order to preserve flexibility and compatibility with future protocols, top-level features in the Transport Services API should avoid referencing particular transport protocols. Mappings of these API features in the Implementation document, on the other hand, must explain the ramifications of each feature on existing protocols. It is expected that the Implementation document will be updated and supplemented as new protocols and protocol features are developed.
 
-It is important to note that neither the Transport Services API nor the Implementation document defines new protocols that require any changes on remote hosts. The Transport Services system must be deployable on one side only, as a way to allow an application to make better use of available capabilities on a system, and protocols features that may be supported by peers across the network.
+It is important to note that neither the Transport Services API nor the Implementation document defines new protocols that require any changes on remote hosts. The Transport Services system must be deployable on one side only, as a way to allow an application to make better use of available capabilities on a system, and protocol features that may be supported by peers across the network.
 
 # Transport Services Architecture and Concepts
 
@@ -198,7 +198,7 @@ The following diagram summarizes the top-level concepts in the architecture and 
 
 ## Transport Services API Concepts
 
-Fundamentally, a Transport Services API needs to provide basic objects {{objects}} that allow applications to establish communication and send and receive data {{objects}}. These may be exposed as handles or referenced objects, depending on the language.
+Fundamentally, a Transport Services API needs to provide basic objects that allow applications to establish communication and send and receive data ({{objects}}). These may be exposed as handles or referenced objects, depending on the language.
 
 Beyond the basic objects, there are several high-level groups of actions that any Transport Services API must provide:
 
@@ -277,9 +277,9 @@ Beyond the basic objects, there are several high-level groups of actions that an
 
 * Message: A Message object is a unit of data that can be represented as bytes that can be transferred between two endpoints over a transport connection. The bytes within a Message are assumed to be ordered within the unit itself. That is, if an application does not care about the order in which a peer receives two distinct spans of bytes, those spans of bytes are considered independent Messages. Messages may or may not be usable if incomplete or corrupted. Boundaries of a Message may or may not be understood or transmitted by transport protocols. That is, what one application considers to be two Messages sent on a stream-based transport may be treated as a single Message by the application on the other side.
 
-* Send() is the action to transmit a Message or partial Message over a Connection to a Remote Endpoint. The interface to Send may include options specific to how the Message's content is to be sent. Status of the Send operation may be delivered back to the application in an event {{events}}.
+* Send() is the action to transmit a Message or partial Message over a Connection to a Remote Endpoint. The interface to Send may include options specific to how the Message's content is to be sent. Status of the Send operation may be delivered back to the application in an event ({{events}}).
 
-* Receive() is an action that indicates that the application is ready to asynchronously accept a Message over a Connection from a Remote Endpoint, while the Message content itself will be delivered in an event {{events}}. The interface to Receive may include options specific to the Message that is to be delivered to the application.
+* Receive() is an action that indicates that the application is ready to asynchronously accept a Message over a Connection from a Remote Endpoint, while the Message content itself will be delivered in an event ({{events}}). The interface to Receive may include options specific to the Message that is to be delivered to the application.
 
 ### Event Handling {#events}
 
@@ -315,7 +315,7 @@ The Transport System Implementation Concepts define the set of objects used inte
 
 * Protocol Stack: A Protocol Stack is a set of Protocol Instances (including relevant application, security, transport, or Internet protocols) that are used together to establish connectivity or send and receive Messages. A single stack may be simple (a single transport protocol instance over IP), or complex (multiple application protocol streams going through a single security and transport protocol, over IP; or, a multi-path transport protocol over multiple transport sub-flows).
 
-* System Policy: A Transport Service System Policy defines the algorithm it uses to take connection properties from the application, and determine how it will gather candidate paths and protocols {{gathering}} and race the candidates during establishment {{racing}}.
+* System Policy: A Transport Service System Policy defines the algorithm it uses to take connection properties from the application, and determine how it will gather candidate paths and protocols ({{gathering}}) and race the candidates during establishment ({{racing}}).
 
 * Cached State: Cached State is the state and history that the implementation keeps for each set of associated endpoints that have been used previously. This can include DNS results, TLS session state, previous success and quality of transport protocols over certain paths.
 
@@ -341,7 +341,7 @@ This document has no actions for IANA.
 
 # Security Considerations
 
-TAPS does not recommend use of specific security protocols or algorithms. Its goal is to offer ease of use for existing protocols by providing a generic security-related interface. Each provided interface mimics an existing protocol-specific interface provided by supported security protocols. For example, trust verification callbacks are common parts of TLS APIs. TAPS exposes one for similar purposes. Clients must take care to use security APIs appropriately. In cases where clients use said interface to provide sensitive keying material, e.g., access to private keys or copies of pre-shared keys (PSKs), key use must be validated. For example, clients should not use PSK material created for ESP with IETF-QUIC, and clients must not use private keys intended for server authentication as a key for client authentication. Moreover, unlike certain transport features such as TFO or ECN which can fall back to standard configurations, TAPS systems must not permit fallback for security protocols. For example, if a clients requests TLS, yet TLS or the desired version are not available, its connection must fail. Clients are responsible for implementing protocol or version fallback using a TAPS API if so desired.
+TAPS does not recommend use of specific security protocols or algorithms. Its goal is to offer ease of use for existing protocols by providing a generic security-related interface. Each provided interface mimics an existing protocol-specific interface provided by supported security protocols. For example, trust verification callbacks are common parts of TLS APIs. TAPS exposes one for similar purposes. Clients must take care to use security APIs appropriately. In cases where clients use said interface to provide sensitive keying material, e.g., access to private keys or copies of pre-shared keys (PSKs), key use must be validated. For example, clients should not use PSK material created for ESP with IETF-QUIC, and clients must not use private keys intended for server authentication as a key for client authentication. Moreover, unlike certain transport features such as TFO or ECN which can fall back to standard configurations, TAPS systems must not permit fallback for security protocols. For example, if a client requests TLS, yet TLS or the desired version are not available, its connection must fail. Clients are responsible for implementing protocol or version fallback using a TAPS API if so desired.
 
 # Acknowledgements
 
