@@ -157,19 +157,27 @@ with these Actions and Events.
 
 The following notations, which can be combined, are used in this document:
 
-- Object := Action()
+~~~
+Object := Action()
+~~~
 
 >> An Action creates an Object.
 
-- Object.Action()
+~~~
+Object.Action()
+~~~
 
 >> An Action is performed on an Object.
 
-- Object -> Event&lt;>
+~~~
+Object -> Event<>
+~~~
 
 >> An Object sends an Event.
 
-- Action(parameter, parameter, ...) / Event&lt;parameter, parameter, ...>
+~~~
+Action(parameter, parameter, ...) / Event<parameter, parameter, ...>
+~~~
 
 >> An Action takes a set of Parameters; an Event contains a set of Parameters.
 
@@ -616,7 +624,7 @@ multiple candidates.
 The following events may be sent by the Connection after Initiate() is called:
 
 ~~~
-Connection -> Ready&lt;>
+Connection -> Ready<>
 ~~~
 
 The Ready event occurs after Initiate has established a transport-layer
@@ -625,7 +633,7 @@ candidate Path. No Receive events (see {{receiving}}) will occur before
 the Ready event for connections established using Initiate.
 
 ~~~
-Connection -> InitiateError&lt;>
+Connection -> InitiateError<>
 ~~~
 
 An InitiateError occurs either when the set of transport and cryptographic
@@ -656,7 +664,7 @@ called, no further parameters may be bound to the Preconnection, and no
 subsequent establishment call may be made on the Preconnection.
 
 ~~~
-Preconnection -> ConnectionReceived&lt;Connection>
+Preconnection -> ConnectionReceived<Connection>
 ~~~
 
 The ConnectionReceived event occurs when a Remote Endpoint has established a
@@ -668,7 +676,7 @@ event, and is ready to use as soon as it is passed to the application via the
 event.
 
 ~~~
-Preconnection -> ListenError&lt;>
+Preconnection -> ListenError<>
 ~~~
 
 A ListenError occurs either when the Preconnection cannot be fulfilled for
@@ -697,7 +705,7 @@ been called, no further parameters may be bound to the Preconnection, and
 no subsequent establishment call may be made on the Preconnection.
 
 ~~~
-Preconnection -> RendezvousDone&lt;Connection>
+Preconnection -> RendezvousDone<Connection>
 ~~~
 
 The RendezvousDone<> event occurs when a connection is established with the
@@ -708,7 +716,7 @@ resulting Connection is contained within the RendezvousDone<> event, and is
 ready to use as soon as it is passed to the application via the event.
 
 ~~~
-Preconnection -> RendezvousError&lt;msgRef, error>
+Preconnection -> RendezvousError<msgRef, error>
 ~~~
 
 An RendezvousError occurs either when the Preconnection cannot be fulfilled
@@ -798,7 +806,7 @@ Protocol Stacks that support it.
 Like all Actions in this interface, the Send action is asynchronous.
 
 ~~~
-Connection -> Sent&lt;msgRef>
+Connection -> Sent<msgRef>
 ~~~
 
 The Sent event occurs when a previous Send action has completed, i.e., when the
@@ -815,7 +823,7 @@ times without waiting for a Sent event, it has created more buffer inside the
 transport system than an application that only issues a Send after this event fires.
 
 ~~~
-Connection -> Expired&lt;msgRef>
+Connection -> Expired<msgRef>
 ~~~
 
 The Expired event occurs when a previous Send action expired before completion;
@@ -825,7 +833,7 @@ partially reliable transports. The Expired event contains an
 implementation-specific reference to the Message to which it applies.
 
 ~~~
-Connection -> SendError&lt;msgRef>
+Connection -> SendError<msgRef>
 ~~~
 
 A SendError occurs when a Message could not be sent due to an error condition:
@@ -983,7 +991,7 @@ backpressure to the transport stack when it is temporarily not ready to receive
 messages.
 
 ~~~
-Connection -> Received&lt;Message>
+Connection -> Received<Message>
 ~~~
 
 As with sending, the type of the Message to be passed is dependent on the
@@ -1010,7 +1018,7 @@ belongs to, as well as the byte range of the data content within the partial
 Message.
 
 ~~~
-Connection -> ReceiveError&lt;>
+Connection -> ReceiveError<>
 ~~~
 
 A ReceiveError occurs when data is received by the underlying Protocol Stack
@@ -1160,7 +1168,7 @@ Connection; however, there is no guarantee that a remote close will be
 signaled.
 
 ~~~
-Connection -> Closed&lt;>
+Connection -> Closed<>
 ~~~
 
 Abort terminates a Connection without delivering remaining data:
@@ -1173,7 +1181,7 @@ A ConnectionError can inform the application that the other side has aborted
 the Connection; however, there is no guarantee that an abort will be signaled:
 
 ~~~
-Connection -> ConnectionError&lt;>
+Connection -> ConnectionError<>
 ~~~
 
 # Event and Error Handling
