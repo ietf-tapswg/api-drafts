@@ -447,23 +447,38 @@ The following properties apply to Connections and Connection Groups:
   Of course this depends on whether they are available. The default
   is to use the default interface configured in the system policy.
 
-* Path property to optimize for:
-This Intent specifies whether the application expects the new connection to be bandwidth bound or latency bound.
-Values can be one of the following: Optimize for low latency, Optimize for high throughput.
-This Intent can help the transport system select one of multiple available paths that best match the intended traffic of the application.
-Note that setting this Intents does not imply any guarantees on whether an application's requirements can actually be satisfied.
-The default is to not assume any particular traffic category or preference.
+* Traffic Category:
+  This Intent specifies the dominating traffic pattern that the application
+  expects for this Connection. Possible values are: Query (latency bound), Bulk
+  (bandwidth bound), Stream (steady data rate), or Background traffic
+  (non-interactive traffic with low priority). This Intent provides a hint to
+  the transport system of how the application would like to use its available
+  capacity. Therefore it can help the transport system select one of multiple
+  available paths that best match the preferences of the application. Note that
+  while this Intent may also be used to set DSCP code points, it does not
+  represent any Quality of Service requirements, but rather hints for a
+  transport system what to optimize for on a best-effort basis. The transport
+  system does not provide any guarantee whether the application's requirements
+  can actually be satisfied. The default is to not assume any particular
+  traffic category or preference.
 
 * Size to be Sent or Received:
-This Intent specifies what the application expects the size of a transfer to be.
-It is a numeric property and given in Bytes.
-The application may know this before opening a connection from metadata or after issuing an HTTP HEAD request or an HTTP request with a limited Content-Range.
-This property can be specified instead of the Path property to optimize for. The reason is that the application does not always know whether the transfer should be optimized for low latency or high throughput, as the threshold between the two categories relates to the size of the transfer and the current path characteristics. When the size is given, the transport system can calculate based on it whether to optimize for low latency or high throughput.
+  This Intent specifies what the application expects the size of a transfer to
+  be. It is a numeric property and given in Bytes. In cases in which the
+  application knows this, e.g., from metadata in adaptive HTTP streaming
+  (MPEG-DASH), this Intent can be a useful input to path selection. As the
+  application does not necessarily know about current performance
+  characteristics such as RTT or bandwidth on the available paths, it does not
+  always know whether the transfer will be latency or bandwidth bound, and thus
+  what Traffic Category to optimize for. Therefore it makes sense for the
+  application to specify the estimated size of the transfer, so the transport
+  system can optimize path selection accordingly.
 
 * Metered or expensive paths:
-This Intent describes what an application prefers regarding monetary costs,
-e.g., whether it considers it acceptable to utilize limited data volume.
-The default is to prefer paths that are not associated with limits or monetary cost.
+  This Intent describes what an application prefers regarding monetary costs,
+  e.g., whether it considers it acceptable to utilize limited data volume. The
+  default is to prefer paths that are not associated with limits or monetary
+  cost.
 
 
 
@@ -512,13 +527,12 @@ Generic Protocol Properties include:
   before or during Connection establishment, see also {{send-idempotent}}.
   It is given in Bytes.
 
-* Traffic Category:
-This Intent specifies the intended use of the Connection and corresponds to the priority of the communication for the application.
-Possible values are: Data transfer, Interactive video stream, Interactive audio stream, Background traffic. While they may be used to set DSCP code points, Intents do not represent Quality of Service requirements, but rather hints for a transport system what to optimize for on a best-effort basis.
-
 * Send Bit-rate
-This Intent specifies what the application expects the bit-rate of a transfer to
-be. It is a numeric property and given in Bytes per second. The transport system may use this Intent to limit the sending rate by placing an upper bound on a congestion window.
+  This Intent specifies what the application expects the bit-rate of a transfer
+  to be. It is a numeric property and given in Bytes per second. The transport
+  system may use this Intent to limit the sending rate by placing an upper
+  bound on a congestion window in order to avoid bursty traffic patterns in
+  streaming.
 
 
 

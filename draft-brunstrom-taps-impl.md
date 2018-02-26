@@ -333,7 +333,7 @@ The transport system ranks brances in the order in which it will attempt to conn
 
 For example, a transport system can use Application Intents, defined in {{I-D.trammell-taps-interface}}, as Path Selection Properties to rank branches in the following ways:
 
-* Path property to optimize for:
+* Traffic Category
 If the application indicates an Intent to optimize for either low latency or high bandwidth, the transport system can rank branches higher accordingly, so they are tried first.
 
 * Size to be Sent / Received:
@@ -433,8 +433,7 @@ Once a connection is established and a transport protocol has been chosen, any P
 
 Additionally, a transport system may configure a transport protocol according to following Application Intents:
 
-* Traffic Category: Can be mapped to DSCP code point value, e.g., see [I-D.ietf-tsvwg-rtcweb-qos].
-* Optimize for low latency: If an application indicates a preference for low latency, the transport system may disable the Nagle algorithm on a TCP connection.
+* Traffic Category: Can be mapped to DSCP code point value, e.g., see [I-D.ietf-tsvwg-rtcweb-qos]. Furthermore, if an application indicates a preference for low latency, the transport system may disable the Nagle algorithm on a TCP connection.
 * Bitrate to be Sent: If an application indicates a certain bitrate it wants to send on the connection, the transport system may limit the bitrate of the outgoing communication to that rate, for example by setting an upper bound for the TCP congestion window of a connection calculated from the Send Bitrate and the Round Trip Time. This helps to avoid bursty traffic patterns on video streaming servers, see [Trickle].
 
 ## Establishing multiplexed connections {#establish-mux}
