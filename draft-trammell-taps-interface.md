@@ -1109,10 +1109,9 @@ transport parameters, to preconfigure Protocol Stacks during establishment.
 
 Generic Protocol Properties include:
 
-* Timeout for aborting Connection:
-  This numeric property specifies how long
-  to wait before aborting a Connection during establishment, or after a
-  connection has failed after establishment. It is given in seconds.
+* Timeout for aborting Connection: This numeric property specifies how long to
+  wait before aborting a Connection during establishment, or before deciding
+  that a connection has failed after establishment. It is given in seconds.
 
 * Abort timeout to suggest to the Remote Endpoint:
   This numeric property
