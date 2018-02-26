@@ -593,7 +593,9 @@ to be listening for incoming connection requests. Active open is used by clients
 client-server interactions. Active open is supported by this interface through the
 Initiate action:
 
+~~~
 Connection := Preconnection.Initiate()
+~~~
 
 Before calling Initiate, the caller must have populated a Preconnection
 object with a Remote Endpoint specifier, optionally a Local Endpoint
@@ -613,14 +615,18 @@ multiple candidates.
 
 The following events may be sent by the Connection after Initiate() is called:
 
+~~~
 Connection -> Ready&lt;>
+~~~
 
 The Ready event occurs after Initiate has established a transport-layer
 connection on at least one usable candidate Protocol Stack over at least one
 candidate Path. No Receive events (see {{receiving}}) will occur before
 the Ready event for connections established using Initiate.
 
+~~~
 Connection -> InitiateError&lt;>
+~~~
 
 An InitiateError occurs either when the set of transport and cryptographic
 parameters cannot be fulfilled on a connection for initiation (e.g. the set of
@@ -637,7 +643,9 @@ Passive open is the action of waiting for connections from remote endpoints,
 commonly used by servers in client-server interactions. Passive open is
 supported by this interface through the Listen action:
 
+~~~
 Preconnection.Listen()
+~~~
 
 Before calling Listen, the caller must have initialized the Preconnection
 during the pre-establishment phase with a Local Endpoint specifier, as well
@@ -647,7 +655,9 @@ The Listen() action consumes the Preconnection. Once Listen() has been
 called, no further parameters may be bound to the Preconnection, and no
 subsequent establishment call may be made on the Preconnection.
 
+~~~
 Preconnection -> ConnectionReceived&lt;Connection>
+~~~
 
 The ConnectionReceived event occurs when a Remote Endpoint has established a
 transport-layer connection to this Preconnection (for connection-oriented
@@ -657,20 +667,22 @@ created. The resulting Connection is contained within the ConnectionReceived
 event, and is ready to use as soon as it is passed to the application via the
 event.
 
-PreConnection -> Error&lt;>
+~~~
+Preconnection -> ListenError&lt;>
+~~~
 
-A ListenError occurs either
-when the Preconnection cannot be fulfilled for listening,
-when the Local Endpoint (or Remote Endpoint, if specified) cannot be resolved,
-or
-when the application is prohibited from listening by policy.
+A ListenError occurs either when the Preconnection cannot be fulfilled for
+listening, when the Local Endpoint (or Remote Endpoint, if specified) cannot
+be resolved, or when the application is prohibited from listening by policy.
 
 ## Peer-to-Peer Establishment: Rendezvous {#rendezvous}
 
 Simultaneous peer-to-peer connection establishment is supported by the
 Rendezvous() action:
 
+~~~
 Preconnection.Rendezvous()
+~~~
 
 The Preconnection object must be specified with both a Local Endpoint and a
 Remote Endpoint, and also the transport and security parameters needed for
@@ -684,7 +696,9 @@ The Rendezvous() action consumes the Preconnection. Once Rendezvous() has
 been called, no further parameters may be bound to the Preconnection, and
 no subsequent establishment call may be made on the Preconnection.
 
+~~~
 Preconnection -> RendezvousDone&lt;Connection>
+~~~
 
 The RendezvousDone<> event occurs when a connection is established with the
 Remote Endpoint. For connection-oriented transports, this occurs when the
@@ -693,15 +707,14 @@ it occurs when the first Message is received from the Remote Endpoint. The
 resulting Connection is contained within the RendezvousDone<> event, and is
 ready to use as soon as it is passed to the application via the event.
 
+~~~
 Preconnection -> RendezvousError&lt;msgRef, error>
+~~~
 
-An RendezvousError occurs either
-when the Preconnection cannot be fulfilled for listening,
-when the Local Endpoint or Remote Endpoint cannot be resolved,
+An RendezvousError occurs either when the Preconnection cannot be fulfilled
+for listening, when the Local Endpoint or Remote Endpoint cannot be resolved,
 when no transport-layer connection can be established to the Remote Endpoint,
-or
-when the application is prohibited from rendezvous by policy.
-
+or when the application is prohibited from rendezvous by policy.
 
 When using some NAT traversal protocols, e.g., ICE {{?RFC5245}}, it is
 expected that the Local Endpoint will be configured with some method of
@@ -710,7 +723,9 @@ Local Endpoint may resolve to a mixture of local and server reflexive
 addresses. The Resolve() method on the Preconnection can be used to
 discover these bindings:
 
-    PreconnectionBindings := Preconnection.Resolve()
+~~~
+PreconnectionBindings := Preconnection.Resolve()
+~~~
 
 The Resolve() call returns a list of Preconnection objects, that represent
 the concrete addresses, local and server reflexive, on which a Rendezvous()
@@ -726,7 +741,9 @@ configure the remote.
 
 Groups of Connections can be created using Clone action:
 
+~~~
 Connection := Connection.Clone()
+~~~
 
 Calling this once yields a group of two Connections: the parent Connection -- whose
 Clone action was called -- and the resulting clone. Calling Clone on any of these two
@@ -754,7 +771,9 @@ Once a Connection has been established, it can be used for sending data. Data
 is sent by passing a Message object and additional parameters
 {{send-params}} to the Send action on an established connection:
 
+~~~
 Connection.Send(Message, sendParameters)
+~~~
 
 The type of the Message to be passed is dependent on the implementation, and
 on the constraints on the Protocol Stacks implied by the Connection's
@@ -778,7 +797,9 @@ Protocol Stacks that support it.
 
 Like all Actions in this interface, the Send action is asynchronous.
 
+~~~
 Connection -> Sent&lt;msgRef>
+~~~
 
 The Sent event occurs when a previous Send action has completed, i.e., when the
 data derived from the Message has been passed down or through the underlying
@@ -793,7 +814,9 @@ of buffering it creates. That is, if an application calls the Send action multip
 times without waiting for a Sent event, it has created more buffer inside the
 transport system than an application that only issues a Send after this event fires.
 
+~~~
 Connection -> Expired&lt;msgRef>
+~~~
 
 The Expired event occurs when a previous Send action expired before completion;
 i.e. when the Message was not sent before its Lifetime (see {{send-lifetime}})
@@ -801,7 +824,9 @@ expired. This is separate from SendError, as it is an expected behavior for
 partially reliable transports. The Expired event contains an
 implementation-specific reference to the Message to which it applies.
 
+~~~
 Connection -> SendError&lt;msgRef>
+~~~
 
 A SendError occurs when a Message could not be sent due to an error condition:
 an attempt to send a non-partial Message which is too large for the system and
@@ -932,9 +957,11 @@ to the Protocol Stack. It consists of a Framer object with a single Action,
 Frame. Since the Framer depends on the protocol used at the application layer,
 it is bound to the Preconnection during the pre-establishment phase:
 
+~~~
 Preconnection.FrameWith(Framer)
 
 OctetArray := Framer.Frame(Message)
+~~~
 
 Sender-side framing is a convenience feature of the interface, for parity with
 receiver-side framing (see {{receive-framing}}).
@@ -943,7 +970,9 @@ receiver-side framing (see {{receive-framing}}).
 
 Once a Connection is established, Messages may be received on it. The application can indicate that it is ready to receive Messages by calling Receive() on the connection.
 
+~~~
 Connection.Receive(ReceiveHandler)
+~~~
 
 Receive takes a single object, a ReceiveHandler which can handle the Received
 event and the ReceiveError error. Each call to Receive will result in at most
@@ -953,7 +982,9 @@ number of Messages with a single call. This allows an application to provide
 backpressure to the transport stack when it is temporarily not ready to receive
 messages.
 
+~~~
 Connection -> Received&lt;Message>
+~~~
 
 As with sending, the type of the Message to be passed is dependent on the
 implementation, and on the constraints on the Protocol Stacks implied by the
@@ -971,13 +1002,16 @@ underlying Protocol Stack's framing.  See {{receive-framing}} for handling
 framing in situations where the Protocol Stack provides octet-stream transport
 only.
 
-Note that as with sending, the Message object may represent a partial message,
-larger than the maximum message size than can be received atomically. In this
-case, the Message object passed contains some reference to the full Message it
+Note that as with sending, the Message object passed to Received may represent
+a partial message, larger than the maximum message size than can be received
+atomically. In this case, the Message object passed contains an indication
+that the object received is partial, a reference to the full Message it
 belongs to, as well as the byte range of the data content within the partial
 Message.
 
+~~~
 Connection -> ReceiveError&lt;>
+~~~
 
 A ReceiveError occurs when data is received by the underlying Protocol Stack
 that cannot be fully retrieved or deframed, or when some other indication is
@@ -1012,9 +1046,11 @@ next Message to deframe. It consists of a Deframer object with a single Action,
 Deframe. Since the Deframer depends on the protocol used at the application
 layer, it is bound to the Preconnection during the pre-establishment phase:
 
+~~~
 Preconnection.DeframeWith(Deframer)
 
 Message := Deframer.Deframe(OctetStream, ...)
+~~~
 
 # Setting and Querying of Connection Properties {#introspection}
 
@@ -1089,22 +1125,22 @@ Generic Protocol Properties include:
   This numeric property, if applicable, represents the maximum Message size
   that can be sent without incurring network-layer fragmentation and/or transport layer segmentation at the sender. This property is read-only.
 
-* Maximum non-partial Message size on send:
-  This numeric property represents the maximum Message size that can be sent as
-  a non-partial Message. This property may be read-only.
+* Maximum non-partial Message size on send: This numeric property represents
+  the maximum Message size that can be sent as a non-partial Message. This
+  property is read-only.
 
-* Maximum non-partial Message size on receive:
-  This numeric property represents
-  the maximum Message size that can be received as a non-partial Message. This property may be read-only.
+* Maximum non-partial Message size on receive: This numeric property
+  represents the maximum Message size that can be received as a non-partial
+  Message. This property is read-only.
 
-Specific Protocol Properties can additionally be associated with a specific
-protocol. For example, the application can specify a set of TCP Options to use
-if and only if TCP is selected by the system, including options such as the
-Maximum Segment Size (MSS), and options around Acknowledgement Stretching. Such
-properties should not be assumed to apply across different protocols, but must
-be possible to specify if required by the application. Attempts to set specific
-protocol properties on a protocol stack not containing that specific protocol
-are simply ignored, and do not raise an error.
+In order to specify Specific Protocol Properties, Transport System
+implementations may offer applications to attach a set of options to the
+Preconnection object, associated with a specific protocol. For example, an
+application could specify a set of TCP Options to use if and only if TCP is
+selected by the system. Such properties must not be assumed to apply across
+different protocols. Attempts to set specific protocol properties on a
+protocol stack not containing that specific protocol are simply ignored, and
+do not raise an error..
 
 # Connection Termination {#termination}
 
@@ -1115,22 +1151,30 @@ for a Message handed over before calling Close, the transport system will ensure
 that this Message is indeed delivered. If the Remote Endpoint still has data to
 send, it cannot be received after this call.
 
+~~~
 Connection.Close()
+~~~
 
 The Closed event can inform the application that the Remote Endpoint has closed the
 Connection; however, there is no guarantee that a remote close will be
 signaled.
 
+~~~
 Connection -> Closed&lt;>
+~~~
 
 Abort terminates a Connection without delivering remaining data:
 
+~~~
 Connection.Abort()
+~~~
 
 A ConnectionError can inform the application that the other side has aborted
 the Connection; however, there is no guarantee that an abort will be signaled:
 
+~~~
 Connection -> ConnectionError&lt;>
+~~~
 
 # Event and Error Handling
 
