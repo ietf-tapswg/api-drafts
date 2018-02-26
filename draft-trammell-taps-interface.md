@@ -182,33 +182,39 @@ language and the platform. Actions could be implemented as functions or method
 calls, for instance, and Events could be implemented via callback
 passing or other asynchronous calling conventions.
 
-# Design Principles {#principles}
+# Interface Design Principles {#principles}
 
-We begin with a set of initial design principles for the abstract interface to
-realize.
+We begin with the architectural design principles defined in {{TAPS-ARCH}}; from these, we derive and elaborate a set of principles on which the design of the interface is based:
 
-- Transport protocol stack independence in line with the Transport Services
-  Architecture {{TAPS-ARCH}}, allowing applications to be written in terms of
-  the semantics best for the application's own design, separate from the
-  protocol(s) used on the wire to achieve them. This enables applications
-  written to a single API to make use of transport protocols in terms of the
-  features they provide.
+- We aim to provide a single interface to a variety of transport protocols to be
+  used in a variety of application design patterns, independent of the
+  properties of the application and the protocol stacks that will be used at
+  runtime. At the same time, all common specialized features of these protocol
+  stacks are made available to the application as necessary in a
+  transport-independent way. This enables applications written to a single API
+  to make use of transport protocols in terms of the features they provide.
 
-- Explicit support for multistreaming and multipath transport protocols.
+- The interface provides explicit support for security properties as first-order
+  transport features, and for long-term caching of cryptographic identities and
+  parameters for associations among endpoints.
 
-- Explicit support for security properties as first-order transport features,
-  and for long-term caching of cryptographic identities and parameters for
-  associations among endpoints.
+- The interface provides asynchronous connection establishment,
+  transmission, and reception, allowing most application interactions with the
+  transport layer to be event-driven, in line with developments in modern
+  platforms and programming languages
 
-- Atomic transmission of data, using application-assisted framing and
-  deframing where the underlying transport does not provide these.
+- Explicit support for multistreaming and multipath transport protocols, and the
+  grouping of related connections into connection groups through cloning of
+  connections. 
 
-- Asynchronous connection establishment, transmission, and reception, allowing
-  most application interactions with the transport layer to be event-driven.
+- Atomic transmission of data, using application-assisted framing and deframing
+  where the underlying transport does not provide these.
+
 
 # API Summary
 
-\[TASK: write three paragraph summary here, should state how all this works for common cases from the application's PoV.]
+\[EDITOR'S NOTE: write three paragraph summary here; see
+https://github.com/taps-api/drafts/issues/93]
 
 In the following sections, we describe the details of application interaction with Objects through Actions and Events in each phase of a connection, following the phases described in {{TAPS-ARCH}}.
 
@@ -239,12 +245,8 @@ connections. The Remote Endpoint MUST be specified in the Preconnection is used
 to Initiate() connections, but is OPTIONAL if it is used to Listen() for
 incoming connections.
 
-\[NOTE: note also that framers and de-framers should be bound to the
-Preconnection object during pre-establishment, forward-reference
-{{send-framing}} and {{receive-framing}}]
-
-
-
+Framers (see {{send-framing}}) and deframers (see {{receive-framing}}), if
+necessary, should be bound to the Preconnection during pre-establishment.
 
 ## Specifying Endpoints {#endpointspec}
 
@@ -285,10 +287,6 @@ localSpecifier.withStunServer(address, port, credentials)
 
 Implementations may also support additional endpoint representations and
 provide a single NewEndpoint() call that takes different endpoint representations.
-
-
-\[TASK: match with #initiate / #listen / #rendezvous and make sure the transport
-stack used is communicated ]
 
 Multiple endpoint identifiers can be specified for each Local Endpoint
 and RemoteEndoint.  For example, a Local Endpoint could be configured with
@@ -925,9 +923,9 @@ that takes a Message of an appropriate application-layer type and returns an
 array of octets, the on-the-wire representation of the Message to be handed down
 to the Protocol Stack. It consists of a Framer object with a single Action,
 Frame. Since the Framer depends on the protocol used at the application layer,
-it is bound to the Connection during the pre-establishment phase:
+it is bound to the Preconnection during the pre-establishment phase:
 
-Connection.FrameWith(Framer)
+Preconnection.FrameWith(Framer)
 
 OctetArray := Framer.Frame(Message)
 
@@ -1005,9 +1003,9 @@ Protocol Stack, reads and returns a single Message of an appropriate type for
 the application and platform, and leaves the octet stream at the start of the
 next Message to deframe. It consists of a Deframer object with a single Action,
 Deframe. Since the Deframer depends on the protocol used at the application
-layer, it is bound to the Connection during the pre-establishment phase:
+layer, it is bound to the Preconnection during the pre-establishment phase:
 
-Connection.DeframeWith(Deframer)
+Preconnection.DeframeWith(Deframer)
 
 Message := Deframer.Deframe(OctetStream, ...)
 
