@@ -311,38 +311,29 @@ traversal protocols (see {{rendezvous}}).
 ## Specifying Transport Parameters {#transport-params}
 
 A Preconnection object holds parameters reflecting the application's
-requirements and preferences for the transport. These include Transport
-Preferences, which control protocol and path selection; as well as Generic and
-Specific Protocol Properties, which configure the detailed operation of the
-selected Protocol Stacks.
+requirements and preferences for the transport. These include protocol and path
+selection parameters, as well as Generic and Specific Protocol Properties for
+configuration of the detailed operation of the selected Protocol Stacks.
 
 All Transport Parameters are organized within a single namespace shared with
 Send Parameters (see {{send-params}}). All transport parameters take
-paremeter-specific values. Transport Preferences additionally take one of five
-preference levels (see {{transport-prefs}}), though not all preference levels
-make sense with Preferences. Note that it is possible for a set of specified
-transport preferences to be internally inconsistent, or for preferences to be
-inconsistent with the later use of the API by the application. Application
-developers should reduce inconsistency by only using the most stringent
-preference levels when failure to meet a preference would break the
-application's functionality (e.g. the Reliable Data Transfer preferences, which
-is a core assumption of many application protocols). Implementations of this
-interface should also raise errors in configuration as early as possible, to
-help ensure these inconsistencies are caught early in the development process.
+paremeter-specific values. Protocol and path selection properties additionally
+take one of five preference levels, though not all preference levels make sense
+with all such properties. Note that it is possible for a set of specified transport
+parameters to be internally inconsistent, or for preferences to be inconsistent
+with the later use of the API by the application. Application developers should
+reduce inconsistency by only using the most stringent preference levels when
+failure to meet a preference would break the application's functionality (e.g.
+the Reliable Data Transfer preference, which is a core assumption of many
+application protocols). Implementations of this interface should also raise
+errors in configuration as early as possible, to help ensure these
+inconsistencies are caught early in the development process.
 
-### Transport Preferences {#transport-prefs}
-
-Transport Preferences drive protocol selection and path selection on
-connection establishment. Since there could be paths over which some transport
+The protocol(s) and path(s) selected as candidates during connection establishment are determined by a set of properties. Since there could be paths over which some transport
 protocols are unable to operate, or remote endpoints that support only
 specific network addresses or transports, transport protocol selection is
 necessarily tied to path selection. This may involve choosing between multiple
 local interfaces that are connected to different access networks.
-
-The Transport Preferences form part of the information used to create a
-Preconnection object. As such, they can be configured during the
-pre-establishment phase, but cannot be changed once a Connection has been
-established.
 
 To reflect the needs of an individual connection, they can be
 specified with five different preference levels:
@@ -355,13 +346,13 @@ specified with five different preference levels:
    | `avoid   ` | Prefer protocols/paths not providing the property, proceed otherwise |
    | `prohibit` | Select only protocols/paths not providing the property, fail otherwise |
 
-An implementation of this interface must provide sensible defaults for Transport
-Preferences. The defaults given for each property below represent a
-configuration that can be implemented over TCP. An alternate set of default
-Protocol Selection Properties would represent a configuration that can be
-implemented over UDP.
+An implementation of this interface must provide sensible defaults for protocol
+and path selection properties. The defaults given for each property below
+represent a configuration that can be implemented over TCP. An alternate set of
+default Protocol Selection Properties would represent a configuration that can
+be implemented over UDP.
 
-The following properties apply to Connections and Connection Groups:
+The following properties can be used during Protocol and Path selection:
 
 * Reliable Data Transfer:
   This boolean property specifies whether the application needs the
@@ -383,7 +374,6 @@ The following properties apply to Connections and Connection Groups:
   useful to indicate its reliability requirements on a per-Message basis.
   This property applies to connections and connection groups. This is not a
   strict requirement.  The default is to not have this option.
-
 
 * Use 0-RTT session establishment with an idempotent Message:
   This boolean property specifies whether an application would like to
@@ -462,56 +452,10 @@ The following properties apply to Connections and Connection Groups:
   stacks with scavenger transmission control, to signal a preference for 
   less-than-best-effort treatment, and so on.
 
-### Protocol Properties {#protocol-props}
-
-Protocol Properties represent the configuration that protocols should use
-once they have been selected. Some properties apply generically across
-multiple transport protocols, in which case they may be used by the system
-to help select candidate protocols. Other properties only apply to specific
-protocols. As with Transport Preferences ({{transport-prefs}}), Protocol Properties are
-specified on the Preconnection object. The default settings of these properties
-will vary based on the specific protocols being used and the system's configuration.
-
-Generic Protocol Properties include:
-
-* Set timeout for aborting Connection: 
-  This numeric property specifies how long
-  to wait before aborting a Connection during establishment, or after a
-  connection has failed after establishment. It is given in seconds.
-
-* Set abort timeout to suggest to the Remote Endpoint: 
-  This numeric property
-  specifies the timeout to propose to the Remote Endpoint. It is given in
-  seconds.
-
-* Set retransmissions before "Excessive Retransmissions":
-  This numeric property specifies after how many retransmissions to inform
-  the application about "Excessive Retransmissions".
-
-* Set required minimum coverage of the checksum for receiving:
-  This numeric property specifies the part of the received data that needs
-  to be covered by a checksum. It is given in Bytes. A value of 0 means
-  that no checksum is required, and a special value (e.g., -1) indicates
-  full checksum coverage.
-
-* Set scheduler for connections in a group: 
-  This property specifies which
-  scheduler should be used among Connections within a Connection Group. It
-  applies to connection groups; the set of schedulers can be taken from
-  {{I-D.ietf-tsvwg-sctp-ndata}}.
-
-* Maximum message size concurrent with connection establishment:
-  This numeric property represents the maximum Message size that can be sent
-  before or during Connection establishment, see also {{send-idempotent}}.
-  It is given in Bytes.
-
-In order to specify Specific Protocol Properties, the application can attach
-a set of options to the Preconnection object, associated with a specific protocol.
-For example, the application could specify a set of TCP Options to use if and only
-if TCP is selected by the system, including options such as the Maximum Segment
-Size (MSS), and options around Acknowledgement Stretching. Such properties
-should not be assumed to apply across different protocols, but must be possible
-to specify if required by the application.
+In addition to protocol and path selection properties, the transport parameters
+may also contain Generic and/or Specific Protocol Properties (see
+{{protocol-props}}). These properties will be passed to the selected candidate
+Protocol Stack(s) to configure them before candidate connection establishment.
 
 ### Transport Parameters Object
 
@@ -527,8 +471,6 @@ While Protocol Properties and Application Intents use the `add` call,
 Transport Preferences use special calls for the levels defined in {{transport-params}}.
 
 ~~~
-transportParameters.add(intent, value)
-
 transportParameters.add(parameter, value)
 
 transportParameters.require(preference)
@@ -1062,6 +1004,7 @@ Message := Deframer.Deframe(OctetStream, ...)
 
 # Setting and Querying of Connection Properties {#introspection}
 
+
 At any point, the application can set and query the properties of a
 Connection. Depending on the phase the connection is in, the connection
 properties will include different information.
@@ -1074,15 +1017,80 @@ connectionProperties := Connection.getProperties()
 Connection.setProperties()
 ~~~
 
-Connection properties may include:
+Connection properties include:
 
 * The status of the Connection, which can be one of the following: Establishing, Established, Closing, or Closed.
 * Transport Features of the protocols that conform to the Required and Prohibited Transport Preferences, which might be selected by the transport system during Establishment. These features correspond to the properties given in {{transport-params}} and can only be queried.
 * Transport Features of the protocols that were selected, once the Connection has been established. These features correspond to the properties given in {{transport-params}} and can only be queried.
-* Protocol Properties of the protocols in use, once the Connection has been established. These properties correspond to the properties given {{protocol-props}} and can be set or queried. Certain specific procotol queries may be read-only, on a protocol and property specific basis.
+* Protocol Properties of the Protocol Stack in use (see {{protocol-props}} below). These can be set or queried. Certain specific procotol queries may be read-only, on a protocol and property specific basis.
 * Path Properties of the path(s) in use, once the Connection has been established. These  properties can be derived from the local provisioning domain, measurements by the protocol stack, or other sources. They can only be queried.
 
 {{appendix-specify-query-params}} gives a more detailed overview of the different types of properties that can be set and queried at different times.
+
+## Protocol Properties {#protocol-props}
+
+Protocol Properties represent the configuration of the selected Protocol Stacks
+backing a connection. Some properties apply generically across multiple
+transport protocols, while other properties only apply to specific protocols.
+The default settings of these properties will vary based on the specific
+protocols being used and the system's configuration.
+
+Note that Protocol Properties are also set during pre-establishment, as
+transport parameters, to preconfigure Protocol Stacks during establishment.
+
+Generic Protocol Properties include:
+
+* Timeout for aborting Connection: 
+  This numeric property specifies how long
+  to wait before aborting a Connection during establishment, or after a
+  connection has failed after establishment. It is given in seconds.
+
+* Abort timeout to suggest to the Remote Endpoint: 
+  This numeric property
+  specifies the timeout to propose to the Remote Endpoint. It is given in
+  seconds.
+
+* Retransmission threshold before excessive retransmission notification:
+  This numeric property specifies after how many retransmissions to inform
+  the application about "Excessive Retransmissions".
+
+* Required minimum coverage of the checksum for receiving:
+  This numeric property specifies the part of the received data that needs
+  to be covered by a checksum. It is given in Bytes. A value of 0 means
+  that no checksum is required, and a special value (e.g., -1) indicates
+  full checksum coverage.
+
+* Connection group transmission scheduler: 
+  This enumerated property specifies which
+  scheduler should be used among Connections within a Connection Group. It
+  applies to connection groups; the set of schedulers can be taken from
+  {{I-D.ietf-tsvwg-sctp-ndata}}.
+
+* Maximum message size concurrent with connection establishment:
+  This numeric property represents the maximum Message size that can be sent
+  before or during Connection establishment, see also {{send-idempotent}}.
+  It is given in Bytes. This property is read-only.
+
+* Maximum Message size before fragmentation or segmentation:
+  This numeric property, if applicable, represents the maximum Message size 
+  that can be sent without incurring network-layer fragmentation and/or transport layer segmentation at the sender. This property is read-only.
+
+* Maximum non-partial Message size on send:
+  This numeric property represents the maximum Message size that can be sent as
+  a non-partial Message. This property may be read-only.
+
+* Maximum non-partial Message size on receive: 
+  This numeric property represents
+  the maximum Message size that can be received as a non-partial Message. This property may be read-only.
+
+Specific Protocol Properties can additionally be associated with a specific
+protocol. For example, the application can specify a set of TCP Options to use
+if and only if TCP is selected by the system, including options such as the
+Maximum Segment Size (MSS), and options around Acknowledgement Stretching. Such
+properties should not be assumed to apply across different protocols, but must
+be possible to specify if required by the application. Attempts to set specific
+protocol properties on a protocol stack not containing that specific protocol
+are simply ignored, and do not raise an error.
 
 # Connection Termination {#termination}
 
@@ -1165,7 +1173,7 @@ should be added to a future revision of the base specification.
 ## Transport Preferences 
 
 The following transport preferences might be made available in addition to those
-specified in {{transport-prefs}}:
+specified in {{selection-properties}}:
 
 * Request not to delay acknowledgment of Message:
   This boolean property specifies whether an application considers it
