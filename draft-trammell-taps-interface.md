@@ -759,6 +759,14 @@ transport parameters. It may itself contain an array of octets to be
 transmitted in the transport protocol payload, or be transformable to an array
 of octets by a sender-side framer (see {{send-framing}}).
 
+Messages may be arbitrarily large; however, there may be system and Protocol
+Stack dependent limits on the size of a data object which can be transmitted
+atomically. For that reason, the Message object passed to the Send action may
+also be a partial Message, either representing the whole data object and
+information about the range of bytes to send from it, or an object referring
+back to the larger whole Message. The details of partial Message sending are
+implementation-dependent.
+
 If Send is called on a Connection which has not yet been established, an
 Initiate action will be implicitly performed simultaneously with the Send.
 Used together with the Idempotent property (see {{send-idempotent}}), this can
@@ -793,14 +801,14 @@ implementation-specific reference to the Message to which it applies.
 Connection -> SendError&lt;msgRef>
 
 A SendError occurs when a Message could not be sent due to an error condition:
-some failure of the underlying Protocol Stack, or a set of send parameters not
-consistent with the Connection's transport parameters. The SendError contains
-an implementation-specific reference to the Message to which it applies.
-
+an attempt to send a non-partial Message which is too large for the system and
+Protocol Stack to handle, some failure of the underlying Protocol Stack, or a
+set of send parameters not consistent with the Connection's transport
+parameters. The SendError contains an implementation-specific reference to the
+Message to which it applies.
 
 ## Send Parameters {#send-params}
 
-\[EDNOTE: do this in the API sketch first, then port changes back up here.]
 The Send action takes per-Message send parameters which control how the
 contents will be sent down to the underlying Protocol Stack and transmitted.
 
@@ -884,43 +892,40 @@ that it can remove the Message from its buffer; therefore this property can be
 useful for latency-critical applications that maintain tight control over the
 send buffer (see {{sending}}).
 
-#### Send Bitrate {#send-bitrate}
+#### Instantaneous Capacity Profile
 
-This numeric property in Bytes per second specifies at what bitrate the
-application wishes the Message to be sent. A transport supporting this
-feature will not exceed the requested Send Bitrate even if flow-control
-and congestion control allow higher bitrates. This helps to avid bursty
-traffic pattern on busy video streaming servers.
+This enumerated property specifies the application's preferred tradeoffs for sending this Message; it is a per-Message override of the Capacity Profile protocol and path selection property (see {{transport-params}}). Th
 
-#### Timeliness {#send-timeliness}
+The following values are valid for Instantaneous Capacity Profile:
 
-This specifies what delay characteristics the applications prefers for the
-Message. It provides hints for the transport system whether to optimize
-for low latency or other criteria and set the DSCP flags for packets used
-to transmit the Message.
+  Default: 
+  :  No special optimizations of the tradeoff between delay, delay
+  variation, and bandwidth efficiency should be made when sending this message.
 
-Stream:
-: Delay and packet delay variation should be kept as low as possible
+  Interactive/Low Latency: 
+  : Response time (latency) should be optimized at the
+  expense of bandwidth efficiency and delay variation when sending this message.
+  This can be used by the system to disable the coalescing of multiple small
+  Messages into larger packets (Nagle's algorithm), to signal a preference for
+  lower-latency, higher-loss treatment, and so on.
 
-Interactive:
-: Delay should be kept as low as possible, but some variation is tolerable
+  Constant Rate:
+  : Delay and delay variation should be optimized at the
+  expense of bandwidth efficiency.
 
-Transfer:
-: Delay and packet delay variation should be reasonable, but are not critical
-
-Background:
-: Delay and packet delay variation is no concern
-
-The default is "Transfer".
+  Scavenger/Bulk: 
+  : This Message may be sent at the system's leisure. This can
+  be used to signal a preference for less-than-best-effort treatment, to delay
+  sending until lower-cost paths are available, and so on.
 
 ## Sender-side Framing {#send-framing}
 
 Sender-side framing allows a caller to provide the interface with a function
-that takes a Message of an appropriate application-layer type and returns an array of octets, the
-on-the-wire representation of the Message to be handed down to the Protocol
-Stack. It consists of a Framer object with a single Action, Frame. Since the
-Framer depends on the protocol used at the application layer, it is bound to
-the Connection during the pre-establishment phase:
+that takes a Message of an appropriate application-layer type and returns an
+array of octets, the on-the-wire representation of the Message to be handed down
+to the Protocol Stack. It consists of a Framer object with a single Action,
+Frame. Since the Framer depends on the protocol used at the application layer,
+it is bound to the Connection during the pre-establishment phase:
 
 Connection.FrameWith(Framer)
 
@@ -931,9 +936,17 @@ receiver-side framing (see {{receive-framing}}).
 
 # Receiving Data {#receiving}
 
-Once a Connection is established, Messages may be received on it. The interface
-notifies the application that a Message has been received via the Received
-event:
+Once a Connection is established, Messages may be received on it. The application can indicate that it is ready to receive Messages by calling Receive() on the connection.
+
+Connection.Receive(ReceiveHandler)
+
+Receive takes a single object, a ReceiveHandler which can handle the Received
+event and the ReceiveError error. Each call to Receive will result in at most
+one Received event being sent to the handler, though implementations may provide
+convenience functions to indicate readiness to receive a larger but finite
+number of Messages with a single call. This allows an application to provide
+backpressure to the transport stack when it is temporarily not ready to receive
+messages.
 
 Connection -> Received&lt;Message>
 
@@ -953,6 +966,12 @@ underlying Protocol Stack's framing.  See {{receive-framing}} for handling
 framing in situations where the Protocol Stack provides octet-stream transport
 only.
 
+Note that as with sending, the Message object may represent a partial message,
+larger than the maximum message size than can be received atomically. In this
+case, the Message object passed contains some reference to the full Message it
+belongs to, as well as the byte range of the data content within the partial
+Message.
+
 Connection -> ReceiveError&lt;>
 
 A ReceiveError occurs when data is received by the underlying Protocol Stack
@@ -961,16 +980,6 @@ received that reception has failed. Such conditions that irrevocably lead the
 the termination of the Connection are signaled using ConnectionError instead
 (see {{termination}}).
 
-## Application-Layer Back-Pressure at the Receiver {#receive-backpressure}
-
-\[EDITOR'S NOTE: rework this to note that the application should be able to
-register to receive messages on a per-Message basis. See
-https://github.com/taps-api/drafts/issues/55]
-
-Implementations of this interface must provide some way for the application to
-indicate that it is temporarily not ready to receive new Messages. Since the
-mechanisms of event handling are implementation-platform specific, this
-document does not specify the exact nature of this interface.
 
 ## Receiver-side De-framing over Stream Protocols {#receive-framing}
 
@@ -1170,10 +1179,10 @@ the interface, and may be removed from the final document, but are presented
 here to support discussion within the TAPS working group as to whether they
 should be added to a future revision of the base specification.
 
-## Transport Preferences 
+## Protocol and Path Selection Properties
 
-The following transport preferences might be made available in addition to those
-specified in {{selection-properties}}:
+The following protocol and path selection properties might be made available in
+addition to those specified in {{transport-params}}:
 
 * Request not to delay acknowledgment of Message:
   This boolean property specifies whether an application considers it
@@ -1287,6 +1296,12 @@ specified in {{send-params}}:
   the Message should not be bundled with other
   Message into the same transmission by the underlying Protocol Stack.
 
+* Send Bitrate: 
+  This numeric property in Bytes per second specifies at what
+  bitrate the application wishes the Message to be sent. A transport supporting
+  this feature will not exceed the requested Send Bitrate even if flow-control
+  and congestion control allow higher bitrates. This helps to avid bursty
+  traffic pattern on busy video streaming servers.
 
 # Sample API definition in Go {#appendix-api-sketch}
 
