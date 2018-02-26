@@ -72,7 +72,7 @@ author:
     email: michawe@ifi.uio.no
 
 normative:
-    I-D.pauly-taps-arch:
+    draft-pauly-taps-arch:
       title: An Architecture for Transport Services
       url: https://taps-api.github.io/drafts/draft-pauly-taps-arch.html
       authors:
@@ -80,7 +80,7 @@ normative:
           ins: Tommy Pauly
         -
           ins: Brian Trammell
-    I-D.trammell-taps-interface:
+    draft-trammell-taps-interface:
       title: An Abstract Application Layer Interface to Transport Services
       url: https://taps-api.github.io/drafts/draft-trammell-taps-interface.html
       authors:
@@ -104,15 +104,15 @@ informative:
 
 --- abstract
 
-The Transport Services architecture {{I-D.pauly-taps-arch}} defines a system that allows applications to use transport networking protocols flexibly. This document serves as a guide to implementation on how to build a system that provides such an interface.
+The Transport Services architecture {{draft-pauly-taps-arch}} defines a system that allows applications to use transport networking protocols flexibly. This document serves as a guide to implementation on how to build a system that provides such an interface.
 
 --- middle
 
 # Introduction
 
-The Transport Services architecture {{I-D.pauly-taps-arch}} defines a system that allows applications to use transport networking protocols flexibly. This document serves as a guide to implementation on how to build a system that provides such an interface. The terminology used in this document is based on the Architecture.
+The Transport Services architecture {{draft-pauly-taps-arch}} defines a system that allows applications to use transport networking protocols flexibly. This document serves as a guide to implementation on how to build a system that provides such an interface. The terminology used in this document is based on the Architecture.
 
-The interface exposed to applications is defined as the Transport Services API {{I-D.trammell-taps-interface}}. This API is designed to be generic across multiple transport protocols and sets of protocols features. It is the job of an implementation of a Transport Services system to turn the requests of an application into decisions on how to establish connections, and how to transfer data over those connections once established.
+The interface exposed to applications is defined as the Transport Services API {{draft-trammell-taps-interface}}. This API is designed to be generic across multiple transport protocols and sets of protocols features. It is the job of an implementation of a Transport Services system to turn the requests of an application into decisions on how to establish connections, and how to transfer data over those connections once established.
 
 # Implementing Transport Objects
 
