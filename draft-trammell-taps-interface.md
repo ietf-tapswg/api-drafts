@@ -184,28 +184,31 @@ passing or other asynchronous calling conventions.
 
 # Interface Design Principles {#principles}
 
-We begin with the architectural design principles defined in {{TAPS-ARCH}}; from these, we derive and elaborate a set of principles on which the design of the interface is based:
+We begin with the architectural design principles defined in {{TAPS-ARCH}};
+from these, we derive and elaborate a set of principles on which the design of
+the interface is based. The interface defined in this document provides:
 
-- We aim to provide a single interface to a variety of transport protocols to be
+- A single interface to a variety of transport protocols to be
   used in a variety of application design patterns, independent of the
   properties of the application and the protocol stacks that will be used at
-  runtime. At the same time, all common specialized features of these protocol
+  runtime, such that  all common specialized features of these protocol
   stacks are made available to the application as necessary in a
-  transport-independent way. This enables applications written to a single API
-  to make use of transport protocols in terms of the features they provide.
+  transport-independent way, to enable applications written to a single API
+  to make use of transport protocols in terms of the features they provide;
 
-- The interface provides explicit support for security properties as first-order
+- Explicit support for security properties as first-order
   transport features, and for long-term caching of cryptographic identities and
-  parameters for associations among endpoints.
+  parameters for associations among endpoints;
 
-- The interface provides asynchronous connection establishment,
+- Asynchronous connection establishment,
   transmission, and reception, allowing most application interactions with the
   transport layer to be event-driven, in line with developments in modern
-  platforms and programming languages
+  platforms and programming languages;
 
-- Explicit support for multistreaming and multipath transport protocols, and the
-  grouping of related connections into connection groups through cloning of
-  connections. 
+- Explicit support for multistreaming and multipath transport protocols, and
+  the grouping of related connections into connection groups through cloning
+  of connections, to allow applications to take full advantage of new
+  transport protocols supporting these features; and
 
 - Atomic transmission of data, using application-assisted framing and deframing
   where the underlying transport does not provide these.
@@ -226,15 +229,15 @@ connections they could make.
 
 A Preconnection object represents a potential connection. It has state that
 describes parameters of a Connection that might exist in the future.  This
-state comprises Local Endpoint and Remote Endpoint objects that denote the 
-endpoints of the potential connection (see {{endpointspec}}), the transport 
-parameters (see {{transport-params}}), and the security parameters (see 
+state comprises Local Endpoint and Remote Endpoint objects that denote the
+endpoints of the potential connection (see {{endpointspec}}), the transport
+parameters (see {{transport-params}}), and the security parameters (see
 {{security-parameters}}):
 
 ~~~
-   preConnection := NewPreconnection(LocalEndpoint, 
+   preConnection := NewPreconnection(LocalEndpoint,
                                      RemoteEndpoint,
-                                     TransportParams, 
+                                     TransportParams,
                                      SecurityParams);
 
 ~~~
@@ -252,8 +255,8 @@ necessary, should be bound to the Preconnection during pre-establishment.
 
 The transport services API uses the Local Endpoint and Remote Endpoint types
 to refer to the endpoints of a transport connection.
-Subtypes of these represent various different types of endpoint identifiers, 
-such as IP addresses, DNS names, and interface names, as well as port numbers 
+Subtypes of these represent various different types of endpoint identifiers,
+such as IP addresses, DNS names, and interface names, as well as port numbers
 and service names.
 
 ~~~
@@ -315,7 +318,7 @@ configuration of the detailed operation of the selected Protocol Stacks.
 
 All Transport Parameters are organized within a single namespace shared with
 Send Parameters (see {{send-params}}). All transport parameters take
-paremeter-specific values. Protocol and path selection properties additionally
+paremeter-specific values. Protocol and Path Selection properties additionally
 take one of five preference levels, though not all preference levels make sense
 with all such properties. Note that it is possible for a set of specified transport
 parameters to be internally inconsistent, or for preferences to be inconsistent
@@ -327,11 +330,13 @@ application protocols). Implementations of this interface should also raise
 errors in configuration as early as possible, to help ensure these
 inconsistencies are caught early in the development process.
 
-The protocol(s) and path(s) selected as candidates during connection establishment are determined by a set of properties. Since there could be paths over which some transport
-protocols are unable to operate, or remote endpoints that support only
-specific network addresses or transports, transport protocol selection is
-necessarily tied to path selection. This may involve choosing between multiple
-local interfaces that are connected to different access networks.
+The protocol(s) and path(s) selected as candidates during connection
+establishment are determined by a set of properties. Since there could be
+paths over which some transport protocols are unable to operate, or remote
+endpoints that support only specific network addresses or transports,
+transport protocol selection is necessarily tied to path selection. This may
+involve choosing between multiple local interfaces that are connected to
+different access networks.
 
 To reflect the needs of an individual connection, they can be
 specified with five different preference levels:
@@ -381,7 +386,7 @@ The following properties can be used during Protocol and Path selection:
   See also {{send-idempotent}}.  This is a strict requirement. The default
   is to not have this option.
 
-* Efficient use of Connection Groups: 
+* Efficient use of Connection Groups:
   This boolean property specifies whether an
   application considers it useful to create Connection Groups, e.g. to
   explicitly prioritize between Connections within a Connection Group. This
@@ -420,16 +425,16 @@ The following properties can be used during Protocol and Path selection:
   way that is detrimental to connectivity. The default is to use the default
   interface configured in the system policy.
 
-* Capacity Profile: 
+* Capacity Profile:
   This enumerated property specifies the application's expectation of the
   dominating traffic pattern for this connection. The Capacity Profile should
   only be used with the `prefer` preference level; other preference levels make
   no sense for profiles. The following values are valid for Capacity Profile:
 
-  Default: 
-  : The application makes no representation about its expected 
-  capacity profile. No special optimizations of the tradeoff between 
-  delay, delay variation, and bandwidth efficiency should be made when selecting and 
+  Default:
+  : The application makes no representation about its expected
+  capacity profile. No special optimizations of the tradeoff between
+  delay, delay variation, and bandwidth efficiency should be made when selecting and
   configuring stacks.
 
   Interactive/Low Latency:
@@ -446,8 +451,8 @@ The following properties can be used during Protocol and Path selection:
 
   Scavenger/Bulk:
   : The application is not interactive. It expects to send/receive a large
-  amount of data, without any urgency. This can be used to select protocol 
-  stacks with scavenger transmission control, to signal a preference for 
+  amount of data, without any urgency. This can be used to select protocol
+  stacks with scavenger transmission control, to signal a preference for
   less-than-best-effort treatment, and so on.
 
 In addition to protocol and path selection properties, the transport parameters
@@ -892,15 +897,17 @@ send buffer (see {{sending}}).
 
 #### Instantaneous Capacity Profile
 
-This enumerated property specifies the application's preferred tradeoffs for sending this Message; it is a per-Message override of the Capacity Profile protocol and path selection property (see {{transport-params}}). Th
+This enumerated property specifies the application's preferred tradeoffs for
+sending this Message; it is a per-Message override of the Capacity Profile
+protocol and path selection property (see {{transport-params}}).
 
 The following values are valid for Instantaneous Capacity Profile:
 
-  Default: 
+  Default:
   :  No special optimizations of the tradeoff between delay, delay
   variation, and bandwidth efficiency should be made when sending this message.
 
-  Interactive/Low Latency: 
+  Interactive/Low Latency:
   : Response time (latency) should be optimized at the
   expense of bandwidth efficiency and delay variation when sending this message.
   This can be used by the system to disable the coalescing of multiple small
@@ -911,7 +918,7 @@ The following values are valid for Instantaneous Capacity Profile:
   : Delay and delay variation should be optimized at the
   expense of bandwidth efficiency.
 
-  Scavenger/Bulk: 
+  Scavenger/Bulk:
   : This Message may be sent at the system's leisure. This can
   be used to signal a preference for less-than-best-effort treatment, to delay
   sending until lower-cost paths are available, and so on.
@@ -1047,12 +1054,12 @@ transport parameters, to preconfigure Protocol Stacks during establishment.
 
 Generic Protocol Properties include:
 
-* Timeout for aborting Connection: 
+* Timeout for aborting Connection:
   This numeric property specifies how long
   to wait before aborting a Connection during establishment, or after a
   connection has failed after establishment. It is given in seconds.
 
-* Abort timeout to suggest to the Remote Endpoint: 
+* Abort timeout to suggest to the Remote Endpoint:
   This numeric property
   specifies the timeout to propose to the Remote Endpoint. It is given in
   seconds.
@@ -1067,7 +1074,7 @@ Generic Protocol Properties include:
   that no checksum is required, and a special value (e.g., -1) indicates
   full checksum coverage.
 
-* Connection group transmission scheduler: 
+* Connection group transmission scheduler:
   This enumerated property specifies which
   scheduler should be used among Connections within a Connection Group. It
   applies to connection groups; the set of schedulers can be taken from
@@ -1079,14 +1086,14 @@ Generic Protocol Properties include:
   It is given in Bytes. This property is read-only.
 
 * Maximum Message size before fragmentation or segmentation:
-  This numeric property, if applicable, represents the maximum Message size 
+  This numeric property, if applicable, represents the maximum Message size
   that can be sent without incurring network-layer fragmentation and/or transport layer segmentation at the sender. This property is read-only.
 
 * Maximum non-partial Message size on send:
   This numeric property represents the maximum Message size that can be sent as
   a non-partial Message. This property may be read-only.
 
-* Maximum non-partial Message size on receive: 
+* Maximum non-partial Message size on receive:
   This numeric property represents
   the maximum Message size that can be received as a non-partial Message. This property may be read-only.
 
@@ -1294,7 +1301,7 @@ specified in {{send-params}}:
   the Message should not be bundled with other
   Message into the same transmission by the underlying Protocol Stack.
 
-* Send Bitrate: 
+* Send Bitrate:
   This numeric property in Bytes per second specifies at what
   bitrate the application wishes the Message to be sent. A transport supporting
   this feature will not exceed the requested Send Bitrate even if flow-control
