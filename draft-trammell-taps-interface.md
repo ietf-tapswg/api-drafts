@@ -84,6 +84,7 @@ author:
     email: cawood@apple.com
 
 normative:
+  I-D.ietf-taps-minset:
   I-D.ietf-tsvwg-sctp-ndata:
   I-D.ietf-tsvwg-rtcweb-qos:
   TAPS-ARCH:
@@ -145,7 +146,7 @@ describes a high-level architecture for transport services. This document
 builds a modern abstract programming interface atop this architecture,
 deriving specific path and protocol selection properties and supported
 transport features from the analysis provided in {{?RFC8095}} and
-{{?TAPS-MINSET=I-D.ietf-taps-minset}}.
+{{I-D.ietf-taps-minset}}.
 
 # Terminology and Notation
 
@@ -199,7 +200,7 @@ realize.
   and for long-term caching of cryptographic identities and parameters for
   associations among endpoints.
 
-- Atomic transmission of content, using application-assisted framing and
+- Atomic transmission of data, using application-assisted framing and
   deframing where the underlying transport does not provide these.
 
 - Asynchronous connection establishment, transmission, and reception, allowing
@@ -326,14 +327,14 @@ while others are hints of what transport features would be helpful
 for the application. For example, if an application asks for reliable data
 transfer, choosing a transport protocol such as UDP, which does not have this
 feature, will break the application's functionality. On the other hand, the
-option to not require checksums when receiving an individual Content can help
+option to not require checksums when receiving an individual Message can help
 optimize for low latency, but if not present, it will most likely not break the
 fundamental assumptions of the application.
 Moreover, there can be conflicts between parameters set by
 the application: If multiple features are requested which are offered
 by different protocols, it may not be possible to satisfy all requirements.
 Consequently, a transport system must prioritize Transport Parameters and
-consider the relevant trade-offs, see also {{?TAPS-MINSET=I-D.ietf-taps-minset}}.
+consider the relevant trade-offs, see also {{I-D.ietf-taps-minset}}.
 
 Default preference levels and possible combinations of Transport Parameters and
 preference levels are specified in {{appendix-preferences}}.
@@ -389,23 +390,23 @@ The following properties apply to Connections and Connection Groups:
   connections and connection groups. This is a strict requirement. The
   default is to preserve data ordering.
 
-* Configure reliability for individual Content:
+* Configure reliability on a per-Message basis:
   This boolean property specifies whether an application considers it
-  useful to indicate its reliability requirements on a per-Content basis.
+  useful to indicate its reliability requirements on a per-Message basis.
   This property applies to connections and connection groups. This is not a
   strict requirement.  The default is to not have this option.
 
-* Request not to delay acknowledgment of Content:
+* Request not to delay acknowledgment of Message:
   This boolean property specifies whether an application considers it
-  useful to request for Content that its acknowledgment be sent out as
+  useful to request for Message that its acknowledgment be sent out as
   early as possible instead of potentially being bundled with other
   acknowledgments. This property applies to connections and connection
   groups. This is not a strict requirement. The default is to not have this
   option.
 
-* Use 0-RTT session establishment with idempotent Content:
+* Use 0-RTT session establishment with an idempotent Message:
   This boolean property specifies whether an application would like to
-  supply a Content to the transport protocol before Connection
+  supply a Message to the transport protocol before Connection
   establishment, which will then be reliably transferred to the other side
   before or during connection establishment, potentially multiple times.
   See also {{send-idempotent}}.  This is a strict requirement. The default
@@ -432,8 +433,8 @@ The following properties apply to Connections and Connection Groups:
 
 * Control checksum coverage on sending or receiving:
   This boolean property specifies whether the application considers it
-  useful to enable / disable / configure a checksum when sending Content,
-  or decide whether to require a checksum or not when receiving Content.
+  useful to enable / disable / configure a checksum when sending data,
+  or decide whether to require a checksum or not when receiving data.
   This property applies to Connections and Connection Groups. This is not a
   strict requirement, as it signifies a reduction in reliability. The
   default is full checksum coverage without being able to change it, and
@@ -463,7 +464,8 @@ will vary based on the specific protocols being used and the system's configurat
 
 Generic Protocol Properties include:
 
-<!--- This list should be likely edited -->
+\[EDNOTE: edit this list to be inline with the rest of the doc after the
+appendix sweep]
 
 * Set timeout for aborting Connection establishment:
   This numeric property specifies how long to wait before aborting a
@@ -482,16 +484,14 @@ Generic Protocol Properties include:
   to be covered by a checksum. It is given in Bytes. A value of 0 means
   that no checksum is required, and a special value (e.g., -1) indicates
   full checksum coverage.
-  
-<!--- Should checksum coverage be considered to apply generally? This only seems useful for UDP, etc -->
 
 * Set scheduler for connections in a group:
   This property specifies which scheduler should be used among Connections
   within a Connection Group. It applies to connection groups. For now we
   suggest the schedulers defined in {{I-D.ietf-tsvwg-sctp-ndata}}.
 
-* Maximum Content Size Before Connection Establishment:
-  This numeric property represents the maximum Content size that can be sent
+* Maximum Message Size Before Connection Establishment:
+  This numeric property represents the maximum Message size that can be sent
   before or during Connection establishment, see also {{send-idempotent}}.
   It is given in Bytes.
 
@@ -520,9 +520,7 @@ selection, and endpoint selection. For example, setting the "Timeliness" Intent
 to "Interactive" may lead the transport system to disable the Nagle algorithm for a
 connection, while setting the "Timeliness" to "Background" may lead it to
 setting the DSCP value to "scavenger". If the "Size to be Sent" Intent is set
-on individual Content, it may influence path selection, e.g., when the TAPS
-system schedules big Content over an interface with higher bandwidth, and
-small Content over an interface with lower latency.
+on an individual Message, it may influence path selection.
 
 Specifying Application Intents is not mandatory. An application can specify any
 combination of Application Intents.
@@ -531,11 +529,11 @@ Preconnection object, and may influence the Connection established from
 that Preconnection.
 If a Connection is cloned to form a Connection Group, and associated
 Application Intents are cloned along with the other transport parameters.
-Some Intents have also corresponding Content Properties, similar to the
+Some Intents have also corresponding Message Properties, similar to the
 properties in {{send-params}}.
 
 \[PHILS:: Some Intents, i.e., Traffic Category, Size to be Received, Receive
-Bit-rate, Timeliness, Cost Preferences are really useful for per-content path
+Bit-rate, Timeliness, Cost Preferences are really useful for per-Message path
 selection. As the latter is out of scope for v1, I removed them from the Send
 Parameters for now]
 
@@ -554,10 +552,10 @@ Control:
 : Long lasting low bandwidth control channel, not bandwidth bound
 
 Stream:
-: Stream of bytes/Content with steady data rate
+: Stream of data with steady data rate
 
 Bulk:
-: Bulk transfer of large Content, presumably bandwidth bound
+: Bulk transfer of large Messages, presumably bandwidth bound
 
 The default is to not assume any particular traffic pattern. Most categories
 suggest the use of other intents to further describe the traffic pattern
@@ -611,8 +609,8 @@ The default is "Transfer".
 This Intent describes what an application prefers regarding monetary costs,
 e.g., whether it considers it acceptable to utilize limited data volume. It
 provides hints to the transport system on how to handle trade-offs between cost
-and performance or reliability. This Intent can also apply to individual
-Content.
+and performance or reliability. This Intent can also apply to an individual
+Messages.
 
 No Expense:
 : Avoid transports associated with monetary cost
@@ -788,7 +786,7 @@ only be initiated once.
 
 Once Initiate is called, the candidate Protocol Stack(s) may cause one or more
 candidate transport-layer connections to be created to the specified remote
-endpoint. The caller may immediately begin sending Content on the Connection
+endpoint. The caller may immediately begin sending Messages on the Connection
 (see {{sending}}) after calling Initate(); note that any idempotent data sent
 while the Connection is being established may be sent multiple times or on
 multiple candidates.
@@ -833,7 +831,7 @@ Preconnection -> ConnectionReceived&lt;Connection>
 
 The ConnectionReceived event occurs when a RemoteEndpoint has established a
 transport-layer connection to this Preconnection (for connection-oriented
-transport protocols), or when the first Content has been received from the
+transport protocols), or when the first Message has been received from the
 RemoteEndpoint (for connectionless protocols), causing a new Connection to be
 created. The resulting Connection is contained within the ConnectionReceived
 event, and is ready to use as soon as it is passed to the application via the
@@ -873,11 +871,11 @@ Preconnection -> RendezvousDone&lt;Connection>
 The RendezvousDone<> event occurs when a connection is established with the
 RemoteEndpoint. For connection-oriented transports, this occurs when the
 transport-layer connection is established; for connectionless transports,
-it occurs when the first Content is received from the RemoteEndpoint. The
+it occurs when the first Message is received from the RemoteEndpoint. The
 resulting Connection is contained within the RendezvousDone<> event, and is
 ready to use as soon as it is passed to the application via the event.
 
-Preconnection -> RendezvousError&lt;contentRef, error>
+Preconnection -> RendezvousError&lt;msgRef, error>
 
 An RendezvousError occurs either
 when the Preconnection cannot be fulfilled for listening,
@@ -939,12 +937,12 @@ pre-establishment, since we don't have a Connection at that time (csp)]
 # Sending Data {#sending}
 
 Once a Connection has been established, it can be used for sending data. Data
-is sent by passing a Content object and additional parameters
+is sent by passing a Message object and additional parameters
 {{send-params}} to the Send action on an established connection:
 
-Connection.Send(Content, sendParameters)
+Connection.Send(Message, sendParameters)
 
-The type of the Content to be passed is dependent on the implementation, and
+The type of the Message to be passed is dependent on the implementation, and
 on the constraints on the Protocol Stacks implied by the Connection's
 transport parameters. It may itself contain an array of octets to be
 transmitted in the transport protocol payload, or be transformable to an array
@@ -958,36 +956,35 @@ Protocol Stacks that support it.
 
 Like all Actions in this interface, the Send action is asynchronous.
 
-Connection -> Sent&lt;contentRef>
+Connection -> Sent&lt;msgRef>
 
 The Sent event occurs when a previous Send action has completed, i.e., when the
-data derived from the Content has been passed down or through the underlying
+data derived from the Message has been passed down or through the underlying
 Protocol Stack and is no longer the responsibility of the implementation of
-this interface. The exact disposition of Content when the Sent event occurs is
+this interface. The exact disposition of the Message when the Sent event occurs is
 specific to the implementation and the constraints on the Protocol Stacks
 implied by the Connection's transport parameters. The Sent event contains an
-implementation-specific reference to the Content to which it applies.
+implementation-specific reference to the Message to which it applies.
 
 Sent events allow an application to obtain an understanding of the amount
 of buffering it creates. That is, if an application calls the Send action multiple
 times without waiting for a Sent event, it has created more buffer inside the
 transport system than an application that only issues a Send after this event fires.
 
-Connection -> Expired&lt;contentRef>
+Connection -> Expired&lt;msgRef>
 
-The Expired event occurs when a previous Send action expired before
-completion; i.e. when the data derived from the Content was not sent before
-its Lifetime (see {{send-lifetime}}) expired. This is separate from SendError,
-as it is an expected behavior for partially reliable transports. The Expired
-event contains an implementation-specific reference to the Content to which it
-applies.
+The Expired event occurs when a previous Send action expired before completion;
+i.e. when the Message was not sent before its Lifetime (see {{send-lifetime}})
+expired. This is separate from SendError, as it is an expected behavior for
+partially reliable transports. The Expired event contains an
+implementation-specific reference to the Message to which it applies.
 
-Connection -> SendError&lt;contentRef>
+Connection -> SendError&lt;msgRef>
 
-A SendError occurs when Content could not be sent due to an error condition:
+A SendError occurs when a Message could not be sent due to an error condition:
 some failure of the underlying Protocol Stack, or a set of send parameters not
 consistent with the Connection's transport parameters. The SendError contains
-an implementation-specific reference to the Content to which it applies.
+an implementation-specific reference to the Message to which it applies.
 
 
 ## Send Parameters {#send-params}
@@ -1023,11 +1020,11 @@ structure once. I don't think this implementation detail warrants the extra
 document length of having these in both places for us (and if you want to hint
 at this possibility, it's just one sentence to add).]
 
-
-The Send action takes per-Content send parameters which control how the
+\[EDNOTE: do this in the API sketch first, then port changes back up here.]
+The Send action takes per-Message send parameters which control how the
 contents will be sent down to the underlying Protocol Stack and transmitted.
 
-If Send Parameters should be overridden for a specific content, an
+If Send Parameters should be overridden for a specific Message, an
 empty sent parameter Object can be acquired and all desired Send Parameters
 can be added to that object. A sendParameters object can be reused for
 sending multiple contents with the same properties.
@@ -1037,33 +1034,33 @@ sendParameters := NewSendParameters()
 sendParameters.add(parameter, value)
 ~~~
 
-The Send Parameters are organized in *Content Properties* and *Application Intents*.
+The Send Parameters are organized in *Message Properties* and *Application Intents*.
 The Send Parameters share a single namespace with the Transport Parameters (see
 {{transport-params}}). This allows to specify Protocol Properties and that can
-be overridden on a per content basis or Application Intents that apply to a
-specific content.
+be overridden on a per-Message basis or Application Intents that apply to a
+specific Message.
 See {{appendix-specify-query-params}} for an overview.
 
 \[NOTE: some of these parameters are not compatible with transport
 parameters; attempting to Send with such an incompatibility yields a SendError.]
 
-### Content Properties
+### Message Properties
 
 #### Lifetime {#send-lifetime}
 
-Lifetime specifies how long a particular Content can wait to be sent to the
+Lifetime specifies how long a particular Message can wait to be sent to the
 remote endpoint before it is irrelevant and no longer needs to be
-(re-)transmitted. When a Content's Lifetime is infinite, it must be
+(re-)transmitted. When a Message's Lifetime is infinite, it must be
 transmitted reliably. The type and units of Lifetime are
 implementation-specific.
 
 #### Niceness {#send-niceness}
 
-Niceness represents an unbounded hierarchy of priorities of Content, relative
-to other Content sent over the same Connection and/or Connection Group (see
+Niceness represents an unbounded hierarchy of priorities of Messages, relative
+to other Messages sent over the same Connection and/or Connection Group (see
 {{groups}}). It is most naturally represented as a non-negative integer.
-Content with Niceness 0 will yield to Content with Niceness 1, which will
-yield to Content with Niceness 2, and so on. Niceness may be used as a
+A Message with Niceness 0 will yield to a Message with Niceness 1, which will
+yield to a Message with Niceness 2, and so on. Niceness may be used as a
 sender-side scheduling construct only, or be used to specify priorities on the
 wire for Protocol Stacks supporting prioritization.
 
@@ -1073,48 +1070,48 @@ decrease.
 
 #### Ordered {#send-ordered}
 
-Ordered is a boolean property. If true, this Content should be delivered after
-the last Content passed to the same Connection via the Send action; if false,
-this Content may be delivered out of order.
+Ordered is a boolean property. If true, this Message should be delivered after
+the last Message passed to the same Connection via the Send action; if false,
+this Message may be delivered out of order.
 
 #### Immediate {#send-immediate}
 
 Immediate is a boolean property. If true, the caller prefers immediacy to
-efficient capacity usage for this Content. For example, this means that
-the Content should not be bundled with other
-Content into the same transmission by the underlying Protocol Stack.
+efficient capacity usage for this Message. For example, this means that
+the Message should not be bundled with other
+Message into the same transmission by the underlying Protocol Stack.
 
 #### Idempotent {#send-idempotent}
 
 Idempotent is a boolean property. If true, the application-layer entity in the
-Content is safe to send to the remote endpoint more than once for a single
+Message is safe to send to the remote endpoint more than once for a single
 Send action. It is used to mark data safe for certain 0-RTT establishment
 techniques, where retransmission of the 0-RTT data may cause the remote
-application to receive the Content multiple times.
+application to receive the Message multiple times.
 
 #### Corruption Protection Length {#send-checksum}
 
-This numeric property specifies the length of the section of content, starting
-from byte 0, that the application assumes will be received without corruption
-due to lower layer errors. It is used to specify options for simple integrity
-protection via checksums. By default, the entire Content is protected by
-checksum. A value of 0 means that no checksum is required, and a special value
-(e.g. -1) can be used to indicate the default. Only full coverage is
+This numeric property specifies the length of the section of the Message,
+starting from byte 0, that the application assumes will be received without
+corruption due to lower layer errors. It is used to specify options for simple
+integrity protection via checksums. By default, the entire Message is protected
+by checksum. A value of 0 means that no checksum is required, and a special
+value (e.g. -1) can be used to indicate the default. Only full coverage is
 guaranteed, any other requests are advisory.
 
 #### Immediate Acknowledgement {#send-ackimmed}
 
 This boolean property specifies, if true, that an application wants this
-Content to be acknowledged immediately by the receiver. In case of reliable
+Message to be acknowledged immediately by the receiver. In case of reliable
 transmission, this informs the transport protocol on the sender side faster
-that it can remove the Content from its buffer; therefore this property can be
+that it can remove the Message from its buffer; therefore this property can be
 useful for latency-critical applications that maintain tight control over the
 send buffer (see {{sending}}).
 
 #### Send Bitrate {#send-bitrate}
 
 This numeric property in Bytes per second specifies at what bitrate the
-application wishes the content to be sent. A transport supporting this
+application wishes the Message to be sent. A transport supporting this
 feature will not exceed the requested Send Bitrate even if flow-control
 and congestion control allow higher bitrates. This helps to avid bursty
 traffic pattern on busy video streaming servers.
@@ -1126,9 +1123,9 @@ for a use case and implementation ]
 #### Timeliness {#send-timeliness}
 
 This specifies what delay characteristics the applications prefers for the
-given content. It provides hints for the transport system whether to optimize
+Message. It provides hints for the transport system whether to optimize
 for low latency or other criteria and set the DSCP flags for packets used
-to transmit the content.
+to transmit the Message.
 
 Stream:
 : Delay and packet delay variation should be kept as low as possible
@@ -1147,30 +1144,30 @@ The default is "Transfer".
 ## Sender-side Framing {#send-framing}
 
 Sender-side framing allows a caller to provide the interface with a function
-that takes Content of an appropriate type and returns an array of octets, the
-on-the-wire representation of the content to be handed down to the Protocol
+that takes a Message of an appropriate application-layer type and returns an array of octets, the
+on-the-wire representation of the Message to be handed down to the Protocol
 Stack. It consists of a Framer object with a single Action, Frame. Since the
 Framer depends on the protocol used at the application layer, it is bound to
 the Connection during the pre-establishment phase:
 
 Connection.FrameWith(Framer)
 
-OctetArray := Framer.Frame(Content)
+OctetArray := Framer.Frame(Message)
 
 Sender-side framing is a convenience feature of the interface, for parity with
 receiver-side framing (see {{receive-framing}}).
 
 # Receiving Data {#receiving}
 
-Once a Connection is established, Content may be received on it. The interface
-notifies the application that content has been received via the Received
+Once a Connection is established, Messages may be received on it. The interface
+notifies the application that a Message has been received via the Received
 event:
 
-Connection -> Received&lt;Content>
+Connection -> Received&lt;Message>
 
-As with sending, the type of the Content to be passed is dependent on the
+As with sending, the type of the Message to be passed is dependent on the
 implementation, and on the constraints on the Protocol Stacks implied by the
-Connection's transport parameters. The Content may also contain metadata from
+Connection's transport parameters. The Message may also contain metadata from
 protocols in the Protocol Stack; which metadata is available is Protocol Stack
 dependent. In particular, when this information is available, the value of the
 Explicit Congestion Notification (ECN) field is contained in such metadata.
@@ -1178,7 +1175,7 @@ This information can be used for logging and debugging purposes, and for
 building applications which need access to information about the transport
 internals for their own operation.
 
-The Content object must provide some method to retrieve an octet array
+The Message object must provide some method to retrieve an octet array
 containing application data, corresponding to a single message within the
 underlying Protocol Stack's framing.  See {{receive-framing}} for handling
 framing in situations where the Protocol Stack provides octet-stream transport
@@ -1194,14 +1191,18 @@ the termination of the Connection are signaled using ConnectionError instead
 
 ## Application-Layer Back-Pressure at the Receiver {#receive-backpressure}
 
+\[EDITOR'S NOTE: rework this to note that the application should be able to
+register to receive messages on a per-Message basis. See
+https://github.com/taps-api/drafts/issues/55]
+
 Implementations of this interface must provide some way for the application to
-indicate that it is temporarily not ready to receive new Content. Since the
+indicate that it is temporarily not ready to receive new Messages. Since the
 mechanisms of event handling are implementation-platform specific, this
 document does not specify the exact nature of this interface.
 
 ## Receiver-side De-framing over Stream Protocols {#receive-framing}
 
-The Receive event is intended to be fired once per application-layer Content
+The Receive event is intended to be fired once per application-layer Message
 sent by the remote endpoint; i.e., it is a desired property of this interface
 that a Send at one end of a Connection maps to exactly one Receive on the
 other end. This is possible with Protocol Stacks that provide
@@ -1215,19 +1216,19 @@ does not provide message boundary preservation, and since many of these protocol
 require message boundaries to function, each application layer protocol has
 defined its own framing. A Deframer allows an application to push this
 de-framing down into the interface, in order to transform an octet stream into
-a sequence of Content.
+a sequence of Messages.
 
 Concretely, receiver-side de-framing allows a caller to provide the interface
 with a function that takes an octet stream, as provided by the underlying
-Protocol Stack, reads and returns a sigle Content of an appropriate type for
+Protocol Stack, reads and returns a single Message of an appropriate type for
 the application and platform, and leaves the octet stream at the start of the
-next Content. It consists of a Deframer object with a single Action, Deframe.
-Since the Deframer depends on the protocol used at the application layer, it
-is bound to the Connection during the pre-establishment phase:
+next Message to deframe. It consists of a Deframer object with a single Action,
+Deframe. Since the Deframer depends on the protocol used at the application
+layer, it is bound to the Connection during the pre-establishment phase:
 
 Connection.DeframeWith(Deframer)
 
-Content := Deframer.Deframe(OctetStream, ...)
+Message := Deframer.Deframe(OctetStream, ...)
 
 # Setting and Querying of Connection Properties {#introspection}
 
@@ -1256,11 +1257,11 @@ Connection properties may include:
 # Connection Termination {#termination}
 
 Close terminates a Connection after satisfying all the requirements that were
-specified regarding the delivery of Content that the application has already
+specified regarding the delivery of Messages that the application has already
 given to the transport system. For example, if reliable delivery was requested
-for Content handed over before calling Close, the transport system will ensure
-that such Content is indeed delivered. If the RemoteEndpoint still has data to send, it
-cannot be received after this call.
+for a Message handed over before calling Close, the transport system will ensure
+that this Message is indeed delivered. If the RemoteEndpoint still has data to
+send, it cannot be received after this call.
 
 Connection.Close()
 
@@ -1279,10 +1280,9 @@ the Connection; however, there is no guarantee that an abort will be signaled:
 
 Connection -> ConnectionError&lt;>
 
-
 # Event and Error Handling
 
-\[NOTE: point out that events and errors may be handled differently, although
+\[EDITOR'S NOTE: point out that events and errors may be handled differently, although
 they are the modeled the same in this specification.]
 
 # IANA Considerations
@@ -1306,11 +1306,39 @@ innovation programme under grant agreements No. 644334 (NEAT) and No. 688421 (MA
 This work has been supported by Leibniz Prize project funds of DFG - German
 Research Foundation: Gottfried Wilhelm Leibniz-Preis 2011 (FKZ FE 570/4-1).
 
-Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work.
+Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for
+their implementation and design efforts, including Happy Eyeballs, that heavily
+influenced this work. Thanks to Laurent Chuat and Jason Lee for initial work on
+the Post Sockets interface, from which this work has evolved.
 
 --- back
 
+# Additional Properties {#appendix-non-consensus}
+
+The interface specified by this document represents the minimal common interface
+to an endpoint in the transport services architecture {{TAPS-ARCH}}, based upon
+that architecture and on the minimal set of transport service features
+elaborated in {{I-D.ietf-taps-minset}}. However, the interface has been designed with
+extension points to allow the implementation of features beyond those in the
+minimal common interface: Protocol Selection Properties, Path Selection
+Properties, and options on Message send are open sets. Implementations of the
+interface are free to extend these sets to provide additional expressiveness to
+applications written on top of them.
+
+This appendix enumerates a few additional parameters and properties that could
+be used to enhance transport protocol and/or path selection, or the transmission
+of messages given a Protocol Stack that implements them. These are not part of
+the interface, and may be removed from the final document, but are presented
+here to support discussion within the TAPS working group as to whether they
+should be added to a future revision of the base specification.
+
+\[EDITOR'S NOTE: dump stuff here and rewrite; see
+https://github.com/taps-api/drafts/issues/69]
+
 # Sample API definition in Go {#appendix-api-sketch}
+
+\[EDITOR'S NOTE: rewrite following discussion and copy back here; see
+https://github.com/taps-api/drafts/issues/39]
 
 This document defines an abstract interface. To illustrate how this would map concretely into a programming language, this appendix contains an API interface definition in Go, using callbacks for event handling. The documentation for the API sketch is available online at https://godoc.org/github.com/mami-project/postsocket.
 
@@ -1431,7 +1459,7 @@ type Preconnection interface {
 }
 
 type Connection interface {
-  Send(content interface{}, contentref interface{}, sp SendParameters) error
+  Send(content interface{}, msgRef interface{}, sp SendParameters) error
 
   Clone() (Connection, error)
   Close() error
@@ -1452,12 +1480,12 @@ type Content interface {
 type EventHandler interface {
   Ready(conn Connection, ante Connection)
   Received(content Content, conn Connection)
-  Sent(conn Connection, contentref interface{})
-  Expired(conn Connection, contentref interface{})
+  Sent(conn Connection, msgRef interface{})
+  Expired(conn Connection, msgRef interface{})
   Closed(conn Connection, err error)
   // note that errors are coalesced into a single handler; the err parameter
-  // contains the type of error, and contentref is nil for all but send errors.
-  Error(conn Connection, contentref interface{}, err error)
+  // contains the type of error, and msgRef is nil for all but send errors.
+  Error(conn Connection, msgRef interface{}, err error)
 }
 
 type FramingHandler interface {
@@ -1467,6 +1495,10 @@ type FramingHandler interface {
 ~~~~~~~
 
 # Transport Parameters {#appendix-transport-params}
+
+
+\[EDITOR'S NOTE: move into main document as necessary; everything else goes into Appendix A; see
+https://github.com/taps-api/drafts/issues/69]
 
 This appendix provides details about the usage of the Transport Parameters
 specified in {{transport-params}}. It clarifies what preference levels an
