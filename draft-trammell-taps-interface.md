@@ -178,8 +178,19 @@ itself; they are equivalent to actions on a per-application global context.
 How these abstract concepts map into concrete implementations of this API in a
 given language on a given platform is largely dependent on the features of the
 language and the platform. Actions could be implemented as functions or method
-calls, for instance, and Events could be implemented via callback
-passing or other asynchronous calling conventions.
+calls, for instance, and Events could be implemented via callback passing or
+other asynchronous calling conventions. The method for registering callbacks
+and handlers is left as an implementation detail, with the caveat that the
+interface for receiving Messages must require the application to invoke the
+Connection.Receive() action once per Message to be received (see
+{{receiving}}).
+
+This specification treats events and errors similarly, as errors, just as any
+other events, may occur asynchronously in network applications. However, it is
+recommended that implementations of this interface also return errors
+immediately, according to the error handling idioms of the implementation
+platform, for errors which can be immediately detected, such as inconsistency
+in transport parameters.
 
 # Design Principles {#principles}
 
@@ -219,15 +230,15 @@ connections they could make.
 
 A Preconnection object represents a potential connection. It has state that
 describes parameters of a Connection that might exist in the future.  This
-state comprises LocalEndpoint and RemoteEndpoint objects that denote the 
-endpoints of the potential connection (see {{endpointspec}}), the transport 
-parameters (see {{transport-params}}), and the security parameters (see 
+state comprises LocalEndpoint and RemoteEndpoint objects that denote the
+endpoints of the potential connection (see {{endpointspec}}), the transport
+parameters (see {{transport-params}}), and the security parameters (see
 {{security-parameters}}):
 
 ~~~
-   preConnection := NewPreconnection(LocalEndpoint, 
+   preConnection := NewPreconnection(LocalEndpoint,
                                      RemoteEndpoint,
-                                     TransportParams, 
+                                     TransportParams,
                                      SecurityParams);
 
 ~~~
@@ -249,8 +260,8 @@ Preconnection object during pre-establishment, forward-reference
 
 The transport services API uses the LocalEndpoint and RemoteEndpoint types
 to refer to the endpoints of a transport connection.
-Subtypes of these represent various different types of endpoint identifiers, 
-such as IP addresses, DNS names, and interface names, as well as port numbers 
+Subtypes of these represent various different types of endpoint identifiers,
+such as IP addresses, DNS names, and interface names, as well as port numbers
 and service names.
 
 ~~~
@@ -482,7 +493,7 @@ Generic Protocol Properties include:
   to be covered by a checksum. It is given in Bytes. A value of 0 means
   that no checksum is required, and a special value (e.g., -1) indicates
   full checksum coverage.
-  
+
 <!--- Should checksum coverage be considered to apply generally? This only seems useful for UDP, etc -->
 
 * Set scheduler for connections in a group:
@@ -1279,11 +1290,6 @@ the Connection; however, there is no guarantee that an abort will be signaled:
 
 Connection -> ConnectionError&lt;>
 
-
-# Event and Error Handling
-
-\[NOTE: point out that events and errors may be handled differently, although
-they are the modeled the same in this specification.]
 
 # IANA Considerations
 
