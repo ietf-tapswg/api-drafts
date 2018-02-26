@@ -187,8 +187,19 @@ itself; they are equivalent to actions on a per-application global context.
 How these abstract concepts map into concrete implementations of this API in a
 given language on a given platform is largely dependent on the features of the
 language and the platform. Actions could be implemented as functions or method
-calls, for instance, and Events could be implemented via callback
-passing or other asynchronous calling conventions.
+calls, for instance, and Events could be implemented via callback passing or
+other asynchronous calling conventions. The method for registering callbacks
+and handlers is left as an implementation detail, with the caveat that the
+interface for receiving Messages must require the application to invoke the
+Connection.Receive() action once per Message to be received (see
+{{receiving}}).
+
+This specification treats events and errors similarly, as errors, just as any
+other events, may occur asynchronously in network applications. However, it is
+recommended that implementations of this interface also return errors
+immediately, according to the error handling idioms of the implementation
+platform, for errors which can be immediately detected, such as inconsistency
+in transport parameters.
 
 # Interface Design Principles {#principles}
 
@@ -1183,11 +1194,6 @@ the Connection; however, there is no guarantee that an abort will be signaled:
 ~~~
 Connection -> ConnectionError<>
 ~~~
-
-# Event and Error Handling
-
-\[EDITOR'S NOTE: point out that events and errors may be handled differently, although
-they are the modeled the same in this specification.]
 
 # IANA Considerations
 
