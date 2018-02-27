@@ -235,10 +235,28 @@ the interface is based. The interface defined in this document provides:
 
 # API Summary
 
-\[EDITOR'S NOTE: write three paragraph summary here; see
-https://github.com/taps-api/drafts/issues/93]
+The Transport Services Interface is the basic common abstract application
+programming interface to the Transport Services Architecture defined in
+{{TAPS-ARCH}}. An application primarily interacts with this interface through
+two objects, Preconnections and Connections. A Preconnection represents a set of
+parameters and constraints on the selection and configuration of paths and
+protocols to establish a connection with a remote endpoint. A Connection
+represents a transport protocol stack on which data can be sent to and received
+from a remote endpoint. Connections can be created from Preconnections in three
+ways: by initiating the Preconnection (i.e., actively opening, as in a client),
+through listening on the Preconnection (i.e., passively opening, as in a
+server), or rendezvousing on the Preconnection (i.e. peer to peer establishment).
 
-In the following sections, we describe the details of application interaction with Objects through Actions and Events in each phase of a connection, following the phases described in {{TAPS-ARCH}}.
+Once a Connection is established, data can be sent on it in the form of
+Messages. The interface supports the preservation of message boundaries both via
+explicit protocol stack support, and via application support through a deframing
+callback which finds message boundaries in a stream. Messages are received
+asynchronously through a callback registered by the application. Error and other notifications also happen asynchronously on the Connection.
+
+In the following sections, we describe the details of application interaction
+with Objects through Actions and Events in each phase of a connection, following
+the phases described in {{TAPS-ARCH}}. An example interface sketch in Go is
+shown in {{appendix-api-sketch}}.
 
 # Pre-Establishment Phase
 
@@ -323,10 +341,6 @@ discovery during connection establishment.
 The Resolve() method is, however, provided to resolve a Local Endpoint or a
 Remote Endpoint in cases where this is required, for example with some NAT
 traversal protocols (see {{rendezvous}}).
-
-\[NOTE: the API needs MUST be explicit about when name resolution occurs,
-        since the act of resolving a name leaks information, and there
-        may be security implications if this happens unexpectedly.]
 
 ## Specifying Transport Parameters {#transport-params}
 
@@ -751,10 +765,6 @@ the concrete addresses, local and server reflexive, on which a Rendezvous()
 for the Preconnection will listen for incoming connections. This list can
 be passed to a peer via a signalling protocol, such as SIP or WebRTC, to
 configure the remote.
-
-\[NOTE: This API is sufficient for TCP-style simultaneous open, but should
-  be considered experimental for ICE-like protocols.]
-
 
 ## Connection Groups {#groups}
 
@@ -1382,28 +1392,13 @@ specified in {{send-params}}:
 
 # Sample API definition in Go {#appendix-api-sketch}
 
-\[EDITOR'S NOTE: rewrite following discussion and copy back here; see
-https://github.com/taps-api/drafts/issues/39]
-
-This document defines an abstract interface. To illustrate how this would map concretely into a programming language, this appendix contains an API interface definition in Go, using callbacks for event handling. The documentation for the API sketch is available online at https://godoc.org/github.com/mami-project/postsocket.
+This document defines an abstract interface. To illustrate how this would map
+concretely into a programming language, this appendix contains an API interface
+definition in Go, using callbacks for event handling. The documentation for the
+API sketch is available online at
+https://godoc.org/github.com/mami-project/postsocket.
 
 ~~~~~~~
-// Package postsocket specifies a Go interface for the TAPS API. This abstract
-// interface to transport-layer service is described in
-// https://taps-api.github.io/drafts/draft-trammell-taps-interface.html. For
-// now, read that document to understand what's going on in this package.
-// Eventually, this package will grow to contain a demonstration
-// implementation of the API.
-//
-// A Note on Error Handling
-//
-// This API provides two ways for its client to learn of errors: through the
-// Error event passed to a connection's EventHandler, and through error
-// returns on various calls. In general, errors in networking are
-// asynchronous, so almost every error involving the network will be passed
-// through the Error event. The error returns on calls are therefore only used
-// for immediately detectable errors, such as inconsistent arguments or
-// states.
 package postsocket
 
 import (
@@ -1882,10 +1877,6 @@ type FramingHandler interface {
 
 # Transport Parameters {#appendix-transport-params}
 
-\[EDITOR'S NOTE: move into main document as necessary; find a way to move the
-rest into Appendix A or cut it; see
-https://github.com/taps-api/drafts/issues/69]
-
 This appendix provides details about the usage of the Transport Parameters
 specified in {{transport-params}}. It clarifies what preference levels an
 application can set for which Transport Parameter, and during which phase an
@@ -1926,9 +1917,6 @@ set.
 | Control checksum coverage | Yes   | Yes    | Yes   | Yes      | None    |
 | Use a certain network interface type | Yes | Yes | Yes | Yes  | None    |
 | Application Intents    | No       | No     | No    | No       | Intend  |
-
-\[List individual Intents? Reformulate some of them as preferences?]
-
 
 ## Specifying and Querying Parameters {#appendix-specify-query-params}
 
