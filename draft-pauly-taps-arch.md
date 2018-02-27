@@ -35,7 +35,11 @@ author:
   -
     ins: A. Brunstrom
     name: Anna Brunstrom
+    role: editor
     org: Karlstad University
+    street: Universitetsgatan 2
+    city: 651 88 Karlstad
+    country: Sweden
     email: anna.brunstrom@kau.se
   -
     ins: G. Fairhurst
@@ -253,10 +257,10 @@ The diagram below provides a high-level view of the actions taken during the lif
 
 ### Pre-Establishment {#preestablishment}
 
-* Endpoint: An Endpoint represents one side of a transport connection. 
+* Endpoint: An Endpoint represents one side of a transport connection.
   Endpoints can be Local Endpoints or Remote Endpoints, and respectively represent an identity
   that the application uses for the source or destination of a connection.
-  Endpoint can vary in levels of specificity, and can be resolved to more concrete identities. 
+  Endpoint can vary in levels of specificity, and can be resolved to more concrete identities.
 
 * Remote Endpoint: The Remote Endpoint represents the application's name for a peer that can participate in a transport connection. For example, the combination of a DNS name for the peer and a service name/port.
 

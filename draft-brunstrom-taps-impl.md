@@ -20,7 +20,7 @@ author:
     role: editor
     org: Karlstad University
     street: Universitetsgatan 2
-    city: Karlstad
+    city: 651 88 Karlstad
     country: Sweden
     email: anna.brunstrom@kau.se
   -
@@ -45,7 +45,7 @@ author:
     name: Karl-Johan Grinnemo
     org: Karlstad University
     street: Universitetsgatan 2
-    city: Karlstad
+    city: 651 88 Karlstad
     country: Sweden
     email: karl-johan.grinnemo@kau.se
   -
