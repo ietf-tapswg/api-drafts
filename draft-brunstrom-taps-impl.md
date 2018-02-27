@@ -437,15 +437,13 @@ The effect of the application sending a Message is determined by the top-level p
 
 - Ordered: when this is false, it disables the requirement of in-order-delivery for protocols that support configurable ordering.
 
-- Immediate: when this is true, the Message should be sent immediately, even when this comes at the cost of using the network capacity less efficiently. For example, small messages can sometimes be bundled to fit into a single data packet for the sake of reducing header overhead; such bundling SHOULD not be used in case this parameter is true. For example, in case of TCP, the Nagle algorithm SHOULD be disabled when Immediate=true.
-
 - Idempotent: when this is true, it means that the Message can be used by mechanisms that might transfer it multiple times -- e.g., as a result of racing multiple transports or as part of TCP Fast Open.
 
 - Corruption Protection Length: when this is set to any value other than -1, it limits the required checksum in protocols that allow limiting the checksum length (e.g. UDP-Lite).
 
-- Immediate Acknowledgement: TBD
+- Immediate Acknowledgement: this informs the implementation that the sender intends to execute tight control over the send buffer, and therefore wants to avoid delayed acknowledgements. In case of SCTP, a request to immediately send acknowledgements can be implemented using the "sack-immediately flag" described in Section 4.2 of {{!RFC8303}} for the SEND.SCTP primitive.
 
-- Timeliness: TODO
+- Instantaneous Capacity Profile: when this is set to "Interactive/Low Latency", the Message should be sent immediately, even when this comes at the cost of using the network capacity less efficiently. For example, small messages can sometimes be bundled to fit into a single data packet for the sake of reducing header overhead; such bundling SHOULD not be used in case this parameter is true. For example, in case of TCP, the Nagle algorithm SHOULD be disabled when Immediate=true. Scavenger/Bulk can translate into usage of a congestion control mechanism such as LEDBAT, and/or the capacity profile can lead to a choice of a DSCP value as described in {{I-D.ietf-taps-minset}}).
 
 
 #### Send Completion
@@ -480,12 +478,13 @@ It is also possible that protocol stacks within a particular leaf node use 0-RTT
 
 Appendix A.1 of {{I-D.ietf-taps-minset}} explains, using primitives that are described in {{!RFC8303}} and {{!RFC8304}}, how to implement changing the following protocol properties of an established connection with the TCP and UDP. Below, we amend this description for other protocols (if applicable):
 
-- Set timeout for aborting Connection: for SCTP, this can be done using the primitive CHANGE_TIMEOUT.SCTP described in section 4 of {{!RFC8303}}.
-- Set timeout to suggest to the peer
-- Set retransmissions before “Excessive Retransmissions”
-- Set required minimum coverage of the checksum for receiving: for UDP-Lite, this can be done using the primitive SET_MIN_CHECKSUM_COVERAGE.UDP-Lite described in section 4 of {{!RFC8303}}.
-- Set scheduler for connections in a group: for SCTP, this can be done using the primitive SET_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
-- Set priority for a connection in a group: for SCTP, this can be done using the primitive CONFIGURE_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
+- Relative niceness: for SCTP, this can be done using the primitive CONFIGURE_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
+- Timeout for aborting Connection: for SCTP, this can be done using the primitive CHANGE_TIMEOUT.SCTP described in section 4 of {{!RFC8303}}.
+- Abort timeout to suggest to the Remote Endpoint: for TCP, this can be done using the primitive CHANGE_TIMEOUT.TCP described in section 4 of {{!RFC8303}}.
+- Retransmission threshold before excessive retransmission notification: for TCP, this can be done using ERROR.TCP described in section 4 of {{!RFC8303}}.
+- Required minimum coverage of the checksum for receiving: for UDP-Lite, this can be done using the primitive SET_MIN_CHECKSUM_COVERAGE.UDP-Lite described in section 4 of {{!RFC8303}}.
+- Connection group transmission scheduler: for SCTP, this can be done using the primitive SET_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
+
 
 ## Maintenance Events
 
