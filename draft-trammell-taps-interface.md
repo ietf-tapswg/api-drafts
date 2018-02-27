@@ -270,6 +270,9 @@ incoming connections.
 Framers (see {{send-framing}}) and deframers (see {{receive-framing}}), if
 necessary, should be bound to the Preconnection during pre-establishment.
 
+Preconnections, as connections, can be cloned, in order to establish connection
+groups before connection initiation; see {{groups}} for details.
+
 ## Specifying Endpoints {#endpointspec}
 
 The transport services API uses the Local Endpoint and Remote Endpoint types
@@ -758,31 +761,37 @@ configure the remote.
 
 ## Connection Groups {#groups}
 
-Groups of Connections can be created using Clone action:
+Groups of Preconnections or Connections can be created using the Clone action:
 
 ~~~
+Preconnection : Preconnection.Clone()
+
 Connection := Connection.Clone()
 ~~~
 
-Calling this once yields a group of two Connections: the parent Connection -- whose
-Clone action was called -- and the resulting clone. Calling Clone on any of these two
-Connections adds a third Connection to the group, and so on.
-All Connections in a group are entangled. This means that they automatically share
-all properties: changing a parameter for one of them also changes the parameter
-for all others.
+Calling Clone on a Connection yields a group of two Connections: the parent
+Connection on which Clone was called, and the resulting clone Connection. These
+connections are "entangled" with each other, and become part of a connection
+group. Calling Clone on any of these two connections adds a third Connection to
+the group, and so on. Connections in a connection group share all their
+properties, and changing the properties on one Connection in the group changes
+the property for all others.
 
-There is only one Protocol Property that is not entangled, i.e., it is a separate
-per-Connection Property for individual Connections in the group: a priority.
-This priority, which can be represented as a non-negative integer or float, expresses
-a desired share of the Connection Group's available network capacity, such that an
-ideal transport system implementation would assign the Connection the capacity
-share P x C/sum_P, where P = priority, C = total available capacity and sum_P = sum
-of all priority values that are used for the Connections in the same Connection Group.
-The priority setting is purely advisory; no guarantees are given.
+Calling Clone on a Preconnection yields a Preconnection with the same
+parameters, which is "entangled" with the parent Preconnection: all the
+Connections created from entangled Preconnections will be entangled as if they
+had been cloned, and will belong to the same connection group. Calling Clone on
+a Preconnection may be taken by the system an implicit sign that protocol stacks
+supporting efficient connection group usage are preferred by the application.
 
-Connection Groups should be created by cloning as as early as possible in order
-to aid the Transport System in choosing and configuring the right protocols (see
-also {{transport-params}}).
+There is only one Protocol Property that is not entangled, i.e., it is a
+separate per-Connection Property for individual Connections in the group:
+niceness. Niceness works as in {{send-niceness}}: when allocating available
+network capacity among Connections in a connection group, sends on connections
+with higher Niceness values will tend to yield to connections with lower
+Niceness values. The priority setting is purely advisory. No guarantees are
+given, and each implementation is free to implement exact capacity allocation as
+it sees fit.
 
 # Sending Data {#sending}
 
@@ -1123,6 +1132,13 @@ Note that Protocol Properties are also set during pre-establishment, as
 transport parameters, to preconfigure Protocol Stacks during establishment.
 
 Generic Protocol Properties include:
+
+* Relative niceness: This numeric property is similar to the Niceness send
+  property (see {{send-niceness}}), a non-negative integer representing the
+  relative inverse priority of this Connection relative to other Connections in
+  the same connection group. It has no effect on Connections not part of a
+  connection group. As noted in {{groups}}, this property is not entangled when
+  connections are cloned.
 
 * Timeout for aborting Connection: This numeric property specifies how long to
   wait before aborting a Connection during establishment, or before deciding
