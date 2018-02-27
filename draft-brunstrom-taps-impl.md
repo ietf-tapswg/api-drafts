@@ -327,14 +327,40 @@ Another example is racing SCTP with TCP:
 
 Implementations that support racing protocols and protocol options SHOULD maintain a history of which protocols and protocol options successfully established, on a per-network basis. This information can influence future racing decisions to prioritize or prune branches.
 
-### Ranking Branches
 
-The transport system ranks brances in the order in which it will attempt to connect later. Ranking can be based on application preferences, expected performance, system policy, or other criteria.
+## Branching Order-of-Operations
 
-For example, a transport system can use Application Intents, defined in {{I-D.trammell-taps-interface}}, as Path Selection Properties to rank branches in the following ways:
+Branch types must occur in a specific order relative to one another to avoid creating leaf nodes with invalid or incompatible settings. In the example above, it would be invalid to branch for derived endpoints (the DNS results for www.example.com) before branching between interface paths, since usable DNS results on one network may not necessarily be the same as DNS results on another network due to local network entities, supported address families, or enterprise network configurations. Implementations must be careful to branch in an order that results in usable leaf nodes whenever there are multiple branch types that could be used from a single node.
 
-* Traffic Category
-If the application indicates an Intent to optimize for either low latency or high bandwidth, the transport system can rank branches higher accordingly, so they are tried first.
+The order of operations for branching, where lower numbers are acted upon first, SHOULD be:
+
+1. Alternate Paths
+2. Protocol Options
+3. Derived Endpoints
+
+Branching between paths is the first in the list because results across multiple interfaces are likely not related to one another: endpoint resolution may return different results, especially when using locally resolved host and service names, and which protocols are supported and preferred may differ across interfaces. Thus, if multiple paths are attempted, the overall connection can be seen as a race between the available paths or interfaces.
+
+Protocol options are checked next in order. Whether or not a set of protocol, or protocol-specific options, can successfully connect is generally not dependent on which specific IP address is used. Furthermore, the protocol stacks being attempted may influence or altogether change the endpoints being used. Adding a proxy to a connection's branch will change the endpoint to the proxy's IP address or hostname. Choosing an alternate protocol may also modify the ports that should be selected.
+
+Branching for derived endpoints is the final step, and may have multiple layers of derivation or resolution, such as DNS service resolution and DNS hostname resolution.
+
+
+## Ranking Branches
+
+The transport system ranks branches in order to prioritize candidate racing.
+While {{I-D.trammell-taps-interface}} allows the application to express their preferences for a new connection using Protocol and Path Selection Properties as well as Application Intents, applying these these preferences is implemented by ranking of branches.
+In addition to the application provided properties, performance estimates, system policy, or other criteria also influence this ranking.
+
+The Application Intents specified in {{I-D.trammell-taps-interface}} are used to rank branches in the following ways:
+
+* Capacity Profile:
+The Capacity Profile is used to prefer paths that match the applications capacity profile:
+   * Interactive/Low Latency:
+     Prefer paths with the lowest available latency
+   * Constant Rate:
+     Prefer paths that can satisfy the requested Stream Send or Stream Receive Bitrate 
+   * Scavenger/Bulk:
+     Prefer Paths with the highest available bandwidth
 
 * Size to be Sent / Received:
 If the application indicates the size of the Content it expects to receive,
@@ -354,22 +380,6 @@ such paths will be ranked lower.
 If the application indicates that it prohibits using expensive paths,
 paths that are associated with a cost will be purged from the decision tree.
 
-
-## Branching Order-of-Operations
-
-Branch types must occur in a specific order relative to one another to avoid creating leaf nodes with invalid or incompatible settings. In the example above, it would be invalid to branch for derived endpoints (the DNS results for www.example.com) before branching between interface paths, since usable DNS results on one network may not necessarily be the same as DNS results on another network due to local network entities, supported address families, or enterprise network configurations. Implementations must be careful to branch in an order that results in usable leaf nodes whenever there are multiple branch types that could be used from a single node.
-
-The order of operations for branching, where lower numbers are acted upon first, SHOULD be:
-
-1. Alternate Paths
-2. Protocol Options
-3. Derived Endpoints
-
-Branching between paths is the first in the list because results across multiple interfaces are likely not related to one another: endpoint resolution may return different results, especially when using locally resolved host and service names, and which protocols are supported and preferred may differ across interfaces. Thus, if multiple paths are attempted, the overall connection can be seen as a race between the available paths or interfaces.
-
-Protocol options are checked next in order. Whether or not a set of protocol, or protocol-specific options, can successfully connect is generally not dependent on which specific IP address is used. Furthermore, the protocol stacks being attempted may influence or altogether change the endpoints being used. Adding a proxy to a connection's branch will change the endpoint to the proxy's IP address or hostname. Choosing an alternate protocol may also modify the ports that should be selected.
-
-Branching for derived endpoints is the final step, and may have multiple layers of derivation or resolution, such as DNS service resolution and DNS hostname resolution.
 
 ## Candidate Racing
 
