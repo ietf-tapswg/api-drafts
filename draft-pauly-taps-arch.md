@@ -35,7 +35,6 @@ author:
   -
     ins: A. Brunstrom
     name: Anna Brunstrom
-    role: editor
     org: Karlstad University
     street: Universitetsgatan 2
     city: 651 88 Karlstad
