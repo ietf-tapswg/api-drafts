@@ -427,7 +427,7 @@ Protocols that provide the framing (such as length-value protocols, or protocols
 
 ### Sending Messages
 
-The effect of the application sending a Message is determined by the top-level protocol in the established Protocol Stack. That is, if the top-level protocol provides an abstraction of framed messages over a connection, the receiving application will be able to obtain multiple Messages on that connection without supplying a deframer, even if the framing protocol is built on a byte-stream protocol like TCP.
+The effect of the application sending a Message is determined by the top-level protocol in the established Protocol Stack. That is, if the top-level protocol provides an abstraction of framed messages over a connection, the receiving application will be able to obtain multiple Messages on that connection, even if the framing protocol is built on a byte-stream protocol like TCP.
 
 #### Send Parameters
 
@@ -596,7 +596,7 @@ Connection lifetime for TCP translates fairly simply into the the abstraction pr
 
 If the application sends a Close, that can translate to a graceful termination of the TCP connection, which is performed by sending a FIN to the remote endpoint. If the application sends an Abort, then the TCP state can be closed abruptly, leading to a RST being sent to the peer.
 
-Without a layer of framing above TCP, the receiver side of the implementation has to rely on a supplied deframer to determine message boundaries. In the absence of such a deframer, a request by the application to only receive complete messages fails.
+Without a layer of framing (a top-level protocol in the established Protocol Stack that preserves message boundaries, or an application-supplied deframer) on top of TCP, the receiver side of the transport system implementation can only treat the incoming stream of bytes as a single Message, terminated by a FIN when the Remote Endpoint closes the Connection.
 
 ## UDP
 

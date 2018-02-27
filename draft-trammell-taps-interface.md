@@ -1033,11 +1033,17 @@ conditions holds:
 * the underlying protocol stack does not support message boundary
   preservation, and no deframer was supplied by the application
 
-In this case, the Message object passed to Received may contain an indication
-that the object received is partial, the byte offset of the data in the
-partial Message within the full Message, an indication whether this is the
+The Message object passed to Received will indicate one of the following:
+
+1. this is a complete message;
+2. this is a partial message containing a section of a message with a known message boundary (made partial for local buffering reasons, either by the underlying protocol stack or the deframer). In this case, the Message object passed to Received may contain the byte offset of the data in the partial Message within the full Message, an indication whether this is the
 last (highest-offset) partial Message in the full Message, and an optional
-reference to the full Message it belongs to.
+reference to the full Message it belongs to; or
+3. this is a partial message containing data with no definite message boundary, i.e. the only known message boundary is given by termination of the Connection
+
+Note that in the absence of message boundary preservation and without
+deframing, the entire connection is represented as one large message of
+indeterminate length.
 
 ~~~
 Connection -> ReceiveError<>
