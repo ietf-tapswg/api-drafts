@@ -586,7 +586,7 @@ These items can be cached on a per-address and per-subnet granularity, and avera
 
 An implementation should use this information, when possible, to determine preference between candidate paths, endpoints, and protocol options. Eligible options that historically had significantly better performance than others SHOULD be selected first when gathering candidates {{gathering}} to ensure better performance for the application.
 
-It is recognized that consistency in caching becomes a major issue for performance caches, since if a cached value is not valid the whole optimization might be lost. Still, recommendations on cache lifetimes are difficult to offer since it largely depends on the variability of the cached performance information. For example, the round-trip times experienced by TCP segments within a connection can be quite large
+It is recognized that consistency in caching becomes a major issue for performance caches, since if a cached value is not valid the whole optimization might be lost. Still, recommendations on cache lifetimes are difficult to offer since it largely depends on the variability of the cached performance information. For example, the round-trip times experienced by TCP segments over a particular network path might vary a lot over quite short time intervals. Thus, for this kind of performance information the cache lifetime should be kept short, e.g., a fixed number of RTTs. In contrast, performance information such as the connection establishment success rate, could probably have a cache lifetime that spans hours.
 
 # Specific Transport Protocol Considerations
 
