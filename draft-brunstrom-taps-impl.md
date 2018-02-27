@@ -327,7 +327,6 @@ Another example is racing SCTP with TCP:
 
 Implementations that support racing protocols and protocol options SHOULD maintain a history of which protocols and protocol options successfully established, on a per-network basis. This information can influence future racing decisions to prioritize or prune branches.
 
-
 ## Branching Order-of-Operations
 
 Branch types must occur in a specific order relative to one another to avoid creating leaf nodes with invalid or incompatible settings. In the example above, it would be invalid to branch for derived endpoints (the DNS results for www.example.com) before branching between interface paths, since usable DNS results on one network may not necessarily be the same as DNS results on another network due to local network entities, supported address families, or enterprise network configurations. Implementations must be careful to branch in an order that results in usable leaf nodes whenever there are multiple branch types that could be used from a single node.
@@ -347,20 +346,20 @@ Branching for derived endpoints is the final step, and may have multiple layers 
 
 ## Ranking Branches
 
-The transport system ranks branches in order to prioritize candidate racing.
-While {{I-D.trammell-taps-interface}} allows the application to express their preferences for a new connection using Protocol and Path Selection Properties as well as Application Intents, applying these these preferences is implemented by ranking of branches.
-In addition to the application provided properties, performance estimates, system policy, or other criteria also influence this ranking.
+The transport system ranks branches in order to prioritize them for candidate racing, so branches with higher ranking will be raced first.
+While {{draft-trammell-taps-interface}} allows the application to express its preferences for a new connection using Protocol and Path Selection Properties as well as Application Intents, applying these preferences is implemented by ranking of branches.
+In addition to the properties provided by the application, performance estimates, system policy, or other criteria also influence this ranking.
 
-The Application Intents specified in {{I-D.trammell-taps-interface}} are used to rank branches in the following ways:
+The Application Intents specified in {{draft-trammell-taps-interface}} are used to rank branches in the following ways:
 
 * Capacity Profile:
-The Capacity Profile is used to prefer paths that match the applications capacity profile:
+The Capacity Profile is used to prefer paths optimized for the application's expected traffic pattern:
    * Interactive/Low Latency:
      Prefer paths with the lowest available latency
    * Constant Rate:
-     Prefer paths that can satisfy the requested Stream Send or Stream Receive Bitrate 
+     Prefer paths that can satisfy the requested Stream Send or Stream Receive Bitrate
    * Scavenger/Bulk:
-     Prefer Paths with the highest available bandwidth
+     Prefer paths with the highest available bandwidth
 
 * Size to be Sent / Received:
 If the application indicates the size of the Content it expects to receive,
@@ -444,7 +443,7 @@ Once a connection is established and a transport protocol has been chosen, any P
 Additionally, a transport system may configure a transport protocol according to following Application Intents:
 
 * Traffic Category: Can be mapped to DSCP code point value, e.g., see [I-D.ietf-tsvwg-rtcweb-qos]. Furthermore, if an application indicates a preference for low latency, the transport system may disable the Nagle algorithm on a TCP connection.
-* Bitrate to be Sent: If an application indicates a certain bitrate it wants to send on the connection, the transport system may limit the bitrate of the outgoing communication to that rate, for example by setting an upper bound for the TCP congestion window of a connection calculated from the Send Bitrate and the Round Trip Time. This helps to avoid bursty traffic patterns on video streaming servers, see [Trickle].
+* Send Bitrate: If an application indicates a certain bitrate it wants to send on the connection, the transport system may limit the bitrate of the outgoing communication to that rate, for example by setting an upper bound for the TCP congestion window of a connection calculated from the Send Bitrate and the Round Trip Time. This helps to avoid bursty traffic patterns on video streaming servers, see [Trickle].
 
 ## Establishing multiplexed connections {#establish-mux}
 
