@@ -430,10 +430,16 @@ The following properties can be used during Protocol and Path selection:
   for reasons of efficiency. This is not a strict requirement. The default is
   to not have this option.
 
-* Notification of special errors (excessive retransmissions, ICMP error message arrival):
+* Notification of excessive retransmissions:
   This boolean property specifies whether an application considers it
   useful to be informed in case sent data was retransmitted more often than
-  a certain threshold, or when an ICMP error message arrives. This property
+  a certain threshold. This property
+  applies to Connections and Connection Groups. This is not a strict
+  requirement. The default is to have this option.
+
+* Notification of ICMP error message arrival:
+  This boolean property specifies whether an application considers it
+  useful to be informed when an ICMP error message arrives. This property
   applies to Connections and Connection Groups. This is not a strict
   requirement. The default is to have this option.
 
