@@ -423,13 +423,12 @@ The following properties can be used during Protocol and Path selection:
   See also {{send-idempotent}}.  This is a strict requirement. The default
   is to not have this option.
 
-* Efficient use of Connection Groups:
-  This boolean property specifies whether an
-  application considers it useful to create Connection Groups, e.g. to
-  explicitly prioritize between Connections within a Connection Group. This
-  property will tend to select multistreaming transport protocols, which can
-  multiplex Connections into a Connection Group over a single flow. This is not
-  a strict requirement. The default is to not have this option.
+* Multiplex connections:
+  This boolean property specifies that the application would prefer multiple
+  Connections between the same endpoints within a Connection Group to be
+  multiplexed onto a single underlying transport connection where possible,
+  for reasons of efficiency. This is not a strict requirement. The default is
+  to not have this option.
 
 * Notification of special errors (excessive retransmissions, ICMP error message arrival):
   This boolean property specifies whether an application considers it
@@ -791,8 +790,9 @@ Connections for other entangled Preconnections to be established; each such
 Connection must be established separately. Changes to the parameters of a
 Preconnection entangled with a Preconnection from which a Connection has
 already been established will fail. Calling Clone on a Preconnection may be
-taken by the system an implicit sign that protocol stacks supporting efficient
-connection group usage are preferred by the application.
+taken by the system an implicit signal that protocol stacks supporting
+multiplexed connections for efficient connection grouping are preferred by the
+application.
 
 There is only one Protocol Property that is not entangled, i.e., it is a
 separate per-Connection Property for individual Connections in the group:
