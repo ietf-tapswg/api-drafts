@@ -72,7 +72,7 @@ author:
     email: michawe@ifi.uio.no
 
 normative:
-    I-D.pauly-taps-arch:
+    draft-pauly-taps-arch:
       title: An Architecture for Transport Services
       url: https://taps-api.github.io/drafts/draft-pauly-taps-arch.html
       authors:
@@ -80,7 +80,7 @@ normative:
           ins: Tommy Pauly
         -
           ins: Brian Trammell
-    I-D.trammell-taps-interface:
+    draft-trammell-taps-interface:
       title: An Abstract Application Layer Interface to Transport Services
       url: https://taps-api.github.io/drafts/draft-trammell-taps-interface.html
       authors:
@@ -117,15 +117,15 @@ informative:
 
 --- abstract
 
-The Transport Services architecture {{I-D.pauly-taps-arch}} defines a system that allows applications to use transport networking protocols flexibly. This document serves as a guide to implementation on how to build a system that provides such an interface.
+The Transport Services architecture {{draft-pauly-taps-arch}} defines a system that allows applications to use transport networking protocols flexibly. This document serves as a guide to implementation on how to build a system that provides such an interface.
 
 --- middle
 
 # Introduction
 
-The Transport Services architecture {{I-D.pauly-taps-arch}} defines a system that allows applications to use transport networking protocols flexibly. This document serves as a guide to implementation on how to build a system that provides such an interface. The terminology used in this document is based on the Architecture.
+The Transport Services architecture {{draft-pauly-taps-arch}} defines a system that allows applications to use transport networking protocols flexibly. This document serves as a guide to implementation on how to build a system that provides such an interface. The terminology used in this document is based on the Architecture.
 
-The interface exposed to applications is defined as the Transport Services API {{I-D.trammell-taps-interface}}. This API is designed to be generic across multiple transport protocols and sets of protocols features. It is the job of an implementation of a Transport Services system to turn the requests of an application into decisions on how to establish connections, and how to transfer data over those connections once established.
+The interface exposed to applications is defined as the Transport Services API {{draft-trammell-taps-interface}}. This API is designed to be generic across multiple transport protocols and sets of protocols features. It is the job of an implementation of a Transport Services system to turn the requests of an application into decisions on how to establish connections, and how to transfer data over those connections once established.
 
 # Implementing Transport Objects
 
@@ -471,9 +471,9 @@ How to passively wait for incoming connections, and what that means for protocol
 
 ### Implementing listeners for Unconnected Protocols
 
-Unconnected protocols such as UDP and UDP-lite generally do not provide the same mechanisms that connected protocols do to offer Connection objects. 
+Unconnected protocols such as UDP and UDP-lite generally do not provide the same mechanisms that connected protocols do to offer Connection objects.
 
-Implementations should wait for incoming packets for unconnected protocols on a listening port and should perform five-tuple matching of packets to either existing Connection objects or the creation of new Connection objects. On platforms with facilities to create a "virtual connection" for unconnected protocols implementations should use these mechanisms to minimise the handling of datagrams intended for already created Connection objects. 
+Implementations should wait for incoming packets for unconnected protocols on a listening port and should perform five-tuple matching of packets to either existing Connection objects or the creation of new Connection objects. On platforms with facilities to create a "virtual connection" for unconnected protocols implementations should use these mechanisms to minimise the handling of datagrams intended for already created Connection objects.
 
 # Implementing Data Transfer
 
@@ -497,15 +497,13 @@ The effect of the application sending a Message is determined by the top-level p
 
 - Ordered: when this is false, it disables the requirement of in-order-delivery for protocols that support configurable ordering.
 
-- Immediate: when this is true, the Message should be sent immediately, even when this comes at the cost of using the network capacity less efficiently. For example, small messages can sometimes be bundled to fit into a single data packet for the sake of reducing header overhead; such bundling SHOULD not be used in case this parameter is true. For example, in case of TCP, the Nagle algorithm SHOULD be disabled when Immediate=true.
-
 - Idempotent: when this is true, it means that the Message can be used by mechanisms that might transfer it multiple times -- e.g., as a result of racing multiple transports or as part of TCP Fast Open.
 
 - Corruption Protection Length: when this is set to any value other than -1, it limits the required checksum in protocols that allow limiting the checksum length (e.g. UDP-Lite).
 
-- Immediate Acknowledgement: TBD
+- Immediate Acknowledgement: this informs the implementation that the sender intends to execute tight control over the send buffer, and therefore wants to avoid delayed acknowledgements. In case of SCTP, a request to immediately send acknowledgements can be implemented using the "sack-immediately flag" described in Section 4.2 of {{!RFC8303}} for the SEND.SCTP primitive.
 
-- Timeliness: TODO
+- Instantaneous Capacity Profile: when this is set to "Interactive/Low Latency", the Message should be sent immediately, even when this comes at the cost of using the network capacity less efficiently. For example, small messages can sometimes be bundled to fit into a single data packet for the sake of reducing header overhead; such bundling SHOULD not be used in case this parameter is true. For example, in case of TCP, the Nagle algorithm SHOULD be disabled when Immediate=true. Scavenger/Bulk can translate into usage of a congestion control mechanism such as LEDBAT, and/or the capacity profile can lead to a choice of a DSCP value as described in {{I-D.ietf-taps-minset}}).
 
 
 #### Send Completion
@@ -540,12 +538,13 @@ It is also possible that protocol stacks within a particular leaf node use 0-RTT
 
 Appendix A.1 of {{I-D.ietf-taps-minset}} explains, using primitives that are described in {{!RFC8303}} and {{!RFC8304}}, how to implement changing the following protocol properties of an established connection with the TCP and UDP. Below, we amend this description for other protocols (if applicable):
 
-- Set timeout for aborting Connection: for SCTP, this can be done using the primitive CHANGE_TIMEOUT.SCTP described in section 4 of {{!RFC8303}}.
-- Set timeout to suggest to the peer
-- Set retransmissions before “Excessive Retransmissions”
-- Set required minimum coverage of the checksum for receiving: for UDP-Lite, this can be done using the primitive SET_MIN_CHECKSUM_COVERAGE.UDP-Lite described in section 4 of {{!RFC8303}}.
-- Set scheduler for connections in a group: for SCTP, this can be done using the primitive SET_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
-- Set priority for a connection in a group: for SCTP, this can be done using the primitive CONFIGURE_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
+- Relative niceness: for SCTP, this can be done using the primitive CONFIGURE_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
+- Timeout for aborting Connection: for SCTP, this can be done using the primitive CHANGE_TIMEOUT.SCTP described in section 4 of {{!RFC8303}}.
+- Abort timeout to suggest to the Remote Endpoint: for TCP, this can be done using the primitive CHANGE_TIMEOUT.TCP described in section 4 of {{!RFC8303}}.
+- Retransmission threshold before excessive retransmission notification: for TCP, this can be done using ERROR.TCP described in section 4 of {{!RFC8303}}.
+- Required minimum coverage of the checksum for receiving: for UDP-Lite, this can be done using the primitive SET_MIN_CHECKSUM_COVERAGE.UDP-Lite described in section 4 of {{!RFC8303}}.
+- Connection group transmission scheduler: for SCTP, this can be done using the primitive SET_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
+
 
 ## Maintenance Events
 
@@ -646,6 +645,8 @@ These items can be cached on a per-address and per-subnet granularity, and avera
 
 An implementation should use this information, when possible, to determine preference between candidate paths, endpoints, and protocol options. Eligible options that historically had significantly better performance than others SHOULD be selected first when gathering candidates {{gathering}} to ensure better performance for the application.
 
+It is recognized that consistency in caching becomes a major issue for performance caches, since if a cached value is not valid the whole optimization might be lost. Still, recommendations on cache lifetimes are difficult to offer since it largely depends on the variability of the cached performance information. For example, the round-trip times experienced by TCP segments over a particular network path might vary a lot over quite short time intervals. Thus, for this kind of performance information the cache lifetime should be kept short, e.g., a fixed number of RTTs. In contrast, performance information such as the connection establishment success rate, could probably have a cache lifetime that spans hours.
+
 # Specific Transport Protocol Considerations
 
 ## TCP {#tcp}
@@ -658,7 +659,7 @@ Without a layer of framing above TCP, the cleanest abstraction for sending and r
 
 ## UDP
 
-UDP as a direct transport does not provide any handshake or connectivity state, so the notion of the transport protocol becoming Ready or established is degenerate. Once the system has validated that there is a route on which to send and receive UDP datagrams, the protocol is considered Ready. Similarly, a Close or Abort has no meaning to the on-the-wire protocol, but simply leads to the local state being torn down. 
+UDP as a direct transport does not provide any handshake or connectivity state, so the notion of the transport protocol becoming Ready or established is degenerate. Once the system has validated that there is a route on which to send and receive UDP datagrams, the protocol is considered Ready. Similarly, a Close or Abort has no meaning to the on-the-wire protocol, but simply leads to the local state being torn down.
 
 When sending and receiving messages over UDP, each Message should correspond to a single UDP datagram. The Message can contain metadata about the packet, such as the ECN bits applied to the packet.
 
@@ -708,7 +709,7 @@ Messages over a direct QUIC stream should be represented similarly to the TCP st
 
 ## HTTP/2 transport
 
-Similar to QUIC {{quic}}, HTTP/2 provides a multi-streaming interface. This will generally use HTTP as the unit of Messages over the streams, in which each stream can be represented as a transport Connection. The lifetime of streams and the HTTP/2 connection should be managed as described for QUIC. 
+Similar to QUIC {{quic}}, HTTP/2 provides a multi-streaming interface. This will generally use HTTP as the unit of Messages over the streams, in which each stream can be represented as a transport Connection. The lifetime of streams and the HTTP/2 connection should be managed as described for QUIC.
 
 It is possible to treat each HTTP/2 stream as a raw byte-stream instead of carrier for HTTP messages, in which case the Messages over the streams can be represented similarly to the TCP stream {{tcp}} (one Message per direction).
 
@@ -743,5 +744,8 @@ innovation programme under grant agreement No. 644334 (NEAT).
 
 This work has been supported by Leibniz Prize project funds of DFG - German
 Research Foundation: Gottfried Wilhelm Leibniz-Preis 2011 (FKZ FE 570/4-1).
+
+This work has been supported by the UK Engineering and Physical Sciences
+Research Council under grant EP/R04144X/1.
 
 Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work.
