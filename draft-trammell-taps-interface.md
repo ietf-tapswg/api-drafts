@@ -431,12 +431,6 @@ The following properties can be used during Protocol and Path selection:
   multiplex Connections into a Connection Group over a single flow. This is not
   a strict requirement. The default is to not have this option.
 
-* Suggest a timeout to the Remote Endpoint:
-  This boolean property specifies whether an application considers it
-  useful to propose a timeout until the connection is assumed to be lost.
-  This property applies to Connections and Connection Groups. This is not a
-  strict requirement. The default is to have this option.
-
 * Notification of special errors (excessive retransmissions, ICMP error message arrival):
   This boolean property specifies whether an application considers it
   useful to be informed in case sent data was retransmitted more often than
@@ -1183,11 +1177,6 @@ Generic Protocol Properties include:
   wait before aborting a Connection during establishment, or before deciding
   that a connection has failed after establishment. It is given in seconds.
 
-* Abort timeout to suggest to the Remote Endpoint:
-  This numeric property
-  specifies the timeout to propose to the Remote Endpoint. It is given in
-  seconds.
-
 * Retransmission threshold before excessive retransmission notification:
   This numeric property specifies after how many retransmissions to inform
   the application about "Excessive Retransmissions".
@@ -1320,6 +1309,12 @@ should be added to a future revision of the base specification.
 The following protocol and path selection properties might be made available in
 addition to those specified in {{transport-params}}:
 
+* Suggest a timeout to the Remote Endpoint:
+  This boolean property specifies whether an application considers it
+  useful to propose a timeout until the connection is assumed to be lost.
+  This property applies to Connections and Connection Groups. This is not a
+  strict requirement. The default is to have this option.
+
 * Request not to delay acknowledgment of Message:
   This boolean property specifies whether an application considers it
   useful to request for Message that its acknowledgment be sent out as
@@ -1420,6 +1415,15 @@ Ignore Cost:
 : Ignore cost, choose transport solely based on other criteria
 
 The default is "Balance Cost".
+
+## Protocol Properties
+
+The following protocol properties might be made available in addition to those
+in {{protocol-props}}:
+
+* Abort timeout to suggest to the Remote Endpoint:
+  This numeric property specifies the timeout to propose to the Remote
+  Endpoint. It is given in seconds.
 
 ## Send Parameters
 
