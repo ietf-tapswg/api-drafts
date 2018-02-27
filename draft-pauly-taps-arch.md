@@ -270,9 +270,11 @@ The diagram below provides a high-level view of the actions taken during the lif
 
 ### Establishment Actions {#establishment}
 
-* Initiate is the primary action that an application can take to create a Connection to a remote endpoint, and prepare any required local or remote state to be able to send and/or receive Messages. For some protocols, this may initiate a server-to-client style handshake; for other protocols, this may just establish local state; and for peer-to-peer protocols, this may begin the process of a simultaneous open. The process of identifying options for connecting, such as resolution of the Remote Endpoint, occurs in response the Initiate call.
+* Initiate is the primary action that an application can take to create a Connection to a remote endpoint, and prepare any required local or remote state to be able to send and/or receive Messages. For some protocols, this may initiate a client-to-server style handshake; for other protocols, this may just establish local state. The process of identifying options for connecting, such as resolution of the Remote Endpoint, occurs in response the Initiate call.
 
 * Listen is the action of marking a Listener as willing to accept incoming Connections. The Listener will then create Connection objects as incoming connections are accepted ({{events}}).
+
+* Rendezvous is the action of establishing a peer-to-peer connection with a remote endpoint. It simultaneously attempts to initiate a connection to a remote endpoint whilst listening for an incoming connection from that endpoint. This corresponds, for example, to a TCP simultaneous open. The process of identifying options for the connection, such as resolution of the Remote Endpoint, occurs during the Rendezvous call. If successful, the rendezvous call returns a Connection object to represent the established peer-to-peer connection.
 
 ### Data Transfer Objects and Actions {#datatransfer}
 
