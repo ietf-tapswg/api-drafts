@@ -255,8 +255,7 @@ asynchronously through a callback registered by the application. Error and other
 
 In the following sections, we describe the details of application interaction
 with Objects through Actions and Events in each phase of a connection, following
-the phases described in {{TAPS-ARCH}}. An example interface sketch in Go is
-shown in {{appendix-api-sketch}}.
+the phases described in {{TAPS-ARCH}}.
 
 # Pre-Establishment Phase
 
@@ -528,10 +527,9 @@ by using the following call on the Connection object:
 transportParameters := connection.getTransportParameters()
 ~~~
 
-Note that most properties are only considered for connection establishment
-and can not be changed later on. {{appendix-specify-query-params}} gives an
-overview of what Transport Parameters can be specified and queried during which
-phase.
+Note that most properties are only considered for connection establishment and
+can not be changed after a connection is established; however, they can be
+queried. See {{introspection}}.
 
 A Connection gets its Transport Parameters either by being explicitly configured
 via a Preconnection, or by inheriting them from an antecedent via cloning; see
@@ -905,7 +903,6 @@ The Send Parameters share a single namespace with the Transport Parameters (see
 {{transport-params}}). This allows to specify Protocol Properties and that can
 be overridden on a per-Message basis or Application Intents that apply to a
 specific Message.
-See {{appendix-specify-query-params}} for an overview.
 
 Send Parameters may be inconsistent with the properties of the Protocol Stacks
 underlying the Connection on which a given Message is sent. For example,
@@ -1134,13 +1131,33 @@ Connection.setProperties()
 
 Connection properties include:
 
-* The status of the Connection, which can be one of the following: Establishing, Established, Closing, or Closed.
-* Transport Features of the protocols that conform to the Required and Prohibited Transport Preferences, which might be selected by the transport system during Establishment. These features correspond to the properties given in {{transport-params}} and can only be queried.
-* Transport Features of the protocols that were selected, once the Connection has been established. These features correspond to the properties given in {{transport-params}} and can only be queried.
-* Protocol Properties of the Protocol Stack in use (see {{protocol-props}} below). These can be set or queried. Certain specific procotol queries may be read-only, on a protocol and property specific basis.
-* Path Properties of the path(s) in use, once the Connection has been established. These  properties can be derived from the local provisioning domain, measurements by the protocol stack, or other sources. They can only be queried.
+* The status of the Connection, which can be one of the following:
+  Establishing, Established, Closing, or Closed.
 
-{{appendix-specify-query-params}} gives a more detailed overview of the different types of properties that can be set and queried at different times.
+* Transport Features of the protocols that conform to the Required and
+  Prohibited Transport Preferences, which might be selected by the transport
+  system during Establishment. These features correspond to the properties
+  given in {{transport-params}} and can only be queried.
+
+* Transport Features of the protocol stacks that were selected and
+  instantiated, once the Connection has been established. These features
+  correspond to the properties given in {{transport-params}} and can only be
+  queried. Instead of preference levels, these features have boolean values
+  indicating whether or not they were selected. Note that these transport
+  features may not fully reflect the specified parameters given in the
+  pre-establishment phase.  For example, a certain Protocol Selection Property
+  that an application specified as Preferred may not actually be present in
+  the chosen Protocol Stack Instances because none of the currently available
+  transport protocols had this feature.
+
+* Protocol Properties of the Protocol Stack in use (see {{protocol-props}}
+  below). These can be set or queried. Certain specific procotol queries may
+  be read-only, on a protocol- and property-specific basis.
+
+* Path Properties of the path(s) in use, once the Connection has been
+  established. These properties can be derived from the local provisioning
+  domain, measurements by the protocol stack, or other sources. They can only
+  be queried.
 
 ## Protocol Properties {#protocol-props}
 
@@ -1192,9 +1209,10 @@ Generic Protocol Properties include:
   before or during Connection establishment, see also {{send-idempotent}}.
   It is given in Bytes. This property is read-only.
 
-* Maximum Message size before fragmentation or segmentation:
-  This numeric property, if applicable, represents the maximum Message size
-  that can be sent without incurring network-layer fragmentation and/or transport layer segmentation at the sender. This property is read-only.
+* Maximum Message size before fragmentation or segmentation: This numeric
+  property, if applicable, represents the maximum Message size that can be
+  sent without incurring network-layer fragmentation and/or transport layer
+  segmentation at the sender. This property is read-only.
 
 * Maximum non-partial Message size on send: This numeric property represents
   the maximum Message size that can be sent as a non-partial Message. This
@@ -1424,587 +1442,11 @@ specified in {{send-params}}:
 # Sample API definition in Go {#appendix-api-sketch}
 
 This document defines an abstract interface. To illustrate how this would map
-concretely into a programming language, this appendix contains an API interface
-definition in Go, using callbacks for event handling. The documentation for the
-API sketch is available online at
-https://godoc.org/github.com/mami-project/postsocket.
+concretely into a programming language, an API interface definition in Go is
+available online at https://github.com/mami-project/postsocket.  Documentation
+for this API -- an illustration of the documentation an application developer
+would see for an instance of this interface - is available online at
+https://godoc.org/github.com/mami-project/postsocket. This API definition will
+be kept largely in sync with the development of this abstract interface
+definition.
 
-~~~~~~~
-package postsocket
-
-import (
-  "crypto"
-  "crypto/tls"
-  "io"
-  "net"
-  "time"
-)
-
-// TransportContext encapsulates all the state kept by the API at a single
-// endpoint, and is the "root" of the API. It can be used to create new
-// default transport and security parameters, locals and remotes bound to the
-// available provisioning domains and resolution, as well as new Connections
-// with these properties. It stores path (address pair) and association
-// (endpoint pair) properties and ephemeral as well as durable state. An
-// application will generally create a single TransportContext instance on
-// startup, optionally Load() state from disk, and can checkpoint in-memory
-// state to disk with Save().
-type TransportContext interface {
-
-  // NewTransportParameters creates a new TransportParameters object with
-  // system and user defaults for this TransportContext. The specification
-  // of system and user defaults is implementation-specific.
-  NewTransportParameters() TransportParameters
-
-  // NewSecurityParameters creates a new SecurityParameters object with
-  // system and user defaults for this TransportContext. The specification
-  // of system and user defaults is implementation-specific.
-  NewSecurityParameters() SecurityParameters
-
-  // NewRemore creates a new, empty Remote specifier.
-  NewRemote() Remote
-
-  // NewLocal creates a new Local specifier initialized with defaults for
-  // this TransportContext.
-  NewLocal() Local
-
-  // DefaultSendParameters returns a SendParameters object with default values.
-  DefaultSendParameters() SendParameters
-
-  // SetEventHandler sets the default connection handler for all
-  // Connections created within this TransportContext.
-  SetEventHandler(evh EventHandler)
-
-  // SetFramingHandler sets the default framing handler for all
-  // Connections created within this TransportContext.
-  SetFramingHandler(fh FramingHandler)
-
-  // Preconnect creates a Preconnection, which binds a connection and
-  // framing handler to sets of related remote, local, transport and
-  // security parameters (a Connection specifier) for Connection
-  // instantiation. Any of Preconnect's arguments may  be nil, in which case
-  // the default values for this TransportContext are used. Preconnection
-  // allows the specification of multiple, disjoint sets of related
-  // parameters for candidate transport protocol selection, as well as the
-  // ability to initiate and send atomically for 0-RTT connection. The
-  // Preconnection is initialized with one set of parameters; use
-  // Preconnection.AddSpecifier to add more.
-
-  Preconnect(evh EventHandler, fh FramingHandler, rem Remote, loc Local, tp TransportParameters, sp SecurityParameters) (Preconnection, error)
-
-  // Initiate a connection with given remote, local, and parameters, and the
-  // default connection and framing handlers. Any of these except Remote may
-  // be nil, in which case context defaults will be used. Once the
-  // Connection is initiated, the EventHandler's Ready callback will be
-  // called with this connection and a nil antecedent. This is a shortcut
-  // for creating a Preconnection with a single connection specifier and
-  // initiating it.
-  Initiate(rem Remote, loc Local, tp TransportParameters, sp SecurityParameters) (Connection, error)
-
-  // Rendezvous with a given Remote using an appropriate peer to peer
-  // rendezvous method, with
-  // optional local, transport parameters, and security parameters. Each of
-  // the optional arguments may be passed as nil; if so, the Context
-  // defaults are used. Returns a Connection in the process of being
-  // rendezvoused. The EventHandler's Ready callback will be called
-  // with any established Connection(s), with a nil antecedent.
-  // This is a shortcut for creating a Preconnection with a single
-  // connection specifier and rendezvousing with it.
-  Rendezvous(evh EventHandler, rem Remote, loc Local, tp TransportParameters, sp SecurityParameters) (Connection, error)
-
-  // Listen on a given Local with a given Handler for connection events,
-  // with optional transport and security parameters. Each of the optional
-  // arguments may be passed as nil; if so, the Context defaults are used.
-  // Returns a Listener in the process of being started. The
-  // EventHandler's Ready callback will be called with any accepted
-  // Connection(s), with this Connection as antecedent.
-  Listen(evh EventHandler, loc Local, tp TransportParameters, sp SecurityParameters) (Connection, error)
-
-  // Save this context's state to a file on disk. The format of this state
-  // file is not specified and not necessarily portable across
-  // implementations of the API.
-  Save(filename string) error
-
-  // Replace this context's state with state loaded from a file on disk. The
-  // format of this state file is not specified and not necessarily portable
-  // across implementations of the API.
-  Restore(filename string) error
-}
-
-// Remote specifies a remote endpoint by hostname, address, port, and/or
-// service name. Multiple of each of these may be given; this will result in a
-// set of candidate endpoints assumed to be equivalent from the application's
-// standpoint to be resolved and connected to. Resolution of the remote need
-// not occur until a connection is created; any resolution error will be
-// reported via the EventHandler when Intiate, Listen, or Rendezvous is
-// called.
-type Remote interface {
-  // Return a remote specifier with the given hostname added to this specifier.
-  WithHostname(hostname string) Remote
-
-  // Return a remote specifier with the given IPv4 or IPv6 address added to this specifier
-  WithAddress(address net.IP) Remote
-
-  // Return a remote specifier with the given transport port added to this specifier
-  WithPort(port uint16) Remote
-
-  // Return a remote specifier with the given service name added to this specifier
-  WithServiceName(svc string) Remote
-}
-
-// Local specifies a remote endpoint by interface name, hostname, address,
-// port, and/or service name. Multiple of each of these may be given; this
-// will result in a set of candidate endpoints assumed to be equivalent from
-// the application's standpoint to be connected from or listened on. Any
-// resolution error will be reported via the EventHandler when Intiate,
-// Listen, or Rendezvous is called.
-type Local interface {
-  // Return a local specifier with the given local network interface name or alias added to this specifier
-  WithInterface(iface string) Local
-
-  // Return a local specifier with the given hostname added to this specifier
-  WithHostname(hostname string) Local
-
-  // Return a local specifier with the given IPv4 or IPv6 address added to this specifier
-  WithAddress(address net.IP) Local
-
-  // Return a local specifier with the given transport port added to this specifier
-  WithPort(port uint16) Local
-
-  // Return a local specifier with the given service name added to this specifier
-  WithServiceName(svc string) Local
-}
-
-// ParameterIdentifier identifies a Transport or Security Parameter
-type ParameterIdentifier int
-
-// List of transport and security parameter names.
-const (
-  TransportFullyReliable = iota
-  TransportOrderPreserved
-  TransportPerMessageReliable
-  TransportIdempotent0RTT
-  TransportMultistreaming
-  TransportTimeoutNegotiationSupport
-  TransportExtendedErrorSupport
-  TransportChecksumControl
-  TransportInterfaceType
-  TransportCapacityProfile
-  TransportTimeout
-  TransportSuggestTimeout
-  TransportRetransmissionThreshold
-  TransportMinimumReceiveChecksumCoverage
-  TransportGroupTransmissionScheduler
-  TransportMaxIdempotent0RTT
-  TransportMaxNoFragment
-  TransportMaxNonpartialSend
-  TransportMaxNonpartialReceive
-  SecuritySupportedGroup
-  SecurityCiphersuite
-  SecuritySignatureAlgorithm
-  SecuritySessionCacheCapacity
-  SecuritySessionCacheLifetime
-  SecuritySessionCacheReuse
-)
-
-// CapacityProfile identifies a capacity profile value
-type CapacityProfile int
-
-// List of supported CapacityProfile values
-const (
-  CapProfDefault = iota
-  CapProfInteractive
-  CapProfConstantRate
-  CapProfBulk
-)
-
-// TransportParameters contains a set of parameters used in the selection of
-// transport protocol stacks and paths during connection pre-establishment.
-// Get a new TransportParameters bound to a context with
-// NewTransportParameters(), then set preferences through the Require(),
-// Prefer(), Avoid(), and Prohibit() methods.
-type TransportParameters interface {
-
-  // Require protocols and paths selected to fulfill this parameter. Returns
-  // a new TransportParameters with this requirement added. If no protocols
-  // and paths available fulfill this parameter, then no connection is
-  // possible. v is an optional value whose meaning is parameter-specific.
-  Require(p ParameterIdentifier, v interface{}) TransportParameters
-
-  // Prefer protocols and paths selected to fulfill this parameter. Returns
-  // a new TransportParameters with this preference added. Preferences are
-  // considered after requirements and prohibitions. v is an optional value
-  // whose meaning is parameter-specific.
-  Prefer(p ParameterIdentifier, v interface{}) TransportParameters
-
-  // Ignore this parameter when selecting protocols and paths. Returns a new
-  // TransportParameters with this ignorance added. This is used to cancel
-  // system defaults that may consider this parameter.
-  Ignore(p ParameterIdentifier) TransportParameters
-
-  // Avoid protocols and paths selected to fulfill this parameter. Returns a
-  // new TransportParameters with this avoidance added. Avoidences are
-  // considered after requirements and prohibitions. v is an optional value
-  // whose meaning is parameter-specific.
-  Avoid(p ParameterIdentifier, v interface{}) TransportParameters
-
-  // Prohibit the selection of protocols and paths that fulfill this
-  // parameter. Returns a new TransportParameters with this prohibition
-  // added.  If the protocols and paths available all fulfill this
-  // parameter, then no connection is possible. v is an optional value whose
-  // meaning is parameter-specific.
-  Prohibit(p ParameterIdentifier, v interface{}) TransportParameters
-
-  // Get retrieves the current value of a given transport parameter by
-  // parameter identifier. Returns an error if the parameter identifier is
-  // not gettable for this set of transport parameters. This is used to
-  // query read-only and read-write properties on established Connections,
-  // as well as to determine which Parameters were selected during
-  // connection establishment.
-  Get(p ParameterIdentifier) (interface{}, error)
-
-  // Set sets the value of a given settable transport parameter by parameter
-  // identifier. Returns an error if this parameter identifier is not
-  // settable for this set of transport parameters, or if the type of the
-  // given value is not appropriate for the transport parameter.
-  Set(p ParameterIdentifier, v interface{}) error
-}
-
-// SecurityMetadata specifies information about a security association for
-// trust verification and identity challenge callbacks.
-type SecurityMetadata struct {
-  Certificate tls.Certificate
-  // and so on...
-}
-
-// SecurityParameters contains a set of parameters used in the establishment
-// of security associations. Get a new SecurityParameters bound to a context
-// with NewSecurityParameters(), then set preferences and associate identity
-// and callbacks through the methods on the object.
-type SecurityParameters interface {
-
-  // AddIdentity adds an local identity (as a TLS certificate) to this parameter set.
-  AddIdentity(c tls.Certificate) SecurityParameters
-
-  // AddPrivateKey adds a public/private key pair to this parameter set.
-  AddPrivateKey(sk crypto.PrivateKey, pk crypto.PublicKey) SecurityParameters
-
-  // AddPSK adds an preshared key associated with a given identity (as a string) to
-  // the parameter set.
-  AddPreSharedKey(key []byte, identity string) SecurityParameters
-
-  // VerifyTrustWith registers a callback to verify trust. This callback
-  // takes metadata about a security association and returns true if the
-  // association is trusted.
-  VerifyTrustWith(func(m SecurityMetadata) (bool, error)) SecurityParameters
-
-  // HandleChallengeWith registers a callback to handle identity challenges.
-  // This callback takes metadata about a security association and returns
-  // true if the association is trusted.
-  HandleChallengeWith(func(m SecurityMetadata) (bool, error)) SecurityParameters
-
-  // Get retrieves the current value of a given security parameter by
-  // parameter identifier. Returns an error if the parameter identifier is
-  // not gettable for this set of security parameters. This is used to
-  // query read-only and read-write properties on established Connections,
-  // as well as to determine which Parameters were selected during
-  // session establishment.
-  Get(p ParameterIdentifier) (interface{}, error)
-
-  // Set sets the value of a given settable security parameter by parameter
-  // identifier. Returns an error if this parameter identifier is not
-  // settable for this set of security parameters, or if the type of the
-  // given value is not appropriate for the transport parameter.
-  Set(p ParameterIdentifier, v interface{}) error
-}
-
-// SendParameters contains a set of parameters used for sending Messages.
-// DefaultSendParameters() returns the defaults for this context.
-type SendParameters struct {
-  // Lifetime after which the object is no longer relevant. Used for
-  // unreliable and partially reliable transports; set to zero or less to
-  // specify fully reliable transport, if available.
-  Lifetime time.Duration
-  // Niceness is the inverse priority of this Message relative to others on
-  // this Connection or within this ConnectionGroup. Niceness 0 messages are
-  // the highest priority.
-  Niceness uint
-  // Ordered is true if the Message must be sent before the next Message
-  // sent on this Connection
-  Ordered bool
-  // Immediate is true if this Message should not be held for coalescing
-  // with other Messages in a transport-layer datagram.
-  Immediate bool
-  // Idempotent is true if this Message may be sent to the application more
-  // than once without ill effects. Use this together with SendInitial() for
-  // 0RTT session resumption.
-  Idempotent bool
-  // CorruptionTolerant is true if this Message may be sent to the
-  // application even if checksums fail; it is used to explicitly disable
-  // checksums on sent Message.
-  CorruptionTolerant bool
-  // CapacityProfile is the capacity profile to use for this message only
-  CapacityProfile CapacityProfile
-}
-
-// Preconnection is a container for sets of related remote, local, transport
-// and security parameters (a Connection specifier), which can be instantiated
-// into a Connection. Use Preconnect() to create one with an initial
-type Preconnection interface {
-
-  // AddSpecifier adds a related set of remote, local, transport and
-  // security parameters to this Preconnection.
-  AddSpecifier(rem Remote, loc Local, tp TransportParameters, sp SecurityParameters)
-
-  // Initiate a Connection with a Remote specified by this Preconnection,
-  // using the Local and parameters supplied. Returns a connection in the
-  // initiation process. Once the Connection is initiated, the
-  // EventHandler's Ready callback will be called with this connection
-  // and a nil antecedent.
-  Initiate() (Connection, error)
-
-  // Initiate a Connection with a Remote specified by this Preconnection,
-  // using the Local and parameters supplied, while simultaneously sending a
-  // Message with the given SendParameters. Returns a connection in the
-  // initiation process. IntialSend may be called more than once on a given
-  // connection to send multiple Messages during initiation. Once the
-  // Connection is initiated, the EventHandler's Ready callback will be
-  // called with this connection and a nil antecedent.
-  InitialSend(message interface{}, sp SendParameters) (Connection, error)
-
-  // Rendezvous  using an appropriate peer to peer rendezvous method with a
-  // Remote specified by this Preconnection, using the Local and parameters
-  // supplied. Returns a connection in the rendezvous process. The
-  // EventHandler's Ready callback will be called with any established
-  // Connection(s), with a nil antecedent.
-  Rendezvous() (Connection, error)
-
-  // Listen for connections on the Local specified by this Preconnection
-  // using the Local and parameters supplied. Returns a Listener in the
-  // process of being started. The EventHandler's Ready callback will
-  // be called with any accepted Connection(s), with this Connection as
-  // antecedent.
-  Listen() (Connection, error)
-}
-
-// Connection encapsulates a connection to another endpoint. All events on the
-// connection will be passed to its associated EventHandler.
-type Connection interface {
-
-  // Send sends a Message on this connection, with an optional message
-  // reference, an object that will be used to refer to the Message on any
-  // event related to it, and a set of send parameters to govern how it will
-  // be sent. If msg is a []byte, the bytes it contains will be sent to over
-  // the connection as a single Message. If msg implements the Message
-  // interface, the Bytes() method will be invoked and the resulting []byte
-  // will be transmitted. Otherwise, msg will be passed to the framing
-  // handler's Frame() method to convert it to a []byte for transmission.
-  Send(msg interface{}, msgref interface{}, sp SendParameters) error
-
-  // Receive informs this Connection that the application is ready to
-  // receive the next message. The receiver argument is a function that will
-  // be called once per call to Receive and passed a successfully received
-  // Message on this Connection; this callback takes the Message received
-  // and the Connection upon which it was received. Note that when multiple
-  // Receive calls are pending, there is no guarantee on the order in which
-  // the callbacks will be invoked.
-  Receive(receiver func(msg Message, conn Connection))
-
-  // Clone clones this Connection, creating a new Connection to the same
-  // remote endpoint. If the underlying protocol stack supports
-  // multistreaming, then this will create a new stream; otherwise, a new
-  // transport connection (flow) will be created.
-  Clone() (Connection, error)
-
-  // Close closes this connection.
-  Close() error
-
-  // GetEventHandler returns this connection's event handler.
-  GetEventHandler() EventHandler
-
-  // SetEventHandler replaces this connection's event handler.
-  SetEventHandler(evh EventHandler)
-
-  // GetEventHandler returns this connection's framing handler.
-  GetFramingHandler() FramingHandler
-
-  // SetEventHandler replaces this connection's framing handler.
-  SetFramingHandler(fh FramingHandler)
-
-  // GetTransportParameters returns this connection's current transport parameter set.
-  GetTransportParameters() TransportParameters
-}
-
-// Message provides the interface implemented by received Messages passed to a
-// Received event.
-type Message interface {
-  // Bytes returns the content of a Message as a byte array
-  Bytes() []byte
-
-  // Partial allows a caller to determine whether this Message represents a
-  // complete message, or part of an incomplete message. If the message is
-  // complete, Partial returns false. If the message is partial, Partial
-  // returns true, the offset into the full message of the first byte in the
-  // slice returned by Bytes(), and true if this message is not yet complete
-  // (i.e., there are Partial messages with higher offsets).
-  Partial() (bool, int, bool)
-}
-
-// EventHandler defines the interface for connection event handlers. Every
-// asynchronous event that can occur on a Connection, except message
-// reception, is passed to an instance of this interface.
-type EventHandler interface {
-
-  // Ready occurs when a new connection is ready for use. The conn argument
-  // contains the new connection, and the ante argument contains the
-  // connection from which this connection was created. In the case of
-  // Connections opened with Initate() and Rendezvous(), ante will be nil.
-  // In the case of passively-opened Connections (i.e., created after
-  // Listen()), ante will contain the listening Connection. In the case of
-  // Connections created by Clone(), ante will contain the connection on
-  // which Clone() was called. In the case of Connections created because a
-  // remote endpoint created new streams with a multistreaming transport
-  // protocol, ante will contain a Connection wrapped around one of the
-  // other streams.
-  Ready(conn Connection, ante Connection)
-
-  // Sent occurs when a Message has been sent. The msgref argument
-  // contains the message reference given on Send().
-  Sent(conn Connection, msgref interface{})
-
-  // Expired occurs when a Message's lifetime expires without the Message
-  // having been sent. The msgref argument contains the message reference
-  // given on Send().
-  Expired(conn Connection, msgref interface{})
-
-  // Error occurs when an error occurs on a connection. If the error refers
-  // to an attempt to send a Message, the msgref argument contains the
-  // content reference given on Send(); otherwise, it is nil. The Error
-  // event only occurs for errors which do not also cause the connection to
-  // close; Connection-closing errors will cause the Closed event to occur.
-  Error(conn Connection, msgref interface{}, err error)
-
-  // Closed occurs when a connection is closed, either actively through
-  // Close(), passively because the remote side ended the connection, or
-  // because a connection-ending error occurred. In this case, the
-  // error is passed as the err argument.
-  Closed(conn Connection, err error)
-}
-
-// FramingHandler defines the interface for application-assisted framing and deframing
-type FramingHandler interface {
-  // Frame converts a message object as passed to the Send() call into a
-  // []byte to be passed down to the protocol stack.
-  Frame(msg interface{}) ([]byte, error)
-
-  // Deframe reads the next object from a given reader, and returns it as an
-  // object of a type implementing Message. Deframe will only be called when
-  // receiving data via a transport protocol which does not provide its own
-  // framing (e.g. TCP)
-  Deframe(in io.Reader) (Message, error)
-}
-
-~~~~~~~
-
-# Transport Parameters {#appendix-transport-params}
-
-This appendix provides details about the usage of the Transport Parameters
-specified in {{transport-params}}. It clarifies what preference levels an
-application can set for which Transport Parameter, and during which phase an
-application can specify and query what kinds of Transport Parameters.
-
-## Application Preferences {#appendix-preferences}
-
-As described in {{transport-params}}, an application can specify its preference
-regarding a Transport Parameter, i.e., whether a certain property is required,
-preferred, to be avoided, prohibited, or an intention. If an application does
-not set its preference regarding a Transport Parameter, default preference
-levels apply as specified in the following table. A default preference of
-"None" means that the transport system assumes that an application does not
-have any preference regarding the corresponding Transport Parameter and may not
-take this parameter into account for protocol and path selection.
-
-Not every Transport Parameter can be meaningfully assigned every preference
-level. For example, if an application explicitly prohibits selecting a
-transport protocol that allows to suggest a timeout to the Remote Endpoint, this
-restriction will unnecessarily limit transport protocol selection. Instead,
-the application could simply not use this feature if it is present in the
-selected transport protocol.
-
-The following table illustrates which Transport Parameter has which default
-preference level and which alternative preference levels an application may
-set.
-
-| Transport Parameter    | Require  | Prefer | Avoid | Prohibit | Default |
-|------------------------|----------|--------|-------|----------|---------|
-| Reliable Data Transfer | Yes      | Yes    | Yes   | Yes      | Require |
-| Preserve Data Ordering | Yes      | Yes    | Yes   | No       | Require |
-| Configure Reliability per Content | Yes | Yes | Yes | Yes     | None    |
-| Request immediate ACK  | Yes      | Yes    | Yes    | Yes     | None    |
-| Use 0-RTT with Idempotent Content | Yes | Yes | Yes | Yes     | None    |
-| Use Connection Groups with priorities | Yes | Yes | No | No   | None    |
-| Suggest timeout to Remote Endpoint | Yes     | Yes    | No    | No       | None    |
-| Notification of special errors | Yes | Yes | Yes   | Yes      | None    |
-| Control checksum coverage | Yes   | Yes    | Yes   | Yes      | None    |
-| Use a certain network interface type | Yes | Yes | Yes | Yes  | None    |
-| Application Intents    | No       | No     | No    | No       | Intend  |
-
-## Specifying and Querying Parameters {#appendix-specify-query-params}
-
-In this appendix we give an overview of the different types of properties, the
-objects to which they apply, and at what time an application can query them.
-
-During the Pre-Establishment phase, an application may specify Transport
-Parameters for a Connection as described in {{transport-params}}.
-Specifically, Protocol Selection Properties, Path Selection Properties, and
-Application Intents for the Connection MUST be specified during
-Pre-Establishment, as protocol and path selection occur during connection
-establishment. An application may query the Transport Parameters that were
-specified for a Connection at all times.
-
-Transport Features represent the actual capabilities of specific Protocol
-Stacks. They are expressed in the same vocabulary as Protocol Selection
-Properties, but have a Boolean value expressing whether a Protocol Stack
-support the given Transport Feature or not. An application may query the
-Transport Features of Protocol Stacks at all times. Once a Connection is
-established, an application may query the Transport Features of the actually
-chosen protocols, the Protocol Stack Instances, for this Connection.
-
-Note that it is possible that the Protocol Stack Instances actually chosen by
-the transport system do not fully reflect the Transport Parameters that were
-originally set. For example, a certain Protocol Selection Property that an
-application specified as Preferred may not actually be present in the chosen
-Protocol Stack Instances because none of the currently available transport
-protocols had this feature.
-
-Protocol Stacks and Protocol Stack Instances also have Protocol Properties,
-which represent the specific configuration of a transport protocol. Their
-default values can be queried at all times, and an application can override
-these defaults for a specific Connection by specifying Protocol Properties
-either during pre-establishment or later in the lifetime of a Connection. This
-configuration is applied on the Protocol Stack Instance once it is bound to the
-Connection.
-
-Note that some Protocol Properties set during Pre-Establishment may not apply
-to the actually chosen protocol later, and consequently not be set in the
-resulting Protocol Stack Instance. However, it is beneficial for an application
-to set these properties as early as possible, so the transport system can use
-them to optimize.
-
-Finally, an application may query the properties of the available paths and the
-properties of the path(s) chosen for a Connection at all times.
-
-An application may also specify Send Properties per individual Content, as
-specified in {{send-params}}.
-
-The following table shows the types of existing properties and what an
-application can do with them during what phase:
-
-| Property Type                  | Applies to | Pre-Establishment | Established |
-|--------------------------------|------------|-------------------|-------------|
-| Transport Parameters           | Connection | Set, Query        | Query       |
-| Protocol Features              | ProtocolStack, ProtocolStackInstance | Query | Query |
-| Protocol Property defaults     | ProtocolStack | Query          | Query       |
-| Protocol Properties            | ProtocolStackInstance | Set    | Set, Query  |
-| Path Properties                | Path       | Query             | Query       |
-| Send Properties                | Content    | Set               | Set         |
