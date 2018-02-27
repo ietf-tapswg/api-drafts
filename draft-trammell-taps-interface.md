@@ -764,7 +764,7 @@ configure the remote.
 Groups of Preconnections or Connections can be created using the Clone action:
 
 ~~~
-Preconnection : Preconnection.Clone()
+Preconnection := Preconnection.Clone()
 
 Connection := Connection.Clone()
 ~~~
@@ -778,20 +778,30 @@ properties, and changing the properties on one Connection in the group changes
 the property for all others.
 
 Calling Clone on a Preconnection yields a Preconnection with the same
-parameters, which is "entangled" with the parent Preconnection: all the
+parameters, which is entangled with the parent Preconnection: all the
 Connections created from entangled Preconnections will be entangled as if they
-had been cloned, and will belong to the same connection group. Calling Clone on
-a Preconnection may be taken by the system an implicit sign that protocol stacks
-supporting efficient connection group usage are preferred by the application.
+had been cloned, and will belong to the same connection group.
+
+Establishing a Connection from a cloned Preconnection will not cause
+Connections for other entangled Preconnections to be established; each such
+Connection must be established separately. Changes to the parameters of a
+Preconnection entangled with a Preconnection from which a Connection has
+already been established will fail. Calling Clone on a Preconnection may be
+taken by the system an implicit sign that protocol stacks supporting efficient
+connection group usage are preferred by the application.
 
 There is only one Protocol Property that is not entangled, i.e., it is a
 separate per-Connection Property for individual Connections in the group:
 niceness. Niceness works as in {{send-niceness}}: when allocating available
 network capacity among Connections in a connection group, sends on connections
-with higher Niceness values will tend to yield to connections with lower
-Niceness values. The priority setting is purely advisory. No guarantees are
-given, and each implementation is free to implement exact capacity allocation as
-it sees fit.
+with higher Niceness values will be prioritized over sends on connections with
+lower Niceness values. An ideal transport system implementation would assign
+the Connection the capacity share (M-N) x C / M, where N is the Connection's
+Niceness value, M is the maximum Niceness value used by all Connections in the
+group and C is the total available capacity. However, the niceness setting is
+purely advisory, and no guarantees are given about capacity allocation and
+each implementation is free to implement exact capacity allocation as it sees
+fit.
 
 # Sending Data {#sending}
 
