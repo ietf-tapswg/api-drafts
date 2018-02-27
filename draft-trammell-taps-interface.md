@@ -235,10 +235,28 @@ the interface is based. The interface defined in this document provides:
 
 # API Summary
 
-\[EDITOR'S NOTE: write three paragraph summary here; see
-https://github.com/taps-api/drafts/issues/93]
+The Transport Services Interface is the basic common abstract application
+programming interface to the Transport Services Architecture defined in
+{{TAPS-ARCH}}. An application primarily interacts with this interface through
+two objects, Preconnections and Connections. A Preconnection represents a set of
+parameters and constraints on the selection and configuration of paths and
+protocols to establish a connection with a remote endpoint. A Connection
+represents a transport protocol stack on which data can be sent to and received
+from a remote endpoint. Connections can be created from Preconnections in three
+ways: by initiating the Preconnection (i.e., actively opening, as in a client),
+through listening on the Preconnection (i.e., passively opening, as in a
+server), or rendezvousing on the Preconnection (i.e. peer to peer establishment).
 
-In the following sections, we describe the details of application interaction with Objects through Actions and Events in each phase of a connection, following the phases described in {{TAPS-ARCH}}.
+Once a Connection is established, data can be sent on it in the form of
+Messages. The interface supports the preservation of message boundaries both via
+explicit protocol stack support, and via application support through a deframing
+callback which finds message boundaries in a stream. Messages are received
+asynchronously through a callback registered by the application. Error and other notifications also happen asynchronously on the Connection.
+
+In the following sections, we describe the details of application interaction
+with Objects through Actions and Events in each phase of a connection, following
+the phases described in {{TAPS-ARCH}}. An example interface sketch in Go is
+shown in {{appendix-api-sketch}}.
 
 # Pre-Establishment Phase
 
@@ -271,6 +289,9 @@ peer-to-peer Rendezvous is to occur based on the Preconnection.
 
 Framers (see {{send-framing}}) and deframers (see {{receive-framing}}), if
 necessary, should be bound to the Preconnection during pre-establishment.
+
+Preconnections, as connections, can be cloned, in order to establish connection
+groups before connection initiation; see {{groups}} for details.
 
 ## Specifying Endpoints {#endpointspec}
 
@@ -325,10 +346,6 @@ discovery during connection establishment.
 The Resolve() method is, however, provided to resolve a Local Endpoint or a
 Remote Endpoint in cases where this is required, for example with some NAT
 traversal protocols (see {{rendezvous}}).
-
-\[NOTE: the API needs MUST be explicit about when name resolution occurs,
-        since the act of resolving a name leaks information, and there
-        may be security implications if this happens unexpectedly.]
 
 ## Specifying Transport Parameters {#transport-params}
 
@@ -754,37 +771,49 @@ for the Preconnection will listen for incoming connections. This list can
 be passed to a peer via a signalling protocol, such as SIP or WebRTC, to
 configure the remote.
 
-\[NOTE: This API is sufficient for TCP-style simultaneous open, but should
-  be considered experimental for ICE-like protocols.]
-
-
 ## Connection Groups {#groups}
 
-Groups of Connections can be created using Clone action:
+Groups of Preconnections or Connections can be created using the Clone action:
 
 ~~~
+Preconnection := Preconnection.Clone()
+
 Connection := Connection.Clone()
 ~~~
 
-Calling this once yields a group of two Connections: the parent Connection -- whose
-Clone action was called -- and the resulting clone. Calling Clone on any of these two
-Connections adds a third Connection to the group, and so on.
-All Connections in a group are entangled. This means that they automatically share
-all properties: changing a parameter for one of them also changes the parameter
-for all others.
+Calling Clone on a Connection yields a group of two Connections: the parent
+Connection on which Clone was called, and the resulting clone Connection. These
+connections are "entangled" with each other, and become part of a connection
+group. Calling Clone on any of these two connections adds a third Connection to
+the group, and so on. Connections in a connection group share all their
+properties, and changing the properties on one Connection in the group changes
+the property for all others.
 
-There is only one Protocol Property that is not entangled, i.e., it is a separate
-per-Connection Property for individual Connections in the group: a priority.
-This priority, which can be represented as a non-negative integer or float, expresses
-a desired share of the Connection Group's available network capacity, such that an
-ideal transport system implementation would assign the Connection the capacity
-share P x C/sum_P, where P = priority, C = total available capacity and sum_P = sum
-of all priority values that are used for the Connections in the same Connection Group.
-The priority setting is purely advisory; no guarantees are given.
+Calling Clone on a Preconnection yields a Preconnection with the same
+parameters, which is entangled with the parent Preconnection: all the
+Connections created from entangled Preconnections will be entangled as if they
+had been cloned, and will belong to the same connection group.
 
-Connection Groups should be created by cloning as as early as possible in order
-to aid the Transport System in choosing and configuring the right protocols (see
-also {{transport-params}}).
+Establishing a Connection from a cloned Preconnection will not cause
+Connections for other entangled Preconnections to be established; each such
+Connection must be established separately. Changes to the parameters of a
+Preconnection entangled with a Preconnection from which a Connection has
+already been established will fail. Calling Clone on a Preconnection may be
+taken by the system an implicit sign that protocol stacks supporting efficient
+connection group usage are preferred by the application.
+
+There is only one Protocol Property that is not entangled, i.e., it is a
+separate per-Connection Property for individual Connections in the group:
+niceness. Niceness works as in {{send-niceness}}: when allocating available
+network capacity among Connections in a connection group, sends on connections
+with higher Niceness values will be prioritized over sends on connections with
+lower Niceness values. An ideal transport system implementation would assign
+the Connection the capacity share (M-N) x C / M, where N is the Connection's
+Niceness value, M is the maximum Niceness value used by all Connections in the
+group and C is the total available capacity. However, the niceness setting is
+purely advisory, and no guarantees are given about capacity allocation and
+each implementation is free to implement exact capacity allocation as it sees
+fit.
 
 # Sending Data {#sending}
 
@@ -1126,6 +1155,13 @@ transport parameters, to preconfigure Protocol Stacks during establishment.
 
 Generic Protocol Properties include:
 
+* Relative niceness: This numeric property is similar to the Niceness send
+  property (see {{send-niceness}}), a non-negative integer representing the
+  relative inverse priority of this Connection relative to other Connections in
+  the same connection group. It has no effect on Connections not part of a
+  connection group. As noted in {{groups}}, this property is not entangled when
+  connections are cloned.
+
 * Timeout for aborting Connection: This numeric property specifies how long to
   wait before aborting a Connection during establishment, or before deciding
   that a connection has failed after establishment. It is given in seconds.
@@ -1387,28 +1423,13 @@ specified in {{send-params}}:
 
 # Sample API definition in Go {#appendix-api-sketch}
 
-\[EDITOR'S NOTE: rewrite following discussion and copy back here; see
-https://github.com/taps-api/drafts/issues/39]
-
-This document defines an abstract interface. To illustrate how this would map concretely into a programming language, this appendix contains an API interface definition in Go, using callbacks for event handling. The documentation for the API sketch is available online at https://godoc.org/github.com/mami-project/postsocket.
+This document defines an abstract interface. To illustrate how this would map
+concretely into a programming language, this appendix contains an API interface
+definition in Go, using callbacks for event handling. The documentation for the
+API sketch is available online at
+https://godoc.org/github.com/mami-project/postsocket.
 
 ~~~~~~~
-// Package postsocket specifies a Go interface for the TAPS API. This abstract
-// interface to transport-layer service is described in
-// https://taps-api.github.io/drafts/draft-trammell-taps-interface.html. For
-// now, read that document to understand what's going on in this package.
-// Eventually, this package will grow to contain a demonstration
-// implementation of the API.
-//
-// A Note on Error Handling
-//
-// This API provides two ways for its client to learn of errors: through the
-// Error event passed to a connection's EventHandler, and through error
-// returns on various calls. In general, errors in networking are
-// asynchronous, so almost every error involving the network will be passed
-// through the Error event. The error returns on calls are therefore only used
-// for immediately detectable errors, such as inconsistent arguments or
-// states.
 package postsocket
 
 import (
@@ -1887,10 +1908,6 @@ type FramingHandler interface {
 
 # Transport Parameters {#appendix-transport-params}
 
-\[EDITOR'S NOTE: move into main document as necessary; find a way to move the
-rest into Appendix A or cut it; see
-https://github.com/taps-api/drafts/issues/69]
-
 This appendix provides details about the usage of the Transport Parameters
 specified in {{transport-params}}. It clarifies what preference levels an
 application can set for which Transport Parameter, and during which phase an
@@ -1930,10 +1947,7 @@ set.
 | Notification of special errors | Yes | Yes | Yes   | Yes      | None    |
 | Control checksum coverage | Yes   | Yes    | Yes   | Yes      | None    |
 | Use a certain network interface type | Yes | Yes | Yes | Yes  | None    |
-| Metered or expensive paths | No   | No     | Yes   | Yes      | Avoid   |
-
-\[List individual Intents? Reformulate some of them as preferences?]
-
+| Application Intents    | No       | No     | No    | No       | Intend  |
 
 ## Specifying and Querying Parameters {#appendix-specify-query-params}
 
