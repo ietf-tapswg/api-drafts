@@ -266,6 +266,8 @@ for incoming connections, but is OPTIONAL if it is used to Initiate()
 connections. The Remote Endpoint MUST be specified in the Preconnection is used
 to Initiate() connections, but is OPTIONAL if it is used to Listen() for
 incoming connections.
+The Local Endpoint and the Remote Endpoint MUST both be specified if a
+peer-to-peer Rendezvous is to occur based on the Preconnection.
 
 Framers (see {{send-framing}}) and deframers (see {{receive-framing}}), if
 necessary, should be bound to the Preconnection during pre-establishment.
