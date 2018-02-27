@@ -1309,11 +1309,12 @@ should be added to a future revision of the base specification.
 The following protocol and path selection properties might be made available in
 addition to those specified in {{transport-params}}:
 
-* Suggest a timeout to the Remote Endpoint:
-  This boolean property specifies whether an application considers it
-  useful to propose a timeout until the connection is assumed to be lost.
-  This property applies to Connections and Connection Groups. This is not a
-  strict requirement. The default is to have this option.
+* Suggest a timeout to the Remote Endpoint: This boolean property specifies
+  whether an application considers it useful to propose a timeout until the
+  connection is assumed to be lost. This property applies to Connections and
+  Connection Groups. This is not a strict requirement. The default is to have
+  this option. \[EDITOR'S NOTE: For discussion of this option, see
+  https://github.com/taps-api/drafts/issues/109]
 
 * Request not to delay acknowledgment of Message:
   This boolean property specifies whether an application considers it
@@ -1421,9 +1422,10 @@ The default is "Balance Cost".
 The following protocol properties might be made available in addition to those
 in {{protocol-props}}:
 
-* Abort timeout to suggest to the Remote Endpoint:
-  This numeric property specifies the timeout to propose to the Remote
-  Endpoint. It is given in seconds.
+* Abort timeout to suggest to the Remote Endpoint: This numeric property
+  specifies the timeout to propose to the Remote Endpoint. It is given in
+  seconds. \[EDITOR'S NOTE: For discussion of this property, see
+  https://github.com/taps-api/drafts/issues/109]
 
 ## Send Parameters
 
