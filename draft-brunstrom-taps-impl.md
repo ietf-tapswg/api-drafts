@@ -18,6 +18,10 @@ author:
     ins: A. Brunstrom
     name: Anna Brunstrom
     role: editor
+    org: Karlstad University
+    street: Universitetsgatan 2
+    city: Karlstad
+    country: Sweden
     email: anna.brunstrom@kau.se
   -
     ins: T. Pauly
@@ -40,6 +44,9 @@ author:
     ins: K-J. Grinnemo
     name: Karl-Johan Grinnemo
     org: Karlstad University
+    street: Universitetsgatan 2
+    city: Karlstad
+    country: Sweden
     email: karl-johan.grinnemo@kau.se
   -
     ins: T. Jones
