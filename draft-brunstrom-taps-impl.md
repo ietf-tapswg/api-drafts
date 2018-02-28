@@ -425,17 +425,6 @@ Implementations may select the criteria by which a leaf node is considered to be
 
 For protocol stacks with multiple handshakes, the decision becomes more nuanced. If the protocol stack involves both TLS and TCP, an implementation MAY determine that a leaf node is connected after the TCP handshake is complete, or it MAY wait for the TLS handshake to complete as well. The benefit of declaring completion when the TCP handshake finishes, and thus stopping the race for other branches of the tree, is that there will be less burden on the network from other connection attempts. On the other hand, by waiting until the TLS handshake is complete, an implementation avoids the scenario in which a TCP handshake completes quickly, but TLS negotiation is either very slow or fails altogether in particular network conditions or to a particular endpoint.
 
-### Protocol Configuration
-
-Once a connection is established and a protocol stack has been chosen, an implementation SHOULD configure any Protocol Properties given by the application which apply to the chosen protocol stack.
-
-Additionally, an implementation MAY configure a transport protocol according to following Application Intents:
-
-* Traffic Category, Capacity Profile:
-The implementation may map information about the anticipated traffic pattern or priority to a DSCP code point value, e.g., see [I-D.ietf-tsvwg-rtcweb-qos]. Furthermore, if an application indicates a preference for low latency, the implementation may disable the Nagle algorithm on a TCP connection.
-
-* Send Bitrate: If an application indicates a certain bitrate it wants to send on the connection, the implementation may limit the bitrate of the outgoing communication to that rate, for example by setting an upper bound for the TCP congestion window of a connection calculated from the Send Bitrate and the Round Trip Time. This helps to avoid bursty traffic patterns on video streaming servers, see [Trickle].
-
 ## Establishing multiplexed connections {#establish-mux}
 
 Multiplexing data streams over a connection of a single transport Protocol Instance requires, at minimum, two things: 1) the transport Protocol Instance must be able to know the beginning and the end of messages, in order to know what to assign and multiplex / demultiplex; 2) there must be an identifier that allows to decide which stream a message is assigned to. When a new stream is multiplexed on an already existing connection, there is no need for a connection establishment procedure -- every stream can be assumed to immediately be available.
@@ -494,6 +483,9 @@ The effect of the application sending a Message is determined by the top-level p
 - Immediate Acknowledgement: this informs the implementation that the sender intends to execute tight control over the send buffer, and therefore wants to avoid delayed acknowledgements. In case of SCTP, a request to immediately send acknowledgements can be implemented using the "sack-immediately flag" described in Section 4.2 of {{!RFC8303}} for the SEND.SCTP primitive.
 
 - Instantaneous Capacity Profile: when this is set to "Interactive/Low Latency", the Message should be sent immediately, even when this comes at the cost of using the network capacity less efficiently. For example, small messages can sometimes be bundled to fit into a single data packet for the sake of reducing header overhead; such bundling SHOULD not be used in case this parameter is true. For example, in case of TCP, the Nagle algorithm SHOULD be disabled when Immediate=true. Scavenger/Bulk can translate into usage of a congestion control mechanism such as LEDBAT, and/or the capacity profile can lead to a choice of a DSCP value as described in {{I-D.ietf-taps-minset}}).
+
+- Send Bitrate: If an application indicates a certain bitrate it wants to send on the connection, the implementation may limit the bitrate of the outgoing communication to that rate, for example by setting an upper bound for the TCP congestion window of a connection calculated from the Send Bitrate and the Round Trip Time. This helps to avoid bursty traffic patterns on video streaming servers, see [Trickle].
+
 
 
 #### Send Completion
