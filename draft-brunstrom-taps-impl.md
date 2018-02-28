@@ -351,19 +351,19 @@ Implementations SHOULD rank the branches of the tree of connection options in or
 The Application Intents specified in {{draft-trammell-taps-interface}} may be used to rank branches in the following ways:
 
 * Capacity Profile:
-An implementation may use the Capacity Profile to prefer paths optimized for the application's expected traffic pattern:
+An implementation may use the Capacity Profile to prefer paths optimized for the application's expected traffic pattern according to cached performance estimates, see {{performance-caches}}:
    * Interactive/Low Latency:
-     Prefer paths with the lowest expected latency
+     Prefer paths with the lowest expected Round Trip Time
    * Constant Rate:
-     Prefer paths that can satisfy the requested Stream Send or Stream Receive Bitrate
+     Prefer paths that can satisfy the requested Stream Send or Stream Receive Bitrate, based on observed maximum throughput
    * Scavenger/Bulk:
-     Prefer paths with the highest expected available bandwidth
+     Prefer paths with the highest expected available bandwidth, based on observed maximum throughput
 
 * Size to be Sent or Received:
-An implementation may use the Size to be Sent or Received to compute an estimate of the completion time of a transfer over different available paths and then prefer the path with the shorter expected completion time. This Intent may be used instead of the Capacity profile, as the application does not always know whether its transfer will be latency-bound or bandwidth-bound, and thus may not be able to specify a Capacity Profile. A related paper is currently under submission.
+An implementation may use the Size to be Sent or Received in combination with cached performance estimates, see {{performance-caches}}, e.g. the observed Round Trip Time and the observed maximum throughput, to compute an estimate of the completion time of a transfer over different available paths. It may then prefer the path with the shorter expected completion time. This Intent may be used instead of the Capacity profile, as the application does not always know whether its transfer will be latency-bound or bandwidth-bound, and thus may not be able to specify a Capacity Profile. However, the application may know the Size to be Sent or Received from metadata, e.g., in adaptive HTTP streaming such as MPEG-DASH, or in operating system upgrades. A related paper is currently under submission.
 
 * Send / Receive Bitrate:
-If the application indicates an expected send or receive bitrate, an implementation may prefer a path that can likely provide the desired bandwidth.
+If the application indicates an expected send or receive bitrate, an implementation may prefer a path that can likely provide the desired bandwidth, based on cached maximum throughput, see {{performance-caches}}. The application may know the Send or Receive Bitrate from metadata in adaptive HTTP streaming, such as MPEG-DASH.
 
 * Cost Preferences:
 If the application indicates a preference to avoid expensive paths, and some paths are associated with a monetary cost, an implementation SHOULD decrease the ranking of such paths. If the application indicates that it prohibits using expensive paths, paths that are associated with a cost should be purged from the decision tree.
@@ -631,7 +631,7 @@ In addition to protocol state, Protocol Instances SHOULD provide data into a per
 - Connection Establishment latency
 - Connection Establishment success rate
 
-These items can be cached on a per-address and per-subnet granularity, and averaged between different values. The information SHOULD be cached on a per-network basis, since it is expected that different network attachments will have different performance characteristics. Besides Protocol Instances, other system entities may also provide data into performance-oriented caches. This could for instance be signal strength information reported by radio modems like Wi-Fi and mobile broadband or information about the battery-level of the device.
+These items can be cached on a per-address and per-subnet granularity, and averaged between different values. The information SHOULD be cached on a per-network basis, since it is expected that different network attachments will have different performance characteristics. Besides Protocol Instances, other system entities may also provide data into performance-oriented caches. This could for instance be signal strength information reported by radio modems like Wi-Fi and mobile broadband or information about the battery-level of the device. Furthermore, the system may cache the observed maximum throughput on a path as an estimate of the available bandwidth.
 
 An implementation should use this information, when possible, to determine preference between candidate paths, endpoints, and protocol options. Eligible options that historically had significantly better performance than others SHOULD be selected first when gathering candidates {{gathering}} to ensure better performance for the application.
 
