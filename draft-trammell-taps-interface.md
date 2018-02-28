@@ -1018,16 +1018,25 @@ receiver-side framing (see {{receive-framing}}).
 Once a Connection is established, Messages may be received on it. The application can indicate that it is ready to receive Messages by calling Receive() on the connection.
 
 ~~~
-Connection.Receive(ReceiveHandler)
+Connection.Receive(ReceiveHandler, maxLength)
 ~~~
 
-Receive takes a single object, a ReceiveHandler which can handle the Received
-event and the ReceiveError error. Each call to Receive will result in at most
-one Received event being sent to the handler, though implementations may provide
+Receive takes a ReceiveHandler, which can handle the Received event and the
+ReceiveError error. Each call to Receive will result in at most one Received
+event being sent to the handler, though implementations may provide
 convenience functions to indicate readiness to receive a larger but finite
 number of Messages with a single call. This allows an application to provide
-backpressure to the transport stack when it is temporarily not ready to receive
-messages.
+backpressure to the transport stack when it is temporarily not ready to
+receive messages.
+
+Receive also takes an optional maxLength argument, the maximum size (in bytes
+of data) Message the application is currently prepared to receive. The default
+value for maxLength is infinite. If an incoming Message is larger than the
+minimum of this size and the maximum non-partial Message size on receive for
+the Connection's Protocol Stack, it will be received as a partial Message.
+Note that maxLength does not guarantee that the application will receive that
+many bytes if they are available; the interface may return partial Messages
+smaller than maxLength according to implementation constraints.
 
 ~~~
 Connection -> Received<Message>
