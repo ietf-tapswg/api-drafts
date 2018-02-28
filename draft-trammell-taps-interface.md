@@ -613,25 +613,11 @@ Like transport parameters, security parameters are inherited during cloning (see
 
 # Establishing Connections
 
-Before a Connection can be used for data transfer, it must be created and
-then established. A Connection is created from a Preconnection:
+Before a Connection can be used for data transfer, it must first be established.
+Connection establishment can be either active, using the Initiate() Action; passive,
+using the Listen() Action; or simultaneous for peer-to-peer connections, using the 
+Rendezvous() Action. These Actions are described in the subsections below.
 
-~~~
-Connection := NewConnection(Preconnection)
-~~~
-The NewConnection() call consumes the Preconnection and creates a new
-Connection object. 
-
-Creating a Connection ends the pre-establishment phase. All of the transport and
-cryptographic parameter specification must be complete before the Connection 
-is created as these parameters will be used to select candidate Paths and
-Protocol Stacks for the Connection. After calling NewConnection(), no
-further parameters may be bound to the Connection. 
-
-Once a Connection object has been created, it can be established.  Connection
-establishment can be active, using the Initiate() Action; passive, using
-the Listen() Action; or simultaneous for peer-to-peer connections, using the
-Rendezvous() Action.  These three Actions are described in the subsections below.
 
 ## Active Open: Initiate {#initiate}
 
@@ -641,34 +627,57 @@ client-server interactions. Active open is supported by this interface through t
 Initiate action:
 
 ~~~
-Connection.Initiate()
+Connection := Preconnection.Initiate()
 ~~~
 
-If the Connection is to be established by calling Initiate(), it must have been 
-created from a Preconnection object populated with a Remote Endpoint specifier, 
-optionally a Local Endpoint specifier (if this is not specified, the system will
-attempt to determine a suitable Local Endpoint), and the parameters necessary 
-for candidate selection. A Connection may only be initiated once.
+Calling Initiate() on a Preconnection ends the pre-establishment phase, and
+returns a Connection object. All of the transport and cryptographic parameter
+specification must be complete before the Connection is created, since these
+parameters will be used to select candidate Paths and Protocol Stacks for
+the Connection. No further transport or cryptographic parameters may be
+bound to the Connection after the Initiate() call.
 
-Once Initiate is called, the candidate Protocol Stack(s) may cause one or more
-candidate transport-layer connections to be created to the specified remote
-endpoint. 
+Before calling Initiate(), the caller must have populated the Preconnection
+object with a Remote Endpoint specifier, optionally a Local Endpoint
+specifier (if this is not specified, the system will attempt to determine a
+suitable Local Endpoint), and the parameters necessary for candidate
+selection. 
 
-The following events may be sent by the Connection after Initiate() is called:
+The Connection returned by Initiate() is bound to a Local Endpoint, but 
+is not yet connected to the Remote Endpoint. 
+The properties of the Local Endpoint can be queried at this time, and it
+is also possible to specify the Event Handler for the Connection:
+
+~~~
+Connection.SetEventHandler()
+~~~
+
+The Start() call begins the process of connecting to the Remote Endpoint:
+
+~~~
+Connection.start()
+~~~
+
+Once Start() is called, the candidate Protocol Stack(s) may cause one or
+more candidate transport-layer connections to be created to the specified
+remote endpoint.  The following events may be sent by the Connection after
+Start() is called:
 
 ~~~
 Connection -> Ready<>
 ~~~
 
-The Ready event occurs after Initiate has established a transport-layer
-connection on at least one usable candidate Protocol Stack over at least one
-candidate Path. No Receive events (see {{receiving}}) will occur before
+The Ready<> event occurs after a transport-layer connection has been
+established on at least one usable candidate Protocol Stack over at least
+one candidate Path. No Receive events (see {{receiving}}) will occur before
 the Ready<> event for connections established using Initiate. 
-Idempotent Messages can be sent as soon a Connection has been created (see
-{{sending}}). They will be delivered when Initiate() is called. Note that
-idempotent data sent before the Ready<> event might be delivered multiple
-times or on multiple candidates. Non-idempotent Messages can only be sent
-after the Ready<> event.
+Idempotent Messages can be queued for delivery as soon a Connection is
+established by calling Send() on a Connection before issuing a Start()
+call (see {{sending}}). Idempotent Messages can also be sent after the
+Start() call.
+If idempotent Messages are sent before the Ready<> event is received, 
+they might be delivered multiple times or on multiple candidates.
+Non-idempotent Messages can only be sent after the Ready<> event.
 
 ~~~
 Connection -> InitiateError<>
@@ -690,33 +699,57 @@ commonly used by servers in client-server interactions. Passive open is
 supported by this interface through the Listen action:
 
 ~~~
-Connection.Listen()
+Listener := Preconnection.Listen()
 ~~~
 
-For Connections established by calling Listen(), the underlying Connection
-must have been created from a Preconnection populated with a Local Endpoint
-specifier, as well as all parameters necessary for Protocol Stack selection. 
-A Remote Endpoint may optionally have been specified, to constrain what
-connections are accepted.  The Listen() action consumes the Connection,
-and no subsequent establishment call may be made on the Connection.
+Calling Listen() on a Preconnection ends the pre-establishment phase, and
+returns a Listener object. All the transport and cryptographic parameter
+specification must be complete before the Listener is created, since these
+parameters will be used to select candidate Paths and Protocol Stacks on
+which the Listener accepts Connections. No further transport or
+cryptographic parameters may be bound to the Listener after the Listen()
+call.
+
+Before calling Listen(), the Preconnection must have been populated with a
+Local Endpoint specifier, as well as all parameters necessary for Protocol
+Stack selection.  A Remote Endpoint may optionally have been specified, to
+constrain what connections are accepted.  
+
+The Listener returned by Listen() is bound to a Local Endpoint, but is not
+yet accepting connections from Remote Endpoints. 
+Properties of the Local Endpoint can be queried at this time, and it
+is also possible to specify the Connection Handler for the Listener:
 
 ~~~
-Connection -> ConnectionReceived<Connection>
+Listener.SetConnectionHandler()
 ~~~
 
-The ConnectionReceived event occurs when a Remote Endpoint has established a
-transport-layer connection to this Connection (for connection-oriented
+The Start() call begins the process of accepting connections: 
+
+~~~
+Listener.Start()
+~~~
+
+The following eveents may be sent to the Connection Handler by the Listener
+after Start() is called:
+
+~~~
+Listener -> ConnectionReceived<Connection>
+~~~
+
+The ConnectionReceived<> event occurs when a Remote Endpoint has established a
+transport-layer connection to this Listener (for connection-oriented
 transport protocols), or when the first Message has been received from the
 Remote Endpoint (for connectionless protocols), causing a new Connection to be
-created. The resulting Connection is contained within the ConnectionReceived
+created. The resulting Connection is contained within the ConnectionReceived<>
 event, and is ready to use as soon as it is passed to the application via the
 event.
 
 ~~~
-Connection -> ListenError<>
+Listener -> ListenError<>
 ~~~
 
-A ListenError occurs either when the Connection cannot be fulfilled for
+A ListenError<> event occurs either when the Listener cannot be fulfilled for
 listening, when the Local Endpoint (or Remote Endpoint, if specified) cannot
 be resolved, or when the application is prohibited from listening by policy.
 
@@ -726,24 +759,45 @@ Simultaneous peer-to-peer connection establishment is supported by the
 Rendezvous() action:
 
 ~~~
-Connection.Rendezvous()
+Rendezvous := Preconnection.Rendezvous()
 ~~~
 
-The Connection must have been created from a Preconnection populated with 
-both a Local Endpoint and a
-Remote Endpoint, and also the transport and security parameters needed for
-protocol stack selection. The Rendezvous() action causes the Connection
-to listen on the Local Endpoint for an incoming connection from the
-Remote Endpoint, while simultaneously trying to establish a connection from
-the Local Endpoint to the Remote Endpoint.
-This corresponds to a TCP simultaneous open, for example.
+Calling Rendezvous() on a Preconnection ends the pre-establishment phase,
+and returns a Rendezvous object.  All of the transport and cryptographic
+parameter specification must be complete before the Connection is created,
+since these parameters will be used to select candidate Paths and Protocol
+Stacks for the Connection.  No further transport or cryptographic
+parameters may be bound to the Connection after the Rendezvous() call.
 
-The Rendezvous() action consumes the Connection. Once Rendezvous() has
-been called, no further parameters may be bound to the Connection, and
-no subsequent establishment call may be made on the Connection.
+Before calling Rendezvous(), the Preconnection must be populated with both
+a Local Endpoint and a Remote Endpoint, and also the transport and security
+parameters needed for protocol stack selection. 
+
+The Rendezvous object returned by Preconnection.Rendezvous() is bound to
+the Local Endpoint, but is not yet ready to accept connections from the
+Remote Endpoint. Properties of the Local Endpoint can be queried at this
+time, and it is also possible to specify the Connection Handler for the
+Listener:
 
 ~~~
-Connection -> RendezvousDone<Connection>
+Rendezvous.SetConnectionHandler()
+~~~
+
+The Start() call causes the Rendezvous object to listen on the Local
+Endpoint for an incoming connection from the Remote Endpoint, while
+simultaneously trying to establish a connection from the Local Endpoint 
+to the Remote Endpoint.  This corresponds to a TCP simultaneous open, 
+for example.
+
+~~~
+Rendezvous.Start()
+~~~
+
+The following eveents may be sent to the Connection Handler by the
+Rendezvous object after Start() is called:
+
+~~~
+Rendezvous -> RendezvousDone<Connection>
 ~~~
 
 The RendezvousDone<> event occurs when a connection is established with the
@@ -754,10 +808,10 @@ resulting Connection is contained within the RendezvousDone<> event, and is
 ready to use as soon as it is passed to the application via the event.
 
 ~~~
-Connection -> RendezvousError<msgRef, error>
+Rendezvous -> RendezvousError<msgRef, error>
 ~~~
 
-An RendezvousError occurs either when the Connection cannot be fulfilled
+An RendezvousError<> event occurs either when the Connection cannot be fulfilled
 for listening, when the Local Endpoint or Remote Endpoint cannot be resolved,
 when no transport-layer connection can be established to the Remote Endpoint,
 or when the application is prohibited from rendezvous by policy.
@@ -766,18 +820,18 @@ When using some NAT traversal protocols, e.g., ICE {{?RFC5245}}, it is
 expected that the Local Endpoint will be configured with some method of
 discovering NAT bindings, e.g., a STUN server. In this case, the
 Local Endpoint may resolve to a mixture of local and server reflexive
-addresses. The Resolve() method on the Preconnection can be used to
-discover these bindings:
+addresses. The LocalCandidates() method on the Rendezvous object can be
+used to discover these bindings:
 
 ~~~
-PreconnectionBindings := Preconnection.Resolve()
+Candidates := Rendezvous.LocalCandidates()
 ~~~
 
-The Resolve() call returns a list of Preconnection objects, that represent
-the concrete addresses, local and server reflexive, on which a Rendezvous()
-for a Connection created from that Preconnection will listen for incoming
-connections. This list can be passed to a peer via a signalling protocol,
-such as SIP or WebRTC, to configure the remote.
+The LocalCandidates() call returns a list of Preconnection objects, that
+represent the concrete addresses, local and server reflexive, on which the
+Rendezvous() object will listen for incoming connections when Start() is
+called. This list can be passed to a peer via a signalling protocol, such
+as SIP or WebRTC, to configure the remote.
 
 ## Connection Groups {#groups}
 
