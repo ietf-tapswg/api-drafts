@@ -373,6 +373,10 @@ the path with the higher observed bitrate is tried first.
 This addresses the issue that the application does not necessarily know whether it is best to optimize for low latency or high throughput at the time the application is written.
 A related paper is currently under submission.
 
+* Send / Receive Bitrate: 
+If the application indicates an expected send or receive bitrate, the transport system
+should choose a path or a path combination, that is likely to provide the desired bandwidth.
+
 * Metered or expensive paths:
 If the application indicates a preference to avoid expensive paths,
 such paths will be ranked lower.
