@@ -348,7 +348,10 @@ Branching for derived endpoints is the final step, and may have multiple layers 
 
 Implementations SHOULD rank the branches of the tree of connection options in order to prioritize them for candidate racing. Leaf nodes on branches with higher rankings represent connection attempts that will be raced first. Implementations SHOULD order the branches to reflect the preferences expressed by the application for its new connection, including Protocol and Path Selection Properties as well as Application Intents, which are specified in {{draft-trammell-taps-interface}}. In addition to the properties provided by the application, an implementation MAY include additional criteria such as cached performance estimates, see {{performance-caches}}, or system policy, see {{role-of-system-policy}}, in the ranking.
 
-The Application Intents specified in {{draft-trammell-taps-interface}} may be used to rank branches in the following ways:
+The Transport Parameters specified in {{draft-trammell-taps-interface}} may be used to rank branches in the following ways:
+
+* Interface Type:
+If the application specifies an interface type to be required, an implementation MUST purge all branches that correspond to paths over interfaces that do not match this type. Similarly, it MUST purge paths that correspond to interface types that the application prohibits. If the application specifies an interface type to be preferred or avoided, implementations SHOULD rank paths accordingly.
 
 * Capacity Profile:
 An implementation may use the Capacity Profile to prefer paths optimized for the application's expected traffic pattern according to cached performance estimates, see {{performance-caches}}:
