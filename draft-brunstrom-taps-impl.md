@@ -346,42 +346,27 @@ Branching for derived endpoints is the final step, and may have multiple layers 
 
 ## Ranking Branches
 
-The transport system ranks branches in order to prioritize them for candidate racing, so branches with higher ranking will be raced first.
-While {{draft-trammell-taps-interface}} allows the application to express its preferences for a new connection using Protocol and Path Selection Properties as well as Application Intents, applying these preferences is implemented by ranking of branches.
-In addition to the properties provided by the application, performance estimates, system policy, or other criteria also influence this ranking.
+Implementations SHOULD rank the branches of the tree of connection options in order to prioritize them for candidate racing. Leaf nodes on branches with higher rankings represent connection attempts that will be raced first. Implementations SHOULD order the branches to reflect the preferences expressed by the application for its new connection, including Protocol and Path Selection Properties as well as Application Intents, which are specified in {{draft-trammell-taps-interface}}. In addition to the properties provided by the application, an implementation MAY include additional criteria such as cached performance estimates, see {{performance-caches}}, or system policy, see {{role-of-system-policy}}, in the ranking.
 
-The Application Intents specified in {{draft-trammell-taps-interface}} are used to rank branches in the following ways:
+The Application Intents specified in {{draft-trammell-taps-interface}} may be used to rank branches in the following ways:
 
 * Capacity Profile:
-The Capacity Profile is used to prefer paths optimized for the application's expected traffic pattern:
+An implementation may use the Capacity Profile to prefer paths optimized for the application's expected traffic pattern:
    * Interactive/Low Latency:
-     Prefer paths with the lowest available latency
+     Prefer paths with the lowest expected latency
    * Constant Rate:
      Prefer paths that can satisfy the requested Stream Send or Stream Receive Bitrate
    * Scavenger/Bulk:
-     Prefer paths with the highest available bandwidth
+     Prefer paths with the highest expected available bandwidth
 
-* Size to be Sent / Received:
-If the application indicates the size of the Content it expects to receive,
-the transport system can predict the completion time of the transfer on each of the available paths
-based on current performance estimates.
-It can then rank the path with the lower expected completion time higher,
-so for small Content where the download is latency-bound,
-the path with the lower latency estimate is tried first,
-while for larger Content which is bandwidth-bound,
-the path with the higher observed bitrate is tried first.
-This addresses the issue that the application does not necessarily know whether it is best to optimize for low latency or high throughput at the time the application is written.
-A related paper is currently under submission.
+* Size to be Sent or Received:
+An implementation may use the Size to be Sent or Received to compute an estimate of the completion time of a transfer over different available paths and then prefer the path with the shorter expected completion time. This Intent may be used instead of the Capacity profile, as the application does not always know whether its transfer will be latency-bound or bandwidth-bound, and thus may not be able to specify a Capacity Profile. A related paper is currently under submission.
 
-* Send / Receive Bitrate: 
-If the application indicates an expected send or receive bitrate, the transport system
-should choose a path or a path combination, that is likely to provide the desired bandwidth.
+* Send / Receive Bitrate:
+If the application indicates an expected send or receive bitrate, an implementation may prefer a path that can likely provide the desired bandwidth.
 
-* Metered or expensive paths:
-If the application indicates a preference to avoid expensive paths,
-such paths will be ranked lower.
-If the application indicates that it prohibits using expensive paths,
-paths that are associated with a cost will be purged from the decision tree.
+* Cost Preferences:
+If the application indicates a preference to avoid expensive paths, and some paths are associated with a monetary cost, an implementation SHOULD decrease the ranking of such paths. If the application indicates that it prohibits using expensive paths, paths that are associated with a cost should be purged from the decision tree.
 
 
 ## Candidate Racing
@@ -442,12 +427,14 @@ For protocol stacks with multiple handshakes, the decision becomes more nuanced.
 
 ### Protocol Configuration
 
-Once a connection is established and a transport protocol has been chosen, any Protocol Properties given by the application which apply to the transport protocol are configured on the transport protocol.
+Once a connection is established and a protocol stack has been chosen, an implementation SHOULD configure any Protocol Properties given by the application which apply to the chosen protocol stack.
 
-Additionally, a transport system may configure a transport protocol according to following Application Intents:
+Additionally, an implementation MAY configure a transport protocol according to following Application Intents:
 
-* Traffic Category: Can be mapped to DSCP code point value, e.g., see [I-D.ietf-tsvwg-rtcweb-qos]. Furthermore, if an application indicates a preference for low latency, the transport system may disable the Nagle algorithm on a TCP connection.
-* Send Bitrate: If an application indicates a certain bitrate it wants to send on the connection, the transport system may limit the bitrate of the outgoing communication to that rate, for example by setting an upper bound for the TCP congestion window of a connection calculated from the Send Bitrate and the Round Trip Time. This helps to avoid bursty traffic patterns on video streaming servers, see [Trickle].
+* Traffic Category, Capacity Profile:
+The implementation may map information about the anticipated traffic pattern or priority to a DSCP code point value, e.g., see [I-D.ietf-tsvwg-rtcweb-qos]. Furthermore, if an application indicates a preference for low latency, the implementation may disable the Nagle algorithm on a TCP connection.
+
+* Send Bitrate: If an application indicates a certain bitrate it wants to send on the connection, the implementation may limit the bitrate of the outgoing communication to that rate, for example by setting an upper bound for the TCP congestion window of a connection calculated from the Send Bitrate and the Round Trip Time. This helps to avoid bursty traffic patterns on video streaming servers, see [Trickle].
 
 ## Establishing multiplexed connections {#establish-mux}
 
