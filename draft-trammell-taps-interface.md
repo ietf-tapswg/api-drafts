@@ -483,7 +483,10 @@ The following properties can be used during Protocol and Path selection:
   Constant Rate:
   : The application expects to send/receive data at a constant rate after
   connection establishment. Delay and delay variation should be optimized at the
-  expense of bandwidth efficiency.
+  expense of bandwidth efficiency. This implies that the Connection may fail 
+  if the desired rate cannot be maintained across the Path. A transport
+  may interpret this capacity profile as preferring a circuit breaker
+  {{?RFC8084}} to a rate adaptive congestion controller.
 
   Scavenger/Bulk:
   : The application is not interactive. It expects to send/receive a large
