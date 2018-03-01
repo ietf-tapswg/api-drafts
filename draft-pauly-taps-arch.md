@@ -381,7 +381,7 @@ Transport protocols such as SCTP provide a message-oriented API that has
 similar features to those we describe.  Other transports, such as TCP, do
 not.  To support a message oriented API, while still being compatible with
 stream-based transport protocols, implementations of the transport services
-architecture must provide APIs for framing and de-framing messages.  That
+architecture should provide APIs for framing and de-framing messages.  That
 is, we push message framing down into the transport services API, allowing
 applications to send and receive complete messages.  This is backwards
 compatible with existing protocols and APIs, since the wire format of
