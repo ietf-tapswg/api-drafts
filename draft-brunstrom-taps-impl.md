@@ -354,7 +354,8 @@ In addition to the properties provided by the application, an implementation MAY
 The Transport Parameters specified in {{draft-trammell-taps-interface}} may be used to sort branches in the following ways:
 
 * Interface Type:
-If the application specifies an interface type to be required, an implementation MUST purge all branches that correspond to paths over interfaces that do not match this type. Similarly, it MUST purge paths that correspond to interface types that the application prohibits. If the application specifies an interface type to be preferred or avoided, implementations SHOULD rank paths accordingly.
+If the application specifies an interface type to be preferred or avoided, implementations SHOULD rank paths accordingly.
+If the application specifies an interface type to be required or prohibited, we expect an implementation to not include the non-conforming paths into the three.
 
 * Capacity Profile:
 An implementation may use the Capacity Profile to prefer paths optimized for the application's expected traffic pattern according to cached performance estimates, see {{performance-caches}}:
