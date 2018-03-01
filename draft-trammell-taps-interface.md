@@ -880,7 +880,7 @@ Connection -> SendError<msgRef>
 ~~~
 
 A SendError occurs when a Message could not be sent due to an error condition:
-an attempt to send a non-partial Message which is too large for the system and
+an attempt to send a Message which is too large for the system and
 Protocol Stack to handle, some failure of the underlying Protocol Stack, or a
 set of send parameters not consistent with the Connection's transport
 parameters. The SendError contains an implementation-specific reference to the
@@ -1035,7 +1035,7 @@ receive messages.
 Receive also takes an optional maxLength argument, the maximum size (in bytes
 of data) Message the application is currently prepared to receive. The default
 value for maxLength is infinite. If an incoming Message is larger than the
-minimum of this size and the maximum non-partial Message size on receive for
+minimum of this size and the maximum Message size on receive for
 the Connection's Protocol Stack, it will be received as a partial Message.
 Note that maxLength does not guarantee that the application will receive that
 many bytes if they are available; the interface may return partial Messages
@@ -1223,13 +1223,13 @@ Generic Protocol Properties include:
   sent without incurring network-layer fragmentation and/or transport layer
   segmentation at the sender. This property is read-only.
 
-* Maximum non-partial Message size on send: This numeric property represents
-  the maximum Message size that can be sent as a non-partial Message. This
+* Maximum Message size on send: This numeric property represents
+  the maximum Message size that can be sent. This
   property is read-only.
 
-* Maximum non-partial Message size on receive: This numeric property
-  represents the maximum Message size that can be received as a non-partial
-  Message. This property is read-only.
+* Maximum Message size on receive: This numeric property
+  represents the maximum Message size that can be received.
+  This property is read-only.
 
 In order to specify Specific Protocol Properties, Transport System
 implementations may offer applications to attach a set of options to the
