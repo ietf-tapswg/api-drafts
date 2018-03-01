@@ -254,6 +254,12 @@ The diagram below provides a high-level view of the actions taken during the lif
 
 * Listener: A Listener object accepts incoming transport protocol connections from Remote Endpoints  and generates corresponding Connection objects. It is created from a Preconnection object that specifies the type of incoming connections it will accept.
 
+* Rendezvous: A Rendezvous object represents peer-to-peer connection
+  establishment between a Local Endpoint and a Remote Endpoint. It is
+  created from a Preconnection object specifying two peer endpoints,
+  and generates a corresponding Connection object.
+
+
 ### Pre-Establishment {#preestablishment}
 
 * Endpoint: An Endpoint represents one side of a transport connection.
