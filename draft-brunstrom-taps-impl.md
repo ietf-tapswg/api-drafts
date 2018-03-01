@@ -344,11 +344,14 @@ Protocol options are checked next in order. Whether or not a set of protocol, or
 Branching for derived endpoints is the final step, and may have multiple layers of derivation or resolution, such as DNS service resolution and DNS hostname resolution.
 
 
-## Ranking Branches
+## Sorting Branches {#branch-sorting}
 
-Implementations SHOULD rank the branches of the tree of connection options in order to prioritize them for candidate racing. Leaf nodes on branches with higher rankings represent connection attempts that will be raced first. Implementations SHOULD order the branches to reflect the preferences expressed by the application for its new connection, including Protocol and Path Selection Properties as well as Application Intents, which are specified in {{draft-trammell-taps-interface}}. In addition to the properties provided by the application, an implementation MAY include additional criteria such as cached performance estimates, see {{performance-caches}}, or system policy, see {{role-of-system-policy}}, in the ranking.
+Implementations SHOULD sort the branches of the tree of connection options in order of their preference rank. 
+Leaf nodes on branches with higher rankings represent connection attempts that will be raced first.
+Implementations SHOULD order the branches to reflect the preferences expressed by the application for its new connection, including Protocol and Path Selection Properties, which are specified in {{draft-trammell-taps-interface}} 
+In addition to the properties provided by the application, an implementation MAY include additional criteria such as cached performance estimates, see {{performance-caches}}, or system policy, see {{role-of-system-policy}}, in the ranking.
 
-The Transport Parameters specified in {{draft-trammell-taps-interface}} may be used to rank branches in the following ways:
+The Transport Parameters specified in {{draft-trammell-taps-interface}} may be used to sort branches in the following ways:
 
 * Interface Type:
 If the application specifies an interface type to be required, an implementation MUST purge all branches that correspond to paths over interfaces that do not match this type. Similarly, it MUST purge paths that correspond to interface types that the application prohibits. If the application specifies an interface type to be preferred or avoided, implementations SHOULD rank paths accordingly.
@@ -362,15 +365,7 @@ An implementation may use the Capacity Profile to prefer paths optimized for the
    * Scavenger/Bulk:
      Prefer paths with the highest expected available bandwidth, based on observed maximum throughput
 
-* Size to be Sent or Received:
-An implementation may use the Size to be Sent or Received in combination with cached performance estimates, see {{performance-caches}}, e.g. the observed Round Trip Time and the observed maximum throughput, to compute an estimate of the completion time of a transfer over different available paths. It may then prefer the path with the shorter expected completion time. This Intent may be used instead of the Capacity profile, as the application does not always know whether its transfer will be latency-bound or bandwidth-bound, and thus may not be able to specify a Capacity Profile. However, the application may know the Size to be Sent or Received from metadata, e.g., in adaptive HTTP streaming such as MPEG-DASH, or in operating system upgrades. A related paper is currently under submission.
-
-* Send / Receive Bitrate:
-If the application indicates an expected send or receive bitrate, an implementation may prefer a path that can likely provide the desired bandwidth, based on cached maximum throughput, see {{performance-caches}}. The application may know the Send or Receive Bitrate from metadata in adaptive HTTP streaming, such as MPEG-DASH.
-
-* Cost Preferences:
-If the application indicates a preference to avoid expensive paths, and some paths are associated with a monetary cost, an implementation SHOULD decrease the ranking of such paths. If the application indicates that it prohibits using expensive paths, paths that are associated with a cost should be purged from the decision tree.
-
+\[Note: See also {{branch-sorting-non-consensus}} for Application Intents under discussion.]
 
 ## Candidate Racing
 
@@ -471,7 +466,7 @@ Protocols that provide the framing (such as length-value protocols, or protocols
 
 The effect of the application sending a Message is determined by the top-level protocol in the established Protocol Stack. That is, if the top-level protocol provides an abstraction of framed messages over a connection, the application will be able to send multiple Messages on that connection, even if the framing protocol is built on a byte-stream protocol like TCP.
 
-#### Send Parameters
+#### Send Parameters {#send-params}
 
 - Lifetime should be implemented by removing the Message from its queue of pending Messages after the Lifetime has expired. A queue of pending Messages within the transport system implementation that have yet to be handed to the Protocol Stack can always support this property, but once a Message has been sent into the send buffer of a protocol, only certain protocols may support de-queueing a message. For example, TCP cannot remove bytes from its send buffer, while in case of SCTP, such control over the SCTP send buffer can be exercised using the partial reliability extension {{!RFC8303}}. When there is no standing queue of Messages within the system, and the Protocol Stack does not support removing a Message from its buffer, this property may be ignored.
 
@@ -487,9 +482,7 @@ The effect of the application sending a Message is determined by the top-level p
 
 - Instantaneous Capacity Profile: when this is set to "Interactive/Low Latency", the Message should be sent immediately, even when this comes at the cost of using the network capacity less efficiently. For example, small messages can sometimes be bundled to fit into a single data packet for the sake of reducing header overhead; such bundling SHOULD not be used in case this parameter is true. For example, in case of TCP, the Nagle algorithm SHOULD be disabled when Immediate=true. Scavenger/Bulk can translate into usage of a congestion control mechanism such as LEDBAT, and/or the capacity profile can lead to a choice of a DSCP value as described in {{I-D.ietf-taps-minset}}).
 
-- Send Bitrate: If an application indicates a certain bitrate it wants to send on the connection, the implementation may limit the bitrate of the outgoing communication to that rate, for example by setting an upper bound for the TCP congestion window of a connection calculated from the Send Bitrate and the Round Trip Time. This helps to avoid bursty traffic patterns on video streaming servers, see [Trickle].
-
-
+\[Note: See also {{send-params-non-consensus}} for additional Send Parameters under discussion.]
 
 #### Send Completion
 
@@ -734,3 +727,31 @@ This work has been supported by the UK Engineering and Physical Sciences
 Research Council under grant EP/R04144X/1.
 
 Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work.
+
+--- back
+
+# Additional Properties {#appendix-non-consensus} 
+
+This appendix discusses implementation considerations for additional parameters and properties that could be used to enhance transport protocol and/or path selection, or the transmission of messages given a Protocol Stack that implements them.
+These are not part of the interface, and may be removed from the final document, but are presented here to support discussion within the TAPS working group as to whether they should be added to a future revision of the base specification.
+
+## Properties Effecting Sorting of Branches {#branch-sorting-non-consensus}
+
+In addition to the Transport Parameters listed in {{branch-sorting}}, the following Transport Parameters under discussion can influence branch sorting:
+
+* Size to be Sent or Received:
+An implementation may use the Size to be Sent or Received in combination with cached performance estimates, see {{performance-caches}}, e.g. the observed Round Trip Time and the observed maximum throughput, to compute an estimate of the completion time of a transfer over different available paths. It may then prefer the path with the shorter expected completion time. This Intent may be used instead of the Capacity profile, as the application does not always know whether its transfer will be latency-bound or bandwidth-bound, and thus may not be able to specify a Capacity Profile. However, the application may know the Size to be Sent or Received from metadata, e.g., in adaptive HTTP streaming such as MPEG-DASH, or in operating system upgrades. A related paper is currently under submission.
+
+* Send / Receive Bitrate:
+If the application indicates an expected send or receive bitrate, an implementation may prefer a path that can likely provide the desired bandwidth, based on cached maximum throughput, see {{performance-caches}}. The application may know the Send or Receive Bitrate from metadata in adaptive HTTP streaming, such as MPEG-DASH.
+
+* Cost Preferences:
+If the application indicates a preference to avoid expensive paths, and some paths are associated with a monetary cost, an implementation SHOULD decrease the ranking of such paths. If the application indicates that it prohibits using expensive paths, paths that are associated with a cost should be purged from the decision tree.
+
+
+## Send Parameters {#send-params-non-consensus}
+
+In addition to the Send Parameters listed in {{send-params}}, the following  Send Parameters are under discussion:
+
+* Send Bitrate:
+If an application indicates a certain bitrate it wants to send on the connection, the implementation may limit the bitrate of the outgoing communication to that rate, for example by setting an upper bound for the TCP congestion window of a connection calculated from the Send Bitrate and the Round Trip Time. This helps to avoid bursty traffic patterns on video streaming servers, see [Trickle].
