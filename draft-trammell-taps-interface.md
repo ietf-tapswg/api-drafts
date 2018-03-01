@@ -157,29 +157,25 @@ with these Actions and Events.
 
 The following notations, which can be combined, are used in this document:
 
+- An Action creates an Object:
 ~~~
 Object := Action()
 ~~~
 
->> An Action creates an Object.
-
+- An Action is performed on an Object:
 ~~~
 Object.Action()
 ~~~
 
->> An Action is performed on an Object.
-
+- An Object sends an Event:
 ~~~
 Object -> Event<>
 ~~~
 
->> An Object sends an Event.
-
+- An Action takes a set of Parameters; an Event contains a set of Parameters:
 ~~~
 Action(parameter, parameter, ...) / Event<parameter, parameter, ...>
 ~~~
-
->> An Action takes a set of Parameters; an Event contains a set of Parameters.
 
 Actions associated with no Object are Actions on the abstract interface
 itself; they are equivalent to Actions on a per-application global context.
@@ -379,11 +375,11 @@ specified with five different preference levels:
 
    | Preference | Effect                                                             |
    |------------|--------------------------------------------------------------------|
-   | `Require ` | Select only protocols/paths providing the property, fail otherwise |
-   | `Prefer  ` | Prefer protocols/paths providing the property, proceed otherwise |
-   | `Ignore  ` | Cancel any default preference for this property |
-   | `Avoid   ` | Prefer protocols/paths not providing the property, proceed otherwise |
-   | `Prohibit` | Select only protocols/paths not providing the property, fail otherwise |
+   | Require    | Select only protocols/paths providing the property, fail otherwise |
+   | Prefer     | Prefer protocols/paths providing the property, proceed otherwise   |
+   | Ignore     | Cancel any default preference for this property                    |
+   | Avoid      | Prefer protocols/paths not providing the property, proceed otherwise |
+   | Prohibit   | Select only protocols/paths not providing the property, fail otherwise |
 
 An implementation of this interface must provide sensible defaults for protocol
 and path selection properties. The defaults given for each property below
@@ -482,7 +478,7 @@ The following properties can be used during Protocol and Path selection:
   Constant Rate:
   : The application expects to send/receive data at a constant rate after
   Connection establishment. Delay and delay variation should be optimized at the
-  expense of bandwidth efficiency. This implies that the Connection may fail 
+  expense of bandwidth efficiency. This implies that the Connection may fail
   if the desired rate cannot be maintained across the Path. A transport
   may interpret this capacity profile as preferring a circuit breaker
   {{?RFC8084}} to a rate adaptive congestion controller.
@@ -508,8 +504,8 @@ TransportParameters := NewTransportParameters()
 ~~~
 
 The Individual parameters are then added to the TransportParameters Object.
-While Protocol Properties and Application Intents use the `add` call,
-Transport Preferences use special calls for the levels defined in {{transport-params}}.
+While Protocol Properties use the `add` call, Transport Preferences use
+special calls for the levels defined in {{transport-params}}.
 
 ~~~
 TransportParameters.Add(parameter, value)
@@ -903,11 +899,9 @@ SendParameters := NewSendParameters()
 SendParameters.Add(parameter, value)
 ~~~
 
-The Send Parameters are organized in *Message Properties* and *Application Intents*.
 The Send Parameters share a single namespace with the Transport Parameters (see
-{{transport-params}}). This allows to specify Protocol Properties and that can
-be overridden on a per-Message basis or Application Intents that apply to a
-specific Message.
+{{transport-params}}). This allows the specification of Protocol Properties that can
+be overridden on a per-Message basis.
 
 Send Parameters may be inconsistent with the properties of the Protocol Stacks
 underlying the Connection on which a given Message is sent. For example,
@@ -915,9 +909,9 @@ infinite Lifetime is not possible on a Message over a Connection not providing
 reliability. Sending a Message with Send Properties inconsistent with the
 Transport Preferences on the Connection yields an error.
 
-### Message Properties
+The following send parameters are supported:
 
-#### Lifetime {#send-lifetime}
+### Lifetime {#send-lifetime}
 
 Lifetime specifies how long a particular Message can wait to be sent to the
 remote endpoint before it is irrelevant and no longer needs to be
@@ -925,7 +919,7 @@ remote endpoint before it is irrelevant and no longer needs to be
 transmitted reliably. The type and units of Lifetime are
 implementation-specific.
 
-#### Niceness {#send-niceness}
+### Niceness {#send-niceness}
 
 Niceness represents an unbounded hierarchy of priorities of Messages, relative
 to other Messages sent over the same Connection and/or Connection Group (see
@@ -939,13 +933,13 @@ Note that this inversion of normal schemes for expressing priority has a
 convenient property: priority increases as both Niceness and Lifetime
 decrease.
 
-#### Ordered {#send-ordered}
+### Ordered {#send-ordered}
 
 Ordered is a boolean property. If true, this Message should be delivered after
 the last Message passed to the same Connection via the Send Action; if false,
 this Message may be delivered out of order.
 
-#### Idempotent {#send-idempotent}
+### Idempotent {#send-idempotent}
 
 Idempotent is a boolean property. If true, the application-layer entity in the
 Message is safe to send to the remote endpoint more than once for a single
@@ -953,7 +947,7 @@ Send Action. It is used to mark data safe for certain 0-RTT establishment
 techniques, where retransmission of the 0-RTT data may cause the remote
 application to receive the Message multiple times.
 
-#### Corruption Protection Length {#send-checksum}
+### Corruption Protection Length {#send-checksum}
 
 This numeric property specifies the length of the section of the Message,
 starting from byte 0, that the application assumes will be received without
@@ -963,7 +957,7 @@ by checksum. A value of 0 means that no checksum is required, and a special
 value (e.g. -1) can be used to indicate the default. Only full coverage is
 guaranteed, any other requests are advisory.
 
-#### Immediate Acknowledgement {#send-ackimmed}
+### Immediate Acknowledgement {#send-ackimmed}
 
 This boolean property specifies, if true, that an application wants this
 Message to be acknowledged immediately by the receiver. In case of reliable
@@ -972,7 +966,7 @@ that it can remove the Message from its buffer; therefore this property can be
 useful for latency-critical applications that maintain tight control over the
 send buffer (see {{sending}}).
 
-#### Instantaneous Capacity Profile
+### Instantaneous Capacity Profile
 
 This enumerated property specifies the application's preferred tradeoffs for
 sending this Message; it is a per-Message override of the Capacity Profile
