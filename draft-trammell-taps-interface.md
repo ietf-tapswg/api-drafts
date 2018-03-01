@@ -797,15 +797,21 @@ The following eveents may be sent to the Connection Handler by the
 Rendezvous object after Start() is called:
 
 ~~~
-Rendezvous -> RendezvousDone<Connection>
+Rendezvous -> RendezvousReady<Connection>
 ~~~
 
-The RendezvousDone<> event occurs when a connection is established with the
+The RendezvousReady<> event occurs when a connection is established with the
 Remote Endpoint. For connection-oriented transports, this occurs when the
 transport-layer connection is established; for connectionless transports,
 it occurs when the first Message is received from the Remote Endpoint. The
-resulting Connection is contained within the RendezvousDone<> event, and is
+resulting Connection is contained within the RendezvousReady<> event, and is
 ready to use as soon as it is passed to the application via the event.
+Idempotent Messages can be queued for delivery as soon a Connection is
+established by calling Send() on a Rendezvous before issuing a Start()
+call.  Idempotent Messages can also be sent after the Start() call.  If
+idempotent Messages are sent before the RendezvousReady<> event is
+received, they might be delivered multiple times or on multiple candidates.
+Non-idempotent Messages can only be sent after the RendezvousReady<> event.
 
 ~~~
 Rendezvous -> RendezvousError<msgRef, error>
