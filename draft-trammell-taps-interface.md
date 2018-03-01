@@ -831,13 +831,16 @@ transport parameters. It may itself contain an array of octets to be
 transmitted in the transport protocol payload, or be transformable to an array
 of octets by a sender-side framer (see {{send-framing}}).
 
-Messages may be arbitrarily large; however, there may be system and Protocol
-Stack dependent limits on the size of a data Object which can be transmitted
-atomically. For that reason, the Message Object passed to the Send Action may
-also be a partial Message, either representing the whole data Object and
-information about the range of bytes to send from it, or an Object referring
-back to the larger whole Message. The details of partial Message sending are
-implementation-dependent.
+Some transport protocols can deliver arbitrarily sized Messages, but other
+protocols constrain the maximum Message size. Applications can query the
+protocol property Maximum Message Size on Send to determine the maximum size.
+
+There may also be system and Protocol Stack dependent limits on the size of
+a Message which can be transmitted atomically. For that reason, the Message
+object passed to the Send action may also be a partial Message, either
+representing the whole data object and information about the range of bytes
+to send from it, or an object referring back to the larger whole Message.
+The details of partial Message sending are implementation-dependent.
 
 If Send is called on a Connection which has not yet been established, an
 Initiate Action will be implicitly performed simultaneously with the Send.
@@ -879,7 +882,7 @@ Connection -> SendError<msgRef>
 ~~~
 
 A SendError occurs when a Message could not be sent due to an error condition:
-an attempt to send a non-partial Message which is too large for the system and
+an attempt to send a Message which is too large for the system and
 Protocol Stack to handle, some failure of the underlying Protocol Stack, or a
 set of send parameters not consistent with the Connection's transport
 parameters. The SendError contains an implementation-specific reference to the
@@ -1034,7 +1037,7 @@ receive messages.
 Receive also takes an optional maxLength argument, the maximum size (in bytes
 of data) Message the application is currently prepared to receive. The default
 value for maxLength is infinite. If an incoming Message is larger than the
-minimum of this size and the maximum non-partial Message size on receive for
+minimum of this size and the maximum Message size on receive for
 the Connection's Protocol Stack, it will be received as a partial Message.
 Note that maxLength does not guarantee that the application will receive that
 many bytes if they are available; the interface may return partial Messages
@@ -1222,13 +1225,13 @@ Generic Protocol Properties include:
   sent without incurring network-layer fragmentation and/or transport layer
   segmentation at the sender. This property is read-only.
 
-* Maximum non-partial Message size on send: This numeric property represents
-  the maximum Message size that can be sent as a non-partial Message. This
+* Maximum Message size on send: This numeric property represents
+  the maximum Message size that can be sent. This
   property is read-only.
 
-* Maximum non-partial Message size on receive: This numeric property
-  represents the maximum Message size that can be received as a non-partial
-  Message. This property is read-only.
+* Maximum Message size on receive: This numeric property
+  represents the maximum Message size that can be received.
+  This property is read-only.
 
 In order to specify Specific Protocol Properties, Transport System
 implementations may offer applications to attach a set of options to the
