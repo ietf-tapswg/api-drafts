@@ -339,6 +339,56 @@ The Transport System Implementation Concepts define the set of objects used inte
 
 * Endpoint Racing: Endpoint Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on the specific representation of the Remote Endpoint and the Local Endpoint, such as IP addresses resolved from a DNS hostname.
 
+### Message Framing, Parsing, and Serialization {#framing}
+
+While some transports expose a byte stream abstraction, most higher level
+protocols impose some structure onto that byte stream. That is, the higher
+level protocol operates in terms of messages, protocol data units (PDUs),
+rather than using unstructured sequences of bytes, with each message being
+processed in turn.  Protocols are specified in terms of state machines
+acting on semantic messages, with parsing the byte stream into messages
+being a necessary annoyance, rather than a semantic concern.  Accordingly,
+the Transport Services architecture exposes messages as the primary 
+abstraction.  Protocols that deal only in byte streams, such as TCP,
+represent their data in each direction as a single, long message.  When
+framing protocols are placed on top of byte streams, the messages used in
+the API represent the framed messages within the stream.
+
+Providing a message-based abstraction also provides:
+
+* the ability to associate deadlines with messages, for transports that
+  care about timing;
+
+*  the ability to provide control of reliability, choosing what messages to
+   retransmit in the event of packet loss, and how best to make use of the
+   data that arrived;
+
+* the ability to manage dependencies between messages, when some messages
+  may not be delivered due to either packet loss or missing a deadline, in
+  particular the ability to avoid (re-)sending data that relies on a previous
+  transmission that was never received.
+
+All require explicit message boundaries, and application-level framing of
+messages, to be effective.  Once a message is passed to the transport, it
+can not be cancelled or paused, but prioritization as well as lifetime and
+retransmission management will provide the protocol stack with all needed
+information to send the messages as quickly as possible without blocking
+transmission unnecessarily. The transport services architecture facilitates
+this by handling messages, with known identity (sequence numbers, in the
+simple case), lifetimes, niceness, and antecedents.
+
+Transport protocols such as SCTP provide a message-oriented API that has
+similar features to those we describe.  Other transports, such as TCP, do
+not.  To support a message oriented API, while still being compatible with
+stream-based transport protocols, implementations of the transport services
+architecture should provide APIs for framing and de-framing messages.  That
+is, we push message framing down into the transport services API, allowing
+applications to send and receive complete messages.  This is backwards
+compatible with existing protocols and APIs, since the wire format of
+messages does not change, but gives the protocol stack additional
+information to allow it to make better use of modern transport services.
+
+
 # IANA Considerations
 
 RFC-EDITOR: Please remove this section before publication.
