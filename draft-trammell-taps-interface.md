@@ -832,13 +832,16 @@ transport parameters. It may itself contain an array of octets to be
 transmitted in the transport protocol payload, or be transformable to an array
 of octets by a sender-side framer (see {{send-framing}}).
 
-Messages may be arbitrarily large; however, there may be system and Protocol
-Stack dependent limits on the size of a data object which can be transmitted
-atomically. For that reason, the Message object passed to the Send action may
-also be a partial Message, either representing the whole data object and
-information about the range of bytes to send from it, or an object referring
-back to the larger whole Message. The details of partial Message sending are
-implementation-dependent.
+Some transport protocols can deliver arbitrarily sized Messages, but other
+protocols constrain the maximum Message size. Applications can query the
+protocol property Maximum Message Size on Send to determine the maximum size.
+
+There may also be system and Protocol Stack dependent limits on the size of
+a Message which can be transmitted atomically. For that reason, the Message
+object passed to the Send action may also be a partial Message, either
+representing the whole data object and information about the range of bytes
+to send from it, or an object referring back to the larger whole Message.
+The details of partial Message sending are implementation-dependent.
 
 If Send is called on a Connection which has not yet been established, an
 Initiate action will be implicitly performed simultaneously with the Send.
