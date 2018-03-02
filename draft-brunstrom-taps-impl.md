@@ -138,19 +138,15 @@ The Transport Services architecture {{draft-pauly-taps-arch}} defines a system t
 
 The interface exposed to applications is defined as the Transport Services API {{draft-trammell-taps-interface}}. This API is designed to be generic across multiple transport protocols and sets of protocols features. It is the job of an implementation of a Transport Services system to turn the requests of an application into decisions on how to establish connections, and how to transfer data over those connections once established.
 
-# Implementing Transport Objects
+# Implementing Basic Objects
 
-What is the basic handle an application interacts with?
+The basic objects that are exposed to application for Transport Services are the Preconnection, the bundle of properties that describes the application constraints on the transport; the Connection, the basic object that represents a flow of data in either direction between the Local and Remote Endpoints; and the Listener, a passive waiting objects that delivers new Connections.
 
-- A flow of data in either direction
+Preconnection objects should be implemented as bundles of properties that an application can both read and write. Once a Preconnection has been used to create an outbound Connection or a Listener, the implementation should ensure that the copy of the properties held by the Connection or Listener is immutable. This may involve performing a deep-copy if the application is still able to modify properties on the original Preconnection object.
 
-- For TCP, one connection is a Connection object
+Connection objects represent the interface between the application and the implementation to manage transport state, and conduct data transfer. During the process of establishment {{conn-establish}}, the Connection will be unbound to a specific transport flow, since there may be multiple candidate Protocol Stacks being raced. Once the Connection is established, the object should be considered mapped to a specific Protocol Stack. The notion of a Connection maps to many different protocols, depending on the Protocol Stack. For example, the Connection may ultimately represent the interface into a TCP connection, a TLS session over TCP, a UDP flow with fully-specified local and remote endpoints, a DTLS session, a SCTP stream, a QUIC stream, or an HTTP/2 stream.
 
-- For UDP, one set of fully-specified local and remote endpoints is a Connection object
-
-- For QUIC, one stream is a Connection object
-
-- For SCTP, one stream is a Connection object
+Listener objects are created with a Preconnection, at which point their configuration should be considered immutable by the implementation. The process of listening is described in {{listen}}.
 
 # Implementing Pre-Establishment
 
@@ -454,7 +450,7 @@ While protocols that use an explicit handshake to validate a Connection to a pee
 
 However, if a peer is not reachable over the network using the unconnected protocol, or data cannot be exchanged for any other reason, the application may want to attempt using another candidate Protocol Stack. The implementation SHOULD maintain the list of other candidate Protocol Stacks that were eligible to use. In the case that the application signals that the initial Protocol Stack is failing for some reason and that another option should be attempted, the Connection can be updated to point to the next candidate Protocol Stack. This can be viewed as an application-driven form of Protocol Stack racing.
 
-## Implementing listeners
+## Implementing listeners {#listen}
 
 When an implementation is asked to Listen, it registers with the system to wait for incoming traffic to the Local Endpoint. If no Local Endpoint is specified, the implementation should either use an ephemeral port or generate an error.
 
