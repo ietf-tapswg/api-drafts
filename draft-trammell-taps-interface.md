@@ -87,26 +87,7 @@ normative:
   I-D.ietf-taps-minset:
   I-D.ietf-tsvwg-sctp-ndata:
   I-D.ietf-tsvwg-rtcweb-qos:
-  TAPS-ARCH:
-    title: An Architecture for Transport Services
-    docname: draft-pauly-taps-arch-00
-    author:
-      -
-        ins: T. Pauly
-        role: editor
-      -
-        ins: B. Trammell
-        role: editor
-      -
-        ins: A. Brunstrom
-      -
-        ins: G. Fairhurst
-      -
-        ins: C. Perkins
-      -
-        ins: P. Tiesel
-      -
-        ins: C. Wood
+  I-D.pauly-taps-arch:
 
 informative:
   I-D.pauly-taps-transport-security:
@@ -141,7 +122,7 @@ transport protocols, is evolving. The challenges that new protocols and access
 paradigms present to the sockets API and to programming models based on them
 inspire the design principles of a new approach, which we outline in {{principles}}.
 
-As a first step to realizing this design, {{TAPS-ARCH}}
+As a first step to realizing this design, {{I-D.pauly-taps-arch}}
 describes a high-level architecture for transport services. This document
 builds a modern abstract programming interface atop this architecture,
 deriving specific path and protocol selection properties and supported
@@ -199,7 +180,7 @@ in transport parameters.
 
 # Interface Design Principles {#principles}
 
-We begin with the architectural design principles defined in {{TAPS-ARCH}};
+We begin with the architectural design principles defined in {{I-D.pauly-taps-arch}};
 from these, we derive and elaborate a set of principles on which the design of
 the interface is based. The interface defined in this document provides:
 
@@ -233,7 +214,7 @@ the interface is based. The interface defined in this document provides:
 
 The Transport Services Interface is the basic common abstract application
 programming interface to the Transport Services Architecture defined in
-{{TAPS-ARCH}}. An application primarily interacts with this interface through
+{{I-D.pauly-taps-arch}}. An application primarily interacts with this interface through
 two Objects, Preconnections and Connections. A Preconnection represents a set of
 parameters and constraints on the selection and configuration of paths and
 protocols to establish a Connection with a remote endpoint. A Connection
@@ -251,7 +232,7 @@ asynchronously through a callback registered by the application. Errors and othe
 
 In the following sections, we describe the details of application interaction
 with Objects through Actions and Events in each phase of a Connection, following
-the phases described in {{TAPS-ARCH}}.
+the phases described in {{I-D.pauly-taps-arch}}.
 
 # Pre-Establishment Phase
 
@@ -1304,7 +1285,7 @@ the Post Sockets interface, from which this work has evolved.
 # Additional Properties {#appendix-non-consensus}
 
 The interface specified by this document represents the minimal common interface
-to an endpoint in the transport services architecture {{TAPS-ARCH}}, based upon
+to an endpoint in the transport services architecture {{I-D.pauly-taps-arch}}, based upon
 that architecture and on the minimal set of transport service features
 elaborated in {{I-D.ietf-taps-minset}}. However, the interface has been designed with
 extension points to allow the implementation of features beyond those in the

@@ -87,14 +87,7 @@ informative:
           ins: Anna Brunstrom
         -
           ins: Tommy Pauly
-    draft-trammell-taps-interface:
-      title: An Abstract Application Layer Interface to Transport Services
-      url: https://taps-api.github.io/drafts/draft-trammell-taps-interface.html
-      authors:
-        -
-          ins: Brian Trammell
-        -
-          ins: Michael Welzl
+    I-D.trammell-taps-interface:
 
 --- abstract
 
@@ -108,7 +101,7 @@ Many APIs to perform transport networking have been deployed, perhaps the most w
 
 The goal of the Transport Services architecture is to provide a common, flexible, and reusable interface for transport protocols. As applications adopt this interface, they will benefit from a wide set of transport features that can evolve over time, and ensure that the system providing the interface can optimize its behavior based on the application requirements and network conditions.
 
-This document is developed in parallel with the specification of the Transport Services API {{draft-trammell-taps-interface}} and Implementation {{draft-brunstrom-taps-impl}} documents.
+This document is developed in parallel with the specification of the Transport Services API {{I-D.trammell-taps-interface}} and Implementation {{draft-brunstrom-taps-impl}} documents.
 
 # Background
 
@@ -142,7 +135,7 @@ Other specialized features, however, may be strictly required by an application 
 
 ## Scope for API and Implementation Definitions
 
-The Transport Services API is envisioned as the abstract model for a family of APIs that share a common way to expose transport features and encourage flexibility. The abstract API definition {{draft-trammell-taps-interface}} describes this interface and is aimed at application developers.
+The Transport Services API is envisioned as the abstract model for a family of APIs that share a common way to expose transport features and encourage flexibility. The abstract API definition {{I-D.trammell-taps-interface}} describes this interface and is aimed at application developers.
 
 Implementations that provide the Transport Services API {{draft-brunstrom-taps-impl}} will vary due to system-specific support and the needs of the deployment scenario. It is expected that all implementations of Transport Services will offer the entire mandatory API, but that some features will not be functional in certain implementations. All implementations must offer sufficient APIs to use the distilled minimal set of features offered by transport protocols {{I-D.ietf-taps-minset}}, including API support for TCP and UDP transport, but it is possible that some very constrained devices might not have, for example, a full TCP implementation.
 

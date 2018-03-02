@@ -83,22 +83,8 @@ author:
     email: michawe@ifi.uio.no
 
 normative:
-    draft-pauly-taps-arch:
-      title: An Architecture for Transport Services
-      url: https://taps-api.github.io/drafts/draft-pauly-taps-arch.html
-      authors:
-        -
-          ins: Tommy Pauly
-        -
-          ins: Brian Trammell
-    draft-trammell-taps-interface:
-      title: An Abstract Application Layer Interface to Transport Services
-      url: https://taps-api.github.io/drafts/draft-trammell-taps-interface.html
-      authors:
-        -
-          ins: Brian Trammell
-        -
-          ins: Michael Welzl
+    I-D.pauly-taps-arch:
+    I-D.trammell-taps-interface:
     I-D.ietf-taps-minset:
     I-D.ietf-tsvwg-rtcweb-qos:
 
@@ -128,15 +114,15 @@ informative:
 
 --- abstract
 
-The Transport Services architecture {{draft-pauly-taps-arch}} defines a system that allows applications to use transport networking protocols flexibly. This document serves as a guide to implementation on how to build a system that provides such an interface.
+The Transport Services architecture {{I-D.pauly-taps-arch}} defines a system that allows applications to use transport networking protocols flexibly. This document serves as a guide to implementation on how to build a system that provides such an interface.
 
 --- middle
 
 # Introduction
 
-The Transport Services architecture {{draft-pauly-taps-arch}} defines a system that allows applications to use transport networking protocols flexibly. This document serves as a guide to implementation on how to build a system that provides such an interface. The terminology used in this document is based on the Architecture.
+The Transport Services architecture {{I-D.pauly-taps-arch}} defines a system that allows applications to use transport networking protocols flexibly. This document serves as a guide to implementation on how to build a system that provides such an interface. The terminology used in this document is based on the Architecture.
 
-The interface exposed to applications is defined as the Transport Services API {{draft-trammell-taps-interface}}. This API is designed to be generic across multiple transport protocols and sets of protocols features. It is the job of an implementation of a Transport Services system to turn the requests of an application into decisions on how to establish connections, and how to transfer data over those connections once established.
+The interface exposed to applications is defined as the Transport Services API {{I-D.trammell-taps-interface}}. This API is designed to be generic across multiple transport protocols and sets of protocols features. It is the job of an implementation of a Transport Services system to turn the requests of an application into decisions on how to establish connections, and how to transfer data over those connections once established.
 
 # Implementing Basic Objects
 
@@ -355,10 +341,10 @@ Branching for derived endpoints is the final step, and may have multiple layers 
 
 Implementations SHOULD sort the branches of the tree of connection options in order of their preference rank. 
 Leaf nodes on branches with higher rankings represent connection attempts that will be raced first.
-Implementations SHOULD order the branches to reflect the preferences expressed by the application for its new connection, including Protocol and Path Selection Properties, which are specified in {{draft-trammell-taps-interface}} 
+Implementations SHOULD order the branches to reflect the preferences expressed by the application for its new connection, including Protocol and Path Selection Properties, which are specified in {{I-D.trammell-taps-interface}} 
 In addition to the properties provided by the application, an implementation MAY include additional criteria such as cached performance estimates, see {{performance-caches}}, or system policy, see {{role-of-system-policy}}, in the ranking.
 
-The Transport Parameters specified in {{draft-trammell-taps-interface}} may be used to sort branches in the following ways:
+The Transport Parameters specified in {{I-D.trammell-taps-interface}} may be used to sort branches in the following ways:
 
 * Interface Type:
 If the application specifies an interface type to be preferred or avoided, implementations SHOULD rank paths accordingly.
