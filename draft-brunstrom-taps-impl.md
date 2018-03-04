@@ -136,7 +136,7 @@ Listener objects are created with a Preconnection, at which point their configur
 
 # Implementing Pre-Establishment
 
-During pre-establishment the application specifies the Endpoints to be used for communication as well as its preferences regarding Protocol and Path Selection. The implementation stores these objects and properties as part of the Preconnection object for use during connection establishment. For Protocol and Path Selection Properties that are not provided by the application, the implementation MUST use the default values specified in the Transport Services API ({{I-D.trammell-taps-interface}}).
+During pre-establishment the application specifies the Endpoints to be used for communication as well as its preferences regarding Protocol and Path Selection. The implementation stores these objects and properties as part of the Preconnection object for use during connection establishment. For Protocol and Path Selection Properties that are not provided by the application, the implementation must use the default values specified in the Transport Services API ({{I-D.trammell-taps-interface}}).
   
 ## Configuration-time errors
 
@@ -328,10 +328,9 @@ Branching for derived endpoints is the final step, and may have multiple layers 
 
 Implementations should sort the branches of the tree of connection options in order of their preference rank. 
 Leaf nodes on branches with higher rankings represent connection attempts that will be raced first.
-Implementations should order the branches to reflect the preferences expressed by the application for its new connection, including Protocol and Path Selection Properties, which are specified in {{I-D.trammell-taps-interface}} 
+Implementations should order the branches to reflect the preferences expressed by the application for its new connection, including Protocol and Path Selection Properties, which are specified in {{I-D.trammell-taps-interface}}. 
 In addition to the properties provided by the application, an implementation may include additional criteria such as cached performance estimates, see {{performance-caches}}, or system policy, see {{role-of-system-policy}}, in the ranking.
-
-The Transport Parameters specified in {{I-D.trammell-taps-interface}} may be used to sort branches in the following ways:
+Two examples of how the Protocol and Path Selection Properties may be used to sort branches are provided below:
 
 * Interface Type:
 If the application specifies an interface type to be preferred or avoided, implementations should rank paths accordingly.
@@ -346,7 +345,7 @@ An implementation may use the Capacity Profile to prefer paths optimized for the
    * Scavenger/Bulk:
      Prefer paths with the highest expected available bandwidth, based on observed maximum throughput
 
-\[Note: See also {{branch-sorting-non-consensus}} for Application Intents under discussion.]
+\[Note: See {{branch-sorting-non-consensus}} for additional examples related to Properties under discussion.]
 
 ## Candidate Racing
 
@@ -400,21 +399,21 @@ If a leaf node has successfully completed its connection, all other attempts sho
 
 ### Determining Successful Establishment
 
-Implementations may select the criteria by which a leaf node is considered to be successfully connected differently on a per-protocol basis. If the only protocol being used is a transport protocol with a clear handshake, like TCP, then the obvious choice is to declare that node "connected" when the last packet of the three-way handshake has been received. If the only protocol being used is an "unconnected" protocol, like UDP, the implementation may consider the node fully "connected" the moment it determines a route is present, before sending any packets on the network {{unconnected-racing}}.
+Implementations may select the criteria by which a leaf node is considered to be successfully connected differently on a per-protocol basis. If the only protocol being used is a transport protocol with a clear handshake, like TCP, then the obvious choice is to declare that node "connected" when the last packet of the three-way handshake has been received. If the only protocol being used is an "unconnected" protocol, like UDP, the implementation may consider the node fully "connected" the moment it determines a route is present, before sending any packets on the network, see further {{unconnected-racing}}.
 
-For protocol stacks with multiple handshakes, the decision becomes more nuanced. If the protocol stack involves both TLS and TCP, an implementation may determine that a leaf node is connected after the TCP handshake is complete, or it may wait for the TLS handshake to complete as well. The benefit of declaring completion when the TCP handshake finishes, and thus stopping the race for other branches of the tree, is that there will be less burden on the network from other connection attempts. On the other hand, by waiting until the TLS handshake is complete, an implementation avoids the scenario in which a TCP handshake completes quickly, but TLS negotiation is either very slow or fails altogether in particular network conditions or to a particular endpoint.
+For protocol stacks with multiple handshakes, the decision becomes more nuanced. If the protocol stack involves both TLS and TCP, an implementation could determine that a leaf node is connected after the TCP handshake is complete, or it can wait for the TLS handshake to complete as well. The benefit of declaring completion when the TCP handshake finishes, and thus stopping the race for other branches of the tree, is that there will be less burden on the network from other connection attempts. On the other hand, by waiting until the TLS handshake is complete, an implementation avoids the scenario in which a TCP handshake completes quickly, but TLS negotiation is either very slow or fails altogether in particular network conditions or to a particular endpoint. To avoid the issue of TLS possibly failing, the implementation should not generate a Ready event for the Connection until TLS is established.
 
 If all of the leaf nodes fail to connect during racing, i.e. none of the configurations that satisfy all requirements given in the Transport Parameters actually work over the available paths, then the transport system should notify the application with an InitiateError event. An InitiateError event should also be generated in case the transport system finds no usable candidates to race.
 
 ## Establishing multiplexed connections {#establish-mux}
 
-Multiplexing data streams over a connection of a single transport Protocol Instance requires, at minimum, two things: 1) the transport Protocol Instance must be able to know the beginning and the end of messages, in order to know what to assign and multiplex / demultiplex; 2) there must be an identifier that allows to decide which stream a message is assigned to. When a new stream is multiplexed on an already existing connection, there is no need for a connection establishment procedure -- every stream can be assumed to immediately be available.
-
-When the Connections that are offered to an application by the Transport System are multiplexed,
+Multiplexing several Connections over a single underlying transport connection requires that the Connections to be multiplexed belong to the same Connection Group (as is indicated by the application using the Clone call). When the underlying transport connection supports multi-streaming, the Transport System can map each Connection in the Connection Group to a different stream. 
+Thus, when the Connections that are offered to an application by the Transport System are multiplexed,
 the Transport System may implement the establishment of a new Connection by simply beginning to use
-a new stream of an already established transport connection. This, then, means that there may not
+a new stream of an already established transport connection and there is no need for a connection establishment 
+procedure. This, then, also means that there may not
 be any "establishment" message (like a TCP SYN), but the application can simply start sending
-or receiving. Therefore, when a Transport System's "Initiate" Action is called without Messages being
+or receiving. Therefore, when the Initiate action of a Transport System is called without Messages being
 handed over, it cannot be guaranteed that the other endpoint will have any way to know about this, and hence
 a passive endpoint's ConnectionReceived event may not be called upon an active endpoint's Inititate.
 Instead, calling the ConnectionReceived event may be delayed until the first Message arrives.
