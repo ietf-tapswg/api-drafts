@@ -647,7 +647,7 @@ implement this mechanism.
 
 ## TLS
 
-The mapping of a TLS stream abstraction into the application is equivalent to the contract provided by TCP {{tcp}}. The Ready state should be determined by the completion of the TLS handshake, which involves potentially several more round trips beyond the TCP handshake. The application should not be notified that the Connection is Ready until TLS is established.
+The mapping of a TLS stream abstraction into the application is equivalent to the contract provided by TCP (see {{tcp}}). The Ready state should be determined by the completion of the TLS handshake, which involves potentially several more round trips beyond the TCP handshake. The application should not be notified that the Connection is Ready until TLS is established.
 
 ## HTTP
 
@@ -659,15 +659,15 @@ In order to use a transport Connection that provides HTTP Message support, the e
 
 QUIC provides a multi-streaming interface to an encrypted transport. Each stream can be viewed as equivalent to a TLS stream over TCP, so a natural mapping is to present each QUIC stream as an individual Connection. The protocol for the stream will be considered Ready whenever the underlying QUIC connection is established to the point that this stream's data can be sent. For streams after the first stream, this will likely be an immediate operation.
 
-Closing a single QUIC stream, presented to application as a Connection, does not imply closing the underlying QUIC connection itself. Rather, the implementation may choose to close the QUIC connection once all streams have been closed (possibly after some timeout), or after an individual stream Connection sends an Abort.
+Closing a single QUIC stream, presented to the application as a Connection, does not imply closing the underlying QUIC connection itself. Rather, the implementation may choose to close the QUIC connection once all streams have been closed (possibly after some timeout), or after an individual stream Connection sends an Abort.
 
-Messages over a direct QUIC stream should be represented similarly to the TCP stream {{tcp}} (one Message per direction), unless a framing mapping is used on top of QUIC.
+Messages over a direct QUIC stream should be represented similarly to the TCP stream (one Message per direction, see {{tcp}}), unless a framing mapping is used on top of QUIC.
 
 ## HTTP/2 transport
 
-Similar to QUIC {{quic}}, HTTP/2 provides a multi-streaming interface. This will generally use HTTP as the unit of Messages over the streams, in which each stream can be represented as a transport Connection. The lifetime of streams and the HTTP/2 connection should be managed as described for QUIC.
+Similar to QUIC ({{quic}}), HTTP/2 provides a multi-streaming interface. This will generally use HTTP as the unit of Messages over the streams, in which each stream can be represented as a transport Connection. The lifetime of streams and the HTTP/2 connection should be managed as described for QUIC.
 
-It is possible to treat each HTTP/2 stream as a raw byte-stream instead of carrier for HTTP messages, in which case the Messages over the streams can be represented similarly to the TCP stream {{tcp}} (one Message per direction).
+It is possible to treat each HTTP/2 stream as a raw byte-stream instead of a carrier for HTTP messages, in which case the Messages over the streams can be represented similarly to the TCP stream (one Message per direction, see {{tcp}}).
 
 # Rendezvous and Environment Discovery
 
