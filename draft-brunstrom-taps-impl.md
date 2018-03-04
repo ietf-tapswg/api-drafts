@@ -797,12 +797,12 @@ Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for 
 This appendix discusses implementation considerations for additional parameters and properties that could be used to enhance transport protocol and/or path selection, or the transmission of messages given a Protocol Stack that implements them.
 These are not part of the interface, and may be removed from the final document, but are presented here to support discussion within the TAPS working group as to whether they should be added to a future revision of the base specification.
 
-## Properties Effecting Sorting of Branches {#branch-sorting-non-consensus}
+## Properties Affecting Sorting of Branches {#branch-sorting-non-consensus}
 
-In addition to the Transport Parameters listed in {{branch-sorting}}, the following Transport Parameters under discussion can influence branch sorting:
+In addition to the Protocol and Path Selection Properties discussed in {{branch-sorting}}, the following properties under discussion can influence branch sorting:
 
 * Size to be Sent or Received:
-An implementation may use the Size to be Sent or Received in combination with cached performance estimates, see {{performance-caches}}, e.g. the observed Round Trip Time and the observed maximum throughput, to compute an estimate of the completion time of a transfer over different available paths. It may then prefer the path with the shorter expected completion time. This Intent may be used instead of the Capacity profile, as the application does not always know whether its transfer will be latency-bound or bandwidth-bound, and thus may not be able to specify a Capacity Profile. However, the application may know the Size to be Sent or Received from metadata, e.g., in adaptive HTTP streaming such as MPEG-DASH, or in operating system upgrades. A related paper is currently under submission.
+An implementation may use the Size to be Sent or Received in combination with cached performance estimates, see {{performance-caches}}, e.g. the observed Round Trip Time and the observed maximum throughput, to compute an estimate of the completion time of a transfer over different available paths. It may then prefer the path with the shorter expected completion time. This property may be used instead of the Capacity profile, as the application does not always know whether its transfer will be latency-bound or bandwidth-bound, and thus may not be able to specify a Capacity Profile. However, the application may know the Size to be Sent or Received from metadata, e.g., in adaptive HTTP streaming such as MPEG-DASH, or in operating system upgrades. A related paper is currently under submission.
 
 * Send / Receive Bitrate:
 If the application indicates an expected send or receive bitrate, an implementation may prefer a path that can likely provide the desired bandwidth, based on cached maximum throughput, see {{performance-caches}}. The application may know the Send or Receive Bitrate from metadata in adaptive HTTP streaming, such as MPEG-DASH.
