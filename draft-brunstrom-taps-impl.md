@@ -508,7 +508,7 @@ Maintenance encompasses changes that the application can request to a Connection
 
 ## Changing Protocol Properties
 
-Appendix A.1 of {{I-D.ietf-taps-minset}} explains, using primitives that are described in {{!RFC8303}} and {{!RFC8304}}, how to implement changing the following protocol properties of an established connection with the TCP and UDP. Below, we amend this description for other protocols (if applicable):
+Appendix A.1 of {{I-D.ietf-taps-minset}} explains, using primitives that are described in {{!RFC8303}} and {{!RFC8304}}, how to implement changing the following protocol properties of an established connection with TCP and UDP. Below, we amend this description for other protocols (if applicable):
 
 - Relative niceness: for SCTP, this can be done using the primitive CONFIGURE_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
 - Timeout for aborting Connection: for SCTP, this can be done using the primitive CHANGE_TIMEOUT.SCTP described in section 4 of {{!RFC8303}}.
@@ -521,13 +521,8 @@ It may happen that the application attempts to set a Protocol Property which doe
 
 ## Handling Path Changes
 
-When a path change occurs, the Transport Services implementation is responsible for notifying Protocol Instances in the Protocol Stack, as well as notifying the application when the path used by the Protocol Stack changes.
-
-If the Protocol Stack includes a transport protocol that supports multipath connectivity, an update to the available paths should inform the Protocol Instance of the new set of paths that are permissible based on the Path Selection Properties passed by the application. A multipath protocol can establish new subflows over new paths, and should tear down subflows over paths that are no longer available. If the Protocol Stack includes a transport protocol that does not support multipath, but support migrating between paths, the update to available paths can be used as the trigger to migrating the flow. For protocols that do not support multipath or migration, the Protocol Instances may be informed of the path change, but should not be forcibly disconnected if the previously used path becomes unavailable. An exception to this case is if the System Policy changes to prohibit traffic from the Connection based on its properties, in which case the Protocol Stack should be disconnected.
-
-The application should be notified of the currently used paths. For protocols that are multipath or migratable, the path reported to the application should report the state of the transport protocol. For protocols that do not support changing paths, the application should be notified when the path being used by the Protocol Stack becomes unavailable (implying that packets can no longer be sent), or when there is a more preferred path available than the one currently being used by the Protocol Stack.
-
-If the path changes only in terms of quality, the Protocol Stack and application should be informed in case the rate of sending can be adjusted.
+When a path change occurs, the Transport Services implementation is responsible for notifying Protocol Instances in the Protocol Stack.
+If the Protocol Stack includes a transport protocol that supports multipath connectivity, an update to the available paths should inform the Protocol Instance of the new set of paths that are permissible based on the Path Selection Properties passed by the application. A multipath protocol can establish new subflows over new paths, and should tear down subflows over paths that are no longer available. If the Protocol Stack includes a transport protocol that does not support multipath, but support migrating between paths, the update to available paths can be used as the trigger to migrating the connection. For protocols that do not support multipath or migration, the Protocol Instances may be informed of the path change, but should not be forcibly disconnected if the previously used path becomes unavailable. An exception to this case is if the System Policy changes to prohibit traffic from the Connection based on its properties, in which case the Protocol Stack should be disconnected.
 
 # Implementing Termination
 
