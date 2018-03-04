@@ -690,7 +690,7 @@ peer-to-peer Rendezvous scenarios, as follows:
   translated address of a local, on the other side of a NAT) and relayed
   locals (e.g., via a TURN server or other relay), for each interface and
   network protocol.  These are added to the set of candidate Local
-  Endpoints for this association.
+  Endpoints for this connection.
 
   Gathering locals is primarily an endpoint local operation, although it
   might involve exchanges with a STUN server to derive server reflexive
@@ -703,7 +703,7 @@ peer-to-peer Rendezvous scenarios, as follows:
   set of possible addresses that can be used for communication.  Resolving
   the Remote Endpoint is the process of recursively performing such name
   lookups, until fully resolved, to return the set of candidates for the
-  remote of this association.
+  remote of this connection.
 
   How this is done will depend on the type of the Remote Endpoint, and can
   also be specific to each Local Endpoint.  A common case is when the
