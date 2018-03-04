@@ -114,7 +114,7 @@ informative:
 
 --- abstract
 
-The Transport Services architecture {{I-D.pauly-taps-arch}} defines a system that allows applications to use transport networking protocols flexibly. This document serves as a guide to implementation on how to build a system that provides such an interface.
+The Transport Services architecture {{I-D.pauly-taps-arch}} defines a system that allows applications to use transport networking protocols flexibly. This document serves as a guide to implementation on how to build such a system.
 
 --- middle
 
