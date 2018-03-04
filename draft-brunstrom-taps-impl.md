@@ -136,41 +136,28 @@ Listener objects are created with a Preconnection, at which point their configur
 
 # Implementing Pre-Establishment
 
+During pre-establishment the application specifies the Endpoints to be used for communication as well as its preferences regarding Protocol and Path Selection. The implementation stores these objects and properties as part of the Preconnection object for use during connection establishment. For Protocol and Path Selection Properties that are not provided by the application, the implementation MUST use the default values specified in the Transport Services API ({{I-D.trammell-taps-interface}}).
+  
 ## Configuration-time errors
 
-When an application creates a new Connection, it specifies Transport Parameters reflecting its preferences regarding Protocol and Path Selection.
+The transport system should have a list of supported protocols available, which each have transport features reflecting the capabilities of the protocol. Once an application specifies its Transport Parameters, the transport system should match the required and prohibited properties against the transport features of the available protocols.
 
-The transport system should have a list of supported protocols available, which each have Transport Features reflecting the capabilities of the protocol. Once an application specifies Transport Paratemeters, the transport system should match the required and prohibited properties against the Transport Features of the available protocols.
+In the following cases, failure should be detected during pre-establishment:
 
-In the following cases the NewConnection() call should fail immediately:
-
-- The application requested Transport Parameters which include requirements or prohibitions that cannot be satisfied by any of the available protocols. For example, if an application requires "Option to configure reliability for individual Messages", but no such protocol is available on the host running the transport system, e.g., because SCTP is not supported by the operating system, this should result in an error.
-- The application requested Transport Parameters which exclude each other, i.e., the required and prohibited properties cannot be satisfied by the same protocol. For example, if an application prohibits "Reliable Data Transfer" but then requires "Configure Reliability per Message", this mismatch should result in an error.
+- The application requested Protocol Properties that include requirements or prohibitions that cannot be satisfied by any of the available protocols. For example, if an application requires "Configure Reliability per Message", but no such protocol is available on the host running the transport system, e.g., because SCTP is not supported by the operating system, this should result in an error.
+- The application requested Protocol Properties that are in conflict with each other, i.e., the required and prohibited properties cannot be satisfied by the same protocol. For example, if an application prohibits "Reliable Data Transfer" but then requires "Configure Reliability per Message", this mismatch should result in an error.
 
 It is important to fail as early as possible in such cases in order to avoid allocating resources, e.g., to endpoint resolution, only to find out later that there is no protocol that satisfies the requirements.
 
-\[The following probably belongs in later sections.]
-
-Some errors will only become apparent after Initiate() has been called and Candidate Gathering and Racing has started or after it is complete.
-
-In the following cases the Initiate() call should fail or the transport system should notify the application with an Error:
-
-- During Candidate Gathering, the transport system finds that there are no usable Candidates to Race.
-- During Candidate Racing, the transport system finds that none of the configurations that satisfy all requirements given in the Transport Parameters actually work over the available paths.
-
-In the following cases the transport system should notify the application with a Warning:
-
-- At any point, the application attempts to set a Protocol Property which does not apply to the actually chosen protocol. In this case, the transport system should fail gracefully, i.e., give a warning to the application, but not terminate the Connection.
-
 ## Role of system policy
 
-The implementation is responsible for combining and reconciling several different sources of preferences when establishing Connections. These include, but are not limited to:
+The properties specified during pre-establishment has a close connection to system policy. The implementation is responsible for combining and reconciling several different sources of preferences when establishing Connections. These include, but are not limited to:
 
 1. Application preferences, i.e., preferences specified during the pre-establishment such as Local Endpoint, Remote Endpoint, Path Selection Properties, and Protocol Selection Properties.
 2. Dynamic system policy, i.e., policy compiled from internally and externally acquired information about available network interfaces, supported transport protocols, and current/previous Connections. Examples of ways to externally retrieve policy-support information are through OS-specific statistics/measurement tools and tools that reside on middleboxes and routers.
 3. Default implementation policy, i.e., predefined policy by OS or application.
 
-In general, any protocol or path used for a connection must conform to all three sources of constraints. Any violation of any of the layers should cause a protocol or path to be considered ineligble for use. For an example of application preferences leading to constraints, an application may prohibit the use of metered network interfaces for a given Connection to avoid user cost. Similarly, the system policy at a given time may prohibit the use of such a metered network interface from the application's process. Lastly, the implementation itself may default to disallowing certain network interfaces unless explicitly requested by the application and allowed by the system.
+In general, any protocol or path used for a connection must conform to all three sources of constraints. Any violation of any of the layers should cause a protocol or path to be considered ineligible for use. For an example of application preferences leading to constraints, an application may prohibit the use of metered network interfaces for a given Connection to avoid user cost. Similarly, the system policy at a given time may prohibit the use of such a metered network interface from the application's process. Lastly, the implementation itself may default to disallowing certain network interfaces unless explicitly requested by the application and allowed by the system.
 
 It is expected that the database of system policies and the method of looking up these policies will vary across various platforms. An implementation should attempt to look up the relevant policies for the system in a dynamic way to make sure it is reflecting an accurate version of the system policy, since the system's policy regarding the application's traffic may change over time due to user or administrative changes.
 
@@ -417,6 +404,8 @@ Implementations may select the criteria by which a leaf node is considered to be
 
 For protocol stacks with multiple handshakes, the decision becomes more nuanced. If the protocol stack involves both TLS and TCP, an implementation may determine that a leaf node is connected after the TCP handshake is complete, or it may wait for the TLS handshake to complete as well. The benefit of declaring completion when the TCP handshake finishes, and thus stopping the race for other branches of the tree, is that there will be less burden on the network from other connection attempts. On the other hand, by waiting until the TLS handshake is complete, an implementation avoids the scenario in which a TCP handshake completes quickly, but TLS negotiation is either very slow or fails altogether in particular network conditions or to a particular endpoint.
 
+If all of the leaf nodes fail to connect during racing, i.e. none of the configurations that satisfy all requirements given in the Transport Parameters actually work over the available paths, then the transport system should notify the application with an InitiateError event. An InitiateError event should also be generated in case the transport system finds no usable candidates to race.
+
 ## Establishing multiplexed connections {#establish-mux}
 
 Multiplexing data streams over a connection of a single transport Protocol Instance requires, at minimum, two things: 1) the transport Protocol Instance must be able to know the beginning and the end of messages, in order to know what to assign and multiplex / demultiplex; 2) there must be an identifier that allows to decide which stream a message is assigned to. When a new stream is multiplexed on an already existing connection, there is no need for a connection establishment procedure -- every stream can be assumed to immediately be available.
@@ -529,6 +518,7 @@ Appendix A.1 of {{I-D.ietf-taps-minset}} explains, using primitives that are des
 - Required minimum coverage of the checksum for receiving: for UDP-Lite, this can be done using the primitive SET_MIN_CHECKSUM_COVERAGE.UDP-Lite described in section 4 of {{!RFC8303}}.
 - Connection group transmission scheduler: for SCTP, this can be done using the primitive SET_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
 
+It may happen that the application attempts to set a Protocol Property which does not apply to the actually chosen protocol. In this case, the implementation should fail gracefully, i.e., it may give a warning to the application, but it should not terminate the Connection.
 
 ## Handling Path Changes
 
