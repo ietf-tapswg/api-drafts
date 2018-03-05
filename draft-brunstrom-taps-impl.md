@@ -86,7 +86,6 @@ normative:
     I-D.pauly-taps-arch:
     I-D.trammell-taps-interface:
     I-D.ietf-taps-minset:
-    I-D.ietf-tsvwg-rtcweb-qos:
 
 informative:
     I-D.ietf-quic-transport:
@@ -728,7 +727,7 @@ peer-to-peer Rendezvous scenarios, as follows:
   that wins the race to be established.  Otherwise, connection
   establishment is sequential, paced at a rate that should not congest the
   network.  Depending on the chosen transport, this phase might involve
-  racing TCP connections to a server over IPv4 and IPv6 {{?RFC6555}}, or it
+  racing TCP connections to a server over IPv4 and IPv6 {{?RFC8305}}, or it
   could involve a STUN exchange to establish peer-to-peer UDP connectivity
   {{?RFC5245}}, or some other means.
 
