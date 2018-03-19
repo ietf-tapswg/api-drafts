@@ -1,7 +1,7 @@
 *.redxml
 *.txt
 *.html
-*.pdf
+draft-*.pdf
 *.upload
 .tags
 *~
