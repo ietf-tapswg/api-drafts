@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="40.475 24.066 416.862 414.674" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+  <g transform="matrix(1, 0, 0, 1, -6.858711, -12.345679)">
+    <rect x="57.27" y="44.925" width="390.947" height="28.807" style="stroke: rgb(0, 0, 0); fill: rgb(255, 255, 255);"/>
+    <text style="fill: rgb(51, 51, 51); font-size: 16px; white-space: pre;" x="213.64" y="64.808">Application</text>
+  </g>
+  <g transform="matrix(-1.000001, 0, 0, -1.000001, 490.591675, 232.455933)">
+    <line style="stroke: rgb(0, 0, 0); stroke-width: 3;" x1="84.501" y1="60.489" x2="84.501" y2="168.423"/>
+    <path d="M -84.456 -173.984 L -78.062 -156.67 L -90.851 -156.67 L -84.456 -173.984 Z" transform="matrix(-1, 0, 0, -1, 0, 0)" bx:shape="triangle -90.851 -173.984 12.789 17.314 0.5 0 1@ff5bd623"/>
+  </g>
+  <g transform="matrix(1, 0, 0, 1, 0.00026, 43)">
+    <rect x="50.411" y="126.267" width="390.947" height="67.742" style="stroke: rgb(0, 0, 0); fill: rgb(255, 255, 255);"/>
+    <text style="fill: rgb(51, 51, 51); font-size: 16px; white-space: pre;" x="65.641" y="163.184" transform="matrix(1, 0, 0, 1, -8.517088, -13.383995)">Transport<tspan x="65.64099884033203" dy="1em">​</tspan>Services<tspan x="65.64099884033203" dy="1em">​</tspan>API</text>
+  </g>
+  <rect x="50.411" y="260.622" width="390.947" height="143.179" style="stroke: rgb(0, 0, 0); fill: rgb(255, 255, 255);"/>
+  <text style="fill: rgb(51, 51, 51); font-size: 16px; white-space: pre;" x="65.641" y="163.184" transform="matrix(1, 0, 0, 1, -8.516825, 118.537643)">Implementation</text>
+  <g transform="matrix(1, 0, 0, 1, -13.990725, 280.261719)">
+    <rect x="173.907" y="107.349" width="171.937" height="31.24" style="stroke: rgb(0, 0, 0); fill: rgb(255, 255, 255);"/>
+    <rect x="177.924" y="111.767" width="171.937" height="31.24" style="stroke: rgb(0, 0, 0); fill: rgb(255, 255, 255);"/>
+    <rect x="182.791" y="117.067" width="171.937" height="31.24" style="stroke: rgb(0, 0, 0); fill: rgb(255, 255, 255);"/>
+    <text style="fill: rgb(51, 51, 51); font-size: 16px; white-space: pre;" x="203.99" y="136.451">Protocol Stack(s)</text>
+  </g>
+  <g transform="matrix(1, 0, 0, 1, 83.685852, 192.946243)">
+    <rect x="173.907" y="107.349" width="171.937" height="31.24" style="stroke: rgb(0, 0, 0); fill: rgb(255, 255, 255);"/>
+    <text style="fill: rgb(51, 51, 51); font-size: 16px; white-space: pre;" x="211.427" y="128.529">Cached State</text>
+  </g>
+  <g transform="matrix(1, 0, 0, 1, 83.685867, 232.056351)">
+    <rect x="173.907" y="107.349" width="171.937" height="31.24" style="stroke: rgb(0, 0, 0); fill: rgb(255, 255, 255);"/>
+    <text style="fill: rgb(51, 51, 51); font-size: 16px; white-space: pre;" x="209.662" y="128.529">System Policy</text>
+  </g>
+  <g>
+    <line style="stroke: rgb(0, 0, 0); stroke-width: 3;" x1="84.501" y1="60.489" x2="84.501" y2="168.423"/>
+    <path d="M -84.456 -173.984 L -78.062 -156.67 L -90.851 -156.67 L -84.456 -173.984 Z" transform="matrix(-1, 0, 0, -1, 0, 0)" bx:shape="triangle -90.851 -173.984 12.789 17.314 0.5 0 1@ff5bd623"/>
+  </g>
+  <circle style="stroke: rgb(0, 0, 0); fill: rgb(255, 255, 255);" transform="matrix(-1.387045, 0, 0, -0.840629, 710.623169, 813.491821)" cx="415.73" cy="567.826" r="49.485"/>
+  <text style="fill: rgb(51, 51, 51); font-size: 16px; white-space: pre; text-anchor: middle;" x="73.166" y="328.008" transform="matrix(1, 0, 0, 1, 60.838531, -2.253278)">Candidate <tspan x="73.16600036621094" dy="1em">​</tspan>Gathering &amp; <tspan x="73.16600036621094" dy="1em">​</tspan>Racing</text>
+  <g transform="matrix(0, -1.000001, 1.000001, 0, 96.321037, 405.019104)">
+    <line style="stroke-width: 3; stroke: rgb(144, 144, 144); fill: rgb(144, 144, 144);" x1="87.042" y1="105.234" x2="87.042" y2="168.423"/>
+    <path d="M -86.462 -173.984 L -80.068 -156.67 L -92.857 -156.67 L -86.462 -173.984 Z" transform="matrix(-1, 0, 0, -1, 0, 0)" style="stroke: rgb(144, 144, 144); fill: rgb(144, 144, 144);" bx:shape="triangle -92.857 -173.984 12.789 17.314 0.5 0 1@10202fda"/>
+    <path d="M 86.462 90.129 L 92.857 107.443 L 80.068 107.443 L 86.462 90.129 Z" style="stroke: rgb(144, 144, 144); fill: rgb(144, 144, 144);" bx:shape="triangle 80.068 90.129 12.789 17.314 0.5 0 1@8e17522a"/>
+  </g>
+  <g transform="matrix(0, -1.000001, 1.000001, 0, 96.815056, 441.78302)">
+    <line style="stroke-width: 3; stroke: rgb(144, 144, 144); fill: rgb(144, 144, 144);" x1="87.042" y1="105.234" x2="87.042" y2="168.423"/>
+    <path d="M -86.462 -173.984 L -80.068 -156.67 L -92.857 -156.67 L -86.462 -173.984 Z" transform="matrix(-1, 0, 0, -1, 0, 0)" style="stroke: rgb(144, 144, 144); fill: rgb(144, 144, 144);" bx:shape="triangle -92.857 -173.984 12.789 17.314 0.5 0 1@10202fda"/>
+    <path d="M 86.462 90.129 L 92.857 107.443 L 80.068 107.443 L 86.462 90.129 Z" style="stroke: rgb(144, 144, 144); fill: rgb(144, 144, 144);" bx:shape="triangle 80.068 90.129 12.789 17.314 0.5 0 1@8e17522a"/>
+  </g>
+  <g transform="matrix(1, 0, 0, 1, 150.487411, 220.982651)">
+    <line style="stroke: rgb(0, 0, 0); stroke-width: 3;" x1="84.501" y1="-39.081" x2="84.501" y2="168.423"/>
+    <path d="M -84.456 -173.984 L -78.062 -156.67 L -90.851 -156.67 L -84.456 -173.984 Z" transform="matrix(-1, 0, 0, -1, 0, 0)" bx:shape="triangle -90.851 -173.984 12.789 17.314 0.5 0 1@ff5bd623"/>
+  </g>
+  <g transform="matrix(1, 0, 0, 1, -13.990725, 44.216728)">
+    <rect x="152.354" y="107.349" width="216.479" height="31.24" style="stroke: rgb(0, 0, 0); fill: rgb(255, 255, 255);"/>
+    <text style="fill: rgb(51, 51, 51); font-size: 16px; white-space: pre;" x="219.419" y="128.451">Connection</text>
+  </g>
+  <g transform="matrix(1, 0, 0, 1, 76.387672, -20.665401)">
+    <line style="stroke: rgb(0, 0, 0); stroke-width: 3;" x1="84.501" y1="82.094" x2="84.501" y2="168.423"/>
+    <path d="M -84.456 -173.984 L -78.062 -156.67 L -90.851 -156.67 L -84.456 -173.984 Z" transform="matrix(-1, 0, 0, -1, 0, 0)" bx:shape="triangle -90.851 -173.984 12.789 17.314 0.5 0 1@ff5bd623"/>
+  </g>
+  <g transform="matrix(-1.000001, 0, 0, -1.000001, 331.510895, 231.041626)">
+    <line style="stroke: rgb(0, 0, 0); stroke-width: 3;" x1="86.036" y1="82.094" x2="86.036" y2="168.423"/>
+    <path d="M -85.456 -173.984 L -79.062 -156.67 L -91.851 -156.67 L -85.456 -173.984 Z" transform="matrix(-1, 0, 0, -1, 0, 0)" bx:shape="triangle -91.851 -173.984 12.789 17.314 0.5 0 1@871009ec"/>
+    <path d="M 85.456 73.025 L 91.851 90.339 L 79.062 90.339 L 85.456 73.025 Z" bx:shape="triangle 79.062 73.025 12.789 17.314 0.5 0 1@0d749193"/>
+  </g>
+  <text transform="matrix(0, -1, 1, 0, 192.65097, -139.542465)" style="fill: rgb(51, 51, 51); font-size: 12px; white-space: pre;" x="-298.998" y="-120.953">pre-establishment</text>
+  <text transform="matrix(0, -1, 1, 0, 271.894745, -159.817169)" style="fill: rgb(51, 51, 51); font-size: 12px; white-space: pre;" x="-298.998" y="-120.953">establishment</text>
+  <text transform="matrix(0, -1, 1, 0, 355.84491, -163.5354)" style="fill: rgb(51, 51, 51); font-size: 12px; white-space: pre;" x="-298.998" y="-120.953">data transfer</text>
+  <text transform="matrix(0, -1, 1, 0, 449.109985, -171.253647)" style="fill: rgb(51, 51, 51); font-size: 12px; white-space: pre;" x="-298.998" y="-120.953">termination</text>
+  <text transform="matrix(0, -1, 1, 0, 516.933044, -197.010513)" style="fill: rgb(51, 51, 51); font-size: 12px; white-space: pre;" x="-298.998" y="-120.953">events</text>
+  <g transform="matrix(1, 0, 0, 1, 251.647552, -20.502712)">
+    <line style="stroke: rgb(0, 0, 0); stroke-width: 3;" x1="84.501" y1="82.094" x2="84.501" y2="168.423"/>
+    <path d="M -84.456 -173.984 L -78.062 -156.67 L -90.851 -156.67 L -84.456 -173.984 Z" transform="matrix(-1, 0, 0, -1, 0, 0)" bx:shape="triangle -90.851 -173.984 12.789 17.314 0.5 0 1@ff5bd623"/>
+  </g>
+</svg>
