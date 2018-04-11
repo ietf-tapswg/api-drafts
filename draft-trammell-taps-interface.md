@@ -275,9 +275,6 @@ peer-to-peer Rendezvous is to occur based on the Preconnection.
 Framers (see {{send-framing}}) and deframers (see {{receive-framing}}), if
 necessary, should be bound to the Preconnection during pre-establishment.
 
-Preconnections, as Connections, can be cloned to establish Connection
-groups before Connection initiation; see {{groups}} for details.
-
 ## Specifying Endpoints {#endpointspec}
 
 The transport services API uses the Local Endpoint and Remote Endpoint types
@@ -412,12 +409,11 @@ The following properties can be used during Protocol and Path selection:
   See also {{send-idempotent}}.  This is a strict requirement. The default
   is to not have this option.
 
-* Multiplex Connections:
+* Multistream Connections in Group:
   This boolean property specifies that the application would prefer multiple
-  Connections between the same endpoints within a Connection Group to be
-  multiplexed onto a single underlying transport connection where possible,
-  for reasons of efficiency. This is not a strict requirement. The default is
-  to not have this option.
+  Connections within a Connection Group to be provided by streams of a single
+  underlying transport connection where possible. This is not a strict
+  requirement. The default is to not have this option.
 
 * Notification of excessive retransmissions:
   This boolean property specifies whether an application considers it
@@ -762,11 +758,9 @@ configure the remote.
 
 ## Connection Groups {#groups}
 
-Groups of Preconnections or Connections can be created using the Clone Action:
+Groups of Connections can be created using the Clone Action:
 
 ~~~
-Preconnection := Preconnection.Clone()
-
 Connection := Connection.Clone()
 ~~~
 
@@ -778,25 +772,19 @@ the group, and so on. Connections in a Connection Group share all their
 properties, and changing the properties on one Connection in the group changes
 the property for all others.
 
-Calling Clone on a Preconnection yields a Preconnection with the same
-parameters, which is entangled with the parent Preconnection: all the
-Connections created from entangled Preconnections will be entangled as if they
-had been cloned, and will belong to the same Connection Group.
+If the underlying Protocol Stack does not support cloning, or cannot create a
+new stream on the given Connection, then attempts to clone a connection will
+result in a CloneError:
 
-Establishing a Connection from a cloned Preconnection will not cause
-Connections for other entangled Preconnections to be established; each such
-Connection must be established separately. Changes to the parameters of a
-Preconnection entangled with a Preconnection from which a Connection has
-already been established will fail. Calling Clone on a Preconnection may be
-taken by the system an implicit signal that Protocol Stacks supporting
-multiplexed Connections for efficient Connection Grouping are preferred by the
-application.
+~~~
+Connection -> CloneError<>
+~~~
 
-There is only one Protocol Property that is not entangled, i.e., it is a
-separate per-Connection Property for individual Connections in the group:
-niceness. Niceness works as in {{send-niceness}}: when allocating available
-network capacity among Connections in a Connection Group, sends on Connections
-with higher Niceness values will be prioritized over sends on Connections with
+There is only one Protocol Property that is not entangled: niceness is kept as
+a separate per-Connection Property for individual Connections in the group.
+Niceness works as in {{send-niceness}}: when allocating available network
+capacity among Connections in a Connection Group, sends on Connections with
+higher Niceness values will be prioritized over sends on Connections with
 lower Niceness values. An ideal transport system implementation would assign
 the Connection the capacity share (M-N) x C / M, where N is the Connection's
 Niceness value, M is the maximum Niceness value used by all Connections in the
