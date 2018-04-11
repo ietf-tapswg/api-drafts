@@ -109,13 +109,13 @@ and potential transport protocols to select from.
 The BSD Unix Sockets API's SOCK_STREAM abstraction, by bringing network
 sockets into the UNIX programming model, allowing anyone who knew how to write
 programs that dealt with sequential-access files to also write network
-applications, was a revolution in simplicity. It would not be an overstatement
-to say that this simple API is the reason the Internet won the protocol wars
-of the 1980s. SOCK_STREAM is tied to the Transmission Control Protocol (TCP),
-specified in 1981 {{?RFC0793}}. TCP has scaled remarkably well over the past
-three and a half decades, but its total ubiquity has hidden an uncomfortable
-fact: the network is not really a file, and stream abstractions are too
-simplistic for many modern application programming models.
+applications, was a revolution in simplicity. The simplicity of this API is a
+key reason the Internet won the protocol wars of the 1980s. SOCK_STREAM is
+tied to the Transmission Control Protocol (TCP), specified in 1981
+{{?RFC0793}}. TCP has scaled remarkably well over the past three and a half
+decades, but its total ubiquity has hidden an uncomfortable fact: the network
+is not really a file, and stream abstractions are too simplistic for many
+modern application programming models.
 
 In the meantime, the nature of Internet access, and the variety of Internet
 transport protocols, is evolving. The challenges that new protocols and access
@@ -139,21 +139,25 @@ with these Actions and Events.
 The following notations, which can be combined, are used in this document:
 
 - An Action creates an Object:
+
 ~~~
 Object := Action()
 ~~~
 
 - An Action is performed on an Object:
+
 ~~~
 Object.Action()
 ~~~
 
 - An Object sends an Event:
+
 ~~~
 Object -> Event<>
 ~~~
 
 - An Action takes a set of Parameters; an Event contains a set of Parameters:
+
 ~~~
 Action(parameter, parameter, ...) / Event<parameter, parameter, ...>
 ~~~
@@ -171,18 +175,24 @@ interface for receiving Messages must require the application to invoke the
 Connection.Receive() Action once per Message to be received (see
 {{receiving}}).
 
-This specification treats Events and errors similarly, as errors, just as any
+This specification treats Events and errors similarly. Errors, just as any
 other Events, may occur asynchronously in network applications. However, it is
 recommended that implementations of this interface also return errors
 immediately, according to the error handling idioms of the implementation
 platform, for errors which can be immediately detected, such as inconsistency
 in transport parameters.
 
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
+"SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this
+document are to be interpreted as described in BCP 14 {{!RFC2119}} {{!RFC8174}}
+when, and only when, they appear in all capitals, as shown here.
+
 # Interface Design Principles {#principles}
 
-We begin with the architectural design principles defined in {{I-D.pauly-taps-arch}};
-from these, we derive and elaborate a set of principles on which the design of
-the interface is based. The interface defined in this document provides:
+The design of the interface specified in this document is based on a set of
+princples, themselves an elaboration on the architectural design principles
+defined in {{I-D.pauly-taps-arch}}. The interface defined in this document
+provides:
 
 - A single interface to a variety of transport protocols to be
   used in a variety of application design patterns, independent of the
@@ -265,7 +275,7 @@ peer-to-peer Rendezvous is to occur based on the Preconnection.
 Framers (see {{send-framing}}) and deframers (see {{receive-framing}}), if
 necessary, should be bound to the Preconnection during pre-establishment.
 
-Preconnections, as Connections, can be cloned, in order to establish Connection
+Preconnections, as Connections, can be cloned to establish Connection
 groups before Connection initiation; see {{groups}} for details.
 
 ## Specifying Endpoints {#endpointspec}
@@ -308,10 +318,11 @@ LocalSpecifier.WithStunServer(address, port, credentials)
 Implementations may also support additional endpoint representations and
 provide a single NewEndpoint() call that takes different endpoint representations.
 
-Multiple endpoint identifiers can be specified for each Local Endpoint
-and RemoteEndoint.  For example, a Local Endpoint could be configured with
-two interface names, or a Remote Endpoint could be specified via both IPv4
-and IPv6 addresses.  The multiple identifiers refer to the same endpoint.
+Multiple endpoint identifiers can be specified for each Local Endpoint and
+RemoteEndoint.  For example, a Local Endpoint could be configured with two
+interface names, or a Remote Endpoint could be specified via both IPv4 and
+IPv6 addresses. These multiple identifiers refer to the same transport
+endpoint.
 
 The transport services API will resolve names internally, when the Initiate(),
 Listen(), or Rendezvous() method is called establish a Connection.
@@ -332,16 +343,18 @@ configuration of the detailed operation of the selected Protocol Stacks.
 All Transport Parameters are organized within a single namespace shared with
 Send Parameters (see {{send-params}}). All transport parameters take
 paremeter-specific values. Protocol and Path Selection properties additionally
-take one of five preference levels, though not all preference levels make sense
-with all such properties. Note that it is possible for a set of specified transport
-parameters to be internally inconsistent, or for preferences to be inconsistent
-with the later use of the API by the application. Application developers should
-reduce inconsistency by only using the most stringent preference levels when
-failure to meet a preference would break the application's functionality (e.g.
-the Reliable Data Transfer preference, which is a core assumption of many
+take one of five preference levels, though not all preference levels make
+sense with all such properties.
+
+Note that it is possible for a set of specified transport parameters to be
+internally inconsistent, or for preferences to be inconsistent with the later
+use of the API by the application. Application developers can reduce
+inconsistency by only using the most stringent preference levels when failure
+to meet a preference would break the application's functionality (e.g. the
+Reliable Data Transfer preference, which is a core assumption of many
 application protocols). Implementations of this interface should also raise
-errors in configuration as early as possible, to help ensure these
-inconsistencies are caught early in the development process.
+any detected errors in configuration as early as possible, to help ensure
+these inconsistencies are caught early in the development process.
 
 The protocol(s) and path(s) selected as candidates during Connection
 establishment are determined by a set of properties. Since there could be
@@ -371,19 +384,19 @@ be implemented over UDP.
 The following properties can be used during Protocol and Path selection:
 
 * Reliable Data Transfer:
-  This boolean property specifies whether the application needs the
-  transport protocol to ensure that data is received completely and without
-  corruption on the other side. This also entails being notified when a
-  Connection is closed or aborted. This property applies to Connections and
-  Connection Groups.  This is a strict requirement. The default is to
-  enable Reliable Data Transfer.
+  This boolean property specifies whether the
+  application wishes to use a transport protocol that that provides mechanisms
+  to help ensure that all data is received and without corruption on the other
+  side. This also entails being notified when a Connection is closed or
+  aborted. This property applies to Connections and Connection Groups.  This
+  is a strict requirement. The default is to enable Reliable Data Transfer.
 
 * Preservation of data ordering:
-  This boolean property specifies whether the application needs the
-  transport protocol to assure that data is received by the application on
-  the other end in the same order as it was sent. This property applies to
-  Connections and Connection Groups. This is a strict requirement. The
-  default is to preserve data ordering.
+  This boolean property specifies whether the application wishes to use a
+  transport protocol that provides mechanisms to ensure that data is received
+  by the application on the other end in the same order as it was sent. This
+  property applies to Connections and Connection Groups. This is a strict
+  requirement. The default is to preserve data ordering.
 
 * Configure reliability on a per-Message basis:
   This boolean property specifies whether an application considers it
