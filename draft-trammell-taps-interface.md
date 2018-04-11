@@ -432,7 +432,7 @@ The following properties can be used during Protocol and Path selection:
   termination of a connection. This property applies to Connections and
   Connection Groups. Received ICMP errors will be available as SoftErrors.
   Note that even if a protocol supporting this property is selected, not all
-  ICMP errors will necessarily be properly routed, so applications cannot rely
+  ICMP errors will necessarily be delivered, so applications cannot rely
   on receiving them. This is not a strict requirement. The default is not to
   have this option.
 
