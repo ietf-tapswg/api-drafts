@@ -422,11 +422,15 @@ The following properties can be used during Protocol and Path selection:
   applies to Connections and Connection Groups. This is not a strict
   requirement. The default is to have this option.
 
-* Notification of ICMP error message arrival:
-  This boolean property specifies whether an application considers it
-  useful to be informed when an ICMP error message arrives. This property
-  applies to Connections and Connection Groups. This is not a strict
-  requirement. The default is to have this option.
+* Notification of ICMP soft error message arrival:
+  This boolean property specifies whether an application considers it useful
+  to be informed when an ICMP error message arrives that does not force
+  termination of a connection. This property applies to Connections and
+  Connection Groups. Received ICMP errors will be available as SoftErrors.
+  Note that even if a protocol supporting this property is selected, not all
+  ICMP errors will necessarily be delivered, so applications cannot rely
+  on receiving them. This is not a strict requirement. The default is not to
+  have this option.
 
 * Control checksum coverage on sending or receiving:
   This boolean property specifies whether the application considers it
@@ -1108,7 +1112,6 @@ Message := Deframer.Deframe(OctetStream, ...)
 
 # Setting and Querying of Connection Properties {#introspection}
 
-
 At any point, the application can set and query the properties of a
 Connection. Depending on the phase the Connection is in, the Connection
 properties will include different information.
@@ -1250,6 +1253,15 @@ the Connection; however, there is no guarantee that an abort will be signaled:
 
 ~~~
 Connection -> ConnectionError<>
+~~~
+
+A SoftError can inform the application about the receipt of an ICMP error
+message that does not force termination of the connection, if the underlying
+protocol stack supports access to soft errors; however, even if the underlying
+stack supports it, there is no guarantee that a soft error will be signaled.
+
+~~~
+Connection -> SoftError<>
 ~~~
 
 # IANA Considerations
