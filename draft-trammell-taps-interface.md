@@ -378,117 +378,7 @@ represent a configuration that can be implemented over TCP. An alternate set of
 default Protocol Selection Properties would represent a configuration that can
 be implemented over UDP.
 
-The following properties can be used during Protocol and Path selection:
 
-* Reliable Data Transfer:
-  This boolean property specifies whether the
-  application wishes to use a transport protocol that that provides mechanisms
-  to help ensure that all data is received and without corruption on the other
-  side. This also entails being notified when a Connection is closed or
-  aborted. This property applies to Connections and Connection Groups.  This
-  is a strict requirement. The default is to enable Reliable Data Transfer.
-
-* Preservation of data ordering:
-  This boolean property specifies whether the application wishes to use a
-  transport protocol that provides mechanisms to ensure that data is received
-  by the application on the other end in the same order as it was sent. This
-  property applies to Connections and Connection Groups. This is a strict
-  requirement. The default is to preserve data ordering.
-
-* Configure reliability on a per-Message basis:
-  This boolean property specifies whether an application considers it
-  useful to indicate its reliability requirements on a per-Message basis.
-  This property applies to Connections and Connection Groups. This is not a
-  strict requirement.  The default is to not have this option.
-
-* Use 0-RTT session establishment with an idempotent Message:
-  This boolean property specifies whether an application would like to
-  supply a Message to the transport protocol before Connection
-  establishment, which will then be reliably transferred to the other side
-  before or during Connection establishment, potentially multiple times.
-  See also {{send-idempotent}}.  This is a strict requirement. The default
-  is to not have this option.
-
-* Multistream Connections in Group:
-  This boolean property specifies that the application would prefer multiple
-  Connections within a Connection Group to be provided by streams of a single
-  underlying transport connection where possible. This is not a strict
-  requirement. The default is to not have this option.
-
-* Notification of excessive retransmissions:
-  This boolean property specifies whether an application considers it
-  useful to be informed in case sent data was retransmitted more often than
-  a certain threshold. This property
-  applies to Connections and Connection Groups. This is not a strict
-  requirement. The default is to have this option.
-
-* Notification of ICMP soft error message arrival:
-  This boolean property specifies whether an application considers it useful
-  to be informed when an ICMP error message arrives that does not force
-  termination of a connection. This property applies to Connections and
-  Connection Groups. Received ICMP errors will be available as SoftErrors.
-  Note that even if a protocol supporting this property is selected, not all
-  ICMP errors will necessarily be delivered, so applications cannot rely
-  on receiving them. This is not a strict requirement. The default is not to
-  have this option.
-
-* Control checksum coverage on sending or receiving:
-  This boolean property specifies whether the application considers it
-  useful to enable / disable / configure a checksum when sending data,
-  or decide whether to require a checksum or not when receiving data.
-  This property applies to Connections and Connection Groups. This is not a
-  strict requirement, as it signifies a reduction in reliability. The
-  default is full checksum coverage without being able to change it, and
-  requiring a checksum when receiving.
-
-* Interface Type:
-  This enumerated property specifies which kind of access network interface,
-  e.g., WiFi, Ethernet, or LTE, to prefer over others for this Connection, in
-  case they are available. In general, Interface Types should be used only with
-  the `Prefer` and `Prohibit` preference level. Specifically, using the
-  `Require` preference level for Interface Type may limit path selection in a
-  way that is detrimental to connectivity. The default is to use the default
-  interface configured in the system policy.
-
-* Capacity Profile:
-  This enumerated property specifies the application's expectation of the
-  dominating traffic pattern for this Connection. The Capacity Profile should
-  only be used with the `Prefer` preference level; other preference levels make
-  no sense for profiles. The following values are valid for Capacity Profile:
-
-  Default:
-  : The application makes no representation about its expected
-  capacity profile. No special optimizations of the tradeoff between
-  delay, delay variation, and bandwidth efficiency should be made when selecting and
-  configuring stacks.
-
-  Interactive/Low Latency:
-  : The application is interactive. Response time (latency) should be optimized at
-  the expense of bandwidth efficiency and delay variation. This can be used by
-  the system to disable the coalescing of multiple small Messages into larger
-  packets (Nagle's algorithm), to prefer lower-latency paths, signal a
-  preference for lower-latency, higher-loss treatment, and so on.
-
-  Constant Rate:
-  : The application expects to send/receive data at a constant rate after
-  Connection establishment. Delay and delay variation should be optimized at the
-  expense of bandwidth efficiency. This implies that the Connection may fail
-  if the desired rate cannot be maintained across the Path. A transport
-  may interpret this capacity profile as preferring a circuit breaker
-  {{?RFC8084}} to a rate adaptive congestion controller.
-
-  Scavenger/Bulk:
-  : The application is not interactive. It expects to send/receive a large
-  amount of data, without any urgency. This can be used to select protocol
-  stacks with scavenger transmission control, to signal a preference for
-  less-than-best-effort treatment, and so on.
-
-In addition to protocol and path selection properties, the transport parameters
-may also contain Generic and/or Specific Protocol Properties (see
-{{protocol-props}}). These properties will be passed to the selected candidate
-Protocol Stack(s) to configure them before candidate Connection establishment.
-
-### Transport Parameters Object
 
 All transport parameters used in the pre-establishment phase are collected
 in a TransportParameters Object that is passed to the Preconnection Object.
@@ -525,6 +415,126 @@ queried. See {{introspection}}.
 A Connection gets its Transport Parameters either by being explicitly configured
 via a Preconnection, or by inheriting them from an antecedent via cloning; see
 {{groups}} for more.
+
+In addition to protocol and path selection properties, the transport parameters
+may also contain Generic and/or Specific Protocol Properties (see
+{{protocol-props}}). These properties will be passed to the selected candidate
+Protocol Stack(s) to configure them before candidate Connection establishment.
+
+The following properties can be used during Protocol and Path selection:
+
+### Reliable Data Transfer {#prop-reliable}
+
+This boolean property specifies whether the application wishes to use a
+transport protocol that that provides mechanisms to help ensure that all data
+is received and without corruption on the other side. This also entails being
+notified when a Connection is closed or aborted. This property applies to
+Connections and Connection Groups.  This is a strict requirement. The default
+is to enable Reliable Data Transfer.
+
+### Preservation of data ordering {#prop-ordering}
+
+This boolean property specifies whether the application wishes to use a
+transport protocol that provides mechanisms to ensure that data is received
+by the application on the other end in the same order as it was sent. This
+property applies to Connections and Connection Groups. This is a strict
+requirement. The default is to preserve data ordering.
+
+### Configure reliability on a per-Message basis {#prop-partially-reliable}
+
+This boolean property specifies whether an application considers it
+useful to indicate its reliability requirements on a per-Message basis.
+This property applies to Connections and Connection Groups. This is not a
+strict requirement.  The default is to not have this option.
+
+### Use 0-RTT session establishment with an idempotent Message {#prop-0rtt}
+
+This boolean property specifies whether an application would like to
+supply a Message to the transport protocol before Connection
+establishment, which will then be reliably transferred to the other side
+before or during Connection establishment, potentially multiple times.
+See also {{send-idempotent}}.  This is a strict requirement. The default
+is to not have this option.
+
+### Multistream Connections in Group {#prop-multistream}
+
+This boolean property specifies that the application would prefer multiple
+Connections within a Connection Group to be provided by streams of a single
+underlying transport connection where possible. This is not a strict
+requirement. The default is to not have this option.
+
+### Notification of excessive retransmissions {#prop-retrans-notify}
+
+This boolean property specifies whether an application considers it
+useful to be informed in case sent data was retransmitted more often than
+a certain threshold. This property
+applies to Connections and Connection Groups. This is not a strict
+requirement. The default is to have this option.
+
+### Notification of ICMP soft error message arrival {#prop-soft-error}
+
+This boolean property specifies whether an application considers it useful
+to be informed when an ICMP error message arrives that does not force
+termination of a connection. This property applies to Connections and
+Connection Groups. Received ICMP errors will be available as SoftErrors.
+Note that even if a protocol supporting this property is selected, not all
+ICMP errors will necessarily be delivered, so applications cannot rely
+on receiving them. This is not a strict requirement. The default is not to
+have this option.
+
+### Control checksum coverage on sending or receiving {#prop-checksum-control}
+
+This boolean property specifies whether the application considers it
+useful to enable / disable / configure a checksum when sending data,
+or decide whether to require a checksum or not when receiving data.
+This property applies to Connections and Connection Groups. This is not a
+strict requirement, as it signifies a reduction in reliability. The
+default is full checksum coverage without being able to change it, and
+requiring a checksum when receiving.
+
+### Interface Type {#prop-intf-type}
+
+This enumerated property specifies which kind of access network interface,
+e.g., WiFi, Ethernet, or LTE, to prefer over others for this Connection, in
+case they are available. In general, Interface Types should be used only with
+the `Prefer` and `Prohibit` preference level. Specifically, using the
+`Require` preference level for Interface Type may limit path selection in a
+way that is detrimental to connectivity. The default is to use the default
+interface configured in the system policy.
+
+### Capacity Profile {#prop-cap-profile}
+
+This enumerated property specifies the application's expectation of the
+dominating traffic pattern for this Connection. The Capacity Profile should
+only be used with the `Prefer` preference level; other preference levels make
+no sense for profiles. The following values are valid for Capacity Profile:
+
+  Default:
+  : The application makes no representation about its expected
+  capacity profile. No special optimizations of the tradeoff between
+  delay, delay variation, and bandwidth efficiency should be made when selecting and
+  configuring stacks.
+
+  Interactive/Low Latency:
+  : The application is interactive. Response time (latency) should be optimized at
+  the expense of bandwidth efficiency and delay variation. This can be used by
+  the system to disable the coalescing of multiple small Messages into larger
+  packets (Nagle's algorithm), to prefer lower-latency paths, signal a
+  preference for lower-latency, higher-loss treatment, and so on.
+
+  Constant Rate:
+  : The application expects to send/receive data at a constant rate after
+  Connection establishment. Delay and delay variation should be optimized at the
+  expense of bandwidth efficiency. This implies that the Connection may fail
+  if the desired rate cannot be maintained across the Path. A transport
+  may interpret this capacity profile as preferring a circuit breaker
+  {{?RFC8084}} to a rate adaptive congestion controller.
+
+  Scavenger/Bulk:
+  : The application is not interactive. It expects to send/receive a large
+  amount of data, without any urgency. This can be used to select protocol
+  stacks with scavenger transmission control, to signal a preference for
+  less-than-best-effort treatment, and so on.
 
 ## Specifying Security Parameters and Callbacks {#security-parameters}
 
@@ -956,7 +966,7 @@ send buffer (see {{sending}}).
 
 This enumerated property specifies the application's preferred tradeoffs for
 sending this Message; it is a per-Message override of the Capacity Profile
-protocol and path selection property (see {{transport-params}}).
+protocol and path selection property (see {{prop-cap-profile}}).
 
 The following values are valid for Instantaneous Capacity Profile:
 
