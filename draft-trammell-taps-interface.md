@@ -515,16 +515,18 @@ no sense for profiles. The following values are valid for Capacity Profile:
   delay, delay variation, and bandwidth efficiency should be made when selecting and
   configuring stacks.
 
-  Interactive/Low Latency:
-  : The application is interactive. Response time (latency) should be optimized at
-  the expense of bandwidth efficiency and delay variation. This can be used by
-  the system to disable the coalescing of multiple small Messages into larger
-  packets (Nagle's algorithm), to prefer lower-latency paths, signal a
-  preference for lower-latency, higher-loss treatment, and so on.
+  Low Latency:
+  : Response time (latency) should be optimized at
+  the expense of bandwidth efficiency and delay variation when sending this
+  message. This can be used by the system to disable the coalescing of
+  multiple small Messages into larger packets (Nagle's algorithm); to prefer
+  immediate acknowledgment from the peer endpoint when supported by the
+  underlying transport; to signal a preference for lower-latency, higher-loss
+  treatment; and so on.
 
   Constant Rate:
   : The application expects to send/receive data at a constant rate after
-  Connection establishment. Delay and delay variation should be optimized at the
+  Connection establishment. Delay and delay variation should be minimized at the
   expense of bandwidth efficiency. This implies that the Connection may fail
   if the desired rate cannot be maintained across the Path. A transport
   may interpret this capacity profile as preferring a circuit breaker
@@ -953,36 +955,29 @@ by checksum. A value of 0 means that no checksum is required, and a special
 value (e.g. -1) can be used to indicate the default. Only full coverage is
 guaranteed, any other requests are advisory.
 
-### Immediate Acknowledgement {#send-ackimmed}
-
-This boolean property specifies, if true, that an application wants this
-Message to be acknowledged immediately by the receiver. In case of reliable
-transmission, this informs the transport protocol on the sender side faster
-that it can remove the Message from its buffer; therefore this property can be
-useful for latency-critical applications that maintain tight control over the
-send buffer (see {{sending}}).
-
-### Instantaneous Capacity Profile
+### Transmission Profile {#send-profile}
 
 This enumerated property specifies the application's preferred tradeoffs for
 sending this Message; it is a per-Message override of the Capacity Profile
 protocol and path selection property (see {{prop-cap-profile}}).
 
-The following values are valid for Instantaneous Capacity Profile:
+The following values are valid for Transmission Profile:
 
   Default:
   :  No special optimizations of the tradeoff between delay, delay
   variation, and bandwidth efficiency should be made when sending this message.
 
-  Interactive/Low Latency:
-  : Response time (latency) should be optimized at the
-  expense of bandwidth efficiency and delay variation when sending this message.
-  This can be used by the system to disable the coalescing of multiple small
-  Messages into larger packets (Nagle's algorithm), to signal a preference for
-  lower-latency, higher-loss treatment, and so on.
+  Low Latency:
+  : Response time (latency) should be optimized at
+  the expense of bandwidth efficiency and delay variation when sending this
+  message. This can be used by the system to disable the coalescing of
+  multiple small Messages into larger packets (Nagle's algorithm); to prefer
+  immediate acknowledgment from the peer endpoint when supported by the
+  underlying transport; to signal a preference for lower-latency, higher-loss
+  treatment; and so on.
 
   Constant Rate:
-  : Delay and delay variation should be optimized at the
+  : Delay and delay variation should be minimized at the
   expense of bandwidth efficiency.
 
   Scavenger/Bulk:
