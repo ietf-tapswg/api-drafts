@@ -328,6 +328,9 @@ Branching for derived endpoints is the final step, and may have multiple layers 
 Implementations should sort the branches of the tree of connection options in order of their preference rank. 
 Leaf nodes on branches with higher rankings represent connection attempts that will be raced first.
 Implementations should order the branches to reflect the preferences expressed by the application for its new connection, including Protocol and Path Selection Properties, which are specified in {{I-D.trammell-taps-interface}}. 
+Path Selection Properties take precedence over Protocol Selection Properties.
+
+If Protocol and Path Selection Properties contain any prohibited properties, the implementation should purge branches containing nodes with these properties.
 In addition to the properties provided by the application, an implementation may include additional criteria such as cached performance estimates, see {{performance-caches}}, or system policy, see {{role-of-system-policy}}, in the ranking.
 Two examples of how the Protocol and Path Selection Properties may be used to sort branches are provided below:
 
