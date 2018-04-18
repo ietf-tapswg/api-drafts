@@ -361,13 +361,6 @@ transport protocol selection is necessarily tied to path selection. This may
 involve choosing between multiple local interfaces that are connected to
 different access networks.
 
-In case of conflicts between protocol and path selection properties,
-path selection properties take precedence.
-For example, if an application indicates a preference for a specific path, but
-also a preference for a protocol not available on this path, the transport
-system will try the path first, so the protocol selection property might not
-have an effect.
-
 To reflect the needs of an individual Connection, they can be
 specified with five different preference levels:
 
@@ -378,6 +371,17 @@ specified with five different preference levels:
    | Ignore     | Cancel any default preference for this property                    |
    | Avoid      | Prefer protocols/paths not providing the property, proceed otherwise |
    | Prohibit   | Select only protocols/paths not providing the property, fail otherwise |
+
+Internally, the transport system will first exclude all protocols and paths
+that match a Prohibit, then only keep candidates that match a Require, then
+sort candidates according to Preferred properties, and then use Avoided
+properties as a tiebreaker.
+In case of conflicts between protocol and path selection properties,
+path selection properties take precedence.
+For example, if an application indicates a preference for a specific path, but
+also a preference for a protocol not available on this path, the transport
+system will try the path first, so the protocol selection property might not
+have an effect.
 
 An implementation of this interface must provide sensible defaults for protocol
 and path selection properties. The defaults given for each property below
