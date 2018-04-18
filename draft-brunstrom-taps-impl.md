@@ -349,6 +349,19 @@ An implementation may use the Capacity Profile to prefer paths optimized for the
 
 \[Note: See {{branch-sorting-non-consensus}} for additional examples related to Properties under discussion.]
 
+If both WiFi and LTE are available, but the application has indicated a preference for WiFi, branches will be sorted accordly, with WiFi at the top. If the application has also indicated a preference for a feature only available in SCTP, branches with SCTP will be sorted to the top within their subtree. However, if the implementation has cached the information that SCTP is not available on the path over WiFi, there is no SCTP node in the WiFi subtree.
+Here, the path over WiFi will be tried first, and, if connection establishment succeeds, TCP will be used. So the path selection property of preferring WiFi takes precedence over the protocol selection property of preferring SCTP.
+
+~~~~~~~~~~
+1. [www.example.com:80, Any, Any Stream]
+  1.1 [192.0.2.1:80, Wi-Fi, Any Stream]
+    1.1.1 [192.0.2.1:80, Wi-Fi, TCP]
+  1.2 [192.0.3.1:80, LTE, Any Stream]
+    1.2.1 [192.0.3.1:80, LTE, SCTP]
+    1.2.2 [192.0.3.1:80, LTE, TCP]
+~~~~~~~~~~
+
+
 ## Candidate Racing
 
 The primary goal of the Candidate Racing process is to successfully negotiate a protocol stack to an endpoint over an interface—to connect a single leaf node of the tree—with as little delay and as few unnecessary connections attempts as possible. Optimizing these two factors improves the user experience, while minimizing network load.
