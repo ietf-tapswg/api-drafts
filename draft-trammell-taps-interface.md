@@ -364,8 +364,9 @@ different access networks.
 In case of conflicts between protocol and path selection properties,
 path selection properties take precedence.
 For example, if an application indicates a preference for a specific path, but
-also for a protocol not available on this path, it will get the path it
-prefers, and a protocol that works on this path.
+also a preference for a protocol not available on this path, the transport
+system will try the path first, so the protocol selection property might not
+have an effect.
 
 To reflect the needs of an individual Connection, they can be
 specified with five different preference levels:
