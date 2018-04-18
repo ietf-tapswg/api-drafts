@@ -339,7 +339,7 @@ configuration of the detailed operation of the selected Protocol Stacks.
 
 All Transport Parameters are organized within a single namespace shared with
 Send Parameters (see {{send-params}}). These transport parameters take
-values of paremeter-specific types.
+values of parameter-specific types.
 
 Note that it is possible for a set of specified transport parameters to be
 internally inconsistent, or to be inconsistent with the later use of the API by the application. Application developers can reduce
@@ -505,7 +505,7 @@ requiring a checksum when receiving.
 
 ### Interface Type {#prop-intf-type}
 
-Type: Enumeration 
+Type: Tuple (Enumeration, Preference)  
 
 This property specifies which kind of access network interface,
 e.g., WiFi, Ethernet, or LTE, to prefer over others for this Connection, in
@@ -514,6 +514,7 @@ the `Prefer` and `Prohibit` preference level. Specifically, using the
 `Require` preference level for Interface Type may limit path selection in a
 way that is detrimental to connectivity. The default is to use the default
 interface configured in the system policy.
+The valid values for the access network interface kinds are implementation specific.
 
 ### Capacity Profile {#prop-cap-profile}
 
