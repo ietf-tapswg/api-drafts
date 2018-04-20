@@ -538,10 +538,9 @@ The valid values for the access network interface kinds are implementation speci
 
 Type: Enumeration 
 
-This property specifies the application's expectation of the
-dominating traffic pattern for this Connection. The Capacity Profile should
-only be used with the `Prefer` preference level; other preference levels make
-no sense for profiles. The following values are valid for Capacity Profile:
+This property specifies the application's expectation of the dominating traffic pattern for this Connection.
+This implies that the transport system should optimize for the capacity profile specified. This can influence path and protocol selection.
+The following values are valid for Capacity Profile:
 
   Default:
   : The application makes no representation about its expected
