@@ -76,13 +76,17 @@ author:
     email: cawood@apple.com
 
 informative:
+    RFC3168:
+    RFC4303:
+    RFC7413:
     RFC8095:
+    I-D.ietf-tls-tls13:
     I-D.ietf-taps-minset:
     I-D.pauly-taps-transport-security:
     draft-brunstrom-taps-impl:
       title: Implementing Interfaces to Transport Services
       url: https://taps-api.github.io/drafts/draft-brunstrom-taps-impl.html
-      authors:
+      author:
         -
           ins: Anna Brunstrom
         -
@@ -97,7 +101,18 @@ This document provides an overview of the architecture of Transport Services, a 
 
 # Introduction
 
-Many APIs to perform transport networking have been deployed, perhaps the most widely known and imitated being the BSD socket() interface. The names and functions between these APIs are not consistent, and vary depending on the protocol being used. For example, sending and receiving on a stream of data is conceptually the same between operating on an unencrypted TCP stream and operating on an encrypted TLS stream over TCP, but applications cannot use the same socket send() and recv() calls on top of both kinds of connections. Similarly, terminology for the implementation of protocols offering transport services vary based on the context of the protocols themselves. This variety can lead to confusion when trying to understand the similarities and differences between protocols, and how applications can use them effectively.
+Many APIs to perform transport networking have been deployed, perhaps the most
+widely known and imitated being the BSD socket() interface. The names and
+functions between these APIs are not consistent, and vary depending on the
+protocol being used. For example, sending and receiving on a stream of data is
+conceptually the same between operating on an unencrypted Transmission Control
+Protocol (TCP) stream and operating on an encrypted Transport Layer Security
+(TLS) {{I-D.ietf-tls-tls13}} stream over TCP, but applications cannot use
+the same socket send() and recv() calls on top of both kinds of connections.
+Similarly, terminology for the implementation of protocols offering transport
+services vary based on the context of the protocols themselves. This variety
+can lead to confusion when trying to understand the similarities and
+differences between protocols, and how applications can use them effectively.
 
 The goal of the Transport Services architecture is to provide a common, flexible, and reusable interface for transport protocols. As applications adopt this interface, they will benefit from a wide set of transport features that can evolve over time, and ensure that the system providing the interface can optimize its behavior based on the application requirements and network conditions.
 
@@ -115,7 +130,7 @@ One of the key insights to come from identifying the minimal set of features pro
 
 The goal of the Transport Services architecture is to redefine the interface between applications and transports in a way that allows the transport layer to evolve and improve without fundamentally changing the contract with the application. This requires a careful consideration of how to expose the capabilities of protocols.
 
-There are several degrees in which a Transport Services system can offer flexibility to an application: it can provide access to multiple sets of protocols and protocol features, it can use these protocols across multiple paths that may have different performance and functional characteristics, and it can communicate with different Remote Endpoints to optimize performance. Beyond these, if the API for the system remains the same over time, new protocols and features may be added to the system's implementation without requiring significant changes in applications for adoption.
+There are several degrees in which a Transport Services system can offer flexibility to an application: it can provide access to multiple sets of protocols and protocol features, it can use these protocols across multiple paths that may have different performance and functional characteristics, and it can communicate with different Remote Endpoints to optimize performance. Beyond these, if the API for the system remains the same over time, new protocols and features may be added to the system's implementation without requiring changes in applications for adoption.
 
 The following considerations were used in the design of this architecture.
 
@@ -341,7 +356,7 @@ rather than using unstructured sequences of bytes, with each message being
 processed in turn.  Protocols are specified in terms of state machines
 acting on semantic messages, with parsing the byte stream into messages
 being a necessary annoyance, rather than a semantic concern.  Accordingly,
-the Transport Services architecture exposes messages as the primary 
+the Transport Services architecture exposes messages as the primary
 abstraction.  Protocols that deal only in byte streams, such as TCP,
 represent their data in each direction as a single, long message.  When
 framing protocols are placed on top of byte streams, the messages used in
@@ -390,7 +405,27 @@ This document has no actions for IANA.
 
 # Security Considerations
 
-The Transport Services architecture does not recommend use of specific security protocols or algorithms. Its goal is to offer ease of use for existing protocols by providing a generic security-related interface. Each provided interface mimics an existing protocol-specific interface provided by supported security protocols. For example, trust verification callbacks are common parts of TLS APIs. Transport Services APIs will expose similar functionality. Clients must take care to use security APIs appropriately. In cases where clients use said interface to provide sensitive keying material, e.g., access to private keys or copies of pre-shared keys (PSKs), key use must be validated. For example, clients should not use PSK material created for ESP with IETF-QUIC, and clients must not use private keys intended for server authentication as a key for client authentication. Moreover, unlike certain transport features such as TFO or ECN which can fall back to standard configurations, Transport Services systems must not permit fallback for security protocols. For example, if a client requests TLS, yet TLS or the desired version are not available, its connection must fail. Clients are responsible for implementing protocol or version fallback using a Transport Services API if so desired.
+The Transport Services architecture does not recommend use of specific
+security protocols or algorithms. Its goal is to offer ease of use for
+existing protocols by providing a generic security-related interface. Each
+provided interface mimics an existing protocol-specific interface provided by
+supported security protocols. For example, trust verification callbacks are
+common parts of TLS APIs. Transport Services APIs will expose similar
+functionality.
+
+Clients must take care to use security APIs appropriately. In cases where
+clients use said interface to provide sensitive keying material, e.g., access
+to private keys or copies of pre-shared keys (PSKs), key use must be
+validated. For example, clients should not use PSK material created for the
+Encapsulating Security Protocol (ESP, part of IPsec) {{RFC4303}} with QUIC, and clients
+must not use private keys intended for server authentication as a keys for
+client authentication. Moreover, unlike certain transport features such as TCP
+Fast Open (TFO) {{RFC7413}} or Explicit Congestion Notification (ECN)
+{{RFC3168}} which can fall back to standard configurations, Transport
+Services systems must not permit fallback for security protocols. For example,
+if a client requests TLS, yet TLS or the desired version are not available,
+its connection must fail. Clients are responsible for implementing protocol or
+version fallback using a Transport Services API if so desired.
 
 # Acknowledgements
 
