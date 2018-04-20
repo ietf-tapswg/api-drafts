@@ -483,11 +483,14 @@ requirement. The default is to not have this option.
 
 Type: Boolean
 
-This property specifies whether an application considers it
-useful to be informed in case sent data was retransmitted more often than
-a certain threshold. This property
-applies to Connections and Connection Groups. This is not a strict
-requirement. The default is to have this option.
+This property specifies whether an application considers it useful to be informed in case sent data was retransmitted more often than a certain threshold.
+When set to true, the effect is twofold: 
+The application may receive events in case excessive retransmissions. 
+In addition, the transport system considers this as a preference to use transports stacks that can provide this notification. This is not a strict requirement.
+If set to false, no notification of excessive retransmissions will be sent and this transport feature is ignored for protocol selection.
+
+This property applies to Connections and Connection Groups.
+The default is to have this option.
 
 ### Notification of ICMP soft error message arrival {#prop-soft-error}
 
@@ -495,12 +498,16 @@ Type: Boolean
 
 This property specifies whether an application considers it useful
 to be informed when an ICMP error message arrives that does not force
-termination of a connection. This property applies to Connections and
-Connection Groups. Received ICMP errors will be available as SoftErrors.
+termination of a connection. 
+When set to true, received ICMP errors will be available as SoftErrors.
 Note that even if a protocol supporting this property is selected, not all
 ICMP errors will necessarily be delivered, so applications cannot rely
-on receiving them. This is not a strict requirement. The default is not to
-have this option.
+on receiving them. 
+Setting this option also implies a preference to prefer transports stacks that can provide this notification.
+If not set, no events will be sent for ICMP soft error message and this transport feature is ignored for protocol selection.
+
+This property applies to Connections and Connection Groups.
+The default is not to have this option.
 
 ### Control checksum coverage on sending or receiving {#prop-checksum-control}
 
