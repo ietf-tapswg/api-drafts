@@ -357,7 +357,7 @@ endpoints that support only specific network addresses or transports,
 transport protocol selection is necessarily tied to path selection. This may
 involve choosing between multiple local interfaces that are connected to
 different access networks.
-Conflicts between protocol and path selection properties should be resolved if possible in a way  that path selection properties take precedence.
+
 The type of most  Protocol and Path Selection properties is "preference" and has
 with five different preference levels:
 
