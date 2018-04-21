@@ -995,6 +995,21 @@ The following values are valid for Transmission Profile:
   : This Message may be sent at the system's leisure. This can
   be used to signal a preference for less-than-best-effort treatment, to delay
   sending until lower-cost paths are available, and so on.
+  
+## Batching Sends {#send-batching}
+
+In order to reduce the overhead of sending multiple small Messages on a Connection, the
+application may want to batch several Send actions together. This provides a hint to
+the system that the sending of these Messages should be coalesced when possible,
+and that sending any of the batched Messages may be delayed until the last Message
+in the batch is enqueued.
+
+~~~
+Connection.Batch(
+	Connection.Send(Message, sendParameters)
+	Connection.Send(Message, sendParameters)
+)
+~~~
 
 ## Sender-side Framing {#send-framing}
 
