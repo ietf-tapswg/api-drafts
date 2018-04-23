@@ -338,14 +338,11 @@ selection parameters, as well as Generic and Specific Protocol Properties for
 configuration of the detailed operation of the selected Protocol Stacks.
 
 All Transport Parameters are organized within a single namespace shared with
-Send Parameters (see {{send-params}}). All transport parameters take
-paremeter-specific values. Protocol and Path Selection properties additionally
-take one of five preference levels, though not all preference levels make
-sense with all such properties.
+Send Parameters (see {{send-params}}). These transport parameters take
+values of parameter-specific types.
 
 Note that it is possible for a set of specified transport parameters to be
-internally inconsistent, or for preferences to be inconsistent with the later
-use of the API by the application. Application developers can reduce
+internally inconsistent, or to be inconsistent with the later use of the API by the application. Application developers can reduce
 inconsistency by only using the most stringent preference levels when failure
 to meet a preference would break the application's functionality (e.g. the
 Reliable Data Transfer preference, which is a core assumption of many
@@ -361,8 +358,8 @@ transport protocol selection is necessarily tied to path selection. This may
 involve choosing between multiple local interfaces that are connected to
 different access networks.
 
-To reflect the needs of an individual Connection, they can be
-specified with five different preference levels:
+The type of most  Protocol and Path Selection properties is "preference" and has
+with five different preference levels:
 
    | Preference | Effect                                                             |
    |------------|--------------------------------------------------------------------|
@@ -388,8 +385,6 @@ and path selection properties. The defaults given for each property below
 represent a configuration that can be implemented over TCP. An alternate set of
 default Protocol Selection Properties would represent a configuration that can
 be implemented over UDP.
-
-
 
 All transport parameters used in the pre-establishment phase are collected
 in a TransportParameters Object that is passed to the Preconnection Object.
@@ -436,7 +431,9 @@ The following properties can be used during Protocol and Path selection:
 
 ### Reliable Data Transfer {#prop-reliable}
 
-This boolean property specifies whether the application wishes to use a
+Type: Preference
+
+This property specifies whether the application wishes to use a
 transport protocol that that provides mechanisms to help ensure that all data
 is received and without corruption on the other side. This also entails being
 notified when a Connection is closed or aborted. This property applies to
@@ -445,7 +442,9 @@ is to enable Reliable Data Transfer.
 
 ### Preservation of data ordering {#prop-ordering}
 
-This boolean property specifies whether the application wishes to use a
+Type: Preference
+
+This property specifies whether the application wishes to use a
 transport protocol that provides mechanisms to ensure that data is received
 by the application on the other end in the same order as it was sent. This
 property applies to Connections and Connection Groups. This is a strict
@@ -453,14 +452,18 @@ requirement. The default is to preserve data ordering.
 
 ### Configure reliability on a per-Message basis {#prop-partially-reliable}
 
-This boolean property specifies whether an application considers it
+Type: Preference
+
+This property specifies whether an application considers it
 useful to indicate its reliability requirements on a per-Message basis.
 This property applies to Connections and Connection Groups. This is not a
 strict requirement.  The default is to not have this option.
 
 ### Use 0-RTT session establishment with an idempotent Message {#prop-0rtt}
 
-This boolean property specifies whether an application would like to
+Type: Preference
+
+This property specifies whether an application would like to
 supply a Message to the transport protocol before Connection
 establishment, which will then be reliably transferred to the other side
 before or during Connection establishment, potentially multiple times.
@@ -469,33 +472,48 @@ is to not have this option.
 
 ### Multistream Connections in Group {#prop-multistream}
 
-This boolean property specifies that the application would prefer multiple
+Type: Preference
+
+This property specifies that the application would prefer multiple
 Connections within a Connection Group to be provided by streams of a single
 underlying transport connection where possible. This is not a strict
 requirement. The default is to not have this option.
 
 ### Notification of excessive retransmissions {#prop-retrans-notify}
 
-This boolean property specifies whether an application considers it
-useful to be informed in case sent data was retransmitted more often than
-a certain threshold. This property
-applies to Connections and Connection Groups. This is not a strict
-requirement. The default is to have this option.
+Type: Boolean
+
+This property specifies whether an application considers it useful to be informed in case sent data was retransmitted more often than a certain threshold.
+When set to true, the effect is twofold: 
+The application may receive events in case excessive retransmissions. 
+In addition, the transport system considers this as a preference to use transports stacks that can provide this notification. This is not a strict requirement.
+If set to false, no notification of excessive retransmissions will be sent and this transport feature is ignored for protocol selection.
+
+This property applies to Connections and Connection Groups.
+The default is to have this option.
 
 ### Notification of ICMP soft error message arrival {#prop-soft-error}
 
-This boolean property specifies whether an application considers it useful
+Type: Boolean 
+
+This property specifies whether an application considers it useful
 to be informed when an ICMP error message arrives that does not force
-termination of a connection. This property applies to Connections and
-Connection Groups. Received ICMP errors will be available as SoftErrors.
+termination of a connection. 
+When set to true, received ICMP errors will be available as SoftErrors.
 Note that even if a protocol supporting this property is selected, not all
 ICMP errors will necessarily be delivered, so applications cannot rely
-on receiving them. This is not a strict requirement. The default is not to
-have this option.
+on receiving them. 
+Setting this option also implies a preference to prefer transports stacks that can provide this notification.
+If not set, no events will be sent for ICMP soft error message and this transport feature is ignored for protocol selection.
+
+This property applies to Connections and Connection Groups.
+The default is not to have this option.
 
 ### Control checksum coverage on sending or receiving {#prop-checksum-control}
 
-This boolean property specifies whether the application considers it
+Type: Preference
+
+This property specifies whether the application considers it
 useful to enable / disable / configure a checksum when sending data,
 or decide whether to require a checksum or not when receiving data.
 This property applies to Connections and Connection Groups. This is not a
@@ -505,20 +523,24 @@ requiring a checksum when receiving.
 
 ### Interface Type {#prop-intf-type}
 
-This enumerated property specifies which kind of access network interface,
+Type: Tuple (Enumeration, Preference)  
+
+This property specifies which kind of access network interface,
 e.g., WiFi, Ethernet, or LTE, to prefer over others for this Connection, in
 case they are available. In general, Interface Types should be used only with
 the `Prefer` and `Prohibit` preference level. Specifically, using the
 `Require` preference level for Interface Type may limit path selection in a
 way that is detrimental to connectivity. The default is to use the default
 interface configured in the system policy.
+The valid values for the access network interface kinds are implementation specific.
 
 ### Capacity Profile {#prop-cap-profile}
 
-This enumerated property specifies the application's expectation of the
-dominating traffic pattern for this Connection. The Capacity Profile should
-only be used with the `Prefer` preference level; other preference levels make
-no sense for profiles. The following values are valid for Capacity Profile:
+Type: Enumeration 
+
+This property specifies the application's expectation of the dominating traffic pattern for this Connection.
+This implies that the transport system should optimize for the capacity profile specified. This can influence path and protocol selection.
+The following values are valid for Capacity Profile:
 
   Default:
   : The application makes no representation about its expected
