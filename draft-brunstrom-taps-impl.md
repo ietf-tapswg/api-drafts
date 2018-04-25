@@ -492,6 +492,12 @@ The effect of the application sending a Message is determined by the top-level p
 
 \[Note: See also {{send-params-non-consensus}} for additional Send Parameters under discussion.]
 
+#### Sending content with UDP
+
+The UDP Send Primitives described in section 3.1 of {{RFC8304}} allow applications to send data with either an explicit destination for each packet or the option to bind the destination address for each send call to a single host. The UDP send primitive also offers applications the ability to set a range of IP options which are required to build applications that can use the network effectivly. Implementation MUST expose these mechanisms or provide services to implement their transport features. 
+
+Implementations should consider the advice in the UDP Usage Guidlines (RFC8085) and create a 'connect' style for each UDP Connection object. 
+
 #### Send Completion
 
 The application should be notified whenever a Message or partial Message has been consumed by the Protocol Stack, or has failed to send. The meaning of the Message being consumed by the stack may vary depending on the protocol. For a basic datagram protocol like UDP, this may correspond to the time when the packet is sent into the interface driver. For a protocol that buffers data in queues, like TCP, this may correspond to when the data has entered the send buffer.
