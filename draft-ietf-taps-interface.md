@@ -1,7 +1,7 @@
 ---
 title: An Abstract Application Layer Interface to Transport Services
 abbrev: TAPS Interface
-docname: draft-trammell-taps-interface-latest
+docname: draft-ietf-taps-interface-latest
 date:
 category: info
 
@@ -484,8 +484,8 @@ requirement. The default is to not have this option.
 Type: Boolean
 
 This property specifies whether an application considers it useful to be informed in case sent data was retransmitted more often than a certain threshold.
-When set to true, the effect is twofold: 
-The application may receive events in case excessive retransmissions. 
+When set to true, the effect is twofold:
+The application may receive events in case excessive retransmissions.
 In addition, the transport system considers this as a preference to use transports stacks that can provide this notification. This is not a strict requirement.
 If set to false, no notification of excessive retransmissions will be sent and this transport feature is ignored for protocol selection.
 
@@ -494,15 +494,15 @@ The default is to have this option.
 
 ### Notification of ICMP soft error message arrival {#prop-soft-error}
 
-Type: Boolean 
+Type: Boolean
 
 This property specifies whether an application considers it useful
 to be informed when an ICMP error message arrives that does not force
-termination of a connection. 
+termination of a connection.
 When set to true, received ICMP errors will be available as SoftErrors.
 Note that even if a protocol supporting this property is selected, not all
 ICMP errors will necessarily be delivered, so applications cannot rely
-on receiving them. 
+on receiving them.
 Setting this option also implies a preference to prefer transports stacks that can provide this notification.
 If not set, no events will be sent for ICMP soft error message and this transport feature is ignored for protocol selection.
 
@@ -523,7 +523,7 @@ requiring a checksum when receiving.
 
 ### Interface Type {#prop-intf-type}
 
-Type: Tuple (Enumeration, Preference)  
+Type: Tuple (Enumeration, Preference)
 
 This property specifies which kind of access network interface,
 e.g., WiFi, Ethernet, or LTE, to prefer over others for this Connection, in
@@ -536,7 +536,7 @@ The valid values for the access network interface kinds are implementation speci
 
 ### Capacity Profile {#prop-cap-profile}
 
-Type: Enumeration 
+Type: Enumeration
 
 This property specifies the application's expectation of the dominating traffic pattern for this Connection.
 This implies that the transport system should optimize for the capacity profile specified. This can influence path and protocol selection.
@@ -1017,7 +1017,7 @@ The following values are valid for Transmission Profile:
   : This Message may be sent at the system's leisure. This can
   be used to signal a preference for less-than-best-effort treatment, to delay
   sending until lower-cost paths are available, and so on.
-  
+
 ## Batching Sends {#send-batching}
 
 In order to reduce the overhead of sending multiple small Messages on a Connection, the
@@ -1028,8 +1028,8 @@ in the batch is enqueued.
 
 ~~~
 Connection.Batch(
-	Connection.Send(Message, sendParameters)
-	Connection.Send(Message, sendParameters)
+    Connection.Send(Message, sendParameters)
+    Connection.Send(Message, sendParameters)
 )
 ~~~
 

@@ -4,15 +4,15 @@ This is the working area for individual Internet-Drafts.
 
 ## Architecture
 
-* [Editor's Copy](https://taps-api.github.io/drafts/#go.draft-pauly-taps-arch.html)
-* [Individual Draft](https://tools.ietf.org/html/draft-pauly-taps-arch)
-* [Compare Editor's Copy to Individual Draft](https://taps-api.github.io/drafts/#go.draft-pauly-taps-arch.diff)
+* [Editor's Copy](https://taps-api.github.io/drafts/#go.draft-ietf-taps-arch.html)
+* [Individual Draft](https://tools.ietf.org/html/draft-ietf-taps-arch)
+* [Compare Editor's Copy to Individual Draft](https://taps-api.github.io/drafts/#go.draft-ietf-taps-arch.diff)
 
 ## API
 
-* [Editor's Copy](https://taps-api.github.io/drafts/#go.draft-trammell-taps-interface.html)
-* [Individual Draft](https://tools.ietf.org/html/draft-trammell-taps-interface)
-* [Compare Editor's Copy to Individual Draft](https://taps-api.github.io/drafts/#go.draft-trammell-taps-interface.diff)
+* [Editor's Copy](https://taps-api.github.io/drafts/#go.draft-ietf-taps-interface.html)
+* [Individual Draft](https://tools.ietf.org/html/draft-ietf-taps-interface)
+* [Compare Editor's Copy to Individual Draft](https://taps-api.github.io/drafts/#go.draft-ietf-taps-interface.diff)
 
 ## Implementation
 
