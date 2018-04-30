@@ -1028,8 +1028,8 @@ in the batch is enqueued.
 
 ~~~
 Connection.Batch(
-	Connection.Send(Message, sendParameters)
-	Connection.Send(Message, sendParameters)
+    Connection.Send(Message, sendParameters)
+    Connection.Send(Message, sendParameters)
 )
 ~~~
 
