@@ -1,7 +1,7 @@
 ---
 title: An Architecture for Transport Services
 abbrev: TAPS Architecture
-docname: draft-pauly-taps-arch-latest
+docname: draft-ietf-taps-arch-latest
 date:
 category: info
 
