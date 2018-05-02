@@ -359,7 +359,7 @@ involve choosing between multiple local interfaces that are connected to
 different access networks.
 
 The type of most  Protocol and Path Selection properties is "preference" and has
-with five different preference levels:
+five different preference levels:
 
    | Preference | Effect                                                             |
    |------------|--------------------------------------------------------------------|
