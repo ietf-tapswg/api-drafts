@@ -16,9 +16,9 @@ This is the working area for individual Internet-Drafts.
 
 ## Implementation
 
-* [Editor's Copy](https://taps-api.github.io/drafts/#go.draft-brunstrom-taps-impl.html)
-* [Individual Draft](https://tools.ietf.org/html/draft-brunstrom-taps-impl)
-* [Compare Editor's Copy to Individual Draft](https://taps-api.github.io/drafts/#go.draft-brunstrom-taps-impl.diff)
+* [Editor's Copy](https://taps-api.github.io/drafts/#go.draft-ietf-taps-impl.html)
+* [Individual Draft](https://tools.ietf.org/html/draft-ietf-taps-impl)
+* [Compare Editor's Copy to Individual Draft](https://taps-api.github.io/drafts/#go.draft-ietf-taps-impl.diff)
 
 
 ## Building the Draft
