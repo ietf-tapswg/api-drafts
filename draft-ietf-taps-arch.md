@@ -82,17 +82,9 @@ informative:
     RFC8095:
     I-D.ietf-tls-tls13:
     I-D.ietf-taps-minset:
-    I-D.pauly-taps-transport-security:
-    draft-brunstrom-taps-impl:
-      title: Implementing Interfaces to Transport Services
-      url: https://taps-api.github.io/drafts/draft-brunstrom-taps-impl.html
-      author:
-        -
-          ins: Anna Brunstrom
-        -
-          ins: Tommy Pauly
-    I-D.trammell-taps-interface:
-
+    I-D.ietf-taps-interface:
+    I-D.ietf-taps-impl:
+    I-D.ietf-taps-transport-security:
 --- abstract
 
 This document provides an overview of the architecture of Transport Services, a system for exposing the features of transport protocols to applications. This architecture serves as a basis for Application Programming Interfaces (APIs) and implementations that provide flexible transport networking services. It defines the common set of terminology and concepts to be used in more detailed discussion of Transport Services.
@@ -116,13 +108,13 @@ differences between protocols, and how applications can use them effectively.
 
 The goal of the Transport Services architecture is to provide a common, flexible, and reusable interface for transport protocols. As applications adopt this interface, they will benefit from a wide set of transport features that can evolve over time, and ensure that the system providing the interface can optimize its behavior based on the application requirements and network conditions.
 
-This document is developed in parallel with the specification of the Transport Services API {{I-D.trammell-taps-interface}} and Implementation {{draft-brunstrom-taps-impl}} documents.
+This document is developed in parallel with the specification of the Transport Services API {{I-D.ietf-taps-interface}} and Implementation {{I-D.ietf-taps-impl}} documents.
 
 # Background
 
 The Transport Services architecture is based on the survey of Services Provided by IETF Transport Protocols and Congestion Control Mechanisms {{RFC8095}}, and the distilled minimal set of the features offered by transport protocols {{I-D.ietf-taps-minset}}. This work has identified common features and patterns across all transport protocols developed thus far in the IETF.
 
-Since transport security is an increasingly relevant aspect of using transport protocols on the Internet, this architecture also considers the impact of transport security protocols on the feature set exposed by transport services {{I-D.pauly-taps-transport-security}}.
+Since transport security is an increasingly relevant aspect of using transport protocols on the Internet, this architecture also considers the impact of transport security protocols on the feature set exposed by transport services {{I-D.ietf-taps-transport-security}}.
 
 One of the key insights to come from identifying the minimal set of features provided by transport protocols {{I-D.ietf-taps-minset}} was that features either require application interaction and guidance (referred to as Functional Features), or else can be handled automatically by a system implementing Transport Services (referred to as Automatable Features). Among the Functional Features, some were common across all or nearly all transport protocols, while others could be seen as features that, if specified, would only be useful with a subset of protocols, or perhaps even a single transport protocol, but would not harm the functionality of other protocols. For example, some protocols can deliver messages faster for applications that do not require them to arrive in the order in which they were sent. However, this functionality must be explicitly allowed by the application, since reordering messages would be undesirable in many cases.
 
@@ -150,9 +142,9 @@ Other specialized features, however, may be strictly required by an application 
 
 ## Scope for API and Implementation Definitions
 
-The Transport Services API is envisioned as the abstract model for a family of APIs that share a common way to expose transport features and encourage flexibility. The abstract API definition {{I-D.trammell-taps-interface}} describes this interface and is aimed at application developers.
+The Transport Services API is envisioned as the abstract model for a family of APIs that share a common way to expose transport features and encourage flexibility. The abstract API definition {{I-D.ietf-taps-interface}} describes this interface and is aimed at application developers.
 
-Implementations that provide the Transport Services API {{draft-brunstrom-taps-impl}} will vary due to system-specific support and the needs of the deployment scenario. It is expected that all implementations of Transport Services will offer the entire mandatory API, but that some features will not be functional in certain implementations. All implementations must offer sufficient APIs to use the distilled minimal set of features offered by transport protocols {{I-D.ietf-taps-minset}}, including API support for TCP and UDP transport, but it is possible that some very constrained devices might not have, for example, a full TCP implementation.
+Implementations that provide the Transport Services API {{I-D.ietf-taps-impl}} will vary due to system-specific support and the needs of the deployment scenario. It is expected that all implementations of Transport Services will offer the entire mandatory API, but that some features will not be functional in certain implementations. All implementations must offer sufficient APIs to use the distilled minimal set of features offered by transport protocols {{I-D.ietf-taps-minset}}, including API support for TCP and UDP transport, but it is possible that some very constrained devices might not have, for example, a full TCP implementation.
 
 In order to preserve flexibility and compatibility with future protocols, top-level features in the Transport Services API should avoid referencing particular transport protocols. Mappings of these API features in the Implementation document, on the other hand, must explain the ramifications of each feature on existing protocols. It is expected that the Implementation document will be updated and supplemented as new protocols and protocol features are developed.
 

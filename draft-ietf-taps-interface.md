@@ -87,10 +87,10 @@ normative:
   I-D.ietf-taps-minset:
   I-D.ietf-tsvwg-sctp-ndata:
   I-D.ietf-tsvwg-rtcweb-qos:
-  I-D.pauly-taps-arch:
+  I-D.ietf-taps-arch:
 
 informative:
-  I-D.pauly-taps-transport-security:
+  I-D.ietf-taps-transport-security:
 
 --- abstract
 
@@ -122,7 +122,7 @@ transport protocols, is evolving. The challenges that new protocols and access
 paradigms present to the sockets API and to programming models based on them
 inspire the design principles of a new approach, which we outline in {{principles}}.
 
-As a first step to realizing this design, {{I-D.pauly-taps-arch}}
+As a first step to realizing this design, {{I-D.ietf-taps-arch}}
 describes a high-level architecture for transport services. This document
 builds a modern abstract programming interface atop this architecture,
 deriving specific path and protocol selection properties and supported
@@ -191,7 +191,7 @@ when, and only when, they appear in all capitals, as shown here.
 
 The design of the interface specified in this document is based on a set of
 princples, themselves an elaboration on the architectural design principles
-defined in {{I-D.pauly-taps-arch}}. The interface defined in this document
+defined in {{I-D.ietf-taps-arch}}. The interface defined in this document
 provides:
 
 - A single interface to a variety of transport protocols to be
@@ -224,7 +224,7 @@ provides:
 
 The Transport Services Interface is the basic common abstract application
 programming interface to the Transport Services Architecture defined in
-{{I-D.pauly-taps-arch}}. An application primarily interacts with this interface through
+{{I-D.ietf-taps-arch}}. An application primarily interacts with this interface through
 two Objects, Preconnections and Connections. A Preconnection represents a set of
 parameters and constraints on the selection and configuration of paths and
 protocols to establish a Connection with a remote endpoint. A Connection
@@ -242,7 +242,7 @@ asynchronously through a callback registered by the application. Errors and othe
 
 In the following sections, we describe the details of application interaction
 with Objects through Actions and Events in each phase of a Connection, following
-the phases described in {{I-D.pauly-taps-arch}}.
+the phases described in {{I-D.ietf-taps-arch}}.
 
 # Pre-Establishment Phase
 
@@ -575,7 +575,7 @@ The following values are valid for Capacity Profile:
 
 Common parameters such as TLS ciphersuites are known to implementations. Clients SHOULD
 use common safe defaults for these values whenever possible. However, as discussed in
-{{I-D.pauly-taps-transport-security}}, many transport security protocols require specific
+{{I-D.ietf-taps-transport-security}}, many transport security protocols require specific
 security parameters and constraints from the client at the time of configuration and
 actively during a handshake. These configuration parameters are created as follows
 
@@ -1351,7 +1351,7 @@ the Post Sockets interface, from which this work has evolved.
 # Additional Properties {#appendix-non-consensus}
 
 The interface specified by this document represents the minimal common interface
-to an endpoint in the transport services architecture {{I-D.pauly-taps-arch}}, based upon
+to an endpoint in the transport services architecture {{I-D.ietf-taps-arch}}, based upon
 that architecture and on the minimal set of transport service features
 elaborated in {{I-D.ietf-taps-minset}}. However, the interface has been designed with
 extension points to allow the implementation of features beyond those in the

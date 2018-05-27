@@ -83,8 +83,8 @@ author:
     email: michawe@ifi.uio.no
 
 normative:
-    I-D.pauly-taps-arch:
-    I-D.trammell-taps-interface:
+    I-D.ietf-taps-arch:
+    I-D.ietf-taps-interface:
     I-D.ietf-taps-minset:
 
 informative:
@@ -113,15 +113,15 @@ informative:
 
 --- abstract
 
-The Transport Services architecture {{I-D.pauly-taps-arch}} defines a system that allows applications to use transport networking protocols flexibly. This document serves as a guide to implementation on how to build such a system.
+The Transport Services architecture {{I-D.ietf-taps-arch}} defines a system that allows applications to use transport networking protocols flexibly. This document serves as a guide to implementation on how to build such a system.
 
 --- middle
 
 # Introduction
 
-The Transport Services architecture {{I-D.pauly-taps-arch}} defines a system that allows applications to use transport networking protocols flexibly. The interface such a system exposes to applications is defined as the Transport Services API {{I-D.trammell-taps-interface}}. This API is designed to be generic across multiple transport protocols and sets of protocols features. 
+The Transport Services architecture {{I-D.ietf-taps-arch}} defines a system that allows applications to use transport networking protocols flexibly. The interface such a system exposes to applications is defined as the Transport Services API {{I-D.ietf-taps-interface}}. This API is designed to be generic across multiple transport protocols and sets of protocols features. 
 
-This document serves as a guide to implementation on how to build a system that provides a Transport Services API. It is the job of an implementation of a Transport Services system to turn the requests of an application into decisions on how to establish connections, and how to transfer data over those connections once established. The terminology used in this document is based on the Architecture {{I-D.pauly-taps-arch}}.
+This document serves as a guide to implementation on how to build a system that provides a Transport Services API. It is the job of an implementation of a Transport Services system to turn the requests of an application into decisions on how to establish connections, and how to transfer data over those connections once established. The terminology used in this document is based on the Architecture {{I-D.ietf-taps-arch}}.
 
 # Implementing Basic Objects
 
@@ -135,7 +135,7 @@ Listener objects are created with a Preconnection, at which point their configur
 
 # Implementing Pre-Establishment
 
-During pre-establishment the application specifies the Endpoints to be used for communication as well as its preferences regarding Protocol and Path Selection. The implementation stores these objects and properties as part of the Preconnection object for use during connection establishment. For Protocol and Path Selection Properties that are not provided by the application, the implementation must use the default values specified in the Transport Services API ({{I-D.trammell-taps-interface}}).
+During pre-establishment the application specifies the Endpoints to be used for communication as well as its preferences regarding Protocol and Path Selection. The implementation stores these objects and properties as part of the Preconnection object for use during connection establishment. For Protocol and Path Selection Properties that are not provided by the application, the implementation must use the default values specified in the Transport Services API ({{I-D.ietf-taps-interface}}).
   
 ## Configuration-time errors
 
@@ -327,7 +327,7 @@ Branching for derived endpoints is the final step, and may have multiple layers 
 
 Implementations should sort the branches of the tree of connection options in order of their preference rank. 
 Leaf nodes on branches with higher rankings represent connection attempts that will be raced first.
-Implementations should order the branches to reflect the preferences expressed by the application for its new connection, including Protocol and Path Selection Properties, which are specified in {{I-D.trammell-taps-interface}}. 
+Implementations should order the branches to reflect the preferences expressed by the application for its new connection, including Protocol and Path Selection Properties, which are specified in {{I-D.ietf-taps-interface}}. 
 
 In addition to the properties provided by the application, an implementation may include additional criteria such as cached performance estimates, see {{performance-caches}}, or system policy, see {{role-of-system-policy}}, in the ranking.
 Two examples of how the Protocol and Path Selection Properties may be used to sort branches are provided below:
