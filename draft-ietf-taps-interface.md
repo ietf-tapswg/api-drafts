@@ -980,7 +980,7 @@ application to receive the Message multiple times.
 
 ### Final {#send-final}
 
-Final is a boolean property. If true, this Message is the final message that
+Final is a boolean property. If true, this Message is the last one that
 the application will send on a Connection. This allows underlying protocols
 to indicate to the Remote Endpoint that the Connection has been effectively
 closed in the sending direction. For example, TCP-based Connections can
@@ -988,9 +988,9 @@ send a FIN once a Message marked as Final has been completely sent.
 Protocols that do not support signalling the end of a Connection in a given
 direction will ignore this property.
 
-Note that a final Message must always be sorted to the end of a list of Messages.
-The final property overrides Niceness and any other property that would re-order
-Messages. If another Message is sent after a Message marked as final has already
+Note that a Final Message must always be sorted to the end of a list of Messages.
+The Final property overrides Niceness and any other property that would re-order
+Messages. If another Message is sent after a Message marked as Final has already
 been sent on a Connection, the new Message will report an error.
 
 ### Corruption Protection Length {#send-checksum}
@@ -1148,18 +1148,16 @@ the termination of the Connection are signaled using ConnectionError instead
 ## Receiving Final Messages
 
 The application may check a property to determine if a received Message is
-the final Message on a Connection. For any Message that is marked as final,
+the Final Message on a Connection. For any Message that is marked as Final,
 the application can assume that there will be no more Messages received on the
 Connection once the Message has been completely delivered. This corresponds
 to the Final property that may be marked on a sent Message {{send-final}}.
 
-Final Messages are delivered by protocols that support closing one side of a Connection.
-For example, if a Connection using TCP receives a FIN, the application can determine
-that the stream is complete once the final Message has been marked complete.
-Protocols that do not support this functionality, such as UDP, may never deliver a Message
-marked as final.
+Some transport protocols and peers may not support signaling of the Final property.
+Applications therefore should not rely on receiving a Message marked Final to know
+that the other endpoint is done sending on a connection.
 
-Any calls to `Receive` once the final Message has been delivered will result in errors.
+Any calls to `Receive` once the Final Message has been delivered will result in errors.
 
 ## Receiver-side De-framing over Stream Protocols {#receive-framing}
 
