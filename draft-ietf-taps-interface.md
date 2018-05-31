@@ -527,7 +527,7 @@ requiring a checksum when receiving.
 Type: Tuple (Enumeration, Preference)
 
 This property allows the application to select which specific network interfaces
-or categories of interfaces it wants to `Require`, `Prohibit`, or `Prefer`.
+or categories of interfaces it wants to `Require`, `Prohibit`, `Prefer`, or `Avoid`.
 
 If a system supports discovery of specific interface identifiers, such as `en0` or `eth0`
 on Unix-style systems, an implemention should allow using these identifiers to
@@ -549,18 +549,24 @@ to less flexible and resilient connection establishment.
 The set of interface types is expected to change over time as new access technologies
 become available.
 
+Interface types should not be treated as a proxy for properties of interfaces such as
+metered or unmetered network access. If an application needs to prohibit metered
+interfaces, this should be specified via Provisioning Domain attributes {{prop-pvd}}
+or another specific property.
+
 ### Provisioning Domain Instance or Type {#prop-pvd}
 
 Type: Tuple (Enumeration, Preference)
 
 Similar to interface instances and types {{prop-interface}}, this property allows
 the application to control path selection by selecting which specific Provisioning Domains
-or categories of Provisioning Domains it wants to  `Require`, `Prohibit`, or `Prefer`.
+or categories of Provisioning Domains it wants to  `Require`, `Prohibit`, `Prefer`, or `Avoid`.
 Provisioning Domains define consistent sets of network properties that may be more
 specific than network interfaces {{RFC7556}}.
 
 The indentification of a specific Provisioning Domain (PvD) is defined to be implementation-
-and system-specific. For example, this may be a string name or an integer. As with 
+and system-specific, since there is not a portable standard format for a PvD identitfier.
+For example, this identifier may be a string name or an integer. As with 
 requiring specific interfaces, requiring a specific PvD strictly limits path selection.
 
 Categories or types of PvDs are also defined to be implementation- and system-specific.
