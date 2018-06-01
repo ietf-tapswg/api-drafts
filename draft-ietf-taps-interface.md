@@ -32,56 +32,6 @@ author:
     city: 0316  Oslo
     country: Norway
     email: michawe@ifi.uio.no
-  -
-    ins: T. Enghardt
-    name: Theresa Enghardt
-    org: TU Berlin
-    street: Marchstraße 23
-    city: 10587 Berlin
-    country: Germany
-    email: theresa@inet.tu-berlin.de
-  -
-    ins: G. Fairhurst
-    name: Godred Fairhurst
-    org: University of Aberdeen
-    street: Department of Engineering
-    street: Fraser Noble Building
-    city: Aberdeen, AB24 3UE
-    country: Scotland
-    email: gorry@erg.abdn.ac.uk
-    uri: http://www.erg.abdn.ac.uk/
-  -
-    ins: M. Kuehlewind
-    name: Mirja Kuehlewind
-    org: ETH Zurich
-    email: mirja.kuehlewind@tik.ee.ethz.ch
-    street: Gloriastrasse 35
-    city: 8092 Zurich
-    country: Switzerland
-  -
-    ins: C. Perkins
-    name: Colin Perkins
-    org: University of Glasgow
-    street: School of Computing Science
-    city: Glasgow  G12 8QQ
-    country: United Kingdom
-    email: csp@csperkins.org
-  -
-    ins: P. Tiesel
-    name: Philipp S. Tiesel
-    org: TU Berlin
-    street: Marchstraße 23
-    city: 10587 Berlin
-    country: Germany
-    email: philipp@inet.tu-berlin.de
-  -
-    ins: C. Wood
-    name: Chris Wood
-    org: Apple Inc.
-    street: 1 Infinite Loop
-    city: Cupertino, California 95014
-    country: United States of America
-    email: cawood@apple.com
 
 normative:
   I-D.ietf-taps-minset:
@@ -1548,3 +1498,6 @@ https://godoc.org/github.com/mami-project/postsocket. This API definition will
 be kept largely in sync with the development of this abstract interface
 definition.
 
+# Contributors
+
+The authors of this document include Brian Trammell, Michael Welzl, Theresa Enghardt, Godred Fairhurst, Mirja Kuehlewind, Colin Perkins, Philipp S. Tiesel, Tommy Pauly, and Chris Wood.
