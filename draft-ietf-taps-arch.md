@@ -32,48 +32,6 @@ author:
     street: Gloriastrasse 35
     city: 8092 Zurich
     country: Switzerland
-  -
-    ins: A. Brunstrom
-    name: Anna Brunstrom
-    org: Karlstad University
-    street: Universitetsgatan 2
-    city: 651 88 Karlstad
-    country: Sweden
-    email: anna.brunstrom@kau.se
-  -
-    ins: G. Fairhurst
-    name: Godred Fairhurst
-    org: University of Aberdeen
-    street: Department of Engineering
-    street: Fraser Noble Building
-    city: Aberdeen, AB24 3UE
-    country: Scotland
-    email: gorry@erg.abdn.ac.uk
-    uri: http://www.erg.abdn.ac.uk/
-  -
-    ins: C. Perkins
-    name: Colin Perkins
-    org: University of Glasgow
-    street: School of Computing Science
-    city: Glasgow  G12 8QQ
-    country: United Kingdom
-    email: csp@csperkins.org
-  -
-    ins: P. Tiesel
-    name: Philipp S. Tiesel
-    org: TU Berlin
-    email: philipp@inet.tu-berlin.de
-    street: Marchstraße 23
-    city: 10587 Berlin
-    country: Germany
-  -
-    ins: C. Wood
-    name: Chris Wood
-    org: Apple Inc.
-    street: One Apple Park Way
-    city: Cupertino, California 95014
-    country: United States of America
-    email: cawood@apple.com
 
 informative:
     RFC3168:
@@ -431,3 +389,7 @@ This work has been supported by the UK Engineering and Physical Sciences
 Research Council under grant EP/R04144X/1.
 
 Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work.
+
+# Contributors
+
+The authors of this document include Tommy Pauly, Brian Trammell, Anna Brunstrom, Godred Fairhurst, Colin Perkins, Philipp S. Tiesel, and Chris Wood.
