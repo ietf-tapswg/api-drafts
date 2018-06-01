@@ -459,6 +459,23 @@ useful to indicate its reliability requirements on a per-Message basis.
 This property applies to Connections and Connection Groups. This is not a
 strict requirement.  The default is to not have this option.
 
+### Direction of communication
+
+Type: Enum
+
+This property specifies whether an application wants to use the connection for sending and/or receiving data.  Possible values are:
+
+Bidirectional (default):
+: The connection must support sending and receiving data
+
+unidirectional send:
+: The connection must support sending data. 
+
+unidirectional receive:
+: The connection must support receiving data
+
+In case a unidirectional connection is requested, but the system should fall back to bidirectional transport if unidirectional connections are not  supported by the transport protocol.
+
 ### Use 0-RTT session establishment with an idempotent Message {#prop-0rtt}
 
 Type: Preference
@@ -1209,7 +1226,16 @@ Connection properties include:
 
 * The status of the Connection, which can be one of the following:
   Establishing, Established, Closing, or Closed.
-
+  
+* Whether the connection can be used to send data. A connection can not be used for
+  sending if the connection was created unidirectional receive only or if a message with
+  the final property was sent over this connection.
+  
+* Whether the connection can be used to receive data. A connection can not be used for
+  reading if the connection was created unidirectional send only or if a message with the
+  final property received was received. The latter is only supported by certain transport 
+  protocols, e.g., by TCP as half-closed connection.
+  
 * Transport Features of the protocols that conform to the Required and
   Prohibited Transport Preferences, which might be selected by the transport
   system during Establishment. These features correspond to the properties
