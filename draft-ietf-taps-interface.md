@@ -228,8 +228,9 @@ programming interface to the Transport Services Architecture defined in
 two Objects, Preconnections and Connections. A Preconnection represents a set of
 parameters and constraints on the selection and configuration of paths and
 protocols to establish a Connection with a remote endpoint. A Connection
-represents a transport Protocol Stack on which data can be sent to and received
-from a remote endpoint. Connections can be created from Preconnections in three
+represents a transport Protocol Stack on which data can be sent to and/or received
+from a remote endpoint (i.e., depending on the kind of transport, connections can be
+bi-directional or unidirectional). Connections can be created from Preconnections in three
 ways: by initiating the Preconnection (i.e., actively opening, as in a client),
 through listening on the Preconnection (i.e., passively opening, as in a
 server), or rendezvousing on the Preconnection (i.e. peer to peer establishment).
