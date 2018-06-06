@@ -333,14 +333,17 @@ The Transport System Implementation Concepts define the set of objects used inte
 
 #### Security Protocol Gathering and Equivalence {#security-equivalence}
 
-In some cases, Protocol Properties or a Transport Services system's policies and 
-heuristics may yield multiple candidate security protocols. For example, both
-DTLS and TLS may be viable if an application does not express options that
+In some cases, a Transport Services system's policies and heuristics, or individual 
+Protocol Properties, heuristics may yield multiple candidate security protocols. For example, 
+both DTLS and TLS may be viable if an application does not express options that
 are prohibited by either UDP or TCP. In such cases, only one security protocol
 SHOULD be used as the outcome of Protocol Selection as deemed appropriate by 
 System Policy. Multiple protocols MAY be used if they are equivalent in terms 
-of configuration and operation. See {{I-D.ietf-taps-transport-security}} for a 
-discussion of criteria that MUST be met for configuration and operation equivalence. 
+of configuration, operation, and properties. Note that different versions of the same 
+protocol are not necessarily equivalent, even if the underlying cryptographic algorithms 
+are functionally the same. Handshake and wire format differences, among others, prohibit
+equivalence. As an example, TLS 1.2 and TLS 1.3 are NOT equivalent protocols, even if
+configured using the same essential cryptographic algorithms. 
 
 ### Racing {#racing}
 
