@@ -91,6 +91,7 @@ normative:
 
 informative:
   I-D.ietf-taps-transport-security:
+  RFC7556:
 
 --- abstract
 
@@ -539,18 +540,60 @@ strict requirement, as it signifies a reduction in reliability. The
 default is full checksum coverage without being able to change it, and
 requiring a checksum when receiving.
 
-### Interface Type {#prop-intf-type}
+### Interface Instance or Type {#prop-interface}
 
 Type: Tuple (Enumeration, Preference)
 
-This property specifies which kind of access network interface,
-e.g., WiFi, Ethernet, or LTE, to prefer over others for this Connection, in
-case they are available. In general, Interface Types should be used only with
-the `Prefer` and `Prohibit` preference level. Specifically, using the
-`Require` preference level for Interface Type may limit path selection in a
-way that is detrimental to connectivity. The default is to use the default
-interface configured in the system policy.
-The valid values for the access network interface kinds are implementation specific.
+This property allows the application to select which specific network interfaces
+or categories of interfaces it wants to `Require`, `Prohibit`, `Prefer`, or `Avoid`.
+
+If a system supports discovery of specific interface identifiers, such as `en0` or `eth0`
+on Unix-style systems, an implemention should allow using these identifiers to
+define path preferences. Note that marking a specific interface as `Required`
+strictly limits path selection to a single interface, and leads to less flexible and
+resilient connection establishment.
+
+The set of valid interface types is implementation- and system-specific. For example,
+on a mobile device, there may be `Wi-Fi` and `Cellular` interface types available;
+whereas on a desktop computer, there may be `Wi-Fi` and `Wired Ethernet`
+interface types available. Implementations should provide all types that are supported
+on some system to all systems, in order to allow applications to write generic code.
+For example, if a single implementation is used on both mobile devices and desktop
+devices, it should define the `Cellular` interface type for both systems, since an
+application may want to always `Prohibit Cellular`. Note that marking a specific 
+interface type as `Required` limits path selection to a small set of interfaces, and leads
+to less flexible and resilient connection establishment.
+
+The set of interface types is expected to change over time as new access technologies
+become available.
+
+Interface types should not be treated as a proxy for properties of interfaces such as
+metered or unmetered network access. If an application needs to prohibit metered
+interfaces, this should be specified via Provisioning Domain attributes {{prop-pvd}}
+or another specific property.
+
+### Provisioning Domain Instance or Type {#prop-pvd}
+
+Type: Tuple (Enumeration, Preference)
+
+Similar to interface instances and types {{prop-interface}}, this property allows
+the application to control path selection by selecting which specific Provisioning Domains
+or categories of Provisioning Domains it wants to  `Require`, `Prohibit`, `Prefer`, or `Avoid`.
+Provisioning Domains define consistent sets of network properties that may be more
+specific than network interfaces {{RFC7556}}.
+
+The indentification of a specific Provisioning Domain (PvD) is defined to be implementation-
+and system-specific, since there is not a portable standard format for a PvD identitfier.
+For example, this identifier may be a string name or an integer. As with 
+requiring specific interfaces, requiring a specific PvD strictly limits path selection.
+
+Categories or types of PvDs are also defined to be implementation- and system-specific.
+These may be useful to identify a service that is provided by a PvD. For example, if an application
+wants to use a PvD that provides a Voice-Over-IP service on a Cellular network, it can use
+the relevant PvD type to require some PvD that provides this service, without needing to
+look up a particular instance. While this does restrict path selection, it is more broad than
+requiring specific PvD instances or interface instances, and should be preferred over those
+options.
 
 ### Capacity Profile {#prop-cap-profile}
 
@@ -1259,7 +1302,7 @@ Connection properties include:
 
 * Path Properties of the path(s) in use, once the Connection has been
   established. These properties can be derived from the local provisioning
-  domain, measurements by the Protocol Stack, or other sources. They can only
+  domain {{RFC7556}}, measurements by the Protocol Stack, or other sources. They can only
   be queried.
 
 ## Protocol Properties {#protocol-props}
