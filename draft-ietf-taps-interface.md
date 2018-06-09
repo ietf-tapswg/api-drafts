@@ -329,7 +329,8 @@ The API does not need the application to resolve names, and premature name
 resolution can damage performance by limiting the scope for alternate path
 discovery during Connection establishment.
 The Resolve() method is, however, provided to resolve a Local Endpoint or a
-Remote Endpoint in cases where this is required, for example with some NAT
+Remote Endpoint in cases where this is required, for example with some Network
+Address Translator (NAT)
 traversal protocols (see {{rendezvous}}).
 
 ## Specifying Transport Parameters {#transport-params}
@@ -624,13 +625,25 @@ The following values are valid for Capacity Profile:
   expense of bandwidth efficiency. This implies that the Connection may fail
   if the desired rate cannot be maintained across the Path. A transport
   may interpret this capacity profile as preferring a circuit breaker
-  {{?RFC8084}} to a rate adaptive congestion controller.
+  {{?RFC8084}} to a rate-adaptive congestion controller.
 
   Scavenger/Bulk:
   : The application is not interactive. It expects to send/receive a large
-  amount of data, without any urgency. This can be used to select protocol
+  amount of data, without any urgency. This can, for example, be used to select protocol
   stacks with scavenger transmission control, to signal a preference for
-  less-than-best-effort treatment, and so on.
+  less-than-best-effort treatment, or to assign the traffic to a lower-effort service.
+
+### Congestion control {#prop-cc}
+
+Type: Preference
+
+This property specifies whether the application would like the Connection to be
+congestion controlled or not. Note that if a Connection is not congestion controlled,
+an application using such a Connection should itself perform congestion control in
+accordance with {{?RFC2914}}. Also note that reliability is usually combined with
+congestion control in protocol implementations, rendering "reliable but not congestion
+controlled" a request that is unlikely to succeed.
+
 
 ## Specifying Security Parameters and Callbacks {#security-parameters}
 
@@ -849,9 +862,11 @@ for listening, when the Local Endpoint or Remote Endpoint cannot be resolved,
 when no transport-layer connection can be established to the Remote Endpoint,
 or when the application is prohibited from rendezvous by policy.
 
-When using some NAT traversal protocols, e.g., ICE {{?RFC5245}}, it is
+When using some NAT traversal protocols, e.g., Interactive Connectivity
+Establishment (ICE) {{?RFC5245}}, it is
 expected that the Local Endpoint will be configured with some method of
-discovering NAT bindings, e.g., a STUN server. In this case, the
+discovering NAT bindings, e.g., a Session Traversal Utilities for NAT (STUN) server.
+In this case, the
 Local Endpoint may resolve to a mixture of local and server reflexive
 addresses. The Resolve() method on the Preconnection can be used to
 discover these bindings:
@@ -899,9 +914,9 @@ lower Niceness values. An ideal transport system implementation would assign
 the Connection the capacity share (M-N) x C / M, where N is the Connection's
 Niceness value, M is the maximum Niceness value used by all Connections in the
 group and C is the total available capacity. However, the niceness setting is
-purely advisory, and no guarantees are given about capacity allocation and
-each implementation is free to implement exact capacity allocation as it sees
-fit.
+purely advisory, and no guarantees are given about the way capacity is shared.
+Each implementation is free to implement a way it shares
+capacity that it sees fit.
 
 # Sending Data {#sending}
 
@@ -997,8 +1012,9 @@ be overridden on a per-Message basis.
 
 Send Parameters may be inconsistent with the properties of the Protocol Stacks
 underlying the Connection on which a given Message is sent. For example,
-infinite Lifetime is not possible on a Message over a Connection not providing
-reliability. Sending a Message with Send Properties inconsistent with the
+a Connection must provide reliability to allow setting an infinitie value for the
+lifetime property of a Message. Sending a Message with Send Properties
+inconsistent with the
 Transport Preferences on the Connection yields an error.
 
 The following send parameters are supported:
@@ -1013,17 +1029,18 @@ implementation-specific.
 
 ### Niceness {#send-niceness}
 
-Niceness represents an unbounded hierarchy of priorities of Messages, relative
+Niceness is a numeric (non-negative) value that represents an
+unbounded hierarchy of priorities of Messages, relative
 to other Messages sent over the same Connection and/or Connection Group (see
-{{groups}}). It is most naturally represented as a non-negative integer.
+{{groups}}).
 A Message with Niceness 0 will yield to a Message with Niceness 1, which will
 yield to a Message with Niceness 2, and so on. Niceness may be used as a
 sender-side scheduling construct only, or be used to specify priorities on the
 wire for Protocol Stacks supporting prioritization.
 
-Note that this inversion of normal schemes for expressing priority has a
-convenient property: priority increases as both Niceness and Lifetime
-decrease.
+This encoding of the priority has a convenient property that the priority
+increases as both Niceness and Lifetime decrease.
+
 
 ### Ordered {#send-ordered}
 
@@ -1078,7 +1095,7 @@ The following values are valid for Transmission Profile:
 
   Low Latency:
   : Response time (latency) should be optimized at
-  the expense of bandwidth efficiency and delay variation when sending this
+  the expense of efficiently using the available capacity when sending this
   message. This can be used by the system to disable the coalescing of
   multiple small Messages into larger packets (Nagle's algorithm); to prefer
   immediate acknowledgment from the peer endpoint when supported by the
@@ -1086,13 +1103,14 @@ The following values are valid for Transmission Profile:
   treatment; and so on.
 
   Constant Rate:
-  : Delay and delay variation should be minimized at the
-  expense of bandwidth efficiency.
+  : Delay should be minimized at the
+  expense of efficiently using the available capacity.
 
   Scavenger/Bulk:
   : This Message may be sent at the system's leisure. This can
-  be used to signal a preference for less-than-best-effort treatment, to delay
-  sending until lower-cost paths are available, and so on.
+  be used to signal a preference for less-than-best-effort treatment,
+  assign the traffic to a lower effort service, delay sending until lower-cost
+  paths are available, and so on.
 
 ## Batching Sends {#send-batching}
 
@@ -1362,6 +1380,9 @@ Generic Protocol Properties include:
 * Maximum Message size on receive: This numeric property
   represents the maximum Message size that can be received.
   This property is read-only.
+
+* Congestion control: This boolean property informs about the protocol
+  carrying out congestion control or not. This property is read-only.
 
 In order to specify Specific Protocol Properties, Transport System
 implementations may offer applications to attach a set of options to the
