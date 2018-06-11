@@ -1451,6 +1451,25 @@ stack supports it, there is no guarantee that a soft error will be signaled.
 Connection -> SoftError<>
 ~~~
 
+# Ordering of Operations and Events
+
+As this interface is designed to be independent of concurrency model, the
+details of how exactly actions are handled, and on which threads/callbacks
+events are dispatched, is an implementation detail. However, the interface
+does provide the following guarantees about the ordering of operations:
+
+- Received<> will never occur on a Connection before a Ready<> event on that
+  Connection, or a ConnectionReceived<> or RendezvousDone<> containing that
+  Connection.
+
+- No events or errors will occur on a Connection after a Closed<> event, an
+  InitiateError<> or ConnectionError<> on that connection. To ensure this
+  ordering, neither Closed<> nor ConnectionError<> will occur on a Connection
+  while other events on the Connection are still outstanding.
+
+- Sent<> events will occur on a Connection in the order in which the Messages
+  were sent.
+
 # IANA Considerations
 
 RFC-EDITOR: Please remove this section before publication.
