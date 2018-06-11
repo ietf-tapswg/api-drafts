@@ -472,7 +472,7 @@ Bidirectional (default):
 : The connection must support sending and receiving data
 
 unidirectional send:
-: The connection must support sending data. 
+: The connection must support sending data.
 
 unidirectional receive:
 : The connection must support receiving data
@@ -561,7 +561,7 @@ interface types available. Implementations should provide all types that are sup
 on some system to all systems, in order to allow applications to write generic code.
 For example, if a single implementation is used on both mobile devices and desktop
 devices, it should define the `Cellular` interface type for both systems, since an
-application may want to always `Prohibit Cellular`. Note that marking a specific 
+application may want to always `Prohibit Cellular`. Note that marking a specific
 interface type as `Required` limits path selection to a small set of interfaces, and leads
 to less flexible and resilient connection establishment.
 
@@ -585,7 +585,7 @@ specific than network interfaces {{RFC7556}}.
 
 The indentification of a specific Provisioning Domain (PvD) is defined to be implementation-
 and system-specific, since there is not a portable standard format for a PvD identitfier.
-For example, this identifier may be a string name or an integer. As with 
+For example, this identifier may be a string name or an integer. As with
 requiring specific interfaces, requiring a specific PvD strictly limits path selection.
 
 Categories or types of PvDs are also defined to be implementation- and system-specific.
@@ -801,6 +801,15 @@ The Listen() Action consumes the Preconnection. Once Listen() has been
 called, no further parameters may be bound to the Preconnection, and no
 subsequent establishment call may be made on the Preconnection.
 
+Listening continues until the global context shuts down, or until the Stop
+action is performed on the same Preconnection:
+
+~~~
+Preconnection.Stop()
+~~~
+
+After Stop() is called, the preconnection can be disposed of.
+
 ~~~
 Preconnection -> ConnectionReceived<Connection>
 ~~~
@@ -820,6 +829,12 @@ Preconnection -> ListenError<>
 A ListenError occurs either when the Preconnection cannot be fulfilled for
 listening, when the Local Endpoint (or Remote Endpoint, if specified) cannot
 be resolved, or when the application is prohibited from listening by policy.
+
+~~~
+Preconnection -> Stopped<>
+~~~
+
+A Stopped event occurs after the Preconnection has stopped listening.
 
 ## Peer-to-Peer Establishment: Rendezvous {#rendezvous}
 
@@ -1062,7 +1077,7 @@ Final is a boolean property. If true, this Message is the last one that
 the application will send on a Connection. This allows underlying protocols
 to indicate to the Remote Endpoint that the Connection has been effectively
 closed in the sending direction. For example, TCP-based Connections can
-send a FIN once a Message marked as Final has been completely sent. 
+send a FIN once a Message marked as Final has been completely sent.
 Protocols that do not support signalling the end of a Connection in a given
 direction will ignore this property.
 
@@ -1288,16 +1303,16 @@ Connection properties include:
 
 * The status of the Connection, which can be one of the following:
   Establishing, Established, Closing, or Closed.
-  
+
 * Whether the connection can be used to send data. A connection can not be used for
   sending if the connection was created unidirectional receive only or if a message with
   the final property was sent over this connection.
-  
+
 * Whether the connection can be used to receive data. A connection can not be used for
   reading if the connection was created unidirectional send only or if a message with the
-  final property received was received. The latter is only supported by certain transport 
+  final property received was received. The latter is only supported by certain transport
   protocols, e.g., by TCP as half-closed connection.
-  
+
 * Transport Features of the protocols that conform to the Required and
   Prohibited Transport Preferences, which might be selected by the transport
   system during Establishment. These features correspond to the properties
