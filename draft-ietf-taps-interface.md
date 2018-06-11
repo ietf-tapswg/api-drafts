@@ -91,6 +91,7 @@ normative:
 
 informative:
   I-D.ietf-taps-transport-security:
+  RFC7556:
 
 --- abstract
 
@@ -228,8 +229,9 @@ programming interface to the Transport Services Architecture defined in
 two Objects, Preconnections and Connections. A Preconnection represents a set of
 parameters and constraints on the selection and configuration of paths and
 protocols to establish a Connection with a remote endpoint. A Connection
-represents a transport Protocol Stack on which data can be sent to and received
-from a remote endpoint. Connections can be created from Preconnections in three
+represents a transport Protocol Stack on which data can be sent to and/or received
+from a remote endpoint (i.e., depending on the kind of transport, connections can be
+bi-directional or unidirectional). Connections can be created from Preconnections in three
 ways: by initiating the Preconnection (i.e., actively opening, as in a client),
 through listening on the Preconnection (i.e., passively opening, as in a
 server), or rendezvousing on the Preconnection (i.e. peer to peer establishment).
@@ -327,7 +329,8 @@ The API does not need the application to resolve names, and premature name
 resolution can damage performance by limiting the scope for alternate path
 discovery during Connection establishment.
 The Resolve() method is, however, provided to resolve a Local Endpoint or a
-Remote Endpoint in cases where this is required, for example with some NAT
+Remote Endpoint in cases where this is required, for example with some Network
+Address Translator (NAT)
 traversal protocols (see {{rendezvous}}).
 
 ## Specifying Transport Parameters {#transport-params}
@@ -459,6 +462,23 @@ useful to indicate its reliability requirements on a per-Message basis.
 This property applies to Connections and Connection Groups. This is not a
 strict requirement.  The default is to not have this option.
 
+### Direction of communication
+
+Type: Enum
+
+This property specifies whether an application wants to use the connection for sending and/or receiving data.  Possible values are:
+
+Bidirectional (default):
+: The connection must support sending and receiving data
+
+unidirectional send:
+: The connection must support sending data. 
+
+unidirectional receive:
+: The connection must support receiving data
+
+In case a unidirectional connection is requested, but the system should fall back to bidirectional transport if unidirectional connections are not  supported by the transport protocol.
+
 ### Use 0-RTT session establishment with an idempotent Message {#prop-0rtt}
 
 Type: Preference
@@ -521,18 +541,60 @@ strict requirement, as it signifies a reduction in reliability. The
 default is full checksum coverage without being able to change it, and
 requiring a checksum when receiving.
 
-### Interface Type {#prop-intf-type}
+### Interface Instance or Type {#prop-interface}
 
 Type: Tuple (Enumeration, Preference)
 
-This property specifies which kind of access network interface,
-e.g., WiFi, Ethernet, or LTE, to prefer over others for this Connection, in
-case they are available. In general, Interface Types should be used only with
-the `Prefer` and `Prohibit` preference level. Specifically, using the
-`Require` preference level for Interface Type may limit path selection in a
-way that is detrimental to connectivity. The default is to use the default
-interface configured in the system policy.
-The valid values for the access network interface kinds are implementation specific.
+This property allows the application to select which specific network interfaces
+or categories of interfaces it wants to `Require`, `Prohibit`, `Prefer`, or `Avoid`.
+
+If a system supports discovery of specific interface identifiers, such as `en0` or `eth0`
+on Unix-style systems, an implemention should allow using these identifiers to
+define path preferences. Note that marking a specific interface as `Required`
+strictly limits path selection to a single interface, and leads to less flexible and
+resilient connection establishment.
+
+The set of valid interface types is implementation- and system-specific. For example,
+on a mobile device, there may be `Wi-Fi` and `Cellular` interface types available;
+whereas on a desktop computer, there may be `Wi-Fi` and `Wired Ethernet`
+interface types available. Implementations should provide all types that are supported
+on some system to all systems, in order to allow applications to write generic code.
+For example, if a single implementation is used on both mobile devices and desktop
+devices, it should define the `Cellular` interface type for both systems, since an
+application may want to always `Prohibit Cellular`. Note that marking a specific 
+interface type as `Required` limits path selection to a small set of interfaces, and leads
+to less flexible and resilient connection establishment.
+
+The set of interface types is expected to change over time as new access technologies
+become available.
+
+Interface types should not be treated as a proxy for properties of interfaces such as
+metered or unmetered network access. If an application needs to prohibit metered
+interfaces, this should be specified via Provisioning Domain attributes {{prop-pvd}}
+or another specific property.
+
+### Provisioning Domain Instance or Type {#prop-pvd}
+
+Type: Tuple (Enumeration, Preference)
+
+Similar to interface instances and types {{prop-interface}}, this property allows
+the application to control path selection by selecting which specific Provisioning Domains
+or categories of Provisioning Domains it wants to  `Require`, `Prohibit`, `Prefer`, or `Avoid`.
+Provisioning Domains define consistent sets of network properties that may be more
+specific than network interfaces {{RFC7556}}.
+
+The indentification of a specific Provisioning Domain (PvD) is defined to be implementation-
+and system-specific, since there is not a portable standard format for a PvD identitfier.
+For example, this identifier may be a string name or an integer. As with 
+requiring specific interfaces, requiring a specific PvD strictly limits path selection.
+
+Categories or types of PvDs are also defined to be implementation- and system-specific.
+These may be useful to identify a service that is provided by a PvD. For example, if an application
+wants to use a PvD that provides a Voice-Over-IP service on a Cellular network, it can use
+the relevant PvD type to require some PvD that provides this service, without needing to
+look up a particular instance. While this does restrict path selection, it is more broad than
+requiring specific PvD instances or interface instances, and should be preferred over those
+options.
 
 ### Capacity Profile {#prop-cap-profile}
 
@@ -563,13 +625,25 @@ The following values are valid for Capacity Profile:
   expense of bandwidth efficiency. This implies that the Connection may fail
   if the desired rate cannot be maintained across the Path. A transport
   may interpret this capacity profile as preferring a circuit breaker
-  {{?RFC8084}} to a rate adaptive congestion controller.
+  {{?RFC8084}} to a rate-adaptive congestion controller.
 
   Scavenger/Bulk:
   : The application is not interactive. It expects to send/receive a large
-  amount of data, without any urgency. This can be used to select protocol
+  amount of data, without any urgency. This can, for example, be used to select protocol
   stacks with scavenger transmission control, to signal a preference for
-  less-than-best-effort treatment, and so on.
+  less-than-best-effort treatment, or to assign the traffic to a lower-effort service.
+
+### Congestion control {#prop-cc}
+
+Type: Preference
+
+This property specifies whether the application would like the Connection to be
+congestion controlled or not. Note that if a Connection is not congestion controlled,
+an application using such a Connection should itself perform congestion control in
+accordance with {{?RFC2914}}. Also note that reliability is usually combined with
+congestion control in protocol implementations, rendering "reliable but not congestion
+controlled" a request that is unlikely to succeed.
+
 
 ## Specifying Security Parameters and Callbacks {#security-parameters}
 
@@ -788,9 +862,11 @@ for listening, when the Local Endpoint or Remote Endpoint cannot be resolved,
 when no transport-layer connection can be established to the Remote Endpoint,
 or when the application is prohibited from rendezvous by policy.
 
-When using some NAT traversal protocols, e.g., ICE {{?RFC5245}}, it is
+When using some NAT traversal protocols, e.g., Interactive Connectivity
+Establishment (ICE) {{?RFC5245}}, it is
 expected that the Local Endpoint will be configured with some method of
-discovering NAT bindings, e.g., a STUN server. In this case, the
+discovering NAT bindings, e.g., a Session Traversal Utilities for NAT (STUN) server.
+In this case, the
 Local Endpoint may resolve to a mixture of local and server reflexive
 addresses. The Resolve() method on the Preconnection can be used to
 discover these bindings:
@@ -838,9 +914,9 @@ lower Niceness values. An ideal transport system implementation would assign
 the Connection the capacity share (M-N) x C / M, where N is the Connection's
 Niceness value, M is the maximum Niceness value used by all Connections in the
 group and C is the total available capacity. However, the niceness setting is
-purely advisory, and no guarantees are given about capacity allocation and
-each implementation is free to implement exact capacity allocation as it sees
-fit.
+purely advisory, and no guarantees are given about the way capacity is shared.
+Each implementation is free to implement a way it shares
+capacity that it sees fit.
 
 # Sending Data {#sending}
 
@@ -936,8 +1012,9 @@ be overridden on a per-Message basis.
 
 Send Parameters may be inconsistent with the properties of the Protocol Stacks
 underlying the Connection on which a given Message is sent. For example,
-infinite Lifetime is not possible on a Message over a Connection not providing
-reliability. Sending a Message with Send Properties inconsistent with the
+a Connection must provide reliability to allow setting an infinitie value for the
+lifetime property of a Message. Sending a Message with Send Properties
+inconsistent with the
 Transport Preferences on the Connection yields an error.
 
 The following send parameters are supported:
@@ -952,17 +1029,18 @@ implementation-specific.
 
 ### Niceness {#send-niceness}
 
-Niceness represents an unbounded hierarchy of priorities of Messages, relative
+Niceness is a numeric (non-negative) value that represents an
+unbounded hierarchy of priorities of Messages, relative
 to other Messages sent over the same Connection and/or Connection Group (see
-{{groups}}). It is most naturally represented as a non-negative integer.
+{{groups}}).
 A Message with Niceness 0 will yield to a Message with Niceness 1, which will
 yield to a Message with Niceness 2, and so on. Niceness may be used as a
 sender-side scheduling construct only, or be used to specify priorities on the
 wire for Protocol Stacks supporting prioritization.
 
-Note that this inversion of normal schemes for expressing priority has a
-convenient property: priority increases as both Niceness and Lifetime
-decrease.
+This encoding of the priority has a convenient property that the priority
+increases as both Niceness and Lifetime decrease.
+
 
 ### Ordered {#send-ordered}
 
@@ -1017,7 +1095,7 @@ The following values are valid for Transmission Profile:
 
   Low Latency:
   : Response time (latency) should be optimized at
-  the expense of bandwidth efficiency and delay variation when sending this
+  the expense of efficiently using the available capacity when sending this
   message. This can be used by the system to disable the coalescing of
   multiple small Messages into larger packets (Nagle's algorithm); to prefer
   immediate acknowledgment from the peer endpoint when supported by the
@@ -1025,13 +1103,14 @@ The following values are valid for Transmission Profile:
   treatment; and so on.
 
   Constant Rate:
-  : Delay and delay variation should be minimized at the
-  expense of bandwidth efficiency.
+  : Delay should be minimized at the
+  expense of efficiently using the available capacity.
 
   Scavenger/Bulk:
   : This Message may be sent at the system's leisure. This can
-  be used to signal a preference for less-than-best-effort treatment, to delay
-  sending until lower-cost paths are available, and so on.
+  be used to signal a preference for less-than-best-effort treatment,
+  assign the traffic to a lower effort service, delay sending until lower-cost
+  paths are available, and so on.
 
 ## Batching Sends {#send-batching}
 
@@ -1209,7 +1288,16 @@ Connection properties include:
 
 * The status of the Connection, which can be one of the following:
   Establishing, Established, Closing, or Closed.
-
+  
+* Whether the connection can be used to send data. A connection can not be used for
+  sending if the connection was created unidirectional receive only or if a message with
+  the final property was sent over this connection.
+  
+* Whether the connection can be used to receive data. A connection can not be used for
+  reading if the connection was created unidirectional send only or if a message with the
+  final property received was received. The latter is only supported by certain transport 
+  protocols, e.g., by TCP as half-closed connection.
+  
 * Transport Features of the protocols that conform to the Required and
   Prohibited Transport Preferences, which might be selected by the transport
   system during Establishment. These features correspond to the properties
@@ -1232,7 +1320,7 @@ Connection properties include:
 
 * Path Properties of the path(s) in use, once the Connection has been
   established. These properties can be derived from the local provisioning
-  domain, measurements by the Protocol Stack, or other sources. They can only
+  domain {{RFC7556}}, measurements by the Protocol Stack, or other sources. They can only
   be queried.
 
 ## Protocol Properties {#protocol-props}
@@ -1292,6 +1380,9 @@ Generic Protocol Properties include:
 * Maximum Message size on receive: This numeric property
   represents the maximum Message size that can be received.
   This property is read-only.
+
+* Congestion control: This boolean property informs about the protocol
+  carrying out congestion control or not. This property is read-only.
 
 In order to specify Specific Protocol Properties, Transport System
 implementations may offer applications to attach a set of options to the
