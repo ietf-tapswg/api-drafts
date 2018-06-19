@@ -647,7 +647,7 @@ controlled" a request that is unlikely to succeed.
 
 ## Specifying Security Parameters and Callbacks {#security-parameters}
 
-Common parameters such as TLS ciphersuites are known to implementations. Clients SHOULD
+Common parameters such as TLS ciphersuites are known to implementations. Clients should
 use common safe defaults for these values whenever possible. However, as discussed in
 {{I-D.ietf-taps-transport-security}}, many transport security protocols require specific
 security parameters and constraints from the client at the time of configuration and
@@ -661,33 +661,34 @@ Security configuration parameters and sample usage follow:
 
 - Local identity and private keys: Used to perform private key operations and prove one's
 identity to the Remote Endpoint. (Note, if private keys are not available, e.g., since they are
-stored in HSMs, handshake callbacks MUST be used. See below for details.)
+stored in HSMs, handshake callbacks must be used. See below for details.)
 
 ~~~
 SecurityParameters.AddIdentity(identity)
 SecurityParameters.AddPrivateKey(privateKey, publicKey)
 ~~~
 
-- Supported algorithms: Used to restrict what parameters are used by underlying transport security protocols.
-When not specified, these algorithms SHOULD default to known and safe defaults for the system. Parameters include:
+- Supported Algorithms: Used to restrict what parameters are used by underlying transport security protocols.
+When not specified, these algorithms should default to known and safe defaults for the system. Parameters include:
 ciphersuites, supported groups, and signature algorithms.
 
 ~~~
-SecurityParameters.AddSupportedGroup(22)    // secp256k1
-SecurityParameters.AddCiphersuite(0xCCA9)   // TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
-SecurityParameters.AddSignatureAlgorithm(7) // ed25519
+SecurityParameters.AddSupportedGroup(secp256k1)
+SecurityParameters.AddCiphersuite(TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256)
+SecurityParameters.AddSignatureAlgorithm(ed25519)
 ~~~
 
-- Session cache: Used to tune cache capacity, lifetime, re-use,
-and eviction policies, e.g., LRU or FIFO.
+- Session Cache Management: Used to tune cache capacity, lifetime, re-use,
+and eviction policies, e.g., LRU or FIFO. Constants and policies for these interfaces
+are implementation-specific.
 
 ~~~
-SecurityParameters.SetSessionCacheCapacity(1024)     // 1024 elements
-SecurityParameters.SetSessionCacheLifetime(24*60*60) // 24 hours
-SecurityParameters.SetSessionCacheReuse(1)           // One-time use
+SecurityParameters.SetSessionCacheCapacity(MAX_CACHE_ELEMENTS)
+SecurityParameters.SetSessionCacheLifetime(SECONDS_PER_DAY)
+SecurityParameters.SetSessionCachePolicy(CachePolicyOneTimeUse)
 ~~~
 
-- Pre-shared keying material: Used to install pre-shared keying material established
+- Pre-Shared Key Import: Used to install pre-shared keying material established
 out-of-band. Each pre-shared keying material is associated with some identity that typically identifies
 its use or has some protocol-specific meaning to the Remote Endpoint.
 
@@ -695,8 +696,8 @@ its use or has some protocol-specific meaning to the Remote Endpoint.
 SecurityParameters.AddPreSharedKey(key, identity)
 ~~~
 
-Security decisions, especially pertaining to trust, are not static. Thus, once configured,
-parameters must also be supplied during live handshakes. These are best handled as
+Security decisions, especially pertaining to trust, are not static. Once configured,
+parameters must also be supplied during connection establishment. These are best handled as
 client-provided callbacks. Security handshake callbacks include:
 
 - Trust verification callback: Invoked when a Remote Endpoint's trust must be validated before the
@@ -719,8 +720,7 @@ ChallengeCallback := NewCallback({
 SecurityParameters.SetIdentityChallengeCallback(challengeCallback)
 ~~~
 
-Like transport parameters, security parameters are inherited during cloning (see
-{{groups}}).
+Like transport parameters, security parameters are inherited during cloning (see {{groups}}).
 
 # Establishing Connections
 
