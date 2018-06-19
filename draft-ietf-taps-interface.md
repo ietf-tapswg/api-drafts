@@ -647,11 +647,19 @@ controlled" a request that is unlikely to succeed.
 
 ## Specifying Security Parameters and Callbacks {#security-parameters}
 
+Most security parameters, e.g., TLS ciphersuites, local identity and private key, etc., 
+may be configured statically. Others are dynamically configured during connection establishment.
+Thus, we partition security parameters and callbacks based on their place in the lifetime
+of connection establishment. Similar to transport parameters, both parameters and callbacks 
+are inherited during cloning (see {{groups}}).
+
+### Pre-Connection Parameters
+
 Common parameters such as TLS ciphersuites are known to implementations. Clients should
 use common safe defaults for these values whenever possible. However, as discussed in
 {{I-D.ietf-taps-transport-security}}, many transport security protocols require specific
 security parameters and constraints from the client at the time of configuration and
-actively during a handshake. These configuration parameters are created as follows
+actively during a handshake. These configuration parameters are created as follows:
 
 ~~~
 SecurityParameters := NewSecurityParameters()
@@ -696,9 +704,12 @@ its use or has some protocol-specific meaning to the Remote Endpoint.
 SecurityParameters.AddPreSharedKey(key, identity)
 ~~~
 
+### Connection Establishment Callbacks
+
 Security decisions, especially pertaining to trust, are not static. Once configured,
-parameters must also be supplied during connection establishment. These are best handled as
-client-provided callbacks. Security handshake callbacks include:
+parameters may also be supplied during connection establishment. These are best 
+handled as client-provided callbacks. Security handshake callbacks that may be
+invoked during connection establishment include:
 
 - Trust verification callback: Invoked when a Remote Endpoint's trust must be validated before the
 handshake protocol can proceed.
@@ -719,8 +730,6 @@ ChallengeCallback := NewCallback({
 })
 SecurityParameters.SetIdentityChallengeCallback(challengeCallback)
 ~~~
-
-Like transport parameters, security parameters are inherited during cloning (see {{groups}}).
 
 # Establishing Connections
 
