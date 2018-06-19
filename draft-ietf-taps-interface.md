@@ -1054,7 +1054,7 @@ Idempotent is a boolean property. If true, the application-layer entity in the
 Message is safe to send to the remote endpoint more than once for a single
 Send Action. It is used to mark data safe for certain 0-RTT establishment
 techniques, where retransmission of the 0-RTT data may cause the remote
-application to receive the Message multiple times.
+
 
 ### Final {#send-final}
 
@@ -1176,13 +1176,7 @@ Connection -> Received<Message>
 
 As with sending, the type of the Message to be passed is dependent on the
 implementation, and on the constraints on the Protocol Stacks implied by the
-Connection's transport parameters. The Message may also contain metadata from
-protocols in the Protocol Stack; which metadata is available is Protocol Stack
-dependent. In particular, when this information is available, the value of the
-Explicit Congestion Notification (ECN) field is contained in such metadata.
-This information can be used for logging and debugging purposes, and for
-building applications which need access to information about the transport
-internals for their own operation.
+Connection's transport parameters. 
 
 The Message Object must provide some method to retrieve an octet array
 containing application data, corresponding to a single message within the
@@ -1223,6 +1217,32 @@ that cannot be fully retrieved or deframed, or when some other indication is
 received that reception has failed. Such conditions that irrevocably lead the
 the termination of the Connection are signaled using ConnectionError instead
 (see {{termination}}).
+
+## Receive Metadata
+
+Each Message may also contain metadata from protocols in the Protocol Stack; 
+which metadata is available is Protocol Stack dependent. The following metadata
+values are supported:
+
+### ECN {#receive-ecn}
+
+When available, Message metadata carries the value of the Explicit Congestion 
+Notification (ECN) field. This information can be used for logging and debugging 
+purposes, and for building applications which need access to information about 
+the transport internals for their own operation.
+
+### Early Data {#receive-early} 
+
+In some cases it may be valuable to know whether data was read as part of early 
+data streams. This is useful if applications need to treat early data separately, 
+e.g., if early data has different security properties than data sent after 
+connection establishment. In the case of TLS 1.3, client early data can be replayed 
+maliciously (see {{!I-D.ietf-tls-tls13}}). Thus, receivers may wish to perform additional 
+checks for early data to ensure it has not been replayed or restrict responses until 
+the handshake is finished. If TLS 1.3 is available and the recipient Message was 
+sent as part of early data, the corresponding metadata carries a flag indicating 
+as such. If early data is enabled, applications should check this metadata field 
+for Messages received during connection establishment and respond accordingly. 
 
 ## Receiving Final Messages
 
