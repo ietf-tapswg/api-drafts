@@ -676,7 +676,7 @@ SecurityParameters.AddIdentity(identity)
 SecurityParameters.AddPrivateKey(privateKey, publicKey)
 ~~~
 
-- Supported Algorithms: Used to restrict what parameters are used by underlying transport security protocols.
+- Supported algorithms: Used to restrict what parameters are used by underlying transport security protocols.
 When not specified, these algorithms should default to known and safe defaults for the system. Parameters include:
 ciphersuites, supported groups, and signature algorithms.
 
@@ -686,7 +686,7 @@ SecurityParameters.AddCiphersuite(TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256)
 SecurityParameters.AddSignatureAlgorithm(ed25519)
 ~~~
 
-- Session Cache Management: Used to tune cache capacity, lifetime, re-use,
+- Session cache management: Used to tune cache capacity, lifetime, re-use,
 and eviction policies, e.g., LRU or FIFO. Constants and policies for these interfaces
 are implementation-specific.
 
@@ -696,7 +696,7 @@ SecurityParameters.SetSessionCacheLifetime(SECONDS_PER_DAY)
 SecurityParameters.SetSessionCachePolicy(CachePolicyOneTimeUse)
 ~~~
 
-- Pre-Shared Key Import: Used to install pre-shared keying material established
+- Pre-Shared Key import: Used to install pre-shared keying material established
 out-of-band. Each pre-shared keying material is associated with some identity that typically identifies
 its use or has some protocol-specific meaning to the Remote Endpoint.
 
