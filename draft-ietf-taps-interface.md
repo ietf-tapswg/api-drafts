@@ -1054,7 +1054,7 @@ Idempotent is a boolean property. If true, the application-layer entity in the
 Message is safe to send to the remote endpoint more than once for a single
 Send Action. It is used to mark data safe for certain 0-RTT establishment
 techniques, where retransmission of the 0-RTT data may cause the remote
-
+application to receive the Message multiple times.
 
 ### Final {#send-final}
 
@@ -1238,11 +1238,10 @@ data streams. This is useful if applications need to treat early data separately
 e.g., if early data has different security properties than data sent after 
 connection establishment. In the case of TLS 1.3, client early data can be replayed 
 maliciously (see {{!I-D.ietf-tls-tls13}}). Thus, receivers may wish to perform additional 
-checks for early data to ensure it has not been replayed or restrict responses until 
-the handshake is finished. If TLS 1.3 is available and the recipient Message was 
-sent as part of early data, the corresponding metadata carries a flag indicating 
-as such. If early data is enabled, applications should check this metadata field 
-for Messages received during connection establishment and respond accordingly. 
+checks for early data to ensure it is idempotent or not replayed. If TLS 1.3 is available 
+and the recipient Message was sent as part of early data, the corresponding metadata carries 
+a flag indicating as such. If early data is enabled, applications should check this metadata 
+field for Messages received during connection establishment and respond accordingly. 
 
 ## Receiving Final Messages
 
