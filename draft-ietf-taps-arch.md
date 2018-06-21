@@ -338,7 +338,21 @@ The Transport System Implementation Concepts define the set of objects used inte
 
 * Path Selection: Path Selection represents the act of choosing one or more paths that are available to use based on the Path Selection Properties provided by the application, and a Transport Services system's policies and heuristics.
 
-* Protocol Selection: Protocol Selection represents the act of choosing one or more sets of protocol options that are available to use based on the Protocol Properties provided by the application, and a Transport Services system's policies and heuristics.
+* Protocol Selection: Protocol Selection represents the act of choosing one or more sets of protocol options that are available to use based on the Protocol Properties provided by the application, and a Transport Services system's policies and heuristics. See {{security-equivalence}} for considerations regarding security Protocol Selection.
+
+#### Security Protocol Gathering and Equivalence {#security-equivalence}
+
+In some cases, a Transport Services system's policies and heuristics, or individual 
+Protocol Properties, heuristics may yield multiple candidate security protocols. For example, 
+both DTLS and TLS may be viable if an application does not express options that
+are prohibited by either UDP or TCP. In such cases, only one security protocol
+SHOULD be used as the outcome of Protocol Selection as deemed appropriate by 
+System Policy. Multiple protocols MAY be used if they are equivalent in terms 
+of configuration, operation, and properties. Note that different versions of the same 
+protocol are not necessarily equivalent, even if the underlying cryptographic algorithms 
+are functionally the same. Handshake and wire format differences, among others, prohibit
+equivalence. As an example, TLS 1.2 and TLS 1.3 are NOT equivalent protocols, even if
+configured using the same essential cryptographic algorithms. 
 
 ### Candidate Racing {#racing}
 
