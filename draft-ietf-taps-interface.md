@@ -181,7 +181,7 @@ other Events, may occur asynchronously in network applications. However, it is
 recommended that implementations of this interface also return errors
 immediately, according to the error handling idioms of the implementation
 platform, for errors which can be immediately detected, such as inconsistency
-in transport parameters.
+in Transport Properties.
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this
@@ -256,7 +256,7 @@ A Preconnection Object represents a potential Connection. It has state that
 describes parameters of a Connection that might exist in the future.  This
 state comprises Local Endpoint and Remote Endpoint Objects that denote the
 endpoints of the potential Connection (see {{endpointspec}}), the transport
-parameters (see {{transport-params}}), and the security parameters (see
+parameters (see {{transport-props}}), and the security parameters (see
 {{security-parameters}}):
 
 ~~~
@@ -333,18 +333,18 @@ Remote Endpoint in cases where this is required, for example with some Network
 Address Translator (NAT)
 traversal protocols (see {{rendezvous}}).
 
-## Specifying Transport Parameters {#transport-params}
+## Specifying Transport Properties {#transport-props}
 
 A Preconnection Object holds parameters reflecting the application's
 requirements and preferences for the transport. These include protocol and path
 selection parameters, as well as Generic and Specific Protocol Properties for
 configuration of the detailed operation of the selected Protocol Stacks.
 
-All Transport Parameters are organized within a single namespace shared with
-Send Parameters (see {{send-params}}). These transport parameters take
+All Transport Properties are organized within a single namespace shared with
+Message Properties (see {{message-props}}). These Transport Properties take
 values of parameter-specific types.
 
-Note that it is possible for a set of specified transport parameters to be
+Note that it is possible for a set of specified Transport Properties to be
 internally inconsistent, or to be inconsistent with the later use of the API by the application. Application developers can reduce
 inconsistency by only using the most stringent preference levels when failure
 to meet a preference would break the application's functionality (e.g. the
@@ -389,7 +389,7 @@ represent a configuration that can be implemented over TCP. An alternate set of
 default Protocol Selection Properties would represent a configuration that can
 be implemented over UDP.
 
-All transport parameters used in the pre-establishment phase are collected
+All Transport Properties used in the pre-establishment phase are collected
 in a TransportParameters Object that is passed to the Preconnection Object.
 
 ~~~
@@ -398,7 +398,7 @@ TransportParameters := NewTransportParameters()
 
 The Individual parameters are then added to the TransportParameters Object.
 While Protocol Properties use the `add` call, Transport Preferences use
-special calls for the levels defined in {{transport-params}}.
+special calls for the levels defined in {{transport-props}}.
 
 ~~~
 TransportParameters.Add(parameter, value)
@@ -410,7 +410,7 @@ TransportParameters.Avoid(preference)
 TransportParameters.Prohibit(preference)
 ~~~
 
-For an existing Connection, the Transport Parameters can be queried any time
+For an existing Connection, the Transport Properties can be queried any time
 by using the following call on the Connection Object:
 
 ~~~
@@ -421,11 +421,11 @@ Note that most properties are only considered for Connection establishment and
 can not be changed after a Connection is established; however, they can be
 queried. See {{introspection}}.
 
-A Connection gets its Transport Parameters either by being explicitly configured
+A Connection gets its Transport Properties either by being explicitly configured
 via a Preconnection, or by inheriting them from an antecedent via cloning; see
 {{groups}} for more.
 
-In addition to protocol and path selection properties, the transport parameters
+In addition to protocol and path selection properties, the Transport Properties
 may also contain Generic and/or Specific Protocol Properties (see
 {{protocol-props}}). These properties will be passed to the selected candidate
 Protocol Stack(s) to configure them before candidate Connection establishment.
@@ -650,7 +650,7 @@ controlled" a request that is unlikely to succeed.
 Most security parameters, e.g., TLS ciphersuites, local identity and private key, etc., 
 may be configured statically. Others are dynamically configured during connection establishment.
 Thus, we partition security parameters and callbacks based on their place in the lifetime
-of connection establishment. Similar to transport parameters, both parameters and callbacks 
+of connection establishment. Similar to Transport Properties, both parameters and callbacks 
 are inherited during cloning (see {{groups}}).
 
 ### Pre-Connection Parameters
@@ -946,7 +946,7 @@ capacity that it sees fit.
 
 Once a Connection has been established, it can be used for sending data. Data
 is sent by passing a Message Object and additional parameters
-{{send-params}} to the Send Action on an established Connection:
+{{message-props}} to the Send Action on an established Connection:
 
 ~~~
 Connection.Send(Message, sendParameters)
@@ -954,7 +954,7 @@ Connection.Send(Message, sendParameters)
 
 The type of the Message to be passed is dependent on the implementation, and
 on the constraints on the Protocol Stacks implied by the Connection's
-transport parameters. It may itself contain an array of octets to be
+Transport Properties. It may itself contain an array of octets to be
 transmitted in the transport protocol payload, or be transformable to an array
 of octets by a sender-side framer (see {{send-framing}}).
 
@@ -986,7 +986,7 @@ data derived from the Message has been passed down or through the underlying
 Protocol Stack and is no longer the responsibility of the implementation of
 this interface. The exact disposition of the Message when the Sent Event occurs is
 specific to the implementation and the constraints on the Protocol Stacks
-implied by the Connection's transport parameters. The Sent Event contains an
+implied by the Connection's Transport Properties. The Sent Event contains an
 implementation-specific reference to the Message to which it applies.
 
 Sent Events allow an application to obtain an understanding of the amount
@@ -1011,17 +1011,17 @@ Connection -> SendError<msgRef>
 A SendError occurs when a Message could not be sent due to an error condition:
 an attempt to send a Message which is too large for the system and
 Protocol Stack to handle, some failure of the underlying Protocol Stack, or a
-set of send parameters not consistent with the Connection's transport
+set of Message Properties not consistent with the Connection's transport
 parameters. The SendError contains an implementation-specific reference to the
 Message to which it applies.
 
-## Send Parameters {#send-params}
+## Message Properties {#message-props}
 
-The Send Action takes per-Message send parameters which control how the
+The Send Action takes per-Message Message Properties which control how the
 contents will be sent down to the underlying Protocol Stack and transmitted.
 
-If Send Parameters should be overridden for a specific Message, an
-empty sent parameter Object can be acquired and all desired Send Parameters
+If Message Properties should be overridden for a specific Message, an
+empty sent parameter Object can be acquired and all desired Message Properties
 can be added to that Object. A sendParameters Object can be reused for
 sending multiple contents with the same properties.
 
@@ -1030,18 +1030,18 @@ SendParameters := NewSendParameters()
 SendParameters.Add(parameter, value)
 ~~~
 
-The Send Parameters share a single namespace with the Transport Parameters (see
-{{transport-params}}). This allows the specification of Protocol Properties that can
+The Message Properties share a single namespace with the Transport Properties (see
+{{transport-props}}). This allows the specification of Protocol Properties that can
 be overridden on a per-Message basis.
 
-Send Parameters may be inconsistent with the properties of the Protocol Stacks
+Message Properties may be inconsistent with the properties of the Protocol Stacks
 underlying the Connection on which a given Message is sent. For example,
 a Connection must provide reliability to allow setting an infinitie value for the
 lifetime property of a Message. Sending a Message with Send Properties
 inconsistent with the
 Transport Preferences on the Connection yields an error.
 
-The following send parameters are supported:
+The following Message Properties are supported:
 
 ### Lifetime {#send-lifetime}
 
@@ -1200,7 +1200,7 @@ Connection -> Received<Message>
 
 As with sending, the type of the Message to be passed is dependent on the
 implementation, and on the constraints on the Protocol Stacks implied by the
-Connection's transport parameters. 
+Connection's Transport Properties. 
 
 The Message Object must provide some method to retrieve an octet array
 containing application data, corresponding to a single message within the
@@ -1344,11 +1344,11 @@ Connection properties include:
 * Transport Features of the protocols that conform to the Required and
   Prohibited Transport Preferences, which might be selected by the transport
   system during Establishment. These features correspond to the properties
-  given in {{transport-params}} and can only be queried.
+  given in {{transport-props}} and can only be queried.
 
 * Transport Features of the Protocol Stacks that were selected and
   instantiated, once the Connection has been established. These features
-  correspond to the properties given in {{transport-params}} and can only be
+  correspond to the properties given in {{transport-props}} and can only be
   queried. Instead of preference levels, these features have boolean values
   indicating whether or not they were selected. Note that these transport
   features may not fully reflect the specified parameters given in the
@@ -1375,7 +1375,7 @@ The default settings of these properties will vary based on the specific
 protocols being used and the system's configuration.
 
 Note that Protocol Properties are also set during pre-establishment, as
-transport parameters, to preconfigure Protocol Stacks during establishment.
+Transport Properties, to preconfigure Protocol Stacks during establishment.
 
 Generic Protocol Properties include:
 
@@ -1502,6 +1502,11 @@ does provide the following guarantees about the ordering of operations:
   were sent (i.e., delivered to the kernel or to the network interface,
   depending on implementation).
 
+
+# Transport Properties
+
+
+
 # IANA Considerations
 
 RFC-EDITOR: Please remove this section before publication.
@@ -1555,7 +1560,7 @@ should be added to a future revision of the base specification.
 ## Protocol and Path Selection Properties
 
 The following protocol and path selection properties might be made available in
-addition to those specified in {{transport-params}}:
+addition to those specified in {{transport-props}}:
 
 * Suggest a timeout to the Remote Endpoint: This boolean property specifies
   whether an application considers it useful to propose a timeout until the
@@ -1598,8 +1603,8 @@ combination of Application Intents. If specified, Application Intents are
 defined as parameters passed to the Preconnection Object, and may influence the
 Connection established from that Preconnection. If a Connection is cloned to
 form a Connection Group, and associated Application Intents are cloned along
-with the other transport parameters. Some Intents have also corresponding
-Message Properties, similar to the properties in {{send-params}}.
+with the other Transport Properties. Some Intents have also corresponding
+Message Properties, similar to the properties in {{message-props}}.
 
 Application Intents can be added to this interface as Transport Preferences with
 the "Prefer" preference level.
@@ -1676,10 +1681,10 @@ in {{protocol-props}}:
   seconds. \[EDITOR'S NOTE: For discussion of this property, see
   https://github.com/taps-api/drafts/issues/109]
 
-## Send Parameters
+## Message Properties
 
-The following send parameters might be made available in addition to those
-specified in {{send-params}}:
+The following Message Properties might be made available in addition to those
+specified in {{message-props}}:
 
 * Immediate:
   Immediate is a boolean property. If true, the caller prefers immediacy to
