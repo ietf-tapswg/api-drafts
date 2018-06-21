@@ -472,7 +472,7 @@ Bidirectional (default):
 : The connection must support sending and receiving data
 
 unidirectional send:
-: The connection must support sending data. 
+: The connection must support sending data.
 
 unidirectional receive:
 : The connection must support receiving data
@@ -561,7 +561,7 @@ interface types available. Implementations should provide all types that are sup
 on some system to all systems, in order to allow applications to write generic code.
 For example, if a single implementation is used on both mobile devices and desktop
 devices, it should define the `Cellular` interface type for both systems, since an
-application may want to always `Prohibit Cellular`. Note that marking a specific 
+application may want to always `Prohibit Cellular`. Note that marking a specific
 interface type as `Required` limits path selection to a small set of interfaces, and leads
 to less flexible and resilient connection establishment.
 
@@ -585,7 +585,7 @@ specific than network interfaces {{RFC7556}}.
 
 The indentification of a specific Provisioning Domain (PvD) is defined to be implementation-
 and system-specific, since there is not a portable standard format for a PvD identitfier.
-For example, this identifier may be a string name or an integer. As with 
+For example, this identifier may be a string name or an integer. As with
 requiring specific interfaces, requiring a specific PvD strictly limits path selection.
 
 Categories or types of PvDs are also defined to be implementation- and system-specific.
@@ -647,11 +647,19 @@ controlled" a request that is unlikely to succeed.
 
 ## Specifying Security Parameters and Callbacks {#security-parameters}
 
-Common parameters such as TLS ciphersuites are known to implementations. Clients SHOULD
+Most security parameters, e.g., TLS ciphersuites, local identity and private key, etc., 
+may be configured statically. Others are dynamically configured during connection establishment.
+Thus, we partition security parameters and callbacks based on their place in the lifetime
+of connection establishment. Similar to transport parameters, both parameters and callbacks 
+are inherited during cloning (see {{groups}}).
+
+### Pre-Connection Parameters
+
+Common parameters such as TLS ciphersuites are known to implementations. Clients should
 use common safe defaults for these values whenever possible. However, as discussed in
 {{I-D.ietf-taps-transport-security}}, many transport security protocols require specific
 security parameters and constraints from the client at the time of configuration and
-actively during a handshake. These configuration parameters are created as follows
+actively during a handshake. These configuration parameters are created as follows:
 
 ~~~
 SecurityParameters := NewSecurityParameters()
@@ -661,7 +669,7 @@ Security configuration parameters and sample usage follow:
 
 - Local identity and private keys: Used to perform private key operations and prove one's
 identity to the Remote Endpoint. (Note, if private keys are not available, e.g., since they are
-stored in HSMs, handshake callbacks MUST be used. See below for details.)
+stored in HSMs, handshake callbacks must be used. See below for details.)
 
 ~~~
 SecurityParameters.AddIdentity(identity)
@@ -669,25 +677,26 @@ SecurityParameters.AddPrivateKey(privateKey, publicKey)
 ~~~
 
 - Supported algorithms: Used to restrict what parameters are used by underlying transport security protocols.
-When not specified, these algorithms SHOULD default to known and safe defaults for the system. Parameters include:
+When not specified, these algorithms should default to known and safe defaults for the system. Parameters include:
 ciphersuites, supported groups, and signature algorithms.
 
 ~~~
-SecurityParameters.AddSupportedGroup(22)    // secp256k1
-SecurityParameters.AddCiphersuite(0xCCA9)   // TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
-SecurityParameters.AddSignatureAlgorithm(7) // ed25519
+SecurityParameters.AddSupportedGroup(secp256k1)
+SecurityParameters.AddCiphersuite(TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256)
+SecurityParameters.AddSignatureAlgorithm(ed25519)
 ~~~
 
-- Session cache: Used to tune cache capacity, lifetime, re-use,
-and eviction policies, e.g., LRU or FIFO.
+- Session cache management: Used to tune cache capacity, lifetime, re-use,
+and eviction policies, e.g., LRU or FIFO. Constants and policies for these interfaces
+are implementation-specific.
 
 ~~~
-SecurityParameters.SetSessionCacheCapacity(1024)     // 1024 elements
-SecurityParameters.SetSessionCacheLifetime(24*60*60) // 24 hours
-SecurityParameters.SetSessionCacheReuse(1)           // One-time use
+SecurityParameters.SetSessionCacheCapacity(MAX_CACHE_ELEMENTS)
+SecurityParameters.SetSessionCacheLifetime(SECONDS_PER_DAY)
+SecurityParameters.SetSessionCachePolicy(CachePolicyOneTimeUse)
 ~~~
 
-- Pre-shared keying material: Used to install pre-shared keying material established
+- Pre-Shared Key import: Used to install pre-shared keying material established
 out-of-band. Each pre-shared keying material is associated with some identity that typically identifies
 its use or has some protocol-specific meaning to the Remote Endpoint.
 
@@ -695,9 +704,12 @@ its use or has some protocol-specific meaning to the Remote Endpoint.
 SecurityParameters.AddPreSharedKey(key, identity)
 ~~~
 
-Security decisions, especially pertaining to trust, are not static. Thus, once configured,
-parameters must also be supplied during live handshakes. These are best handled as
-client-provided callbacks. Security handshake callbacks include:
+### Connection Establishment Callbacks
+
+Security decisions, especially pertaining to trust, are not static. Once configured,
+parameters may also be supplied during connection establishment. These are best 
+handled as client-provided callbacks. Security handshake callbacks that may be
+invoked during connection establishment include:
 
 - Trust verification callback: Invoked when a Remote Endpoint's trust must be validated before the
 handshake protocol can proceed.
@@ -718,9 +730,6 @@ ChallengeCallback := NewCallback({
 })
 SecurityParameters.SetIdentityChallengeCallback(challengeCallback)
 ~~~
-
-Like transport parameters, security parameters are inherited during cloning (see
-{{groups}}).
 
 # Establishing Connections
 
@@ -801,6 +810,15 @@ The Listen() Action consumes the Preconnection. Once Listen() has been
 called, no further parameters may be bound to the Preconnection, and no
 subsequent establishment call may be made on the Preconnection.
 
+Listening continues until the global context shuts down, or until the Stop
+action is performed on the same Preconnection:
+
+~~~
+Preconnection.Stop()
+~~~
+
+After Stop() is called, the preconnection can be disposed of.
+
 ~~~
 Preconnection -> ConnectionReceived<Connection>
 ~~~
@@ -820,6 +838,12 @@ Preconnection -> ListenError<>
 A ListenError occurs either when the Preconnection cannot be fulfilled for
 listening, when the Local Endpoint (or Remote Endpoint, if specified) cannot
 be resolved, or when the application is prohibited from listening by policy.
+
+~~~
+Preconnection -> Stopped<>
+~~~
+
+A Stopped event occurs after the Preconnection has stopped listening.
 
 ## Peer-to-Peer Establishment: Rendezvous {#rendezvous}
 
@@ -1062,7 +1086,7 @@ Final is a boolean property. If true, this Message is the last one that
 the application will send on a Connection. This allows underlying protocols
 to indicate to the Remote Endpoint that the Connection has been effectively
 closed in the sending direction. For example, TCP-based Connections can
-send a FIN once a Message marked as Final has been completely sent. 
+send a FIN once a Message marked as Final has been completely sent.
 Protocols that do not support signalling the end of a Connection in a given
 direction will ignore this property.
 
@@ -1176,13 +1200,7 @@ Connection -> Received<Message>
 
 As with sending, the type of the Message to be passed is dependent on the
 implementation, and on the constraints on the Protocol Stacks implied by the
-Connection's transport parameters. The Message may also contain metadata from
-protocols in the Protocol Stack; which metadata is available is Protocol Stack
-dependent. In particular, when this information is available, the value of the
-Explicit Congestion Notification (ECN) field is contained in such metadata.
-This information can be used for logging and debugging purposes, and for
-building applications which need access to information about the transport
-internals for their own operation.
+Connection's transport parameters. 
 
 The Message Object must provide some method to retrieve an octet array
 containing application data, corresponding to a single message within the
@@ -1223,6 +1241,31 @@ that cannot be fully retrieved or deframed, or when some other indication is
 received that reception has failed. Such conditions that irrevocably lead the
 the termination of the Connection are signaled using ConnectionError instead
 (see {{termination}}).
+
+## Receive Metadata
+
+Each Message may also contain metadata from protocols in the Protocol Stack; 
+which metadata is available is Protocol Stack dependent. The following metadata
+values are supported:
+
+### ECN {#receive-ecn}
+
+When available, Message metadata carries the value of the Explicit Congestion 
+Notification (ECN) field. This information can be used for logging and debugging 
+purposes, and for building applications which need access to information about 
+the transport internals for their own operation.
+
+### Early Data {#receive-early} 
+
+In some cases it may be valuable to know whether data was read as part of early 
+data streams. This is useful if applications need to treat early data separately, 
+e.g., if early data has different security properties than data sent after 
+connection establishment. In the case of TLS 1.3, client early data can be replayed 
+maliciously (see {{!I-D.ietf-tls-tls13}}). Thus, receivers may wish to perform additional 
+checks for early data to ensure it is idempotent or not replayed. If TLS 1.3 is available 
+and the recipient Message was sent as part of early data, the corresponding metadata carries 
+a flag indicating as such. If early data is enabled, applications should check this metadata 
+field for Messages received during connection establishment and respond accordingly. 
 
 ## Receiving Final Messages
 
@@ -1288,16 +1331,16 @@ Connection properties include:
 
 * The status of the Connection, which can be one of the following:
   Establishing, Established, Closing, or Closed.
-  
+
 * Whether the connection can be used to send data. A connection can not be used for
   sending if the connection was created unidirectional receive only or if a message with
   the final property was sent over this connection.
-  
+
 * Whether the connection can be used to receive data. A connection can not be used for
   reading if the connection was created unidirectional send only or if a message with the
-  final property received was received. The latter is only supported by certain transport 
+  final property received was received. The latter is only supported by certain transport
   protocols, e.g., by TCP as half-closed connection.
-  
+
 * Transport Features of the protocols that conform to the Required and
   Prohibited Transport Preferences, which might be selected by the transport
   system during Establishment. These features correspond to the properties
@@ -1435,6 +1478,29 @@ stack supports it, there is no guarantee that a soft error will be signaled.
 ~~~
 Connection -> SoftError<>
 ~~~
+
+# Ordering of Operations and Events
+
+As this interface is designed to be independent of concurrency model, the
+details of how exactly actions are handled, and on which threads/callbacks
+events are dispatched, are implementation dependent. However, the interface
+does provide the following guarantees about the ordering of operations:
+
+- Received<> will never occur on a Connection before a Ready<> event on that
+  Connection, or a ConnectionReceived<> or RendezvousDone<> containing that
+  Connection.
+
+- No events will occur on a Connection after a Closed<> event, an
+  InitiateError<> or ConnectionError<> on that connection. To ensure this
+  ordering, Closed<> will not occur on a Connection while other events on the
+  Connection are still locally outstanding (i.e., known to the interface and
+  waiting to be dealt with by the application). ConnectionError<> may occur
+  after Closed<>, but the interface must gracefully handle the application
+  ignoring these errors.
+
+- Sent<> events will occur on a Connection in the order in which the Messages
+  were sent (i.e., delivered to the kernel or to the network interface,
+  depending on implementation).
 
 # IANA Considerations
 
