@@ -359,12 +359,6 @@ also a preference for a protocol not available on this path, the transport
 system will try the path first, so the protocol selection property might not
 have an effect.
 
-An implementation of this interface must provide sensible defaults for protocol
-and path selection properties. The defaults given for each property below
-represent a configuration that can be implemented over TCP. An alternate set of
-default Protocol Selection Properties would represent a configuration that can
-be implemented over UDP.
-
 All Transport Properties used in the pre-establishment phase are collected
 in a TransportParameters Object that is passed to the Preconnection Object.
 
@@ -1104,6 +1098,12 @@ does provide the following guarantees about the ordering of operations:
 All Transport Properties are organized within a single namespace shared with
 Connection (see {{connection-props}}) and Message Properties (see {{message-props}}).
 These Transport Properties take values of parameter-specific types.
+
+An implementation of this interface must provide sensible defaults for Protocol
+and Path Selection Properties. The defaults given for each property below
+represent a configuration that can be implemented over TCP. An alternate set of
+default Protocol Selection Properties would represent a configuration that can
+be implemented over UDP.
 
 Note that it is possible for a set of specified Transport Properties to be
 internally inconsistent, or to be inconsistent with the later use of the API by
