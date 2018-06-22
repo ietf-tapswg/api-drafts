@@ -973,58 +973,60 @@ Preconnection.DeframeWith(Deframer)
 Message := Deframer.Deframe(OctetStream, ...)
 ~~~
 
-# Setting and Querying of Connection Properties {#introspection}
+# Setting and Querying Connection Properties {#introspection}
 
-At any point, the application can set and query the properties of a
-Connection. Depending on the phase the Connection is in, the Connection
-properties will include different information.
+At any point, the application can query Connection Properties.
+It can also set per-connection Protocol Properties.
 
 ~~~
 ConnectionProperties := Connection.GetProperties()
 ~~~
 
 ~~~
-Connection.SetProperties()
+Connection.SetProperty(parameter, value)
 ~~~
 
-Connection properties include:
+Depending on the status of the connection, the queried Connection
+Properties will include different information:
 
-* The status of the Connection, which can be one of the following:
+* The status of the connection, which can be one of the following:
   Establishing, Established, Closing, or Closed.
 
-* Whether the connection can be used to send data. A connection can not be used for
-  sending if the connection was created unidirectional receive only or if a message with
-  the final property was sent over this connection.
+* Whether the connection can be used to send data. A connection can not be used
+  for sending if the connection was created with the Selection Property
+  "Unidirectional Receive" or if a Message marked as "Final" was sent over this
+  connection, see {{send-final}}.
 
-* Whether the connection can be used to receive data. A connection can not be used for
-  reading if the connection was created unidirectional send only or if a message with the
-  final property received was received. The latter is only supported by certain transport
-  protocols, e.g., by TCP as half-closed connection.
+* Whether the connection can be used to receive data. A connection can not be
+  used for reading if the connection was created with the Selection Property
+  "Unidirectional Send" or if a Message marked as "Final" was received, see
+  {{receiving-final-messages}}. The latter is only supported by certain
+  transport protocols, e.g., by TCP as half-closed connection.
 
-* Transport Features of the protocols that conform to the Required and
-  Prohibited Transport Preferences, which might be selected by the transport
-  system during Establishment. These features correspond to the properties
-  given in {{transport-props}} and can only be queried.
+* For Connections that are Establishing: Transport Properties that the
+  application specified on the Preconnection, see {{connection-props}}.
+  Selection Properties of a Connection can only be queried, not set.
 
-* Transport Features of the Protocol Stacks that were selected and
-  instantiated, once the Connection has been established. These features
-  correspond to the properties given in {{transport-props}} and can only be
-  queried. Instead of preference levels, these features have boolean values
-  indicating whether or not they were selected. Note that these transport
-  features may not fully reflect the specified parameters given in the
-  pre-establishment phase.  For example, a certain Protocol Selection Property
-  that an application specified as Preferred may not actually be present in
-  the chosen Protocol Stack Instances because none of the currently available
-  transport protocols had this feature.
+* For Connections that are Established, Closing, or Closed: Transport
+  Properties of the actual protocols that were selected and instantiated. These
+  features correspond to the properties given in {{transport-props}} and
+  include Selection Properties and Protocol Properties.
+    * Selection Properties indicate whether or not the
+      Connection has or offers a certain Selection Property. Note that the
+      actually instantiated protocol stack may not match all Protocol
+      Selection Properties that the application specified on the Preconnection.
+      For example, a certain Protocol Selection Property that an application
+      specified as Preferred may not actually be present in the chosen protocol
+      stack because none of the currently available transport protocols had
+      this feature. Selection Properties of a Connection can only be queried.
+    * Protocol Properties of the protocol stack in use (see {{protocol-props}}
+      below). These can be queried and set. Certain specific Procotol Properties
+      may be read-only, on a protocol- and property-specific basis.
 
-* Protocol Properties of the Protocol Stack in use (see {{protocol-props}}
-  below). These can be set or queried. Certain specific procotol queries may
-  be read-only, on a protocol- and property-specific basis.
-
-* Path Properties of the path(s) in use, once the Connection has been
-  established. These properties can be derived from the local provisioning
-  domain {{RFC7556}}, measurements by the Protocol Stack, or other sources. They can only
-  be queried.
+* For Connections that are Established, properties of the path(s) in use. These
+  properties can be derived from the local provisioning domain {{RFC7556}},
+  measurements by the Protocol Stack, or other sources. They can only be
+  queried.
 
 
 # Connection Termination {#termination}
