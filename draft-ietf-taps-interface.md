@@ -1095,15 +1095,17 @@ does provide the following guarantees about the ordering of operations:
 
 # Transport Properties {#transport-props}
 
-All Transport Properties are organized within a single namespace shared with
-Connection (see {{connection-props}}) and Message Properties (see {{message-props}}).
-These Transport Properties take values of parameter-specific types.
+Transport Properties are used to control most aspects of the transport system
+and each property takes values of property-specific types.
+Properties are structured in two ways: 
 
-An implementation of this interface must provide sensible defaults for Protocol
-and Path Selection Properties. The defaults given for each property below
-represent a configuration that can be implemented over TCP. An alternate set of
-default Protocol Selection Properties would represent a configuration that can
-be implemented over UDP.
+ - By how they influence the transport system which leads to a classification
+   into "Selection Properties", "Protocol Properties", "Control Properties" and "Intents".
+ - By the object / phase they can be applied to: Preconnections (see {{connection-props}},
+   Connections (see {{#introspection}} and Messages (see {{message-props}}).
+
+Because some properties can be applied or queried in multiple phases, all
+Transport Properties are organized within a single namespace.
 
 Note that it is possible for a set of specified Transport Properties to be
 internally inconsistent, or to be inconsistent with the later use of the API by
@@ -1153,20 +1155,37 @@ The Preference type is used in most Selection properties to constrain Path Selec
 
 ## Transport Property Classification
 
+
 ### Selection Properties
 
-TODO
+Selection Properties influence protocol and path selection.
+Their value usually is or includes a Preference that constrains (in case of
+Require or Prohibit) or influences (Prefer, Ignore, Avoid) the selection of
+transport protocols and paths used.
+
+An implementation of this interface must provide sensible defaults for
+Selection Properties. The defaults given for each property below represent a
+configuration that can be implemented over TCP. An alternate set of default
+Protocol Selection Properties would represent a configuration that can be
+implemented over UDP.
+
+Protocol Selection Properties can only be set in preconception phase.
+Path Selection Properties are usually used only in the preconception phase, but
+might also be used on massages to assist per-message path selection for
+multipath aware protocols.
+
 
 ### Protocol Properties {#protocol-props}
 
 Protocol Properties represent the configuration of the selected Protocol Stacks
 backing a Connection. Some properties apply generically across multiple
 transport protocols, while other properties only apply to specific protocols.
+Generic properties will be passed to the selected candidate Protocol Stack(s) 
+to configure them before candidate Connection establishment.
 The default settings of these properties will vary based on the specific
 protocols being used and the system's configuration.
 
-Note that Protocol Properties are also set during pre-establishment, as
-Transport Properties, to preconfigure Protocol Stacks during establishment.
+Most Protocol Properties can be set during pre-establishment to preconfigure Protocol Stacks during establishment.
 
 In order to specify Specific Protocol Properties, Transport System
 implementations may offer applications to attach a set of options to the
@@ -1177,22 +1196,19 @@ different protocols. Attempts to set specific protocol properties on a
 Protocol Stack not containing that specific protocol are simply ignored, and
 do not raise an error.
 
-### (Send Properties / TDB)
+### Control Properties
 
+Control properties signals state changes to the transport system.
+See {{send-final}} for an example.
 
 ## Mandatory Transport Properties
 
-In addition to protocol and path selection properties, the Transport Properties
-may also contain Generic and/or Specific Protocol Properties (see
-{{protocol-props}}). These properties will be passed to the selected candidate
-Protocol Stack(s) to configure them before candidate Connection establishment.
-
-The following properties can be used during Protocol and Path selection:
-
+The following properties are mandatory to implement in each TAPS implementation:
+  
 ### Final {#send-final}
 
 Classification: 
-: TODO
+: Control Property
 
 Type: 
 : Boolean
@@ -1819,16 +1835,6 @@ remote endpoint before it is irrelevant and no longer needs to be
 (re-)transmitted. When a Message's Lifetime is infinite, it must be
 transmitted reliably. The type and units of Lifetime are
 implementation-specific.
-
-
-
-
-
-
-
-
-
-
 
 
 
