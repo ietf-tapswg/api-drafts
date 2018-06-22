@@ -262,7 +262,7 @@ parameters (see {{transport-props}}), and the security parameters (see
 ~~~
    Preconnection := NewPreconnection(LocalEndpoint,
                                      RemoteEndpoint,
-                                     TransportParams,
+                                     TransportProperties,
                                      SecurityParams)
 ~~~
 
@@ -336,8 +336,8 @@ traversal protocols (see {{rendezvous}}).
 ## Specifying Transport Properties {#connection-props}
 
 A Preconnection Object holds parameters reflecting the application's
-requirements and preferences for the transport. These include protocol and path
-selection parameters, as well as Generic and Specific Protocol Properties for
+requirements and preferences for the transport. These include Protocol and Path
+Selection Properties, as well as Generic and Specific Protocol Properties for
 configuration of the detailed operation of the selected Protocol Stacks.
 
 The protocol(s) and path(s) selected as candidates during Connection
@@ -352,40 +352,42 @@ Internally, the transport system will first exclude all protocols and paths
 that match a Prohibit, then only keep candidates that match a Require, then
 sort candidates according to Preferred properties, and then use Avoided
 properties as a tiebreaker.
-In case of conflicts between protocol and path selection properties,
-path selection properties take precedence.
+In case of conflicts between Protocol and Path Selection Properties,
+Path Selection Properties take precedence.
 For example, if an application indicates a preference for a specific path, but
 also a preference for a protocol not available on this path, the transport
-system will try the path first, so the protocol selection property might not
+system will try the path first, so the Protocol Selection Property might not
 have an effect.
 
 All Transport Properties used in the pre-establishment phase are collected
-in a TransportParameters Object that is passed to the Preconnection Object.
+in a TransportProperties Object that is passed to the Preconnection Object.
 
 ~~~
-TransportParameters := NewTransportParameters()
+TransportProperties := NewTransportProperties()
 ~~~
 
-The Individual parameters are then added to the TransportParameters Object.
+The Individual parameters are then added to the TransportProperties Object.
 While all Properties use the `add` call, Transport Properties of Preference
 Type can use special calls for the levels defined in {{transport-props-preference}}.
 
 ~~~
-TransportParameters.Add(parameter, value)
+TransportProperties.Add(parameter, value)
 
-TransportParameters.Require(preference)
-TransportParameters.Prefer(preference)
-TransportParameters.Ignore(preference)
-TransportParameters.Avoid(preference)
-TransportParameters.Prohibit(preference)
+TransportProperties.Require(preference)
+TransportProperties.Prefer(preference)
+TransportProperties.Ignore(preference)
+TransportProperties.Avoid(preference)
+TransportProperties.Prohibit(preference)
 ~~~
 
 For an existing Connection, the Transport Properties can be queried any time
 by using the following call on the Connection Object:
 
 ~~~
-TransportParameters := Connection.GetTransportParameters()
+TransportProperties := Connection.GetTransportProperties()
 ~~~
+
+{{transport-props}} provides a list of Transport Properties.
 
 Note that most properties are only considered for Connection establishment and
 can not be changed after a Connection is established; however, they can be
@@ -701,7 +703,7 @@ is sent by passing a Message Object and additional parameters
 {{message-props}} to the Send Action on an established Connection:
 
 ~~~
-Connection.Send(Message, sendParameters)
+Connection.Send(Message, MessageProperties)
 ~~~
 
 The type of the Message to be passed is dependent on the implementation, and
@@ -769,29 +771,28 @@ Message to which it applies.
 
 ## Message Properties {#message-props}
 
-The Send Action takes per-Message Message Properties which control how the
+The Send Action takes Message Properties which control how the
 contents will be sent down to the underlying Protocol Stack and transmitted.
 
-If Message Properties should be overridden for a specific Message, an
-empty sent parameter Object can be acquired and all desired Message Properties
-can be added to that Object. A sendParameters Object can be reused for
-sending multiple contents with the same properties.
+Message Properties share a single namespace with Transport Properties (see
+{{transport-props}}). This allows the specification of per-Connection Protocol
+Properties that can be overridden on a per-Message basis.
+
+If an application wants to override Message Properties for a specific message,
+it can acquire an empty MessageProperties Object and add all desired Message
+Properties to that Object. It can then reuse the same MessageProperties Object
+for sending multiple Messages with the same properties.
 
 ~~~
 MessageProperties := NewMessagedProperties()
 MessageProperties.Add(property, value)
 ~~~
 
-The Message Properties share a single namespace with the Transport Properties (see
-{{transport-props}}). This allows the specification of Protocol Properties that can
-be overridden on a per-Message basis.
-
 Message Properties may be inconsistent with the properties of the Protocol Stacks
 underlying the Connection on which a given Message is sent. For example,
 a Connection must provide reliability to allow setting an infinitie value for the
-lifetime property of a Message. Sending a Message with Send Properties
-inconsistent with the
-Transport Preferences on the Connection yields an error.
+lifetime property of a Message. Sending a Message with Message Properties
+inconsistent with the Selection Properties of the Connection yields an error.
 
 
 
@@ -805,8 +806,8 @@ in the batch is enqueued.
 
 ~~~
 Connection.Batch(
-    Connection.Send(Message, sendParameters)
-    Connection.Send(Message, sendParameters)
+    Connection.Send(Message, MessageProperties)
+    Connection.Send(Message, MessageProperties)
 )
 ~~~
 
