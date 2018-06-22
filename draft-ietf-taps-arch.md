@@ -362,9 +362,9 @@ If two different Protocol Stacks can be safely swapped, or raced in parallel {{r
 
 ### Transport Security Equivalence {#security-equivalence}
 
-The inclusion of transport security protocols {{I-D.ietf-taps-transport-security}} in a Protocol Stack adds extra restrictions to Protocol Stack equivalence. Security features, such as encryption, can vary in the level of protection they provide to an application's data depending on which algorithms are used, as well as how the algorithm is used within the protocol. Different protocols or protocol versions that use the same cryptographic algorithms should not be assumed to provide equivalent data protection.
+The inclusion of transport security protocols {{I-D.ietf-taps-transport-security}} in a Protocol Stack adds extra restrictions to Protocol Stack equivalence. Security features and properties, such as cryptographic algorithms, peer authentication, and identity privacy vary across security protocols, and across versions of security protocols. Protocol equivalence should not be assumed for different protocols or protocol versions, even if they offer similar application configuration options.
 
-To ensure that security protocols are not incorrectly swapped, Transport Services systems should only automatically generate equivalent Protocol Stacks when the transport security protocols within the stacks are identical. For example, the same version of TLS running over two different transport protocol stacks may be considered equivalent.
+To ensure that security protocols are not incorrectly swapped, Transport Services systems should only automatically generate equivalent Protocol Stacks when the transport security protocols within the stacks are identical. Specifically, a system should consider protocols identical only if they are of the same type and version. For example, the same version of TLS running over two different transport protocol stacks may be considered equivalent, whereas TLS 1.2 and TLS 1.3 {{I-D.ietf-tls-tls13}} should not be considered equivalent.
 
 ## Message Framing, Parsing, and Serialization {#framing}
 
