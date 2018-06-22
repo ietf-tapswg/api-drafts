@@ -1118,14 +1118,24 @@ caught early in the development process.
 
 ## Transport Property Types
 
+### Boolean {#transport-props-bool}
 
-### Enumeration{#transport-props-enum}
+A boolean is a data type that can be either "true" or "false". 
+Boolean transport properties should only be used for properties that can not
+be used in an optional way or to query the state of the transport implementation. 
+For optional features, especially in selection properties, the usage of the
+Preference type (see {{transport-props-preference}}) is preferred.
 
-TODO
+### Enumeration {#transport-props-enum}
 
-### Int {#transport-props-int}
+Enumeration types are used for transport properties that can take one value
+out of a limit set of choices. 
+The representation is implementation dependent.
 
-TODO
+### Integer {#transport-props-int}
+
+Integer types are used to represent integer numbers. 
+The representation is implementation dependent.
 
 ### Preference {#transport-props-preference}
 
@@ -1380,7 +1390,7 @@ Classification:
 : Protocol Property (Generic)
 
 Type: 
-: Int
+: Integer
 
 Applicability: 
 : Connections 
@@ -1440,7 +1450,7 @@ Classification:
 : Protocol Property (Generic)
 
 Type: 
-: Int
+: Integer
 
 Applicability: 
 : Message 
@@ -1460,7 +1470,7 @@ Classification:
 : Protocol Property (Generic)
 
 Type: 
-: Int
+: Integer
 
 Applicability: 
 : Connections 
@@ -1665,7 +1675,7 @@ Classification:
 : Protocol Property (Generic)
 
 Type: 
-: Int
+: Integer
 
 Applicability: 
 : Connections 
@@ -1682,7 +1692,7 @@ Classification:
 : Protocol Property (Generic)
 
 Type: 
-: Int
+: Integer
 
 Applicability: 
 : Message 
@@ -1705,7 +1715,7 @@ Classification:
 : Protocol Property (Generic)
 
 Type: 
-: Int
+: Integer
 
 Applicability: 
 : Connections 
@@ -1737,7 +1747,7 @@ Classification:
 : Protocol Property (Generic)
 
 Type: 
-: Int
+: Integer
 
 Applicability: 
 : Connections 
@@ -1753,7 +1763,7 @@ Classification:
 : Protocol Property (Generic)
 
 Type: 
-: Int
+: Integer
 
 Applicability: 
 : Connections 
@@ -1769,7 +1779,7 @@ Classification:
 : Protocol Property (Generic)
 
 Type: 
-: Int
+: Integer
 
 Applicability: 
 : Connections 
@@ -1784,7 +1794,7 @@ Classification:
 : Protocol Property (Generic)
 
 Type: 
-: Int
+: Integer
 
 Applicability: 
 : Connections 
@@ -1799,7 +1809,7 @@ Classification:
 : Protocol Property (Generic)
 
 Type: 
-: Int
+: Integer
 
 Applicability: 
 : Message 
