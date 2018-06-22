@@ -1117,7 +1117,6 @@ Implementations of this interface should also raise any detected errors in
 configuration as early as possible, to help ensure these inconsistencies are
 caught early in the development process.
 
-
 ## Transport Property Types
 
 ### Boolean {#transport-props-bool}
@@ -1195,6 +1194,11 @@ selected by the system. Such properties must not be assumed to apply across
 different protocols. Attempts to set specific protocol properties on a
 Protocol Stack not containing that specific protocol are simply ignored, and
 do not raise an error.
+
+Note that many protocol properties have a corresponding selection property
+asking for a protocol providing a specific transport feature that is controlled
+by the protocol property.
+
 
 ### Control Properties
 
