@@ -352,13 +352,13 @@ The Transport System Implementation Concepts define the set of objects used inte
 
 The Transport Services architecture defines a mechanism that allows applications to easily use different network paths and Protocol Stacks. Transitioning between different Protocol Stacks may in some cases be controlled by properties that only change when application code is updated. For example, an application may enable the use of a multipath or multistreaming transport protocol by modifying the properties in its Pre-Connection configuration. In some cases, however, the Transport Services system will be able to automatically change Protocol Stacks without an update to the application, either by selecting a new stack entirely, or racing multiple candidate Protocol Stacks during connection establishment. This functionality can be a powerful driver of new protocol adoption, but must be constrained carefully to avoid unexpected behavior that can lead to functional or security problems.
 
-If two different Protocol Stacks can be safely swapped, or raced in parallel {{racing}}, then they are considered to be "equivalent". Equivalent Protocol Stacks must meet the following criteria:
+If two different Protocol Stacks can be safely swapped, or raced in parallel (see {{racing}}), then they are considered to be "equivalent". Equivalent Protocol Stacks must meet the following criteria:
 
 1. Both stacks must offer the same interface to the application for connection establishment and data transmission. For example, if one Protocol Stack has UDP as the top-level interface to the application, then it is not equivalent to a Protocol Stack that runs TCP as the top-level interface. Among other differences, the UDP stack would allow an application to read out message boundaries based on datagrams sent from the Remote Endpoint, whereas TCP does not preserve message boundaries on its own.
 
 2. Both stacks must offer the same transport services, as required by the application. For example, if an application specifies that it requires reliable transmission of data, then a Protocol Stack using UDP without any reliability layer on top would not be allowed to replace a Protocol Stack using TCP. However, if the application does not require reliability, then a Protocol Stack that adds unnecessary reliability would be allowed as an equivalent Protocol Stack.
 
-3. Both stacks must offer the same security properties. See the security protocol equivalence section below for futher discussion {{security-equivalence}}.
+3. Both stacks must offer the same security properties. See the security protocol equivalence section below for futher discussion ({{security-equivalence}}).
 
 ### Transport Security Equivalence {#security-equivalence}
 
