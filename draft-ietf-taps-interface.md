@@ -1221,7 +1221,7 @@ the application will send on a Connection. This allows underlying protocols
 to indicate to the Remote Endpoint that the Connection has been effectively
 closed in the sending direction. For example, TCP-based Connections can
 send a FIN once a Message marked as Final has been completely sent.
-Protocols that do not support signalling the end of a Connection in a given
+Protocols that do not support signaling the end of a Connection in a given
 direction will ignore this property.
 
 Note that a Final Message must always be sorted to the end of a list of Messages.
@@ -1233,20 +1233,57 @@ been sent on a Connection, the new Message will report an error.
 ### Reliable Data Transfer {#prop-reliable}
 
 Classification: 
+: Selection Property, Protocol Property 
+
+Type: 
+: Preference
+
+Applicability: 
+: Preconnection, Message 
+
+This property specifies whether the application wishes to use a
+transport protocol that that provides mechanisms to help ensure that all data
+is received and without corruption on the other side. This also entails being
+notified when a Connection is closed or aborted. The default is to enable 
+Reliable Data Transfer.
+
+Reliable Data Transfer can only be used on Messages if the transport protocol 
+supports partial reliability (see {{prop-partially-reliable}}).
+
+
+### Configure reliability on a per-Message basis {#prop-partially-reliable}
+
+Classification: 
 : Selection Property 
 
 Type: 
 : Preference
 
 Applicability: 
-: Connection 
+: Preconnection 
+
+This property specifies whether an application considers it
+useful to indicate its reliability requirements on a per-Message basis.
+This property applies to Connections and Connection Groups. This is not a
+strict requirement.  The default is to not have this option.
+
+
+### Preservation of data ordering {#prop-ordering}
+
+Classification: 
+: Selection Property 
+
+Type: 
+: Preference
+
+Applicability: 
+: Preconnection 
 
 This property specifies whether the application wishes to use a
-transport protocol that that provides mechanisms to help ensure that all data
-is received and without corruption on the other side. This also entails being
-notified when a Connection is closed or aborted. This property applies to
-Connections and Connection Groups.  This is a strict requirement. The default
-is to enable Reliable Data Transfer.
+transport protocol that provides mechanisms to ensure that data is received
+by the application on the other end in the same order as it was sent. This
+property applies to Connections and Connection Groups. This is a strict
+requirement. The default is to preserve data ordering.
 
 
 ### Ordered {#send-ordered}
@@ -1265,41 +1302,6 @@ same Connection via the Send Action; if false, this Message may be delivered
 out of order.
 
 
-### Preservation of data ordering {#prop-ordering}
-
-Classification: 
-: Selection Property 
-
-Type: 
-: Preference
-
-Applicability: 
-: Connection 
-
-This property specifies whether the application wishes to use a
-transport protocol that provides mechanisms to ensure that data is received
-by the application on the other end in the same order as it was sent. This
-property applies to Connections and Connection Groups. This is a strict
-requirement. The default is to preserve data ordering.
-
-
-### Configure reliability on a per-Message basis {#prop-partially-reliable}
-
-Classification: 
-: Selection Property 
-
-Type: 
-: Preference
-
-Applicability: 
-: Connection 
-
-This property specifies whether an application considers it
-useful to indicate its reliability requirements on a per-Message basis.
-This property applies to Connections and Connection Groups. This is not a
-strict requirement.  The default is to not have this option.
-
-
 ### Direction of communication
 
 Classification: 
@@ -1309,7 +1311,7 @@ Type:
 : Enumeration
 
 Applicability: 
-: Connection 
+: Preconnection, Connection (read only)
 
 This property specifies whether an application wants to use the connection for sending and/or receiving data.  Possible values are:
 
@@ -1352,7 +1354,7 @@ Type:
 : Preference
 
 Applicability: 
-: Connection 
+: Preconnection, Connection (read only) 
 
 This property specifies whether an application would like to
 supply a Message to the transport protocol before Connection
@@ -1371,7 +1373,7 @@ Type:
 : Preference
 
 Applicability: 
-: Connection 
+: Preconnection, Connection 
 
 This property specifies that the application would prefer multiple
 Connections within a Connection Group to be provided by streams of a single
@@ -1382,13 +1384,13 @@ requirement. The default is to not have this option.
 ### Notification of excessive retransmissions {#prop-retrans-notify}
 
 Classification: 
-: Selection Property 
+: Protocol Property / Control Property (TODO)
 
 Type: 
 : Boolean
 
 Applicability: 
-: Connection 
+: Preconnection, Connection, Connection Group 
 
 This property specifies whether an application considers it useful to be informed in case sent data was retransmitted more often than a certain threshold.
 When set to true, the effect is twofold:
@@ -1396,20 +1398,19 @@ The application may receive events in case excessive retransmissions.
 In addition, the transport system considers this as a preference to use transports stacks that can provide this notification. This is not a strict requirement.
 If set to false, no notification of excessive retransmissions will be sent and this transport feature is ignored for protocol selection.
 
-This property applies to Connections and Connection Groups.
 The default is to have this option.
 
 
 ### Retransmission threshold before excessive retransmission notification
 
 Classification: 
-: Protocol Property (Generic)
+: Protocol Property / Control Property (TODO)
 
 Type: 
 : Integer
 
 Applicability: 
-: Connections 
+: Preconnection, Connection, Connection Group 
 
 This numeric property specifies after how many retransmissions to inform the
 application about "Excessive Retransmissions".
@@ -1418,13 +1419,13 @@ application about "Excessive Retransmissions".
 ### Notification of ICMP soft error message arrival {#prop-soft-error}
 
 Classification: 
-: Selection Property 
+: Protocol Property / Control Property (TODO)
 
 Type: 
 : Boolean
 
 Applicability: 
-: Connection 
+: Preconnection, Connection, Connection Group 
 
 This property specifies whether an application considers it useful
 to be informed when an ICMP error message arrives that does not force
@@ -1449,7 +1450,7 @@ Type:
 : Preference
 
 Applicability: 
-: Connection 
+: Preconnection 
 
 This property specifies whether the application considers it
 useful to enable / disable / configure a checksum when sending data,
@@ -1489,7 +1490,7 @@ Type:
 : Integer
 
 Applicability: 
-: Connections 
+: Connection
 
 This property specifies the part of the received data that needs
 to be covered by a checksum. It is given in Bytes. A value of 0 means
@@ -1506,7 +1507,7 @@ Type:
 : Tuple (Enumeration, Preference)
 
 Applicability: 
-: Connection 
+: Preconnection 
 
 This property allows the application to select which specific network interfaces
 or categories of interfaces it wants to `Require`, `Prohibit`, `Prefer`, or `Avoid`.
@@ -1546,7 +1547,7 @@ Type:
 : Tuple (Enumeration, Preference)
 
 Applicability: 
-: Connection 
+: Preconnection 
 
 Similar to interface instances and types {{prop-interface}}, this property allows
 the application to control path selection by selecting which specific Provisioning Domains
@@ -1571,13 +1572,13 @@ options.
 ### Capacity Profile {#prop-cap-profile}
 
 Classification: 
-: Selection Property 
+: Selection Property, Protocol Property
 
 Type: 
 : Enumeration
 
 Applicability: 
-: Connection 
+: Preconnection, Connection, Message 
 
 This property specifies the application's expectation of the dominating traffic pattern for this Connection.
 This implies that the transport system should optimize for the capacity profile specified. This can influence path and protocol selection.
@@ -1613,46 +1614,6 @@ The following values are valid for Capacity Profile:
   less-than-best-effort treatment, or to assign the traffic to a lower-effort service.
 
 
-### Transmission Profile {#send-profile}
-
-Classification: 
-: TODO
-
-Type: 
-: Enumeration
-
-Applicability: 
-: Message 
-
-This enumerated property specifies the application's preferred tradeoffs for
-sending this Message; it is a per-Message override of the Capacity Profile
-protocol and path selection property (see {{prop-cap-profile}}).
-
-The following values are valid for Transmission Profile:
-
-  Default:
-  :  No special optimizations of the tradeoff between delay, delay
-  variation, and bandwidth efficiency should be made when sending this message.
-
-  Low Latency:
-  : Response time (latency) should be optimized at
-  the expense of efficiently using the available capacity when sending this
-  message. This can be used by the system to disable the coalescing of
-  multiple small Messages into larger packets (Nagle's algorithm); to prefer
-  immediate acknowledgment from the peer endpoint when supported by the
-  underlying transport; to signal a preference for lower-latency, higher-loss
-  treatment; and so on.
-
-  Constant Rate:
-  : Delay should be minimized at the
-  expense of efficiently using the available capacity.
-
-  Scavenger/Bulk:
-  : This Message may be sent at the system's leisure. This can
-  be used to signal a preference for less-than-best-effort treatment,
-  assign the traffic to a lower effort service, delay sending until lower-cost
-  paths are available, and so on.
-  
 ### Congestion control {#prop-cc}
 
 Classification: 
@@ -1662,7 +1623,7 @@ Type:
 : Preference
 
 Applicability: 
-: Connections 
+: Preconnection
 
 This property specifies whether the application would like the Connection to be
 congestion controlled or not. Note that if a Connection is not congestion controlled,
@@ -1671,7 +1632,8 @@ accordance with {{?RFC2914}}. Also note that reliability is usually combined wit
 congestion control in protocol implementations, rendering "reliable but not congestion
 controlled" a request that is unlikely to succeed.
 
-### Congestion control:
+
+### Congestion control
 
 Classification: 
 : Protocol Property (Generic)
@@ -1680,10 +1642,13 @@ Type:
 : Boolean
 
 Applicability: 
-: Connections 
+: Connection
 
 This boolean property informs about the protocol carrying out congestion
 control or not. This property is read-only.
+
+TODO: merge with above?
+
 
 ### Relative niceness
 
@@ -1694,13 +1659,14 @@ Type:
 : Integer
 
 Applicability: 
-: Connections 
+: Connection
 
 This Property is a non-negative integer representing the relative inverse
 priority of this Connection relative to other Connections in the same
 Connection Group. It has no effect on Connections not part of a Connection
 Group. As noted in {{groups}}, this property is not entangled when Connections
 are cloned.
+
 
 ### Niceness {#send-niceness}
 
@@ -1725,6 +1691,9 @@ wire for Protocol Stacks supporting prioritization.
 This encoding of the priority has a convenient property that the priority
 increases as both Niceness and Lifetime decrease.
 
+TODO: merge with above?
+
+
 ### Timeout for aborting Connection
 
 Classification: 
@@ -1734,7 +1703,7 @@ Type:
 : Integer
 
 Applicability: 
-: Connections 
+: Preconnection, Connection 
 
 This property specifies how long to wait before aborting a Connection during
 establishment, or before deciding that a Connection has failed after
@@ -1750,7 +1719,7 @@ Type:
 : Enum
 
 Applicability: 
-: Connections 
+: Connection Group
 
 This property specifies which scheduler should be used among Connections within
 a Connection Group. It applies to Connection Groups; the set of schedulers can
@@ -1782,7 +1751,7 @@ Type:
 : Integer
 
 Applicability: 
-: Connections 
+: Connection (read only)
 
 This property, if applicable, represents the maximum Message size that can be
 sent without incurring network-layer fragmentation and/or transport layer
@@ -1798,7 +1767,7 @@ Type:
 : Integer
 
 Applicability: 
-: Connections 
+: Connection (read only)
 
 This property represents the maximum Message size that can be sent. This
 property is read-only.
@@ -1813,7 +1782,7 @@ Type:
 : Integer
 
 Applicability: 
-: Connections 
+: Connection (read only)
 
 This numeric property represents the maximum Message size that can be received.
 This property is read-only.
