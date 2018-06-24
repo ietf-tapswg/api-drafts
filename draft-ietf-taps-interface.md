@@ -945,29 +945,46 @@ capacity that it sees fit.
 # Sending Data {#sending}
 
 Once a Connection has been established, it can be used for sending data. Data
-is sent by passing a Message Object and additional parameters
-{{send-params}} to the Send Action on an established Connection:
+is always sent in association with a Message Object and additional parameters
+({{send-params}}) using the Send Action on an established Connection:
 
 ~~~
-Connection.Send(Message, sendParameters)
+Connection.Send(Message, messageData, endOfMessage)
 ~~~
 
-The type of the Message to be passed is dependent on the implementation, and
-on the constraints on the Protocol Stacks implied by the Connection's
-transport parameters. It may itself contain an array of octets to be
-transmitted in the transport protocol payload, or be transformable to an array
-of octets by a sender-side framer (see {{send-framing}}).
+The Message parameter defines a single instance of a message and its parameters.
+The interpretation of a Message to be sent is dependent on the implementation, and 
+on the constraints on the Protocol Stacks implied by the Connection’s transport parameters.
+For example, a Message may be a single datagram for UDP Connections; or an HTTP
+Request for HTTP Connections. Various Send Parameters can be configured before using 
+a Message to send, which influence the priority and treatment of the Message's data upon 
+sending. See {{send-params}} for a description of each parameter.
+
+~~~
+Message := NewMessage()
+~~~
+
+The messageData parameter contains any octects to be sent for this message.
+
+~~~
+messageData := "hello".octets()
+~~~
+
+The endOfMessage parameter is a boolean that indicates whether or not this
+Send Action completes the Message, or if more messageData is expected.
+Applications using protocols with small Message or datagram lengths will generally
+always mark their Sends as complete. Applications that need to stream data,
+sometimes due to the data being too large to hold in memory at any one time, 
+will perform multiple Send Actions on the same Message with different portions of 
+messageData. All messageData sent with the same Message object will
+be treated as an in-order series, until the endOfMessage is marked. Once the end
+is marked, the Message object may be re-used as a new Message that has the
+same Send Parameters.
 
 Some transport protocols can deliver arbitrarily sized Messages, but other
 protocols constrain the maximum Message size. Applications can query the
-protocol property Maximum Message Size on Send to determine the maximum size.
-
-There may also be system and Protocol Stack dependent limits on the size of
-a Message which can be transmitted atomically. For that reason, the Message
-object passed to the Send action may also be a partial Message, either
-representing the whole data object and information about the range of bytes
-to send from it, or an object referring back to the larger whole Message.
-The details of partial Message sending are implementation-dependent.
+protocol property Maximum Message Size on Send to determine the maximum size
+allowed for a single Message.
 
 If Send is called on a Connection which has not yet been established, an
 Initiate Action will be implicitly performed simultaneously with the Send.
@@ -1015,33 +1032,24 @@ set of send parameters not consistent with the Connection's transport
 parameters. The SendError contains an implementation-specific reference to the
 Message to which it applies.
 
-## Send Parameters {#send-params}
+## Message Send Parameters {#send-params}
 
-The Send Action takes per-Message send parameters which control how the
-contents will be sent down to the underlying Protocol Stack and transmitted.
+Each Message can be marked with Send Parameters to control how Data
+associated with the Message will be sent down to the underlying Protocol Stack 
+and transmitted. Note that these properties are per-Message, not per-Send.
+All data portions associated with a single Message share properties. For example,
+it would not make sense to have the beginning of a Message expire, but allow
+the end of a Message to still be sent.
 
-If Send Parameters should be overridden for a specific Message, an
-empty sent parameter Object can be acquired and all desired Send Parameters
-can be added to that Object. A sendParameters Object can be reused for
-sending multiple contents with the same properties.
+Parameters may be added to a Message object before the Message is used
+for sendings.
 
 ~~~
-SendParameters := NewSendParameters()
-SendParameters.Add(parameter, value)
+Message := NewMessage()
+Message.Add(parameter, value)
 ~~~
 
-The Send Parameters share a single namespace with the Transport Parameters (see
-{{transport-params}}). This allows the specification of Protocol Properties that can
-be overridden on a per-Message basis.
-
-Send Parameters may be inconsistent with the properties of the Protocol Stacks
-underlying the Connection on which a given Message is sent. For example,
-a Connection must provide reliability to allow setting an infinitie value for the
-lifetime property of a Message. Sending a Message with Send Properties
-inconsistent with the
-Transport Preferences on the Connection yields an error.
-
-The following send parameters are supported:
+The following Message Send Parameters are supported:
 
 ### Lifetime {#send-lifetime}
 
@@ -1064,7 +1072,6 @@ wire for Protocol Stacks supporting prioritization.
 
 This encoding of the priority has a convenient property that the priority
 increases as both Niceness and Lifetime decrease.
-
 
 ### Ordered {#send-ordered}
 
@@ -1146,8 +1153,8 @@ in the batch is enqueued.
 
 ~~~
 Connection.Batch(
-    Connection.Send(Message, sendParameters)
-    Connection.Send(Message, sendParameters)
+    Connection.Send(Message, messageData, endOfMessage)
+    Connection.Send(Message, messageData, endOfMessage)
 )
 ~~~
 
@@ -1163,7 +1170,7 @@ it is bound to the Preconnection during the pre-establishment phase:
 ~~~
 Preconnection.FrameWith(Framer)
 
-OctetArray := Framer.Frame(Message)
+OctetArray := Framer.Frame(Message, messageData, endOfMessage)
 ~~~
 
 Sender-side framing is a convenience feature of the interface, for parity with
@@ -1171,10 +1178,11 @@ receiver-side framing (see {{receive-framing}}).
 
 # Receiving Data {#receiving}
 
-Once a Connection is established, Messages may be received on it. The application can indicate that it is ready to receive Messages by calling Receive() on the Connection.
+Once a Connection is established, Messages may be received on it. The application can
+indicate that it is ready to receive Messages by calling Receive() on the Connection.
 
 ~~~
-Connection.Receive(ReceiveHandler, maxLength)
+Connection.Receive(ReceiveHandler, minIncompleteLength, maxLength)
 ~~~
 
 Receive takes a ReceiveHandler, which can handle the Received Event and the
@@ -1185,30 +1193,41 @@ number of Messages with a single call. This allows an application to provide
 backpressure to the transport stack when it is temporarily not ready to
 receive messages.
 
+Receive takes an optional minIncompleteLength argument. This value indicates
+the smallest partial Message data size that should be delivered. By default, this
+value is infinite, which means that only complete, atomic Messages will be delivered.
+If this value is set to some smaller value, the associated ReceiveHandler will
+be triggered only when at least that many bytes are available, the Message is
+complete, or the system needs to free up memory.
+
 Receive also takes an optional maxLength argument, the maximum size (in bytes
 of data) Message the application is currently prepared to receive. The default
 value for maxLength is infinite. If an incoming Message is larger than the
 minimum of this size and the maximum Message size on receive for
 the Connection's Protocol Stack, it will be received as a partial Message.
-Note that maxLength does not guarantee that the application will receive that
-many bytes if they are available; the interface may return partial Messages
-smaller than maxLength according to implementation constraints.
+Partial Messages are indicated by marking the endOfMessage boolean value
+as false in the ReceivedHandler. Note that maxLength does not guarantee that 
+the application will receive that many bytes if they are available; the interface may
+return partial Messages smaller than maxLength according to implementation constraints.
 
 ~~~
-Connection -> Received<Message>
+Connection -> Received<Message, messageData, endOfMessage>
 ~~~
 
 As with sending, the type of the Message to be passed is dependent on the
 implementation, and on the constraints on the Protocol Stacks implied by the
 Connection's transport parameters. 
 
-The Message Object must provide some method to retrieve an octet array
-containing application data, corresponding to a single message within the
-underlying Protocol Stack's framing.  See {{receive-framing}} for handling
-framing in situations where the Protocol Stack provides octet-stream transport
-only.
+The Message Object identifies the logical message received by the transport
+protocol, and provides methods to access metadata about the received data.
+The octets of data associated with this message are delivered as messageData.
+Multiple invocations of the ReceivedHandler may devlier data for the same
+Message until the endOfMessage flag is delivered. See {{receive-framing}} for 
+handling Message framing in situations where the Protocol Stack provides 
+octet-stream transport only.
 
-The Message Object passed to Received is complete and atomic, unless one of the following
+If the minIncompleteLength was set to be infinite, the Message passed to Received
+will complete and atomic (that is, endOfMessage will be set), unless one of the following
 conditions holds:
 
 * the underlying Protocol Stack supports message boundary preservation, and
@@ -1220,17 +1239,9 @@ conditions holds:
 * the underlying Protocol Stack does not support message boundary
   preservation, and no deframer was supplied by the application
 
-The Message Object passed to Received will indicate one of the following:
-
-1. this is a complete message;
-2. this is a partial message containing a section of a message with a known message boundary (made partial for local buffering reasons, either by the underlying Protocol Stack or the deframer). In this case, the Message Object passed to Received may contain the byte offset of the data in the partial Message within the full Message, an indication whether this is the
-last (highest-offset) partial Message in the full Message, and an optional
-reference to the full Message it belongs to; or
-3. this is a partial message containing data with no definite message boundary, i.e. the only known message boundary is given by termination of the Connection
-
 Note that in the absence of message boundary preservation and without
-deframing, the entire Connection is represented as one large message of
-indeterminate length.
+deframing, all bytes received on the Connection are represented as one 
+large message of indeterminate length.
 
 ~~~
 Connection -> ReceiveError<>
@@ -1310,7 +1321,7 @@ layer, it is bound to the Preconnection during the pre-establishment phase:
 ~~~
 Preconnection.DeframeWith(Deframer)
 
-Message := Deframer.Deframe(OctetStream, ...)
+{Message, messageData} := Deframer.Deframe(OctetStream, ...)
 ~~~
 
 # Setting and Querying of Connection Properties {#introspection}
