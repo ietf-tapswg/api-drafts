@@ -336,9 +336,10 @@ traversal protocols (see {{rendezvous}}).
 ## Specifying Transport Properties {#connection-props}
 
 A Preconnection Object holds parameters reflecting the application's
-requirements and preferences for the transport. These include Protocol and Path
-Selection Properties, as well as Generic and Specific Protocol Properties for
-configuration of the detailed operation of the selected Protocol Stacks.
+requirements and preferences for the transport. These include Selection 
+Properties (Protocol and Path Selection Properties), as well as Generic and 
+Specific Protocol Properties for configuration of the detailed operation of the 
+selected Protocol Stacks.
 
 The protocol(s) and path(s) selected as candidates during Connection
 establishment are determined by a set of properties. Since there could be
@@ -999,7 +1000,7 @@ Properties will include different information:
 
 * Whether the connection can be used to receive data. A connection can not be
   used for reading if the connection was created with the Selection Property
-  "Unidirectional Send" or if a Message marked as "Final" was received, see
+  "Unidirectional: Send" or if a Message marked as "Final" was received, see
   {{receiving-final-messages}}. The latter is only supported by certain
   transport protocols, e.g., by TCP as half-closed connection.
 
@@ -1007,7 +1008,7 @@ Properties will include different information:
   application specified on the Preconnection, see {{connection-props}}.
   Selection Properties of a Connection can only be queried, not set.
 
-* For Connections that are Established, Closing, or Closed: Transport
+* For Connections that are Established, Closing, or Closed (TODO: double-check if closed belongs here): Transport
   Properties of the actual protocols that were selected and instantiated. These
   features correspond to the properties given in {{transport-props}} and
   include Selection Properties and Protocol Properties.
@@ -1105,7 +1106,7 @@ Properties are structured in two ways:
  - By how they influence the transport system which leads to a classification
    into "Selection Properties", "Protocol Properties", "Control Properties" and "Intents".
  - By the object / phase they can be applied to: Preconnections (see {{connection-props}},
-   Connections (see {{#introspection}} and Messages (see {{message-props}}).
+   Connections (see {{introspection}} and Messages (see {{message-props}}).
 
 Because some properties can be applied or queried in multiple phases, all
 Transport Properties are organized within a single namespace.
