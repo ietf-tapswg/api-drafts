@@ -964,7 +964,7 @@ sending. See {{send-params}} for a description of each parameter.
 messageContext := NewMessage()
 ~~~
 
-The messageData parameter contains any octects to be sent for this message.
+The messageData parameter contains the octects to be sent for this message.
 
 ~~~
 messageData := "hello".octets()
