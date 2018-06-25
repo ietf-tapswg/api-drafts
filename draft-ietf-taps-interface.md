@@ -1123,7 +1123,7 @@ also raise any detected errors in configuration as early as possible, to help
 ensure that inconsistencies are caught early in the development process.
 
 
-## Transport Property Types
+## Transport Property Types {#transport-props-types}
 
 Each Transport Property takes a value of a property-specific type.
 
@@ -1163,7 +1163,7 @@ It is a specific instance of the "Enum" type and has five different preference l
 When used on a Connection, this type becomes a (read-only) Boolean representing whether the selected transport supports the requested feature.
 
 
-## Transport Property Classification
+## Transport Property Classification {#transport-props-classes}
 
 
 ### Selection Properties {#selection-props}
@@ -1210,12 +1210,12 @@ Note that many protocol properties have a corresponding selection property
 which asks for a protocol providing a specific transport feature that is controlled
 by the protocol property.
 
-### Control Properties
+### Control Properties {#control-props}
 
 Control properties signals state changes to the transport system.
 See {{send-final}} for an example.
 
-### Intents
+### Intents {#intents}
 
 Intents are hints to the transport system that do not directly map to a single
 protocol/transport feature or behavior of the transport system, but express
@@ -1811,6 +1811,15 @@ remote endpoint before it is irrelevant and no longer needs to be
 transmitted reliably. The type and units of Lifetime are
 implementation-specific.
 
+
+## Optional Transport Properties
+
+TODO: Maybe move some of the above properties here.
+
+
+## Experimental Transport Properties
+
+TODO: Move {{appendix-non-consensus}} here.
 
 
 # IANA Considerations
