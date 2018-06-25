@@ -1122,6 +1122,7 @@ protocols, as Required. Implementations of this interface should
 also raise any detected errors in configuration as early as possible, to help
 ensure that inconsistencies are caught early in the development process.
 
+
 ## Transport Property Types
 
 Each Transport Property takes a value of a property-specific type.
@@ -1147,7 +1148,8 @@ The representation is implementation dependent.
 
 ### Preference {#transport-props-preference}
 
-The Preference Type is a specific instance of the "Enum" type and has five different preference levels:
+The Preference type is used in most Selection properties on a Preconnection object to constrain Path Selection and Protocol Selection.
+It is a specific instance of the "Enum" type and has five different preference levels:
 
    | Preference | Effect                                                             |
    |------------|--------------------------------------------------------------------|
@@ -1157,7 +1159,9 @@ The Preference Type is a specific instance of the "Enum" type and has five diffe
    | Avoid      | Prefer protocols/paths not providing the property, proceed otherwise |
    | Prohibit   | Select only protocols/paths not providing the property, fail otherwise |
 
-The Preference type is used in most Selection properties to constrain Path Selection and Protocol Selection.
+
+When used on a connection, this type this type becomes a (read-only) Boolean representing whether the selected transport supports the requested feature.
+
 
 ## Transport Property Classification
 
@@ -1206,11 +1210,24 @@ Note that many protocol properties have a corresponding selection property
 which asks for a protocol providing a specific transport feature that is controlled
 by the protocol property.
 
-
 ### Control Properties
 
 Control properties signals state changes to the transport system.
 See {{send-final}} for an example.
+
+### Intents
+
+Intents are hints to the transport system that do not directly map to a single
+protocol/transport feature or behavior of the transport system, but express
+a presumed application behavior or generic application needs.
+
+The application can expect the transport system to take appropriate actions
+involving protocol selection, path selection and, setting of protocol flags.
+For example, if an application sets the "Capacity Profile" to "bulk" on a 
+Preconnection, this will likely influence path selection, DSCP flags in
+the IP header as well as niceness for multi-streaming connections.
+When using Intents, the application must not expect consistent behavior across 
+different environments, implementations or versions of the same implementation.
 
 ## Mandatory Transport Properties
 
@@ -1250,7 +1267,7 @@ Type:
 : Preference
 
 Applicability: 
-: Preconnection
+: Preconnection, Connection (read only)
 
 This property specifies whether the application wishes to use a transport
 protocol that ensures that all data is received on the other side without
@@ -1267,7 +1284,7 @@ Type:
 : Preference
 
 Applicability: 
-: Preconnection 
+: Preconnection, Connection (read only) 
 
 This property specifies whether an application considers it useful to indicate
 its reliability requirements on a per-Message basis. This property applies to
@@ -1300,7 +1317,7 @@ Type:
 : Preference
 
 Applicability: 
-: Preconnection 
+: Preconnection, Connection (read only) 
 
 This property specifies whether the application wishes to use a
 transport protocol that ensures that data is received
@@ -1327,13 +1344,13 @@ Action.
 ### Direction of communication
 
 Classification: 
-: Selection Property 
+: Selection Property, Control Property 
 
 Type: 
 : Enumeration
 
 Applicability: 
-: Preconnection
+: Preconnection, Connection (read only)
 
 This property specifies whether an application wants to use the connection for sending and/or receiving data.  Possible values are:
 
@@ -1359,7 +1376,7 @@ Type:
 : Preference
 
 Applicability: 
-: Preconnection
+: Preconnection, Connection (read only)
 
 This property specifies whether an application would like to
 supply a Message to the transport protocol before Connection
@@ -1396,7 +1413,7 @@ Type:
 : Preference
 
 Applicability: 
-: Preconnection
+: Preconnection, Connection (read only)
 
 This property specifies that the application would prefer multiple Connections
 within a Connection Group to be provided by streams of a single underlying
@@ -1406,23 +1423,27 @@ transport connection where possible. The default is to not have this option.
 ### Notification of excessive retransmissions {#prop-retrans-notify}
 
 Classification: 
-: Selection Property
+: Control Property
 
 Type: 
-: Preference
+: Boolean
 
 Applicability: 
-: Preconnection
+: Preconnection, Connection
 
-This property specifies whether an application considers it useful to be
-informed in case sent data was retransmitted more often than a certain
-threshold. The default is to have this option.
+This property specifies whether an application considers it useful to be informed in case sent data was retransmitted more often than a certain threshold.
+When set to true, the effect is twofold:
+The application may receive events in case excessive retransmissions.
+In addition, the transport system considers this as a preference to use transports stacks that can provide this notification. This is not a strict requirement.
+If set to false, no notification of excessive retransmissions will be sent and this transport feature is ignored for protocol selection.
+
+The default is to have this option.
 
 
 ### Retransmission threshold before excessive retransmission notification
 
 Classification: 
-: Protocol Property
+: Control Property
 
 Type: 
 : Integer
@@ -1437,19 +1458,26 @@ application about "Excessive Retransmissions".
 ### Notification of ICMP soft error message arrival {#prop-soft-error}
 
 Classification: 
-: Selection Property
+: Control Property
 
 Type: 
-: Preference
+: Boolean
 
 Applicability: 
-: Preconnection
+: Preconnection, Connection
 
-This property specifies whether an application considers it useful to be
-informed when an ICMP error message arrives that does not force termination of
-a connection. Note that even if a protocol supporting this property is
-selected, not all ICMP errors will necessarily be delivered, so applications
-cannot rely on receiving them. The default is not to have this option.
+This property specifies whether an application considers it useful
+to be informed when an ICMP error message arrives that does not force
+termination of a connection.
+When set to true, received ICMP errors will be available as SoftErrors.
+Note that even if a protocol supporting this property is selected, not all
+ICMP errors will necessarily be delivered, so applications cannot rely
+on receiving them.
+Setting this option also implies a preference to prefer transports stacks that can provide this notification.
+If not set, no events will be sent for ICMP soft error message and this transport feature is ignored for protocol selection.
+
+This property applies to Connections and Connection Groups.
+The default is not to have this option.
 
 
 ### Control checksum coverage on sending or receiving {#prop-checksum-control}
@@ -1461,7 +1489,7 @@ Type:
 : Preference
 
 Applicability: 
-: Preconnection 
+: Preconnection, Connection (read only) 
 
 This property specifies whether the application considers it useful to enable,
 disable, or configure a checksum when sending a Message, or configure whether
@@ -1516,7 +1544,7 @@ Type:
 : Tuple (Enumeration, Preference)
 
 Applicability: 
-: Preconnection 
+: Preconnection, Connection (read only) 
 
 This property allows the application to select which specific network interfaces
 or categories of interfaces it wants to `Require`, `Prohibit`, `Prefer`, or `Avoid`.
@@ -1556,7 +1584,7 @@ Type:
 : Tuple (Enumeration, Preference)
 
 Applicability: 
-: Preconnection 
+: Preconnection, Connection (read only)
 
 Similar to interface instances and types {{prop-interface}}, this property allows
 the application to control path selection by selecting which specific Provisioning Domains
@@ -1581,7 +1609,7 @@ options.
 ### Capacity Profile {#prop-cap-profile}
 
 Classification: 
-: Selection Property, Protocol Property
+: Intent
 
 Type: 
 : Enumeration
@@ -1632,7 +1660,7 @@ Type:
 : Preference
 
 Applicability: 
-: Preconnection
+: Preconnection, Connection (read only)
 
 This property specifies whether the application would like the Connection to be
 congestion controlled or not. Note that if a Connection is not congestion controlled,
@@ -1675,7 +1703,7 @@ entangled when Connections are cloned.
 ### Timeout for aborting Connection
 
 Classification: 
-: Protocol Property (Generic)
+: Control Property
 
 Type: 
 : Integer
@@ -1691,7 +1719,7 @@ establishment. It is given in seconds.
 ### Connection group transmission scheduler
 
 Classification: 
-: Protocol Property (Generic)
+: Protocol Property (Generic) / Control Property (TODO: decide)
 
 Type: 
 : Enum
