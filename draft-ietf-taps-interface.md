@@ -1824,7 +1824,7 @@ that architecture and on the minimal set of transport service features
 elaborated in {{I-D.ietf-taps-minset}}. However, the interface has been designed with
 extension points to allow the implementation of features beyond those in the
 minimal common interface: Protocol Selection Properties, Path Selection
-Properties, and options on Message send are open sets. Implementations of the
+Properties, and Message Properties are open sets. Implementations of the
 interface are free to extend these sets to provide additional expressiveness to
 applications written on top of them.
 
@@ -1835,30 +1835,212 @@ the interface, and may be removed from the final document, but are presented
 here to support discussion within the TAPS working group as to whether they
 should be added to a future revision of the base specification.
 
-## Protocol and Path Selection Properties
+## Optional Transport Properties
 
-The following protocol and path selection properties might be made available in
+The following Transport Properties might be made available in
 addition to those specified in {{transport-props}}:
 
-* Suggest a timeout to the Remote Endpoint: This boolean property specifies
-  whether an application considers it useful to propose a timeout until the
-  Connection is assumed to be lost. This property applies to Connections and
-  Connection Groups. This is not a strict requirement. The default is to have
-  this option. \[EDITOR'S NOTE: For discussion of this option, see
-  https://github.com/taps-api/drafts/issues/109]
+### Suggest a timeout to the Remote Endpoint
 
-* Request not to delay acknowledgment of Message:
-  This boolean property specifies whether an application considers it
-  useful to request for Message that its acknowledgment be sent out as
-  early as possible instead of potentially being bundled with other
-  acknowledgments. This property applies to Connections and Connection
-  groups. This is not a strict requirement. The default is to not have this
-  option. \[EDITOR'S NOTE: For discussion of this option, see
-  https://github.com/taps-api/drafts/issues/90]
+Classification:
+: Selection Property
 
-### Application Intents {#intents}
+Type:
+: Preference
 
-Application Intents are a group of transport properties expressing what an
+Applicability:
+: Preconnection
+
+This property specifies whether an application considers it useful to propose a
+timeout until the Connection is assumed to be lost. The default is to have this
+option.
+
+\[EDITOR'S NOTE: For discussion of this option, see
+https://github.com/taps-api/drafts/issues/109]
+
+### Abort timeout to suggest to the Remote Endpoint
+
+Classification:
+: Protocol Property
+
+Type:
+: Integer
+
+Applicability:
+: Preconnection, Connection
+
+
+This numeric property specifies the timeout to propose to the Remote Endpoint.
+It is given in seconds.
+
+\[EDITOR'S NOTE: For discussion of this property, see
+https://github.com/taps-api/drafts/issues/109]
+
+
+
+### Request not to delay acknowledgment of Message
+
+Classification:
+: Selection Property
+
+Type:
+: Preference
+
+Applicability:
+: Preconnection
+
+This property specifies whether an application considers it
+useful to be able to request for a Message that its acknowledgment be sent out as
+early as possible instead of potentially being bundled with other
+acknowledgments. The default is to not have this
+option.
+
+\[EDITOR'S NOTE: For discussion of this option, see
+https://github.com/taps-api/drafts/issues/90]
+
+
+## Experimental Transport Properties
+
+The following Transport Properties might be made available in
+addition to those specified in {{transport-props}}:
+
+### Traffic Category
+
+Classification:
+: Intent
+
+Type:
+: Enumeration
+
+Applicability:
+: Preconnection
+
+This property specifies what the application expect the dominating traffic pattern to be. Possible values are:
+
+Query:
+: Single request / response style workload, latency bound
+
+Control:
+: Long lasting low bandwidth control channel, not bandwidth bound
+
+Stream:
+: Stream of data with steady data rate
+
+Bulk:
+: Bulk transfer of large Messages, presumably bandwidth bound
+
+The default is to not assume any particular traffic pattern. Most categories
+suggest the use of other intents to further describe the traffic pattern
+anticipated, e.g., the bulk category suggesting the use of the Message Size
+intents or the stream category suggesting the Stream Bitrate and Duration
+intents.
+
+### Size to be Sent or Received
+
+Classification:
+: Intent
+
+Type:
+: Integer
+
+Applicability:
+: Preconnection, Message
+
+This property specifies how many bytes the application expects to send (Size to be Sent) or how many bytes the application expects to receive in response (Size to be Received).
+
+
+### Duration
+
+Classification:
+: Intent
+
+Type:
+: Integer
+
+Applicability:
+: Preconnection
+
+This Intent specifies what the application expects the lifetime of a connection to be. It is given in milliseconds.
+
+
+### Send or Receive Bit-rate
+
+Classification:
+: Intent
+
+Type:
+: Integer
+
+Applicability:
+: Preconnection, Message
+
+This Intent specifies what the application expects the bit-rate of a transfer to
+be. It is given in Bytes per second.
+
+On a message, this property specifies at what
+bitrate the application wishes the Message to be sent. A transport system supporting
+this feature will not exceed the requested Send Bitrate even if flow-control
+and congestion control allow higher bitrates. This helps to avoid bursty
+traffic pattern on busy video streaming servers.
+
+
+### Cost Preferences {#cost-preferences}
+
+Classification:
+: Intent
+
+Type:
+: Enumeration
+
+Applicability:
+: Preconnection, Message
+
+
+This property describes what an application prefers regarding monetary costs,
+e.g., whether it considers it acceptable to utilize limited data volume. It
+provides hints to the transport system on how to handle trade-offs between cost
+and performance or reliability.
+
+Possible values are:
+
+No Expense:
+: Avoid transports associated with monetary cost
+
+Optimize Cost:
+: Prefer inexpensive transports and accept service degradation
+
+Balance Cost:
+: Use system policy to balance cost and other criteria
+
+Ignore Cost:
+: Ignore cost, choose transport solely based on other criteria
+
+The default is "Balance Cost".
+
+
+### Immediate
+
+Classification:
+: Protocol Property (Generic)
+
+Type:
+: Boolean
+
+Applicability:
+: Message
+
+This property specifies whether the caller prefers immediacy to efficient
+capacity usage for this Message. For example, this means that the Message
+should not be bundled with other Message into the same transmission by the
+underlying Protocol Stack.
+
+
+
+## Application Intents {#intents}
+
+\[TODO: Move this text somewhere?]
+
+Application Intents are Transport Properties which express what an
 application wants to achieve, knows, assumes or prefers regarding its
 communication. They are not strict requirements. In particular, they should not
 be used to express any Quality of Service expectations that an application might
@@ -1881,101 +2063,7 @@ combination of Application Intents. If specified, Application Intents are
 defined as parameters passed to the Preconnection Object, and may influence the
 Connection established from that Preconnection. If a Connection is cloned to
 form a Connection Group, and associated Application Intents are cloned along
-with the other Transport Properties. Some Intents have also corresponding
-Message Properties, similar to the properties in {{message-props}}.
-
-Application Intents can be added to this interface as Transport Preferences with
-the "Prefer" preference level.
-
-#### Traffic Category
-
-This Intent specifies what the application expect the dominating traffic
-pattern to be.
-
-Possible Category values are:
-
-Query:
-: Single request / response style workload, latency bound
-
-Control:
-: Long lasting low bandwidth control channel, not bandwidth bound
-
-Stream:
-: Stream of data with steady data rate
-
-Bulk:
-: Bulk transfer of large Messages, presumably bandwidth bound
-
-The default is to not assume any particular traffic pattern. Most categories
-suggest the use of other intents to further describe the traffic pattern
-anticipated, e.g., the bulk category suggesting the use of the Message Size
-intents or the stream category suggesting the Stream Bitrate and Duration
-intents.
-
-#### Size to be Sent / Received
-
-This Intent specifies what the application expects the size of a transfer to be.
-It is a numeric property and given in Bytes.
-
-#### Duration
-
-This Intent specifies what the application expects the lifetime of a transfer
-to be. It is a numeric property and given in milliseconds.
-
-#### Send / Receive Bit-rate
-
-This Intent specifies what the application expects the bit-rate of a transfer to
-be. It is a numeric property and given in Bytes per second.
-
-#### Cost Preferences
-
-This Intent describes what an application prefers regarding monetary costs,
-e.g., whether it considers it acceptable to utilize limited data volume. It
-provides hints to the transport system on how to handle trade-offs between cost
-and performance or reliability. This Intent can also apply to an individual
-Messages.
-
-No Expense:
-: Avoid transports associated with monetary cost
-
-Optimize Cost:
-: Prefer inexpensive transports and accept service degradation
-
-Balance Cost:
-: Use system policy to balance cost and other criteria
-
-Ignore Cost:
-: Ignore cost, choose transport solely based on other criteria
-
-The default is "Balance Cost".
-
-## Protocol Properties
-
-The following protocol properties might be made available in addition to those
-in {{protocol-props}}:
-
-* Abort timeout to suggest to the Remote Endpoint: This numeric property
-  specifies the timeout to propose to the Remote Endpoint. It is given in
-  seconds. \[EDITOR'S NOTE: For discussion of this property, see
-  https://github.com/taps-api/drafts/issues/109]
-
-## Message Properties
-
-The following Message Properties might be made available in addition to those
-specified in {{message-props}}:
-
-* Immediate:
-  Immediate is a boolean property. If true, the caller prefers immediacy to
-  efficient capacity usage for this Message. For example, this means that
-  the Message should not be bundled with other
-  Message into the same transmission by the underlying Protocol Stack.
-
-* Send Bitrate:
-  This numeric property in Bytes per second specifies at what
-  bitrate the application wishes the Message to be sent. A transport supporting
-  this feature will not exceed the requested Send Bitrate even if flow-control
-  and congestion control allow higher bitrates. This helps to avid bursty
-  traffic pattern on busy video streaming servers.
+with the other Transport Properties.
 
 # Sample API definition in Go {#appendix-api-sketch}
 
