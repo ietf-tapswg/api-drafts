@@ -1160,7 +1160,7 @@ It is a specific instance of the "Enum" type and has five different preference l
    | Prohibit   | Select only protocols/paths not providing the property, fail otherwise |
 
 
-When used on a connection, this type this type becomes a (read-only) Boolean representing whether the selected transport supports the requested feature.
+When used on a Connection, this type becomes a (read-only) Boolean representing whether the selected transport supports the requested feature.
 
 
 ## Transport Property Classification
