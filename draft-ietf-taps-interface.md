@@ -1863,10 +1863,11 @@ the interface, and may be removed from the final document, but are presented
 here to support discussion within the TAPS working group as to whether they
 should be added to a future revision of the base specification.
 
-## Optional Transport Properties
+## Experimental Transport Properties
 
 The following Transport Properties might be made available in
 addition to those specified in {{transport-props}}:
+
 
 ### Suggest a timeout to the Remote Endpoint
 
@@ -1926,11 +1927,6 @@ option.
 \[EDITOR'S NOTE: For discussion of this option, see
 https://github.com/taps-api/drafts/issues/90]
 
-
-## Experimental Transport Properties
-
-The following Transport Properties might be made available in
-addition to those specified in {{transport-props}}:
 
 ### Traffic Category
 
@@ -2062,36 +2058,6 @@ capacity usage for this Message. For example, this means that the Message
 should not be bundled with other Message into the same transmission by the
 underlying Protocol Stack.
 
-
-
-## Application Intents {#intents}
-
-\[TODO: Move this text somewhere?]
-
-Application Intents are Transport Properties which express what an
-application wants to achieve, knows, assumes or prefers regarding its
-communication. They are not strict requirements. In particular, they should not
-be used to express any Quality of Service expectations that an application might
-have. Instead, an application should express its intentions and its expected
-traffic characteristics in order to help the transport system make decisions
-that best match it, but on a best-effort basis. Even though Application Intents
-do not represent Quality of Service requirements, a transport system may use
-them to determine a DSCP value, e.g. similar to Table 1 in
-{{I-D.ietf-tsvwg-rtcweb-qos}}.
-
-Application Intents can influence protocol selection, protocol configuration,
-path selection, and endpoint selection. For example, setting the "Timeliness"
-Intent to "Interactive" may lead the transport system to disable the Nagle
-algorithm for a Connection, while setting the "Timeliness" to "Background" may
-lead it to setting the DSCP value to "scavenger". If the "Size to be Sent"
-Intent is set on an individual Message, it may influence path selection.
-
-Specifying Application Intents is not mandatory. An application can specify any
-combination of Application Intents. If specified, Application Intents are
-defined as parameters passed to the Preconnection Object, and may influence the
-Connection established from that Preconnection. If a Connection is cloned to
-form a Connection Group, and associated Application Intents are cloned along
-with the other Transport Properties.
 
 # Sample API definition in Go {#appendix-api-sketch}
 
