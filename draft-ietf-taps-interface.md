@@ -227,7 +227,7 @@ The Transport Services Interface is the basic common abstract application
 programming interface to the Transport Services Architecture defined in
 {{I-D.ietf-taps-arch}}. An application primarily interacts with this interface through
 two Objects, Preconnections and Connections. A Preconnection represents a set of
-parameters and constraints on the selection and configuration of paths and
+properties and constraints on the selection and configuration of paths and
 protocols to establish a Connection with a remote endpoint. A Connection
 represents a transport Protocol Stack on which data can be sent to and/or received
 from a remote endpoint (i.e., depending on the kind of transport, connections can be
@@ -248,15 +248,15 @@ the phases described in {{I-D.ietf-taps-arch}}.
 
 # Pre-Establishment Phase
 
-The pre-establishment phase allows applications to specify parameters for
+The pre-establishment phase allows applications to specify properties for
 the Connections they're about to make, or to query the API about potential
 connections they could make.
 
 A Preconnection Object represents a potential Connection. It has state that
-describes parameters of a Connection that might exist in the future.  This
+describes properties of a Connection that might exist in the future.  This
 state comprises Local Endpoint and Remote Endpoint Objects that denote the
 endpoints of the potential Connection (see {{endpointspec}}), the transport
-parameters (see {{transport-props}}), and the security parameters (see
+properties (see {{transport-props}}), and the security parameters (see
 {{security-parameters}}):
 
 ~~~
@@ -335,7 +335,7 @@ traversal protocols (see {{rendezvous}}).
 
 ## Specifying Transport Properties {#connection-props}
 
-A Preconnection Object holds parameters reflecting the application's
+A Preconnection Object holds properties reflecting the application's
 requirements and preferences for the transport. These include Selection 
 Properties (Protocol and Path Selection Properties), as well as Generic and 
 Specific Protocol Properties for configuration of the detailed operation of the 
@@ -367,12 +367,12 @@ in a TransportProperties Object that is passed to the Preconnection Object.
 TransportProperties := NewTransportProperties()
 ~~~
 
-The Individual parameters are then added to the TransportProperties Object.
+The Individual properties are then added to the TransportProperties Object.
 While all Properties use the `add` call, Transport Properties of Preference
 Type can use special calls for the levels defined in {{transport-props-preference}}.
 
 ~~~
-TransportProperties.Add(parameter, value)
+TransportProperties.Add(property, value)
 
 TransportProperties.Require(preference)
 TransportProperties.Prefer(preference)
@@ -489,9 +489,9 @@ SecurityParameters.SetIdentityChallengeCallback(challengeCallback)
 # Establishing Connections
 
 Before a Connection can be used for data transfer, it must be established.
-Establishment ends the pre-establishment phase; all transport and
+Establishment ends the pre-establishment phase; all transport properties and
 cryptographic parameter specification must be complete before establishment,
-as these parameters will be used to select candidate Paths and Protocol Stacks
+as these will be used to select candidate Paths and Protocol Stacks
 for the Connection. Establishment may be active, using the Initiate() Action;
 passive, using the Listen() Action; or simultaneous for peer-to-peer, using
 the Rendezvous() Action. These Actions are described in the subsections below.
@@ -510,9 +510,9 @@ Connection := Preconnection.Initiate()
 Before calling Initiate, the caller must have populated a Preconnection
 Object with a Remote Endpoint specifier, optionally a Local Endpoint
 specifier (if not specified, the system will attempt to determine a
-suitable Local Endpoint), as well as all parameters
+suitable Local Endpoint), as well as all properties
 necessary for candidate selection. After calling Initiate, no further
-parameters may be bound to the Connection. The Initiate() call consumes
+properties may be added to the Preconnection. The Initiate() call consumes
 the Preconnection and creates a Connection Object. A Preconnection can
 only be initiated once.
 
@@ -538,10 +538,10 @@ the Ready Event for Connections established using Initiate.
 Connection -> InitiateError<>
 ~~~
 
-An InitiateError occurs either when the set of transport and cryptographic
-parameters cannot be fulfilled on a Connection for initiation (e.g. the set of
-available Paths and/or Protocol Stacks meeting the constraints is empty) or
-reconciled with the local and/or remote endpoints; when the remote specifier
+An InitiateError occurs either when the set of transport properties and 
+cryptographic parameters cannot be fulfilled on a Connection for initiation 
+(e.g. the set of available Paths and/or Protocol Stacks meeting the constraints is empty)
+or reconciled with the local and/or remote endpoints; when the remote specifier
 cannot be resolved; or when no transport-layer connection can be established
 to the remote endpoint (e.g. because the remote endpoint is not accepting
 connections, or the application is prohibited from opening a Connection by the
@@ -559,10 +559,10 @@ Preconnection.Listen()
 
 Before calling Listen, the caller must have initialized the Preconnection
 during the pre-establishment phase with a Local Endpoint specifier, as well
-as all parameters necessary for Protocol Stack selection. A Remote Endpoint
+as all properties necessary for Protocol Stack selection. A Remote Endpoint
 may optionally be specified, to constrain what Connections are accepted.
 The Listen() Action consumes the Preconnection. Once Listen() has been
-called, no further parameters may be bound to the Preconnection, and no
+called, no further properties may be added to the Preconnection, and no
 subsequent establishment call may be made on the Preconnection.
 
 Listening continues until the global context shuts down, or until the Stop
@@ -610,15 +610,16 @@ Preconnection.Rendezvous()
 ~~~
 
 The Preconnection Object must be specified with both a Local Endpoint and a
-Remote Endpoint, and also the transport and security parameters needed for
-Protocol Stack selection. The Rendezvous() Action causes the Preconnection
+Remote Endpoint, and also the transport properties and security parameters
+needed for Protocol Stack selection.
+The Rendezvous() Action causes the Preconnection
 to listen on the Local Endpoint for an incoming Connection from the
 Remote Endpoint, while simultaneously trying to establish a Connection from
 the Local Endpoint to the Remote Endpoint.
 This corresponds to a TCP simultaneous open, for example.
 
 The Rendezvous() Action consumes the Preconnection. Once Rendezvous() has
-been called, no further parameters may be bound to the Preconnection, and
+been called, no further properties may be added to the Preconnection, and
 no subsequent establishment call may be made on the Preconnection.
 
 ~~~
@@ -700,7 +701,7 @@ capacity that it sees fit.
 # Sending Data {#sending}
 
 Once a Connection has been established, it can be used for sending data. Data
-is sent by passing a Message Object and additional parameters
+is sent by passing a Message Object and additional properties
 {{message-props}} to the Send Action on an established Connection:
 
 ~~~
@@ -767,7 +768,7 @@ A SendError occurs when a Message could not be sent due to an error condition:
 an attempt to send a Message which is too large for the system and
 Protocol Stack to handle, some failure of the underlying Protocol Stack, or a
 set of Message Properties not consistent with the Connection's transport
-parameters. The SendError contains an implementation-specific reference to the
+properties. The SendError contains an implementation-specific reference to the
 Message to which it applies.
 
 ## Message Properties {#message-props}
@@ -984,7 +985,7 @@ ConnectionProperties := Connection.GetProperties()
 ~~~
 
 ~~~
-Connection.SetProperty(parameter, value)
+Connection.SetProperty(property, value)
 ~~~
 
 Depending on the status of the connection, the queried Connection
@@ -1865,7 +1866,7 @@ Properties, and Message Properties are open sets. Implementations of the
 interface are free to extend these sets to provide additional expressiveness to
 applications written on top of them.
 
-This appendix enumerates a few additional parameters and properties that could
+This appendix enumerates a few additional properties that could
 be used to enhance transport protocol and/or path selection, or the transmission
 of messages given a Protocol Stack that implements them. These are not part of
 the interface, and may be removed from the final document, but are presented
