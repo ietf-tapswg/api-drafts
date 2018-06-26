@@ -944,42 +944,28 @@ capacity that it sees fit.
 
 # Sending Data {#sending}
 
-Once a Connection has been established, it can be used for sending data. Data
-is always sent along with with additional Message parameters ({{send-params}})
-using the Send Action on an established Connection:
+Once a Connection has been established, it can be used for sending data. Data is
+sent in terms of Messages, which allow the application to communicate the boundaries
+of the data being transferred. By default, Send enqueues a complete Message,
+and takes optional per-Message parameters (see {{send-basic}}). All Send actions
+are asynchronous, and deliver events (see {{send-events}}). Sending partial 
+Messages for streaming large data is also supported (see {{send-partial}}).
 
-~~~
-Connection.Send(messageContext, messageData, endOfMessage)
-~~~
+## Basic Sending {#send-basic}
 
-The messageContext parameter defines a single instance of a message and its parameters.
-The interpretation of a Message to be sent is dependent on the implementation, and 
-on the constraints on the Protocol Stacks implied by the Connection’s transport parameters.
-For example, a Message may be a single datagram for UDP Connections; or an HTTP
-Request for HTTP Connections. Various Send Parameters can be configured before using 
-a Message to send, which influence the priority and treatment of the Message's data upon 
-sending. See {{send-params}} for a description of each parameter.
-
-~~~
-messageContext := NewMessage()
-~~~
-
-The messageData parameter contains the octects to be sent for this message.
+The most basic form of sending on a connection involves enqueuing a single Data
+block as a complete Message, with default send parameters. Message data is
+created as an array of octets.
 
 ~~~
 messageData := "hello".octets()
+Connection.Send(messageData)
 ~~~
 
-The endOfMessage parameter is a boolean that indicates whether or not this
-Send Action completes the Message, or if more messageData is expected.
-Applications using protocols with small Message or datagram lengths will generally
-always mark their Sends as complete. Applications that need to stream data,
-sometimes due to the data being too large to hold in memory at any one time, 
-will perform multiple Send Actions on the same Message with different blocks of 
-messageData. All messageData sent with the same Message object will
-be treated as an in-order series, until the endOfMessage is marked. Once the end
-is marked, the messageContext object may be re-used as a new Message that has the
-same Send Parameters.
+The interpretation of a Message to be sent is dependent on the implementation, and 
+on the constraints on the Protocol Stacks implied by the Connection’s transport parameters.
+For example, a Message may be a single datagram for UDP Connections; or an HTTP
+Request for HTTP Connections.
 
 Some transport protocols can deliver arbitrarily sized Messages, but other
 protocols constrain the maximum Message size. Applications can query the
@@ -992,7 +978,12 @@ Used together with the Idempotent property (see {{send-idempotent}}), this can
 be used to send data during establishment for 0-RTT session resumption on
 Protocol Stacks that support it.
 
-Like all Actions in this interface, the Send Action is asynchronous.
+## Send Events {#send-events}
+
+Like all Actions in this interface, the Send Action is asynchronous. There are
+several events that can be delivered in response to Sending a Message.
+
+### Sent
 
 ~~~
 Connection -> Sent<msgRef>
@@ -1011,6 +1002,8 @@ of buffering it creates. That is, if an application calls the Send Action multip
 times without waiting for a Sent Event, it has created more buffer inside the
 transport system than an application that only issues a Send after this Event fires.
 
+### Expired
+
 ~~~
 Connection -> Expired<msgRef>
 ~~~
@@ -1020,6 +1013,8 @@ i.e. when the Message was not sent before its Lifetime (see {{send-lifetime}})
 expired. This is separate from SendError, as it is an expected behavior for
 partially reliable transports. The Expired Event contains an
 implementation-specific reference to the Message to which it applies.
+
+### SendError
 
 ~~~
 Connection -> SendError<msgRef>
@@ -1032,25 +1027,32 @@ set of send parameters not consistent with the Connection's transport
 parameters. The SendError contains an implementation-specific reference to the
 Message to which it applies.
 
-## Message Send Parameters {#send-params}
+## Message Context Parameters {#send-params}
 
-Each Message can be marked with Send Parameters to control how Data
-associated with the Message will be sent down to the underlying Protocol Stack 
-and transmitted. Note that these properties are per-Message, not per-Send.
-All data blocks associated with a single Message share properties. For example,
-it would not make sense to have the beginning of a Message expire, but allow
-the end of a Message to still be sent.
+Applications may need to annotate the Messages they send with extra information
+to control how data is scheduled and processed by the transport protocols in
+the Connection. A MessageContext object contains parameters for sending
+Messages, and can be passed to the Send Action. Note that these properties are 
+per-Message, not per-Send if partial Messages are sent ({{send-partial}}). All data
+blocks associated with a single Message share properties. For example, it would not 
+make sense to have the beginning of a Message expire, but allow the end of a Message
+to still be sent.
 
-Parameters may be added to a messageContext object before the context is used
+~~~
+messageData := "hello".octets()
+messageContext := NewMessageContext()
+messageContext.add(parameter, value)
+Connection.Send(messageData, messageContext)
+~~~
+
+The simpler form of Send that does not take any MessageContext is equivalent
+to passing a default MessageContext with not values added.
+
+Parameters may be added to a messageContext object only before the context is used
 for sending. Once a messageContext has been used with a Send call, modifying any
 of its parameters is invalid.
 
-~~~
-messageContext := NewMessage()
-Message.Add(parameter, value)
-~~~
-
-The following Message Send Parameters are supported:
+The following Message Context Parameters are supported:
 
 ### Lifetime {#send-lifetime}
 
@@ -1144,6 +1146,37 @@ The following values are valid for Transmission Profile:
   assign the traffic to a lower effort service, delay sending until lower-cost
   paths are available, and so on.
 
+## Partial Sends {#send-partial}
+
+It is not always possible for an application to send all data associated with
+a Message in a single Send Action. The Message data may be too large for
+the application to hold in memory at one time, or the length of the Message
+may be unknown or unbounded.
+
+Partial Message sending is supported by passing an endOfMessage boolean
+parameter to the Send Action. This value is always true by default, and 
+the simpler forms of send are equivalent to passing true for endOfMessage.
+
+The following example sends a Message in two separate calls to Send.
+
+~~~
+messageContext := NewMessageContext()
+messageContext.add(parameter, value)
+
+messageData := "hel".octets()
+endOfMessage := false
+Connection.Send(messageData, messageContext, endOfMessage)
+
+messageData := "lo".octets()
+endOfMessage := true
+Connection.Send(messageData, messageContext, endOfMessage)
+~~~
+
+All messageData sent with the same messageContext object will be treated as belonging 
+to the same Message, and will constitute an in-order series until the endOfMessage is marked.
+Once the end of the Message is marked, the messageContext object may be re-used as a 
+new Message with identical parameters.
+
 ## Batching Sends {#send-batching}
 
 In order to reduce the overhead of sending multiple small Messages on a Connection, the
@@ -1154,8 +1187,8 @@ in the batch is enqueued.
 
 ~~~
 Connection.Batch(
-    Connection.Send(messageContext, messageData, endOfMessage)
-    Connection.Send(messageContext, messageData, endOfMessage)
+    Connection.Send(messageData)
+    Connection.Send(messageData)
 )
 ~~~
 
@@ -1171,7 +1204,7 @@ it is bound to the Preconnection during the pre-establishment phase:
 ~~~
 Preconnection.FrameWith(Framer)
 
-OctetArray := Framer.Frame(messageContext, messageData, endOfMessage)
+OctetArray := Framer.Frame(messageData)
 ~~~
 
 Sender-side framing is a convenience feature of the interface, for parity with
@@ -1194,18 +1227,20 @@ number of Messages with a single call. This allows an application to provide
 backpressure to the transport stack when it is temporarily not ready to
 receive messages.
 
-Receive takes an optional minIncompleteLength argument. This value indicates
-the smallest partial Message data size that should be delivered. By default, this
-value is infinite, which means that only complete, atomic Messages will be delivered.
-If this value is set to some smaller value, the associated ReceiveHandler will
-be triggered only when at least that many bytes are available, the Message is
+Receive also takes a minIncompleteLength and maxLength argument, both of which
+are optional values. 
+
+The minIncompleteLength value indicates the smallest partial Message data size that
+should be delivered. By default, this value is infinite, which means that only complete, 
+atomic Messages will be delivered. If this value is set to some smaller value, the associated
+ReceiveHandler will be triggered only when at least that many bytes are available, the Message is
 complete, or the system needs to free up memory. Applications should always
 check the length of the data delivered to the ReceiveHandler and not assume
 it will be as long as minIncompleteLength in the case of shorter complete Messages
 or memory issues.
 
-Receive also takes an optional maxLength argument, the maximum size (in bytes
-of data) Message the application is currently prepared to receive. The default
+The maxLength argument indicates the maximum size (in bytes of data) Message
+the application is currently prepared to receive. The default
 value for maxLength is infinite. If an incoming Message is larger than the
 minimum of this size and the maximum Message size on receive for
 the Connection's Protocol Stack, it will be received as a partial Message.
