@@ -955,7 +955,8 @@ Messages for streaming large data is also supported (see {{send-partial}}).
 
 The most basic form of sending on a connection involves enqueuing a single Data
 block as a complete Message, with default send parameters. Message data is
-created as an array of octets.
+created as an array of octets, and the resulting object contains both the byte
+array and the length of the array.
 
 ~~~
 messageData := "hello".octets()
@@ -1278,6 +1279,9 @@ Connection -> Received<messageData, messageContext>
 A Received event indicates the delivery of a complete Message. It contains two objects,
 the received bytes as messageData, and the metadata and properties of the received
 Message as messageContext. See {#receive-context} for details about the received context.
+
+The messageData object provides access to the bytes that were received for this Message,
+along with the length of the byte array.
 
 See {{receive-framing}} for handling Message framing in situations where the Protocol 
 Stack provides octet-stream transport only.
