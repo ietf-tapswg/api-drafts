@@ -369,16 +369,17 @@ TransportProperties := NewTransportProperties()
 
 The Individual properties are then added to the TransportProperties Object.
 While all Properties use the `add` call, Transport Properties of Preference
-Type can use special calls for the levels defined in {{transport-props-preference}}.
+Type can use special calls to add a Property with a specific preference level,
+see also {{transport-props-preference}}.
 
 ~~~
 TransportProperties.Add(property, value)
 
-TransportProperties.Require(preference)
-TransportProperties.Prefer(preference)
-TransportProperties.Ignore(preference)
-TransportProperties.Avoid(preference)
-TransportProperties.Prohibit(preference)
+TransportProperties.Require(property)
+TransportProperties.Prefer(property)
+TransportProperties.Ignore(property)
+TransportProperties.Avoid(property)
+TransportProperties.Prohibit(property)
 ~~~
 
 For an existing Connection, the Transport Properties can be queried any time
