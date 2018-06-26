@@ -970,7 +970,10 @@ Request for HTTP Connections.
 Some transport protocols can deliver arbitrarily sized Messages, but other
 protocols constrain the maximum Message size. Applications can query the
 protocol property Maximum Message Size on Send to determine the maximum size
-allowed for a single Message.
+allowed for a single Message. If a Message is too large to fit in the Maximum Message
+Size for the Connection, the Send will fail with a SendError event ({{send-error}}). For
+example, it is invalid to send a Message over a UDP connection that is larger than
+the available datagram sending size.
 
 If Send is called on a Connection which has not yet been established, an
 Initiate Action will be implicitly performed simultaneously with the Send.
@@ -982,6 +985,11 @@ Protocol Stacks that support it.
 
 Like all Actions in this interface, the Send Action is asynchronous. There are
 several events that can be delivered in response to Sending a Message.
+
+Note that if partial Sends are used ({{send-partial}}), there will still be exactly
+one Send Event delivered for each call to Send. For example, if a Message
+expired while two requests to Send data for that Message are outstanding,
+there will be two Expired events delivered.
 
 ### Sent
 
@@ -1014,7 +1022,7 @@ expired. This is separate from SendError, as it is an expected behavior for
 partially reliable transports. The Expired Event contains an
 implementation-specific reference to the Message to which it applies.
 
-### SendError
+### SendError {#send-error}
 
 ~~~
 Connection -> SendError<msgRef>
@@ -1212,62 +1220,86 @@ receiver-side framing (see {{receive-framing}}).
 
 # Receiving Data {#receiving}
 
-Once a Connection is established, Messages may be received on it. The application can
-indicate that it is ready to receive Messages by calling Receive() on the Connection.
-
-~~~
-Connection.Receive(ReceiveHandler, minIncompleteLength, maxLength)
-~~~
-
-Receive takes a ReceiveHandler, which can handle the Received Event and the
-ReceiveError error. Each call to Receive will result in at most one Received
-event being sent to the handler, though implementations may provide
-convenience functions to indicate readiness to receive a larger but finite
-number of Messages with a single call. This allows an application to provide
-backpressure to the transport stack when it is temporarily not ready to
-receive messages.
-
-Receive also takes a minIncompleteLength and maxLength argument, both of which
-are optional values. 
-
-The minIncompleteLength value indicates the smallest partial Message data size that
-should be delivered. By default, this value is infinite, which means that only complete, 
-atomic Messages will be delivered. If this value is set to some smaller value, the associated
-ReceiveHandler will be triggered only when at least that many bytes are available, the Message is
-complete, or the system needs to free up memory. Applications should always
-check the length of the data delivered to the ReceiveHandler and not assume
-it will be as long as minIncompleteLength in the case of shorter complete Messages
-or memory issues.
-
-The maxLength argument indicates the maximum size (in bytes of data) Message
-the application is currently prepared to receive. The default
-value for maxLength is infinite. If an incoming Message is larger than the
-minimum of this size and the maximum Message size on receive for
-the Connection's Protocol Stack, it will be received as a partial Message.
-Partial Messages are indicated by marking the endOfMessage boolean value
-as false in the ReceivedHandler. Note that maxLength does not guarantee that 
-the application will receive that many bytes if they are available; the interface may
-return partial Messages smaller than maxLength according to implementation constraints.
-
-~~~
-Connection -> Received<messageContext, messageData, endOfMessage>
-~~~
+Once a Connection is established, it can be used for receiving data. As with
+sending, data is received in terms of Messages. Receiving is an asynchronous
+operation, in which each call to Receive enqueues a request to receive new
+data from the connection. Once data has been received, or an error is encountered,
+an event will be delivered to complete the Receive request (see {{receive-events}}).
 
 As with sending, the type of the Message to be passed is dependent on the
 implementation, and on the constraints on the Protocol Stacks implied by the
-Connection's transport parameters. 
+Connection's transport parameters.
 
-The messageContext identifies the logical message received by the transport
-protocol, and provides methods to access metadata about the received data.
-The octets of data associated with this message are delivered as messageData.
-Multiple invocations of the ReceivedHandler may devlier data for the same
-messageContext until the endOfMessage flag is delivered. See {{receive-framing}} for 
-handling Message framing in situations where the Protocol Stack provides 
-octet-stream transport only.
+## Enqueuing Receives
 
-If the minIncompleteLength was set to be infinite, the Message passed to Received
-will be complete and atomic (that is, endOfMessage will be set), unless one of the following
-conditions holds:
+Receive takes two parameters to specify the length of data that an application
+is willing to receive, both of which are optional and have default values if not
+specified. 
+
+~~~
+Connection.Receive(minIncompleteLength, maxLength)
+~~~
+
+By default, Receive will try to deliver complete Messages in a single event ({{receive-complete}}).
+
+The application can set a minIncompleteLength value to indicates the smallest partial 
+Message data size in bytes that should be delivered in response to this Receive. By default, 
+this value is infinite, which means that only complete Messages should be delivered. 
+If this value is set to some smaller value, the associated recieve event will be triggered 
+only when at least that many bytes are available, or the Message is complete with fewer
+bytes, or the system needs to free up memory. Applications should always
+check the length of the data delivered to the receive event and not assume
+it will be as long as minIncompleteLength in the case of shorter complete Messages
+or memory issues.
+
+The maxLength argument indicates the maximum size of a Message in bytes
+the application is currently prepared to receive. The default
+value for maxLength is infinite. If an incoming Message is larger than the
+minimum of this size and the maximum Message size on receive for
+the Connection's Protocol Stack, it will be delivered via ReceivedPartial
+events ({{receive-partial}}).
+
+Note that maxLength does not guarantee that the application will receive that many 
+bytes if they are available; the interface may return ReceivedPartial events with less
+data than maxLength according to implementation constraints.
+
+## Receive Events {#receive-events}
+
+Each call to Receive will be paired with a single Receive Event, which can be a success
+or an error. This allows an application to provide backpressure to the transport stack 
+when it is temporarily not ready to receive messages.
+
+### Received {#receive-complete}
+
+~~~
+Connection -> Received<messageData, messageContext>
+~~~
+
+A Received event indicates the delivery of a complete Message. It contains two objects,
+the received bytes as messageData, and the metadata and properties of the received
+Message as messageContext. See {#receive-context} for details about the received context.
+
+See {{receive-framing}} for handling Message framing in situations where the Protocol 
+Stack provides octet-stream transport only.
+
+### ReceivedPartial {#receive-partial}
+
+~~~
+Connection -> ReceivedPartial<messageData, messageContext, endOfMessage>
+~~~
+
+If a complete Message cannot be delivered in one event, one part of the Message
+may be delivered with a ReceivedPartial event. In order to continue to receive more
+of the same Message, the application must invoke Receive again.
+
+Multiple invocations of ReceivedPartial deliver data for the same Message by passing
+the same messageContext, until the endOfMessage flag is delivered. All partial blocks
+of a single Message are delivered in order without gaps. This event does not support
+delivering discontiguous partial Messages.
+
+If the minIncompleteLength in the Receive request was set to be infinite (indicating
+a request to receive only complete Messages), the ReceivedPartial event may still be
+delivered if one of the following conditions is true:
 
 * the underlying Protocol Stack supports message boundary preservation, and
   the size of the Message is larger than the buffers available for a single
@@ -1278,12 +1310,14 @@ conditions holds:
 * the underlying Protocol Stack does not support message boundary
   preservation, and no deframer was supplied by the application
 
-Note that in the absence of message boundary preservation and without
-deframing, all bytes received on the Connection are represented as one 
+Note that in the absence of message boundary preservation or
+deframing, all bytes received on the Connection will be represented as one 
 large message of indeterminate length.
 
+### ReceiveError
+
 ~~~
-Connection -> ReceiveError<>
+Connection -> ReceiveError<messageContext>
 ~~~
 
 A ReceiveError occurs when data is received by the underlying Protocol Stack
@@ -1292,9 +1326,13 @@ received that reception has failed. Such conditions that irrevocably lead the
 the termination of the Connection are signaled using ConnectionError instead
 (see {{termination}}).
 
-## Receive Metadata
+The ReceiveError event passes an optional associated messageContext. This may
+indicate that a Message that was being partially received previously, but had not
+completed, encountered and error and will not be completed.
 
-Each messageContext may also contain metadata from protocols in the Protocol Stack; 
+## Message Receive Context {#receive-context}
+
+Each Received Message Context may contain metadata from protocols in the Protocol Stack; 
 which metadata is available is Protocol Stack dependent. The following metadata
 values are supported:
 
@@ -1317,9 +1355,9 @@ and the recipient Message was sent as part of early data, the corresponding meta
 a flag indicating as such. If early data is enabled, applications should check this metadata 
 field for Messages received during connection establishment and respond accordingly. 
 
-## Receiving Final Messages
+### Receiving Final Messages
 
-The application may check a property to determine if a received Message is
+The Received Message Context can indicate whether or not this Message is
 the Final Message on a Connection. For any Message that is marked as Final,
 the application can assume that there will be no more Messages received on the
 Connection once the Message has been completely delivered. This corresponds
@@ -1329,7 +1367,7 @@ Some transport protocols and peers may not support signaling of the Final proper
 Applications therefore should not rely on receiving a Message marked Final to know
 that the other endpoint is done sending on a connection.
 
-Any calls to `Receive` once the Final Message has been delivered will result in errors.
+Any calls to Receive once the Final Message has been delivered will result in errors.
 
 ## Receiver-side De-framing over Stream Protocols {#receive-framing}
 
@@ -1360,7 +1398,7 @@ layer, it is bound to the Preconnection during the pre-establishment phase:
 ~~~
 Preconnection.DeframeWith(Deframer)
 
-{Message, messageData} := Deframer.Deframe(OctetStream, ...)
+{messageData} := Deframer.Deframe(OctetStream, ...)
 ~~~
 
 # Setting and Querying of Connection Properties {#introspection}
