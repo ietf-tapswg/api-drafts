@@ -1102,8 +1102,8 @@ does provide the following guarantees about the ordering of operations:
 
 # Transport Properties {#transport-props}
 
-Transport Properties allow an application to control most aspects of the
-transport system.
+Transport Properties allow an application to control and introspect
+most aspects of the transport system and transport protocols.
 
 Properties are structured in two ways: 
 
@@ -1210,12 +1210,14 @@ protocol stack not containing that specific protocol are simply ignored, and
 do not raise an error.
 
 Note that many protocol properties have a corresponding selection property
-which asks for a protocol providing a specific transport feature that is controlled
-by the protocol property.
+which asks for a protocol providing a specific transport feature that is
+controlled by the protocol property.
 
 ### Control Properties {#control-props}
 
-Control properties signals state changes to the transport system.
+Control properties control the local transport system behavior or request 
+state changes in the local transport system. Depending on the protocols used, 
+setting these properties might also influence the protocol state machine. 
 See {{send-final}} for an example.
 
 ### Intents {#intents}
@@ -1307,8 +1309,10 @@ Applicability:
 
 This property specifies that a message should be sent in such a way
 that the transport protocol ensures all data is received on the other side
-without corruption. Reliable Data Transfer can only be used on Messages if the
-transport protocol supports partial reliability (see {{prop-partially-reliable}}).
+without corruption. Changing the ´Reliable Data Transfer´ property on Messages 
+is only possible if the transport protocol supports 
+partial reliability (see {{prop-partially-reliable}}).
+Therefore, for protocols that always transfer data reliably, this property is always true and for protocols that always transfer data unreliably, this flag is always false. Changing it may generate an error.
 
 
 ### Preservation of data ordering {#prop-ordering}
@@ -1341,7 +1345,8 @@ Applicability:
 
 This property specifies that a Message should be delivered to the other side
 after the previous Message which was passed to the same Connection via the Send
-Action.
+Action. It us used for protocols that support preservation of data ordering, 
+see {{prop-ordering}}, but allow out-of-order delivery for certain messages.
 
 
 ### Direction of communication
@@ -1391,7 +1396,7 @@ See also {{send-idempotent}}. The default is to not have this option.
 ### Idempotent {#send-idempotent}
 
 Classification: 
-: Protocol Property (Generic)
+: Control Property
 
 Type: 
 : Boolean
