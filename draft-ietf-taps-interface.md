@@ -978,7 +978,7 @@ the available datagram sending size.
 
 If Send is called on a Connection which has not yet been established, an
 Initiate Action will be implicitly performed simultaneously with the Send.
-Used together with the Idempotent property (see {{send-idempotent}}), this can
+Together with the Idempotent property (see {{send-idempotent}}), this can
 be used to send data during establishment for 0-RTT session resumption on
 Protocol Stacks that support it.
 
@@ -1246,7 +1246,7 @@ By default, Receive will try to deliver complete Messages in a single event ({{r
 The application can set a minIncompleteLength value to indicates the smallest partial 
 Message data size in bytes that should be delivered in response to this Receive. By default, 
 this value is infinite, which means that only complete Messages should be delivered. 
-If this value is set to some smaller value, the associated recieve event will be triggered 
+If this value is set to some smaller value, the associated receive event will be triggered 
 only when at least that many bytes are available, or the Message is complete with fewer
 bytes, or the system needs to free up memory. Applications should always
 check the length of the data delivered to the receive event and not assume
