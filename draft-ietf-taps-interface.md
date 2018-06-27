@@ -702,38 +702,55 @@ capacity that it sees fit.
 
 # Sending Data {#sending}
 
-Once a Connection has been established, it can be used for sending data. Data
-is sent by passing a Message Object and additional properties
-{{message-props}} to the Send Action on an established Connection:
+Once a Connection has been established, it can be used for sending data. Data is
+sent in terms of Messages, which allow the application to communicate the boundaries
+of the data being transferred. By default, Send enqueues a complete Message,
+and takes optional per-Message properties (see {{send-basic}}). All Send actions
+are asynchronous, and deliver events (see {{send-events}}). Sending partial 
+Messages for streaming large data is also supported (see {{send-partial}}).
+
+## Basic Sending {#send-basic}
+
+The most basic form of sending on a connection involves enqueuing a single Data
+block as a complete Message, with default Message Properties. Message data is
+created as an array of octets, and the resulting object contains both the byte
+array and the length of the array.
 
 ~~~
-Connection.Send(Message, MessageProperties)
+messageData := "hello".octets()
+Connection.Send(messageData)
 ~~~
 
-The type of the Message to be passed is dependent on the implementation, and
-on the constraints on the Protocol Stacks implied by the Connection's
-Transport Properties. It may itself contain an array of octets to be
-transmitted in the transport protocol payload, or be transformable to an array
-of octets by a sender-side framer (see {{send-framing}}).
+The interpretation of a Message to be sent is dependent on the implementation, and 
+on the constraints on the Protocol Stacks implied by the Connection’s transport properties.
+For example, a Message may be a single datagram for UDP Connections; or an HTTP
+Request for HTTP Connections.
 
 Some transport protocols can deliver arbitrarily sized Messages, but other
 protocols constrain the maximum Message size. Applications can query the
-protocol property Maximum Message Size on Send to determine the maximum size.
-
-There may also be system and Protocol Stack dependent limits on the size of
-a Message which can be transmitted atomically. For that reason, the Message
-object passed to the Send action may also be a partial Message, either
-representing the whole data object and information about the range of bytes
-to send from it, or an object referring back to the larger whole Message.
-The details of partial Message sending are implementation-dependent.
+protocol property Maximum Message Size on Send to determine the maximum size
+allowed for a single Message. If a Message is too large to fit in the Maximum Message
+Size for the Connection, the Send will fail with a SendError event ({{send-error}}). For
+example, it is invalid to send a Message over a UDP connection that is larger than
+the available datagram sending size.
 
 If Send is called on a Connection which has not yet been established, an
 Initiate Action will be implicitly performed simultaneously with the Send.
-Used together with the Idempotent property (see {{send-idempotent}}), this can
+Together with the Idempotent property (see {{send-idempotent}}), this can
 be used to send data during establishment for 0-RTT session resumption on
 Protocol Stacks that support it.
 
-Like all Actions in this interface, the Send Action is asynchronous.
+## Send Events {#send-events}
+
+Like all Actions in this interface, the Send Action is asynchronous. There are
+several events that can be delivered in response to Sending a Message.
+
+Note that if partial Sends are used ({{send-partial}}), there will still be exactly
+one Send Event delivered for each call to Send. For example, if a Message
+expired while two requests to Send data for that Message are outstanding,
+there will be two Expired events delivered.
+
+### Sent
 
 ~~~
 Connection -> Sent<msgRef>
@@ -752,6 +769,8 @@ of buffering it creates. That is, if an application calls the Send Action multip
 times without waiting for a Sent Event, it has created more buffer inside the
 transport system than an application that only issues a Send after this Event fires.
 
+### Expired
+
 ~~~
 Connection -> Expired<msgRef>
 ~~~
@@ -761,6 +780,8 @@ i.e. when the Message was not sent before its Lifetime (see {{send-lifetime}})
 expired. This is separate from SendError, as it is an expected behavior for
 partially reliable transports. The Expired Event contains an
 implementation-specific reference to the Message to which it applies.
+
+### SendError {#send-error}
 
 ~~~
 Connection -> SendError<msgRef>
@@ -773,24 +794,39 @@ set of Message Properties not consistent with the Connection's transport
 properties. The SendError contains an implementation-specific reference to the
 Message to which it applies.
 
-## Message Properties {#message-props}
+## Message Context Properties {#message-props}
 
-The Send Action takes Message Properties which control how the
-contents will be sent down to the underlying Protocol Stack and transmitted.
+Applications may need to annotate the Messages they send with extra information
+to control how data is scheduled and processed by the transport protocols in
+the Connection. A MessageContext object contains properties for sending
+Messages, and can be passed to the Send Action. Note that these properties are 
+per-Message, not per-Send if partial Messages are sent ({{send-partial}}). All data
+blocks associated with a single Message share properties. For example, it would not 
+make sense to have the beginning of a Message expire, but allow the end of a Message
+to still be sent.
+
+~~~
+messageData := "hello".octets()
+messageContext := NewMessageContext()
+messageContext.add(parameter, value)
+Connection.Send(messageData, messageContext)
+~~~
+
+The simpler form of Send that does not take any MessageContext is equivalent
+to passing a default MessageContext with not values added.
 
 Message Properties share a single namespace with Transport Properties (see
 {{transport-props}}). This allows the specification of per-Connection Protocol
 Properties that can be overridden on a per-Message basis.
 
 If an application wants to override Message Properties for a specific message,
-it can acquire an empty MessageProperties Object and add all desired Message
-Properties to that Object. It can then reuse the same MessageProperties Object
+it can acquire an empty messageContext Object and add all desired Message
+Properties to that Object. It can then reuse the same messageContext Object
 for sending multiple Messages with the same properties.
 
-~~~
-MessageProperties := NewMessagedProperties()
-MessageProperties.Add(property, value)
-~~~
+Properties may be added to a messageContext object only before the context is used
+for sending. Once a messageContext has been used with a Send call, modifying any
+of its properties is invalid.
 
 Message Properties may be inconsistent with the properties of the Protocol Stacks
 underlying the Connection on which a given Message is sent. For example,
@@ -799,6 +835,122 @@ lifetime property of a Message. Sending a Message with Message Properties
 inconsistent with the Selection Properties of the Connection yields an error.
 
 
+The following Message Context Properties are supported:
+
+### Lifetime
+
+Lifetime specifies how long a particular Message can wait to be sent to the
+remote endpoint before it is irrelevant and no longer needs to be
+(re-)transmitted. When a Message's Lifetime is infinite, it must be
+transmitted reliably. The type and units of Lifetime are
+implementation-specific.
+
+### Niceness
+
+Niceness is a numeric (non-negative) value that represents an
+unbounded hierarchy of priorities of Messages, relative
+to other Messages sent over the same Connection and/or Connection Group (see
+{{groups}}).
+A Message with Niceness 0 will yield to a Message with Niceness 1, which will
+yield to a Message with Niceness 2, and so on. Niceness may be used as a
+sender-side scheduling construct only, or be used to specify priorities on the
+wire for Protocol Stacks supporting prioritization.
+
+This encoding of the priority has a convenient property that the priority
+increases as both Niceness and Lifetime decrease.
+
+### Ordered
+
+Ordered is a boolean property. If true, this Message should be delivered after
+the last Message passed to the same Connection via the Send Action; if false,
+this Message may be delivered out of order.
+
+### Idempotent
+
+Idempotent is a boolean property. If true, the application-layer entity in the
+Message is safe to send to the remote endpoint more than once for a single
+Send Action. It is used to mark data safe for certain 0-RTT establishment
+techniques, where retransmission of the 0-RTT data may cause the remote
+application to receive the Message multiple times.
+
+### Final
+
+Final is a boolean property. If true, this Message is the last one that
+the application will send on a Connection. This allows underlying protocols
+to indicate to the Remote Endpoint that the Connection has been effectively
+closed in the sending direction. For example, TCP-based Connections can
+send a FIN once a Message marked as Final has been completely sent,
+indicated by marking endOfMessage. Protocols that do not support signalling 
+the end of a Connection in a given direction will ignore this property.
+
+Note that a Final Message must always be sorted to the end of a list of Messages.
+The Final property overrides Niceness and any other property that would re-order
+Messages. If another Message is sent after a Message marked as Final has already
+been sent on a Connection, the new Message will report an error.
+
+### Corruption Protection Length
+
+This numeric property specifies the length of the section of the Message,
+starting from byte 0, that the application assumes will be received without
+corruption due to lower layer errors. It is used to specify options for simple
+integrity protection via checksums. By default, the entire Message is protected
+by checksum. A value of 0 means that no checksum is required, and a special
+value (e.g. -1) can be used to indicate the default. Only full coverage is
+guaranteed, any other requests are advisory.
+
+### Transmission Profile {#send-profile}
+
+This enumerated property specifies the application's preferred tradeoffs for
+sending this Message; it is a per-Message override of the Capacity Profile
+protocol and path selection property (see {{prop-cap-profile}}).
+
+The following values are valid for Transmission Profile:
+
+  Default:
+  :  No special optimizations of the tradeoff between delay, delay
+  variation, and bandwidth efficiency should be made when sending this message.
+
+  Low Latency:
+  : Response time (latency) should be optimized at
+  the expense of efficiently using the available capacity when sending this
+  message. This can be used by the system to disable the coalescing of
+  multiple small Messages into larger packets (Nagle's algorithm); to prefer
+  immediate acknowledgment from the peer endpoint when supported by the
+  underlying transport; to signal a preference for lower-latency, higher-loss
+  treatment; and so on.
+
+
+
+## Partial Sends {#send-partial}
+
+It is not always possible for an application to send all data associated with
+a Message in a single Send Action. The Message data may be too large for
+the application to hold in memory at one time, or the length of the Message
+may be unknown or unbounded.
+
+Partial Message sending is supported by passing an endOfMessage boolean
+parameter to the Send Action. This value is always true by default, and 
+the simpler forms of send are equivalent to passing true for endOfMessage.
+
+The following example sends a Message in two separate calls to Send.
+
+~~~
+messageContext := NewMessageContext()
+messageContext.add(parameter, value)
+
+messageData := "hel".octets()
+endOfMessage := false
+Connection.Send(messageData, messageContext, endOfMessage)
+
+messageData := "lo".octets()
+endOfMessage := true
+Connection.Send(messageData, messageContext, endOfMessage)
+~~~
+
+All messageData sent with the same messageContext object will be treated as belonging 
+to the same Message, and will constitute an in-order series until the endOfMessage is marked.
+Once the end of the Message is marked, the messageContext object may be re-used as a 
+new Message with identical parameters.
 
 ## Batching Sends {#send-batching}
 
@@ -810,8 +962,8 @@ in the batch is enqueued.
 
 ~~~
 Connection.Batch(
-    Connection.Send(Message, MessageProperties)
-    Connection.Send(Message, MessageProperties)
+    Connection.Send(messageData)
+    Connection.Send(messageData)
 )
 ~~~
 
@@ -827,7 +979,7 @@ it is bound to the Preconnection during the pre-establishment phase:
 ~~~
 Preconnection.FrameWith(Framer)
 
-OctetArray := Framer.Frame(Message)
+OctetArray := Framer.Frame(messageData)
 ~~~
 
 Sender-side framing is a convenience feature of the interface, for parity with
@@ -835,45 +987,89 @@ receiver-side framing (see {{receive-framing}}).
 
 # Receiving Data {#receiving}
 
-Once a Connection is established, Messages may be received on it. The application can indicate that it is ready to receive Messages by calling Receive() on the Connection.
-
-~~~
-Connection.Receive(ReceiveHandler, maxLength)
-~~~
-
-Receive takes a ReceiveHandler, which can handle the Received Event and the
-ReceiveError error. Each call to Receive will result in at most one Received
-event being sent to the handler, though implementations may provide
-convenience functions to indicate readiness to receive a larger but finite
-number of Messages with a single call. This allows an application to provide
-backpressure to the transport stack when it is temporarily not ready to
-receive messages.
-
-Receive also takes an optional maxLength argument, the maximum size (in bytes
-of data) Message the application is currently prepared to receive. The default
-value for maxLength is infinite. If an incoming Message is larger than the
-minimum of this size and the maximum Message size on receive for
-the Connection's Protocol Stack, it will be received as a partial Message.
-Note that maxLength does not guarantee that the application will receive that
-many bytes if they are available; the interface may return partial Messages
-smaller than maxLength according to implementation constraints.
-
-~~~
-Connection -> Received<Message>
-~~~
+Once a Connection is established, it can be used for receiving data. As with
+sending, data is received in terms of Messages. Receiving is an asynchronous
+operation, in which each call to Receive enqueues a request to receive new
+data from the connection. Once data has been received, or an error is encountered,
+an event will be delivered to complete the Receive request (see {{receive-events}}).
 
 As with sending, the type of the Message to be passed is dependent on the
 implementation, and on the constraints on the Protocol Stacks implied by the
-Connection's Transport Properties. 
+Connection's transport parameters.
 
-The Message Object must provide some method to retrieve an octet array
-containing application data, corresponding to a single message within the
-underlying Protocol Stack's framing.  See {{receive-framing}} for handling
-framing in situations where the Protocol Stack provides octet-stream transport
-only.
+## Enqueuing Receives
 
-The Message Object passed to Received is complete and atomic, unless one of the following
-conditions holds:
+Receive takes two parameters to specify the length of data that an application
+is willing to receive, both of which are optional and have default values if not
+specified. 
+
+~~~
+Connection.Receive(minIncompleteLength, maxLength)
+~~~
+
+By default, Receive will try to deliver complete Messages in a single event ({{receive-complete}}).
+
+The application can set a minIncompleteLength value to indicates the smallest partial 
+Message data size in bytes that should be delivered in response to this Receive. By default, 
+this value is infinite, which means that only complete Messages should be delivered. 
+If this value is set to some smaller value, the associated receive event will be triggered 
+only when at least that many bytes are available, or the Message is complete with fewer
+bytes, or the system needs to free up memory. Applications should always
+check the length of the data delivered to the receive event and not assume
+it will be as long as minIncompleteLength in the case of shorter complete Messages
+or memory issues.
+
+The maxLength argument indicates the maximum size of a Message in bytes
+the application is currently prepared to receive. The default
+value for maxLength is infinite. If an incoming Message is larger than the
+minimum of this size and the maximum Message size on receive for
+the Connection's Protocol Stack, it will be delivered via ReceivedPartial
+events ({{receive-partial}}).
+
+Note that maxLength does not guarantee that the application will receive that many 
+bytes if they are available; the interface may return ReceivedPartial events with less
+data than maxLength according to implementation constraints.
+
+## Receive Events {#receive-events}
+
+Each call to Receive will be paired with a single Receive Event, which can be a success
+or an error. This allows an application to provide backpressure to the transport stack 
+when it is temporarily not ready to receive messages.
+
+### Received {#receive-complete}
+
+~~~
+Connection -> Received<messageData, messageContext>
+~~~
+
+A Received event indicates the delivery of a complete Message. It contains two objects,
+the received bytes as messageData, and the metadata and properties of the received
+Message as messageContext. See {#receive-context} for details about the received context.
+
+The messageData object provides access to the bytes that were received for this Message,
+along with the length of the byte array.
+
+See {{receive-framing}} for handling Message framing in situations where the Protocol 
+Stack provides octet-stream transport only.
+
+### ReceivedPartial {#receive-partial}
+
+~~~
+Connection -> ReceivedPartial<messageData, messageContext, endOfMessage>
+~~~
+
+If a complete Message cannot be delivered in one event, one part of the Message
+may be delivered with a ReceivedPartial event. In order to continue to receive more
+of the same Message, the application must invoke Receive again.
+
+Multiple invocations of ReceivedPartial deliver data for the same Message by passing
+the same messageContext, until the endOfMessage flag is delivered. All partial blocks
+of a single Message are delivered in order without gaps. This event does not support
+delivering discontiguous partial Messages.
+
+If the minIncompleteLength in the Receive request was set to be infinite (indicating
+a request to receive only complete Messages), the ReceivedPartial event may still be
+delivered if one of the following conditions is true:
 
 * the underlying Protocol Stack supports message boundary preservation, and
   the size of the Message is larger than the buffers available for a single
@@ -884,20 +1080,14 @@ conditions holds:
 * the underlying Protocol Stack does not support message boundary
   preservation, and no deframer was supplied by the application
 
-The Message Object passed to Received will indicate one of the following:
+Note that in the absence of message boundary preservation or
+deframing, all bytes received on the Connection will be represented as one 
+large message of indeterminate length.
 
-1. this is a complete message;
-2. this is a partial message containing a section of a message with a known message boundary (made partial for local buffering reasons, either by the underlying Protocol Stack or the deframer). In this case, the Message Object passed to Received may contain the byte offset of the data in the partial Message within the full Message, an indication whether this is the
-last (highest-offset) partial Message in the full Message, and an optional
-reference to the full Message it belongs to; or
-3. this is a partial message containing data with no definite message boundary, i.e. the only known message boundary is given by termination of the Connection
-
-Note that in the absence of message boundary preservation and without
-deframing, the entire Connection is represented as one large message of
-indeterminate length.
+### ReceiveError
 
 ~~~
-Connection -> ReceiveError<>
+Connection -> ReceiveError<messageContext>
 ~~~
 
 A ReceiveError occurs when data is received by the underlying Protocol Stack
@@ -906,9 +1096,13 @@ received that reception has failed. Such conditions that irrevocably lead the
 the termination of the Connection are signaled using ConnectionError instead
 (see {{termination}}).
 
-## Receive Metadata
+The ReceiveError event passes an optional associated messageContext. This may
+indicate that a Message that was being partially received previously, but had not
+completed, encountered and error and will not be completed.
 
-Each Message may also contain metadata from protocols in the Protocol Stack; 
+## Message Receive Context {#receive-context}
+
+Each Received Message Context may contain metadata from protocols in the Protocol Stack; 
 which metadata is available is Protocol Stack dependent. The following metadata
 values are supported:
 
@@ -931,9 +1125,9 @@ and the recipient Message was sent as part of early data, the corresponding meta
 a flag indicating as such. If early data is enabled, applications should check this metadata 
 field for Messages received during connection establishment and respond accordingly. 
 
-## Receiving Final Messages
+### Receiving Final Messages
 
-The application may check a property to determine if a received Message is
+The Received Message Context can indicate whether or not this Message is
 the Final Message on a Connection. For any Message that is marked as Final,
 the application can assume that there will be no more Messages received on the
 Connection once the Message has been completely delivered. This corresponds
@@ -943,7 +1137,7 @@ Some transport protocols and peers may not support signaling of the Final proper
 Applications therefore should not rely on receiving a Message marked Final to know
 that the other endpoint is done sending on a connection.
 
-Any calls to `Receive` once the Final Message has been delivered will result in errors.
+Any calls to Receive once the Final Message has been delivered will result in errors.
 
 ## Receiver-side De-framing over Stream Protocols {#receive-framing}
 
@@ -974,7 +1168,7 @@ layer, it is bound to the Preconnection during the pre-establishment phase:
 ~~~
 Preconnection.DeframeWith(Deframer)
 
-Message := Deframer.Deframe(OctetStream, ...)
+{messageData} := Deframer.Deframe(OctetStream, ...)
 ~~~
 
 # Setting and Querying Connection Properties {#introspection}
