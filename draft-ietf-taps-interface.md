@@ -1215,12 +1215,16 @@ controlled by the protocol property.
 
 ### Control Properties {#control-props}
 
+\[TODO: Discuss]
+
 Control properties control the local transport system behavior or request 
 state changes in the local transport system. Depending on the protocols used, 
 setting these properties might also influence the protocol state machine. 
 See {{send-final}} for an example.
 
 ### Intents {#intents}
+
+\[TODO: Discuss]
 
 Intents are hints to the transport system that do not directly map to a single
 protocol/transport feature or behavior of the transport system, but express
@@ -1241,7 +1245,7 @@ The following properties are mandatory to implement in a transport system:
 ### Final {#send-final}
 
 Classification: 
-: Control Property
+: Control Property [TODO: Discuss]
 
 Type: 
 : Boolean
@@ -1352,7 +1356,7 @@ see {{prop-ordering}}, but allow out-of-order delivery for certain messages.
 ### Direction of communication
 
 Classification: 
-: Selection Property, Control Property 
+: Selection Property, Control Property [TODO: Discuss]
 
 Type: 
 : Enumeration
@@ -1431,7 +1435,7 @@ transport connection where possible. The default is to not have this option.
 ### Notification of excessive retransmissions {#prop-retrans-notify}
 
 Classification: 
-: Control Property
+: Control Property [TODO: Discuss]
 
 Type: 
 : Boolean
@@ -1451,7 +1455,7 @@ The default is to have this option.
 ### Retransmission threshold before excessive retransmission notification
 
 Classification: 
-: Control Property
+: Control Property [TODO: Discuss]
 
 Type: 
 : Integer
@@ -1466,7 +1470,7 @@ application about "Excessive Retransmissions".
 ### Notification of ICMP soft error message arrival {#prop-soft-error}
 
 Classification: 
-: Control Property
+: Control Property [TODO: Discuss]
 
 Type: 
 : Boolean
@@ -1617,7 +1621,7 @@ options.
 ### Capacity Profile {#prop-cap-profile}
 
 Classification: 
-: Intent
+: Intent [TODO: Discuss]
 
 Type: 
 : Enumeration
@@ -1711,7 +1715,7 @@ entangled when Connections are cloned.
 ### Timeout for aborting Connection
 
 Classification: 
-: Control Property
+: Control Property [TODO: Discuss]
 
 Type: 
 : Integer
@@ -1727,7 +1731,7 @@ establishment. It is given in seconds.
 ### Connection group transmission scheduler
 
 Classification: 
-: Protocol Property (Generic) / Control Property (TODO: decide)
+: Protocol Property (Generic) / Control Property [TODO: Discuss]
 
 Type: 
 : Enum
