@@ -1168,6 +1168,24 @@ When used on a Connection, this type becomes a (read-only) Boolean representing 
 
 ## Transport Property Classification {#transport-props-classes}
 
+Note:
+: This section is subject to WG discussion on ITEF-102.
+
+Transport Properties – not matter whether they apply to connections, preconnections, or messages – differ in the way they effect the transport system and protocols exposed through the transport system.
+This classification emphasizes two aspects of what and how properties
+effect the transport system in order to correctly set their expectation
+towards these properties:
+
+ - Whether properties effect protocols exposed through the transport system (Protocol Properties) or the transport system itself (Control Properties)
+ 
+ - Whether properties have a clearly defined behavior that is likely to be
+   invariant across implementations and environments (Protocol Properties and Control Properties) or whether the properties are interpreted by the transport system to provide a best effort service that matches the applications needs as well as possible (Intents).
+
+Note:
+: in I-D.ietf-taps-interface-00, we had a classification into Connection Properties and Message Properties, whereby Connection Properties where itself were sub-classified in Protocol-Selection, Path-Selection and Protocol properties.
+: The classification in this version of the draft emphasizes the way the property effects the transport system and protocols. It treats the aspect of whether properties are used on a connection, preconnection or message as an orthogonal dimension of classification.
+: The "Message Properties" from I-D.ietf-taps-interface-00 therefore have been split into "Protocol Properties" – emphasizing that they effect the protocol configurations – and "Control Properties" – emphasizing that they control the local transport system itself.
+
 
 ### Selection Properties {#selection-props}
 
@@ -1237,6 +1255,7 @@ Preconnection, this will likely influence path selection, DSCP flags in
 the IP header as well as niceness for multi-streaming connections.
 When using Intents, the application must not expect consistent behavior across 
 different environments, implementations or versions of the same implementation.
+
 
 ## Mandatory Transport Properties
 
