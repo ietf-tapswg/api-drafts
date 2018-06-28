@@ -837,7 +837,11 @@ inconsistent with the Selection Properties of the Connection yields an error.
 
 The following Message Context Properties are supported:
 
+\[TODO: De-Duplicate with Properties in {{transport-props}}, find consensus on which Section to put them]
+
 ### Lifetime
+
+\[TODO: De-Duplicate with {{send-lifetime}}]
 
 Lifetime specifies how long a particular Message can wait to be sent to the
 remote endpoint before it is irrelevant and no longer needs to be
@@ -846,6 +850,8 @@ transmitted reliably. The type and units of Lifetime are
 implementation-specific.
 
 ### Niceness
+
+\[TODO: De-Duplicate with {{send-niceness}}]
 
 Niceness is a numeric (non-negative) value that represents an
 unbounded hierarchy of priorities of Messages, relative
@@ -861,11 +867,15 @@ increases as both Niceness and Lifetime decrease.
 
 ### Ordered
 
+\[TODO: De-Duplicate with {{send-ordered}}]
+
 Ordered is a boolean property. If true, this Message should be delivered after
 the last Message passed to the same Connection via the Send Action; if false,
 this Message may be delivered out of order.
 
 ### Idempotent
+
+\[TODO: De-Duplicate with {{send-idempotent}}]
 
 Idempotent is a boolean property. If true, the application-layer entity in the
 Message is safe to send to the remote endpoint more than once for a single
@@ -874,6 +884,8 @@ techniques, where retransmission of the 0-RTT data may cause the remote
 application to receive the Message multiple times.
 
 ### Final
+
+\[TODO: De-Duplicate with {{send-final}}]
 
 Final is a boolean property. If true, this Message is the last one that
 the application will send on a Connection. This allows underlying protocols
@@ -890,6 +902,8 @@ been sent on a Connection, the new Message will report an error.
 
 ### Corruption Protection Length
 
+\[TODO: De-Duplicate with {{send-checksum}}]
+
 This numeric property specifies the length of the section of the Message,
 starting from byte 0, that the application assumes will be received without
 corruption due to lower layer errors. It is used to specify options for simple
@@ -899,6 +913,8 @@ value (e.g. -1) can be used to indicate the default. Only full coverage is
 guaranteed, any other requests are advisory.
 
 ### Transmission Profile {#send-profile}
+
+\[TODO: De-Duplicate with {{prop-cap-profile}}]
 
 This enumerated property specifies the application's preferred tradeoffs for
 sending this Message; it is a per-Message override of the Capacity Profile
@@ -1458,7 +1474,7 @@ The following properties are mandatory to implement in a transport system:
 ### Final {#send-final}
 
 Classification: 
-: Control Property [TODO: Discuss]
+: Control Property \[TODO: Discuss]
 
 Type: 
 : Boolean
@@ -1569,7 +1585,7 @@ see {{prop-ordering}}, but allow out-of-order delivery for certain messages.
 ### Direction of communication
 
 Classification: 
-: Selection Property, Control Property [TODO: Discuss]
+: Selection Property, Control Property \[TODO: Discuss]
 
 Type: 
 : Enumeration
@@ -1648,7 +1664,7 @@ transport connection where possible. The default is to not have this option.
 ### Notification of excessive retransmissions {#prop-retrans-notify}
 
 Classification: 
-: Control Property [TODO: Discuss]
+: Control Property \[TODO: Discuss]
 
 Type: 
 : Boolean
@@ -1668,7 +1684,7 @@ The default is to have this option.
 ### Retransmission threshold before excessive retransmission notification
 
 Classification: 
-: Control Property [TODO: Discuss]
+: Control Property \[TODO: Discuss]
 
 Type: 
 : Integer
@@ -1683,7 +1699,7 @@ application about "Excessive Retransmissions".
 ### Notification of ICMP soft error message arrival {#prop-soft-error}
 
 Classification: 
-: Control Property [TODO: Discuss]
+: Control Property \[TODO: Discuss]
 
 Type: 
 : Boolean
@@ -1834,7 +1850,7 @@ options.
 ### Capacity Profile {#prop-cap-profile}
 
 Classification: 
-: Intent [TODO: Discuss]
+: Intent \[TODO: Discuss]
 
 Type: 
 : Enumeration
@@ -1928,7 +1944,7 @@ entangled when Connections are cloned.
 ### Timeout for aborting Connection
 
 Classification: 
-: Control Property [TODO: Discuss]
+: Control Property \[TODO: Discuss]
 
 Type: 
 : Integer
@@ -1944,7 +1960,7 @@ establishment. It is given in seconds.
 ### Connection group transmission scheduler
 
 Classification: 
-: Protocol Property (Generic) / Control Property [TODO: Discuss]
+: Protocol Property (Generic) / Control Property \[TODO: Discuss]
 
 Type: 
 : Enum
