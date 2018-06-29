@@ -1412,7 +1412,7 @@ implemented over UDP.
 
 Protocol Selection Properties can only be set on Preconnections, see {{connection-props}}.
 Path Selection Properties are usually used on Preconnections, but
-might also be used on massages to assist per-message path selection for
+might also be used on messages to assist per-message path selection for
 multipath aware protocols.
 
 
