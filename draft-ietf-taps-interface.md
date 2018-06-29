@@ -1379,22 +1379,21 @@ When used on a Connection, this type becomes a (read-only) Boolean representing 
 ## Transport Property Classification {#transport-props-classes}
 
 Note:
-: This section is subject to WG discussion on ITEF-102.
+: This section is subject to WG discussion on IETF-102.
 
-Transport Properties – not matter whether they apply to connections, preconnections, or messages – differ in the way they effect the transport system and protocols exposed through the transport system.
-This classification emphasizes two aspects of what and how properties
-effect the transport system in order to correctly set their expectation
-towards these properties:
+Transport Properties – whether they apply to connections, preconnections, or messages – differ in the way they affect the transport system and protocols exposed through the transport system.
+The classification proposed below emphasizes two aspects of how properties
+affect the transport system, so applications know what to expect:
 
- - Whether properties effect protocols exposed through the transport system (Protocol Properties) or the transport system itself (Control Properties)
+ - Whether properties affect protocols exposed through the transport system (Protocol Properties) or the transport system itself (Control Properties)
  
  - Whether properties have a clearly defined behavior that is likely to be
    invariant across implementations and environments (Protocol Properties and Control Properties) or whether the properties are interpreted by the transport system to provide a best effort service that matches the applications needs as well as possible (Intents).
 
 Note:
 : in I-D.ietf-taps-interface-00, we had a classification into Connection Properties and Message Properties, whereby Connection Properties where itself were sub-classified in Protocol-Selection, Path-Selection and Protocol properties.
-: The classification in this version of the draft emphasizes the way the property effects the transport system and protocols. It treats the aspect of whether properties are used on a connection, preconnection or message as an orthogonal dimension of classification.
-: The "Message Properties" from I-D.ietf-taps-interface-00 therefore have been split into "Protocol Properties" – emphasizing that they effect the protocol configurations – and "Control Properties" – emphasizing that they control the local transport system itself.
+: The classification in this version of the draft emphasizes the way the property affects the transport system and protocols. It treats the aspect of whether properties are used on a connection, preconnection or message as an orthogonal dimension of classification.
+: The "Message Properties" from I-D.ietf-taps-interface-00 therefore have been split into "Protocol Properties" – emphasizing that they affect the protocol configurations – and "Control Properties" – emphasizing that they control the local transport system itself.
 
 
 ### Selection Properties {#selection-props}
@@ -1445,7 +1444,7 @@ controlled by the protocol property.
 
 \[TODO: Discuss]
 
-Control properties control the local transport system behavior or request 
+Control properties manage the local transport system behavior or request 
 state changes in the local transport system. Depending on the protocols used, 
 setting these properties might also influence the protocol state machine. 
 See {{send-final}} for an example.
