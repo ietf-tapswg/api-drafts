@@ -794,16 +794,17 @@ set of Message Properties not consistent with the Connection's transport
 properties. The SendError contains an implementation-specific reference to the
 Message to which it applies.
 
-## Message Context Properties {#message-props}
+## Message Context Parameters {#message-props}
 
 Applications may need to annotate the Messages they send with extra information
 to control how data is scheduled and processed by the transport protocols in
-the Connection. A MessageContext object contains properties for sending
-Messages, and can be passed to the Send Action. Note that these properties are 
-per-Message, not per-Send if partial Messages are sent ({{send-partial}}). All data
-blocks associated with a single Message share properties. For example, it would not 
-make sense to have the beginning of a Message expire, but allow the end of a Message
-to still be sent.
+the Connection. A MessageContext object contains parameters for sending
+Messages, and can be passed to the Send Action. Some of these parameters are
+properties as defined in {{transport-props}}. Note that these properties are
+per-Message, not per-Send if partial Messages are sent ({{send-partial}}). All
+data blocks associated with a single Message share properties. For example, it
+would not make sense to have the beginning of a Message expire, but allow the
+end of a Message to still be sent.
 
 ~~~
 messageData := "hello".octets()
@@ -824,9 +825,9 @@ it can acquire an empty messageContext Object and add all desired Message
 Properties to that Object. It can then reuse the same messageContext Object
 for sending multiple Messages with the same properties.
 
-Properties may be added to a messageContext object only before the context is used
+Parameters may be added to a messageContext object only before the context is used
 for sending. Once a messageContext has been used with a Send call, modifying any
-of its properties is invalid.
+of its parameters is invalid.
 
 Message Properties may be inconsistent with the properties of the Protocol Stacks
 underlying the Connection on which a given Message is sent. For example,
@@ -835,7 +836,7 @@ lifetime property of a Message. Sending a Message with Message Properties
 inconsistent with the Selection Properties of the Connection yields an error.
 
 
-The following Message Context Properties are supported:
+The following Message Context Parameters are supported:
 
 \[TODO: De-Duplicate with Properties in {{transport-props}}, find consensus on which Section to put them]
 
@@ -1472,28 +1473,9 @@ The following properties are mandatory to implement in a transport system:
   
 ### Final {#send-final}
 
-Classification: 
-: Control Property \[TODO: Discuss]
+See {{final}}.
 
-Type: 
-: Boolean
-
-Applicability: 
-: Message 
-
-If true, this property specifies that this Message is the last one that
-the application will send on a Connection. This allows underlying protocols
-to indicate to the Remote Endpoint that the Connection has been effectively
-closed in the sending direction. For example, TCP-based Connections can
-send a FIN once a Message marked as Final has been completely sent.
-Protocols that do not support signaling the end of a Connection in a given
-direction will ignore this property.
-
-Note that a Final Message must always be sent after any other outstanding Messages on the same connection.
-The Final property overrides Niceness and any other property that would re-order
-Messages. If an application tries to send another Message after a Message marked as Final has already
-been sent on the same Connection, the new Message will report an error.
-
+\[TODO: Decide whether this is a property or a parameter]
 
 ### Reliable Data Transfer (Connection) {#prop-reliable}
 
