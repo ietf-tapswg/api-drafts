@@ -336,9 +336,9 @@ traversal protocols (see {{rendezvous}}).
 ## Specifying Transport Properties {#connection-props}
 
 A Preconnection Object holds properties reflecting the application's
-requirements and preferences for the transport. These include Selection 
-Properties (Protocol and Path Selection Properties), as well as Generic and 
-Specific Protocol Properties for configuration of the detailed operation of the 
+requirements and preferences for the transport. These include Selection
+Properties (Protocol and Path Selection Properties), as well as Generic and
+Specific Protocol Properties for configuration of the detailed operation of the
 selected Protocol Stacks.
 
 The protocol(s) and path(s) selected as candidates during Connection
@@ -350,12 +350,11 @@ involve choosing between multiple local interfaces that are connected to
 different access networks.
 
 Internally, the transport system will first exclude all protocols and paths
-that match a Prohibit, then only keep candidates that match a Require, then
-sort candidates according to Preferred properties, and then use Avoided
-properties as a tiebreaker.
-In case of conflicts between Protocol and Path Selection Properties,
-Path Selection Properties take precedence.
-For example, if an application indicates a preference for a specific path, but
+that match a Prohibit, then exclude all protocols and paths that do not match
+a Require, then sort candidates according to Preferred properties, and then
+use Avoided properties as a tiebreaker. In case of conflicts between Protocol
+and Path Selection Properties, Path Selection Properties take precedence. For
+example, if an application indicates a preference for a specific path, but
 also a preference for a protocol not available on this path, the transport
 system will try the path first, so the Protocol Selection Property might not
 have an effect.
@@ -404,10 +403,10 @@ via a Preconnection, or by inheriting them from an antecedent via cloning; see
 
 ## Specifying Security Parameters and Callbacks {#security-parameters}
 
-Most security parameters, e.g., TLS ciphersuites, local identity and private key, etc., 
+Most security parameters, e.g., TLS ciphersuites, local identity and private key, etc.,
 may be configured statically. Others are dynamically configured during connection establishment.
 Thus, we partition security parameters and callbacks based on their place in the lifetime
-of connection establishment. Similar to Transport Properties, both parameters and callbacks 
+of connection establishment. Similar to Transport Properties, both parameters and callbacks
 are inherited during cloning (see {{groups}}).
 
 ### Pre-Connection Parameters
@@ -464,7 +463,7 @@ SecurityParameters.AddPreSharedKey(key, identity)
 ### Connection Establishment Callbacks
 
 Security decisions, especially pertaining to trust, are not static. Once configured,
-parameters may also be supplied during connection establishment. These are best 
+parameters may also be supplied during connection establishment. These are best
 handled as client-provided callbacks. Security handshake callbacks that may be
 invoked during connection establishment include:
 
@@ -540,8 +539,8 @@ the Ready Event for Connections established using Initiate.
 Connection -> InitiateError<>
 ~~~
 
-An InitiateError occurs either when the set of transport properties and 
-cryptographic parameters cannot be fulfilled on a Connection for initiation 
+An InitiateError occurs either when the set of transport properties and
+cryptographic parameters cannot be fulfilled on a Connection for initiation
 (e.g. the set of available Paths and/or Protocol Stacks meeting the constraints is empty)
 or reconciled with the local and/or remote endpoints; when the remote specifier
 cannot be resolved; or when no transport-layer connection can be established
@@ -614,11 +613,11 @@ Preconnection.Rendezvous()
 The Preconnection Object must be specified with both a Local Endpoint and a
 Remote Endpoint, and also the transport properties and security parameters
 needed for Protocol Stack selection.
-The Rendezvous() Action causes the Preconnection
-to listen on the Local Endpoint for an incoming Connection from the
-Remote Endpoint, while simultaneously trying to establish a Connection from
-the Local Endpoint to the Remote Endpoint.
-This corresponds to a TCP simultaneous open, for example.
+
+The Rendezvous() Action causes the Preconnection to listen on the Local
+Endpoint for an incoming Connection from the Remote Endpoint, while
+simultaneously trying to establish a Connection from the Local Endpoint to the
+Remote Endpoint. This corresponds to a TCP simultaneous open, for example.
 
 The Rendezvous() Action consumes the Preconnection. Once Rendezvous() has
 been called, no further properties may be added to the Preconnection, and
@@ -657,11 +656,11 @@ discover these bindings:
 PreconnectionBindings := Preconnection.Resolve()
 ~~~
 
-The Resolve() call returns a list of Preconnection Objects, that represent
-the concrete addresses, local and server reflexive, on which a Rendezvous()
-for the Preconnection will listen for incoming Connections. This list can
-be passed to a peer via a signalling protocol, such as SIP or WebRTC, to
-configure the remote.
+The Resolve() call returns a list of Preconnection Objects, that represent the
+concrete addresses, local and server reflexive, on which a Rendezvous() for
+the Preconnection will listen for incoming Connections. This list can be
+passed to a peer via a signalling protocol, such as SIP {{?RFC3261}} or WebRTC
+{{?RFC7478}}, to configure the remote.
 
 ## Connection Groups {#groups}
 
@@ -706,7 +705,7 @@ Once a Connection has been established, it can be used for sending data. Data is
 sent in terms of Messages, which allow the application to communicate the boundaries
 of the data being transferred. By default, Send enqueues a complete Message,
 and takes optional per-Message properties (see {{send-basic}}). All Send actions
-are asynchronous, and deliver events (see {{send-events}}). Sending partial 
+are asynchronous, and deliver events (see {{send-events}}). Sending partial
 Messages for streaming large data is also supported (see {{send-partial}}).
 
 ## Basic Sending {#send-basic}
@@ -721,7 +720,7 @@ messageData := "hello".octets()
 Connection.Send(messageData)
 ~~~
 
-The interpretation of a Message to be sent is dependent on the implementation, and 
+The interpretation of a Message to be sent is dependent on the implementation, and
 on the constraints on the Protocol Stacks implied by the Connection’s transport properties.
 For example, a Message may be a single datagram for UDP Connections; or an HTTP
 Request for HTTP Connections.
@@ -756,13 +755,14 @@ there will be two Expired events delivered.
 Connection -> Sent<msgRef>
 ~~~
 
-The Sent Event occurs when a previous Send Action has completed, i.e., when the
-data derived from the Message has been passed down or through the underlying
-Protocol Stack and is no longer the responsibility of the implementation of
-this interface. The exact disposition of the Message when the Sent Event occurs is
-specific to the implementation and the constraints on the Protocol Stacks
-implied by the Connection's Transport Properties. The Sent Event contains an
-implementation-specific reference to the Message to which it applies.
+The Sent Event occurs when a previous Send Action has completed, i.e., when
+the data derived from the Message has been passed down or through the
+underlying Protocol Stack and is no longer the responsibility of the
+implementation of this interface. The exact disposition of the Message (i.e.,
+whether it has actually been transmitted, moved into a buffer on the network
+interface, moved into a kernel buffer, and so on) when the Sent Event occurs
+is implementation-specific. The Sent Event contains an implementation-specific
+reference to the Message to which it applies.
 
 Sent Events allow an application to obtain an understanding of the amount
 of buffering it creates. That is, if an application calls the Send Action multiple
@@ -893,7 +893,7 @@ the application will send on a Connection. This allows underlying protocols
 to indicate to the Remote Endpoint that the Connection has been effectively
 closed in the sending direction. For example, TCP-based Connections can
 send a FIN once a Message marked as Final has been completely sent,
-indicated by marking endOfMessage. Protocols that do not support signalling 
+indicated by marking endOfMessage. Protocols that do not support signalling
 the end of a Connection in a given direction will ignore this property.
 
 Note that a Final Message must always be sorted to the end of a list of Messages.
@@ -946,7 +946,7 @@ the application to hold in memory at one time, or the length of the Message
 may be unknown or unbounded.
 
 Partial Message sending is supported by passing an endOfMessage boolean
-parameter to the Send Action. This value is always true by default, and 
+parameter to the Send Action. This value is always true by default, and
 the simpler forms of send are equivalent to passing true for endOfMessage.
 
 The following example sends a Message in two separate calls to Send.
@@ -964,9 +964,9 @@ endOfMessage := true
 Connection.Send(messageData, messageContext, endOfMessage)
 ~~~
 
-All messageData sent with the same messageContext object will be treated as belonging 
+All messageData sent with the same messageContext object will be treated as belonging
 to the same Message, and will constitute an in-order series until the endOfMessage is marked.
-Once the end of the Message is marked, the messageContext object may be re-used as a 
+Once the end of the Message is marked, the messageContext object may be re-used as a
 new Message with identical parameters.
 
 ## Batching Sends {#send-batching}
@@ -1018,7 +1018,7 @@ Connection's transport parameters.
 
 Receive takes two parameters to specify the length of data that an application
 is willing to receive, both of which are optional and have default values if not
-specified. 
+specified.
 
 ~~~
 Connection.Receive(minIncompleteLength, maxLength)
@@ -1026,10 +1026,10 @@ Connection.Receive(minIncompleteLength, maxLength)
 
 By default, Receive will try to deliver complete Messages in a single event ({{receive-complete}}).
 
-The application can set a minIncompleteLength value to indicates the smallest partial 
-Message data size in bytes that should be delivered in response to this Receive. By default, 
-this value is infinite, which means that only complete Messages should be delivered. 
-If this value is set to some smaller value, the associated receive event will be triggered 
+The application can set a minIncompleteLength value to indicates the smallest partial
+Message data size in bytes that should be delivered in response to this Receive. By default,
+this value is infinite, which means that only complete Messages should be delivered.
+If this value is set to some smaller value, the associated receive event will be triggered
 only when at least that many bytes are available, or the Message is complete with fewer
 bytes, or the system needs to free up memory. Applications should always
 check the length of the data delivered to the receive event and not assume
@@ -1043,14 +1043,14 @@ minimum of this size and the maximum Message size on receive for
 the Connection's Protocol Stack, it will be delivered via ReceivedPartial
 events ({{receive-partial}}).
 
-Note that maxLength does not guarantee that the application will receive that many 
+Note that maxLength does not guarantee that the application will receive that many
 bytes if they are available; the interface may return ReceivedPartial events with less
 data than maxLength according to implementation constraints.
 
 ## Receive Events {#receive-events}
 
 Each call to Receive will be paired with a single Receive Event, which can be a success
-or an error. This allows an application to provide backpressure to the transport stack 
+or an error. This allows an application to provide backpressure to the transport stack
 when it is temporarily not ready to receive messages.
 
 ### Received {#receive-complete}
@@ -1066,7 +1066,7 @@ Message as messageContext. See {#receive-context} for details about the received
 The messageData object provides access to the bytes that were received for this Message,
 along with the length of the byte array.
 
-See {{receive-framing}} for handling Message framing in situations where the Protocol 
+See {{receive-framing}} for handling Message framing in situations where the Protocol
 Stack provides octet-stream transport only.
 
 ### ReceivedPartial {#receive-partial}
@@ -1098,7 +1098,7 @@ delivered if one of the following conditions is true:
   preservation, and no deframer was supplied by the application
 
 Note that in the absence of message boundary preservation or
-deframing, all bytes received on the Connection will be represented as one 
+deframing, all bytes received on the Connection will be represented as one
 large message of indeterminate length.
 
 ### ReceiveError
@@ -1119,28 +1119,28 @@ completed, encountered and error and will not be completed.
 
 ## Message Receive Context {#receive-context}
 
-Each Received Message Context may contain metadata from protocols in the Protocol Stack; 
+Each Received Message Context may contain metadata from protocols in the Protocol Stack;
 which metadata is available is Protocol Stack dependent. The following metadata
 values are supported:
 
 ### ECN {#receive-ecn}
 
-When available, Message metadata carries the value of the Explicit Congestion 
-Notification (ECN) field. This information can be used for logging and debugging 
-purposes, and for building applications which need access to information about 
+When available, Message metadata carries the value of the Explicit Congestion
+Notification (ECN) field. This information can be used for logging and debugging
+purposes, and for building applications which need access to information about
 the transport internals for their own operation.
 
-### Early Data {#receive-early} 
+### Early Data {#receive-early}
 
-In some cases it may be valuable to know whether data was read as part of early 
-data streams. This is useful if applications need to treat early data separately, 
-e.g., if early data has different security properties than data sent after 
-connection establishment. In the case of TLS 1.3, client early data can be replayed 
-maliciously (see {{!I-D.ietf-tls-tls13}}). Thus, receivers may wish to perform additional 
-checks for early data to ensure it is idempotent or not replayed. If TLS 1.3 is available 
-and the recipient Message was sent as part of early data, the corresponding metadata carries 
-a flag indicating as such. If early data is enabled, applications should check this metadata 
-field for Messages received during connection establishment and respond accordingly. 
+In some cases it may be valuable to know whether data was read as part of early
+data streams. This is useful if applications need to treat early data separately,
+e.g., if early data has different security properties than data sent after
+connection establishment. In the case of TLS 1.3, client early data can be replayed
+maliciously (see {{!I-D.ietf-tls-tls13}}). Thus, receivers may wish to perform additional
+checks for early data to ensure it is idempotent or not replayed. If TLS 1.3 is available
+and the recipient Message was sent as part of early data, the corresponding metadata carries
+a flag indicating as such. If early data is enabled, applications should check this metadata
+field for Messages received during connection establishment and respond accordingly.
 
 ### Receiving Final Messages
 
@@ -1316,7 +1316,7 @@ does provide the following guarantees about the ordering of operations:
 Transport Properties allow an application to control and introspect
 most aspects of the transport system and transport protocols.
 
-Properties are structured in two ways: 
+Properties are structured in two ways:
 
  - By how they influence the transport system, which leads to a classification
    into "Selection Properties", "Protocol Properties", "Control Properties" and "Intents".
@@ -1343,21 +1343,21 @@ Each Transport Property takes a value of a property-specific type.
 
 ### Boolean {#transport-props-bool}
 
-A boolean is a data type that can be either "true" or "false". 
+A boolean is a data type that can be either "true" or "false".
 Boolean transport properties should only be used for properties that can not
-be used in an optional way or to query the state of the transport implementation. 
+be used in an optional way or to query the state of the transport implementation.
 For optional features, especially in Selection Properties, the usage of the
 Preference type (see {{transport-props-preference}}) is preferred.
 
 ### Enumeration {#transport-props-enum}
 
 Enumeration types are used for transport properties that can take one value
-out of a limited set of choices. 
+out of a limited set of choices.
 The representation is implementation dependent.
 
 ### Integer {#transport-props-int}
 
-Integer types are used to represent integer numbers. 
+Integer types are used to represent integer numbers.
 The representation is implementation dependent.
 
 ### Preference {#transport-props-preference}
@@ -1387,7 +1387,7 @@ The classification proposed below emphasizes two aspects of how properties
 affect the transport system, so applications know what to expect:
 
  - Whether properties affect protocols exposed through the transport system (Protocol Properties) or the transport system itself (Control Properties)
- 
+
  - Whether properties have a clearly defined behavior that is likely to be
    invariant across implementations and environments (Protocol Properties and Control Properties) or whether the properties are interpreted by the transport system to provide a best effort service that matches the applications needs as well as possible (Intents).
 
@@ -1421,7 +1421,7 @@ multipath aware protocols.
 Protocol Properties represent the configuration of the selected Protocol Stacks
 backing a Connection. Some properties apply generically across multiple
 transport protocols, while other properties only apply to specific protocols.
-Generic properties will be passed to the selected candidate Protocol Stack(s) 
+Generic properties will be passed to the selected candidate Protocol Stack(s)
 to configure them before candidate Connection establishment.
 The default settings of these properties will vary based on the specific
 protocols being used and the system's configuration.
@@ -1445,9 +1445,9 @@ controlled by the protocol property.
 
 \[TODO: Discuss]
 
-Control properties manage the local transport system behavior or request 
-state changes in the local transport system. Depending on the protocols used, 
-setting these properties might also influence the protocol state machine. 
+Control properties manage the local transport system behavior or request
+state changes in the local transport system. Depending on the protocols used,
+setting these properties might also influence the protocol state machine.
 See {{send-final}} for an example.
 
 ### Intents {#intents}
@@ -1460,17 +1460,17 @@ a presumed application behavior or generic application needs.
 
 The application can expect the transport system to take appropriate actions
 involving protocol selection, path selection and, setting of protocol flags.
-For example, if an application sets the "Capacity Profile" to "bulk" on a 
+For example, if an application sets the "Capacity Profile" to "bulk" on a
 Preconnection, this will likely influence path selection, DSCP flags in
 the IP header as well as niceness for multi-streaming connections.
-When using Intents, the application must not expect consistent behavior across 
+When using Intents, the application must not expect consistent behavior across
 different environments, implementations or versions of the same implementation.
 
 
 ## Mandatory Transport Properties
 
 The following properties are mandatory to implement in a transport system:
-  
+
 ### Final {#send-final}
 
 See {{final}}.
@@ -1479,13 +1479,13 @@ See {{final}}.
 
 ### Reliable Data Transfer (Connection) {#prop-reliable}
 
-Classification: 
+Classification:
 : Selection Property
 
-Type: 
+Type:
 : Preference
 
-Applicability: 
+Applicability:
 : Preconnection, Connection (read only)
 
 This property specifies whether the application wishes to use a transport
@@ -1496,14 +1496,14 @@ aborted. The default is to enable Reliable Data Transfer.
 
 ### Configure per-Message reliability {#prop-partially-reliable}
 
-Classification: 
-: Selection Property 
+Classification:
+: Selection Property
 
-Type: 
+Type:
 : Preference
 
-Applicability: 
-: Preconnection, Connection (read only) 
+Applicability:
+: Preconnection, Connection (read only)
 
 This property specifies whether an application considers it useful to indicate
 its reliability requirements on a per-Message basis. This property applies to
@@ -1512,33 +1512,33 @@ Connections and Connection Groups. The default is to not have this option.
 
 ### Reliable Data Transfer (Message) {#prop-reliable-message}
 
-Classification: 
+Classification:
 : Protocol Property (Generic)
 
-Type: 
+Type:
 : Boolean
 
-Applicability: 
-: Message 
+Applicability:
+: Message
 
 This property specifies that a message should be sent in such a way
 that the transport protocol ensures all data is received on the other side
-without corruption. Changing the ´Reliable Data Transfer´ property on Messages 
-is only possible if the transport protocol supports 
+without corruption. Changing the ´Reliable Data Transfer´ property on Messages
+is only possible if the transport protocol supports
 partial reliability (see {{prop-partially-reliable}}).
 Therefore, for protocols that always transfer data reliably, this property is always true and for protocols that always transfer data unreliably, this flag is always false. Changing it may generate an error.
 
 
 ### Preservation of data ordering {#prop-ordering}
 
-Classification: 
-: Selection Property 
+Classification:
+: Selection Property
 
-Type: 
+Type:
 : Preference
 
-Applicability: 
-: Preconnection, Connection (read only) 
+Applicability:
+: Preconnection, Connection (read only)
 
 This property specifies whether the application wishes to use a
 transport protocol that ensures that data is received
@@ -1548,30 +1548,30 @@ default is to preserve data ordering.
 
 ### Ordered {#send-ordered}
 
-Classification: 
+Classification:
 : Protocol Property (Generic)
 
-Type: 
+Type:
 : Boolean
 
-Applicability: 
-: Message 
+Applicability:
+: Message
 
 This property specifies that a Message should be delivered to the other side
 after the previous Message which was passed to the same Connection via the Send
-Action. It us used for protocols that support preservation of data ordering, 
+Action. It us used for protocols that support preservation of data ordering,
 see {{prop-ordering}}, but allow out-of-order delivery for certain messages.
 
 
 ### Direction of communication
 
-Classification: 
+Classification:
 : Selection Property, Control Property \[TODO: Discuss]
 
-Type: 
+Type:
 : Enumeration
 
-Applicability: 
+Applicability:
 : Preconnection, Connection (read only)
 
 This property specifies whether an application wants to use the connection for sending and/or receiving data.  Possible values are:
@@ -1585,19 +1585,19 @@ unidirectional send:
 unidirectional receive:
 : The connection must support receiving data
 
-In case a unidirectional connection is requested, but unidirectional connections are not supported by the transport protocol, 
+In case a unidirectional connection is requested, but unidirectional connections are not supported by the transport protocol,
 the system should fall back to bidirectional transport.
 
 
 ### Use 0-RTT session establishment with an idempotent Message {#prop-0rtt}
 
-Classification: 
-: Selection Property 
+Classification:
+: Selection Property
 
-Type: 
+Type:
 : Preference
 
-Applicability: 
+Applicability:
 : Preconnection, Connection (read only)
 
 This property specifies whether an application would like to
@@ -1609,14 +1609,14 @@ See also {{send-idempotent}}. The default is to not have this option.
 
 ### Idempotent {#send-idempotent}
 
-Classification: 
+Classification:
 : Control Property
 
-Type: 
+Type:
 : Boolean
 
-Applicability: 
-: Message 
+Applicability:
+: Message
 
 This property specifies that a Message is safe to send to the remote endpoint
 more than once for a single Send Action. It is used to mark data safe for
@@ -1628,13 +1628,13 @@ The application can query the maximum size of a message that can be sent idempot
 
 ### Multistream Connections in Group {#prop-multistream}
 
-Classification: 
-: Selection Property 
+Classification:
+: Selection Property
 
-Type: 
+Type:
 : Preference
 
-Applicability: 
+Applicability:
 : Preconnection, Connection (read only)
 
 This property specifies that the application would prefer multiple Connections
@@ -1644,13 +1644,13 @@ transport connection where possible. The default is to not have this option.
 
 ### Notification of excessive retransmissions {#prop-retrans-notify}
 
-Classification: 
+Classification:
 : Control Property \[TODO: Discuss]
 
-Type: 
+Type:
 : Boolean
 
-Applicability: 
+Applicability:
 : Preconnection, Connection
 
 This property specifies whether an application considers it useful to be informed in case sent data was retransmitted more often than a certain threshold.
@@ -1664,13 +1664,13 @@ The default is to have this option.
 
 ### Retransmission threshold before excessive retransmission notification
 
-Classification: 
+Classification:
 : Control Property \[TODO: Discuss]
 
-Type: 
+Type:
 : Integer
 
-Applicability: 
+Applicability:
 : Preconnection, Connection
 
 This property specifies after how many retransmissions to inform the
@@ -1679,13 +1679,13 @@ application about "Excessive Retransmissions".
 
 ### Notification of ICMP soft error message arrival {#prop-soft-error}
 
-Classification: 
+Classification:
 : Control Property \[TODO: Discuss]
 
-Type: 
+Type:
 : Boolean
 
-Applicability: 
+Applicability:
 : Preconnection, Connection
 
 This property specifies whether an application considers it useful
@@ -1704,14 +1704,14 @@ The default is not to have this option.
 
 ### Control checksum coverage on sending or receiving {#prop-checksum-control}
 
-Classification: 
-: Selection Property 
+Classification:
+: Selection Property
 
-Type: 
+Type:
 : Preference
 
-Applicability: 
-: Preconnection, Connection (read only) 
+Applicability:
+: Preconnection, Connection (read only)
 
 This property specifies whether the application considers it useful to enable,
 disable, or configure a checksum when sending a Message, or configure whether
@@ -1722,14 +1722,14 @@ receiving.
 
 ### Corruption Protection Length {#send-checksum}
 
-Classification: 
+Classification:
 : Protocol Property (Generic)
 
-Type: 
+Type:
 : Integer
 
-Applicability: 
-: Message 
+Applicability:
+: Message
 
 This numeric property specifies the length of the section of the Message,
 starting from byte 0, that the application assumes will be received without
@@ -1742,13 +1742,13 @@ guaranteed, any other requests are advisory.
 
 ### Required minimum coverage of the checksum for receiving
 
-Classification: 
+Classification:
 : Protocol Property (Generic)
 
-Type: 
+Type:
 : Integer
 
-Applicability: 
+Applicability:
 : Connection
 
 This property specifies the part of the received data that needs
@@ -1759,14 +1759,14 @@ full checksum coverage.
 
 ### Interface Instance or Type {#prop-interface}
 
-Classification: 
-: Selection Property 
+Classification:
+: Selection Property
 
-Type: 
+Type:
 : Tuple (Enumeration, Preference)
 
-Applicability: 
-: Preconnection, Connection (read only) 
+Applicability:
+: Preconnection, Connection (read only)
 
 This property allows the application to select which specific network interfaces
 or categories of interfaces it wants to `Require`, `Prohibit`, `Prefer`, or `Avoid`.
@@ -1799,13 +1799,13 @@ or another specific property.
 
 ### Provisioning Domain Instance or Type {#prop-pvd}
 
-Classification: 
-: Selection Property 
+Classification:
+: Selection Property
 
-Type: 
+Type:
 : Tuple (Enumeration, Preference)
 
-Applicability: 
+Applicability:
 : Preconnection, Connection (read only)
 
 Similar to interface instances and types {{prop-interface}}, this property allows
@@ -1830,14 +1830,14 @@ options.
 
 ### Capacity Profile {#prop-cap-profile}
 
-Classification: 
+Classification:
 : Intent \[TODO: Discuss]
 
-Type: 
+Type:
 : Enumeration
 
-Applicability: 
-: Preconnection, Connection, Message 
+Applicability:
+: Preconnection, Connection, Message
 
 This property specifies the application's expectation of the dominating traffic pattern for this Connection.
 This implies that the transport system should optimize for the capacity profile specified. This can influence path and protocol selection.
@@ -1875,13 +1875,13 @@ The following values are valid for the Capacity Profile:
 
 ### Congestion control {#prop-cc}
 
-Classification: 
-: Selection Property 
+Classification:
+: Selection Property
 
-Type: 
+Type:
 : Preference
 
-Applicability: 
+Applicability:
 : Preconnection, Connection (read only)
 
 This property specifies whether the application would like the Connection to be
@@ -1895,14 +1895,14 @@ Connection is congestion controlled.
 
 ### Niceness {#send-niceness}
 
-Classification: 
+Classification:
 : Protocol Property (Generic)
 
-Type: 
+Type:
 : Integer
 
-Applicability: 
-: Connection, Message 
+Applicability:
+: Connection, Message
 
 This property is a numeric (non-negative) value that represents an unbounded
 hierarchy of priorities. It can specify the priority of a Message, relative to
@@ -1924,14 +1924,14 @@ entangled when Connections are cloned.
 
 ### Timeout for aborting Connection
 
-Classification: 
+Classification:
 : Control Property \[TODO: Discuss]
 
-Type: 
+Type:
 : Integer
 
-Applicability: 
-: Preconnection, Connection 
+Applicability:
+: Preconnection, Connection
 
 This property specifies how long to wait before aborting a Connection during
 establishment, or before deciding that a Connection has failed after
@@ -1940,13 +1940,13 @@ establishment. It is given in seconds.
 
 ### Connection group transmission scheduler
 
-Classification: 
+Classification:
 : Protocol Property (Generic) / Control Property \[TODO: Discuss]
 
-Type: 
+Type:
 : Enum
 
-Applicability: 
+Applicability:
 : Preconnection, Connection
 
 This property specifies which scheduler should be used among Connections within
@@ -1956,13 +1956,13 @@ be taken from {{I-D.ietf-tsvwg-sctp-ndata}}.
 
 ### Maximum message size concurrent with Connection establishment {#size-idempotent}
 
-Classification: 
+Classification:
 : Protocol Property (Generic)
 
-Type: 
+Type:
 : Integer
 
-Applicability: 
+Applicability:
 : Connection (read only)
 
 This property represents the maximum Message size that can be sent
@@ -1972,13 +1972,13 @@ It is given in Bytes. This property is read-only.
 
 ### Maximum Message size before fragmentation or segmentation
 
-Classification: 
+Classification:
 : Protocol Property (Generic)
 
-Type: 
+Type:
 : Integer
 
-Applicability: 
+Applicability:
 : Connection (read only)
 
 This property, if applicable, represents the maximum Message size that can be
@@ -1988,13 +1988,13 @@ segmentation at the sender. This property is read-only.
 
 ### Maximum Message size on send
 
-Classification: 
+Classification:
 : Protocol Property (Generic)
 
-Type: 
+Type:
 : Integer
 
-Applicability: 
+Applicability:
 : Connection (read only)
 
 This property represents the maximum Message size that can be sent. This
@@ -2003,13 +2003,13 @@ property is read-only.
 
 ### Maximum Message size on receive
 
-Classification: 
+Classification:
 : Protocol Property (Generic)
 
-Type: 
+Type:
 : Integer
 
-Applicability: 
+Applicability:
 : Connection (read only)
 
 This numeric property represents the maximum Message size that can be received.
@@ -2018,14 +2018,14 @@ This property is read-only.
 
 ### Lifetime {#send-lifetime}
 
-Classification: 
+Classification:
 : Protocol Property (Generic)
 
-Type: 
+Type:
 : Integer
 
-Applicability: 
-: Message 
+Applicability:
+: Message
 
 Lifetime specifies how long a particular Message can wait to be sent to the
 remote endpoint before it is irrelevant and no longer needs to be
