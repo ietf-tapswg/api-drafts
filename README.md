@@ -1,6 +1,8 @@
 # TAPS Drafts
 
-This is the working area for individual Internet-Drafts.
+This is the working area for the IETF TAPS working group Internet-Drafts for the TAPS Architecture and Abstract Interface, 
+
+**Contributions to this repository (commits and pull requests, as well as issues and comments) are covered under the IETF Note Well.** See [CONTRIBUTING.md](CONTRIBUTING.md) for more.
 
 ## Architecture
 
@@ -8,7 +10,7 @@ This is the working area for individual Internet-Drafts.
 * [Individual Draft](https://tools.ietf.org/html/draft-ietf-taps-arch)
 * [Compare Editor's Copy to Individual Draft](https://taps-api.github.io/drafts/#go.draft-ietf-taps-arch.diff)
 
-## API
+## Interface
 
 * [Editor's Copy](https://taps-api.github.io/drafts/#go.draft-ietf-taps-interface.html)
 * [Individual Draft](https://tools.ietf.org/html/draft-ietf-taps-interface)
