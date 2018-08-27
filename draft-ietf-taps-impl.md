@@ -164,7 +164,7 @@ It is expected that the database of system policies and the method of looking up
 
 The process of establishing a network connection begins when an application expresses intent to communicate with a remote endpoint by calling Initiate. (At this point, any constraints or requirements the application may have on the connection are available from pre-establishment.) The process can be considered complete once there is at least one Protocol Stack that has completed any required setup to the point that it can transmit and receive the application's data.
 
-Connection establishment is divided into two top-level steps: Candidate Gathering, to identify the paths, protocols, and endpoints to use, and Candidate Racing, in which the necessary protocol handshakes are conducted in order to select which set to use.
+Connection establishment is divided into two top-level steps: Candidate Gathering, to identify the paths, protocols, and endpoints to use, and Candidate Racing, in which the necessary protocol handshakes are conducted so that the transport system can select which set to use.
 
 The most simple example of this process might involve identifying the single IP address to which the implementation wishes to connect, using the system's current default interface or path, and starting a TCP handshake to establish a stream to the specified IP address. However, each step may also vary depending on the requirements of the connection: if the endpoint is defined as a hostname and port, then there may be multiple resolved addresses that are available; there may also be multiple interfaces or paths available, other than the default system interface; and some protocols may not need any transport handshake to be considered "established" (such as UDP), while other connections may utilize layered protocol handshakes, such as TLS over TCP.
 
@@ -468,7 +468,7 @@ The most basic mapping for sending a Message is an abstraction of datagrams, in 
 
 For protocols that expose byte-streams, the only delineation provided by the protocol is the end of the stream in a given direction. Each Message in this case corresponds to the entire stream of bytes in a direction. These Messages may be quite long, in which case they can be sent in multiple parts.
 
-Protocols that provide the framing (such as length-value protocols, or protocols that use delimeters) provide data boundaries that may be longer than a traditional packet datagram. Each Message for framing protocols corresponds to a single frame, which may be sent either as a complete Message, or in multiple parts.
+Protocols that provide the framing (such as length-value protocols, or protocols that use delimiters) provide data boundaries that may be longer than a traditional packet datagram. Each Message for framing protocols corresponds to a single frame, which may be sent either as a complete Message, or in multiple parts.
 
 ### Sending Messages
 
@@ -561,9 +561,9 @@ it has given to the Transport System, but it cannot expect to be able to read an
 more data after calling Close.
 
 Abort differs from Close only in that no guarantees are given regarding data
-that the application has handed over to the Tranport System before calling Abort.
+that the application has handed over to the Transport System before calling Abort.
 
-As explained in section {{establish-mux}}, when a new stream is multiplexed on an already
+As explained in {{establish-mux}}, when a new stream is multiplexed on an already
 existing connection of a Transport Protocol Instance, there is no need for a connection
 establishment procedure. Because the Connections that are offered by the Transport System
 can be implemented as streams that are multiplexed on a transport protocol's connection,
@@ -708,7 +708,7 @@ peer-to-peer Rendezvous scenarios, as follows:
   network protocol.  These are added to the set of candidate Local
   Endpoints for this connection.
 
-  Gathering locals is primarily an endpoint local operation, although it
+  Gathering Local Endpoints is primarily a local operation, although it
   might involve exchanges with a STUN server to derive server reflexive
   locals, or with a TURN server or other relay to derive relayed locals.
   It does not involve communication with the Remote Endpoint.
