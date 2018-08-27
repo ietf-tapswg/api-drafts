@@ -671,12 +671,17 @@ Connection := Connection.Clone()
 ~~~
 
 Calling Clone on a Connection yields a group of two Connections: the parent
-Connection on which Clone was called, and the resulting clone Connection. These
+Connection on which Clone was called, and the resulting cloned Connection. These
 connections are "entangled" with each other, and become part of a Connection
 group. Calling Clone on any of these two Connections adds a third Connection to
-the group, and so on. Connections in a Connection Group share all their
-properties, and changing the properties on one Connection in the group changes
-the property for all others.
+the group, and so on. Connections in a Connection Group share all
+Protocol Properties that are not applicable to a Message.
+
+Changing one of these Protocol Properties on one Connection in the group changes it for all others. Per-Message Protocol Properties, however, are not entangled.
+For example, changing "Timeout for aborting Connection" (see {{timeout}}) on one Connection in a group will automatically change this Protocol Property for all Connections in the group in the same way. However, changing "Lifetime" (see {{send-lifetime}}) of a Message will only affect a single Message on a single Connection, entangled or not.
+
+If the underlying protocol supports multi-streaming, it is natural to use this functionality to implement Clone. In that case, entangled Connections are multiplexed together, giving them similar treatment not only inside endpoints but also across
+the end-to-end Internet path.
 
 If the underlying Protocol Stack does not support cloning, or cannot create a
 new stream on the given Connection, then attempts to clone a connection will
@@ -686,9 +691,9 @@ result in a CloneError:
 Connection -> CloneError<>
 ~~~
 
-There is only one Protocol Property that is not entangled: niceness is kept as
-a separate per-Connection Property for individual Connections in the group.
-Niceness works as in {{send-niceness}}: when allocating available network
+
+The Protocol Property "Niceness" operates on entangled Connections as in {{send-niceness}}:
+when allocating available network
 capacity among Connections in a Connection Group, sends on Connections with
 higher Niceness values will be prioritized over sends on Connections with
 lower Niceness values. An ideal transport system implementation would assign
@@ -1918,11 +1923,11 @@ wire for Protocol Stacks supporting prioritization.
 This encoding of the priority has a convenient property that the priority
 increases as both Niceness and Lifetime decrease.
 
-As noted in {{groups}}, when set on a Connection, this property is not
-entangled when Connections are cloned.
+As an exception from the per-Connection behavior described in {{groups}}, even when set on a Connection, this property is not entangled when Connections are cloned.
 
 
 ### Timeout for aborting Connection
+{#timeout}
 
 Classification:
 : Control Property \[TODO: Discuss]
