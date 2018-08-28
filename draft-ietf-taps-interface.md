@@ -127,8 +127,8 @@ As a first step to realizing this design, {{I-D.ietf-taps-arch}}
 describes a high-level architecture for transport services. This document
 builds a modern abstract programming interface atop this architecture,
 deriving specific path and protocol selection properties and supported
-transport features from the analysis provided in {{?RFC8095}} and
-{{I-D.ietf-taps-minset}}.
+transport features from the analysis provided in {{?RFC8095}},
+{{I-D.ietf-taps-minset}}, and {{I-D.ietf-taps-transport-security}}.
 
 # Terminology and Notation
 
