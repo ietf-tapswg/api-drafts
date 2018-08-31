@@ -1335,7 +1335,7 @@ Note that it is possible for a set of specified Transport Properties to be
 internally inconsistent, or to be inconsistent with the later use of the API by
 the application. Application developers can reduce inconsistency by only using
 the most stringent preference levels when failure to meet the property would
-break the application's functionality. For example, it can set the Selection Property
+break the application's functionality. For example, they can set the Selection Property
 "Reliable Data Transfer", which is a core assumption of many application
 protocols, as Required. Implementations of this interface should
 also raise any detected errors in configuration as early as possible, to help
