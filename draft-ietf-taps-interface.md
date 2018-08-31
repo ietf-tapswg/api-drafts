@@ -1911,7 +1911,7 @@ Applicability:
 
 This property is a numeric (non-negative) value that represents an unbounded
 hierarchy of priorities. It can specify the priority of a Message, relative to
-other Messages sent over the same Connection and/or Connection Group (see
+other Messages sent over the same Connection or Connection Group (see
 {{groups}}), or the priority of a Connection, relative to other Connections in
 the same Connection Group.
 
@@ -1987,7 +1987,7 @@ Applicability:
 : Connection (read only)
 
 This property, if applicable, represents the maximum Message size that can be
-sent without incurring network-layer fragmentation and/or transport layer
+sent without incurring network-layer fragmentation or transport layer
 segmentation at the sender. This property is read-only.
 
 
