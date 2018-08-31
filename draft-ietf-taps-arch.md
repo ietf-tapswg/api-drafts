@@ -3,7 +3,7 @@ title: An Architecture for Transport Services
 abbrev: TAPS Architecture
 docname: draft-ietf-taps-arch-latest
 date:
-category: info
+category: std
 
 ipr: trust200902
 area: Transport

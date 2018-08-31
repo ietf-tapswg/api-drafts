@@ -3,7 +3,7 @@ title: An Abstract Application Layer Interface to Transport Services
 abbrev: TAPS Interface
 docname: draft-ietf-taps-interface-latest
 date:
-category: info
+category: std
 
 ipr: trust200902
 area: Transport
