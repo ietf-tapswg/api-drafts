@@ -318,20 +318,24 @@ Implementations may also support additional endpoint representations and
 provide a single NewEndpoint() call that takes different endpoint representations.
 
 Multiple endpoint identifiers can be specified for each Local Endpoint and
-RemoteEndoint.  For example, a Local Endpoint could be configured with two
+Remote Endpoint.  For example, a Local Endpoint could be configured with two
 interface names, or a Remote Endpoint could be specified via both IPv4 and
 IPv6 addresses. These multiple identifiers refer to the same transport
 endpoint.
 
-The transport services API will resolve names internally, when the Initiate(),
-Listen(), or Rendezvous() method is called establish a Connection.
-The API does not need the application to resolve names, and premature name
-resolution can damage performance by limiting the scope for alternate path
-discovery during Connection establishment.
-The Resolve() method is, however, provided to resolve a Local Endpoint or a
-Remote Endpoint in cases where this is required, for example with some Network
-Address Translator (NAT)
-traversal protocols (see {{rendezvous}}).
+The transport services API resolves names internally, when the Initiate(),
+Listen(), or Rendezvous() method is called establish a Connection. The API
+explicitly does not require the application to resolve names, though there is
+a tradeoff between early and late binding of addresses to names. Early binding
+allows the API implementation to reduce connection setup latency, at the cost
+of potentially limited scope for alternate path discovery during Connection
+establishment, as well as potential additional information leakage about
+application interest when used with a resolution method (such as DNS without
+TLS) which does not protect query confidentiality.
+
+The Resolve() action on Preconnection can be used by the application to force
+early binding when required, for example with some Network Address Translator
+(NAT) traversal protocols (see {{rendezvous}}).
 
 ## Specifying Transport Properties {#connection-props}
 
@@ -649,7 +653,7 @@ expected that the Local Endpoint will be configured with some method of
 discovering NAT bindings, e.g., a Session Traversal Utilities for NAT (STUN) server.
 In this case, the
 Local Endpoint may resolve to a mixture of local and server reflexive
-addresses. The Resolve() method on the Preconnection can be used to
+addresses. The Resolve() action on the Preconnection can be used to
 discover these bindings:
 
 ~~~
