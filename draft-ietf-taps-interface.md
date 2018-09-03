@@ -1041,7 +1041,7 @@ By default, Receive will try to deliver complete Messages in a single event ({{r
 
 The application can set a minIncompleteLength value to indicates the smallest partial
 Message data size in bytes that should be delivered in response to this Receive. By default,
-this value is infinite, which means that only complete Messages should be delivered.
+this value is infinite, which means that only complete Messages should be delivered (see {{receive-partial}} and {{receive-framing}} for more information on how this is accomplished).
 If this value is set to some smaller value, the associated receive event will be triggered
 only when at least that many bytes are available, or the Message is complete with fewer
 bytes, or the system needs to free up memory. Applications should always
@@ -1093,7 +1093,7 @@ may be delivered with a ReceivedPartial event. In order to continue to receive m
 of the same Message, the application must invoke Receive again.
 
 Multiple invocations of ReceivedPartial deliver data for the same Message by passing
-the same messageContext, until the endOfMessage flag is delivered. All partial blocks
+the same messageContext, until the endOfMessage flag is delivered or a ReceiveError occurs. All partial blocks
 of a single Message are delivered in order without gaps. This event does not support
 delivering discontiguous partial Messages.
 
