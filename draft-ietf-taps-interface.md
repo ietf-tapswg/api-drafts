@@ -268,7 +268,7 @@ properties (see {{transport-props}}), and the security parameters (see
 
 The Local Endpoint MUST be specified if the Preconnection is used to Listen()
 for incoming Connections, but is OPTIONAL if it is used to Initiate()
-connections. The Remote Endpoint MUST be specified in the Preconnection is used
+connections. The Remote Endpoint MUST be specified if the Preconnection is used
 to Initiate() Connections, but is OPTIONAL if it is used to Listen() for
 incoming Connections.
 The Local Endpoint and the Remote Endpoint MUST both be specified if a
@@ -395,12 +395,13 @@ TransportProperties := Connection.GetTransportProperties()
 
 {{transport-props}} provides a list of Transport Properties.
 
-Note that most properties are only considered for Connection establishment and
+Note that many properties are only considered for Connection establishment and
 can not be changed after a Connection is established; however, they can be
 queried. See {{introspection}}.
 
 A Connection gets its Transport Properties either by being explicitly configured
-via a Preconnection, or by inheriting them from an antecedent via cloning; see
+via a Preconnection, by configuration after establishment, or by inheriting
+them from an antecedent via cloning; see
 {{groups}} for more.
 
 
@@ -429,7 +430,7 @@ Security configuration parameters and sample usage follow:
 
 - Local identity and private keys: Used to perform private key operations and prove one's
 identity to the Remote Endpoint. (Note, if private keys are not available, e.g., since they are
-stored in HSMs, handshake callbacks must be used. See below for details.)
+stored in hardware security modules (HSMs), handshake callbacks must be used. See below for details.)
 
 ~~~
 SecurityParameters.AddIdentity(identity)
@@ -677,8 +678,8 @@ Connection := Connection.Clone()
 Calling Clone on a Connection yields a group of two Connections: the parent
 Connection on which Clone was called, and the resulting cloned Connection. These
 connections are "entangled" with each other, and become part of a Connection
-group. Calling Clone on any of these two Connections adds a third Connection to
-the group, and so on. Connections in a Connection Group share all
+Group. Calling Clone on any of these two Connections adds a third Connection to
+the Connection Group, and so on. Connections in a Connection Group share all
 Protocol Properties that are not applicable to a Message.
 
 Changing one of these Protocol Properties on one Connection in the group changes it for all others. Per-Message Protocol Properties, however, are not entangled.
@@ -701,11 +702,11 @@ when allocating available network
 capacity among Connections in a Connection Group, sends on Connections with
 higher Niceness values will be prioritized over sends on Connections with
 lower Niceness values. An ideal transport system implementation would assign
-the Connection the capacity share (M-N) x C / M, where N is the Connection's
+each Connection the capacity share (M-N) x C / M, where N is the Connection's
 Niceness value, M is the maximum Niceness value used by all Connections in the
-group and C is the total available capacity. However, the niceness setting is
+group and C is the total available capacity. However, the Niceness setting is
 purely advisory, and no guarantees are given about the way capacity is shared.
-Each implementation is free to implement a way it shares
+Each implementation is free to implement a way to share
 capacity that it sees fit.
 
 # Sending Data {#sending}
@@ -776,7 +777,8 @@ reference to the Message to which it applies.
 Sent Events allow an application to obtain an understanding of the amount
 of buffering it creates. That is, if an application calls the Send Action multiple
 times without waiting for a Sent Event, it has created more buffer inside the
-transport system than an application that only issues a Send after this Event fires.
+transport system than an application that always waits for the Sent Event before
+calling the next Send Action.
 
 ### Expired
 
@@ -807,7 +809,7 @@ Message to which it applies.
 
 Applications may need to annotate the Messages they send with extra information
 to control how data is scheduled and processed by the transport protocols in
-the Connection. A MessageContext object contains parameters for sending
+the Connection. A messageContext object contains parameters for sending
 Messages, and can be passed to the Send Action. Some of these parameters are
 properties as defined in {{transport-props}}. Note that these properties are
 per-Message, not per-Send if partial Messages are sent ({{send-partial}}). All
@@ -822,8 +824,8 @@ messageContext.add(parameter, value)
 Connection.Send(messageData, messageContext)
 ~~~
 
-The simpler form of Send that does not take any MessageContext is equivalent
-to passing a default MessageContext with not values added.
+The simpler form of Send that does not take any messageContext is equivalent
+to passing a default messageContext with not values added.
 
 Message Properties share a single namespace with Transport Properties (see
 {{transport-props}}). This allows the specification of per-Connection Protocol
@@ -874,6 +876,8 @@ wire for Protocol Stacks supporting prioritization.
 
 This encoding of the priority has a convenient property that the priority
 increases as both Niceness and Lifetime decrease.
+\[Michael: Can we remove this? It is weird because there is no mention of decreasing Lifetime
+being interpreted as a higher priority anywhere.]
 
 ### Ordered
 
@@ -908,14 +912,14 @@ the end of a Connection in a given direction will ignore this property.
 Note that a Final Message must always be sorted to the end of a list of Messages.
 The Final property overrides Niceness and any other property that would re-order
 Messages. If another Message is sent after a Message marked as Final has already
-been sent on a Connection, the new Message will report an error.
+been sent on a Connection, the Send Action for the new Message will cause a SendError Event.
 
 ### Corruption Protection Length
 
 \[TODO: De-Duplicate with {{send-checksum}}]
 
 This numeric property specifies the length of the section of the Message,
-starting from byte 0, that the application assumes will be received without
+starting from byte 0, that the application requires to be delivered without
 corruption due to lower layer errors. It is used to specify options for simple
 integrity protection via checksums. By default, the entire Message is protected
 by checksum. A value of 0 means that no checksum is required, and a special
@@ -956,7 +960,7 @@ may be unknown or unbounded.
 
 Partial Message sending is supported by passing an endOfMessage boolean
 parameter to the Send Action. This value is always true by default, and
-the simpler forms of send are equivalent to passing true for endOfMessage.
+the simpler forms of Send are equivalent to passing true for endOfMessage.
 
 The following example sends a Message in two separate calls to Send.
 
@@ -1118,13 +1122,13 @@ Connection -> ReceiveError<messageContext>
 
 A ReceiveError occurs when data is received by the underlying Protocol Stack
 that cannot be fully retrieved or deframed, or when some other indication is
-received that reception has failed. Such conditions that irrevocably lead the
+received that reception has failed. Such conditions that irrevocably lead to
 the termination of the Connection are signaled using ConnectionError instead
 (see {{termination}}).
 
 The ReceiveError event passes an optional associated messageContext. This may
 indicate that a Message that was being partially received previously, but had not
-completed, encountered and error and will not be completed.
+completed, encountered an error and will not be completed.
 
 ## Message Receive Context {#receive-context}
 
@@ -1142,7 +1146,8 @@ the transport internals for their own operation.
 ### Early Data {#receive-early}
 
 In some cases it may be valuable to know whether data was read as part of early
-data streams. This is useful if applications need to treat early data separately,
+data transfer (before connection establishment has finished). This is useful if
+applications need to treat early data separately,
 e.g., if early data has different security properties than data sent after
 connection establishment. In the case of TLS 1.3, client early data can be replayed
 maliciously (see {{!I-D.ietf-tls-tls13}}). Thus, receivers may wish to perform additional
@@ -1218,12 +1223,13 @@ Properties will include different information:
 
 * Whether the connection can be used to send data. A connection can not be used
   for sending if the connection was created with the Selection Property
-  "Unidirectional Receive" or if a Message marked as "Final" was sent over this
+  "Direction of Communication" set to "unidirectional receive" or if a
+  Message marked as "Final" was sent over this
   connection, see {{send-final}}.
 
 * Whether the connection can be used to receive data. A connection can not be
   used for reading if the connection was created with the Selection Property
-  "Unidirectional: Send" or if a Message marked as "Final" was received, see
+  "Direction of Communication" set to "unidirectional send" or if a Message marked as "Final" was received, see
   {{receiving-final-messages}}. The latter is only supported by certain
   transport protocols, e.g., by TCP as half-closed connection.
 
@@ -1267,7 +1273,7 @@ Connection.Close()
 ~~~
 
 The Closed Event can inform the application that the Remote Endpoint has closed the
-Connection; however, there is no guarantee that a remote close will be
+Connection; however, there is no guarantee that a remote Close will indeed be
 signaled.
 
 ~~~
@@ -1281,7 +1287,7 @@ Connection.Abort()
 ~~~
 
 A ConnectionError can inform the application that the other side has aborted
-the Connection; however, there is no guarantee that an abort will be signaled:
+the Connection; however, there is no guarantee that an Abort will indeed be signaled.
 
 ~~~
 Connection -> ConnectionError<>
@@ -1298,7 +1304,8 @@ Connection -> SoftError<>
 
 # Ordering of Operations and Events
 
-As this interface is designed to be independent of concurrency model, the
+As this interface is designed to be independent of an implementation's
+concurrency model, the
 details of how exactly actions are handled, and on which threads/callbacks
 events are dispatched, are implementation dependent. However, the interface
 does provide the following guarantees about the ordering of operations:
@@ -1398,7 +1405,7 @@ affect the transport system, so applications know what to expect:
  - Whether properties affect protocols exposed through the transport system (Protocol Properties) or the transport system itself (Control Properties)
 
  - Whether properties have a clearly defined behavior that is likely to be
-   invariant across implementations and environments (Protocol Properties and Control Properties) or whether the properties are interpreted by the transport system to provide a best effort service that matches the applications needs as well as possible (Intents).
+   invariant across implementations and environments (Protocol Properties and Control Properties) or whether the properties are interpreted by the transport system to provide a best effort service that matches the application needs as closely as possible (Intents).
 
 Note:
 : in I-D.ietf-taps-interface-00, we had a classification into Connection Properties and Message Properties, whereby Connection Properties where itself were sub-classified in Protocol-Selection, Path-Selection and Protocol properties.
@@ -1468,10 +1475,10 @@ protocol/transport feature or behavior of the transport system, but express
 a presumed application behavior or generic application needs.
 
 The application can expect the transport system to take appropriate actions
-involving protocol selection, path selection and, setting of protocol flags.
+involving protocol selection, path selection and setting of protocol flags.
 For example, if an application sets the "Capacity Profile" to "bulk" on a
 Preconnection, this will likely influence path selection, DSCP flags in
-the IP header as well as niceness for multi-streaming connections.
+the IP header as well as Niceness for multi-streaming connections.
 When using Intents, the application must not expect consistent behavior across
 different environments, implementations or versions of the same implementation.
 
@@ -1535,7 +1542,7 @@ that the transport protocol ensures all data is received on the other side
 without corruption. Changing the ´Reliable Data Transfer´ property on Messages
 is only possible if the transport protocol supports
 partial reliability (see {{prop-partially-reliable}}).
-Therefore, for protocols that always transfer data reliably, this property is always true and for protocols that always transfer data unreliably, this flag is always false. Changing it may generate an error.
+Therefore, for protocols that always transfer data reliably, this property is always true and for protocols that always transfer data unreliably, this property is always false. Changing it may generate an error.
 
 
 ### Preservation of data ordering {#prop-ordering}
@@ -1802,7 +1809,7 @@ become available.
 
 Interface types should not be treated as a proxy for properties of interfaces such as
 metered or unmetered network access. If an application needs to prohibit metered
-interfaces, this should be specified via Provisioning Domain attributes {{prop-pvd}}
+interfaces, this should be specified via Provisioning Domain attributes (see {{prop-pvd}})
 or another specific property.
 
 
@@ -1817,7 +1824,7 @@ Type:
 Applicability:
 : Preconnection, Connection (read only)
 
-Similar to interface instances and types {{prop-interface}}, this property allows
+Similar to interface instances and types (see {{prop-interface}}), this property allows
 the application to control path selection by selecting which specific Provisioning Domains
 or categories of Provisioning Domains it wants to  `Require`, `Prohibit`, `Prefer`, or `Avoid`.
 Provisioning Domains define consistent sets of network properties that may be more
@@ -1832,8 +1839,8 @@ Categories or types of PvDs are also defined to be implementation- and system-sp
 These may be useful to identify a service that is provided by a PvD. For example, if an application
 wants to use a PvD that provides a Voice-Over-IP service on a Cellular network, it can use
 the relevant PvD type to require some PvD that provides this service, without needing to
-look up a particular instance. While this does restrict path selection, it is more broad than
-requiring specific PvD instances or interface instances, and should be preferred over those
+look up a particular instance. While this does restrict path selection, it is broader than
+requiring specific PvD instances or interface instances, and should be preferred over these
 options.
 
 
@@ -1853,7 +1860,7 @@ This implies that the transport system should optimize for the capacity profile 
 The following values are valid for the Capacity Profile:
 
   Default:
-  : The application makes no representation about its expected
+  : The application makes no request about its expected
   capacity profile. No special optimizations of the tradeoff between
   delay, delay variation, and bandwidth efficiency should be made when selecting and
   configuring stacks.
@@ -2062,7 +2069,7 @@ This document has no Actions for IANA.
 
 This document describes a generic API for interacting with a transport services (TAPS) system.
 Part of this API includes configuration details for transport security protocols, as discussed
-in Section {{security-parameters}}. It does not recommend use (or disuse) of specific
+in {{security-parameters}}. It does not recommend use (or disuse) of specific
 algorithms or protocols. Any API-compatible transport security protocol should work in a TAPS system.
 
 # Acknowledgements
@@ -2178,7 +2185,7 @@ Type:
 Applicability:
 : Preconnection
 
-This property specifies what the application expect the dominating traffic pattern to be. Possible values are:
+This property specifies what the application expects the dominating traffic pattern to be. Possible values are:
 
 Query:
 : Single request / response style workload, latency bound
@@ -2223,7 +2230,7 @@ Type:
 Applicability:
 : Preconnection
 
-This Intent specifies what the application expects the lifetime of a connection to be. It is given in milliseconds.
+This Intent specifies what the application expects the lifetime of a Connection to be. It is given in milliseconds.
 
 
 ### Send or Receive Bit-rate
@@ -2240,11 +2247,11 @@ Applicability:
 This Intent specifies what the application expects the bit-rate of a transfer to
 be. It is given in Bytes per second.
 
-On a message, this property specifies at what
+On a Message, this property specifies at what
 bitrate the application wishes the Message to be sent. A transport system supporting
 this feature will not exceed the requested Send Bitrate even if flow-control
-and congestion control allow higher bitrates. This helps to avoid bursty
-traffic pattern on busy video streaming servers.
+and congestion control allow higher bitrates. This helps to avoid a bursty
+traffic pattern on busy streaming video servers.
 
 
 ### Cost Preferences {#cost-preferences}
@@ -2294,7 +2301,7 @@ Applicability:
 
 This property specifies whether the caller prefers immediacy to efficient
 capacity usage for this Message. For example, this means that the Message
-should not be bundled with other Message into the same transmission by the
+should not be bundled with other Messages into the same transmission by the
 underlying Protocol Stack.
 
 
