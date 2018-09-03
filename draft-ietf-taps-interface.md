@@ -512,10 +512,11 @@ Before calling Initiate, the caller must have populated a Preconnection
 Object with a Remote Endpoint specifier, optionally a Local Endpoint
 specifier (if not specified, the system will attempt to determine a
 suitable Local Endpoint), as well as all properties
-necessary for candidate selection. After calling Initiate, no further
-properties may be added to the Preconnection. The Initiate() call consumes
-the Preconnection and creates a Connection Object. A Preconnection can
-only be initiated once.
+necessary for candidate selection.
+
+The Initiate() Action consumes the Preconnection. Once Initiate() has
+been called, no further properties may be added to the Preconnection, and
+no subsequent establishment call may be made on the Preconnection.
 
 Once Initiate is called, the candidate Protocol Stack(s) may cause one or more
 candidate transport-layer connections to be created to the specified remote
@@ -547,6 +548,9 @@ cannot be resolved; or when no transport-layer connection can be established
 to the remote endpoint (e.g. because the remote endpoint is not accepting
 connections, or the application is prohibited from opening a Connection by the
 operating system).
+
+See also {{initiate-and-send}} to combine Connection establishment
+and transmission of the first message in a single action.
 
 ## Passive Open: Listen {#listen}
 
@@ -662,6 +666,9 @@ the Preconnection will listen for incoming Connections. This list can be
 passed to a peer via a signalling protocol, such as SIP {{?RFC3261}} or WebRTC
 {{?RFC7478}}, to configure the remote.
 
+See also {{rendezvous-and-send}} to combine rendezvous and transmission of the
+first message in a single action.
+
 ## Connection Groups {#groups}
 
 Groups of Connections can be created using the Clone Action:
@@ -737,12 +744,6 @@ allowed for a single Message. If a Message is too large to fit in the Maximum Me
 Size for the Connection, the Send will fail with a SendError event ({{send-error}}). For
 example, it is invalid to send a Message over a UDP connection that is larger than
 the available datagram sending size.
-
-If Send is called on a Connection which has not yet been established, an
-Initiate Action will be implicitly performed simultaneously with the Send.
-Together with the Idempotent property (see {{send-idempotent}}), this can
-be used to send data during establishment for 0-RTT session resumption on
-Protocol Stacks that support it.
 
 ## Send Events {#send-events}
 
@@ -988,6 +989,75 @@ Connection.Batch(
     Connection.Send(messageData)
 )
 ~~~
+
+## Send on Active Open: InitiateAndSend {#initiate-and-send}
+
+For application-layer protocols where the Connection initiator also sends the
+first message, the InitiateAndSend() action combines Connection initiation with
+the first Message sent.
+
+Without a message context (as in {{send-basic}}):
+
+~~~
+Connection := Preconnection.InitiateAndSend(messageData)
+~~~
+
+With a message context (as in {{message-props}}):
+
+~~~
+Connection := Preconnection.InitiateAndSend(messageData, messageContext)
+~~~
+
+The message passed to InitiateAndSend is considered to be idempotent (see
+{{send-idempotent}}), regardless of declared message properties or defaults.
+If protocol stacks supporting 0-RTT establishment with idempotent data are
+available on the Preconnection, then 0-RTT establishment may be used with the
+given message when establishing candidate connections. For a non-idemponent
+initial message, or when the selected stack(s) do not support 0-RTT
+establishment, InitiateAndSend is identical to Initiate() followed by Send().
+
+Neither partial sends nor send batching are supported by InitiateAndSend().
+
+The Events that may be sent after InitiateAndSend() are equivalent to those
+that would be sent by an invocation of Initate() followed immediately by an
+invocation of Send(), with the caveat that a send failure that occurs because
+the Connection could not be established will not result in a
+SendError separate from the InitiateError signaling the failure of Connection
+establishment.
+
+## Send on Rendezvous: RendezvousAndSend {#rendezvous-and-send}
+
+Similar to InitiateAndSend(), the RendezvousAndSend() action combines
+rendezvous and transmission of the first message for application-layer
+protocols where the endpoints in a rendezvous each send a message on
+establishment.
+
+Without a message context (as in {{send-basic}}):
+
+~~~
+Connection := Preconnection.RendezvousAndSend(messageData)
+~~~
+
+With a message context (as in {{message-props}}):
+
+~~~
+Connection := Preconnection.RendezvousAndSend(messageData, messageContext)
+~~~
+
+The message passed to RendezvousAndSend() is considered to be idempotent (see
+{{send-idempotent}}), regardless of declared message properties or defaults.
+It will be sent by the API implementation each candidate Connection
+established, regardless of whether the calling endpoint ends up being the
+passive or active side of the establishment.
+
+Neither partial sends nor send batching are supported by RendezvousAndSend().
+
+The Events that may be sent after RendezvousAndSend() are equivalent to those
+that would be sent by an invocation of Rendezvous() followed immediately by an
+invocation of Send(), with the caveat that a send failure that occurs because
+the Connection could not be established will not result in a SendError
+separate from the RendezvousError signaling the failure of Connection
+establishment.
 
 ## Sender-side Framing {#send-framing}
 
