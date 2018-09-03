@@ -1926,8 +1926,7 @@ increases as both Niceness and Lifetime decrease.
 As an exception from the per-Connection behavior described in {{groups}}, even when set on a Connection, this property is not entangled when Connections are cloned.
 
 
-### Timeout for aborting Connection
-{#timeout}
+### Timeout for aborting Connection {#timeout}
 
 Classification:
 : Control Property \[TODO: Discuss]
