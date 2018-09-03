@@ -849,11 +849,7 @@ inconsistent with the Selection Properties of the Connection yields an error.
 
 The following Message Context Parameters are supported:
 
-\[TODO: De-Duplicate with Properties in {{transport-props}}, find consensus on which Section to put them]
-
-### Lifetime
-
-\[TODO: De-Duplicate with {{send-lifetime}}]
+### Lifetime {#msg-lifetime}
 
 Lifetime specifies how long a particular Message can wait to be sent to the
 remote endpoint before it is irrelevant and no longer needs to be
@@ -861,14 +857,14 @@ remote endpoint before it is irrelevant and no longer needs to be
 transmitted reliably. The type and units of Lifetime are
 implementation-specific.
 
-### Niceness
+### Niceness {#msg-niceness}
 
-\[TODO: De-Duplicate with {{send-niceness}}]
+This property is a numeric (non-negative) value that represents an unbounded
+hierarchy of priorities. It can specify the priority of a Message, relative to
+other Messages sent over the same Connection or Connection Group (see
+{{groups}}), or the priority of a Connection, relative to other Connections in
+the same Connection Group.
 
-Niceness is a numeric (non-negative) value that represents an
-unbounded hierarchy of priorities of Messages, relative
-to other Messages sent over the same Connection and/or Connection Group (see
-{{groups}}).
 A Message with Niceness 0 will yield to a Message with Niceness 1, which will
 yield to a Message with Niceness 2, and so on. Niceness may be used as a
 sender-side scheduling construct only, or be used to specify priorities on the
@@ -879,27 +875,23 @@ increases as both Niceness and Lifetime decrease.
 \[Michael: Can we remove this? It is weird because there is no mention of decreasing Lifetime
 being interpreted as a higher priority anywhere.]
 
-### Ordered
+### Ordered {#msg-ordered}
 
-\[TODO: De-Duplicate with {{send-ordered}}]
+Ordered is a boolean property. If true, it specifies that a Message should be delivered to the other side after the previous Message which was passed to the same Connection via the Send
+Action. If false, the Message may be delivered out of order.
+This property is used for protocols that support preservation of data ordering,
+see {{prop-ordering}}, but allow out-of-order delivery for certain messages.
 
-Ordered is a boolean property. If true, this Message should be delivered after
-the last Message passed to the same Connection via the Send Action; if false,
-this Message may be delivered out of order.
 
-### Idempotent
+### Idempotent {#msg-idempotent}
 
-\[TODO: De-Duplicate with {{send-idempotent}}]
-
-Idempotent is a boolean property. If true, the application-layer entity in the
-Message is safe to send to the remote endpoint more than once for a single
-Send Action. It is used to mark data safe for certain 0-RTT establishment
-techniques, where retransmission of the 0-RTT data may cause the remote
-application to receive the Message multiple times.
+Idempotent is a boolean property. If true, it specifies that a Message is safe
+to send to the remote endpoint
+more than once for a single Send Action. It is used to mark data safe for
+certain 0-RTT establishment techniques, where retransmission of the 0-RTT data
+may cause the remote application to receive the Message multiple times.
 
 ### Final
-
-\[TODO: De-Duplicate with {{send-final}}]
 
 Final is a boolean property. If true, this Message is the last one that
 the application will send on a Connection. This allows underlying protocols
@@ -914,21 +906,17 @@ The Final property overrides Niceness and any other property that would re-order
 Messages. If another Message is sent after a Message marked as Final has already
 been sent on a Connection, the Send Action for the new Message will cause a SendError Event.
 
-### Corruption Protection Length
-
-\[TODO: De-Duplicate with {{send-checksum}}]
+### Corruption Protection Length {#msg-checksum}
 
 This numeric property specifies the length of the section of the Message,
 starting from byte 0, that the application requires to be delivered without
 corruption due to lower layer errors. It is used to specify options for simple
 integrity protection via checksums. By default, the entire Message is protected
-by checksum. A value of 0 means that no checksum is required, and a special
+by a checksum. A value of 0 means that no checksum is required, and a special
 value (e.g. -1) can be used to indicate the default. Only full coverage is
 guaranteed, any other requests are advisory.
 
 ### Transmission Profile {#send-profile}
-
-\[TODO: De-Duplicate with {{prop-cap-profile}}]
 
 This enumerated property specifies the application's preferred tradeoffs for
 sending this Message; it is a per-Message override of the Capacity Profile
@@ -1329,8 +1317,9 @@ does provide the following guarantees about the ordering of operations:
 
 # Transport Properties {#transport-props}
 
-Transport Properties allow an application to control and introspect
-most aspects of the transport system and transport protocols.
+Having discussed Transport Properties in {{connection-props}} and listed a
+number of Message Properties ("Ordered", "Idempotent" etc.) in {{message-props}},
+we now provide a complete overview of a transport system's defined Transport Properties.
 
 Properties are structured in two ways:
 
@@ -1348,7 +1337,9 @@ the application. Application developers can reduce inconsistency by only using
 the most stringent preference levels when failure to meet the property would
 break the application's functionality. For example, they can set the Selection Property
 "Reliable Data Transfer", which is a core assumption of many application
-protocols, as Required. Implementations of this interface should
+protocols, as Required. However, since this comes at the cost of flexibility
+of the transport system, such strict choices should be made with care.
+Implementations of this interface should
 also raise any detected errors in configuration as early as possible, to help
 ensure that inconsistencies are caught early in the development process.
 
@@ -1395,9 +1386,6 @@ When used on a Connection, this type becomes a (read-only) Boolean representing 
 
 ## Transport Property Classification {#transport-props-classes}
 
-Note:
-: This section is subject to WG discussion on IETF-102.
-
 Transport Properties – whether they apply to connections, preconnections, or messages – differ in the way they affect the transport system and protocols exposed through the transport system.
 The classification proposed below emphasizes two aspects of how properties
 affect the transport system, so applications know what to expect:
@@ -1406,11 +1394,6 @@ affect the transport system, so applications know what to expect:
 
  - Whether properties have a clearly defined behavior that is likely to be
    invariant across implementations and environments (Protocol Properties and Control Properties) or whether the properties are interpreted by the transport system to provide a best effort service that matches the application needs as closely as possible (Intents).
-
-Note:
-: in I-D.ietf-taps-interface-00, we had a classification into Connection Properties and Message Properties, whereby Connection Properties where itself were sub-classified in Protocol-Selection, Path-Selection and Protocol properties.
-: The classification in this version of the draft emphasizes the way the property affects the transport system and protocols. It treats the aspect of whether properties are used on a connection, preconnection or message as an orthogonal dimension of classification.
-: The "Message Properties" from I-D.ietf-taps-interface-00 therefore have been split into "Protocol Properties" – emphasizing that they affect the protocol configurations – and "Control Properties" – emphasizing that they control the local transport system itself.
 
 
 ### Selection Properties {#selection-props}
@@ -1444,7 +1427,7 @@ protocols being used and the system's configuration.
 
 Most Protocol Properties can be set on a Preconnection during pre-establishment to preconfigure Protocol Stacks during establishment.
 
-In order to specify Specific Protocol Properties, Transport System
+In order to specify Specific Protocol Properties, transport system
 implementations may offer applications to attach a set of options to the
 Preconnection Object, associated with a specific protocol. For example, an
 application could specify a set of TCP Options to use if and only if TCP is
@@ -1557,7 +1540,7 @@ Applicability:
 : Preconnection, Connection (read only)
 
 This property specifies whether the application wishes to use a
-transport protocol that ensures that data is received
+transport protocol that can ensure that data is received
 by the application on the other end in the same order as it was sent. The
 default is to preserve data ordering.
 
@@ -1573,10 +1556,7 @@ Type:
 Applicability:
 : Message
 
-This property specifies that a Message should be delivered to the other side
-after the previous Message which was passed to the same Connection via the Send
-Action. It us used for protocols that support preservation of data ordering,
-see {{prop-ordering}}, but allow out-of-order delivery for certain messages.
+See {{msg-ordered}}.
 
 
 ### Direction of communication
@@ -1634,11 +1614,7 @@ Type:
 Applicability:
 : Message
 
-This property specifies that a Message is safe to send to the remote endpoint
-more than once for a single Send Action. It is used to mark data safe for
-certain 0-RTT establishment techniques, where retransmission of the 0-RTT data
-may cause the remote application to receive the Message multiple times.
-
+See {{msg-idempotent}}.
 The application can query the maximum size of a message that can be sent idempotent, see {{size-idempotent}}.
 
 
@@ -1747,14 +1723,7 @@ Type:
 Applicability:
 : Message
 
-This numeric property specifies the length of the section of the Message,
-starting from byte 0, that the application assumes will be received without
-corruption due to lower layer errors. It is used to specify options for simple
-integrity protection via checksums. By default, the entire Message is protected
-by the checksum. A value of 0 means that no checksum is required, and a special
-value (e.g. -1) can be used to indicate the default. Only full coverage is
-guaranteed, any other requests are advisory.
-
+See {{msg-checksum}}.
 
 ### Required minimum coverage of the checksum for receiving
 
@@ -1920,20 +1889,7 @@ Type:
 Applicability:
 : Connection, Message
 
-This property is a numeric (non-negative) value that represents an unbounded
-hierarchy of priorities. It can specify the priority of a Message, relative to
-other Messages sent over the same Connection or Connection Group (see
-{{groups}}), or the priority of a Connection, relative to other Connections in
-the same Connection Group.
-
-A Message with Niceness 0 will yield to a Message with Niceness 1, which will
-yield to a Message with Niceness 2, and so on. Niceness may be used as a
-sender-side scheduling construct only, or be used to specify priorities on the
-wire for Protocol Stacks supporting prioritization.
-
-This encoding of the priority has a convenient property that the priority
-increases as both Niceness and Lifetime decrease.
-
+See {{msg-niceness}}.
 As an exception from the per-Connection behavior described in {{groups}}, even when set on a Connection, this property is not entangled when Connections are cloned.
 
 
@@ -2042,11 +1998,7 @@ Type:
 Applicability:
 : Message
 
-Lifetime specifies how long a particular Message can wait to be sent to the
-remote endpoint before it is irrelevant and no longer needs to be
-(re-)transmitted. When a Message's Lifetime is infinite, it must be
-transmitted reliably. The type and units of Lifetime are
-implementation-specific.
+See {{msg-lifetime}}.
 
 
 ## Optional Transport Properties
@@ -2287,22 +2239,6 @@ Ignore Cost:
 
 The default is "Balance Cost".
 
-
-### Immediate
-
-Classification:
-: Protocol Property (Generic)
-
-Type:
-: Boolean
-
-Applicability:
-: Message
-
-This property specifies whether the caller prefers immediacy to efficient
-capacity usage for this Message. For example, this means that the Message
-should not be bundled with other Messages into the same transmission by the
-underlying Protocol Stack.
 
 
 # Sample API definition in Go {#appendix-api-sketch}
