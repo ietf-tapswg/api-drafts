@@ -249,7 +249,7 @@ the phases described in {{I-D.ietf-taps-arch}}.
 # Pre-Establishment Phase
 
 The pre-establishment phase allows applications to specify properties for
-the Connections they're about to make, or to query the API about potential
+the Connections they are about to make, or to query the API about potential
 connections they could make.
 
 A Preconnection Object represents a potential Connection. It has state that
