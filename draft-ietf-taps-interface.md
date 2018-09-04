@@ -861,9 +861,7 @@ implementation-specific.
 
 This property is a numeric (non-negative) value that represents an unbounded
 hierarchy of priorities. It can specify the priority of a Message, relative to
-other Messages sent over the same Connection or Connection Group (see
-{{groups}}), or the priority of a Connection, relative to other Connections in
-the same Connection Group.
+other Messages sent over the same Connection.
 
 A Message with Niceness 0 will yield to a Message with Niceness 1, which will
 yield to a Message with Niceness 2, and so on. Niceness may be used as a
@@ -1889,8 +1887,11 @@ Type:
 Applicability:
 : Connection, Message
 
-See {{msg-niceness}}.
-As an exception from the per-Connection behavior described in {{groups}}, even when set on a Connection, this property is not entangled when Connections are cloned.
+This Property is a non-negative integer representing the relative inverse
+priority of this Connection relative to other Connections in the same
+Connection Group. It has no effect on Connections not part of a Connection
+Group. As noted in {{groups}}, this property is not entangled when Connections
+are cloned.
 
 
 ### Timeout for aborting Connection {#timeout}
