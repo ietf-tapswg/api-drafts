@@ -666,9 +666,6 @@ the Preconnection will listen for incoming Connections. This list can be
 passed to a peer via a signalling protocol, such as SIP {{?RFC3261}} or WebRTC
 {{?RFC7478}}, to configure the remote.
 
-See also {{rendezvous-and-send}} to combine rendezvous and transmission of the
-first message in a single action.
-
 ## Connection Groups {#groups}
 
 Groups of Connections can be created using the Clone Action:
@@ -990,73 +987,40 @@ Connection.Batch(
 )
 ~~~
 
-## Send on Active Open: InitiateAndSend {#initiate-and-send}
+## Send on Active Open: InitiateWithIdempotentSend {#initiate-and-send}
 
 For application-layer protocols where the Connection initiator also sends the
-first message, the InitiateAndSend() action combines Connection initiation with
-the first Message sent.
+first message, the InitiateWithIdempotentSend() action combines Connection initiation with
+a first Message sent, provided that message is idempotent.
 
 Without a message context (as in {{send-basic}}):
 
 ~~~
-Connection := Preconnection.InitiateAndSend(messageData)
+Connection := Preconnection.InitiateWithIdempotentSend(messageData)
 ~~~
 
 With a message context (as in {{message-props}}):
 
 ~~~
-Connection := Preconnection.InitiateAndSend(messageData, messageContext)
+Connection := Preconnection.InitiateWithIdempotentSend(messageData, messageContext)
 ~~~
 
-The message passed to InitiateAndSend is considered to be idempotent (see
-{{send-idempotent}}), regardless of declared message properties or defaults.
-If protocol stacks supporting 0-RTT establishment with idempotent data are
-available on the Preconnection, then 0-RTT establishment may be used with the
-given message when establishing candidate connections. For a non-idemponent
-initial message, or when the selected stack(s) do not support 0-RTT
-establishment, InitiateAndSend is identical to Initiate() followed by Send().
+The message passed to InitiateWithIdempotentSend() is, as suggested by the
+name, considered to be idempotent (see {{send-idempotent}}) regardless of
+declared message properties or defaults. If protocol stacks supporting 0-RTT
+establishment with idempotent data are available on the Preconnection, then
+0-RTT establishment may be used with the given message when establishing
+candidate connections. For a non-idemponent initial message, or when the
+selected stack(s) do not support 0-RTT establishment,
+InitiateWithIdempotentSend is identical to Initiate() followed by Send().
 
-Neither partial sends nor send batching are supported by InitiateAndSend().
+Neither partial sends nor send batching are supported by InitiateWithIdempotentSend().
 
-The Events that may be sent after InitiateAndSend() are equivalent to those
+The Events that may be sent after InitiateWithIdempotentSend() are equivalent to those
 that would be sent by an invocation of Initate() followed immediately by an
 invocation of Send(), with the caveat that a send failure that occurs because
 the Connection could not be established will not result in a
 SendError separate from the InitiateError signaling the failure of Connection
-establishment.
-
-## Send on Rendezvous: RendezvousAndSend {#rendezvous-and-send}
-
-Similar to InitiateAndSend(), the RendezvousAndSend() action combines
-rendezvous and transmission of the first message for application-layer
-protocols where the endpoints in a rendezvous each send a message on
-establishment.
-
-Without a message context (as in {{send-basic}}):
-
-~~~
-Connection := Preconnection.RendezvousAndSend(messageData)
-~~~
-
-With a message context (as in {{message-props}}):
-
-~~~
-Connection := Preconnection.RendezvousAndSend(messageData, messageContext)
-~~~
-
-The message passed to RendezvousAndSend() is considered to be idempotent (see
-{{send-idempotent}}), regardless of declared message properties or defaults.
-It will be sent by the API implementation each candidate Connection
-established, regardless of whether the calling endpoint ends up being the
-passive or active side of the establishment.
-
-Neither partial sends nor send batching are supported by RendezvousAndSend().
-
-The Events that may be sent after RendezvousAndSend() are equivalent to those
-that would be sent by an invocation of Rendezvous() followed immediately by an
-invocation of Send(), with the caveat that a send failure that occurs because
-the Connection could not be established will not result in a SendError
-separate from the RendezvousError signaling the failure of Connection
 establishment.
 
 ## Sender-side Framing {#send-framing}
