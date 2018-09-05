@@ -1885,7 +1885,7 @@ Type:
 : Integer
 
 Applicability:
-: Connection, Message
+: Connection
 
 This Property is a non-negative integer representing the relative inverse
 priority of this Connection relative to other Connections in the same
