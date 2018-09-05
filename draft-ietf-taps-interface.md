@@ -1202,7 +1202,7 @@ Preconnection.DeframeWith(Deframer)
 {messageData} := Deframer.Deframe(OctetStream, ...)
 ~~~
 
-# Setting and Querying Connection Properties {#introspection}
+# Managing Connections: Setting Properties and Obtaining Information {#introspection}
 
 The application can set per-connection Protocol Properties (see {{protocol-props}}).
 Certain Procotol Properties may be read-only, on a protocol- and property-specific basis.
