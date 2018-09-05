@@ -1236,17 +1236,17 @@ Preconnection.DeframeWith(Deframer)
 {messageData} := Deframer.Deframe(OctetStream, ...)
 ~~~
 
-# Setting and Querying Connection Properties {#introspection}
+# Managing Connections: Setting Properties and Obtaining Information {#introspection}
 
-At any point, the application can query Connection Properties.
-It can also set per-connection Protocol Properties.
-
-~~~
-ConnectionProperties := Connection.GetProperties()
-~~~
-
+The application can set per-connection Protocol Properties (see {{protocol-props}}).
+Certain Procotol Properties may be read-only, on a protocol- and property-specific basis.
 ~~~
 Connection.SetProperty(property, value)
+~~~
+
+At any point, the application can query Connection Properties.
+~~~
+ConnectionProperties := Connection.GetProperties()
 ~~~
 
 Depending on the status of the connection, the queried Connection
@@ -1269,8 +1269,7 @@ Properties will include different information:
 
 * For Connections that are Establishing: Transport Properties that the
   application specified on the Preconnection, see {{connection-props}}.
-  Selection Properties of a Connection can only be queried, not set.
-
+  
 * For Connections that are Established, Closing, or Closed (TODO: double-check if closed belongs here): Transport
   Properties of the actual protocols that were selected and instantiated. These
   features correspond to the properties given in {{transport-props}} and
@@ -1282,16 +1281,22 @@ Properties will include different information:
       For example, a certain Protocol Selection Property that an application
       specified as Preferred may not actually be present in the chosen protocol
       stack because none of the currently available transport protocols had
-      this feature. Selection Properties of a Connection can only be queried.
-    * Protocol Properties of the protocol stack in use (see {{protocol-props}}
-      below). These can be queried and set. Certain specific Procotol Properties
-      may be read-only, on a protocol- and property-specific basis.
+      this feature.
+    * Protocol Properties of the protocol stack in use (see {{protocol-props}}).
 
 * For Connections that are Established, properties of the path(s) in use. These
   properties can be derived from the local provisioning domain {{RFC7556}},
-  measurements by the Protocol Stack, or other sources. They can only be
-  queried.
+  measurements by the Protocol Stack, or other sources.
 
+Slightly different from "querying", a SoftError Event can also occur, informing
+the application about the receipt of an ICMP error
+message related to the Connection. This will only happen if the underlying
+protocol stack supports access to soft errors; however, even if the underlying
+stack supports it, there is no guarantee that a soft error will be signaled.
+
+~~~
+Connection -> SoftError<>
+~~~
 
 # Connection Termination {#termination}
 
@@ -1327,14 +1332,6 @@ the Connection; however, there is no guarantee that an Abort will indeed be sign
 Connection -> ConnectionError<>
 ~~~
 
-A SoftError can inform the application about the receipt of an ICMP error
-message that does not force termination of the connection, if the underlying
-protocol stack supports access to soft errors; however, even if the underlying
-stack supports it, there is no guarantee that a soft error will be signaled.
-
-~~~
-Connection -> SoftError<>
-~~~
 
 # Ordering of Operations and Events
 
