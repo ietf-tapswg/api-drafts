@@ -882,11 +882,10 @@ being interpreted as a higher priority anywhere.]
 Type:
 : Boolean
 
-If true, it specifies that the receiver-side transport system should only deliver the Message to the receiving application after the previous Message which was passed to the same Connection via the Send
-Action. If false, the Message may be delivered to the receiving application out of order.
+If true, it specifies that the receiver-side transport system should only deliver the Message to the receiving application after the previous ordered Message which was passed to the same Connection via the Send
+Action, when such a Message exists. If false, the Message may be delivered to the receiving application out of order.
 This property is used for protocols that support preservation of data ordering,
 see {{prop-ordering}}, but allow out-of-order delivery for certain messages.
-It is ignored on the first Message that is sent on a Connection.
 
 
 ### Idempotent {#msg-idempotent}
@@ -938,7 +937,7 @@ Type:
 This property specifies that a message should be sent in such a way
 that the transport protocol ensures all data is received on the other side
 without corruption. Changing the ´Reliable Data Transfer´ property on Messages
-is only possible if the transport protocol supports reliability.
+is only possible if the Connection supports reliability.
 When this is not the case, changing it will generate an error.
 
 ### Transmission Profile {#send-profile}
@@ -1923,7 +1922,7 @@ on how we want to implement multi-streaming. We don't need both, so we should ma
 Integer Message Property - see {{msg-niceness}}.
 
 Note that this property is not a per-message override of the connection Niceness - see {{conn-niceness}}.
-Both Niceness properties may interact, but can be used indepently and be realized by different mechanisms.
+Both Niceness properties may interact, but can be used independently and be realized by different mechanisms.
 
 
 ### Timeout for aborting Connection {#timeout}
