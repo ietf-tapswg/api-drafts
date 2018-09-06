@@ -687,7 +687,7 @@ the Connection Group, and so on. Connections in a Connection Group share all
 Protocol Properties that are not applicable to a Message.
 
 Changing one of these Protocol Properties on one Connection in the group changes it for all others. Per-Message Protocol Properties, however, are not entangled.
-For example, changing "Timeout for aborting Connection" (see {{timeout}}) on one Connection in a group will automatically change this Protocol Property for all Connections in the group in the same way. However, changing "Lifetime" (see {{send-lifetime}}) of a Message will only affect a single Message on a single Connection, entangled or not.
+For example, changing "Timeout for aborting Connection" (see {{timeout}}) on one Connection in a group will automatically change this Protocol Property for all Connections in the group in the same way. However, changing "Lifetime" (see {{msg-lifetime}}) of a Message will only affect a single Message on a single Connection, entangled or not.
 
 If the underlying protocol supports multi-streaming, it is natural to use this functionality to implement Clone. In that case, entangled Connections are multiplexed together, giving them similar treatment not only inside endpoints but also across
 the end-to-end Internet path.
@@ -701,7 +701,7 @@ Connection -> CloneError<>
 ~~~
 
 
-The Protocol Property "Niceness" operates on entangled Connections as in {{send-niceness}}:
+The Protocol Property "Niceness" operates on entangled Connections as in {{msg-niceness}}:
 when allocating available network
 capacity among Connections in a Connection Group, sends on Connections with
 higher Niceness values will be prioritized over sends on Connections with
@@ -785,7 +785,7 @@ Connection -> Expired<msgRef>
 ~~~
 
 The Expired Event occurs when a previous Send Action expired before completion;
-i.e. when the Message was not sent before its Lifetime (see {{send-lifetime}})
+i.e. when the Message was not sent before its Lifetime (see {{msg-lifetime}})
 expired. This is separate from SendError, as it is an expected behavior for
 partially reliable transports. The Expired Event contains an
 implementation-specific reference to the Message to which it applies.
@@ -849,6 +849,9 @@ The following Message Context Parameters are supported:
 
 ### Lifetime {#msg-lifetime}
 
+Type:
+: Integer
+
 Lifetime specifies how long a particular Message can wait to be sent to the
 remote endpoint before it is irrelevant and no longer needs to be
 (re-)transmitted. When a Message's Lifetime is infinite, it must be
@@ -857,9 +860,12 @@ implementation-specific.
 
 ### Niceness {#msg-niceness}
 
-This property is a numeric (non-negative) value that represents an unbounded
-hierarchy of priorities. It can specify the priority of a Message, relative to
-other Messages sent over the same Connection.
+Type:
+: Integer (non-negative) 
+
+This property represents an unbounded hierarchy of priorities.
+It can specify the priority of a Message, relative to other Messages sent over the
+same Connection.
 
 A Message with Niceness 0 will yield to a Message with Niceness 1, which will
 yield to a Message with Niceness 2, and so on. Niceness may be used as a
@@ -873,7 +879,10 @@ being interpreted as a higher priority anywhere.]
 
 ### Ordered {#msg-ordered}
 
-Ordered is a boolean property. If true, it specifies that a Message should be delivered to the other side after the previous Message which was passed to the same Connection via the Send
+Type:
+: Boolean
+
+If true, it specifies that a Message should be delivered to the other side after the previous Message which was passed to the same Connection via the Send
 Action. If false, the Message may be delivered out of order.
 This property is used for protocols that support preservation of data ordering,
 see {{prop-ordering}}, but allow out-of-order delivery for certain messages.
@@ -881,15 +890,20 @@ see {{prop-ordering}}, but allow out-of-order delivery for certain messages.
 
 ### Idempotent {#msg-idempotent}
 
-Idempotent is a boolean property. If true, it specifies that a Message is safe
-to send to the remote endpoint
+Type:
+: Boolean
+
+If true, it specifies that a Message is safe to send to the remote endpoint
 more than once for a single Send Action. It is used to mark data safe for
 certain 0-RTT establishment techniques, where retransmission of the 0-RTT data
 may cause the remote application to receive the Message multiple times.
 
 ### Final
 
-Final is a boolean property. If true, this Message is the last one that
+Type:
+: Boolean
+
+If true, this Message is the last one that
 the application will send on a Connection. This allows underlying protocols
 to indicate to the Remote Endpoint that the Connection has been effectively
 closed in the sending direction. For example, TCP-based Connections can
@@ -904,7 +918,10 @@ been sent on a Connection, the Send Action for the new Message will cause a Send
 
 ### Corruption Protection Length {#msg-checksum}
 
-This numeric property specifies the length of the section of the Message,
+Type:
+: Integer (non-negative with -1 as special value) 
+
+This property specifies the length of the section of the Message,
 starting from byte 0, that the application requires to be delivered without
 corruption due to lower layer errors. It is used to specify options for simple
 integrity protection via checksums. By default, the entire Message is protected
@@ -912,7 +929,22 @@ by a checksum. A value of 0 means that no checksum is required, and a special
 value (e.g. -1) can be used to indicate the default. Only full coverage is
 guaranteed, any other requests are advisory.
 
+### Reliable Data Transfer (Message) {#msg-reliable-message}
+
+Type:
+: Boolean
+
+This property specifies that a message should be sent in such a way
+that the transport protocol ensures all data is received on the other side
+without corruption. Changing the ´Reliable Data Transfer´ property on Messages
+is only possible if the transport protocol supports
+partial reliability (see {{prop-partially-reliable}}).
+Therefore, for protocols that always transfer data reliably, this property is always true and for protocols that always transfer data unreliably, this property is always false. Changing it may generate an error.
+
 ### Transmission Profile {#send-profile}
+
+Type:
+: Enumeration 
 
 This enumerated property specifies the application's preferred tradeoffs for
 sending this Message; it is a per-Message override of the Capacity Profile
@@ -933,6 +965,7 @@ The following values are valid for Transmission Profile:
   underlying transport; to signal a preference for lower-latency, higher-loss
   treatment; and so on.
 
+\[TODO: This is inconsistent with {prop-cap-profile}} - needs to be fixed]
 
 
 ## Partial Sends {#send-partial}
@@ -1000,7 +1033,7 @@ Connection := Preconnection.InitiateWithIdempotentSend(messageData, messageConte
 ~~~
 
 The message passed to InitiateWithIdempotentSend() is, as suggested by the
-name, considered to be idempotent (see {{send-idempotent}}) regardless of
+name, considered to be idempotent (see {{msg-idempotent}}) regardless of
 declared message properties or defaults. If protocol stacks supporting 0-RTT
 establishment with idempotent data are available on the Preconnection, then
 0-RTT establishment may be used with the given message when establishing
@@ -1501,9 +1534,8 @@ The following properties are mandatory to implement in a transport system:
 
 ### Final {#send-final}
 
-See {{final}}.
+Boolean Message Property - see {{final}}.
 
-\[TODO: Decide whether this is a property or a parameter]
 
 ### Reliable Data Transfer (Connection) {#prop-reliable}
 
@@ -1538,23 +1570,9 @@ its reliability requirements on a per-Message basis. This property applies to
 Connections and Connection Groups. The default is to not have this option.
 
 
-### Reliable Data Transfer (Message) {#prop-reliable-message}
+### Reliable Data Transfer (Message) 
 
-Classification:
-: Protocol Property (Generic)
-
-Type:
-: Boolean
-
-Applicability:
-: Message
-
-This property specifies that a message should be sent in such a way
-that the transport protocol ensures all data is received on the other side
-without corruption. Changing the ´Reliable Data Transfer´ property on Messages
-is only possible if the transport protocol supports
-partial reliability (see {{prop-partially-reliable}}).
-Therefore, for protocols that always transfer data reliably, this property is always true and for protocols that always transfer data unreliably, this property is always false. Changing it may generate an error.
+Boolean Message Property - see {{msg-reliable-message}}
 
 
 ### Preservation of data ordering {#prop-ordering}
@@ -1574,18 +1592,9 @@ by the application on the other end in the same order as it was sent. The
 default is to preserve data ordering.
 
 
-### Ordered {#send-ordered}
-
-Classification:
-: Protocol Property (Generic)
-
-Type:
-: Boolean
-
-Applicability:
-: Message
-
-See {{msg-ordered}}.
+### Ordered
+ 
+Boolean Message Property - see {{msg-ordered}}.
 
 
 ### Direction of communication
@@ -1629,22 +1638,12 @@ This property specifies whether an application would like to
 supply a Message to the transport protocol before Connection
 establishment, which will then be reliably transferred to the other side
 before or during Connection establishment, potentially multiple times.
-See also {{send-idempotent}}. The default is to not have this option.
+See also {{msg-idempotent}}. The default is to not have this option.
 
 
-### Idempotent {#send-idempotent}
+### Idempotent
 
-Classification:
-: Control Property
-
-Type:
-: Boolean
-
-Applicability:
-: Message
-
-See {{msg-idempotent}}.
-The application can query the maximum size of a message that can be sent idempotent, see {{size-idempotent}}.
+Boolean Message Property - see {{msg-idempotent}}.
 
 
 ### Multistream Connections in Group {#prop-multistream}
@@ -1741,18 +1740,10 @@ coverage without the option to configure it, and requiring a checksum when
 receiving.
 
 
-### Corruption Protection Length {#send-checksum}
+### Corruption Protection Length
 
-Classification:
-: Protocol Property (Generic)
+Integer Message Property - see {{msg-checksum}}.
 
-Type:
-: Integer
-
-Applicability:
-: Message
-
-See {{msg-checksum}}.
 
 ### Required minimum coverage of the checksum for receiving
 
@@ -1907,7 +1898,7 @@ controlled" a request that is unlikely to succeed. The default is that the
 Connection is congestion controlled.
 
 
-### Niceness {#send-niceness}
+### Niceness (Connection) {#conn-niceness}
 
 Classification:
 : Protocol Property (Generic)
@@ -1923,6 +1914,14 @@ priority of this Connection relative to other Connections in the same
 Connection Group. It has no effect on Connections not part of a Connection
 Group. As noted in {{groups}}, this property is not entangled when Connections
 are cloned.
+
+
+### Niceness (Message)
+
+Integer Message Property - see {{msg-niceness}}.
+
+Note that this property is not a per-message override of the connection Niceness - see {{conn-niceness}}.
+Both Niceness properties may interact, but can be used indepentendly and be realized by different mechanisms.
 
 
 ### Timeout for aborting Connection {#timeout}
@@ -1969,7 +1968,7 @@ Applicability:
 : Connection (read only)
 
 This property represents the maximum Message size that can be sent
-before or during Connection establishment, see also {{send-idempotent}}.
+before or during Connection establishment, see also {{msg-idempotent}}.
 It is given in Bytes. This property is read-only.
 
 
@@ -2019,18 +2018,9 @@ This numeric property represents the maximum Message size that can be received.
 This property is read-only.
 
 
-### Lifetime {#send-lifetime}
+### Lifetime
 
-Classification:
-: Protocol Property (Generic)
-
-Type:
-: Integer
-
-Applicability:
-: Message
-
-See {{msg-lifetime}}.
+Integer Message Property - see {{msg-lifetime}}.
 
 
 ## Optional Transport Properties
