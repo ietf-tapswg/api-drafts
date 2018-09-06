@@ -1919,7 +1919,9 @@ are cloned.
 ### Niceness (Message)
 
 Integer Message Property - see {{msg-niceness}}.
-This property overrides the connection niceness - see {{conn-niceness}} - on a per-message basis.
+
+Note that this property is not a per-message override of the connection Niceness - see {{conn-niceness}}.
+Both Niceness properties may interact, but can be used indepentendly and be realized by different mechanisms.
 
 
 ### Timeout for aborting Connection {#timeout}
