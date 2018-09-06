@@ -886,6 +886,7 @@ If true, it specifies that the receiver-side transport system should only delive
 Action. If false, the Message may be delivered to the receiving application out of order.
 This property is used for protocols that support preservation of data ordering,
 see {{prop-ordering}}, but allow out-of-order delivery for certain messages.
+It is ignored on the first Message that is sent on a Connection.
 
 
 ### Idempotent {#msg-idempotent}
