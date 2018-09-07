@@ -882,7 +882,7 @@ being interpreted as a higher priority anywhere.]
 Type:
 : Boolean
 
-If true, it specifies that the receiver-side transport system should only deliver the Message to the receiving application after the previous ordered Message which was passed to the same Connection via the Send
+If true, it specifies that the receiver-side transport protocol stack only deliver the Message to the receiving application after the previous ordered Message which was passed to the same Connection via the Send
 Action, when such a Message exists. If false, the Message may be delivered to the receiving application out of order.
 This property is used for protocols that support preservation of data ordering,
 see {{prop-ordering}}, but allow out-of-order delivery for certain messages.
@@ -1547,7 +1547,7 @@ Type:
 Applicability:
 : Preconnection, Connection (read only)
 
-This property specifies whether the application wishes to use a transport
+This property specifies whether the application needs to use a transport
 protocol that ensures that all data is received on the other side without
 corruption. This also entails being notified when a Connection is closed or
 aborted. The default is to enable Reliable Data Transfer.
