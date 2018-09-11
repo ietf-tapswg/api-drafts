@@ -882,8 +882,8 @@ being interpreted as a higher priority anywhere.]
 Type:
 : Boolean
 
-If true, it specifies that a Message should be delivered to the other side after the previous Message which was passed to the same Connection via the Send
-Action. If false, the Message may be delivered out of order.
+If true, it specifies that the receiver-side transport protocol stack only deliver the Message to the receiving application after the previous ordered Message which was passed to the same Connection via the Send
+Action, when such a Message exists. If false, the Message may be delivered to the receiving application out of order.
 This property is used for protocols that support preservation of data ordering,
 see {{prop-ordering}}, but allow out-of-order delivery for certain messages.
 
@@ -937,9 +937,8 @@ Type:
 This property specifies that a message should be sent in such a way
 that the transport protocol ensures all data is received on the other side
 without corruption. Changing the ´Reliable Data Transfer´ property on Messages
-is only possible if the transport protocol supports
-partial reliability (see {{prop-partially-reliable}}).
-Therefore, for protocols that always transfer data reliably, this property is always true and for protocols that always transfer data unreliably, this property is always false. Changing it may generate an error.
+is only possible if the Connection supports reliability.
+When this is not the case, changing it will generate an error.
 
 ### Transmission Profile {#send-profile}
 
@@ -1548,7 +1547,7 @@ Type:
 Applicability:
 : Preconnection, Connection (read only)
 
-This property specifies whether the application wishes to use a transport
+This property specifies whether the application needs to use a transport
 protocol that ensures that all data is received on the other side without
 corruption. This also entails being notified when a Connection is closed or
 aborted. The default is to enable Reliable Data Transfer.
@@ -1917,11 +1916,13 @@ are cloned.
 
 
 ### Niceness (Message)
+\[TODO: Discuss: should we remove this? Whether we need this or the other depends
+on how we want to implement multi-streaming. We don't need both, so we should make a decision.]
 
 Integer Message Property - see {{msg-niceness}}.
 
 Note that this property is not a per-message override of the connection Niceness - see {{conn-niceness}}.
-Both Niceness properties may interact, but can be used indepentendly and be realized by different mechanisms.
+Both Niceness properties may interact, but can be used independently and be realized by different mechanisms.
 
 
 ### Timeout for aborting Connection {#timeout}
