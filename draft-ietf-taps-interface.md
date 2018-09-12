@@ -2128,27 +2128,6 @@ https://github.com/taps-api/drafts/issues/109]
 
 
 
-### Request not to delay acknowledgment of Message
-
-Classification:
-: Selection Property
-
-Type:
-: Preference
-
-Applicability:
-: Preconnection
-
-This property specifies whether an application considers it
-useful to be able to request for a Message that its acknowledgment be sent out as
-early as possible instead of potentially being bundled with other
-acknowledgments. The default is to not have this
-option.
-
-\[EDITOR'S NOTE: For discussion of this option, see
-https://github.com/taps-api/drafts/issues/90]
-
-
 ### Traffic Category
 
 Classification:
