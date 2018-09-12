@@ -687,7 +687,7 @@ the Connection Group, and so on. Connections in a Connection Group share all
 Protocol Properties that are not applicable to a Message.
 
 Changing one of these Protocol Properties on one Connection in the group changes it for all others. Per-Message Protocol Properties, however, are not entangled.
-For example, changing "Timeout for aborting Connection" (see {{timeout}}) on one Connection in a group will automatically change this Protocol Property for all Connections in the group in the same way. However, changing "Lifetime" (see {{msg-lifetime}}) of a Message will only affect a single Message on a single Connection, entangled or not.
+For example, changing "Timeout for aborting Connection" (see {{conn-timeout}}) on one Connection in a group will automatically change this Protocol Property for all Connections in the group in the same way. However, changing "Lifetime" (see {{msg-lifetime}}) of a Message will only affect a single Message on a single Connection, entangled or not.
 
 If the underlying protocol supports multi-streaming, it is natural to use this functionality to implement Clone. In that case, entangled Connections are multiplexed together, giving them similar treatment not only inside endpoints but also across
 the end-to-end Internet path.
@@ -1791,9 +1791,9 @@ Boolean Connection Property - see {{conn-retrans-notify}}.
 Interger Connection Property - see {{conn-excss-retransmit}}
 
 
-### Notification of ICMP soft error message arrival {#conn-soft-error}
+### Notification of ICMP soft error message arrival
 
-Boolean Connection Property - see {{conn-soft-errorr}}
+Boolean Connection Property - see {{conn-soft-error}}
 
 
 ### Control checksum coverage on sending or receiving {#prop-checksum-control}
@@ -1996,12 +1996,12 @@ Integer Connection Property (read-only) - see {{size-idempotent}}
 Integer Connection Property (read-only) - see {{conn-max-msg-notfrag}}
 
 
-### Maximum Message size on send {#conn-max-msg-send}
+### Maximum Message size on send
 
 Integer Connection Property (read-only) - see {{conn-max-msg-send}}
 
 
-### Maximum Message size on receive {#conn-max-msg-recv}
+### Maximum Message size on receive 
 
 Integer Connection Property (read-only) - see {{conn-max-msg-recv}}
 
