@@ -1256,8 +1256,11 @@ Preconnection.DeframeWith(Deframer)
 
 # Managing Connections: Setting Properties and Obtaining Information {#introspection}
 
-The application can set per-connection Protocol Properties (see {{protocol-props}}).
-Certain Procotol Properties may be read-only, on a protocol- and property-specific basis.
+
+## Connection Properties
+
+The application can set per-connection Properties.
+Certain Connection Properties may be read-only, on a protocol- and property-specific basis.
 ~~~
 Connection.SetProperty(property, value)
 ~~~
@@ -1267,8 +1270,11 @@ At any point, the application can query Connection Properties.
 ConnectionProperties := Connection.GetProperties()
 ~~~
 
+
 Depending on the status of the connection, the queried Connection
 Properties will include different information:
+
+\[TODO: turn this list into actual properties or move up into the explaining text]
 
 * The status of the connection, which can be one of the following:
   Establishing, Established, Closing, or Closed.
@@ -1305,6 +1311,126 @@ Properties will include different information:
 * For Connections that are Established, properties of the path(s) in use. These
   properties can be derived from the local provisioning domain {{RFC7556}},
   measurements by the Protocol Stack, or other sources.
+
+
+### Notification of excessive retransmissions {#conn-retrans-notify}
+
+Type:
+: Boolean
+
+This property specifies whether an application considers it useful to be informed in case sent data was retransmitted more often than a certain threshold.
+When set to true, the effect is twofold:
+The application may receive events in case excessive retransmissions.
+In addition, the transport system considers this as a preference to use transports stacks that can provide this notification. This is not a strict requirement.
+If set to false, no notification of excessive retransmissions will be sent and this transport feature is ignored for protocol selection.
+
+The default is to have this option.
+
+### Retransmission threshold before excessive retransmission notification {#conn-excss-retransmit}
+
+Type:
+: Integer
+
+This property specifies after how many retransmissions to inform the
+application about "Excessive Retransmissions".
+
+
+### Notification of ICMP soft error message arrival {#conn-soft-error}
+
+Type:
+: Boolean
+
+This property specifies whether an application considers it useful
+to be informed when an ICMP error message arrives that does not force
+termination of a connection.
+When set to true, received ICMP errors will be available as SoftErrors.
+Note that even if a protocol supporting this property is selected, not all
+ICMP errors will necessarily be delivered, so applications cannot rely
+on receiving them.
+Setting this option also implies a preference to prefer transports stacks that can provide this notification.
+If not set, no events will be sent for ICMP soft error message and this transport feature is ignored for protocol selection.
+
+This property applies to Connections and Connection Groups.
+The default is not to have this option.
+
+### Required minimum coverage of the checksum for receiving {#conn-recv-checksum}
+
+Type:
+: Integer
+
+This property specifies the part of the received data that needs
+to be covered by a checksum. It is given in Bytes. A value of 0 means
+that no checksum is required, and a special value (e.g., -1) indicates
+full checksum coverage.
+
+
+### Niceness (Connection) {#conn-niceness}
+
+Type:
+: Integer
+
+This Property is a non-negative integer representing the relative inverse
+priority of this Connection relative to other Connections in the same
+Connection Group. It has no effect on Connections not part of a Connection
+Group. As noted in {{groups}}, this property is not entangled when Connections
+are cloned.
+
+
+### Timeout for aborting Connection {#conn-timeout}
+
+Type:
+: Integer
+
+This property specifies how long to wait before aborting a Connection during
+establishment, or before deciding that a Connection has failed after
+establishment. It is given in seconds.
+
+
+### Connection group transmission scheduler {#conn-scheduler}
+
+Type:
+: Enum
+
+This property specifies which scheduler should be used among Connections within
+a Connection Group, see {{groups}}. The set of schedulers can
+be taken from {{I-D.ietf-tsvwg-sctp-ndata}}.
+
+
+### Maximum message size concurrent with Connection establishment {#size-idempotent}
+
+Type:
+: Integer (read only)
+
+This property represents the maximum Message size that can be sent
+before or during Connection establishment, see also {{msg-idempotent}}.
+It is given in Bytes. 
+
+### Maximum Message size before fragmentation or segmentation {#conn-max-msg-notfrag}
+
+Type:
+: Integer (read only)
+
+This property, if applicable, represents the maximum Message size that can be
+sent without incurring network-layer fragmentation or transport layer
+segmentation at the sender. 
+
+### Maximum Message size on send {#conn-max-msg-send}
+
+Type:
+: Integer (read only)
+
+This property represents the maximum Message size that can be sent. 
+
+
+### Maximum Message size on receive {#conn-max-msg-recv}
+
+Type:
+: Integer (read only)
+
+This numeric property represents the maximum Message size that can be received.
+
+
+## Soft Errors
 
 Slightly different from "querying", a SoftError Event can also occur, informing
 the application about the receipt of an ICMP error
@@ -1378,19 +1504,19 @@ does provide the following guarantees about the ordering of operations:
 
 # Transport Properties {#transport-props}
 
-Having discussed Transport Properties in {{connection-props}} and listed a
-number of Message Properties ("Ordered", "Idempotent" etc.) in {{message-props}},
+Having discussed Selection Properties in {{connection-props}}, Connection Properties {{connection-props}} and,  Message Properties ({{message-props}}),
 we now provide a complete overview of a transport system's defined Transport Properties.
 
-Properties are structured in two ways:
+Transport Properties are structured by the context they can apply on: 
+ - Selection Properties apply to Preconnections - see {{selection-props}}
+ - Connections Properties apply to Connections - see {{connection-props}}
+ - Messages Properties apply to Messages - see {{message-props}}
 
- - By how they influence the transport system, which leads to a classification
-   into "Selection Properties", "Protocol Properties", "Control Properties" and "Intents".
- - By the object they can be applied to: Preconnections, see {{connection-props}},
-   Connections, see {{introspection}}, and Messages, see {{message-props}}.
-
-Because some properties can be applied or queried on multiple objects, all
-Transport Properties are organized within a single namespace.
+All Transport Properties are organized within a single namespace.
+This enables setting them as defaults in earlier stages and querying them in later stages:
+ - Connections Properties can be set on Preconnections
+ - Message Properties can be set on Preconnections and Connections
+ - The effect of Selection Properties can be queried on Connections and Messages.
 
 Note that it is possible for a set of specified Transport Properties to be
 internally inconsistent, or to be inconsistent with the later use of the API by
@@ -1446,15 +1572,9 @@ When used on a Connection, this type becomes a (read-only) Boolean representing 
 
 
 ## Transport Property Classification {#transport-props-classes}
+\[TODO: This section is mostly obsolete due to our consensus on how to structure properties -- double-check whether text needs to be moved and delete this section afterwards]
 
-Transport Properties – whether they apply to connections, preconnections, or messages – differ in the way they affect the transport system and protocols exposed through the transport system.
-The classification proposed below emphasizes two aspects of how properties
-affect the transport system, so applications know what to expect:
-
- - Whether properties affect protocols exposed through the transport system (Protocol Properties) or the transport system itself (Control Properties)
-
- - Whether properties have a clearly defined behavior that is likely to be
-   invariant across implementations and environments (Protocol Properties and Control Properties) or whether the properties are interpreted by the transport system to provide a best effort service that matches the application needs as closely as possible (Intents).
+Transport Properties are classified by the the objects that are
 
 
 ### Selection Properties {#selection-props}
@@ -1501,7 +1621,7 @@ Note that many protocol properties have a corresponding selection property
 which asks for a protocol providing a specific transport feature that is
 controlled by the protocol property.
 
-### Control Properties {#control-props}
+### Message Properties {#control-props}
 
 \[TODO: Discuss]
 
@@ -1661,64 +1781,19 @@ within a Connection Group to be provided by streams of a single underlying
 transport connection where possible. The default is to not have this option.
 
 
-### Notification of excessive retransmissions {#prop-retrans-notify}
+### Notification of excessive retransmissions 
 
-Classification:
-: Control Property \[TODO: Discuss]
-
-Type:
-: Boolean
-
-Applicability:
-: Preconnection, Connection
-
-This property specifies whether an application considers it useful to be informed in case sent data was retransmitted more often than a certain threshold.
-When set to true, the effect is twofold:
-The application may receive events in case excessive retransmissions.
-In addition, the transport system considers this as a preference to use transports stacks that can provide this notification. This is not a strict requirement.
-If set to false, no notification of excessive retransmissions will be sent and this transport feature is ignored for protocol selection.
-
-The default is to have this option.
+Boolean Connection Property - see {{conn-retrans-notify}}. 
 
 
 ### Retransmission threshold before excessive retransmission notification
 
-Classification:
-: Control Property \[TODO: Discuss]
-
-Type:
-: Integer
-
-Applicability:
-: Preconnection, Connection
-
-This property specifies after how many retransmissions to inform the
-application about "Excessive Retransmissions".
+Interger Connection Property - see {{conn-excss-retransmit}}
 
 
-### Notification of ICMP soft error message arrival {#prop-soft-error}
+### Notification of ICMP soft error message arrival {#conn-soft-error}
 
-Classification:
-: Control Property \[TODO: Discuss]
-
-Type:
-: Boolean
-
-Applicability:
-: Preconnection, Connection
-
-This property specifies whether an application considers it useful
-to be informed when an ICMP error message arrives that does not force
-termination of a connection.
-When set to true, received ICMP errors will be available as SoftErrors.
-Note that even if a protocol supporting this property is selected, not all
-ICMP errors will necessarily be delivered, so applications cannot rely
-on receiving them.
-Setting this option also implies a preference to prefer transports stacks that can provide this notification.
-If not set, no events will be sent for ICMP soft error message and this transport feature is ignored for protocol selection.
-
-This property applies to Connections and Connection Groups.
-The default is not to have this option.
+Boolean Connection Property - see {{conn-soft-errorr}}
 
 
 ### Control checksum coverage on sending or receiving {#prop-checksum-control}
@@ -1746,19 +1821,7 @@ Integer Message Property - see {{msg-checksum}}.
 
 ### Required minimum coverage of the checksum for receiving
 
-Classification:
-: Protocol Property (Generic)
-
-Type:
-: Integer
-
-Applicability:
-: Connection
-
-This property specifies the part of the received data that needs
-to be covered by a checksum. It is given in Bytes. A value of 0 means
-that no checksum is required, and a special value (e.g., -1) indicates
-full checksum coverage.
+Integer Connection Property - see {{conn-recv-checksum}}
 
 
 ### Interface Instance or Type {#prop-interface}
@@ -1897,27 +1960,15 @@ controlled" a request that is unlikely to succeed. The default is that the
 Connection is congestion controlled.
 
 
-### Niceness (Connection) {#conn-niceness}
+### Niceness (Connection) 
 
-Classification:
-: Protocol Property (Generic)
-
-Type:
-: Integer
-
-Applicability:
-: Connection
-
-This Property is a non-negative integer representing the relative inverse
-priority of this Connection relative to other Connections in the same
-Connection Group. It has no effect on Connections not part of a Connection
-Group. As noted in {{groups}}, this property is not entangled when Connections
-are cloned.
+Integer Connection Property - see {{conn-niceness}}
 
 
 ### Niceness (Message)
 \[TODO: Discuss: should we remove this? Whether we need this or the other depends
-on how we want to implement multi-streaming. We don't need both, so we should make a decision.]
+on how we want to implement multi-streaming. We don't need both, so we should make a decision. @mwelzl
+-- These are really two different things @philsbln]
 
 Integer Message Property - see {{msg-niceness}}.
 
@@ -1925,98 +1976,34 @@ Note that this property is not a per-message override of the connection Niceness
 Both Niceness properties may interact, but can be used independently and be realized by different mechanisms.
 
 
-### Timeout for aborting Connection {#timeout}
+### Timeout for aborting Connection 
 
-Classification:
-: Control Property \[TODO: Discuss]
-
-Type:
-: Integer
-
-Applicability:
-: Preconnection, Connection
-
-This property specifies how long to wait before aborting a Connection during
-establishment, or before deciding that a Connection has failed after
-establishment. It is given in seconds.
+Integer Connection Property - see {{conn-timeout}}
 
 
-### Connection group transmission scheduler
+### Connection group transmission scheduler 
 
-Classification:
-: Protocol Property (Generic) / Control Property \[TODO: Discuss]
-
-Type:
-: Enum
-
-Applicability:
-: Preconnection, Connection
-
-This property specifies which scheduler should be used among Connections within
-a Connection Group, see {{groups}}. The set of schedulers can
-be taken from {{I-D.ietf-tsvwg-sctp-ndata}}.
+Enum Connection Property - see {{conn-scheduler}}
 
 
-### Maximum message size concurrent with Connection establishment {#size-idempotent}
+### Maximum message size concurrent with Connection establishment 
 
-Classification:
-: Protocol Property (Generic)
-
-Type:
-: Integer
-
-Applicability:
-: Connection (read only)
-
-This property represents the maximum Message size that can be sent
-before or during Connection establishment, see also {{msg-idempotent}}.
-It is given in Bytes. This property is read-only.
+Integer Connection Property (read-only) - see {{size-idempotent}}
 
 
-### Maximum Message size before fragmentation or segmentation
+### Maximum Message size before fragmentation or segmentation 
 
-Classification:
-: Protocol Property (Generic)
-
-Type:
-: Integer
-
-Applicability:
-: Connection (read only)
-
-This property, if applicable, represents the maximum Message size that can be
-sent without incurring network-layer fragmentation or transport layer
-segmentation at the sender. This property is read-only.
+Integer Connection Property (read-only) - see {{conn-max-msg-notfrag}}
 
 
-### Maximum Message size on send
+### Maximum Message size on send {#conn-max-msg-send}
 
-Classification:
-: Protocol Property (Generic)
-
-Type:
-: Integer
-
-Applicability:
-: Connection (read only)
-
-This property represents the maximum Message size that can be sent. This
-property is read-only.
+Integer Connection Property (read-only) - see {{conn-max-msg-send}}
 
 
-### Maximum Message size on receive
+### Maximum Message size on receive {#conn-max-msg-recv}
 
-Classification:
-: Protocol Property (Generic)
-
-Type:
-: Integer
-
-Applicability:
-: Connection (read only)
-
-This numeric property represents the maximum Message size that can be received.
-This property is read-only.
+Integer Connection Property (read-only) - see {{conn-max-msg-recv}}
 
 
 ### Lifetime
