@@ -145,6 +145,12 @@ The following notations, which can be combined, are used in this document:
 Object := Action()
 ~~~
 
+- An Action creates an array of Objects:
+
+~~~
+[]Object := Action()
+~~~
+
 - An Action is performed on an Object:
 
 ~~~
@@ -237,10 +243,11 @@ through listening on the Preconnection (i.e., passively opening, as in a
 server), or rendezvousing on the Preconnection (i.e. peer to peer establishment).
 
 Once a Connection is established, data can be sent on it in the form of
-Messages. The interface supports the preservation of message boundaries both via
-explicit Protocol Stack support, and via application support through a deframing
-callback which finds message boundaries in a stream. Messages are received
-asynchronously through a callback registered by the application. Errors and other notifications also happen asynchronously on the Connection.
+Messages. The interface supports the preservation of message boundaries both
+via explicit Protocol Stack support, and via application support through a
+deframing callback which finds message boundaries in a stream. Messages are
+received asynchronously through a callback registered by the application.
+Errors and other notifications also happen asynchronously on the Connection.
 
 In the following sections, we describe the details of application interaction
 with Objects through Actions and Events in each phase of a Connection, following
@@ -653,23 +660,24 @@ when no transport-layer connection can be established to the Remote Endpoint,
 or when the application is prohibited from rendezvous by policy.
 
 When using some NAT traversal protocols, e.g., Interactive Connectivity
-Establishment (ICE) {{?RFC5245}}, it is
-expected that the Local Endpoint will be configured with some method of
-discovering NAT bindings, e.g., a Session Traversal Utilities for NAT (STUN) server.
-In this case, the
-Local Endpoint may resolve to a mixture of local and server reflexive
-addresses. The Resolve() action on the Preconnection can be used to
-discover these bindings:
+Establishment (ICE) {{?RFC5245}}, it is expected that the Local Endpoint will
+be configured with some method of discovering NAT bindings, e.g., a Session
+Traversal Utilities for NAT (STUN) server. In this case, the Local Endpoint
+may resolve to a mixture of local and server reflexive addresses. The
+Resolve() action on the Preconnection can be used to discover these bindings:
 
 ~~~
-PreconnectionBindings := Preconnection.Resolve()
+[]Preconnection := Preconnection.Resolve()
 ~~~
 
 The Resolve() call returns a list of Preconnection Objects, that represent the
 concrete addresses, local and server reflexive, on which a Rendezvous() for
-the Preconnection will listen for incoming Connections. This list can be
-passed to a peer via a signalling protocol, such as SIP {{?RFC3261}} or WebRTC
-{{?RFC7478}}, to configure the remote.
+the Preconnection will listen for incoming Connections. These resolved
+Preconnections will share all other Properties with the Preconnection from
+which they are derived, though some Properties may be made more-specific by
+the resolution process. This list can be passed to a peer via a signalling
+protocol, such as SIP {{?RFC3261}} or WebRTC {{?RFC7478}}, to configure the
+remote.
 
 ## Connection Groups {#groups}
 
@@ -861,7 +869,7 @@ implementation-specific.
 ### Niceness {#msg-niceness}
 
 Type:
-: Integer (non-negative) 
+: Integer (non-negative)
 
 This property represents an unbounded hierarchy of priorities.
 It can specify the priority of a Message, relative to other Messages sent over the
@@ -919,7 +927,7 @@ been sent on a Connection, the Send Action for the new Message will cause a Send
 ### Corruption Protection Length {#msg-checksum}
 
 Type:
-: Integer (non-negative with -1 as special value) 
+: Integer (non-negative with -1 as special value)
 
 This property specifies the length of the section of the Message,
 starting from byte 0, that the application requires to be delivered without
@@ -943,7 +951,7 @@ When this is not the case, changing it will generate an error.
 ### Transmission Profile {#send-profile}
 
 Type:
-: Enumeration 
+: Enumeration
 
 This enumerated property specifies the application's preferred tradeoffs for
 sending this Message; it is a per-Message override of the Capacity Profile
@@ -1287,7 +1295,7 @@ Properties will include different information:
 
 * For Connections that are Establishing: Transport Properties that the
   application specified on the Preconnection, see {{connection-props}}.
-  
+
 * For Connections that are Established, Closing, or Closed (TODO: double-check if closed belongs here): Transport
   Properties of the actual protocols that were selected and instantiated. These
   features correspond to the properties given in {{transport-props}} and
@@ -1569,7 +1577,7 @@ its reliability requirements on a per-Message basis. This property applies to
 Connections and Connection Groups. The default is to not have this option.
 
 
-### Reliable Data Transfer (Message) 
+### Reliable Data Transfer (Message)
 
 Boolean Message Property - see {{msg-reliable-message}}
 
@@ -1592,7 +1600,7 @@ default is to preserve data ordering.
 
 
 ### Ordered
- 
+
 Boolean Message Property - see {{msg-ordered}}.
 
 
