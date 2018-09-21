@@ -1504,10 +1504,10 @@ does provide the following guarantees about the ordering of operations:
 
 # Transport Properties {#transport-props}
 
-Having discussed Selection Properties in {{connection-props}}, Connection Properties {{connection-props}} and,  Message Properties ({{message-props}}),
+Having discussed Selection Properties in {{selection-props}}, Connection Properties {{connection-props}}, and Message Properties ({{message-props}}),
 we now provide a complete overview of a transport system's defined Transport Properties.
 
-Transport Properties are structured by the context they can apply on: 
+Transport Properties are structured by the phase and object they are applied: 
  - Selection Properties apply to Preconnections - see {{selection-props}}
  - Connections Properties apply to Connections - see {{connection-props}}
  - Messages Properties apply to Messages - see {{message-props}}
@@ -1573,8 +1573,6 @@ When used on a Connection, this type becomes a (read-only) Boolean representing 
 
 ## Transport Property Classification {#transport-props-classes}
 \[TODO: This section is mostly obsolete due to our consensus on how to structure properties -- double-check whether text needs to be moved and delete this section afterwards]
-
-Transport Properties are classified by the the objects that are
 
 
 ### Selection Properties {#selection-props}
@@ -1788,7 +1786,7 @@ Boolean Connection Property - see {{conn-retrans-notify}}.
 
 ### Retransmission threshold before excessive retransmission notification
 
-Interger Connection Property - see {{conn-excss-retransmit}}
+Integer Connection Property - see {{conn-excss-retransmit}}
 
 
 ### Notification of ICMP soft error message arrival
