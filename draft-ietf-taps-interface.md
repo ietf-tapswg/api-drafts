@@ -974,6 +974,23 @@ The following values are valid for Transmission Profile:
 
 \[TODO: This is inconsistent with {prop-cap-profile}} - needs to be fixed]
 
+### Segmentation Prohibited
+
+Type:
+: Boolean
+
+This property specifies that a message should be sent without transport-layer
+segmentation. Attempts to send a message with a size greater to the transport's
+current estimate of its maximum transmission segment size will result in a `SendError`.
+
+### Fragmentation Prohibited
+
+Type:
+: Boolean
+
+This property specifies that a message should be sent without network-layer
+fragmentation, either at the sending endpoint or along the path. When used with
+connections running over IP version 4, the Don't Fragment bit will be set. 
 
 ## Partial Sends {#send-partial}
 
