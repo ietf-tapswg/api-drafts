@@ -1922,49 +1922,50 @@ values are valid for the Capacity Profile:
   Default: : The application makes no representation about its expected capacity
   profile. No special optimizations of the tradeoff between delay, delay
   variation, and bandwidth efficiency should be made when selecting and
-  configuring transport protocol stacks. When the underlying transport protocol
-  stack(s) support per-connection DSCP signaling, transmitted traffic SHOULD
-  carry the DSCP Default Forwarding {{?RFC2474}} PHB; when the Connection is
-  multiplexed, the guidelines in section 6 of {{?RFC7657}} apply.
+  configuring transport protocol stacks. Transport system implementations that
+  map the requested capacity profile onto per-connection DSCP signaling without
+  multiplexing SHOULD assign the DSCP Default Forwarding {{?RFC2474}} PHB; when
+  the Connection is multiplexed, the guidelines in section 6 of {{?RFC7657}}
+  apply.
 
   Scavenger/Bulk: : The application is not interactive. It expects to send
   and/or receive data without any urgency. This can, for example, be used to
   select protocol stacks with scavenger transmission control and/or to assign
-  the traffic to a lower-effort service. When the underlying transport protocol
-  stack(s) support per-connection DSCP signaling, transmitted traffic SHOULD
-  carry the DSCP Less than Best Effort {{?LE-PHB=I-D.ietf-tsvwg-le-phb}} PHB;
-  when the Connection is multiplexed, the guidelines in section 6 of
-  {{?RFC7657}} apply.
+  the traffic to a lower-effort service. Transport system implementations that
+  map the requested capacity profile onto per-connection DSCP signaling without
+  multiplexing SHOULD assign the DSCP Less than Best Effort
+  {{?LE-PHB=I-D.ietf-tsvwg-le-phb}} PHB; when the Connection is multiplexed, the
+  guidelines in section 6 of {{?RFC7657}} apply.
 
   Low Latency/Interactive: : The application is interactive, and prefers loss to
   latency. Response time should be optimized at the expense of bandwidth
   efficiency and delay variation when sending on this connection. This can be
   used by the system to disable the coalescing of multiple small Messages into
   larger packets (Nagle's algorithm); to prefer immediate acknowledgment from
-  the peer endpoint when supported by the underlying transport; and so on. When
-  the underlying transport protocol stack(s) support per-connection DSCP
-  signaling, transmitted traffic SHOULD carry the DSCP Expedited Forwarding
-  {{?RFC3246}} PHB; when the Connection is multiplexed, the guidelines in
-  section 6 of {{?RFC7657}} apply.
+  the peer endpoint when supported by the underlying transport; and so on.
+  Transport system implementations that map the requested capacity profile onto
+  per-connection DSCP signaling without multiplexing SHOULD assign the DSCP
+  Expedited Forwarding {{?RFC3246}} PHB; when the Connection is multiplexed, the
+  guidelines in section 6 of {{?RFC7657}} apply.
 
   Low Latency/Non-Interactive: : The application prefers loss to latency but is
   not interactive. Response time should be optimized at the expense of bandwidth
-  efficiency and delay variation when sending on this connection. When the
-  underlying transport protocol stack(s) support per-connection DSCP signaling,
-  transmitted traffic SHOULD carry a DSCP Assured Forwarding
-  (AF21,AF22,AF23,AF24) {{?RFC2597}} PHB; when the Connection is multiplexed,
-  the guidelines in section 6 of {{?RFC7657}} apply.
+  efficiency and delay variation when sending on this connection.Transport
+  system implementations that map the requested capacity profile onto
+  per-connection DSCP signaling without multiplexing SHOULD assign a DSCP
+  Assured Forwarding (AF21,AF22,AF23,AF24) {{?RFC2597}} PHB; when the Connection
+  is multiplexed, the guidelines in section 6 of {{?RFC7657}} apply.
 
   Constant-Rate Streaming: : The application expects to send/receive data at a
   constant rate after Connection establishment. Delay and delay variation should
   be minimized at the expense of bandwidth efficiency. This implies that the
   Connection may fail if the desired rate cannot be maintained across the Path.
   A transport may interpret this capacity profile as preferring a circuit
-  breaker {{?RFC8084}} to a rate-adaptive congestion controller. When the
-  underlying transport protocol stack(s) support per-connection DSCP signaling,
-  transmitted traffic SHOULD carry a DSCP Assured Forwarding
-  (AF31,AF32,AF33,AF34) {{?RFC2597}} PHB; when the Connection is multiplexed,
-  the guidelines in section 6 of {{?RFC7657}} apply.
+  breaker {{?RFC8084}} to a rate-adaptive congestion controller. Transport
+  system implementations that map the requested capacity profile onto
+  per-connection DSCP signaling without multiplexing SHOULD assign a DSCP
+  Assured Forwarding (AF31,AF32,AF33,AF34) {{?RFC2597}} PHB; when the Connection
+  is multiplexed, the guidelines in section 6 of {{?RFC7657}} apply.
 
   High Throughput Data: : \[EDITOR'S NOTE: Gorry wants this, but bht has no idea
   how to implement it beyond DSCP AF1n {{?RFC2597}}. Cut, or specity how this is
