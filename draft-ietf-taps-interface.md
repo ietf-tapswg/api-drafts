@@ -1278,42 +1278,42 @@ At any point, the application can query Connection Properties.
 ConnectionProperties := Connection.GetProperties()
 ~~~
 
-
 Depending on the status of the connection, the queried Connection
 Properties will include different information:
 
 \[TODO: turn this list into actual properties or move up into the explaining text]
 
-* The status of the connection, which can be one of the following:
+* The connection state, which can be one of the following:
   Establishing, Established, Closing, or Closed.
 
 * Whether the connection can be used to send data. A connection can not be used
   for sending if the connection was created with the Selection Property
-  "Direction of Communication" set to "unidirectional receive" or if a
-  Message marked as "Final" was sent over this
-  connection, see {{send-final}}.
+  "Direction of Communication" set to "unidirectional receive" or if a Message
+  marked as "Final" was sent over this connection, see {{send-final}}.
 
 * Whether the connection can be used to receive data. A connection can not be
   used for reading if the connection was created with the Selection Property
-  "Direction of Communication" set to "unidirectional send" or if a Message marked as "Final" was received, see
-  {{receiving-final-messages}}. The latter is only supported by certain
-  transport protocols, e.g., by TCP as half-closed connection.
+  "Direction of Communication" set to "unidirectional send" or if a Message
+  marked as "Final" was received, see {{receiving-final-messages}}. The latter
+  is only supported by certain transport protocols, e.g., by TCP as half-closed
+  connection.
 
 * For Connections that are Establishing: Transport Properties that the
   application specified on the Preconnection, see {{connection-props}}.
 
-* For Connections that are Established, Closing, or Closed (TODO: double-check if closed belongs here): Transport
-  Properties of the actual protocols that were selected and instantiated. These
-  features correspond to the properties given in {{transport-props}} and
-  include Selection Properties and Protocol Properties.
-    * Selection Properties indicate whether or not the
-      Connection has or offers a certain Selection Property. Note that the
-      actually instantiated protocol stack may not match all Protocol
-      Selection Properties that the application specified on the Preconnection.
-      For example, a certain Protocol Selection Property that an application
-      specified as Preferred may not actually be present in the chosen protocol
-      stack because none of the currently available transport protocols had
-      this feature.
+* For Connections that are Established, Closing, or Closed: Transport Properties
+  of the actual protocols that were selected and instantiated. These features
+  correspond to the properties given in {{transport-props}} and include
+  Selection Properties and Protocol Properties.
+
+    * Selection Properties indicate whether or not the Connection has or offers
+      a certain Selection Property. Note that the actually instantiated protocol
+      stack may not match all Protocol Selection Properties that the application
+      specified on the Preconnection. For example, a certain Protocol Selection
+      Property that an application specified as Preferred may not actually be
+      present in the chosen protocol stack because none of the currently
+      available transport protocols had this feature.
+
     * Protocol Properties of the protocol stack in use (see {{protocol-props}}).
 
 * For Connections that are Established, properties of the path(s) in use. These
@@ -1485,29 +1485,51 @@ Connection -> ConnectionError<>
 ~~~
 
 
-# Ordering of Operations and Events
+# Connection State and Ordering of Operations and Events
 
 As this interface is designed to be independent of an implementation's
 concurrency model, the
 details of how exactly actions are handled, and on which threads/callbacks
-events are dispatched, are implementation dependent. However, the interface
-does provide the following guarantees about the ordering of operations:
+events are dispatched, are implementation dependent. 
 
-- Received<> will never occur on a Connection before a Ready<> event on that
-  Connection, or a ConnectionReceived<> or RendezvousDone<> containing that
-  Connection.
+Each transition of connection state is associated with one of more events:
 
-- No events will occur on a Connection after a Closed<> event, an
-  InitiateError<> or ConnectionError<> on that connection. To ensure this
-  ordering, Closed<> will not occur on a Connection while other events on the
-  Connection are still locally outstanding (i.e., known to the interface and
-  waiting to be dealt with by the application). ConnectionError<> may occur
-  after Closed<>, but the interface must gracefully handle the application
-  ignoring these errors.
+- Ready<> occurs when a Connection created with Initiate() or
+  InitiateWithIdempotentData() transitions to Established state.
+
+- ConnectionReceived<> occurs when a Connection created with Listen()
+  transitions to Established state.
+
+- RendezvousDone<> occurs when a Connection created with Rendezvous()
+  transitions to Established state.
+
+- Closed<> occurs when a Connection transitions to Closed state without error.
+
+- InitiateError<> occurs when a Connection created with Initiate() transitions
+  from Establishing state to Closed state due to an error.
+
+- ConnectionError<> occurs when a Connection transitions to Closed state due to
+  an error in all other circumstances.
+
+The interface provides the following guarantees about the ordering of
+ operations:
 
 - Sent<> events will occur on a Connection in the order in which the Messages
   were sent (i.e., delivered to the kernel or to the network interface,
   depending on implementation).
+
+- Received<> will never occur on a Connection before it is Established; i.e.
+  before a Ready<> event on that Connection, or a ConnectionReceived<> or
+  RendezvousDone<> containing that Connection.
+
+- No events will occur on a Connection after it is Closed; i.e., after a
+  Closed<> event, an InitiateError<> or ConnectionError<> on that connection. To
+  ensure this ordering, Closed<> will not occur on a Connection while other
+  events on the Connection are still locally outstanding (i.e., known to the
+  interface and waiting to be dealt with by the application). ConnectionError<>
+  may occur after Closed<>, but the interface must gracefully handle all cases
+  where application ignores these errors.
+
 
 
 # Transport Properties {#transport-props}
