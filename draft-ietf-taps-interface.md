@@ -1912,29 +1912,29 @@ Type:
 Applicability:
 : Preconnection, Connection, Message
 
-This property specifies the traffic interaction pattern expected by the
-application, the desired network treatment for traffic sent by the application,
-and the tradeoffs the application is prepared to make in path and protocol
-selection to receive that desired treatment. When the capacity profile is set to
-a value other than Default, the transport system should select paths and
-profiles to optimize for the capacity profile specified. The following values
-are valid for the Capacity Profile:
+This property specifies the desired network treatment for traffic sent by the
+application and the tradeoffs the application is prepared to make in path and
+protocol selection to receive that desired treatment. When the capacity profile
+is set to a value other than Default, the transport system should select paths
+and profiles to optimize for the capacity profile specified. The following
+values are valid for the Capacity Profile:
 
-  Default:
-  : The application makes no representation about its expected capacity
+  Default: : The application makes no representation about its expected capacity
   profile. No special optimizations of the tradeoff between delay, delay
   variation, and bandwidth efficiency should be made when selecting and
   configuring transport protocol stacks. When the underlying transport protocol
-  stack(s) support per-connection DSCP signaling, transmitted traffic SHOULD carry
-  the DSCP Best Effort PHB. \[EDITOR'S NOTE: cite]
+  stack(s) support per-connection DSCP signaling, transmitted traffic SHOULD
+  carry the DSCP Default Forwarding {{?RFC2474}} PHB; when the Connection is
+  multiplexed, the guidelines in section 6 of {{?RFC7657}} apply.
 
-  Scavenger/Bulk: 
-  : The application is not interactive. It expects to send
-  and/or receive a large amount of data, without any urgency. This can, for
-  example, be used to select protocol stacks with scavenger transmission control
-  and/or to assign the traffic to a lower-effort service. When the underlying
-  transport protocol stack(s) support per-connection DSCP signaling, transmitted
-  traffic SHOULD carry the DSCP Less than Best Effort PHB. \[EDITOR'S NOTE: cite]
+  Scavenger/Bulk: : The application is not interactive. It expects to send
+  and/or receive data without any urgency. This can, for example, be used to
+  select protocol stacks with scavenger transmission control and/or to assign
+  the traffic to a lower-effort service. When the underlying transport protocol
+  stack(s) support per-connection DSCP signaling, transmitted traffic SHOULD
+  carry the DSCP Less than Best Effort {{?LE-PHB=I-D.ietf-tsvwg-le-phb}} PHB;
+  when the Connection is multiplexed, the guidelines in section 6 of
+  {{?RFC7657}} apply.
 
   Low Latency/Interactive: : The application is interactive, and prefers loss to
   latency. Response time should be optimized at the expense of bandwidth
@@ -1943,19 +1943,19 @@ are valid for the Capacity Profile:
   larger packets (Nagle's algorithm); to prefer immediate acknowledgment from
   the peer endpoint when supported by the underlying transport; and so on. When
   the underlying transport protocol stack(s) support per-connection DSCP
-  signaling, transmitted traffic SHOULD carry the DSCP Expedited Forwarding PHB.
-  \[EDITOR'S NOTE: cite]
+  signaling, transmitted traffic SHOULD carry the DSCP Expedited Forwarding
+  {{?RFC3246}} PHB; when the Connection is multiplexed, the guidelines in
+  section 6 of {{?RFC7657}} apply.
 
-  Low Latency/Non-Interactive: 
-  : The application prefers loss to latency but is
+  Low Latency/Non-Interactive: : The application prefers loss to latency but is
   not interactive. Response time should be optimized at the expense of bandwidth
   efficiency and delay variation when sending on this connection. When the
   underlying transport protocol stack(s) support per-connection DSCP signaling,
   transmitted traffic SHOULD carry a DSCP Assured Forwarding
-  (AF21,AF22,AF23,AF24) PHB. \[EDITOR'S NOTE: cite]
+  (AF21,AF22,AF23,AF24) {{?RFC2597}} PHB; when the Connection is multiplexed,
+  the guidelines in section 6 of {{?RFC7657}} apply.
 
-  Constant-Rate Streaming: 
-  : The application expects to send/receive data at a
+  Constant-Rate Streaming: : The application expects to send/receive data at a
   constant rate after Connection establishment. Delay and delay variation should
   be minimized at the expense of bandwidth efficiency. This implies that the
   Connection may fail if the desired rate cannot be maintained across the Path.
@@ -1963,11 +1963,12 @@ are valid for the Capacity Profile:
   breaker {{?RFC8084}} to a rate-adaptive congestion controller. When the
   underlying transport protocol stack(s) support per-connection DSCP signaling,
   transmitted traffic SHOULD carry a DSCP Assured Forwarding
-  (AF31,AF32,AF33,AF34) PHB.
+  (AF31,AF32,AF33,AF34) {{?RFC2597}} PHB; when the Connection is multiplexed,
+  the guidelines in section 6 of {{?RFC7657}} apply.
 
   High Throughput Data: : \[EDITOR'S NOTE: Gorry wants this, but bht has no idea
-  how to implement it beyond DSCP AF2n. Cut, or specity how this is really
-  different from one of the other profiles.]
+  how to implement it beyond DSCP AF1n {{?RFC2597}}. Cut, or specity how this is
+  really different from one of the other profiles.]
 
 ### Congestion control {#prop-cc}
 
