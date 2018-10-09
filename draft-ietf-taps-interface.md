@@ -990,7 +990,8 @@ Type:
 
 This property specifies that a message should be sent without network-layer
 fragmentation, either at the sending endpoint or along the path. When used with
-connections running over IP version 4, the Don't Fragment bit will be set. 
+transports supporting this functionality and running over IP version 4, the Don't
+Fragment bit will be set.
 
 ## Partial Sends {#send-partial}
 
