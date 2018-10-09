@@ -115,6 +115,82 @@ The goal of the Transport Services architecture is to provide a common, flexible
 
 This document is developed in parallel with the specification of the Transport Services API {{I-D.ietf-taps-interface}} and Implementation {{I-D.ietf-taps-impl}} documents.
 
+## Overview
+
+The model for using sockets for networking can be represented as follows: applications create connections and transfer data using the socket API, which provides the interface to the implementations of UDP and TCP (typically implemented in the system's kernel), which in turn send data over the available network layer interfaces.
+
+~~~~~~~~~~
+
++-----------------------------------------------------+
+|                    Application                      |
++-----------------------------------------------------+
+                          |
++-----------------------------------------------------+
+|                    Socket API                       |
++-----------------------------------------------------+
+                          |
++-----------------------------------------------------+
+|            Kernel Protocol Implementation           |
+|                    (UDP, TCP)                       |
++-----------------------------------------------------+
+                          |
++-----------------------------------------------------+
+|               Network Layer Interface               |
++-----------------------------------------------------+
+
+~~~~~~~~~~
+
+The Transport Services architecture maintains this general model of interaction, but aims to both modernize the API surface exposed for transport protocols and enrich the capabilities of the transport system implementation.
+
+~~~~~~~~~~
+
++-----------------------------------------------------+
+|                    Application                      |
++-----------------------------------------------------+
+                          |
++-----------------------------------------------------+
+|               Transport Services API                |
++-----------------------------------------------------+
+                          |
++-----------------------------------------------------+
+|           Transport System Implementation           |
+|          (UDP, TCP, SCTP, DCCP, QUIC, etc)          |
++-----------------------------------------------------+
+                          |
++-----------------------------------------------------+
+|               Network Layer Interface               |
++-----------------------------------------------------+
+
+~~~~~~~~~~
+
+The Transport Services API {{I-D.ietf-taps-interface}} defines the mechanism for an application to create and monitor network connections, and transfer data. The Implementation {{I-D.ietf-taps-impl}} is responsible for mapping the API into the various available transport protocols and managing the available network interfaces and paths.
+
+There are a few key departures that Transport Services makes from the sockets API: it presents an asynchronous, event-driven API; it uses messages for respresenting data transfer to applications; and it assumes an implementation that can use multiple protocols, multiple paths, and provide multiple application streams.
+
+## Event-Driven API
+
+Originally, sockets presented a blocking interface for establishing connections and transferring data. However, most modern applications interact with the network asynchronously. When sockets are presented as an asynchronous interface, they generally use a try-and-fail model. If the application wants to read, but data has not yet been received from the peer, the call to read will fail. The application then waits for a notification that it should try again.
+
+All interaction with a Transport Services system is expected to be asynchronous, and use an event-driven model unlike sockets {{events}}. For example, if the application wants to read, its call to read will not fail, but will deliver an event containing the received data once it is available.
+
+The Transport Services API also delivers events regarding the lifetime of a connection and changes to available network links, which were not previously made explicit in sockets.
+
+Using asynchronous events allows for a much simpler interaction model when establishing connections and transferring data. Events in time more closely reflects the nature of interactions over networks, as opposed to how sockets represent network resources as file system objects that may be temporarily unavailable.
+
+## Data Transfer Using Messages
+
+Sockets provide a message interface for datagram protocols like UDP, but provide an unstructured stream abstraction for TCP. While TCP does indeed provide the ability to send and receive data as streams, most applications need to interpret structure within these streams. HTTP/1.1 uses character delimiters to segment messages over a stream; TLS encodes records using a header with a length; and HTTP/2 uses frames to segment its headers and bodies.
+
+In order to more closely match the way applications use the network, the Transport Services API respresents data as messages. Messages seamlessly work with transport protocols that support datagrams or records, but can also be used over a stream by defining the application-layer framing being used {{framing}}. 
+
+## Flexibile Implementation
+
+Sockets, for protocols like TCP, are generally limited to connecting to a single address over a single interface. They also present a single stream to the application. The Transport Services architecture is designed to handle multiple candidate endpoints, protocols, and paths; and support multipath and multistreaming protocols.
+
+Transport Services implementations are meant to be flexible at connection establishment time, considering many different options and trying to select the most optimal combinations ({{gathering}} and {{racing}}). This requires applications to deal with higher-level endpoints than IP addresses, such as hostnames and URLs.
+
+Flexibility after connection establishment is also important. Transport protocols that can migrate between multiple network layer interfaces need to be able to process and react to interface changes. Protocols that support multiple application-layer streams need to support initiating and receiving new streams using existing connections.
+
 # Background
 
 The Transport Services architecture is based on the survey of Services Provided by IETF Transport Protocols and Congestion Control Mechanisms {{RFC8095}}, and the distilled minimal set of the features offered by transport protocols {{I-D.ietf-taps-minset}}. This work has identified common features and patterns across all transport protocols developed thus far in the IETF.
