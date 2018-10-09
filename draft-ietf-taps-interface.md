@@ -1967,9 +1967,14 @@ values are valid for the Capacity Profile:
   Assured Forwarding (AF31,AF32,AF33,AF34) {{?RFC2597}} PHB; when the Connection
   is multiplexed, the guidelines in section 6 of {{?RFC7657}} apply.
 
-  High Throughput Data: : \[EDITOR'S NOTE: Gorry wants this, but bht has no idea
-  how to implement it beyond DSCP AF1n {{?RFC2597}}. Cut, or specity how this is
-  really different from one of the other profiles.]
+  High Throughput Data: : The application expects to send/receive data at the
+  maximum rate allowed by its congestion controller over a relatively long
+  period of time. Transport system implementations that map the requested
+  capacity profile onto per-connection DSCP signaling without multiplexing
+  SHOULD assign a DSCP Assured Forwarding (AF11,AF12,AF13,AF14) {{?RFC2597}} PHB
+  per section 4.8 of {{?RFC4594}}. When the Connection is multiplexed, the
+  guidelines in section 6 of {{?RFC7657}} apply.
+
 
 ### Congestion control {#prop-cc}
 
