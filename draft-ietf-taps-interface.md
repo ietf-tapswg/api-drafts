@@ -1928,7 +1928,7 @@ values are valid for the Capacity Profile:
   the Connection is multiplexed, the guidelines in section 6 of {{?RFC7657}}
   apply.
 
-  Scavenger/Bulk: : The application is not interactive. It expects to send
+  Scavenger: : The application is not interactive. It expects to send
   and/or receive data without any urgency. This can, for example, be used to
   select protocol stacks with scavenger transmission control and/or to assign
   the traffic to a lower-effort service. Transport system implementations that
