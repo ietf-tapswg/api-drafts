@@ -1926,7 +1926,7 @@ options.
 ### Capacity Profile {#prop-cap-profile}
 
 Classification:
-: Intent \[TODO: Discuss]
+: Selection Property
 
 Type:
 : Enumeration
@@ -1934,38 +1934,68 @@ Type:
 Applicability:
 : Preconnection, Connection, Message
 
-This property specifies the application's expectation of the dominating traffic pattern for this Connection.
-This implies that the transport system should optimize for the capacity profile specified. This can influence path and protocol selection.
-The following values are valid for the Capacity Profile:
+This property specifies the desired network treatment for traffic sent by the
+application and the tradeoffs the application is prepared to make in path and
+protocol selection to receive that desired treatment. When the capacity profile
+is set to a value other than Default, the transport system should select paths
+and profiles to optimize for the capacity profile specified. The following
+values are valid for the Capacity Profile:
 
-  Default:
-  : The application makes no request about its expected
-  capacity profile. No special optimizations of the tradeoff between
-  delay, delay variation, and bandwidth efficiency should be made when selecting and
-  configuring stacks.
+  Default: : The application makes no representation about its expected capacity
+  profile. No special optimizations of the tradeoff between delay, delay
+  variation, and bandwidth efficiency should be made when selecting and
+  configuring transport protocol stacks. Transport system implementations that
+  map the requested capacity profile onto per-connection DSCP signaling without
+  multiplexing SHOULD assign the DSCP Default Forwarding {{?RFC2474}} PHB; when
+  the Connection is multiplexed, the guidelines in section 6 of {{?RFC7657}}
+  apply.
 
-  Low Latency:
-  : Response time (latency) should be optimized at
-  the expense of bandwidth efficiency and delay variation when sending this
-  message. This can be used by the system to disable the coalescing of
-  multiple small Messages into larger packets (Nagle's algorithm); to prefer
-  immediate acknowledgment from the peer endpoint when supported by the
-  underlying transport; to signal a preference for lower-latency, higher-loss
-  treatment; and so on.
+  Scavenger: : The application is not interactive. It expects to send
+  and/or receive data without any urgency. This can, for example, be used to
+  select protocol stacks with scavenger transmission control and/or to assign
+  the traffic to a lower-effort service. Transport system implementations that
+  map the requested capacity profile onto per-connection DSCP signaling without
+  multiplexing SHOULD assign the DSCP Less than Best Effort
+  {{?LE-PHB=I-D.ietf-tsvwg-le-phb}} PHB; when the Connection is multiplexed, the
+  guidelines in section 6 of {{?RFC7657}} apply.
 
-  Constant Rate:
-  : The application expects to send/receive data at a constant rate after
-  Connection establishment. Delay and delay variation should be minimized at the
-  expense of bandwidth efficiency. This implies that the Connection may fail
-  if the desired rate cannot be maintained across the Path. A transport
-  may interpret this capacity profile as preferring a circuit breaker
-  {{?RFC8084}} to a rate-adaptive congestion controller.
+  Low Latency/Interactive: : The application is interactive, and prefers loss to
+  latency. Response time should be optimized at the expense of bandwidth
+  efficiency and delay variation when sending on this connection. This can be
+  used by the system to disable the coalescing of multiple small Messages into
+  larger packets (Nagle's algorithm); to prefer immediate acknowledgment from
+  the peer endpoint when supported by the underlying transport; and so on.
+  Transport system implementations that map the requested capacity profile onto
+  per-connection DSCP signaling without multiplexing SHOULD assign the DSCP
+  Expedited Forwarding {{?RFC3246}} PHB; when the Connection is multiplexed, the
+  guidelines in section 6 of {{?RFC7657}} apply.
 
-  Scavenger/Bulk:
-  : The application is not interactive. It expects to send/receive a large
-  amount of data, without any urgency. This can, for example, be used to select protocol
-  stacks with scavenger transmission control, to signal a preference for
-  less-than-best-effort treatment, or to assign the traffic to a lower-effort service.
+  Low Latency/Non-Interactive: : The application prefers loss to latency but is
+  not interactive. Response time should be optimized at the expense of bandwidth
+  efficiency and delay variation when sending on this connection.Transport
+  system implementations that map the requested capacity profile onto
+  per-connection DSCP signaling without multiplexing SHOULD assign a DSCP
+  Assured Forwarding (AF21,AF22,AF23,AF24) {{?RFC2597}} PHB; when the Connection
+  is multiplexed, the guidelines in section 6 of {{?RFC7657}} apply.
+
+  Constant-Rate Streaming: : The application expects to send/receive data at a
+  constant rate after Connection establishment. Delay and delay variation should
+  be minimized at the expense of bandwidth efficiency. This implies that the
+  Connection may fail if the desired rate cannot be maintained across the Path.
+  A transport may interpret this capacity profile as preferring a circuit
+  breaker {{?RFC8084}} to a rate-adaptive congestion controller. Transport
+  system implementations that map the requested capacity profile onto
+  per-connection DSCP signaling without multiplexing SHOULD assign a DSCP
+  Assured Forwarding (AF31,AF32,AF33,AF34) {{?RFC2597}} PHB; when the Connection
+  is multiplexed, the guidelines in section 6 of {{?RFC7657}} apply.
+
+  High Throughput Data: : The application expects to send/receive data at the
+  maximum rate allowed by its congestion controller over a relatively long
+  period of time. Transport system implementations that map the requested
+  capacity profile onto per-connection DSCP signaling without multiplexing
+  SHOULD assign a DSCP Assured Forwarding (AF11,AF12,AF13,AF14) {{?RFC2597}} PHB
+  per section 4.8 of {{?RFC4594}}. When the Connection is multiplexed, the
+  guidelines in section 6 of {{?RFC7657}} apply.
 
 
 ### Congestion control {#prop-cc}
