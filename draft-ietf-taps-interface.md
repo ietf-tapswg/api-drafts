@@ -974,6 +974,17 @@ The following values are valid for Transmission Profile:
 
 \[TODO: This is inconsistent with {prop-cap-profile}} - needs to be fixed]
 
+### Singular Transmission
+
+Type:
+: Boolean
+
+This property specifies that a message should be sent and received as a single
+packet without transport-layer segmentation or network-layer fragmentation.
+Attempts to send a message with this property set with a size greater to the
+transport's current estimate of its maximum transmission segment size will
+result in a `SendError`. When used with transports supporting this functionality
+and running over IP version 4, the Don't Fragment bit will be set.
 
 ## Partial Sends {#send-partial}
 
