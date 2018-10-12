@@ -175,7 +175,7 @@ All interaction with a Transport Services system is expected to be asynchronous,
 
 The Transport Services API also delivers events regarding the lifetime of a connection and changes to available network links, which were not previously made explicit in sockets.
 
-Using asynchronous events allows for a much simpler interaction model when establishing connections and transferring data. Events in time more closely reflects the nature of interactions over networks, as opposed to how sockets represent network resources as file system objects that may be temporarily unavailable.
+Using asynchronous events allows for a much simpler interaction model when establishing connections and transferring data. Events in time more closely reflect the nature of interactions over networks, as opposed to how sockets represent network resources as file system objects that may be temporarily unavailable.
 
 ## Data Transfer Using Messages
 
