@@ -154,7 +154,7 @@ The Transport Services architecture maintains this general model of interaction,
                           |
 +-----------------------------------------------------+
 |           Transport System Implementation           |
-|          (UDP, TCP, SCTP, DCCP, QUIC, etc)          |
+|       (UDP, TCP, SCTP, DCCP, TLS, QUIC, etc)        |
 +-----------------------------------------------------+
                           |
 +-----------------------------------------------------+
@@ -165,7 +165,7 @@ The Transport Services architecture maintains this general model of interaction,
 
 The Transport Services API {{I-D.ietf-taps-interface}} defines the mechanism for an application to create and monitor network connections, and transfer data. The Implementation {{I-D.ietf-taps-impl}} is responsible for mapping the API into the various available transport protocols and managing the available network interfaces and paths.
 
-There are a few key departures that Transport Services makes from the sockets API: it presents an asynchronous, event-driven API; it uses messages for respresenting data transfer to applications; and it assumes an implementation that can use multiple protocols, multiple paths, and provide multiple application streams.
+There are a few key departures that Transport Services makes from the sockets API: it presents an asynchronous, event-driven API; it uses messages for respresenting data transfer to applications; and it assumes an implementation that can use multiple IP addresses, multiple protocols, multiple paths, and provide multiple application streams.
 
 ## Event-Driven API
 
@@ -179,15 +179,15 @@ Using asynchronous events allows for a much simpler interaction model when estab
 
 ## Data Transfer Using Messages
 
-Sockets provide a message interface for datagram protocols like UDP, but provide an unstructured stream abstraction for TCP. While TCP does indeed provide the ability to send and receive data as streams, most applications need to interpret structure within these streams. HTTP/1.1 uses character delimiters to segment messages over a stream; TLS encodes records using a header with a length; and HTTP/2 uses frames to segment its headers and bodies.
+Sockets provide a message interface for datagram protocols like UDP, but provide an unstructured stream abstraction for TCP. While TCP does indeed provide the ability to send and receive data as streams, most applications need to interpret structure within these streams. HTTP/1.1 uses character delimiters to segment messages over a stream; TLS record headers carry a version, content type, and length; and HTTP/2 uses frames to segment its headers and bodies.
 
 In order to more closely match the way applications use the network, the Transport Services API respresents data as messages. Messages seamlessly work with transport protocols that support datagrams or records, but can also be used over a stream by defining the application-layer framing being used {{framing}}. 
 
 ## Flexibile Implementation
 
-Sockets, for protocols like TCP, are generally limited to connecting to a single address over a single interface. They also present a single stream to the application. The Transport Services architecture is designed to handle multiple candidate endpoints, protocols, and paths; and support multipath and multistreaming protocols.
+Sockets, for protocols like TCP, are generally limited to connecting to a single address over a single interface. They also present a single stream to the application. Software layers built upon sockets often propagate this limitation of a single-address single-stream model. The Transport Services architecture is designed to handle multiple candidate endpoints, protocols, and paths; and support multipath and multistreaming protocols.
 
-Transport Services implementations are meant to be flexible at connection establishment time, considering many different options and trying to select the most optimal combinations ({{gathering}} and {{racing}}). This requires applications to deal with higher-level endpoints than IP addresses, such as hostnames and URLs.
+Transport Services implementations are meant to be flexible at connection establishment time, considering many different options and trying to select the most optimal combinations ({{gathering}} and {{racing}}). This requires applications to provide higher-level endpoints than IP addresses, such as hostnames and URLs, which are used by a Transport Services implementation for resolution, path selection, and racing.
 
 Flexibility after connection establishment is also important. Transport protocols that can migrate between multiple network layer interfaces need to be able to process and react to interface changes. Protocols that support multiple application-layer streams need to support initiating and receiving new streams using existing connections.
 
