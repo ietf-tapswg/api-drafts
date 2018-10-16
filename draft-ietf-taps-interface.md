@@ -2340,10 +2340,11 @@ Hand over a message to reliably transfer during connection establishment:
 : "Timeout for aborting Connection" property, using a time value in seconds.
 
 "Timeout event when data could not be delivered for too long":
-: TODO (have we defined this event?)
+: TODO: this should probably be covered by the "ConnectionError" Event, but the text above
+it currently reads: "...can inform the application that the other side has aborted the Connection". In this case, it is the local side.
 
 Suggest timeout to the peer:
-: "Abort timeout to suggest to the Remote Endpoint" property.
+: "Suggest a timeout to the Remote Endpoint" and "Abort timeout to suggest to the Remote Endpoint" Selection property. \[EDITOR'S NOTE: For discussion of this option, see https://github.com/taps-api/drafts/issues/109].
 
 Notification of Excessive Retransmissions (early warning below abortion threshold):
 : "Notification of excessive retransmissions" property.
@@ -2363,8 +2364,8 @@ Configure priority or weight for a scheduler:
 "Specify minimum checksum coverage required by receiver" and "Disable checksum requirement when receiving":
 : "Required minimum coverage of the checksum for receiving" property (value 0 to disable).
 
-Specify DF field:
-: "Singular Transmission" Message property.
+"Specify DF" field and "Request not to bundle messages:"
+: The "Singular Transmission" Message property combines both of these requests, i.e. if a request not to bundle messages is made, this also turns off DF in case of protocols that allow this (only UDP and UDP-Lite, which cannot bundle messages anyway).
 
 Get max. transport-message size that may be sent using a non-fragmented IP packet from the configured interface:
 : "Maximum Message size before fragmentation or segmentation" property.
@@ -2393,11 +2394,8 @@ Configurable Message Reliability:
 "Ordered message delivery (potentially slower than unordered)" and "Unordered message delivery (potentially faster than ordered)":
 : The two transport features are controlled via the Message property "Ordered".
 
-Request not to bundle messages:
-: TODO
-
 Request not to delay the acknowledgement (SACK) of a message:
-: TODO
+: Should the protocol support it, this is one of the transport features the transport system can use when an application uses the Capacity Profile Property with value "Low Latency/Interactive".
 
 Receive data (with no message delimiting):
 : "Received" Event without using a Deframer.
