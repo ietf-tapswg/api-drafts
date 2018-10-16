@@ -2310,3 +2310,8 @@ https://godoc.org/github.com/mami-project/postsocket. This API definition will
 be kept largely in sync with the development of this abstract interface
 definition.
 
+
+# Relationship to the Minimal Set of Transport Services for End Systems
+
+{{I-D.ietf-taps-minset}} identifies a minimal set of transport services that end systems should offer. These services make all transport features offered by TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT available that 1) require interaction with the application, and 2) do not get in the way of a possible implementation over TCP or, with limitations, UDP. The following text explains how this minimal set is reflected in the present API.
+
