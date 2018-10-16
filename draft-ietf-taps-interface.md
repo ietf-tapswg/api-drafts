@@ -452,7 +452,7 @@ via a Preconnection, by configuration after establishment, or by inheriting them
 from an antecedent via cloning; see {{groups}} for more.
 
 {{connection-props}} provides a list of Connection Properties, while Selection
-Properties are listed in the subsections below. . Note that many properties are
+Properties are listed in the subsections below. Note that many properties are
 only considered during establishment, and can not be changed after a Connection
 is established; however, they can be queried. Querying a Selection Property
 after establishment yields the value Required for properties of the selected
