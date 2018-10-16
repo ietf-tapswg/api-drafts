@@ -393,7 +393,7 @@ Properties for configuration of the detailed operation of the selected Protocol
 Stacks.
 
 The protocol(s) and path(s) selected as candidates during establishment are
-determined and configufed using these properties. Since there could be paths
+determined and configured using these properties. Since there could be paths
 over which some transport protocols are unable to operate, or remote endpoints
 that support only specific network addresses or transports, transport protocol
 selection is necessarily tied to path selection. This may involve choosing
