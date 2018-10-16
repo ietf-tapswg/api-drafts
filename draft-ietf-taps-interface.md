@@ -2313,5 +2313,96 @@ definition.
 
 # Relationship to the Minimal Set of Transport Services for End Systems
 
-{{I-D.ietf-taps-minset}} identifies a minimal set of transport services that end systems should offer. These services make all transport features offered by TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT available that 1) require interaction with the application, and 2) do not get in the way of a possible implementation over TCP or, with limitations, UDP. The following text explains how this minimal set is reflected in the present API.
+{{I-D.ietf-taps-minset}} identifies a minimal set of transport services that end systems should offer. These services make all transport features offered by TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT available that 1) require interaction with the application, and 2) do not get in the way of a possible implementation over TCP or, with limitations, UDP. The following text explains how this minimal set is reflected in the present API. For brevity, this uses the list in Section 4.1 of {{I-D.ietf-taps-minset}}, updated according to the discussion in Section 5 of {{I-D.ietf-taps-minset}}.
 
+\[EDITOR'S NOTE: This is early text. In the future, this section will contain backward references, which we currently avoid because things are still being moved around and names / categorization etc. are changing. Also, clearly, the intention is for the full minset to be reflected by the API at some point.]
+
+\[EDITOR'S NOTE: The categories below reflect the categorization in {{I-D.ietf-taps-minset}}, not in the current document. They will be removed in a future version.]
+
+
+Establishment:
+
+Connect:
+: "Initiate" Action.
+
+Specify number of attempts and/or timeout for the first establishment message:
+: TODO.
+
+Disable MPTCP:
+: TODO.
+
+Hand over a message to reliably transfer (possibly multiple times) before connection establishment:
+: "InitiateWithIdempotentSend" Action.
+
+Hand over a message to reliably transfer during connection establishment:
+
+Listen:
+
+
+Maintenance:
+
+:  Change timeout for aborting connection (using retransmit limit time value)
+:  Suggest timeout to the peer
+: Notification of Excessive Retransmissions (early warning
+below abortion threshold)
+: Notification of ICMP error message arrival
+: Choose a scheduler to operate between streams of an association
+: Configure priority or weight for a scheduler
+: Disable checksum when sending
+: Disable checksum requirement when receiving
+: Specify checksum coverage used by the sender
+: Specify minimum checksum coverage required by receiver
+
+Specify DF field:
+: "Singular Transmission" property.
+
+Get max. transport-message size that may be sent using a non-fragmented IP packet from the configured interface:
+: "Maximum Message size before fragmentation or segmentation" property.
+
+Get max. transport-message size that may be received from the configured interface:
+: "Maximum Message size on receive" property.
+
+: Obtain ECN field:
+
+
+"Specify DSCP field", "Disable Nagle algorithm", "Enable and configure a 'Low Extra Delay Background Transfer'":
+: As suggested in Section 5.5 of {{I-D.ietf-taps-minset}}, these transport features are collectively offered via the "Capacity profile" property.
+
+Termination:
+
+: Close after reliably delivering all remaining data, causing an event informing the application on the other side
+: Abort without delivering remaining data, causing an event informing the application on the other side
+: Abort without delivering remaining data, not causing an event informing the application on the other side
+: Timeout event when data could not be delivered for too long
+
+Sending Data:
+
+: Reliably transfer data, with congestion control
+: Reliably transfer a message, with congestion control
+: Unreliably transfer a message
+: Configurable Message Reliability
+: Ordered message delivery (potentially slower than unordered)
+: Unordered message delivery (potentially faster than ordered)
+: Request not to bundle messages
+: Request not to delay the acknowledgement (SACK) of a message
+
+Receiving Data:
+
+: Receive data (with no message delimiting)
+
+Receive a message:
+: "Received" Event. Section 5.1 of {{I-D.ietf-taps-minset}} discusses how messages can be obtained from a bytestream in case of implementation over TCP. Here, this is dealt with by Framers and Deframers.
+
+Information about partial message arrival:
+: "ReceivedPartial" Event.
+
+Errors:
+
+Failures that are associated with a specific call to in the "Sending Data" category.
+
+: Notification of send failures
+
+Notification that the stack has no more user data to send:
+: Applications can obtain this information via the Sent Event.
+
+: Notification to a receiver that a partial message delivery has been aborted
