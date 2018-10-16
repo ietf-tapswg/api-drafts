@@ -272,9 +272,9 @@ referred to as Transport Properties. All Transport Properties, regardless of the
 phase in which they are used, are organized within a single namespace. This
 enables setting them as defaults in earlier stages and querying them in later
 stages:
- - Connections Properties can be set on Preconnections
+ - Connection Properties can be set on Preconnections
  - Message Properties can be set on Preconnections and Connections
- - The effect of Selection Properties can be queried on Connections and Messages.
+ - The effect of Selection Properties can be queried on Connections and Messages
 
 Transport Properties can have one of a set of data types:
 
@@ -289,8 +289,6 @@ Transport Properties can have one of a set of data types:
 - Preference: can take one of five values (Prohibit, Avoid, Ignore, Prefer,
   Require) for the level of preference of a given property during protocol
   selection; see {{selection-props}}.
-
-
 
 # Pre-Establishment Phase {#pre-establishment}
 
@@ -411,26 +409,31 @@ preference levels:
    | Avoid      | Prefer protocols/paths not providing the property, proceed otherwise   |
    | Prohibit   | Select only protocols/paths not providing the property, fail otherwise |
 
-Internally, the transport system will first exclude all protocols and paths
-that match a Prohibit, then exclude all protocols and paths that do not match
-a Require, then sort candidates according to Preferred properties, and then
-use Avoided properties as a tiebreaker. 
+Internally, the transport system will first exclude all protocols and paths that
+match a Prohibit, then exclude all protocols and paths that do not match a
+Require, then sort candidates according to Preferred properties, and then use
+Avoided properties as a tiebreaker. Selection Properties which select paths take
+preference over those which select protocols. For example, if an application
+indicates a preference for a specific path by specifying an interface, but also a
+preference for a protocol not available on this path, the transport system will
+try the path first, ignoring the preference.
 
 Both Selection and Connection Properties can be added to a Preconnection to
 configure the selection process, and to further configure the eventually
-selected protocol stack(s). They are collected into a TransportProperties object to be passed into a Preconnection object
+selected protocol stack(s). They are collected into a TransportProperties object
+to be passed into a Preconnection object:
 
 ~~~
 TransportProperties := NewTransportProperties()
 ~~~
 
-Individual properties are then added to the TransportProperties Object.
+Individual properties are then added to the TransportProperties Object:
 
 ~~~
 TransportProperties.Add(property, value)
 ~~~
 
-Selection Properties can be added to a TransportProperties object using special actions for each preference level i.e, `TransportProperties.Add(some_property, avoid)` is equivalent to `TransportProperties.Avoid(some_property)`
+Selection Properties can be added to a TransportProperties object using special actions for each preference level i.e, `TransportProperties.Add(some_property, avoid)` is equivalent to `TransportProperties.Avoid(some_property)`:
 
 ~~~
 TransportProperties.Require(property)
@@ -1441,7 +1444,11 @@ Preconnection.DeframeWith(Deframer)
 {messageData} := Deframer.Deframe(OctetStream, ...)
 ~~~
 
-# Configuring and Querying Connection Properties {#introspection}
+# Managing Connections {#introspection}
+
+After establishment, connections can be configured and queried using Connection
+Properties, and asynchronous information may be available about the state of the
+connection via Soft Errors.
 
 Connection Properties represent the configuration and state of the selected
 Protocol Stack(s) backing a Connection. These Connection Properties may be
