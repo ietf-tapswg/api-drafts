@@ -98,18 +98,7 @@ This document provides an overview of the architecture of Transport Services, a 
 
 # Introduction
 
-Many APIs to perform transport networking have been deployed, perhaps the most
-widely known and imitated being the BSD socket() {{POSIX}} interface. The names and
-functions between these APIs are not consistent, and vary depending on the
-protocol being used. For example, sending and receiving on a stream of data is
-conceptually the same between operating on an unencrypted Transmission Control
-Protocol (TCP) stream and operating on an encrypted Transport Layer Security
-(TLS) {{I-D.ietf-tls-tls13}} stream over TCP, but applications cannot use
-the same socket send() and recv() calls on top of both kinds of connections.
-Similarly, terminology for the implementation of protocols offering transport
-services vary based on the context of the protocols themselves. This variety
-can lead to confusion when trying to understand the similarities and
-differences between protocols, and how applications can use them effectively.
+Many application programming interfaces (APIs) to perform transport networking have been deployed, perhaps the most widely known and imitated being the BSD socket() {{POSIX}} interface. The names and functions between these APIs are not consistent, and vary depending on the protocol being used. For example, sending and receiving on a stream of data is conceptually the same between operating on an unencrypted Transmission Control Protocol (TCP) stream and operating on an encrypted Transport Layer Security (TLS) {{I-D.ietf-tls-tls13}} stream over TCP, but applications cannot use the same socket send() and recv() calls on top of both kinds of connections. Similarly, terminology for the implementation of protocols offering transport services vary based on the context of the protocols themselves. This variety can lead to confusion when trying to understand the similarities and differences between protocols, and how applications can use them effectively.
 
 The goal of the Transport Services architecture is to provide a common, flexible, and reusable interface for transport protocols. As applications adopt this interface, they will benefit from a wide set of transport features that can evolve over time, and ensure that the system providing the interface can optimize its behavior based on the application requirements and network conditions.
 
@@ -203,7 +192,7 @@ One of the key insights to come from identifying the minimal set of features pro
 
 The goal of the Transport Services architecture is to redefine the interface between applications and transports in a way that allows the transport layer to evolve and improve without fundamentally changing the contract with the application. This requires a careful consideration of how to expose the capabilities of protocols.
 
-There are several degrees in which a Transport Services system can offer flexibility to an application: it can provide access to multiple sets of protocols and protocol features, it can use these protocols across multiple paths that may have different performance and functional characteristics, and it can communicate with different Remote Endpoints to optimize performance. Beyond these, if the API for the system remains the same over time, new protocols and features may be added to the system's implementation without requiring changes in applications for adoption.
+There are several degrees in which a Transport Services system can offer flexibility to an application: it can provide access to multiple sets of protocols and protocol features, it can use these protocols across multiple paths that may have different performance and functional characteristics, and it can communicate with different Remote Endpoints to optimize performance, robustness to failure, or some other metric. Beyond these, if the API for the system remains the same over time, new protocols and features may be added to the system's implementation without requiring changes in applications for adoption.
 
 The following considerations were used in the design of this architecture.
 
@@ -215,9 +204,9 @@ Any Transport Services API must allow access to the distilled minimal set of fea
 
 ## Access to Specialized Features
 
-Since applications will often need to control fine-grained details of transport protocols to optimize their behavior and ensure compatibility with remote peers, a Transport Services system also needs to allow more specialized protocol features to be used. The interface for these specialized options should be exposed differently from the common options to ensure flexibility.
+There are applications that will need to control fine-grained details of transport protocols to optimize their behavior and ensure compatibility with remote peers,. A Transport Services system will therefore also needsto allow more specialized protocol features to be used. The interface for these specialized options should be exposed differently from the common options to ensure flexibility.
 
-A specialized feature may be required by an application only when using a specific protocol, and not when using others. For example, if an application is using UDP, it may require control over the checksum or fragmentation behavior for UDP; if it used a protocol to frame its data over a byte stream like TCP, it would not need these options. In such cases, the API should expose the features in such a way that they take effect when a particular protocol is selected, but do not imply that only that protocol may be used if there are equivalent options.
+A specialized feature could be required by an application only when using a specific protocol, and not when using others. For example, if an application is using UDP, it could require control over the checksum or fragmentation behavior for UDP; if it used a protocol to frame its data over a byte stream like TCP, it would not need these options. In such cases, the API should expose the features in such a way that they take effect when a particular protocol is selected, but do not imply that only that protocol could be used if there are equivalent options.
 
 Other specialized features, however, may be strictly required by an application and thus constrain the set of protocols that can be used. For example, if an application requires encryption of its transport data, only protocol stacks that include some transport security protocol are eligible to be used. A Transport Services API must allow applications to define such requirements and constrain the system's options. Since such options are not part of the core/common features, it should be simple for an application to modify its set of constraints and change the set of allowable protocol features without changing the core implementation.
 
@@ -227,9 +216,16 @@ The Transport Services API is envisioned as the abstract model for a family of A
 
 Implementations that provide the Transport Services API {{I-D.ietf-taps-impl}} will vary due to system-specific support and the needs of the deployment scenario. It is expected that all implementations of Transport Services will offer the entire mandatory API, but that some features will not be functional in certain implementations. All implementations must offer sufficient APIs to use the distilled minimal set of features offered by transport protocols {{I-D.ietf-taps-minset}}, including API support for TCP and UDP transport, but it is possible that some very constrained devices might not have, for example, a full TCP implementation.
 
-In order to preserve flexibility and compatibility with future protocols, top-level features in the Transport Services API should avoid referencing particular transport protocols. Mappings of these API features in the Implementation document, on the other hand, must explain the ramifications of each feature on existing protocols. It is expected that the Implementation document will be updated and supplemented as new protocols and protocol features are developed.
+To preserve flexibility and compatibility with future protocols, top-level
+features in the Transport Services API should avoid referencing particular
+transport protocols. The mappings of these API features to specific
+implementations of each feature is explained in the
+{{?TAPS-IMPL=I-D.ietf-taps-impl}}, which also explain the implications
+of the feature provided by existing protocols. It is expected that this document
+will be updated and supplemented as new protocols and protocol features are
+developed.
 
-It is important to note that neither the Transport Services API nor the Implementation document defines new protocols that require any changes on remote hosts. The Transport Services system must be deployable on one side only, as a way to allow an application to make better use of available capabilities on a system and protocol features that may be supported by peers across the network.
+It is important to note that neither the Transport Services API nor the Implementation document defines new protocols that require any changes to a remote host. The Transport Services system must be deployable on one side only, as a way to allow an application to make better use of available capabilities on a system and protocol features that may be supported by peers across the network.
 
 # Transport Services Architecture and Concepts
 
