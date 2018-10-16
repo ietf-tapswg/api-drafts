@@ -249,21 +249,61 @@ deframing callback which finds message boundaries in a stream. Messages are
 received asynchronously through a callback registered by the application.
 Errors and other notifications also happen asynchronously on the Connection.
 
-In the following sections, we describe the details of application interaction
-with Objects through Actions and Events in each phase of a Connection, following
-the phases described in {{I-D.ietf-taps-arch}}.
+{{pre-establishment}}, {{establishment}}, {{sending}}, {{receiving}}, and
+{{termination}} describe the details of application interaction with Objects
+through Actions and Events in each phase of a Connection, following the phases
+described in {{I-D.ietf-taps-arch}}.
 
-# Pre-Establishment Phase
+## Transport Properties
+
+Each application using the Transport Services Interface declares its preferences
+for how the transport service should operate using properties at each stage of
+the lifetime of a connection. During pre-establishment, Selection Properties
+{{selection-props}} are used to specify which paths and protocol stacks can be
+used and are preferred by the application, and Connection Properties
+{{connection-props}} can be used to fine-tune the eventually established
+connection. These Connection Properties can also be used to monitor and
+fine-tune established connections. The behavior of the selected protocol
+stack(s) when sending Messages is controlled by Message Context Properties
+{{message-props}}.
+
+Collectively, Selection, Connection, and Message Context Properties can be
+referred to as Transport Properties. All Transport Properties, regardless of the
+phase in which they are used, are organized within a single namespace. This
+enables setting them as defaults in earlier stages and querying them in later
+stages:
+ - Connections Properties can be set on Preconnections
+ - Message Properties can be set on Preconnections and Connections
+ - The effect of Selection Properties can be queried on Connections and Messages.
+
+Transport Properties can have one of a set of data types:
+
+- Boolean: can take the values "true" and "false"; representation is
+  implementation-dependent.
+- Integer: can take positive or negative numeric values; range and
+  representation is implementation-dependent.
+- Enumeration: can take one value of a finite set of values, dependent on the
+  property itself. The representation is implementation dependent; however,
+  implementations MUST provide a method for the application to determine the
+  entire set of possible values for each property.
+- Preference: can take one of five values (Prohibit, Avoid, Ignore, Prefer,
+  Require) for the level of preference of a given property during protocol
+  selection; see {{selection-props}}.
+
+
+
+# Pre-Establishment Phase {#pre-establishment}
 
 The pre-establishment phase allows applications to specify properties for
 the Connections they are about to make, or to query the API about potential
 connections they could make.
 
 A Preconnection Object represents a potential Connection. It has state that
-describes properties of a Connection that might exist in the future.  This
-state comprises Local Endpoint and Remote Endpoint Objects that denote the
-endpoints of the potential Connection (see {{endpointspec}}), the transport
-properties (see {{transport-props}}), and the security parameters (see
+describes properties of a Connection that might exist in the future.  This state
+comprises Local Endpoint and Remote Endpoint Objects that denote the endpoints
+of the potential Connection (see {{endpointspec}}), the Selection Properties
+(see {{selection-props}}), any preconfigured Connection Properties
+({{connection-props}}), and the security parameters (see
 {{security-parameters}}):
 
 ~~~
@@ -344,46 +384,53 @@ The Resolve() action on Preconnection can be used by the application to force
 early binding when required, for example with some Network Address Translator
 (NAT) traversal protocols (see {{rendezvous}}).
 
-## Specifying Transport Properties {#connection-props}
+## Specifying Transport Properties {#selection-props}
 
 A Preconnection Object holds properties reflecting the application's
 requirements and preferences for the transport. These include Selection
-Properties (Protocol and Path Selection Properties), as well as Generic and
-Specific Protocol Properties for configuration of the detailed operation of the
-selected Protocol Stacks.
+Properties for selecting protocol stacks and paths, as well as Connection
+Properties for configuration of the detailed operation of the selected Protocol
+Stacks.
 
-The protocol(s) and path(s) selected as candidates during Connection
-establishment are determined by a set of properties. Since there could be
-paths over which some transport protocols are unable to operate, or remote
-endpoints that support only specific network addresses or transports,
-transport protocol selection is necessarily tied to path selection. This may
-involve choosing between multiple local interfaces that are connected to
-different access networks.
+The protocol(s) and path(s) selected as candidates during establishment are
+determined and configufed using these properties. Since there could be paths
+over which some transport protocols are unable to operate, or remote endpoints
+that support only specific network addresses or transports, transport protocol
+selection is necessarily tied to path selection. This may involve choosing
+between multiple local interfaces that are connected to different access
+networks.
+
+Selection properties are represented as preferences, which can have one of five
+preference levels:
+
+   | Preference | Effect                                                                 |
+   |------------|------------------------------------------------------------------------|
+   | Require    | Select only protocols/paths providing the property, fail otherwise     |
+   | Prefer     | Prefer protocols/paths providing the property, proceed otherwise       |
+   | Ignore     | Cancel any system default preference for this property                 |
+   | Avoid      | Prefer protocols/paths not providing the property, proceed otherwise   |
+   | Prohibit   | Select only protocols/paths not providing the property, fail otherwise |
 
 Internally, the transport system will first exclude all protocols and paths
 that match a Prohibit, then exclude all protocols and paths that do not match
 a Require, then sort candidates according to Preferred properties, and then
-use Avoided properties as a tiebreaker. In case of conflicts between Protocol
-and Path Selection Properties, Path Selection Properties take precedence. For
-example, if an application indicates a preference for a specific path, but
-also a preference for a protocol not available on this path, the transport
-system will try the path first, so the Protocol Selection Property might not
-have an effect.
+use Avoided properties as a tiebreaker. 
 
-All Transport Properties used in the pre-establishment phase are collected
-in a TransportProperties Object that is passed to the Preconnection Object.
+Both Selection and Connection Properties can be added to a Preconnection to
+configure the selection process, and to further configure the eventually
+selected protocol stack(s). They are collected into a TransportProperties object to be passed into a Preconnection object
 
 ~~~
 TransportProperties := NewTransportProperties()
 ~~~
 
-The Individual properties are then added to the TransportProperties Object.
+Individual properties are then added to the TransportProperties Object.
 
 ~~~
 TransportProperties.Add(property, value)
 ~~~
 
-Transport Properties of Preference Type, see {{transport-props-preference}}, can use special calls to add a Property with a specific preference level, i.e, `TransportProperties.Add('some preference', avoid)` is equivalent to `TransportProperties.Avoid('some preference')`
+Selection Properties can be added to a TransportProperties object using special actions for each preference level i.e, `TransportProperties.Add(some_property, avoid)` is equivalent to `TransportProperties.Avoid(some_property)`
 
 ~~~
 TransportProperties.Require(property)
@@ -400,16 +447,145 @@ by using the following call on the Connection Object:
 TransportProperties := Connection.GetTransportProperties()
 ~~~
 
-{{transport-props}} provides a list of Transport Properties.
-
-Note that many properties are only considered for Connection establishment and
-can not be changed after a Connection is established; however, they can be
-queried. See {{introspection}}.
-
 A Connection gets its Transport Properties either by being explicitly configured
-via a Preconnection, by configuration after establishment, or by inheriting
-them from an antecedent via cloning; see
-{{groups}} for more.
+via a Preconnection, by configuration after establishment, or by inheriting them
+from an antecedent via cloning; see {{groups}} for more.
+
+{{connection-props}} provides a list of Connection Properties, while Selection
+Properties are listed in the subsections below. . Note that many properties are
+only considered during establishment, and can not be changed after a Connection
+is established; however, they can be queried. Querying a Selection Property
+after establishment yields the value Required for properties of the selected
+protocol and path, Avoid for properties avoided during selection, and Ignore for
+all other properties.
+
+An implementation of this interface must provide sensible defaults for Selection
+Properties. The recommended defaults given for each property below represent a
+configuration that can be implemented over TCP. An alternate set of default
+Protocol Selection Properties would represent a configuration that can be
+implemented over UDP.
+
+
+### Reliable Data Transfer (Connection) {#prop-reliable}
+
+This property specifies whether the application needs to use a transport
+protocol that ensures that all data is received on the other side without
+corruption. This also entails being notified when a Connection is closed or
+aborted. The recommended default is to enable Reliable Data Transfer.
+
+### Configure per-Message reliability {#prop-partially-reliable}
+
+This property specifies whether an application considers it useful to indicate
+its reliability requirements on a per-Message basis. This property applies to
+Connections and Connection Groups. The recommended default is to not have this
+option.
+
+### Preservation of data ordering {#prop-ordering}
+
+This property specifies whether the application wishes to use a transport
+protocol that can ensure that data is received by the application on the other
+end in the same order as it was sent. The recommended default is to preserve
+data ordering.
+
+### Use 0-RTT session establishment with an idempotent Message {#prop-0rtt}
+
+This property specifies whether an application would like to supply a Message to
+the transport protocol before Connection establishment, which will then be
+reliably transferred to the other side before or during Connection
+establishment, potentially multiple times. See also {{msg-idempotent}}. The
+recommended default is to not have this option.
+
+### Multistream Connections in Group {#prop-multistream}
+
+This property specifies that the application would prefer multiple Connections
+within a Connection Group to be provided by streams of a single underlying
+transport connection where possible. The recommended default is to not have
+this option.
+
+### Control checksum coverage on sending or receiving {#prop-checksum-control}
+
+This property specifies whether the application considers it useful to enable,
+disable, or configure a checksum when sending a Message, or configure whether to
+require a checksum or not when receiving.  The recommended default is full
+checksum coverage without the option to configure it, and requiring a checksum
+when receiving.
+
+### Congestion control {#prop-cc}
+
+This property specifies whether the application would like the Connection to be
+congestion controlled or not. Note that if a Connection is not congestion
+controlled, an application using such a Connection should itself perform
+congestion control in accordance with {{?RFC2914}}. Also note that reliability
+is usually combined with congestion control in protocol implementations,
+rendering "reliable but not congestion controlled" a request that is unlikely to
+succeed. The recommended default is that the Connection is congestion
+controlled.
+
+
+### Interface Instance or Type {#prop-interface}
+
+This property allows the application to select which specific network interfaces
+or categories of interfaces it wants to `Require`, `Prohibit`, `Prefer`, or
+`Avoid`.
+
+In contrast to other Selection Properties, this property is tuple of an
+(Enumerated) interface identifier and a preference, and can either be
+implemented directly as such, or for making one preference available for each
+interface and interface type available on the system.
+
+Note that marking a specific interface as `Required` strictly limits path
+selection to a single interface, and leads to less flexible and resilient
+connection establishment.
+
+The set of valid interface types is implementation- and system-specific. For
+example, on a mobile device, there may be `Wi-Fi` and `Cellular` interface types
+available; whereas on a desktop computer, there may be `Wi-Fi` and `Wired
+Ethernet` interface types available. Implementations should provide all types
+that are supported on some system to all systems, in order to allow applications
+to write generic code. For example, if a single implementation is used on both
+mobile devices and desktop devices, it should define the `Cellular` interface
+type for both systems, since an application may want to always `Prohibit
+Cellular`. Note that marking a specific interface type as `Required` limits path
+selection to a small set of interfaces, and leads to less flexible and resilient
+connection establishment.
+
+The set of interface types is expected to change over time as new access
+technologies become available.
+
+Interface types should not be treated as a proxy for properties of interfaces
+such as metered or unmetered network access. If an application needs to prohibit
+metered interfaces, this should be specified via Provisioning Domain attributes
+(see {{prop-pvd}}) or another specific property.
+
+### Provisioning Domain Instance or Type {#prop-pvd}
+
+Similar to interface instances and types (see {{prop-interface}}), this property
+allows the application to control path selection by selecting which specific
+Provisioning Domains or categories of Provisioning Domains it wants to
+`Require`, `Prohibit`, `Prefer`, or `Avoid`. Provisioning Domains define
+consistent sets of network properties that may be more specific than network
+interfaces {{RFC7556}}.
+
+As with interface instances and types, this property is tuple of an (Enumerated)
+PvD identifier and a preference, and can either be implemented directly as such,
+or for making one preference available for each interface and interface type
+available on the system.
+
+The identification of a specific Provisioning Domain (PvD) is defined to be
+implementation- and system-specific, since there is not a portable standard
+format for a PvD identitfier. For example, this identifier may be a string name
+or an integer. As with requiring specific interfaces, requiring a specific PvD
+strictly limits path selection.
+
+Categories or types of PvDs are also defined to be implementation- and
+system-specific. These may be useful to identify a service that is provided by a
+PvD. For example, if an application wants to use a PvD that provides a
+Voice-Over-IP service on a Cellular network, it can use the relevant PvD type to
+require some PvD that provides this service, without needing to look up a
+particular instance. While this does restrict path selection, it is broader than
+requiring specific PvD instances or interface instances, and should be preferred
+over these options.
+
 
 
 
@@ -499,7 +675,7 @@ ChallengeCallback := NewCallback({
 SecurityParameters.SetIdentityChallengeCallback(challengeCallback)
 ~~~
 
-# Establishing Connections
+# Establishing Connections {#establishment}
 
 Before a Connection can be used for data transfer, it must be established.
 Establishment ends the pre-establishment phase; all transport properties and
@@ -708,7 +884,6 @@ result in a CloneError:
 Connection -> CloneError<>
 ~~~
 
-
 The Protocol Property "Niceness" operates on entangled Connections as in {{msg-niceness}}:
 when allocating available network
 capacity among Connections in a Connection Group, sends on Connections with
@@ -814,10 +989,9 @@ Message to which it applies.
 ## Message Context Parameters {#message-props}
 
 Applications may need to annotate the Messages they send with extra information
-to control how data is scheduled and processed by the transport protocols in
-the Connection. A messageContext object contains parameters for sending
-Messages, and can be passed to the Send Action. Some of these parameters are
-properties as defined in {{transport-props}}. Note that these properties are
+to control how data is scheduled and processed by the transport protocols in the
+Connection. A messageContext object contains parameters for sending Messages,
+and can be passed to the Send Action. Note that these properties are
 per-Message, not per-Send if partial Messages are sent ({{send-partial}}). All
 data blocks associated with a single Message share properties. For example, it
 would not make sense to have the beginning of a Message expire, but allow the
@@ -833,10 +1007,6 @@ Connection.Send(messageData, messageContext)
 The simpler form of Send that does not take any messageContext is equivalent
 to passing a default messageContext with not values added.
 
-Message Properties share a single namespace with Transport Properties (see
-{{transport-props}}). This allows the specification of per-Connection Protocol
-Properties that can be overridden on a per-Message basis.
-
 If an application wants to override Message Properties for a specific message,
 it can acquire an empty messageContext Object and add all desired Message
 Properties to that Object. It can then reuse the same messageContext Object
@@ -851,7 +1021,6 @@ underlying the Connection on which a given Message is sent. For example,
 a Connection must provide reliability to allow setting an infinitie value for the
 lifetime property of a Message. Sending a Message with Message Properties
 inconsistent with the Selection Properties of the Connection yields an error.
-
 
 The following Message Context Parameters are supported:
 
@@ -880,10 +1049,9 @@ yield to a Message with Niceness 2, and so on. Niceness may be used as a
 sender-side scheduling construct only, or be used to specify priorities on the
 wire for Protocol Stacks supporting prioritization.
 
-This encoding of the priority has a convenient property that the priority
-increases as both Niceness and Lifetime decrease.
-\[Michael: Can we remove this? It is weird because there is no mention of decreasing Lifetime
-being interpreted as a higher priority anywhere.]
+Note that this property is not a per-message override of the connection Niceness
+- see {{conn-niceness}}. Both Niceness properties may interact, but can be used
+independently and be realized by different mechanisms.
 
 ### Ordered {#msg-ordered}
 
@@ -906,7 +1074,7 @@ more than once for a single Send Action. It is used to mark data safe for
 certain 0-RTT establishment techniques, where retransmission of the 0-RTT data
 may cause the remote application to receive the Message multiple times.
 
-### Final
+### Final {#msg-final}
 
 Type:
 : Boolean
@@ -974,7 +1142,7 @@ The following values are valid for Transmission Profile:
 
 \[TODO: This is inconsistent with {prop-cap-profile}} - needs to be fixed]
 
-### Singular Transmission
+### Singular Transmission {#send-singular}
 
 Type:
 : Boolean
@@ -1233,7 +1401,7 @@ The Received Message Context can indicate whether or not this Message is
 the Final Message on a Connection. For any Message that is marked as Final,
 the application can assume that there will be no more Messages received on the
 Connection once the Message has been completely delivered. This corresponds
-to the Final property that may be marked on a sent Message {{send-final}}.
+to the Final property that may be marked on a sent Message {{msg-final}}.
 
 Some transport protocols and peers may not support signaling of the Final property.
 Applications therefore should not rely on receiving a Message marked Final to know
@@ -1273,13 +1441,24 @@ Preconnection.DeframeWith(Deframer)
 {messageData} := Deframer.Deframe(OctetStream, ...)
 ~~~
 
-# Managing Connections: Setting Properties and Obtaining Information {#introspection}
+# Configuring and Querying Connection Properties {#introspection}
 
+Connection Properties represent the configuration and state of the selected
+Protocol Stack(s) backing a Connection. These Connection Properties may be
+Generic, applying regardless of transport protocol, or Specific, applicable to a
+single implementation of a single transport protocol stack. Generic Connection
+Properties are defined in {{connection-props}} below. Specific Protocol
+Properties are defined in a transport- and implementation-specific way, and must
+not be assumed to apply across different protocols. Attempts to set Specific
+Protocol Properties on a protocol stack not containing that specific protocol
+are simply ignored, and do not raise an error; however, too much reliance by an
+application on Specific Protocol Properties may significantly reduce the
+flexibility of a transport services implementation.
 
-## Connection Properties
-
-The application can set per-connection Properties.
-Certain Connection Properties may be read-only, on a protocol- and property-specific basis.
+The application can set and query Connection Properties on a per-Connection
+basis. Connection Properties that are not read-only can be set during
+pre-establishment (see {{selection-props}}), as well as on connections directly using
+the SetProperty action:
 ~~~
 Connection.SetProperty(property, value)
 ~~~
@@ -1292,15 +1471,13 @@ ConnectionProperties := Connection.GetProperties()
 Depending on the status of the connection, the queried Connection
 Properties will include different information:
 
-\[TODO: turn this list into actual properties or move up into the explaining text]
-
 * The connection state, which can be one of the following:
   Establishing, Established, Closing, or Closed.
 
 * Whether the connection can be used to send data. A connection can not be used
   for sending if the connection was created with the Selection Property
   "Direction of Communication" set to "unidirectional receive" or if a Message
-  marked as "Final" was sent over this connection, see {{send-final}}.
+  marked as "Final" was sent over this connection, see {{msg-final}}.
 
 * Whether the connection can be used to receive data. A connection can not be
   used for reading if the connection was created with the Selection Property
@@ -1310,48 +1487,56 @@ Properties will include different information:
   connection.
 
 * For Connections that are Establishing: Transport Properties that the
-  application specified on the Preconnection, see {{connection-props}}.
+  application specified on the Preconnection, see {{selection-props}}.
 
-* For Connections that are Established, Closing, or Closed: Transport Properties
-  of the actual protocols that were selected and instantiated. These features
-  correspond to the properties given in {{transport-props}} and include
-  Selection Properties and Protocol Properties.
+* For Connections that are Established, Closing, or Closed: Selection
+  ({{selection-props}}) and Connection Properties ({{connection-props}}) of the
+  actual protocols that were selected and instantiated. Selection Properties
+  indicate whether or not the Connection has or offers a certain Selection
+  Property. Note that the actually instantiated protocol stack may not match all
+  Protocol Selection Properties that the application specified on the
+  Preconnection. For example, a certain Protocol Selection Property that an
+  application specified as Preferred may not actually be present in the chosen
+  protocol stack because none of the currently available transport protocols had
+  this feature.
 
-    * Selection Properties indicate whether or not the Connection has or offers
-      a certain Selection Property. Note that the actually instantiated protocol
-      stack may not match all Protocol Selection Properties that the application
-      specified on the Preconnection. For example, a certain Protocol Selection
-      Property that an application specified as Preferred may not actually be
-      present in the chosen protocol stack because none of the currently
-      available transport protocols had this feature.
+* For Connections that are Established, additional properties of the path(s) in
+  use. These properties can be derived from the local provisioning domain
+  {{RFC7556}}, measurements by the Protocol Stack, or other sources.
 
-    * Protocol Properties of the protocol stack in use (see {{protocol-props}}).
 
-* For Connections that are Established, properties of the path(s) in use. These
-  properties can be derived from the local provisioning domain {{RFC7556}},
-  measurements by the Protocol Stack, or other sources.
+## Generic Connection Properties {#connection-props}
 
+The Connection Properties defined as independent, and available on all
+Connections are defined in the subsections below. 
+
+Note that many protocol properties have a corresponding selection property, which
+prefers protocols providing a specific transport feature that controlled by
+that protocol property. \[EDITOR'S NOTE: todo: add these cross-references up to {{selection-props}}]
 
 ### Notification of excessive retransmissions {#conn-retrans-notify}
 
 Type:
 : Boolean
 
-This property specifies whether an application considers it useful to be informed in case sent data was retransmitted more often than a certain threshold.
-When set to true, the effect is twofold:
-The application may receive events in case excessive retransmissions.
-In addition, the transport system considers this as a preference to use transports stacks that can provide this notification. This is not a strict requirement.
-If set to false, no notification of excessive retransmissions will be sent and this transport feature is ignored for protocol selection.
+This property specifies whether an application considers it useful to be
+informed in case sent data was retransmitted more often than a certain
+threshold. When set to true, the effect is twofold: The application may receive
+events in case excessive retransmissions. In addition, the transport system
+considers this as a preference to use transports stacks that can provide this
+notification. This is not a strict requirement. If set to false, no notification
+of excessive retransmissions will be sent and this transport feature is ignored
+for protocol selection.
 
-The default is to have this option.
+The recommended default is to have this option.
 
 ### Retransmission threshold before excessive retransmission notification {#conn-excss-retransmit}
 
 Type:
 : Integer
 
-This property specifies after how many retransmissions to inform the
-application about "Excessive Retransmissions".
+This property specifies after how many retransmissions to inform the application
+about "Excessive Retransmissions".
 
 
 ### Notification of ICMP soft error message arrival {#conn-soft-error}
@@ -1359,18 +1544,18 @@ application about "Excessive Retransmissions".
 Type:
 : Boolean
 
-This property specifies whether an application considers it useful
-to be informed when an ICMP error message arrives that does not force
-termination of a connection.
-When set to true, received ICMP errors will be available as SoftErrors.
-Note that even if a protocol supporting this property is selected, not all
-ICMP errors will necessarily be delivered, so applications cannot rely
-on receiving them.
-Setting this option also implies a preference to prefer transports stacks that can provide this notification.
-If not set, no events will be sent for ICMP soft error message and this transport feature is ignored for protocol selection.
+This property specifies whether an application considers it useful to be
+informed when an ICMP error message arrives that does not force termination of a
+connection. When set to true, received ICMP errors will be available as
+SoftErrors. Note that even if a protocol supporting this property is selected,
+not all ICMP errors will necessarily be delivered, so applications cannot rely
+on receiving them. Setting this option also implies a preference to prefer
+transports stacks that can provide this notification. If not set, no events will
+be sent for ICMP soft error message and this transport feature is ignored for
+protocol selection.
 
-This property applies to Connections and Connection Groups.
-The default is not to have this option.
+This property applies to Connections and Connection Groups. The recommended
+default is not to have this option.
 
 ### Required minimum coverage of the checksum for receiving {#conn-recv-checksum}
 
@@ -1381,7 +1566,6 @@ This property specifies the part of the received data that needs
 to be covered by a checksum. It is given in Bytes. A value of 0 means
 that no checksum is required, and a special value (e.g., -1) indicates
 full checksum coverage.
-
 
 ### Niceness (Connection) {#conn-niceness}
 
@@ -1394,7 +1578,6 @@ Connection Group. It has no effect on Connections not part of a Connection
 Group. As noted in {{groups}}, this property is not entangled when Connections
 are cloned.
 
-
 ### Timeout for aborting Connection {#conn-timeout}
 
 Type:
@@ -1404,7 +1587,6 @@ This property specifies how long to wait before aborting a Connection during
 establishment, or before deciding that a Connection has failed after
 establishment. It is given in seconds.
 
-
 ### Connection group transmission scheduler {#conn-scheduler}
 
 Type:
@@ -1413,7 +1595,6 @@ Type:
 This property specifies which scheduler should be used among Connections within
 a Connection Group, see {{groups}}. The set of schedulers can
 be taken from {{I-D.ietf-tsvwg-sctp-ndata}}.
-
 
 ### Maximum message size concurrent with Connection establishment {#size-idempotent}
 
@@ -1448,14 +1629,89 @@ Type:
 
 This numeric property represents the maximum Message size that can be received.
 
+### Capacity Profile {#prop-cap-profile}
+
+This property specifies the desired network treatment for traffic sent by the
+application and the tradeoffs the application is prepared to make in path and
+protocol selection to receive that desired treatment. When the capacity profile
+is set to a value other than Default, the transport system should select paths
+and profiles to optimize for the capacity profile specified. The following
+values are valid for the Capacity Profile:
+
+  Default: 
+  : The application makes no representation about its expected capacity
+  profile. No special optimizations of the tradeoff between delay, delay
+  variation, and bandwidth efficiency should be made when selecting and
+  configuring transport protocol stacks. Transport system implementations that
+  map the requested capacity profile onto per-connection DSCP signaling without
+  multiplexing SHOULD assign the DSCP Default Forwarding {{?RFC2474}} PHB; when
+  the Connection is multiplexed, the guidelines in section 6 of {{?RFC7657}}
+  apply.
+
+  Scavenger: 
+  : The application is not interactive. It expects to send
+  and/or receive data without any urgency. This can, for example, be used to
+  select protocol stacks with scavenger transmission control and/or to assign
+  the traffic to a lower-effort service. Transport system implementations that
+  map the requested capacity profile onto per-connection DSCP signaling without
+  multiplexing SHOULD assign the DSCP Less than Best Effort
+  {{?LE-PHB=I-D.ietf-tsvwg-le-phb}} PHB; when the Connection is multiplexed, the
+  guidelines in section 6 of {{?RFC7657}} apply.
+
+  Low Latency/Interactive: 
+  : The application is interactive, and prefers loss to
+  latency. Response time should be optimized at the expense of bandwidth
+  efficiency and delay variation when sending on this connection. This can be
+  used by the system to disable the coalescing of multiple small Messages into
+  larger packets (Nagle's algorithm); to prefer immediate acknowledgment from
+  the peer endpoint when supported by the underlying transport; and so on.
+  Transport system implementations that map the requested capacity profile onto
+  per-connection DSCP signaling without multiplexing SHOULD assign the DSCP
+  Expedited Forwarding {{?RFC3246}} PHB; when the Connection is multiplexed, the
+  guidelines in section 6 of {{?RFC7657}} apply.
+
+  Low Latency/Non-Interactive: 
+  : The application prefers loss to latency but is
+  not interactive. Response time should be optimized at the expense of bandwidth
+  efficiency and delay variation when sending on this connection.Transport
+  system implementations that map the requested capacity profile onto
+  per-connection DSCP signaling without multiplexing SHOULD assign a DSCP
+  Assured Forwarding (AF21,AF22,AF23,AF24) {{?RFC2597}} PHB; when the Connection
+  is multiplexed, the guidelines in section 6 of {{?RFC7657}} apply.
+
+  Constant-Rate Streaming: 
+  : The application expects to send/receive data at a
+  constant rate after Connection establishment. Delay and delay variation should
+  be minimized at the expense of bandwidth efficiency. This implies that the
+  Connection may fail if the desired rate cannot be maintained across the Path.
+  A transport may interpret this capacity profile as preferring a circuit
+  breaker {{?RFC8084}} to a rate-adaptive congestion controller. Transport
+  system implementations that map the requested capacity profile onto
+  per-connection DSCP signaling without multiplexing SHOULD assign a DSCP
+  Assured Forwarding (AF31,AF32,AF33,AF34) {{?RFC2597}} PHB; when the Connection
+  is multiplexed, the guidelines in section 6 of {{?RFC7657}} apply.
+
+  High Throughput Data: 
+  : The application expects to send/receive data at the
+  maximum rate allowed by its congestion controller over a relatively long
+  period of time. Transport system implementations that map the requested
+  capacity profile onto per-connection DSCP signaling without multiplexing
+  SHOULD assign a DSCP Assured Forwarding (AF11,AF12,AF13,AF14) {{?RFC2597}} PHB
+  per section 4.8 of {{?RFC4594}}. When the Connection is multiplexed, the
+  guidelines in section 6 of {{?RFC7657}} apply.
+
+The Capacity Profile for a selected protocol stack may be modified on a
+per-Message basis using the Transmission Profile Message Context Property; see
+{{send-profile}}.
+
 
 ## Soft Errors
 
-Slightly different from "querying", a SoftError Event can also occur, informing
-the application about the receipt of an ICMP error
-message related to the Connection. This will only happen if the underlying
-protocol stack supports access to soft errors; however, even if the underlying
-stack supports it, there is no guarantee that a soft error will be signaled.
+Asynchronous introspection is also possible, via the SoftError Event. This event
+informing the application about the receipt of an ICMP error message related to
+the Connection. This will only happen if the underlying protocol stack supports
+access to soft errors; however, even if the underlying stack supports it, there
+is no guarantee that a soft error will be signaled.
 
 ~~~
 Connection -> SoftError<>
@@ -1542,554 +1798,6 @@ The interface provides the following guarantees about the ordering of
   where application ignores these errors.
 
 
-
-# Transport Properties {#transport-props}
-
-Having discussed Selection Properties in {{selection-props}}, Connection Properties {{connection-props}}, and Message Properties ({{message-props}}),
-we now provide a complete overview of a transport system's defined Transport Properties.
-
-Transport Properties are structured by the phase and object they are applied: 
- - Selection Properties apply to Preconnections - see {{selection-props}}
- - Connections Properties apply to Connections - see {{connection-props}}
- - Messages Properties apply to Messages - see {{message-props}}
-
-All Transport Properties are organized within a single namespace.
-This enables setting them as defaults in earlier stages and querying them in later stages:
- - Connections Properties can be set on Preconnections
- - Message Properties can be set on Preconnections and Connections
- - The effect of Selection Properties can be queried on Connections and Messages.
-
-Note that it is possible for a set of specified Transport Properties to be
-internally inconsistent, or to be inconsistent with the later use of the API by
-the application. Application developers can reduce inconsistency by only using
-the most stringent preference levels when failure to meet the property would
-break the application's functionality. For example, they can set the Selection Property
-"Reliable Data Transfer", which is a core assumption of many application
-protocols, as Required. However, since this comes at the cost of flexibility
-of the transport system, such strict choices should be made with care.
-Implementations of this interface should
-also raise any detected errors in configuration as early as possible, to help
-ensure that inconsistencies are caught early in the development process.
-
-
-## Transport Property Types {#transport-props-types}
-
-Each Transport Property takes a value of a property-specific type.
-
-### Boolean {#transport-props-bool}
-
-A boolean is a data type that can be either "true" or "false".
-Boolean transport properties should only be used for properties that can not
-be used in an optional way or to query the state of the transport implementation.
-For optional features, especially in Selection Properties, the usage of the
-Preference type (see {{transport-props-preference}}) is preferred.
-
-### Enumeration {#transport-props-enum}
-
-Enumeration types are used for transport properties that can take one value
-out of a limited set of choices.
-The representation is implementation dependent.
-
-### Integer {#transport-props-int}
-
-Integer types are used to represent integer numbers.
-The representation is implementation dependent.
-
-### Preference {#transport-props-preference}
-
-The Preference type is used in most Selection properties on a Preconnection object to constrain Path Selection and Protocol Selection.
-It is a specific instance of the "Enum" type and has five different preference levels:
-
-   | Preference | Effect                                                             |
-   |------------|--------------------------------------------------------------------|
-   | Require    | Select only protocols/paths providing the property, fail otherwise |
-   | Prefer     | Prefer protocols/paths providing the property, proceed otherwise   |
-   | Ignore     | Cancel any default preference for this property                    |
-   | Avoid      | Prefer protocols/paths not providing the property, proceed otherwise |
-   | Prohibit   | Select only protocols/paths not providing the property, fail otherwise |
-
-
-When used on a Connection, this type becomes a (read-only) Boolean representing whether the selected transport supports the requested feature.
-
-
-## Transport Property Classification {#transport-props-classes}
-\[TODO: This section is mostly obsolete due to our consensus on how to structure properties -- double-check whether text needs to be moved and delete this section afterwards]
-
-
-### Selection Properties {#selection-props}
-
-Selection Properties influence protocol and path selection.
-Their value usually is or includes a Preference that constrains (in case of
-Require or Prohibit) or influences (Prefer, Ignore, Avoid) the selection of
-transport protocols and paths used.
-
-An implementation of this interface must provide sensible defaults for
-Selection Properties. The defaults given for each property below represent a
-configuration that can be implemented over TCP. An alternate set of default
-Protocol Selection Properties would represent a configuration that can be
-implemented over UDP.
-
-Protocol Selection Properties can only be set on Preconnections, see {{connection-props}}.
-Path Selection Properties are usually used on Preconnections, but
-might also be used on messages to assist per-message path selection for
-multipath aware protocols.
-
-
-### Protocol Properties {#protocol-props}
-
-Protocol Properties represent the configuration of the selected Protocol Stacks
-backing a Connection. Some properties apply generically across multiple
-transport protocols, while other properties only apply to specific protocols.
-Generic properties will be passed to the selected candidate Protocol Stack(s)
-to configure them before candidate Connection establishment.
-The default settings of these properties will vary based on the specific
-protocols being used and the system's configuration.
-
-Most Protocol Properties can be set on a Preconnection during pre-establishment to preconfigure Protocol Stacks during establishment.
-
-In order to specify Specific Protocol Properties, transport system
-implementations may offer applications to attach a set of options to the
-Preconnection Object, associated with a specific protocol. For example, an
-application could specify a set of TCP Options to use if and only if TCP is
-selected by the system. Such properties must not be assumed to apply across
-different protocols. Attempts to set specific protocol properties on a
-protocol stack not containing that specific protocol are simply ignored, and
-do not raise an error.
-
-Note that many protocol properties have a corresponding selection property
-which asks for a protocol providing a specific transport feature that is
-controlled by the protocol property.
-
-### Message Properties {#control-props}
-
-\[TODO: Discuss]
-
-Control properties manage the local transport system behavior or request
-state changes in the local transport system. Depending on the protocols used,
-setting these properties might also influence the protocol state machine.
-See {{send-final}} for an example.
-
-### Intents {#intents}
-
-\[TODO: Discuss]
-
-Intents are hints to the transport system that do not directly map to a single
-protocol/transport feature or behavior of the transport system, but express
-a presumed application behavior or generic application needs.
-
-The application can expect the transport system to take appropriate actions
-involving protocol selection, path selection and setting of protocol flags.
-For example, if an application sets the "Capacity Profile" to "bulk" on a
-Preconnection, this will likely influence path selection, DSCP flags in
-the IP header as well as Niceness for multi-streaming connections.
-When using Intents, the application must not expect consistent behavior across
-different environments, implementations or versions of the same implementation.
-
-
-## Mandatory Transport Properties
-
-The following properties are mandatory to implement in a transport system:
-
-### Final {#send-final}
-
-Boolean Message Property - see {{final}}.
-
-
-### Reliable Data Transfer (Connection) {#prop-reliable}
-
-Classification:
-: Selection Property
-
-Type:
-: Preference
-
-Applicability:
-: Preconnection, Connection (read only)
-
-This property specifies whether the application needs to use a transport
-protocol that ensures that all data is received on the other side without
-corruption. This also entails being notified when a Connection is closed or
-aborted. The default is to enable Reliable Data Transfer.
-
-
-### Configure per-Message reliability {#prop-partially-reliable}
-
-Classification:
-: Selection Property
-
-Type:
-: Preference
-
-Applicability:
-: Preconnection, Connection (read only)
-
-This property specifies whether an application considers it useful to indicate
-its reliability requirements on a per-Message basis. This property applies to
-Connections and Connection Groups. The default is to not have this option.
-
-
-### Reliable Data Transfer (Message)
-
-Boolean Message Property - see {{msg-reliable-message}}
-
-
-### Preservation of data ordering {#prop-ordering}
-
-Classification:
-: Selection Property
-
-Type:
-: Preference
-
-Applicability:
-: Preconnection, Connection (read only)
-
-This property specifies whether the application wishes to use a
-transport protocol that can ensure that data is received
-by the application on the other end in the same order as it was sent. The
-default is to preserve data ordering.
-
-
-### Ordered
-
-Boolean Message Property - see {{msg-ordered}}.
-
-
-### Direction of communication
-
-Classification:
-: Selection Property, Control Property \[TODO: Discuss]
-
-Type:
-: Enumeration
-
-Applicability:
-: Preconnection, Connection (read only)
-
-This property specifies whether an application wants to use the connection for sending and/or receiving data.  Possible values are:
-
-Bidirectional (default):
-: The connection must support sending and receiving data
-
-unidirectional send:
-: The connection must support sending data.
-
-unidirectional receive:
-: The connection must support receiving data
-
-In case a unidirectional connection is requested, but unidirectional connections are not supported by the transport protocol,
-the system should fall back to bidirectional transport.
-
-
-### Use 0-RTT session establishment with an idempotent Message {#prop-0rtt}
-
-Classification:
-: Selection Property
-
-Type:
-: Preference
-
-Applicability:
-: Preconnection, Connection (read only)
-
-This property specifies whether an application would like to
-supply a Message to the transport protocol before Connection
-establishment, which will then be reliably transferred to the other side
-before or during Connection establishment, potentially multiple times.
-See also {{msg-idempotent}}. The default is to not have this option.
-
-
-### Idempotent
-
-Boolean Message Property - see {{msg-idempotent}}.
-
-
-### Multistream Connections in Group {#prop-multistream}
-
-Classification:
-: Selection Property
-
-Type:
-: Preference
-
-Applicability:
-: Preconnection, Connection (read only)
-
-This property specifies that the application would prefer multiple Connections
-within a Connection Group to be provided by streams of a single underlying
-transport connection where possible. The default is to not have this option.
-
-
-### Notification of excessive retransmissions 
-
-Boolean Connection Property - see {{conn-retrans-notify}}. 
-
-
-### Retransmission threshold before excessive retransmission notification
-
-Integer Connection Property - see {{conn-excss-retransmit}}
-
-
-### Notification of ICMP soft error message arrival
-
-Boolean Connection Property - see {{conn-soft-error}}
-
-
-### Control checksum coverage on sending or receiving {#prop-checksum-control}
-
-Classification:
-: Selection Property
-
-Type:
-: Preference
-
-Applicability:
-: Preconnection, Connection (read only)
-
-This property specifies whether the application considers it useful to enable,
-disable, or configure a checksum when sending a Message, or configure whether
-to require a checksum or not when receiving.  The default is full checksum
-coverage without the option to configure it, and requiring a checksum when
-receiving.
-
-
-### Corruption Protection Length
-
-Integer Message Property - see {{msg-checksum}}.
-
-
-### Required minimum coverage of the checksum for receiving
-
-Integer Connection Property - see {{conn-recv-checksum}}
-
-
-### Interface Instance or Type {#prop-interface}
-
-Classification:
-: Selection Property
-
-Type:
-: Tuple (Enumeration, Preference)
-
-Applicability:
-: Preconnection, Connection (read only)
-
-This property allows the application to select which specific network interfaces
-or categories of interfaces it wants to `Require`, `Prohibit`, `Prefer`, or `Avoid`.
-
-If a system supports discovery of specific interface identifiers, such as `en0` or `eth0`
-on Unix-style systems, an implemention should allow using these identifiers to
-define path preferences. Note that marking a specific interface as `Required`
-strictly limits path selection to a single interface, and leads to less flexible and
-resilient connection establishment.
-
-The set of valid interface types is implementation- and system-specific. For example,
-on a mobile device, there may be `Wi-Fi` and `Cellular` interface types available;
-whereas on a desktop computer, there may be `Wi-Fi` and `Wired Ethernet`
-interface types available. Implementations should provide all types that are supported
-on some system to all systems, in order to allow applications to write generic code.
-For example, if a single implementation is used on both mobile devices and desktop
-devices, it should define the `Cellular` interface type for both systems, since an
-application may want to always `Prohibit Cellular`. Note that marking a specific
-interface type as `Required` limits path selection to a small set of interfaces, and leads
-to less flexible and resilient connection establishment.
-
-The set of interface types is expected to change over time as new access technologies
-become available.
-
-Interface types should not be treated as a proxy for properties of interfaces such as
-metered or unmetered network access. If an application needs to prohibit metered
-interfaces, this should be specified via Provisioning Domain attributes (see {{prop-pvd}})
-or another specific property.
-
-
-### Provisioning Domain Instance or Type {#prop-pvd}
-
-Classification:
-: Selection Property
-
-Type:
-: Tuple (Enumeration, Preference)
-
-Applicability:
-: Preconnection, Connection (read only)
-
-Similar to interface instances and types (see {{prop-interface}}), this property allows
-the application to control path selection by selecting which specific Provisioning Domains
-or categories of Provisioning Domains it wants to  `Require`, `Prohibit`, `Prefer`, or `Avoid`.
-Provisioning Domains define consistent sets of network properties that may be more
-specific than network interfaces {{RFC7556}}.
-
-The identification of a specific Provisioning Domain (PvD) is defined to be implementation-
-and system-specific, since there is not a portable standard format for a PvD identitfier.
-For example, this identifier may be a string name or an integer. As with
-requiring specific interfaces, requiring a specific PvD strictly limits path selection.
-
-Categories or types of PvDs are also defined to be implementation- and system-specific.
-These may be useful to identify a service that is provided by a PvD. For example, if an application
-wants to use a PvD that provides a Voice-Over-IP service on a Cellular network, it can use
-the relevant PvD type to require some PvD that provides this service, without needing to
-look up a particular instance. While this does restrict path selection, it is broader than
-requiring specific PvD instances or interface instances, and should be preferred over these
-options.
-
-
-### Capacity Profile {#prop-cap-profile}
-
-Classification:
-: Selection Property
-
-Type:
-: Enumeration
-
-Applicability:
-: Preconnection, Connection, Message
-
-This property specifies the desired network treatment for traffic sent by the
-application and the tradeoffs the application is prepared to make in path and
-protocol selection to receive that desired treatment. When the capacity profile
-is set to a value other than Default, the transport system should select paths
-and profiles to optimize for the capacity profile specified. The following
-values are valid for the Capacity Profile:
-
-  Default: : The application makes no representation about its expected capacity
-  profile. No special optimizations of the tradeoff between delay, delay
-  variation, and bandwidth efficiency should be made when selecting and
-  configuring transport protocol stacks. Transport system implementations that
-  map the requested capacity profile onto per-connection DSCP signaling without
-  multiplexing SHOULD assign the DSCP Default Forwarding {{?RFC2474}} PHB; when
-  the Connection is multiplexed, the guidelines in section 6 of {{?RFC7657}}
-  apply.
-
-  Scavenger: : The application is not interactive. It expects to send
-  and/or receive data without any urgency. This can, for example, be used to
-  select protocol stacks with scavenger transmission control and/or to assign
-  the traffic to a lower-effort service. Transport system implementations that
-  map the requested capacity profile onto per-connection DSCP signaling without
-  multiplexing SHOULD assign the DSCP Less than Best Effort
-  {{?LE-PHB=I-D.ietf-tsvwg-le-phb}} PHB; when the Connection is multiplexed, the
-  guidelines in section 6 of {{?RFC7657}} apply.
-
-  Low Latency/Interactive: : The application is interactive, and prefers loss to
-  latency. Response time should be optimized at the expense of bandwidth
-  efficiency and delay variation when sending on this connection. This can be
-  used by the system to disable the coalescing of multiple small Messages into
-  larger packets (Nagle's algorithm); to prefer immediate acknowledgment from
-  the peer endpoint when supported by the underlying transport; and so on.
-  Transport system implementations that map the requested capacity profile onto
-  per-connection DSCP signaling without multiplexing SHOULD assign the DSCP
-  Expedited Forwarding {{?RFC3246}} PHB; when the Connection is multiplexed, the
-  guidelines in section 6 of {{?RFC7657}} apply.
-
-  Low Latency/Non-Interactive: : The application prefers loss to latency but is
-  not interactive. Response time should be optimized at the expense of bandwidth
-  efficiency and delay variation when sending on this connection.Transport
-  system implementations that map the requested capacity profile onto
-  per-connection DSCP signaling without multiplexing SHOULD assign a DSCP
-  Assured Forwarding (AF21,AF22,AF23,AF24) {{?RFC2597}} PHB; when the Connection
-  is multiplexed, the guidelines in section 6 of {{?RFC7657}} apply.
-
-  Constant-Rate Streaming: : The application expects to send/receive data at a
-  constant rate after Connection establishment. Delay and delay variation should
-  be minimized at the expense of bandwidth efficiency. This implies that the
-  Connection may fail if the desired rate cannot be maintained across the Path.
-  A transport may interpret this capacity profile as preferring a circuit
-  breaker {{?RFC8084}} to a rate-adaptive congestion controller. Transport
-  system implementations that map the requested capacity profile onto
-  per-connection DSCP signaling without multiplexing SHOULD assign a DSCP
-  Assured Forwarding (AF31,AF32,AF33,AF34) {{?RFC2597}} PHB; when the Connection
-  is multiplexed, the guidelines in section 6 of {{?RFC7657}} apply.
-
-  High Throughput Data: : The application expects to send/receive data at the
-  maximum rate allowed by its congestion controller over a relatively long
-  period of time. Transport system implementations that map the requested
-  capacity profile onto per-connection DSCP signaling without multiplexing
-  SHOULD assign a DSCP Assured Forwarding (AF11,AF12,AF13,AF14) {{?RFC2597}} PHB
-  per section 4.8 of {{?RFC4594}}. When the Connection is multiplexed, the
-  guidelines in section 6 of {{?RFC7657}} apply.
-
-
-### Congestion control {#prop-cc}
-
-Classification:
-: Selection Property
-
-Type:
-: Preference
-
-Applicability:
-: Preconnection, Connection (read only)
-
-This property specifies whether the application would like the Connection to be
-congestion controlled or not. Note that if a Connection is not congestion controlled,
-an application using such a Connection should itself perform congestion control in
-accordance with {{?RFC2914}}. Also note that reliability is usually combined with
-congestion control in protocol implementations, rendering "reliable but not congestion
-controlled" a request that is unlikely to succeed. The default is that the
-Connection is congestion controlled.
-
-
-### Niceness (Connection) 
-
-Integer Connection Property - see {{conn-niceness}}
-
-
-### Niceness (Message)
-\[TODO: Discuss: should we remove this? Whether we need this or the other depends
-on how we want to implement multi-streaming. We don't need both, so we should make a decision. @mwelzl
--- These are really two different things @philsbln]
-
-Integer Message Property - see {{msg-niceness}}.
-
-Note that this property is not a per-message override of the connection Niceness - see {{conn-niceness}}.
-Both Niceness properties may interact, but can be used independently and be realized by different mechanisms.
-
-
-### Timeout for aborting Connection 
-
-Integer Connection Property - see {{conn-timeout}}
-
-
-### Connection group transmission scheduler 
-
-Enum Connection Property - see {{conn-scheduler}}
-
-
-### Maximum message size concurrent with Connection establishment 
-
-Integer Connection Property (read-only) - see {{size-idempotent}}
-
-
-### Maximum Message size before fragmentation or segmentation 
-
-Integer Connection Property (read-only) - see {{conn-max-msg-notfrag}}
-
-
-### Maximum Message size on send
-
-Integer Connection Property (read-only) - see {{conn-max-msg-send}}
-
-
-### Maximum Message size on receive 
-
-Integer Connection Property (read-only) - see {{conn-max-msg-recv}}
-
-
-### Lifetime
-
-Integer Message Property - see {{msg-lifetime}}.
-
-
-## Optional Transport Properties
-
-TODO: Maybe move some of the above properties here.
-
-
-## Experimental Transport Properties
-
-TODO: Move {{appendix-non-consensus}} here.
-
-
 # IANA Considerations
 
 RFC-EDITOR: Please remove this section before publication.
@@ -2143,8 +1851,33 @@ should be added to a future revision of the base specification.
 ## Experimental Transport Properties
 
 The following Transport Properties might be made available in
-addition to those specified in {{transport-props}}:
+addition to those specified in {{selection-props}}, {{connection-props}}, and {{message-props}}.
 
+
+### Direction of communication
+
+Classification:
+: Selection Property, Control Property \[TODO: Discuss]
+
+Type:
+: Enumeration
+
+Applicability:
+: Preconnection, Connection (read only)
+
+This property specifies whether an application wants to use the connection for sending and/or receiving data.  Possible values are:
+
+Bidirectional (default):
+: The connection must support sending and receiving data
+
+unidirectional send:
+: The connection must support sending data.
+
+unidirectional receive:
+: The connection must support receiving data
+
+In case a unidirectional connection is requested, but unidirectional connections are not supported by the transport protocol,
+the system should fall back to bidirectional transport.
 
 ### Suggest a timeout to the Remote Endpoint
 
@@ -2181,7 +1914,6 @@ It is given in seconds.
 
 \[EDITOR'S NOTE: For discussion of this property, see
 https://github.com/taps-api/drafts/issues/109]
-
 
 
 ### Traffic Category
