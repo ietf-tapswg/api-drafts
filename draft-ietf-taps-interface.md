@@ -175,12 +175,12 @@ itself; they are equivalent to Actions on a per-application global context.
 How these abstract concepts map into concrete implementations of this API in a
 given language on a given platform is largely dependent on the features of the
 language and the platform. Actions could be implemented as functions or method
-calls, for instance, and Events could be implemented via callback passing or
-other asynchronous calling conventions. The method for registering callbacks
-and handlers is left as an implementation detail, with the caveat that the
-interface for receiving Messages must require the application to invoke the
-Connection.Receive() Action once per Message to be received (see
-{{receiving}}).
+calls, for instance, and Events could be implemented via callbacks,
+communicating sequential processes, or other asynchronous calling conventions.
+The method for dispatching and handling Events is left as an implementation
+detail, with the caveat that the interface for receiving Messages must require
+the application to invoke the Connection.Receive() Action once per Message to be
+received (see {{receiving}}).
 
 This specification treats Events and errors similarly. Errors, just as any
 other Events, may occur asynchronously in network applications. However, it is
@@ -209,38 +209,41 @@ provides:
   transport-independent way, to enable applications written to a single API
   to make use of transport protocols in terms of the features they provide;
 
-- Explicit support for security properties as first-order
-  transport features, and for long-term caching of cryptographic identities and
-  parameters for associations among endpoints;
+- Message- as opposed to stream-orientation, using application-assisted framing
+  and deframing where the underlying transport does not provide these;
 
-- Asynchronous Connection establishment,
-  transmission, and reception, allowing most application interactions with the
-  transport layer to be Event-driven, in line with developments in modern
-  platforms and programming languages;
+- Asynchronous Connection establishment, transmission, and reception, allowing
+  concurrent operations during establishment and supporting event-driven
+  application interactions with the transport layer, in line with developments
+  in modern platforms and programming languages;
+
+- Explicit support for security properties as first-order transport features,
+  and for long-term caching of cryptographic identities and parameters for
+  associations among endpoints; and
 
 - Explicit support for multistreaming and multipath transport protocols, and
   the grouping of related Connections into Connection Groups through cloning
   of Connections, to allow applications to take full advantage of new
-  transport protocols supporting these features; and
-
-- Atomic transmission of data, using application-assisted framing and deframing
-  where the underlying transport does not provide these.
+  transport protocols supporting these features.
 
 
 # API Summary
 
 The Transport Services Interface is the basic common abstract application
 programming interface to the Transport Services Architecture defined in
-{{I-D.ietf-taps-arch}}. An application primarily interacts with this interface through
-two Objects, Preconnections and Connections. A Preconnection represents a set of
-properties and constraints on the selection and configuration of paths and
-protocols to establish a Connection with a remote endpoint. A Connection
-represents a transport Protocol Stack on which data can be sent to and/or received
-from a remote endpoint (i.e., depending on the kind of transport, connections can be
-bi-directional or unidirectional). Connections can be created from Preconnections in three
-ways: by initiating the Preconnection (i.e., actively opening, as in a client),
-through listening on the Preconnection (i.e., passively opening, as in a
-server), or rendezvousing on the Preconnection (i.e. peer to peer establishment).
+{{I-D.ietf-taps-arch}}.
+
+An application primarily interacts with this interface through two Objects,
+Preconnections and Connections. A Preconnection represents a set of properties
+and constraints on the selection and configuration of paths and protocols to
+establish a Connection with a remote endpoint. A Connection represents a
+transport Protocol Stack on which data can be sent to and/or received from a
+remote endpoint (i.e., depending on the kind of transport, connections can be
+bi-directional or unidirectional). Connections can be created from
+Preconnections in three ways: by initiating the Preconnection (i.e., actively
+opening, as in a client), through listening on the Preconnection (i.e.,
+passively opening, as in a server), or rendezvousing on the Preconnection (i.e.
+peer to peer establishment).
 
 Once a Connection is established, data can be sent on it in the form of
 Messages. The interface supports the preservation of message boundaries both
@@ -289,6 +292,30 @@ Transport Properties can have one of a set of data types:
 - Preference: can take one of five values (Prohibit, Avoid, Ignore, Prefer,
   Require) for the level of preference of a given property during protocol
   selection; see {{selection-props}}.
+
+## Scope of the Interface Definition
+
+This document defines a language- and platform-independent interface to a
+Transport Services system. Given the wide variety of languages and language
+conventions used to write applications that use the transport layer to connect
+to other applications over the Internet, this independence makes this interface
+necessarily abstract. While there is no interoperability benefit to tightly
+defining how the interface be presented to application programmers in diverse
+platforms, maintaining the "shape" of the abstract interface across these
+platforms reduces the effort for programmers who learn the transport services
+interface to apply their knowledge in multiple platforms. We therefore make the
+following recommendations:
+
+- Actions, Events, and Errors in implementations of this interface SHOULD carry
+  the names given for them in the document, subject to capitalization and
+  punctuation conventions in the language of the implementation, unless the
+  implementation itself uses different names for substantially equivalent
+  objects for networking by convention.
+- Implementations of this interface SHOULD implement each Selection Property,
+  Connection Property, and Message Context Property specified in this document,
+  exclusive of appendices, even if said implementation is a non-operation, e.g.
+  because transport protocols implementing a given Property are not available on
+  the platform.
 
 # Pre-Establishment Phase {#pre-establishment}
 
