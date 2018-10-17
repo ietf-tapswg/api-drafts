@@ -264,10 +264,10 @@ used and are preferred by the application, and Connection Properties
 {{connection-props}} can be used to fine-tune the eventually established
 connection. These Connection Properties can also be used to monitor and
 fine-tune established connections. The behavior of the selected protocol
-stack(s) when sending Messages is controlled by Message Context Properties
+stack(s) when sending Messages is controlled by Message Properties
 {{message-props}}.
 
-Collectively, Selection, Connection, and Message Context Properties can be
+Collectively, Selection, Connection, and Message Properties can be
 referred to as Transport Properties. All Transport Properties, regardless of the
 phase in which they are used, are organized within a single namespace. This
 enables setting them as defaults in earlier stages and querying them in later
@@ -731,12 +731,12 @@ the Ready Event for Connections established using Initiate.
 Connection -> InitiateError<>
 ~~~
 
-An InitiateError occurs either when the set of transport properties and
-cryptographic parameters cannot be fulfilled on a Connection for initiation
-(e.g. the set of available Paths and/or Protocol Stacks meeting the constraints is empty)
-or reconciled with the local and/or remote endpoints; when the remote specifier
-cannot be resolved; or when no transport-layer connection can be established
-to the remote endpoint (e.g. because the remote endpoint is not accepting
+An InitiateError occurs either when the set of transport properties and security
+parameters cannot be fulfilled on a Connection for initiation (e.g. the set of
+available Paths and/or Protocol Stacks meeting the constraints is empty) or
+reconciled with the local and/or remote endpoints; when the remote specifier
+cannot be resolved; or when no transport-layer connection can be established to
+the remote endpoint (e.g. because the remote endpoint is not accepting
 connections, or the application is prohibited from opening a Connection by the
 operating system).
 
@@ -989,11 +989,11 @@ set of Message Properties not consistent with the Connection's transport
 properties. The SendError contains an implementation-specific reference to the
 Message to which it applies.
 
-## Message Context Parameters {#message-props}
+## Message Properties {#message-props}
 
 Applications may need to annotate the Messages they send with extra information
 to control how data is scheduled and processed by the transport protocols in the
-Connection. A messageContext object contains parameters for sending Messages,
+Connection. A MessageContext object contains properties for sending Messages,
 and can be passed to the Send Action. Note that these properties are
 per-Message, not per-Send if partial Messages are sent ({{send-partial}}). All
 data blocks associated with a single Message share properties. For example, it
@@ -1008,16 +1008,16 @@ Connection.Send(messageData, messageContext)
 ~~~
 
 The simpler form of Send that does not take any messageContext is equivalent
-to passing a default messageContext with not values added.
+to passing a default MessageContext with not values added.
 
 If an application wants to override Message Properties for a specific message,
-it can acquire an empty messageContext Object and add all desired Message
+it can acquire an empty MessageContext Object and add all desired Message
 Properties to that Object. It can then reuse the same messageContext Object
 for sending multiple Messages with the same properties.
 
-Parameters may be added to a messageContext object only before the context is used
+Properties may be added to a MessageContext object only before the context is used
 for sending. Once a messageContext has been used with a Send call, modifying any
-of its parameters is invalid.
+of its properties is invalid.
 
 Message Properties may be inconsistent with the properties of the Protocol Stacks
 underlying the Connection on which a given Message is sent. For example,
@@ -1025,7 +1025,7 @@ a Connection must provide reliability to allow setting an infinitie value for th
 lifetime property of a Message. Sending a Message with Message Properties
 inconsistent with the Selection Properties of the Connection yields an error.
 
-The following Message Context Parameters are supported:
+The following Message Properties are supported:
 
 ### Lifetime {#msg-lifetime}
 
@@ -1183,10 +1183,10 @@ endOfMessage := true
 Connection.Send(messageData, messageContext, endOfMessage)
 ~~~
 
-All messageData sent with the same messageContext object will be treated as belonging
-to the same Message, and will constitute an in-order series until the endOfMessage is marked.
-Once the end of the Message is marked, the messageContext object may be re-used as a
-new Message with identical parameters.
+All data sent with the same MessageContext object will be treated as belonging
+to the same Message, and will constitute an in-order series until the
+endOfMessage is marked. Once the end of the Message is marked, the
+MessageContext object may be re-used as a new Message with identical parameters.
 
 ## Batching Sends {#send-batching}
 
@@ -1334,10 +1334,11 @@ If a complete Message cannot be delivered in one event, one part of the Message
 may be delivered with a ReceivedPartial event. In order to continue to receive more
 of the same Message, the application must invoke Receive again.
 
-Multiple invocations of ReceivedPartial deliver data for the same Message by passing
-the same messageContext, until the endOfMessage flag is delivered or a ReceiveError occurs. All partial blocks
-of a single Message are delivered in order without gaps. This event does not support
-delivering discontiguous partial Messages.
+Multiple invocations of ReceivedPartial deliver data for the same Message by
+passing the same MessageContext, until the endOfMessage flag is delivered or a
+ReceiveError occurs. All partial blocks of a single Message are delivered in
+order without gaps. This event does not support delivering discontiguous partial
+Messages.
 
 If the minIncompleteLength in the Receive request was set to be infinite (indicating
 a request to receive only complete Messages), the ReceivedPartial event may still be
@@ -1368,7 +1369,7 @@ received that reception has failed. Such conditions that irrevocably lead to
 the termination of the Connection are signaled using ConnectionError instead
 (see {{termination}}).
 
-The ReceiveError event passes an optional associated messageContext. This may
+The ReceiveError event passes an optional associated MessageContext. This may
 indicate that a Message that was being partially received previously, but had not
 completed, encountered an error and will not be completed.
 
@@ -1708,7 +1709,7 @@ values are valid for the Capacity Profile:
   guidelines in section 6 of {{?RFC7657}} apply.
 
 The Capacity Profile for a selected protocol stack may be modified on a
-per-Message basis using the Transmission Profile Message Context Property; see
+per-Message basis using the Transmission Profile Message Property; see
 {{send-profile}}.
 
 
