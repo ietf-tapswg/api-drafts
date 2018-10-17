@@ -2049,3 +2049,108 @@ https://godoc.org/github.com/mami-project/postsocket. This API definition will
 be kept largely in sync with the development of this abstract interface
 definition.
 
+
+# Relationship to the Minimal Set of Transport Services for End Systems
+
+{{I-D.ietf-taps-minset}} identifies a minimal set of transport services that end systems should offer. These services make all transport features offered by TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT available that 1) require interaction with the application, and 2) do not get in the way of a possible implementation over TCP or, with limitations, UDP. The following text explains how this minimal set is reflected in the present API. For brevity, this uses the list in Section 4.1 of {{I-D.ietf-taps-minset}}, updated according to the discussion in Section 5 of {{I-D.ietf-taps-minset}}.
+
+\[EDITOR'S NOTE: This is early text. In the future, this section will contain backward references, which we currently avoid because things are still being moved around and names / categories etc. are changing. Also, clearly, the intention is for the full minset to be reflected by the API at some point.]
+
+
+* Connect:  
+"Initiate" Action.
+
+* Listen:  
+"Listen" Action.
+
+* Specify number of attempts and/or timeout for the first establishment message:  
+TODO.
+
+* Disable MPTCP:  
+TODO.
+
+* Hand over a message to reliably transfer (possibly multiple times) before connection establishment:  
+"InitiateWithIdempotentSend" Action.
+
+* Hand over a message to reliably transfer during connection establishment:  
+TODO.
+
+* Change timeout for aborting connection (using retransmit limit or time value):  
+"Timeout for aborting Connection" property, using a time value in seconds.
+
+* Timeout event when data could not be delivered for too long:  
+TODO: this should probably be covered by the "ConnectionError" Event, but the text above
+it currently reads: "...can inform the application that the other side has aborted the Connection". In this case, it is the local side.
+
+* Suggest timeout to the peer:  
+"Suggest a timeout to the Remote Endpoint" and "Abort timeout to suggest to the Remote Endpoint" Selection property.
+\[EDITOR'S NOTE: For discussion of this option, see https://github.com/taps-api/drafts/issues/109].
+
+* Notification of Excessive Retransmissions (early warning below abortion threshold):  
+"Notification of excessive retransmissions" property.
+
+* Notification of ICMP error message arrival:  
+"Notification of ICMP soft error message arrival" property.
+
+* Choose a scheduler to operate between streams of an association:  
+"Connection group transmission scheduler" property.
+
+* Configure priority or weight for a scheduler:  
+"Niceness (Connection)" property.
+
+* "Specify checksum coverage used by the sender" and "Disable checksum when sending":  
+"Corruption Protection Length" property (value 0 to disable).
+
+* "Specify minimum checksum coverage required by receiver" and "Disable checksum requirement when receiving":  
+"Required minimum coverage of the checksum for receiving" property (value 0 to disable).
+
+* "Specify DF" field and "Request not to bundle messages:"  
+The "Singular Transmission" Message property combines both of these requests, i.e. if a request not to bundle messages is made, this also turns off DF in case of protocols that allow this (only UDP and UDP-Lite, which cannot bundle messages anyway).
+
+* Get max. transport-message size that may be sent using a non-fragmented IP packet from the configured interface:  
+"Maximum Message size before fragmentation or segmentation" property.
+
+* Get max. transport-message size that may be received from the configured interface:  
+"Maximum Message size on receive" property.
+
+* Obtain ECN field:  
+"ECN" is a defined metadata value as part of the Message Receive Context.
+
+* "Specify DSCP field", "Disable Nagle algorithm", "Enable and configure a 'Low Extra Delay Background Transfer'":  
+As suggested in Section 5.5 of {{I-D.ietf-taps-minset}}, these transport features are collectively offered via the "Capacity profile" property.
+
+* Close after reliably delivering all remaining data, causing an event informing the application on the other side:  
+This is offered by the "Close" Action with slightly changed semantics in line with the discussion in Section 5.2 of {{I-D.ietf-taps-minset}}.
+
+* "Abort without delivering remaining data, causing an event informing the application on the other side" and "Abort without delivering remaining data, not causing an event informing the application on the other side":  
+This is offered by the "Abort" action without promising that this is signaled to the other side. If it is, a "ConnectionError" Event will fire at the peer.
+
+* "Reliably transfer data, with congestion control", "Reliably transfer a message, with congestion control" and "Unreliably transfer a message":  
+Reliability is controlled via the "Reliable Data Transfer (Message)" Message property. Transmitting data without delimiters is done by not using a Framer. The choice of congestion control is provided via the "Congestion control" property.
+
+* Configurable Message Reliability:  
+The "Lifetime" Message Property implements a time-based way to configure message reliability. 
+
+* "Ordered message delivery (potentially slower than unordered)" and "Unordered message delivery (potentially faster than ordered)":  
+The two transport features are controlled via the Message property "Ordered".
+
+* Request not to delay the acknowledgement (SACK) of a message:  
+Should the protocol support it, this is one of the transport features the transport system can use when an application uses the Capacity Profile Property with value "Low Latency/Interactive".
+
+* Receive data (with no message delimiting):  
+"Received" Event without using a Deframer.
+
+* Receive a message:  
+"Received" Event. Section 5.1 of {{I-D.ietf-taps-minset}} discusses how messages can be obtained from a bytestream in case of implementation over TCP. Here, this is dealt with by Framers and Deframers.
+
+* Information about partial message arrival:  
+"ReceivedPartial" Event.
+
+* Notification of send failures:  
+"Expired" and "SendError" Events.
+
+* Notification that the stack has no more user data to send:  
+Applications can obtain this information via the "Sent" Event.
+
+* Notification to a receiver that a partial message delivery has been aborted:  
+"ReceiveError" Event.
