@@ -2318,10 +2318,10 @@ definition.
 \[EDITOR'S NOTE: This is early text. In the future, this section will contain backward references, which we currently avoid because things are still being moved around and names / categories etc. are changing. Also, clearly, the intention is for the full minset to be reflected by the API at some point.]
 
 
-Connect:
-: "Initiate" Action.
+Connect:  
+  : "Initiate" Action.
 
-Listen:
+Listen:  
 : "Listen" Action.
 
 Specify number of attempts and/or timeout for the first establishment message:
@@ -2344,7 +2344,8 @@ Hand over a message to reliably transfer during connection establishment:
 it currently reads: "...can inform the application that the other side has aborted the Connection". In this case, it is the local side.
 
 Suggest timeout to the peer:
-: "Suggest a timeout to the Remote Endpoint" and "Abort timeout to suggest to the Remote Endpoint" Selection property. \[EDITOR'S NOTE: For discussion of this option, see https://github.com/taps-api/drafts/issues/109].
+: "Suggest a timeout to the Remote Endpoint" and "Abort timeout to suggest to the Remote Endpoint" Selection property.
+\[EDITOR'S NOTE: For discussion of this option, see https://github.com/taps-api/drafts/issues/109].
 
 Notification of Excessive Retransmissions (early warning below abortion threshold):
 : "Notification of excessive retransmissions" property.
