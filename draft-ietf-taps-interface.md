@@ -2319,19 +2319,24 @@ definition.
 
 
 * Connect:  
-"Initiate" Action.  
+"Initiate" Action.
+
 
 * Listen:  
-"Listen" Action.  
+"Listen" Action.
+
 
 * Specify number of attempts and/or timeout for the first establishment message:  
-TODO.  
+TODO.
+
 
 * Disable MPTCP:  
-TODO.  
+TODO.
+
 
 * Hand over a message to reliably transfer (possibly multiple times) before connection establishment:  
-"InitiateWithIdempotentSend" Action.  
+"InitiateWithIdempotentSend" Action.
+
 
 * Hand over a message to reliably transfer during connection establishment:  
 TODO.
