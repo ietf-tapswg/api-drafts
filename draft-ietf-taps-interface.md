@@ -2318,14 +2318,14 @@ definition.
 \[EDITOR'S NOTE: This is early text. In the future, this section will contain backward references, which we currently avoid because things are still being moved around and names / categories etc. are changing. Also, clearly, the intention is for the full minset to be reflected by the API at some point.]
 
 
-Connect:  
-  : "Initiate" Action.
+* *Connect:*  
+"Initiate" Action.
 
-Listen:  
-: "Listen" Action.
+* *Listen:*  
+"Listen" Action.
 
-Specify number of attempts and/or timeout for the first establishment message:
-: TODO.
+* *Specify number of attempts and/or timeout for the first establishment message:*  
+TODO.
 
 Disable MPTCP:
 : TODO.
