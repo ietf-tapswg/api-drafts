@@ -346,7 +346,9 @@ The diagram below provides a high-level view of the actions taken during the lif
 
 * Protocol Selection Properties: The Protocol Selection Properties consist of the options that an application may set to influence the selection of transport protocol, or to configure the behavior of generic transport protocol features. These options can take the form of requirements, prohibitions, and preferences. Examples include reliability, service class, multipath support, and fast open support.
 
-* Specific Protocol Properties: The Specific Protocol Properties refer to the subset of Protocol Properties options that apply to a single protocol (transport protocol, IP, or security protocol). The presence of such Properties does not necessarily require that a specific protocol must be used when a Connection is established, but that if this protocol is employed, a particular set of options should then be used..
+* Specific Protocol Properties: The Specific Protocol Properties refer to the subset of Protocol Properties options that apply to a single protocol (transport protocol, IP, or security protocol). The presence of such Properties does not necessarily require that a specific protocol must be used when a Connection is established, but that if this protocol is employed, a particular set of options should then be used.
+
+* Caching Context: The Caching Context defines the group of Preconnections, Connections, and Listeners that are allowed to share cached state. This cached state may influence establishment as well as heuristics used during the lifetime of a Connection.
 
 ### Establishment Actions {#establishment}
 

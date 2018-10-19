@@ -328,14 +328,15 @@ describes properties of a Connection that might exist in the future.  This state
 comprises Local Endpoint and Remote Endpoint Objects that denote the endpoints
 of the potential Connection (see {{endpointspec}}), the Selection Properties
 (see {{selection-props}}), any preconfigured Connection Properties
-({{connection-props}}), and the security parameters (see
-{{security-parameters}}):
+(see {{connection-props}}), the security parameters (see
+{{security-parameters}}), and a cache context (see {{cache-context}}):
 
 ~~~
    Preconnection := NewPreconnection(LocalEndpoint,
                                      RemoteEndpoint,
                                      TransportProperties,
-                                     SecurityParams)
+                                     SecurityParams,
+                                     CacheContext)
 ~~~
 
 The Local Endpoint MUST be specified if the Preconnection is used to Listen()
@@ -703,6 +704,65 @@ ChallengeCallback := NewCallback({
   // Handle challenge
 })
 SecurityParameters.SetIdentityChallengeCallback(challengeCallback)
+~~~
+
+## Specifying Caching Context {#cache-context}
+
+During the lifetime of Connection, the various protocols used may generate 
+state or statistics that can be cached to help optimize future Connections.
+New Connections can then take advantage of this cached state to influence
+connection establishment, tuning protocol heuristics, and resuming state.
+
+Some examples of cached state include:
+
+- DNS query answers may be cached for use in subsequent Connections
+to the same hostname.
+
+- TCP round-trip-time (RTT) metrics may be cached to tune delays for
+protocol stack racing.
+
+- TLS state may be cached for use in session resumption.
+
+Within a single application, there may need to be several distinct and separate
+caches to ensure that data and state is not shared between certain Connections.
+Each Preconnection is therefore associated with a CacheContext, which defines
+a distinct set of cached information. All Connections and Preconnections that are
+associated with a single CacheContext are allowed to share state.
+
+A new CacheContext can be created and handed to one or more Preconnections.
+
+~~~
+CacheContext := NewCacheContext()
+~~~
+
+By default, a Preconnection is associated with an implicit CacheContext. This
+context may be directly accessed if needed.
+
+~~~
+CacheContext := ImplicitCacheContext()
+~~~
+
+A custom CacheContext may be configured to set up policy for how it should
+cache data. Setting any of these items on the implicit 
+CacheContext is an error.
+
+~~~
+CacheContext.SetDefaultEntryLifetime(SECONDS_PER_DAY)
+CacheContext.SetTotalCapacity(MAX_CACHE_ELEMENTS)
+~~~
+
+A custom CacheContext may also be configured to disable all caching
+for privacy-sensitive connections that should not preserve state.
+
+~~~
+CacheContext.SetDisableCaching(true)
+~~~
+
+If an application wants to flush all cached data in a context, it can invoke
+a flush function.
+
+~~~
+CacheContext.Flush()
 ~~~
 
 # Establishing Connections {#establishment}
