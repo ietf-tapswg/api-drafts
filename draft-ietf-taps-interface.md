@@ -84,12 +84,12 @@ author:
     email: cawood@apple.com
 
 normative:
-  I-D.ietf-taps-minset:
   I-D.ietf-tsvwg-sctp-ndata:
   I-D.ietf-tsvwg-rtcweb-qos:
   I-D.ietf-taps-arch:
 
 informative:
+  I-D.ietf-taps-minset:
   I-D.ietf-taps-transport-security:
   RFC7556:
 
