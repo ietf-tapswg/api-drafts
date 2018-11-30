@@ -36,7 +36,7 @@ author:
     ins: T. Enghardt
     name: Theresa Enghardt
     org: TU Berlin
-    street: Marchstraße 23
+    street: Marchstrasse 23
     city: 10587 Berlin
     country: Germany
     email: theresa@inet.tu-berlin.de
@@ -61,7 +61,7 @@ author:
     ins: P. Tiesel
     name: Philipp S. Tiesel
     org: TU Berlin
-    street: Marchstraße 23
+    street: Marchstrasse 23
     city: 10587 Berlin
     country: Germany
     email: philipp@inet.tu-berlin.de
