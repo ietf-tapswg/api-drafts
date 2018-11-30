@@ -94,7 +94,7 @@ informative:
 
 --- abstract
 
-This document provides an overview of the architecture of Transport Services, a system for exposing the features of transport protocols to applications. This architecture serves as a basis for Application Programming Interfaces (APIs) and implementations that provide flexible transport networking services. It defines the common set of terminology and concepts to be used in more detailed discussion of Transport Services.
+This document provides an overview of the architecture of Transport Services, a model for exposing transport protocol features to applications for network communication. In contrast to what is provided by most existing Application Programming Interfaces (APIs), it is based on an asynchronous, event-driven interaction pattern; it uses messages for representing data transfer to applications; and it assumes an implementation that can use multiple IP addresses, multiple protocols, multiple paths, and provide multiple application streams. This document further defines the common set of terminology and concepts to be used in definitions of APIs and implementations. 
 
 --- middle
 
@@ -102,9 +102,9 @@ This document provides an overview of the architecture of Transport Services, a 
 
 Many application programming interfaces (APIs) to perform transport networking have been deployed, perhaps the most widely known and imitated being the BSD socket() {{POSIX}} interface. The names and functions between these APIs are not consistent, and vary depending on the protocol being used. For example, sending and receiving on a stream of data is conceptually the same between operating on an unencrypted Transmission Control Protocol (TCP) stream and operating on an encrypted Transport Layer Security (TLS) {{I-D.ietf-tls-tls13}} stream over TCP, but applications cannot use the same socket send() and recv() calls on top of both kinds of connections. Similarly, terminology for the implementation of protocols offering transport services vary based on the context of the protocols themselves. This variety can lead to confusion when trying to understand the similarities and differences between protocols, and how applications can use them effectively.
 
-The goal of the Transport Services architecture is to provide a common, flexible, and reusable interface for transport protocols. As applications adopt this interface, they will benefit from a wide set of transport features that can evolve over time, and ensure that the system providing the interface can optimize its behavior based on the application requirements and network conditions.
+The goal of the Transport Services architecture is to provide a common, flexible, and reusable interface for transport protocols. As applications adopt this interface, they will benefit from a wide set of transport features that can evolve over time, and ensure that the system providing the interface can optimize its behavior based on the application requirements and network conditions, without requiring a change to the application. Further, this flexibility does not only enable faster deployment of new feature and protocols, it can also support applications with racing and fallback mechanisms which today usually need to be implemented in each application separately.
 
-This document is developed in parallel with the specification of the Transport Services API {{I-D.ietf-taps-interface}} and Implementation {{I-D.ietf-taps-impl}} documents.
+This document is developed in parallel with the specification of the Transport Services API {{I-D.ietf-taps-interface}} and Implementation {{I-D.ietf-taps-impl}} documents. Although following the Transport Services Architecture does of course not mean that all APIs and implementations have to be identical, agreeing on a common minimal set of features and representing them in a similar fashion improves the ability to easily port applications from one system to the another. 
 
 ## Overview
 
