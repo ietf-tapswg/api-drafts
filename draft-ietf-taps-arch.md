@@ -216,7 +216,7 @@ Any Transport Services API is REQUIRED to allow access to the distilled minimal 
 
 There are applications that will need to control fine-grained details of transport protocols to optimize their behavior and ensure compatibility with remote systems. A Transport Services system therefore SHOULD also permit more specialized protocol features to be used. The interface for these specialized options should be exposed differently from the common options to ensure flexibility.
 
-A specialized feature could be required by an application only when using a specific protocol, and not when using others. For example, if an application is using UDP, it could require control over the checksum or fragmentation behavior for UDP; if it used a protocol to frame its data over a byte stream like TCP, it would not need these options. In such cases, the API ought to expose the features in such a way that they take effect when a particular protocol is selected, but do not imply that only that protocol could be used if there are equivalent options.
+A specialized feature could be required by an application only when using a specific protocol, and not when using others. For example, if an application is using UDP, it could require control over the checksum or fragmentation behavior for UDP; if it used a protocol to frame its data over a byte stream like TCP, it would not need these options. In such cases, the API ought to expose the features in such a way that they take effect when a particular protocol is selected, but do not imply that only that protocol could be used. For example, if the API allows an application to specify a preference for constrained checksum usage, communication would not fail when a protocol such as TCP is selected, which uses a checksum covering the entire payload.
 
 Other specialized features, however, could be strictly required by an application and thus constrain the set of protocols that can be used. For example, if an application requires encryption of its transport data, only protocol stacks that include some transport security protocol are eligible to be used. A Transport Services API MUST allow applications to define such requirements and constrain the system's options. Since such options are not part of the core/common features, it will generally be simple for an application to modify its set of constraints and change the set of allowable protocol features without changing the core implementation.
 
@@ -352,7 +352,7 @@ The diagram below provides a high-level view of the actions taken during the lif
 
 * Local Endpoint: The Local Endpoint represents the application's identifier for itself that it uses for transport connections. For example, a local IP address and port.
 
-* Path Selection Properties: The Path Selection Properties consist of the options that an application can set to influence the selection of paths between the local and remote systems. These options can take  the form of requirements, prohibitions, or preferences. Examples of options that influence path selection include the interface type (such as a Wi-Fi Ethernet connection, or a Cellular LTE connection), characteristics of the path that are locally known like Maximum Transmission Unit (MTU) or discovered like Path MTU (PMTU), or predicted based on cached information like expected throughput or latency.
+* Path Selection Properties: The Path Selection Properties consist of the options that an application can set to influence the selection of paths between the local and remote systems. These options can take  the form of requirements, prohibitions, or preferences. Examples of options that influence path selection include the interface type (such as a Wi-Fi Ethernet connection, or a Cellular LTE connection), characteristics of the path that are locally known like the Maximum Transmission Unit (MTU) or discovered like the Path MTU (PMTU), or predicted based on cached information like expected throughput or latency.
 
 * Protocol Selection Properties: The Protocol Selection Properties consist of the options that an application can set to influence the selection of transport protocol, or to configure the behavior of generic transport protocol features. These options can take the form of requirements, prohibitions, and preferences. Examples include reliability, service class, multipath support, and fast open support.
 
@@ -380,7 +380,7 @@ This list of events that can be delivered to an application is not exhaustive, b
 
 * Connection Ready: Signals to an application that a given Connection is ready to send and/or receive Messages. If the Connection relies on handshakes to establish state between peers, then it is assumed that these steps have been taken.
 
-* Connection Finished: Signals to an application that a given Connection is no longer usable for sending or receiving Messages. The event SHOULD deliver an error to the application that describes the nature of the termination.
+* Connection Finished: Signals to an application that a given Connection is no longer usable for sending or receiving Messages. The event SHOULD deliver a reason or error to the application that describes the nature of the termination.
 
 * Connection Received: Signals to an application that a given Listener has passively received a Connection.
 
@@ -398,11 +398,11 @@ This list of events that can be delivered to an application is not exhaustive, b
 
 ## Transport System Implementation Concepts
 
-The Transport System Implementation Concepts define the set of objects used internally to a system or library to provide the functionality needed to provide a transport service across a network, as required by the abstract interface.
+The Transport System Implementation Concepts define the set of objects used internally to a system or library to implement the functionality needed to provide a transport service across a network, as required by the abstract interface.
 
 * Connection Group: A set of Connections that share properties. For multiplexing transport protocols, the Connection Group defines the set of Connections that can be multiplexed together.
 
-* Path: Represents an available set of properties that a local system can use to send or receive packets with a remote system.
+* Path: Represents an available set of properties that a local system can use to communicate with a remote system, such as routes, addresses, and physical and virtual network interfaces.
 
 * Protocol Instance: A single instance of one protocol, including any state it has necessary to establish connectivity or send and receive Messages.
 
