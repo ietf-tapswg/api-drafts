@@ -204,7 +204,7 @@ Any Transport Services API must allow access to the distilled minimal set of fea
 
 ## Access to Specialized Features
 
-There are applications that will need to control fine-grained details of transport protocols to optimize their behavior and ensure compatibility with remote peers,. A Transport Services system will therefore also needs to allow more specialized protocol features to be used. The interface for these specialized options should be exposed differently from the common options to ensure flexibility.
+There are applications that will need to control fine-grained details of transport protocols to optimize their behavior and ensure compatibility with remote peers. A Transport Services system will therefore also needs to allow more specialized protocol features to be used. The interface for these specialized options should be exposed differently from the common options to ensure flexibility.
 
 A specialized feature could be required by an application only when using a specific protocol, and not when using others. For example, if an application is using UDP, it could require control over the checksum or fragmentation behavior for UDP; if it used a protocol to frame its data over a byte stream like TCP, it would not need these options. In such cases, the API should expose the features in such a way that they take effect when a particular protocol is selected, but do not imply that only that protocol could be used if there are equivalent options.
 
