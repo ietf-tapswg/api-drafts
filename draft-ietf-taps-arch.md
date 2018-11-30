@@ -249,7 +249,7 @@ The following diagram summarizes the top-level concepts in the architecture and 
     |        establishment  |   termination  |
     |                |      |       |        |
     |             +--v------v-------v+       |
-  +-v-------------+   Basic Objects  +-------+----------+
+  +-v-------------+   Connection(s)  +-------+----------+
   |  Transport    +--------+---------+                  |
   |  Services              |                            |
   |  API                   |                            |
