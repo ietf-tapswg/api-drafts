@@ -63,7 +63,7 @@ author:
     name: Philipp S. Tiesel
     org: TU Berlin
     email: philipp@inet.tu-berlin.de
-    street: Marchstraße 23
+    street: Marchstrasse 23
     city: 10587 Berlin
     country: Germany
   -
