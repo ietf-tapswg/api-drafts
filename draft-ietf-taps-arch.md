@@ -154,7 +154,7 @@ The Transport Services architecture maintains this general model of interaction,
 
 The Transport Services API {{I-D.ietf-taps-interface}} defines the mechanism for an application to create and monitor network connections, and transfer data. The Implementation {{I-D.ietf-taps-impl}} is responsible for mapping the API into the various available transport protocols and managing the available network interfaces and paths.
 
-There are a few key departures that Transport Services makes from the sockets API: it presents an asynchronous, event-driven API; it uses messages for respresenting data transfer to applications; and it assumes an implementation that can use multiple IP addresses, multiple protocols, multiple paths, and provide multiple application streams.
+There are a few key departures that Transport Services makes from the sockets API: it presents an asynchronous, event-driven API; it uses messages for representing data transfer to applications; and it assumes an implementation that can use multiple IP addresses, multiple protocols, multiple paths, and provide multiple application streams.
 
 ## Event-Driven API
 
