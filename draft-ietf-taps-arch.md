@@ -160,7 +160,7 @@ There are a few key departures that Transport Services makes from the sockets AP
 
 ## Event-Driven API
 
-Originally, sockets presented a blocking interface for establishing connections and transferring data. However, most modern applications interact with the network asynchronously. When sockets are presented as an asynchronous interface, they generally use a try-and-fail model. If the application wants to read, but data has not yet been received from the peer, the call to read will fail. The application then waits for a notification to indicate when it can try again.
+Originally, sockets presented a blocking interface for establishing connections and transferring data. However, most modern applications interact with the network asynchronously. When sockets are presented as an asynchronous interface, they generally use a try-and-fail model. If the application wants to read, but data has not yet been received from the peer, the call to read will fail. The application then waits and can try again later.
 
 All interaction with a Transport Services system is expected to be asynchronous, and use an event-driven model unlike sockets {{events}}. For example, if the application wants to read, its call to read will not fail, but will deliver an event containing the received data once it is available.
 
