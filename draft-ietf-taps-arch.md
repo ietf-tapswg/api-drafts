@@ -533,8 +533,9 @@ version fallback using a Transport Services API if so desired.
 
 # Acknowledgements
 
-This work has received funding from the European Union's Horizon 2020 research and
-innovation programme under grant agreement No. 644334 (NEAT).
+This work has received funding from the European Union's Horizon 2020
+research and innovation programme under grant agreements No. 644334
+(NEAT) and No. 688421 (MAMI).
 
 This work has been supported by Leibniz Prize project funds of DFG - German
 Research Foundation: Gottfried Wilhelm Leibniz-Preis 2011 (FKZ FE 570/4-1).
