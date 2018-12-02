@@ -430,7 +430,7 @@ The Transport System Implementation Concepts define the set of objects used inte
 
 * Endpoint Racing: Endpoint Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on the specific representation of the Remote Endpoint and the Local Endpoint, such as IP addresses resolved from a DNS hostname.
 
-## Protocol Stack Equivalence
+### Protocol Stack Equivalence
 
 The Transport Services architecture defines a mechanism that allows applications to easily use different network paths and Protocol Stacks. Transitioning between different Protocol Stacks is in some cases controlled by properties that only change when application code is updated. For example, an application can enable the use of a multipath or multistreaming transport protocol by modifying the properties in its Pre-Connection configuration. In some cases, however, the Transport Services system will be able to automatically change Protocol Stacks without an update to the application, either by selecting a new stack entirely, or by racing multiple candidate Protocol Stacks during connection establishment. This functionality can be a powerful driver of new protocol adoption, but needs to be constrained carefully to avoid unexpected behavior that can lead to functional or security problems.
 
@@ -440,13 +440,7 @@ If two different Protocol Stacks can be safely swapped, or raced in parallel (se
 
 2. Both stacks MUST offer the same transport services, as required by the application. For example, if an application specifies that it requires reliable transmission of data, then a Protocol Stack using UDP without any reliability layer on top would not be allowed to replace a Protocol Stack using TCP. However, if the application does not require reliability, then a Protocol Stack that adds unnecessary reliability might be allowed as an equivalent Protocol Stack as long as it does not conflict with any other application-requested properties.
 
-3. Both stacks MUST offer the same security properties. The security protocol equivalence section provides futher discussion ({{security-equivalence}}).
-
-### Transport Security Equivalence {#security-equivalence}
-
-The inclusion of transport security protocols {{I-D.ietf-taps-transport-security}} in a Protocol Stack adds additional restrictions to Protocol Stack equivalence. Security features and properties, such as cryptographic algorithms, peer authentication, and identity privacy vary across security protocols, and across versions of security protocols. Protocol equivalence ought not to be assumed for different protocols or protocol versions, even if they offer similar application configuration options.
-
-To ensure that security protocols are not incorrectly swapped, Transport Services systems SHOULD only automatically generate equivalent Protocol Stacks when the transport security protocols within the stacks are identical. Specifically, a transport system would consider protocols identical only if they are of the same type and version. For example, the same version of TLS running over two different transport protocol stacks are considered equivalent, whereas TLS 1.2 and TLS 1.3 {{I-D.ietf-tls-tls13}} are not considered equivalent.
+3. Both stacks MUST offer the same security properties. The inclusion of transport security protocols {{I-D.ietf-taps-transport-security}} in a Protocol Stack adds additional restrictions to Protocol Stack equivalence. Security features and properties, such as cryptographic algorithms, peer authentication, and identity privacy vary across security protocols, and across versions of security protocols. Protocol equivalence ought not to be assumed for different protocols or protocol versions, even if they offer similar application configuration options. To ensure that security protocols are not incorrectly swapped, Transport Services systems SHOULD only automatically generate equivalent Protocol Stacks when the transport security protocols within the stacks are identical. Specifically, a transport system would consider protocols identical only if they are of the same type and version. For example, the same version of TLS running over two different transport protocol stacks are considered equivalent, whereas TLS 1.2 and TLS 1.3 {{I-D.ietf-tls-tls13}} are not considered equivalent.
 
 ## Message Framing, Parsing, and Serialization {#framing}
 
