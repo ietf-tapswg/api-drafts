@@ -172,7 +172,15 @@ Using asynchronous events allows for a much simpler interaction model when estab
 
 Sockets provide a message interface for datagram protocols like UDP, but provide an unstructured stream abstraction for TCP. While TCP does indeed provide the ability to send and receive data as streams, most applications need to interpret structure within these streams. HTTP/1.1 uses character delimiters to segment messages over a stream; TLS record headers carry a version, content type, and length; and HTTP/2 uses frames to segment its headers and bodies.
 
-The Transport Services API respresents data as messages, so that it more closely matches the way applications use the network. Messages seamlessly work with transport protocols that support datagrams or records, but can also be used over a stream by defining the application-layer framing being used {{framing}}. 
+The Transport Services API respresents data as messages, so that it more closely matches the way applications use the network. Messages seamlessly work with transport protocols that support datagrams or records, but can also be used over a stream by defining an application-layer framer to use {{datatransfer}}. When framing protocols are placed on top of unstructured streams, the messages used in the API represent the framed messages within the stream. In the absence of a framer, protocols that deal only in byte streams, such as TCP, represent their data in each direction as a single, long message.
+
+Providing a message-based abstraction provides many benefits, such as:
+
+* the ability to associate deadlines with messages, for applications that care about timing;
+*  the ability to provide control of reliability, choosing which messages to retransmit in the event of packet loss, and how best to make use of the data that arrived;
+* the ability to manage dependencies between messages, when the transport system could decide to not deliver a message, either following packet loss or because it has missed a deadline. In particular, this can avoid (re-)sending data that relies on a previous transmission that was never received.
+
+Allowing applications to interact with messages is backwards-compatible with existings protocols and APIs, as it does not change the wire format of any protocol. Instead, it gives the protocol stack additional information to allow it to make better use of modern transport services, while simplifying the application's role in parsing data.
 
 ## Flexibile Implementation
 
@@ -226,14 +234,7 @@ The Transport Services API is envisioned as the abstract model for a family of A
 
 Implementations that provide the Transport Services API {{I-D.ietf-taps-impl}} will vary due to system-specific support and the needs of the deployment scenario. It is expected that all implementations of Transport Services will offer the entire mandatory API, but that some features will not be functional in certain implementations. All implementations are REQUIRED to offer sufficient APIs to use the distilled minimal set of features offered by transport protocols {{I-D.ietf-taps-minset}}, including API support for TCP and UDP transport, but it is possible that some very constrained devices might not have, for example, a full TCP implementation beneath the API.
 
-To preserve flexibility and compatibility with future protocols, top-level
-features in the Transport Services API SHOULD avoid referencing particular
-transport protocols. The mappings of these API features to specific
-implementations of each feature is explained in the
-{{I-D.ietf-taps-impl}} which also explain the implications
-of the feature provided by existing protocols. It is expected that this document
-will be updated and supplemented as new protocols and protocol features are
-developed.
+To preserve flexibility and compatibility with future protocols, top-level features in the Transport Services API SHOULD avoid referencing particular transport protocols. The mappings of these API features to specific implementations of each feature is explained in the {{I-D.ietf-taps-impl}} which also explain the implications of the feature provided by existing protocols. It is expected that this document will be updated and supplemented as new protocols and protocol features are developed.
 
 It is important to note that neither the Transport Services API {{I-D.ietf-taps-interface}} nor the Implementation document {{I-D.ietf-taps-impl}} defines new protocols that require any changes to a remote system. The Transport Services system MUST be deployable on one side only, as a way to allow an application to make better use of available capabilities on a system and protocol features that may be supported by peers across the network.
 
@@ -374,6 +375,8 @@ The diagram below provides a high-level view of the actions taken during the lif
 
 * Receive: An action that indicates that the application is ready to asynchronously accept a Message over a Connection from a remote system, while the Message content itself will be delivered in an event ({{events}}). The interface to Receive MAY include options specific to the Message that is to be delivered to the application.
 
+* Framer: A Framer is a data translation layer that can be added to a Connection to define how application-level Messages are transmitted over a transport protocol. This is particularly relevant for protocols that otherwise present unstructured streams, such as TCP.
+
 ### Event Handling {#events}
 
 This list of events that can be delivered to an application is not exhaustive, but gives the top-level categories of events. The API MAY expand this list.
@@ -441,55 +444,6 @@ If two different Protocol Stacks can be safely swapped, or raced in parallel (se
 2. Both stacks MUST offer the same transport services, as required by the application. For example, if an application specifies that it requires reliable transmission of data, then a Protocol Stack using UDP without any reliability layer on top would not be allowed to replace a Protocol Stack using TCP. However, if the application does not require reliability, then a Protocol Stack that adds unnecessary reliability might be allowed as an equivalent Protocol Stack as long as it does not conflict with any other application-requested properties.
 
 3. Both stacks MUST offer the same security properties. The inclusion of transport security protocols {{I-D.ietf-taps-transport-security}} in a Protocol Stack adds additional restrictions to Protocol Stack equivalence. Security features and properties, such as cryptographic algorithms, peer authentication, and identity privacy vary across security protocols, and across versions of security protocols. Protocol equivalence ought not to be assumed for different protocols or protocol versions, even if they offer similar application configuration options. To ensure that security protocols are not incorrectly swapped, Transport Services systems SHOULD only automatically generate equivalent Protocol Stacks when the transport security protocols within the stacks are identical. Specifically, a transport system would consider protocols identical only if they are of the same type and version. For example, the same version of TLS running over two different transport protocol stacks are considered equivalent, whereas TLS 1.2 and TLS 1.3 {{I-D.ietf-tls-tls13}} are not considered equivalent.
-
-## Message Framing, Parsing, and Serialization {#framing}
-
-While some transports expose a byte stream abstraction, most higher level
-protocols impose some structure onto that byte stream. That is, the higher
-level protocol operates in terms of messages, protocol data units (PDUs),
-rather than using unstructured sequences of bytes, with each message being
-processed in turn.  Protocols are specified in terms of state machines
-acting on semantic messages, with parsing the byte stream into messages
-being a necessary annoyance, rather than a semantic concern.  Accordingly,
-the Transport Services architecture exposes messages as the primary
-abstraction.  Protocols that deal only in byte streams, such as TCP,
-represent their data in each direction as a single, long message.  When
-framing protocols are placed on top of byte streams, the messages used in
-the API represent the framed messages within the stream.
-
-Providing a message-based abstraction also provides:
-
-* the ability to associate deadlines with messages, for transports that
-  care about timing;
-
-*  the ability to provide control of reliability, choosing what messages to
-   retransmit in the event of packet loss, and how best to make use of the
-   data that arrived;
-
-* the ability to manage dependencies between messages, when the transport
-  system could decide to not deliver a message, either following packet loss or
-  because it has missed a deadline. In particular, this can avoid (re-)sending data 
-  that relies on a previous transmission that was never received.
-
-This requires explicit message boundaries and application-level framing of
-messages. Once a message is passed to the transport, it
-cannot be cancelled or paused, but prioritization as well as lifetime and
-retransmission management will provide the protocol stack with all needed
-information to send the messages as quickly as possible without blocking
-transmission unnecessarily. The transport services architecture facilitates
-this by handling messages, with known identity (sequence numbers, in the
-simple case), lifetimes, niceness, and antecedents.
-
-Transport protocols such as UDP and SCTP provide a message-oriented API that has
-similar features to those described.  Other transports, such as TCP, do
-not.  To support a message-oriented API, while still being compatible with
-stream-based transport protocols, implementations of the transport services
-architecture should provide APIs for framing and de-framing messages.  That
-is, we push message framing down into the transport services API, allowing
-applications to send and receive complete messages.  This is backwards
-compatible with existing protocols and APIs, since the wire format of
-messages does not change, but gives the protocol stack additional
-information to allow it to make better use of modern transport services.
 
 # IANA Considerations
 
