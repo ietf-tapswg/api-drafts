@@ -430,7 +430,7 @@ The Transport System Implementation Concepts define the set of objects used inte
 
 * Remote Endpoint Racing: Remote Endpoint Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on the specific representation of the Remote Endpoint, such as IP addresses resolved from a DNS hostname.
 
-### Protocol Stack Equivalence
+### Protocol Stack Equivalence {#equivalence}
 
 The Transport Services architecture defines a mechanism that allows applications to easily use different network paths and Protocol Stacks. Transitioning between different Protocol Stacks is in some cases controlled by properties that only change when application code is updated. For example, an application can enable the use of a multipath or multistreaming transport protocol by modifying the properties in its Pre-Connection configuration. In some cases, however, the Transport Services system will be able to automatically change Protocol Stacks without an update to the application, either by selecting a new stack entirely, or by racing multiple candidate Protocol Stacks during connection establishment. This functionality can be a powerful driver of new protocol adoption, but needs to be constrained carefully to avoid unexpected behavior that can lead to functional or security problems.
 
@@ -502,10 +502,14 @@ This document has no actions for IANA.
 The Transport Services architecture does not recommend use of specific
 security protocols or algorithms. Its goal is to offer ease of use for
 existing protocols by providing a generic security-related interface. Each
-provided interface mimics an existing protocol-specific interface provided by
+provided interface translates to an existing protocol-specific interface provided by
 supported security protocols. For example, trust verification callbacks are
 common parts of TLS APIs. Transport Services APIs will expose similar
-functionality {{I-D.ietf-taps-transport-security}}.
+functionality {{I-D.ietf-taps-transport-security}}. 
+
+As described above in {{equivalence}}, if a Transport Services system races
+between two different Protocol Stacks, both MUST use the same security
+protocols and options.
 
 Clients need to ensure that security APIs are used appropriately. In cases where
 clients use an interface to provide sensitive keying material, e.g., access
@@ -520,10 +524,9 @@ Fast Open (TFO) {{RFC7413}} or Explicit Congestion Notification (ECN)
 {{RFC3168}} which can fall back to standard configurations, Transport
 Services systems MUST prohibit fallback for security protocols. For example,
 if a client requests TLS, yet TLS or the desired version are not available,
-its connection will fail.
-
-Clients are responsible for implementing protocol or
-version fallback using a Transport Services API if so desired.
+its connection will fail. Clients are thus responsible for implementing 
+security protocol fallback or version fallback by creating multiple
+Transport Services Connections, if so desired.
 
 # Acknowledgements
 
