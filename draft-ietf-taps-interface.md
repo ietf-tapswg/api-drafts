@@ -641,7 +641,7 @@ lower-bound rate below which the application does not deem
 a data transfer useful. It is given in bits per second.
 
 
-### TCP-specific option: User Timeout
+### TCP-specific Property: User Timeout
 
 This property specifies, for the case TCP becomes the chosen transport protocol:
 
@@ -1934,39 +1934,12 @@ The following Transport Properties might be made available in
 addition to those specified in {{selection-props}}, {{connection-props}}, and {{message-props}}.
 
 
-### Abort timeout to suggest to the Remote Endpoint
-
-Classification:
-: Protocol Property
-
-Type:
-: Integer
-
-Applicability:
-: Preconnection, Connection
-
-
-This numeric property specifies the timeout to propose to the Remote Endpoint.
-It is given in seconds.
-
-\[EDITOR'S NOTE: For discussion of this property, see
-https://github.com/taps-api/drafts/issues/109]
-
-
 ### Cost Preferences {#cost-preferences}
 
 \[EDITOR'S NOTE: At IETF 103, opinions were that this property should stay,
-but it was also said that this is maybe not "on the right level".]
-
-Classification:
-: Intent
-
-Type:
-: Enumeration
-
-Applicability:
-: Preconnection, Message
-
+but it was also said that this is maybe not "on the right level".
+If / when moving it to the main text, note that this is meant to be
+applicable to a Preconnection or a Message.]
 
 This property describes what an application prefers regarding monetary costs,
 e.g., whether it considers it acceptable to utilize limited data volume. It
@@ -2018,6 +1991,7 @@ definition.
 
 * Specify number of attempts and/or timeout for the first establishment message:  
 TODO.
+The description of "Timeout for aborting Connection" contains: "how long to wait before aborting a Connection during establishment".
 
 * Disable MPTCP:  
 TODO.
@@ -2036,8 +2010,7 @@ TODO: this should probably be covered by the "ConnectionError" Event, but the te
 it currently reads: "...can inform the application that the other side has aborted the Connection". In this case, it is the local side.
 
 * Suggest timeout to the peer:  
-"Suggest a timeout to the Remote Endpoint" and "Abort timeout to suggest to the Remote Endpoint" Selection property.
-\[EDITOR'S NOTE: For discussion of this option, see https://github.com/taps-api/drafts/issues/109].
+TCP-specific Property: User Timeout.
 
 * Notification of Excessive Retransmissions (early warning below abortion threshold):  
 "Notification of excessive retransmissions" property.
