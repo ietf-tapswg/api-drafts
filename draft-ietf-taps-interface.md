@@ -262,13 +262,13 @@ described in {{I-D.ietf-taps-arch}}.
 Each application using the Transport Services Interface declares its preferences
 for how the transport service should operate using properties at each stage of
 the lifetime of a connection. During pre-establishment, Selection Properties
-{{selection-props}} are used to specify which paths and protocol stacks can be
+(see {{selection-props}}) are used to specify which paths and protocol stacks can be
 used and are preferred by the application, and Connection Properties
-{{connection-props}} can be used to fine-tune the eventually established
+(see {{connection-props}}) can be used to fine-tune the eventually established
 connection. These Connection Properties can also be used to monitor and
 fine-tune established connections. The behavior of the selected protocol
 stack(s) when sending Messages is controlled by Message Properties
-{{message-props}}.
+(see {{message-props}}).
 
 Collectively, Selection, Connection, and Message Properties can be
 referred to as Transport Properties. All Transport Properties, regardless of the
