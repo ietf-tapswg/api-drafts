@@ -633,36 +633,6 @@ In case a unidirectional connection is requested, but unidirectional connections
 the system should fall back to bidirectional transport.
 
 
-### Bounds on Send or Receive Rate
-
-This property specifies an upper-bound rate that a transfer is not expected to
-exceed (even if flow- and congestion control allow higher rates), and/or a
-lower-bound rate below which the application does not deem
-a data transfer useful. It is given in bits per second.
-
-
-### TCP-specific Property: User Timeout
-
-This property specifies, for the case TCP becomes the chosen transport protocol:
-
-User Timeout:
-: the time after which the connection will be aborted if data could not be delivered
-
-Advertised User Timeout:
-: a time value to be advertised via the User Timeout Option (UTO) for the TCP at the remote endpoint
-to adapt its own user User Timeout value accordingly
-
-User Timeout Enabled:
-: a boolean (default false) to control whether the UTO option is enabled for a
-connection. This applies to both sending and receiving.
-
-Changeable:
-: a boolean (default true) which controls whether the User Timeout may be changed
-based on a UTO option received from the remote peer. This boolean becomes false when
-the 'User Timeout' is used.
-
-All of the above parameters are optional.
-
 
 ## Specifying Security Parameters and Callbacks {#security-parameters}
 
@@ -1783,6 +1753,36 @@ values are valid for the Capacity Profile:
 The Capacity Profile for a selected protocol stack may be modified on a
 per-Message basis using the Transmission Profile Message Property; see
 {{send-profile}}.
+
+
+### Bounds on Send or Receive Rate
+
+This property specifies an upper-bound rate that a transfer is not expected to
+exceed (even if flow- and congestion control allow higher rates), and/or a
+lower-bound rate below which the application does not deem
+a data transfer useful. It is given in bits per second.
+
+
+### TCP-specific Property: User Timeout
+
+This property specifies, for the case TCP becomes the chosen transport protocol:
+
+Advertised User Timeout:
+: a time value to be advertised via the User Timeout Option (UTO) for the TCP at the remote endpoint
+to adapt its own "Timeout for aborting Connection" (see {#conn-timeout}) value accordingly
+
+User Timeout Enabled:
+: a boolean (default false) to control whether the UTO option is enabled for a
+connection. This applies to both sending and receiving.
+
+Changeable:
+: a boolean (default true) which controls whether the "Timeout for aborting Connection" (see {#conn-timeout})
+may be changed
+based on a UTO option received from the remote peer. This boolean becomes false when
+"Timeout for aborting Connection" (see {#conn-timeout}) is used.
+
+All of the above parameters are optional (e.g., it is possible to specify "User Timeout Enabled" as true,
+but not specify an Advertised User Timeout value; in this case, the TCP default will be used).
 
 
 ## Soft Errors
