@@ -616,7 +616,52 @@ particular instance. While this does restrict path selection, it is broader than
 requiring specific PvD instances or interface instances, and should be preferred
 over these options.
 
+### Direction of communication
 
+This property specifies whether an application wants to use the connection for sending and/or receiving data.  Possible values are:
+
+Bidirectional (default):
+: The connection must support sending and receiving data
+
+Unidirectional send:
+: The connection must support sending data
+
+Unidirectional receive:
+: The connection must support receiving data
+
+In case a unidirectional connection is requested, but unidirectional connections are not supported by the transport protocol,
+the system should fall back to bidirectional transport.
+
+
+### Bounds on Send or Receive Rate
+
+This property specifies an upper-bound rate that a transfer is not expected to
+exceed (even if flow- and congestion control allow higher rates), and/or a
+lower-bound rate below which the application does not deem
+a data transfer useful. It is given in bits per second.
+
+
+### TCP-specific option: User Timeout
+
+This property specifies, for the case TCP becomes the chosen transport protocol:
+
+User Timeout:
+: the time after which the connection will be aborted if data could not be delivered
+
+Advertised User Timeout:
+: a time value to be advertised via the User Timeout Option (UTO) for the TCP at the remote endpoint
+to adapt its own user User Timeout value accordingly
+
+User Timeout Enabled:
+: a boolean (default false) to control whether the UTO option is enabled for a
+connection. This applies to both sending and receiving.
+
+Changeable:
+: a boolean (default true) which controls whether the User Timeout may be changed
+based on a UTO option received from the remote peer. This boolean becomes false when
+the 'User Timeout' is used.
+
+All of the above parameters are optional.
 
 
 ## Specifying Security Parameters and Callbacks {#security-parameters}
@@ -1889,49 +1934,6 @@ The following Transport Properties might be made available in
 addition to those specified in {{selection-props}}, {{connection-props}}, and {{message-props}}.
 
 
-### Direction of communication
-
-Classification:
-: Selection Property, Control Property \[TODO: Discuss]
-
-Type:
-: Enumeration
-
-Applicability:
-: Preconnection, Connection (read only)
-
-This property specifies whether an application wants to use the connection for sending and/or receiving data.  Possible values are:
-
-Bidirectional (default):
-: The connection must support sending and receiving data
-
-unidirectional send:
-: The connection must support sending data.
-
-unidirectional receive:
-: The connection must support receiving data
-
-In case a unidirectional connection is requested, but unidirectional connections are not supported by the transport protocol,
-the system should fall back to bidirectional transport.
-
-### Suggest a timeout to the Remote Endpoint
-
-Classification:
-: Selection Property
-
-Type:
-: Preference
-
-Applicability:
-: Preconnection
-
-This property specifies whether an application considers it useful to propose a
-timeout until the Connection is assumed to be lost. The default is to have this
-option.
-
-\[EDITOR'S NOTE: For discussion of this option, see
-https://github.com/taps-api/drafts/issues/109]
-
 ### Abort timeout to suggest to the Remote Endpoint
 
 Classification:
@@ -1951,87 +1953,10 @@ It is given in seconds.
 https://github.com/taps-api/drafts/issues/109]
 
 
-### Traffic Category
-
-Classification:
-: Intent
-
-Type:
-: Enumeration
-
-Applicability:
-: Preconnection
-
-This property specifies what the application expects the dominating traffic pattern to be. Possible values are:
-
-Query:
-: Single request / response style workload, latency bound
-
-Control:
-: Long lasting low bandwidth control channel, not bandwidth bound
-
-Stream:
-: Stream of data with steady data rate
-
-Bulk:
-: Bulk transfer of large Messages, presumably bandwidth bound
-
-The default is to not assume any particular traffic pattern. Most categories
-suggest the use of other intents to further describe the traffic pattern
-anticipated, e.g., the bulk category suggesting the use of the Message Size
-intents or the stream category suggesting the Stream Bitrate and Duration
-intents.
-
-### Size to be Sent or Received
-
-Classification:
-: Intent
-
-Type:
-: Integer
-
-Applicability:
-: Preconnection, Message
-
-This property specifies how many bytes the application expects to send (Size to be Sent) or how many bytes the application expects to receive in response (Size to be Received).
-
-
-### Duration
-
-Classification:
-: Intent
-
-Type:
-: Integer
-
-Applicability:
-: Preconnection
-
-This Intent specifies what the application expects the lifetime of a Connection to be. It is given in milliseconds.
-
-
-### Send or Receive Bit-rate
-
-Classification:
-: Intent
-
-Type:
-: Integer
-
-Applicability:
-: Preconnection, Message
-
-This Intent specifies what the application expects the bit-rate of a transfer to
-be. It is given in Bytes per second.
-
-On a Message, this property specifies at what
-bitrate the application wishes the Message to be sent. A transport system supporting
-this feature will not exceed the requested Send Bitrate even if flow-control
-and congestion control allow higher bitrates. This helps to avoid a bursty
-traffic pattern on busy streaming video servers.
-
-
 ### Cost Preferences {#cost-preferences}
+
+\[EDITOR'S NOTE: At IETF 103, opinions were that this property should stay,
+but it was also said that this is maybe not "on the right level".]
 
 Classification:
 : Intent
