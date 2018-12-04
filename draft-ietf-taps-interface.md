@@ -1758,7 +1758,7 @@ per-Message basis using the Transmission Profile Message Property; see
 ### Bounds on Send or Receive Rate
 
 This property specifies an upper-bound rate that a transfer is not expected to
-exceed (even if flow- and congestion control allow higher rates), and/or a
+exceed (even if flow control and congestion control allow higher rates), and/or a
 lower-bound rate below which the application does not deem
 a data transfer useful. It is given in bits per second.
 
