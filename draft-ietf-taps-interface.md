@@ -616,6 +616,21 @@ particular instance. While this does restrict path selection, it is broader than
 requiring specific PvD instances or interface instances, and should be preferred
 over these options.
 
+### Direction of communication
+
+This property specifies whether an application wants to use the connection for sending and/or receiving data.  Possible values are:
+
+Bidirectional (default):
+: The connection must support sending and receiving data
+
+Unidirectional send:
+: The connection must support sending data
+
+Unidirectional receive:
+: The connection must support receiving data
+
+In case a unidirectional connection is requested, but unidirectional connections are not supported by the transport protocol,
+the system should fall back to bidirectional transport.
 
 
 
@@ -1740,6 +1755,36 @@ per-Message basis using the Transmission Profile Message Property; see
 {{send-profile}}.
 
 
+### Bounds on Send or Receive Rate
+
+This property specifies an upper-bound rate that a transfer is not expected to
+exceed (even if flow control and congestion control allow higher rates), and/or a
+lower-bound rate below which the application does not deem
+a data transfer useful. It is given in bits per second.
+
+
+### TCP-specific Property: User Timeout
+
+This property specifies, for the case TCP becomes the chosen transport protocol:
+
+Advertised User Timeout:
+: a time value to be advertised via the User Timeout Option (UTO) for the TCP at the remote endpoint
+to adapt its own "Timeout for aborting Connection" (see {#conn-timeout}) value accordingly
+
+User Timeout Enabled:
+: a boolean (default false) to control whether the UTO option is enabled for a
+connection. This applies to both sending and receiving.
+
+Changeable:
+: a boolean (default true) which controls whether the "Timeout for aborting Connection" (see {#conn-timeout})
+may be changed
+based on a UTO option received from the remote peer. This boolean becomes false when
+"Timeout for aborting Connection" (see {#conn-timeout}) is used.
+
+All of the above parameters are optional (e.g., it is possible to specify "User Timeout Enabled" as true,
+but not specify an Advertised User Timeout value; in this case, the TCP default will be used).
+
+
 ## Soft Errors
 
 Asynchronous introspection is also possible, via the SoftError Event. This event
@@ -1889,159 +1934,12 @@ The following Transport Properties might be made available in
 addition to those specified in {{selection-props}}, {{connection-props}}, and {{message-props}}.
 
 
-### Direction of communication
-
-Classification:
-: Selection Property, Control Property \[TODO: Discuss]
-
-Type:
-: Enumeration
-
-Applicability:
-: Preconnection, Connection (read only)
-
-This property specifies whether an application wants to use the connection for sending and/or receiving data.  Possible values are:
-
-Bidirectional (default):
-: The connection must support sending and receiving data
-
-unidirectional send:
-: The connection must support sending data.
-
-unidirectional receive:
-: The connection must support receiving data
-
-In case a unidirectional connection is requested, but unidirectional connections are not supported by the transport protocol,
-the system should fall back to bidirectional transport.
-
-### Suggest a timeout to the Remote Endpoint
-
-Classification:
-: Selection Property
-
-Type:
-: Preference
-
-Applicability:
-: Preconnection
-
-This property specifies whether an application considers it useful to propose a
-timeout until the Connection is assumed to be lost. The default is to have this
-option.
-
-\[EDITOR'S NOTE: For discussion of this option, see
-https://github.com/taps-api/drafts/issues/109]
-
-### Abort timeout to suggest to the Remote Endpoint
-
-Classification:
-: Protocol Property
-
-Type:
-: Integer
-
-Applicability:
-: Preconnection, Connection
-
-
-This numeric property specifies the timeout to propose to the Remote Endpoint.
-It is given in seconds.
-
-\[EDITOR'S NOTE: For discussion of this property, see
-https://github.com/taps-api/drafts/issues/109]
-
-
-### Traffic Category
-
-Classification:
-: Intent
-
-Type:
-: Enumeration
-
-Applicability:
-: Preconnection
-
-This property specifies what the application expects the dominating traffic pattern to be. Possible values are:
-
-Query:
-: Single request / response style workload, latency bound
-
-Control:
-: Long lasting low bandwidth control channel, not bandwidth bound
-
-Stream:
-: Stream of data with steady data rate
-
-Bulk:
-: Bulk transfer of large Messages, presumably bandwidth bound
-
-The default is to not assume any particular traffic pattern. Most categories
-suggest the use of other intents to further describe the traffic pattern
-anticipated, e.g., the bulk category suggesting the use of the Message Size
-intents or the stream category suggesting the Stream Bitrate and Duration
-intents.
-
-### Size to be Sent or Received
-
-Classification:
-: Intent
-
-Type:
-: Integer
-
-Applicability:
-: Preconnection, Message
-
-This property specifies how many bytes the application expects to send (Size to be Sent) or how many bytes the application expects to receive in response (Size to be Received).
-
-
-### Duration
-
-Classification:
-: Intent
-
-Type:
-: Integer
-
-Applicability:
-: Preconnection
-
-This Intent specifies what the application expects the lifetime of a Connection to be. It is given in milliseconds.
-
-
-### Send or Receive Bit-rate
-
-Classification:
-: Intent
-
-Type:
-: Integer
-
-Applicability:
-: Preconnection, Message
-
-This Intent specifies what the application expects the bit-rate of a transfer to
-be. It is given in Bytes per second.
-
-On a Message, this property specifies at what
-bitrate the application wishes the Message to be sent. A transport system supporting
-this feature will not exceed the requested Send Bitrate even if flow-control
-and congestion control allow higher bitrates. This helps to avoid a bursty
-traffic pattern on busy streaming video servers.
-
-
 ### Cost Preferences {#cost-preferences}
 
-Classification:
-: Intent
-
-Type:
-: Enumeration
-
-Applicability:
-: Preconnection, Message
-
+\[EDITOR'S NOTE: At IETF 103, opinions were that this property should stay,
+but it was also said that this is maybe not "on the right level".
+If / when moving it to the main text, note that this is meant to be
+applicable to a Preconnection or a Message.]
 
 This property describes what an application prefers regarding monetary costs,
 e.g., whether it considers it acceptable to utilize limited data volume. It
@@ -2093,6 +1991,7 @@ definition.
 
 * Specify number of attempts and/or timeout for the first establishment message:  
 TODO.
+The description of "Timeout for aborting Connection" contains: "how long to wait before aborting a Connection during establishment".
 
 * Disable MPTCP:  
 TODO.
@@ -2111,8 +2010,7 @@ TODO: this should probably be covered by the "ConnectionError" Event, but the te
 it currently reads: "...can inform the application that the other side has aborted the Connection". In this case, it is the local side.
 
 * Suggest timeout to the peer:  
-"Suggest a timeout to the Remote Endpoint" and "Abort timeout to suggest to the Remote Endpoint" Selection property.
-\[EDITOR'S NOTE: For discussion of this option, see https://github.com/taps-api/drafts/issues/109].
+TCP-specific Property: User Timeout.
 
 * Notification of Excessive Retransmissions (early warning below abortion threshold):  
 "Notification of excessive retransmissions" property.
