@@ -633,6 +633,14 @@ In case a unidirectional connection is requested, but unidirectional connections
 the system should fall back to bidirectional transport.
 
 
+### Timeout for aborting Connection Establishment {#conn-establish-timeout}
+
+Type:
+: Integer
+
+This property specifies how long to wait before aborting a Connection during establishment.
+It is given in seconds.
+
 
 ## Specifying Security Parameters and Callbacks {#security-parameters}
 
@@ -1245,36 +1253,32 @@ Connection.Batch(
 )
 ~~~
 
-## Send on Active Open: InitiateWithIdempotentSend {#initiate-and-send}
+## Send on Active Open: InitiateWithSend {#initiate-and-send}
 
 For application-layer protocols where the Connection initiator also sends the
-first message, the InitiateWithIdempotentSend() action combines Connection initiation with
-a first Message sent, provided that message is idempotent.
+first message, the InitiateWithSend() action combines Connection initiation with
+a first Message sent.
 
 Without a message context (as in {{send-basic}}):
 
 ~~~
-Connection := Preconnection.InitiateWithIdempotentSend(messageData)
+Connection := Preconnection.InitiateWithSend(messageData)
 ~~~
 
 With a message context (as in {{message-props}}):
 
 ~~~
-Connection := Preconnection.InitiateWithIdempotentSend(messageData, messageContext)
+Connection := Preconnection.InitiateWithSend(messageData, messageContext)
 ~~~
 
-The message passed to InitiateWithIdempotentSend() is, as suggested by the
-name, considered to be idempotent (see {{msg-idempotent}}) regardless of
-declared message properties or defaults. If protocol stacks supporting 0-RTT
-establishment with idempotent data are available on the Preconnection, then
-0-RTT establishment may be used with the given message when establishing
-candidate connections. For a non-idemponent initial message, or when the
-selected stack(s) do not support 0-RTT establishment,
-InitiateWithIdempotentSend is identical to Initiate() followed by Send().
+Whenever possible, a messageContext should be provided to declare the message passed to InitiateWithSend
+as idempotent. This allows the transport system to make use of 0-RTT establishment in case this is supported
+by the available protocol stacks. When the selected stack(s) do not support transmitting data upon connection
+establishment, InitiateWithSend is identical to Initiate() followed by Send().
 
-Neither partial sends nor send batching are supported by InitiateWithIdempotentSend().
+Neither partial sends nor send batching are supported by InitiateWithSend().
 
-The Events that may be sent after InitiateWithIdempotentSend() are equivalent to those
+The Events that may be sent after InitiateWithSend() are equivalent to those
 that would be sent by an invocation of Initate() followed immediately by an
 invocation of Send(), with the caveat that a send failure that occurs because
 the Connection could not be established will not result in a
@@ -1633,9 +1637,8 @@ are cloned.
 Type:
 : Integer
 
-This property specifies how long to wait before aborting a Connection during
-establishment, or before deciding that a Connection has failed after
-establishment. It is given in seconds.
+This property specifies how long to wait before deciding that a Connection has
+failed after establishment. It is given in seconds.
 
 ### Connection group transmission scheduler {#conn-scheduler}
 
@@ -1763,6 +1766,20 @@ lower-bound rate below which the application does not deem
 a data transfer useful. It is given in bits per second.
 
 
+### Parallel Use of Multiple Paths
+
+Type:
+: Boolean
+
+This property specifies whether an application considers it useful to
+transfer data across multiple paths between the same end hosts. Generally,
+in most cases, this will improve performance (e.g., achieve greater throughput).
+One possible side-effect is increased jitter, which may be problematic for
+delay-sensitive applications.
+
+The recommended default is to have this option.
+
+
 ### TCP-specific Property: User Timeout
 
 This property specifies, for the case TCP becomes the chosen transport protocol:
@@ -1824,8 +1841,8 @@ Abort terminates a Connection without delivering remaining data:
 Connection.Abort()
 ~~~
 
-A ConnectionError can inform the application that the other side has aborted
-the Connection; however, there is no guarantee that an Abort will indeed be signaled.
+A ConnectionError informs the application that data to could not be delivered for too long
+or the other side has aborted the Connection; however, there is no guarantee that an Abort will indeed be signaled.
 
 ~~~
 Connection -> ConnectionError<>
@@ -1842,7 +1859,7 @@ events are dispatched, are implementation dependent.
 Each transition of connection state is associated with one of more events:
 
 - Ready<> occurs when a Connection created with Initiate() or
-  InitiateWithIdempotentData() transitions to Established state.
+  InitiateWithSend() transitions to Established state.
 
 - ConnectionReceived<> occurs when a Connection created with Listen()
   transitions to Established state.
@@ -1980,8 +1997,7 @@ definition.
 
 {{I-D.ietf-taps-minset}} identifies a minimal set of transport services that end systems should offer. These services make all transport features offered by TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT available that 1) require interaction with the application, and 2) do not get in the way of a possible implementation over TCP or, with limitations, UDP. The following text explains how this minimal set is reflected in the present API. For brevity, this uses the list in Section 4.1 of {{I-D.ietf-taps-minset}}, updated according to the discussion in Section 5 of {{I-D.ietf-taps-minset}}.
 
-\[EDITOR'S NOTE: This is early text. In the future, this section will contain backward references, which we currently avoid because things are still being moved around and names / categories etc. are changing. Also, clearly, the intention is for the full minset to be reflected by the API at some point.]
-
+\[EDITOR'S NOTE: This is early text. In the future, this section will contain backward references, which we currently avoid because things are still being moved around and names / categories etc. are changing.]
 
 * Connect:  
 "Initiate" Action.
@@ -1990,24 +2006,22 @@ definition.
 "Listen" Action.
 
 * Specify number of attempts and/or timeout for the first establishment message:  
-TODO.
-The description of "Timeout for aborting Connection" contains: "how long to wait before aborting a Connection during establishment".
+"Timeout for aborting Connection Establishment" Property, using a time value in seconds.
 
 * Disable MPTCP:  
-TODO.
+"Parallel Use of Multiple Paths" Property.
 
 * Hand over a message to reliably transfer (possibly multiple times) before connection establishment:  
-"InitiateWithIdempotentSend" Action.
+"InitiateWithSend" Action.
 
 * Hand over a message to reliably transfer during connection establishment:  
-TODO.
+"InitiateWithSend" Action.
 
 * Change timeout for aborting connection (using retransmit limit or time value):  
 "Timeout for aborting Connection" property, using a time value in seconds.
 
 * Timeout event when data could not be delivered for too long:  
-TODO: this should probably be covered by the "ConnectionError" Event, but the text above
-it currently reads: "...can inform the application that the other side has aborted the Connection". In this case, it is the local side.
+"ConnectionError" Event.
 
 * Suggest timeout to the peer:  
 TCP-specific Property: User Timeout.
