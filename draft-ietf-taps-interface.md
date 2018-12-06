@@ -1841,7 +1841,7 @@ Abort terminates a Connection without delivering remaining data:
 Connection.Abort()
 ~~~
 
-A ConnectionError informs the application that data to could not be delivered for too long
+A ConnectionError informs the application that data to could not be delivered after a timeout, 
 or the other side has aborted the Connection; however, there is no guarantee that an Abort will indeed be signaled.
 
 ~~~
