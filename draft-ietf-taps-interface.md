@@ -635,11 +635,8 @@ the system should fall back to bidirectional transport.
 
 ### Timeout for aborting Connection Establishment {#conn-establish-timeout}
 
-Type:
-: Integer
-
 This property specifies how long to wait before aborting a Connection during establishment.
-It is given in seconds.
+
 
 
 ## Specifying Security Parameters and Callbacks {#security-parameters}
@@ -1634,11 +1631,8 @@ are cloned.
 
 ### Timeout for aborting Connection {#conn-timeout}
 
-Type:
-: Integer
-
 This property specifies how long to wait before deciding that a Connection has
-failed after establishment. It is given in seconds.
+failed after establishment.
 
 ### Connection group transmission scheduler {#conn-scheduler}
 
@@ -2006,7 +2000,7 @@ definition.
 "Listen" Action.
 
 * Specify number of attempts and/or timeout for the first establishment message:  
-"Timeout for aborting Connection Establishment" Property, using a time value in seconds.
+"Timeout for aborting Connection Establishment" Property, using a time value.
 
 * Disable MPTCP:  
 "Parallel Use of Multiple Paths" Property.
@@ -2018,7 +2012,7 @@ definition.
 "InitiateWithSend" Action.
 
 * Change timeout for aborting connection (using retransmit limit or time value):  
-"Timeout for aborting Connection" property, using a time value in seconds.
+"Timeout for aborting Connection" property, using a time value.
 
 * Timeout event when data could not be delivered for too long:  
 "ConnectionError" Event.
