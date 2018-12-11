@@ -616,6 +616,17 @@ particular instance. While this does restrict path selection, it is broader than
 requiring specific PvD instances or interface instances, and should be preferred
 over these options.
 
+### Parallel Use of Multiple Paths
+
+This property specifies whether an application considers it useful to
+transfer data across multiple paths between the same end hosts. Generally,
+in most cases, this will improve performance (e.g., achieve greater throughput).
+One possible side-effect is increased jitter, which may be problematic for
+delay-sensitive applications.
+
+The recommended default is to have this option.
+
+
 ### Direction of communication
 
 This property specifies whether an application wants to use the connection for sending and/or receiving data.  Possible values are:
@@ -1758,20 +1769,6 @@ This property specifies an upper-bound rate that a transfer is not expected to
 exceed (even if flow control and congestion control allow higher rates), and/or a
 lower-bound rate below which the application does not deem
 a data transfer useful. It is given in bits per second.
-
-
-### Parallel Use of Multiple Paths
-
-Type:
-: Boolean
-
-This property specifies whether an application considers it useful to
-transfer data across multiple paths between the same end hosts. Generally,
-in most cases, this will improve performance (e.g., achieve greater throughput).
-One possible side-effect is increased jitter, which may be problematic for
-delay-sensitive applications.
-
-The recommended default is to have this option.
 
 
 ### TCP-specific Property: User Timeout
