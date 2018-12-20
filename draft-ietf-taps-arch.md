@@ -292,7 +292,7 @@ Fundamentally, a Transport Services API needs to provide basic objects ({{object
 
 Beyond the basic objects, there are several high-level groups of actions that any Transport Services API implementing this specification MUST provide:
 
-* Pre-Establishment ({{preestablishment}}) encompasses the properties that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. For any system that provides generic Transport Services, these properties SHOULD be defined to apply to multiple transport protocols. Some properties are specific to a single transport protocol, and these are be exposed as non-generic interfaces (see Specific Protocol Properties {{preestablishment}}). Properties can have a large impact on the rest of the aspects of the interface: they modify how establishment occurs, they influence the expectations around data transfer, and they determine the set of events that will be supported.
+* Pre-Establishment ({{preestablishment}}) encompasses the properties that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. For any system that provides generic Transport Services, these Selection Properties SHOULD be defined to apply to multiple transport protocols. Selection Properties can have a large impact on the rest of the aspects of the interface: they modify how establishment occurs, they influence the expectations around data transfer, and they determine the set of events that will be supported.
 
 * Establishment ({{establishment}}) focuses on the actions that an application takes on the basic objects to prepare for data transfer.
 
@@ -311,22 +311,17 @@ The diagram below provides a high-level view of the actions taken during the lif
      +---------------+ Initiate() +------------+ Abort()   :
  +-->| Preconnection |----------->| Connection |---------------> Closed
  |   +---------------+     :      +------------+ Connection:
- |                         :      ^   ^    |     Finished  :
- +-- Local Endpoint        :      |   |    |               :
- |                         :      |   |    +---------+     :
- +-- Remote Endpoint       :      |   |              |     :
- |                         :      |   |Send()        |     :
- +-- Path Selection        :      | +---------+      v     :
- |   Properties            :      | | Message |  Message   :
- |                         :      | | to send |  Received  :
- +-- Protocol Selection    :      | +---------+            :
- |   Properties            :      |                        :
- |                         :      |                        :
- +-- Specific Protocol     :      |                        :
- |   Properties            :      |                        :
- |                         :      |                        :
- |   +----------+          :      |                        :
- +-->| Listener |-----------------+                        :
+ |                         :       ^  ^  ^  |    Finished  :
+ +-- Local Endpoint        :       |  |  |  |              :
+ |                         :       |  |  |  +---------+    :
+ +-- Remote Endpoint       :  +----+  |  +-----+      |    :
+ |                         :  |       |Send()  |      |    :
+ +-- Selection Properties  :  |  +---------+   |      v    :
+ +-- Connection Properties ---+  | Message |   |  Message  :
+ +-- Message Properties -------->| to send |   |  Received :
+ |                         :     +---------+   |           :
+ |   +----------+          :                   |           :
+ +-->| Listener |------------------------------+           :
      +----------+ Connection Received                      :
            ^               :                               :
            |               :                               :
@@ -336,12 +331,19 @@ The diagram below provides a high-level view of the actions taken during the lif
 
 ### Basic Objects {#objects}
 
-* Preconnection: A Preconnection object is a representation of a potential connection. It has state that describes parameters of a Connection that might exist in the future: the Local Endpoint from which that Connection will be established, the Remote Endpoint ({{preestablishment}}) to which it will connect, and Path Selection Properties, Protocol Selection Properties, and Specific Protocol Properties that influence the choice of transport that a Connection will use. A Preconnection can be fully specified and represent a single possible Connection, or it can be partially specified such that it represents a family of possible Connections. The Local Endpoint ({{preestablishment}}) MUST be specified if the Preconnection is used to Listen for incoming connections. The Local Endpoint is OPTIONAL if it is used to Initiate connections. The Remote Endpoint MUST be specified in the Preconnection is used to Initiate connections. The Remote Endpoint is OPTIONAL if it is used to Listen for incoming connections. The Local Endpoint and the Remote Endpoint MUST both be specified if a peer-to-peer Rendezvous is to occur based on the Preconnection.
+* Preconnection: A Preconnection object is a representation of a potential connection. It has state that describes parameters of a Connection that might exist in the future: the Local Endpoint from which that Connection will be established, the Remote Endpoint ({{preestablishment}}) to which it will connect, and Selection Properties, that influence the choice of transport that a Connection will use. A Preconnection can be fully specified and represent a single possible Connection, or it can be partially specified such that it represents a family of possible Connections. The Local Endpoint ({{preestablishment}}) MUST be specified if the Preconnection is used to Listen for incoming connections. The Local Endpoint is OPTIONAL if it is used to Initiate connections. The Remote Endpoint MUST be specified in the Preconnection is used to Initiate connections. The Remote Endpoint is OPTIONAL if it is used to Listen for incoming connections. The Local Endpoint and the Remote Endpoint MUST both be specified if a peer-to-peer Rendezvous is to occur based on the Preconnection.
 
 * Connection: A Connection object represents an active transport protocol instance that can send and/or receive Messages between local and remote systems. It holds state pertaining to the underlying transport protocol instance and any ongoing data transfer. This represents, for example, an active connection in a connection-oriented protocol such as TCP, or a fully-specified 5-tuple for a connectionless protocol such as UDP.
 
 * Listener: A Listener object accepts incoming transport protocol connections from remote systems  and generates corresponding Connection objects. It is created from a Preconnection object that specifies the type of incoming connections it will accept.
 
+* Transport Properties: Transport Properties allow the application to configure the Transport System and express their requirements, prohibitions, and preferences. There are three kinds of Transport Properties: 
+  Selection Properties are used influence connection establishment. 
+  Connection Properties are used to configure the protocol instance and control per-connection behavior of the Transport System. 
+  Message Properties are used to configure per-message control per-connection behavior of the Transport System.
+  Connection and Message Properties can also be specified prior establishment. If done so, they are used as a default and MAY be used as an input to path selection and protocol selection.
+  Some Transport Properties only apply to a single protocol (transport protocol, IP, or security protocol). The presence of such Transport Properties does not require that a specific protocol will be used when a Connection is established, but that if this protocol is employed, a particular set of options is to be used.
+  
 ### Pre-Establishment {#preestablishment}
 
 * Endpoint: An Endpoint represents an identifier for one side of a transport connection.
@@ -353,11 +355,7 @@ The diagram below provides a high-level view of the actions taken during the lif
 
 * Local Endpoint: The Local Endpoint represents the application's identifier for itself that it uses for transport connections. For example, a local IP address and port.
 
-* Path Selection Properties: The Path Selection Properties consist of the options that an application can set to influence the selection of paths between the local and remote systems. These options can take  the form of requirements, prohibitions, or preferences. Examples of options that influence path selection include the interface type (such as a Wi-Fi Ethernet connection, or a Cellular LTE connection), characteristics of the path that are locally known like the Maximum Transmission Unit (MTU) or discovered like the Path MTU (PMTU), or predicted based on cached information like expected throughput or latency.
-
-* Protocol Selection Properties: The Protocol Selection Properties consist of the options that an application can set to influence the selection of transport protocol, or to configure the behavior of generic transport protocol features. These options can take the form of requirements, prohibitions, and preferences. Examples include reliability, service class, multipath support, and fast open support.
-
-* Specific Protocol Properties: The Specific Protocol Properties refer to the subset of Protocol Properties options that apply to a single protocol (transport protocol, IP, or security protocol). The presence of such Properties does not require that a specific protocol will be used when a Connection is established, but that if this protocol is employed, a particular set of options is to be used.
+* Selection Properties: The Selection Properties consist of the options that an application can set to influence the selection of paths between the local and remote systems, to influence the selection of transport protocol, or to configure the behavior of generic transport protocol features. These options can take  the form of requirements, prohibitions, or preferences. Examples of options that influence path selection include the interface type (such as a Wi-Fi Ethernet connection, or a Cellular LTE connection), characteristics of the path that are locally known like the Maximum Transmission Unit (MTU) or discovered like the Path MTU (PMTU), or predicted based on cached information like expected throughput or latency. Examples of options that influence protocol selection and configuration of transport protocol features include reliability, service class, multipath support, and fast open support.
 
 ### Establishment Actions {#establishment}
 
@@ -399,7 +397,7 @@ This list of events that can be delivered to an application is not exhaustive, b
 
 * Abort: The action the application takes on a Connection to indicate a Close and also indicate that the transport system SHOULD NOT attempt to deliver any outstanding data.
 
-## Transport System Implementation Concepts
+## Transport System Implementation Concepts {#concepts}
 
 The Transport System Implementation Concepts define the set of objects used internally to a system or library to implement the functionality needed to provide a transport service across a network, as required by the abstract interface.
 
@@ -411,7 +409,7 @@ The Transport System Implementation Concepts define the set of objects used inte
 
 * Protocol Stack: A set of Protocol Instances (including relevant application, security, transport, or Internet protocols) that are used together to establish connectivity or send and receive Messages. A single stack can be simple (a single transport protocol instance over IP), or complex (multiple application protocol streams going through a single security and transport protocol, over IP; or, a multi-path transport protocol over multiple transport sub-flows).
 
-* Candidate Path: One path that is available to an application and conforms to the Path Selection Properties and System Policy. Candidate Paths are identified during the gathering phase ({{gathering}}) and can be used during the racing phase ({{racing}}).
+* Candidate Path: One path that is available to an application and conforms to the Selection Properties and System Policy. Candidate Paths are identified during the gathering phase ({{gathering}}) and can be used during the racing phase ({{racing}}).
 
 * Candidate Protocol Stack: One protocol stack that can be used by an application for a connection, of which there can be several. Candidate Protocol Stacks are identified during the gathering phase ({{gathering}}) and are started during the racing phase ({{racing}}).
 
@@ -421,9 +419,9 @@ The Transport System Implementation Concepts define the set of objects used inte
 
 ### Candidate Gathering {#gathering}
 
-* Path Selection: Path Selection represents the act of choosing one or more paths that are available to use based on the Path Selection Properties provided by the application, the policies and heuristics of a Transport Services system.
+* Path Selection: Path Selection represents the act of choosing one or more paths that are available to use based on the Selection Properties provided by the application, the policies and heuristics of a Transport Services system.
 
-* Protocol Selection: Protocol Selection represents the act of choosing one or more sets of protocol options that are available to use based on the Protocol Properties provided by the application, and a Transport Services system's policies and heuristics.
+* Protocol Selection: Protocol Selection represents the act of choosing one or more sets of protocol options that are available to use based on the Transport Properties provided by the application, and a Transport Services system's policies and heuristics.
 
 ### Candidate Racing {#racing}
 
