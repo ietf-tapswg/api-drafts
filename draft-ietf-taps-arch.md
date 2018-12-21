@@ -338,9 +338,10 @@ The diagram below provides a high-level view of the actions taken during the lif
 * Listener: A Listener object accepts incoming transport protocol connections from remote systems  and generates corresponding Connection objects. It is created from a Preconnection object that specifies the type of incoming connections it will accept.
 
 * Transport Properties: Transport Properties allow the application to configure the Transport System and express their requirements, prohibitions, and preferences. There are three kinds of Transport Properties: 
-  Selection Properties are used influence connection establishment. 
-  Connection Properties are used to configure the protocol instance and control per-connection behavior of the Transport System. 
-  Message Properties are used to configure per-message control per-connection behavior of the Transport System.
+  *  Selection Properties are used influence connection establishment. 
+  *  Connection Properties are used to configure the protocol instance and control per-connection behavior of the Transport System. 
+  *  Message Properties are used to configure per-message control per-connection behavior of the Transport System.
+  
   Connection and Message Properties can also be specified prior establishment. If done so, they are used as a default and MAY be used as an input to path selection and protocol selection.
   Some Transport Properties only apply to a single protocol (transport protocol, IP, or security protocol). The presence of such Transport Properties does not require that a specific protocol will be used when a Connection is established, but that if this protocol is employed, a particular set of options is to be used.
   
