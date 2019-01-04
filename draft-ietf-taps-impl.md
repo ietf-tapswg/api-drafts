@@ -527,16 +527,24 @@ It is also possible that protocol stacks within a particular leaf node use 0-RTT
 
 Maintenance encompasses changes that the application can request to a Connection, or that a Connection can react to based on system and network changes.
 
-## Changing Protocol Properties
+## Managing Connections
 
-Appendix A.1 of {{I-D.ietf-taps-minset}} explains, using primitives that are described in {{!RFC8303}} and {{!RFC8304}}, how to implement changing the following protocol properties of an established connection with TCP and UDP. Below, we amend this description for other protocols (if applicable):
+Appendix A.1 of {{I-D.ietf-taps-minset}} explains, using primitives from {{!RFC8303}} and {{!RFC8304}}, how to implement changing some of the following protocol properties of an established connection with TCP and UDP. Below, we amend this description for other protocols (if applicable) and extend it with Connection Properties that are not contained in {{I-D.ietf-taps-minset}}.
 
-- Relative niceness: for SCTP, this can be done using the primitive CONFIGURE_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
-- Timeout for aborting Connection: for SCTP, this can be done using the primitive CHANGE_TIMEOUT.SCTP described in section 4 of {{!RFC8303}}.
-- Abort timeout to suggest to the Remote Endpoint: for TCP, this can be done using the primitive CHANGE_TIMEOUT.TCP described in section 4 of {{!RFC8303}}.
-- Retransmission threshold before excessive retransmission notification: for TCP, this can be done using ERROR.TCP described in section 4 of {{!RFC8303}}.
+- Notification of excessive retransmissions: TODO
+- Retransmission threshold before excessive retransmission notification: TODO; for TCP, this can be done using ERROR.TCP described in section 4 of {{!RFC8303}}.
+- Notification of ICMP soft error message arrival: TODO
 - Required minimum coverage of the checksum for receiving: for UDP-Lite, this can be done using the primitive SET_MIN_CHECKSUM_COVERAGE.UDP-Lite described in section 4 of {{!RFC8303}}.
+- Niceness (Connection): TODO; for SCTP, this can be done using the primitive CONFIGURE_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
+- Timeout for aborting Connection: for SCTP, this can be done using the primitive CHANGE_TIMEOUT.SCTP described in section 4 of {{!RFC8303}}.
 - Connection group transmission scheduler: for SCTP, this can be done using the primitive SET_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
+- Maximum message size concurrent with Connection establishment: TODO
+- Maximum Message size before fragmentation or segmentation: TODO
+- Maximum Message size on send: TODO
+- Maximum Message size on receive: TODO
+- Capacity Profile: TODO
+- Bounds on Send or Receive Rate: TODO
+- TCP-specific Property: User Timeout: for TCP, this can be configured using the primitive CHANGE_TIMEOUT.TCP described in section 4 of {{!RFC8303}}.
 
 It may happen that the application attempts to set a Protocol Property which does not apply to the actually chosen protocol. In this case, the implementation should fail gracefully, i.e., it may give a warning to the application, but it should not terminate the Connection.
 
