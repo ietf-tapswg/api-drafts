@@ -265,8 +265,10 @@ the lifetime of a connection. During pre-establishment, Selection Properties
 (see {{selection-props}}) are used to specify which paths and protocol stacks can be
 used and are preferred by the application, and Connection Properties
 (see {{connection-props}}) can be used to fine-tune the eventually established
-connection. These Connection Properties can also be used to monitor and
-fine-tune established connections. The behavior of the selected protocol
+connection. These Connection Properties can also be used later, to monitor and
+fine-tune established connections -- but configuring Connection Properties on
+Preconnections is preferred because they can then can influence
+decisions made during establishment. The behavior of the selected protocol
 stack(s) when sending Messages is controlled by Message Properties
 (see {{message-props}}).
 
@@ -1501,7 +1503,7 @@ Preconnection.DeframeWith(Deframer)
 
 # Managing Connections {#introspection}
 
-After establishment, connections can be configured and queried using Connection
+During pre-establishment and after establishment, connections can be configured and queried using Connection
 Properties, and asynchronous information may be available about the state of the
 connection via Soft Errors.
 
@@ -1521,11 +1523,13 @@ The application can set and query Connection Properties on a per-Connection
 basis. Connection Properties that are not read-only can be set during
 pre-establishment (see {{selection-props}}), as well as on connections directly using
 the SetProperty action:
+
 ~~~
 Connection.SetProperty(property, value)
 ~~~
 
 At any point, the application can query Connection Properties.
+
 ~~~
 ConnectionProperties := Connection.GetProperties()
 ~~~
@@ -1978,7 +1982,7 @@ This document defines an abstract interface. To illustrate how this would map
 concretely into a programming language, an API interface definition in Go is
 available online at https://github.com/mami-project/postsocket.  Documentation
 for this API -- an illustration of the documentation an application developer
-would see for an instance of this interface - is available online at
+would see for an instance of this interface -- is available online at
 https://godoc.org/github.com/mami-project/postsocket. This API definition will
 be kept largely in sync with the development of this abstract interface
 definition.
