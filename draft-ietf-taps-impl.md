@@ -135,7 +135,7 @@ Listener objects are created with a Preconnection, at which point their configur
 
 # Implementing Pre-Establishment
 
-During pre-establishment the application specifies the Endpoints to be used for communication as well as its preferences regarding Protocol and Path Selection. The implementation stores these objects and properties as part of the Preconnection object for use during connection establishment. For Protocol and Path Selection Properties that are not provided by the application, the implementation must use the default values specified in the Transport Services API ({{I-D.ietf-taps-interface}}).
+During pre-establishment the application specifies the Endpoints to be used for communication as well as its preferences via Selection Properties and, if desired, also Connection Properties. The implementation stores these objects and properties as part of the Preconnection object for use during connection establishment. For Selection Properties that are not provided by the application, the implementation must use the default values specified in the Transport Services API ({{I-D.ietf-taps-interface}}).
   
 ## Configuration-time errors
 
@@ -152,7 +152,7 @@ It is important to fail as early as possible in such cases in order to avoid all
 
 The properties specified during pre-establishment has a close connection to system policy. The implementation is responsible for combining and reconciling several different sources of preferences when establishing Connections. These include, but are not limited to:
 
-1. Application preferences, i.e., preferences specified during the pre-establishment such as Local Endpoint, Remote Endpoint, Path Selection Properties, and Protocol Selection Properties.
+1. Application preferences, i.e., preferences specified during the pre-establishment via Selection and Connection Properties.
 2. Dynamic system policy, i.e., policy compiled from internally and externally acquired information about available network interfaces, supported transport protocols, and current/previous Connections. Examples of ways to externally retrieve policy-support information are through OS-specific statistics/measurement tools and tools that reside on middleboxes and routers.
 3. Default implementation policy, i.e., predefined policy by OS or application.
 
@@ -181,7 +181,7 @@ Any one of these sub-entries on the aggregate connection attempt would satisfy t
 
 ## Candidate Gathering {#gathering}
 
-The step of gathering candidates involves identifying which paths, protocols, and endpoints may be used for a given Connection. This list is determined by the requirements, prohibitions, and preferences of the application as specified in the Path Selection Properties and Protocol Selection Properties.
+The step of gathering candidates involves identifying which paths, protocols, and endpoints may be used for a given Connection. This list is determined by the requirements, prohibitions, and preferences of the application as specified in the Selection and Connection Properties.
 
 ### Structuring Options as a Tree
 
@@ -327,31 +327,30 @@ Branching for derived endpoints is the final step, and may have multiple layers 
 
 Implementations should sort the branches of the tree of connection options in order of their preference rank. 
 Leaf nodes on branches with higher rankings represent connection attempts that will be raced first.
-Implementations should order the branches to reflect the preferences expressed by the application for its new connection, including Protocol and Path Selection Properties, which are specified in {{I-D.ietf-taps-interface}}. 
+Implementations should order the branches to reflect the preferences expressed by the application for its new connection, including Selection and Connection Properties, which are specified in {{I-D.ietf-taps-interface}}. 
 
 In addition to the properties provided by the application, an implementation may include additional criteria such as cached performance estimates, see {{performance-caches}}, or system policy, see {{role-of-system-policy}}, in the ranking.
-Two examples of how the Protocol and Path Selection Properties may be used to sort branches are provided below:
+Two examples of how the Selection and Connection Properties may be used to sort branches are provided below:
 
-* Interface Type:
+* Selection Property "Interface Instance or Type":
 If the application specifies an interface type to be preferred or avoided, implementations should rank paths accordingly.
 If the application specifies an interface type to be required or prohibited, we expect an implementation to not include the non-conforming paths into the three.
 
-* Capacity Profile:
+* Connection Property "Capacity Profile":
 An implementation may use the Capacity Profile to prefer paths optimized for the application's expected traffic pattern according to cached performance estimates, see {{performance-caches}}:
-   * Interactive/Low Latency:
-     Prefer paths with the lowest expected Round Trip Time
-   * Constant Rate:
-     Prefer paths that can satisfy the requested Stream Send or Stream Receive Bitrate, based on observed maximum throughput
-   * Scavenger/Bulk:
+   * Scavenger:
      Prefer paths with the highest expected available bandwidth, based on observed maximum throughput
-
-\[Note: See {{branch-sorting-non-consensus}} for additional examples related to Properties under discussion.]
+   * Low Latency/Interactive:
+     Prefer paths with the lowest expected Round Trip Time
+   * Constant-Rate Streaming:
+     Prefer paths that can satisfy the requested Stream Send or Stream Receive Bitrate, based on observed maximum throughput
 
 Implementations should process properties in the following order: Prohibit, Require, Prefer, Avoid.
-If Protocol or Path Selection Properties contain any prohibited properties, the implementation should first purge branches containing nodes with these properties. For required properties, it should only keep branches that satisfy these requirements. Finally, it should order branches according to preferred properties, and finally use avoided properties as a tiebreaker.
+\[MICHAEL: What about "Ignore" (which cancels system default preferences for an option)?]
+If Selection or Connection Properties contain any prohibited properties, the implementation should first purge branches containing nodes with these properties. For required properties, it should only keep branches that satisfy these requirements. Finally, it should order branches according to preferred properties, and finally use avoided properties as a tiebreaker.
 
-For Require and Avoid, Path Selection Properties take precedence over Protocol Selection Properties.
-For example, if the application has indicated both a preference for WiFi over LTE and for a feature only available in SCTP, branches will be first sorted accord to the Path Selection Property, with WiFi at the top. Then, branches with SCTP will be sorted to the top within their subtree according to the Protocol Selection Property. However, if the implementation has cached the information that SCTP is not available on the path over WiFi, there is no SCTP node in the WiFi subtree. Here, the path over WiFi will be tried first, and, if connection establishment succeeds, TCP will be used. So the Path Selection Property of preferring WiFi takes precedence over the Protocol Selection Property of preferring SCTP.
+For Require and Avoid, path selection takes precedence over protocol selection.
+For example, if the application has indicated both a preference for WiFi over LTE and for a feature only available in SCTP, branches will be first sorted accord to path selection, with WiFi at the top. Then, branches with SCTP will be sorted to the top within their subtree according to the properties influencing protocol selection. However, if the implementation has cached the information that SCTP is not available on the path over WiFi, there is no SCTP node in the WiFi subtree. Here, the path over WiFi will be tried first, and, if connection establishment succeeds, TCP will be used. So the Selection Property of preferring WiFi takes precedence over the Property that led to a preference for SCTP.
 
 ~~~~~~~~~~
 1. [www.example.com:80, Any, Any Stream]
@@ -489,8 +488,6 @@ The effect of the application sending a Message is determined by the top-level p
 - Immediate Acknowledgement: this informs the implementation that the sender intends to execute tight control over the send buffer, and therefore wants to avoid delayed acknowledgements. In case of SCTP, a request to immediately send acknowledgements can be implemented using the "sack-immediately flag" described in Section 4.2 of {{!RFC8303}} for the SEND.SCTP primitive.
 
 - Instantaneous Capacity Profile: when this is set to "Interactive/Low Latency", the Message should be sent immediately, even when this comes at the cost of using the network capacity less efficiently. For example, small messages can sometimes be bundled to fit into a single data packet for the sake of reducing header overhead; such bundling should not be used. For example, in case of TCP, the Nagle algorithm should be disabled when Interactive/Low Latency is selected as the capacity profile. Scavenger/Bulk can translate into usage of a congestion control mechanism such as LEDBAT, and/or the capacity profile can lead to a choice of a DSCP value as described in {{I-D.ietf-taps-minset}}).
-
-\[Note: See also {{send-params-non-consensus}} for additional Send Parameters under discussion.]
 
 #### Send Completion
 
@@ -807,29 +804,3 @@ Research Council under grant EP/R04144X/1.
 Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work.
 
 --- back
-
-# Additional Properties {#appendix-non-consensus} 
-
-This appendix discusses implementation considerations for additional parameters and properties that could be used to enhance transport protocol and/or path selection, or the transmission of messages given a Protocol Stack that implements them.
-These are not part of the interface, and may be removed from the final document, but are presented here to support discussion within the TAPS working group as to whether they should be added to a future revision of the base specification.
-
-## Properties Affecting Sorting of Branches {#branch-sorting-non-consensus}
-
-In addition to the Protocol and Path Selection Properties discussed in {{branch-sorting}}, the following properties under discussion can influence branch sorting:
-
-* Size to be Sent or Received:
-An implementation may use the Size to be Sent or Received in combination with cached performance estimates, see {{performance-caches}}, e.g. the observed Round Trip Time and the observed maximum throughput, to compute an estimate of the completion time of a transfer over different available paths. It may then prefer the path with the shorter expected completion time. This property may be used instead of the Capacity profile, as the application does not always know whether its transfer will be latency-bound or bandwidth-bound, and thus may not be able to specify a Capacity Profile. However, the application may know the Size to be Sent or Received from metadata, e.g., in adaptive HTTP streaming such as MPEG-DASH, or in operating system upgrades. A related paper is currently under submission.
-
-* Send / Receive Bitrate:
-If the application indicates an expected send or receive bitrate, an implementation may prefer a path that can likely provide the desired bandwidth, based on cached maximum throughput, see {{performance-caches}}. The application may know the Send or Receive Bitrate from metadata in adaptive HTTP streaming, such as MPEG-DASH.
-
-* Cost Preferences:
-If the application indicates a preference to avoid expensive paths, and some paths are associated with a monetary cost, an implementation should decrease the ranking of such paths. If the application indicates that it prohibits using expensive paths, paths that are associated with a cost should be purged from the decision tree.
-
-
-## Send Parameters {#send-params-non-consensus}
-
-In addition to the Send Parameters listed in {{send-params}}, the following  Send Parameters are under discussion:
-
-* Send Bitrate:
-If an application indicates a certain bitrate it wants to send on the connection, the implementation may limit the bitrate of the outgoing communication to that rate, for example by setting an upper bound for the TCP congestion window of a connection calculated from the Send Bitrate and the Round Trip Time. This helps to avoid bursty traffic patterns on video streaming servers, see [Trickle].
