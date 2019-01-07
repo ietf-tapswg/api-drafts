@@ -347,8 +347,8 @@ An implementation may use the Capacity Profile to prefer paths optimized for the
 
 Implementations should process properties in the following order: Prohibit, Require, Prefer, Avoid.
 If Selection or Connection Properties contain any prohibited properties, the implementation should first purge branches containing nodes with these properties. For required properties, it should only keep branches that satisfy these requirements. Finally, it should order branches according to preferred properties, and finally use avoided properties as a tiebreaker.
-
 For Require and Avoid, path selection takes precedence over protocol selection.
+
 For example, if the application has indicated both a preference for WiFi over LTE and for a feature only available in SCTP, branches will be first sorted accord to path selection, with WiFi at the top. Then, branches with SCTP will be sorted to the top within their subtree according to the properties influencing protocol selection. However, if the implementation has cached the information that SCTP is not available on the path over WiFi, there is no SCTP node in the WiFi subtree. Here, the path over WiFi will be tried first, and, if connection establishment succeeds, TCP will be used. So the Selection Property of preferring WiFi takes precedence over the Property that led to a preference for SCTP.
 
 ~~~~~~~~~~
