@@ -303,6 +303,8 @@ Beyond the basic objects, there are several high-level groups of actions that an
 * Termination ({{termination}}) focuses on the methods by which data transmission is stopped, and state is torn down in the transport.
 
 The diagram below provides a high-level view of the actions taken during the lifetime of a connection.
+Note that some actions are alternatives (e.g., whether to initiate a connection or to listen for incoming connections), others are optional (e.g., setting Connection and Message Properties in Pre-Establishment), or have been omitted for brevity.
+
 
 ~~~~~~~~~~
      Pre-Establishment     :       Established             : Termination
