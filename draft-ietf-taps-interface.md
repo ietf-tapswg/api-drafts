@@ -650,18 +650,12 @@ the system should fall back to bidirectional transport.
 
 ### Notification of excessive retransmissions {#prop-establish-retrans-notify}
 
-Type:
-: Boolean
-
 This property specifies whether an application considers it useful to be
 informed in case sent data was retransmitted more often than a certain
 threshold. The recommended default is to have this option.
 
 
 ### Notification of ICMP soft error message arrival {#prop-soft-error}
-
-Type:
-: Boolean
 
 This property specifies whether an application considers it useful to be
 informed when an ICMP error message arrives that does not force termination of a
