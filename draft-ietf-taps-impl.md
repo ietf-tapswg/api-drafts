@@ -322,6 +322,17 @@ Protocol options are checked next in order. Whether or not a set of protocol, or
 
 Branching for derived endpoints is the final step, and may have multiple layers of derivation or resolution, such as DNS service resolution and DNS hostname resolution.
 
+For example, if the application has indicated both a preference for WiFi over LTE and for a feature only available in SCTP, branches will be first sorted accord to path selection, with WiFi at the top. Then, branches with SCTP will be sorted to the top within their subtree according to the properties influencing protocol selection. However, if the implementation has cached the information that SCTP is not available on the path over WiFi, there is no SCTP node in the WiFi subtree. Here, the path over WiFi will be tried first, and, if connection establishment succeeds, TCP will be used. So the Selection Property of preferring WiFi takes precedence over the Property that led to a preference for SCTP.
+
+~~~~~~~~~~
+1. [www.example.com:80, Any, Any Stream]
+1.1 [192.0.2.1:80, Wi-Fi, Any Stream]
+1.1.1 [192.0.2.1:80, Wi-Fi, TCP]
+1.2 [192.0.3.1:80, LTE, Any Stream]
+1.2.1 [192.0.3.1:80, LTE, SCTP]
+1.2.2 [192.0.3.1:80, LTE, TCP]
+~~~~~~~~~~
+
 
 ## Sorting Branches {#branch-sorting}
 
@@ -347,18 +358,7 @@ An implementation may use the Capacity Profile to prefer paths optimized for the
 
 Implementations should process properties in the following order: Prohibit, Require, Prefer, Avoid.
 If Selection or Connection Properties contain any prohibited properties, the implementation should first purge branches containing nodes with these properties. For required properties, it should only keep branches that satisfy these requirements. Finally, it should order branches according to preferred properties, and finally use avoided properties as a tiebreaker.
-For Require and Avoid, path selection takes precedence over protocol selection.
 
-For example, if the application has indicated both a preference for WiFi over LTE and for a feature only available in SCTP, branches will be first sorted accord to path selection, with WiFi at the top. Then, branches with SCTP will be sorted to the top within their subtree according to the properties influencing protocol selection. However, if the implementation has cached the information that SCTP is not available on the path over WiFi, there is no SCTP node in the WiFi subtree. Here, the path over WiFi will be tried first, and, if connection establishment succeeds, TCP will be used. So the Selection Property of preferring WiFi takes precedence over the Property that led to a preference for SCTP.
-
-~~~~~~~~~~
-1. [www.example.com:80, Any, Any Stream]
-  1.1 [192.0.2.1:80, Wi-Fi, Any Stream]
-    1.1.1 [192.0.2.1:80, Wi-Fi, TCP]
-  1.2 [192.0.3.1:80, LTE, Any Stream]
-    1.2.1 [192.0.3.1:80, LTE, SCTP]
-    1.2.2 [192.0.3.1:80, LTE, TCP]
-~~~~~~~~~~
 
 
 ## Candidate Racing
