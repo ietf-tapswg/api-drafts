@@ -257,7 +257,7 @@ Errors and other notifications also happen asynchronously on the Connection.
 through Actions and Events in each phase of a Connection, following the phases
 described in {{I-D.ietf-taps-arch}}.
 
-## Transport Properties
+## Transport Properties {#transport-properties}
 
 Each application using the Transport Services Interface declares its preferences
 for how the transport service should operate using properties at each stage of
@@ -280,6 +280,9 @@ stages:
  - Connection Properties can be set on Preconnections
  - Message Properties can be set on Preconnections and Connections
  - The effect of Selection Properties can be queried on Connections and Messages
+
+The Transport Properties Names are hierarchically organized in the form
+\[\<domain\>.\]\<PropertyName\>. The Domain part is empty for well known, generic properties, i.e., for properties defined by an RFC which use is not limited to a specific protocol. Otherwise, the domain part specifies the domain they apply to --- see {{iana}} for the assignment policy and initial values.
 
 Transport Properties can have one of a set of data types:
 
@@ -1890,11 +1893,14 @@ The interface provides the following guarantees about the ordering of
   where application ignores these errors.
 
 
-# IANA Considerations
+# IANA Considerations {#iana}
 
-RFC-EDITOR: Please remove this section before publication.
+This document creates a new registry group entitled "TAPS Transport Properties" with two registries: "Transport Property Domains" and "Well-Known Generic Transport Properties". Their use is described in {{transport-properties}}.
 
-This document has no Actions for IANA.
+## Transport Property Domains {#property-domains}
+
+## Well-Known Generic Transport Properties {#generic-properties}
+
 
 # Security Considerations
 
