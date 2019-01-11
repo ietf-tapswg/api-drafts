@@ -281,14 +281,18 @@ stages:
  - Message Properties can be set on Preconnections and Connections
  - The effect of Selection Properties can be queried on Connections and Messages
 
-The Transport Properties Names are hierarchically organized in the form
+The Transport Properties Names are CamelCased strings.
+They are hierarchically organized in the form
 \[\<domain\>.\]\<PropertyName\>. The Domain part is empty for well known, generic properties, i.e., for properties defined by an RFC which use is not limited to a specific protocol. Otherwise, the domain part specifies the domain they apply to --- see {{iana}} for the assignment policy and initial values.
+All Transport Properties specified in this document are well known, generic properties.
 
 Transport Properties can have one of a set of data types:
 
 - Boolean: can take the values "true" and "false"; representation is
   implementation-dependent.
-- Integer: can take positive or negative numeric values; range and
+- Integer: can take positive or negative numeric integer values; range and
+  representation is implementation-dependent.
+- Numeric: can take positive or negative numeric values; range and
   representation is implementation-dependent.
 - Enumeration: can take one value of a finite set of values, dependent on the
   property itself. The representation is implementation dependent; however,
@@ -1093,7 +1097,7 @@ The following Message Properties are supported:
 ### Lifetime {#msg-lifetime}
 
 Type:
-: Integer
+: Numeric
 
 Lifetime specifies how long a particular Message can wait to be sent to the
 remote endpoint before it is irrelevant and no longer needs to be
@@ -1649,6 +1653,9 @@ are cloned.
 
 ### Timeout for aborting Connection {#conn-timeout}
 
+Type:
+: Numeric
+
 This property specifies how long to wait before deciding that a Connection has
 failed after establishment.
 
@@ -1771,6 +1778,9 @@ per-Message basis using the Transmission Profile Message Property; see
 
 
 ### Bounds on Send or Receive Rate
+
+Type:
+: Numeric
 
 This property specifies an upper-bound rate that a transfer is not expected to
 exceed (even if flow control and congestion control allow higher rates), and/or a
