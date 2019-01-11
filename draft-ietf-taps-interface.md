@@ -283,7 +283,11 @@ stages:
 
 The Transport Properties Names are CamelCased strings.
 They are hierarchically organized in the form
-\[\<domain\>.\]\<PropertyName\>. The Domain part is empty for well known, generic properties, i.e., for properties defined by an RFC which use is not limited to a specific protocol. Otherwise, the domain part specifies the domain they apply to --- see {{iana}} for the assignment policy and initial values.
+\[\<domain\>.\]\<PropertyName\>. 
+The Domain part is empty for well known, generic properties, i.e., properties 
+defined by an RFC which use is not limited to a specific protocol. Otherwise, 
+the domain part specifies the domain they apply to, e.g., a specific protocol, vendor, or implementation.
+See {{iana}} for the assignment policy and an overview of the initial values.
 All Transport Properties specified in this document are well known, generic properties.
 
 Transport Properties can have one of a set of data types:
@@ -1788,7 +1792,7 @@ lower-bound rate below which the application does not deem
 a data transfer useful. It is given in bits per second.
 
 
-### TCP-specific Property: User Timeout
+### TCP-specific Property: User Timeout 
 
 This property specifies, for the case TCP becomes the chosen transport protocol:
 
@@ -1905,11 +1909,48 @@ The interface provides the following guarantees about the ordering of
 
 # IANA Considerations {#iana}
 
-This document creates a new registry group entitled "TAPS Transport Properties" with two registries: "Transport Property Domains" and "Well-Known Generic Transport Properties". Their use is described in {{transport-properties}}.
+This document creates a new registry group entitled "TAPS Transport Properties" to hold the definition of Transport Property names as described in {{transport-properties}}.
 
 ## Transport Property Domains {#property-domains}
 
-## Well-Known Generic Transport Properties {#generic-properties}
+This registry contains the names used in the the domain part of Transport Property names. 
+These are used to delegate the definitions of protocol, implementation, or 
+vendor specific Transport Properties to the respective sub-registries or 
+documents. The names are Protocol Acronyms or CamelCased strings, The reference field must point to the document defining the namespace and assignment policy.
+
+Initial values for the Transport Property Domains registry are given below; future assignments are to be made by an RFC or with IESG approval for IETF protocol names, on a first come first served basis otherwise.
+
+ | Name      | Description                   | Reference                      |
+ |----------------------------------------------------------------------------|
+ | X         | Experimental and Private use  | this RFC, {{transport-properties}} |
+ | TCP       | TCP specific Properties       | this RFC, {{connection-props}} |
+
+
+## Generic Transport Properties {#generic-properties}
+
+This registry contains the names of well-known Generic Transport Properties as defined in {{transport-properties}}.
+Names are CamelCased strings. 
+Type is one of "Boolean", "Integer", "Numeric", "Enumeration", or "Preference".
+Scope is one of "Pre-Connection", "Connection" or "Message"
+The reference field must point to a document where the usage of the respective property is defined.
+
+Initial values for the Generic Transport Property registry are given below; future assignments are to be made by an RFC or with IESG approval.
+
+ | Name                        | Type     | Scope        | Reference          |
+ |----------------------------------------------------------------------------|
+ | TODO!                       |          |              |                    |
+
+## TCP Specific Properties {#iana-tcp-properties}
+
+This registry contains the well-known Transport Properties specific to TCP.
+The fields are defined analogous to these in the Well-Known Generic Transport Property registry, see {{generic-properties}}.
+
+Initial values for the Well-Known Generic Transport Property registry are given below; future assignments are to be made by an RFC or with IESG approval.
+
+ | Name                        | Type     | Scope        | Reference          |
+ |----------------------------------------------------------------------------|
+ | TODO!                       |          |              |                    |
+
 
 
 # Security Considerations
