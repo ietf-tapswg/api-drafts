@@ -337,14 +337,14 @@ Note that some actions are alternatives (e.g., whether to initiate a connection 
 
 * Connection: A Connection object represents an active transport protocol instance that can send and/or receive Messages between local and remote systems. It holds state pertaining to the underlying transport protocol instance and any ongoing data transfer. This represents, for example, an active connection in a connection-oriented protocol such as TCP, or a fully-specified 5-tuple for a connectionless protocol such as UDP.
 
-* Listener: A Listener object accepts incoming transport protocol connections from remote systems  and generates corresponding Connection objects. It is created from a Preconnection object that specifies the type of incoming connections it will accept.
+* Listener: A Listener object accepts incoming transport protocol connections from remote systems and generates corresponding Connection objects. It is created from a Preconnection object that specifies the type of incoming connections it will accept.
 
 * Transport Properties: Transport Properties allow the application to configure the Transport System and express their requirements, prohibitions, and preferences. There are three kinds of Transport Properties: 
   *  Selection Properties are used influence connection establishment. 
   *  Connection Properties are used to configure the protocol instance and control per-connection behavior of the Transport System. 
   *  Message Properties are used to configure per-message control per-connection behavior of the Transport System.
   
-  Connection and Message Properties can also be specified prior establishment. If done so, they are used as a default and MAY be used as an input to path selection and protocol selection.
+  Connection and Message Properties can also be specified prior to establishment. If done so, they are used as a default and MAY be used as an input to path selection and protocol selection.
   Some Transport Properties only apply to a single protocol (transport protocol, IP, or security protocol). The presence of such Transport Properties does not require that a specific protocol will be used when a Connection is established, but that if this protocol is employed, a particular set of options is to be used.
   
 ### Pre-Establishment {#preestablishment}
@@ -358,7 +358,7 @@ Note that some actions are alternatives (e.g., whether to initiate a connection 
 
 * Local Endpoint: The Local Endpoint represents the application's identifier for itself that it uses for transport connections. For example, a local IP address and port.
 
-* Selection Properties: The Selection Properties consist of the options that an application can set to influence the selection of paths between the local and remote systems, to influence the selection of transport protocol, or to configure the behavior of generic transport protocol features. These options can take  the form of requirements, prohibitions, or preferences. Examples of options that influence path selection include the interface type (such as a Wi-Fi Ethernet connection, or a Cellular LTE connection), characteristics of the path that are locally known like the Maximum Transmission Unit (MTU) or discovered like the Path MTU (PMTU), or predicted based on cached information like expected throughput or latency. Examples of options that influence protocol selection and configuration of transport protocol features include reliability, service class, multipath support, and fast open support.
+* Selection Properties: The Selection Properties consist of the options that an application can set to influence the selection of paths between the local and remote systems, to influence the selection of transport protocol, or to configure the behavior of generic transport protocol features. These options can take the form of requirements, prohibitions, or preferences. Examples of options that influence path selection include the interface type (such as a Wi-Fi Ethernet connection, or a Cellular LTE connection), requirements around the Maximum Transmission Unit (MTU) or path MTU (PMTU), or preferences for throughput and latency properties. Examples of options that influence protocol selection and configuration of transport protocol features include reliability, service class, multipath support, and fast open support.
 
 ### Establishment Actions {#establishment}
 
