@@ -130,6 +130,7 @@ The model of using sockets for networking can be represented as follows: applica
 +-----------------------------------------------------+
 
 ~~~~~~~~~~
+{: #fig-sockets title="socket() API Model"}
 
 The Transport Services architecture maintains this general model of interaction, but aims to both modernize the API surface exposed for transport protocols and enrich the capabilities of the transport system implementation.
 
@@ -153,6 +154,7 @@ The Transport Services architecture maintains this general model of interaction,
 +-----------------------------------------------------+
 
 ~~~~~~~~~~
+{: #fig-taps title="Transport Services API Model"}
 
 The Transport Services API {{I-D.ietf-taps-interface}} defines the mechanism for an application to create network connections and transfer data. The Implementation {{I-D.ietf-taps-impl}} is responsible for mapping the API into the various available transport protocols and managing the available network interfaces and paths.
 
@@ -292,7 +294,7 @@ Fundamentally, a Transport Services API needs to provide basic objects ({{object
 
 Beyond the basic objects, there are several high-level groups of actions that any Transport Services API implementing this specification MUST provide:
 
-* Pre-Establishment ({{preestablishment}}) encompasses the properties that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. For any system that provides generic Transport Services, these Selection Properties SHOULD be defined to apply to multiple transport protocols. Selection Properties can have a large impact on the rest of the aspects of the interface: they modify how establishment occurs, they influence the expectations around data transfer, and they determine the set of events that will be supported.
+* Pre-Establishment ({{preestablishment}}) encompasses the properties that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. For any system that provides generic Transport Services, these properties SHOULD be defined to apply to multiple transport protocols. Properties specified during Pre-Establishment can have a large impact on the rest of the interface: they modify how establishment occurs, they influence the expectations around data transfer, and they determine the set of events that will be supported.
 
 * Establishment ({{establishment}}) focuses on the actions that an application takes on the basic objects to prepare for data transfer.
 
@@ -302,8 +304,7 @@ Beyond the basic objects, there are several high-level groups of actions that an
 
 * Termination ({{termination}}) focuses on the methods by which data transmission is stopped, and state is torn down in the transport.
 
-The diagram below provides a high-level view of the actions taken during the lifetime of a connection.
-Note that some actions are alternatives (e.g., whether to initiate a connection or to listen for incoming connections), others are optional (e.g., setting Connection and Message Properties in Pre-Establishment), or have been omitted for brevity.
+The diagram below provides a high-level view of the actions taken during the lifetime of a connection. Note that some actions are alternatives (e.g., whether to initiate a connection or to listen for incoming connections), others are optional (e.g., setting Connection and Message Properties in Pre-Establishment), or have been omitted for brevity.
 
 
 ~~~~~~~~~~
@@ -333,19 +334,12 @@ Note that some actions are alternatives (e.g., whether to initiate a connection 
 
 ### Basic Objects {#objects}
 
-* Preconnection: A Preconnection object is a representation of a potential connection. It has state that describes parameters of a Connection that might exist in the future: the Local Endpoint from which that Connection will be established, the Remote Endpoint ({{preestablishment}}) to which it will connect, and Selection Properties, that influence the choice of transport that a Connection will use. A Preconnection can be fully specified and represent a single possible Connection, or it can be partially specified such that it represents a family of possible Connections. The Local Endpoint ({{preestablishment}}) MUST be specified if the Preconnection is used to Listen for incoming connections. The Local Endpoint is OPTIONAL if it is used to Initiate connections. The Remote Endpoint MUST be specified in the Preconnection is used to Initiate connections. The Remote Endpoint is OPTIONAL if it is used to Listen for incoming connections. The Local Endpoint and the Remote Endpoint MUST both be specified if a peer-to-peer Rendezvous is to occur based on the Preconnection.
+* Preconnection: A Preconnection object is a representation of a potential connection. It has state that describes parameters of a Connection that might exist in the future: the Local Endpoint from which that Connection will be established, the Remote Endpoint ({{preestablishment}}) to which it will connect, and Selection Properties ({{preestablishment}}) that influence the paths and protocols a Connection will use. A Preconnection can be fully specified and represent a single possible Connection, or it can be partially specified such that it represents a family of possible Connections. The Local Endpoint ({{preestablishment}}) MUST be specified if the Preconnection is used to Listen for incoming connections. The Local Endpoint is OPTIONAL if it is used to Initiate connections. The Remote Endpoint MUST be specified in the Preconnection is used to Initiate connections. The Remote Endpoint is OPTIONAL if it is used to Listen for incoming connections. The Local Endpoint and the Remote Endpoint MUST both be specified if a peer-to-peer Rendezvous is to occur based on the Preconnection.
+  * Transport Properties: Transport Properties can be specified as part of a Preconnection to allow the application to configure the Transport System and express their requirements, prohibitions, and preferences. There are three kinds of Transport Properties: Selection Properties ({{preestablishment}}), Connection Properties ({{preestablishment}}), and Message Properties ({{datatransfer}}). Message Properties can also be specified during data transfer to affect specific Messages.
 
 * Connection: A Connection object represents an active transport protocol instance that can send and/or receive Messages between local and remote systems. It holds state pertaining to the underlying transport protocol instance and any ongoing data transfer. This represents, for example, an active connection in a connection-oriented protocol such as TCP, or a fully-specified 5-tuple for a connectionless protocol such as UDP.
 
 * Listener: A Listener object accepts incoming transport protocol connections from remote systems and generates corresponding Connection objects. It is created from a Preconnection object that specifies the type of incoming connections it will accept.
-
-* Transport Properties: Transport Properties allow the application to configure the Transport System and express their requirements, prohibitions, and preferences. There are three kinds of Transport Properties: 
-  *  Selection Properties are used influence connection establishment. 
-  *  Connection Properties are used to configure the protocol instance and control per-connection behavior of the Transport System. 
-  *  Message Properties are used to configure per-message control per-connection behavior of the Transport System.
-  
-  Connection and Message Properties can also be specified prior to establishment. If done so, they are used as a default and MAY be used as an input to path selection and protocol selection.
-  Some Transport Properties only apply to a single protocol (transport protocol, IP, or security protocol). The presence of such Transport Properties does not require that a specific protocol will be used when a Connection is established, but that if this protocol is employed, a particular set of options is to be used.
   
 ### Pre-Establishment {#preestablishment}
 
@@ -358,7 +352,9 @@ Note that some actions are alternatives (e.g., whether to initiate a connection 
 
 * Local Endpoint: The Local Endpoint represents the application's identifier for itself that it uses for transport connections. For example, a local IP address and port.
 
-* Selection Properties: The Selection Properties consist of the options that an application can set to influence the selection of paths between the local and remote systems, to influence the selection of transport protocol, or to configure the behavior of generic transport protocol features. These options can take the form of requirements, prohibitions, or preferences. Examples of options that influence path selection include the interface type (such as a Wi-Fi Ethernet connection, or a Cellular LTE connection), requirements around the Maximum Transmission Unit (MTU) or path MTU (PMTU), or preferences for throughput and latency properties. Examples of options that influence protocol selection and configuration of transport protocol features include reliability, service class, multipath support, and fast open support.
+* Selection Properties: The Selection Properties consist of the options that an application can set to influence the selection of paths between the local and remote systems, to influence the selection of transport protocols, or to configure the behavior of generic transport protocol features. These options can take the form of requirements, prohibitions, or preferences. Examples of options that influence path selection include the interface type (such as a Wi-Fi Ethernet connection, or a Cellular LTE connection), requirements around the Maximum Transmission Unit (MTU) or path MTU (PMTU), or preferences for throughput and latency properties. Examples of options that influence protocol selection and configuration of transport protocol features include reliability, service class, multipath support, and fast open support.
+
+* Connection Properties: The Connection Properties are used to configure protocol-specific options and control per-connection behavior of the Transport System. For example, a protocol-specific property on the connection can express that if UDP is used, the implementation ought to use checksums. Note that the presence of such a property does not require that a specific protocol will be used. In general, these properties do not explicitly determine the selection of paths or protocols, but MAY be used in this way by an implementation during connection establishment.
 
 ### Establishment Actions {#establishment}
 
@@ -372,9 +368,11 @@ Note that some actions are alternatives (e.g., whether to initiate a connection 
 
 * Message: A Message object is a unit of data that can be represented as bytes that can be transferred between two systems over a transport connection. The bytes within a Message are assumed to be ordered within the Message. If an application does not care about the order in which a peer receives two distinct spans of bytes, those spans of bytes are considered independent Messages. If a received Message is incomplete or corrupted, it might or might not be usable by certain applications. Boundaries of a Message might or might not be understood or transmitted by transport protocols. Specifically, what one application considers to be two Messages sent on a stream-based transport can be treated as a single Message by the application on the other side.
 
-* Send: The action to transmit a Message or partial Message over a Connection to the remote system. The interface to Send MAY include options specific to how the Message's content is to be sent. Status of the Send operation can be delivered back to the application in an event ({{events}}).
+* Message Properties: Message Properties can be used to annotate specific Messages. These properties can specify how the transport will send the Message (for prioritization and reliability), along with any per-protocol properties to send with the Message. Message Properties MAY be set on a Preconnection to define defaults properties for sending. When receiving Messages, Message Properties can contain per-protocol properties.
 
-* Receive: An action that indicates that the application is ready to asynchronously accept a Message over a Connection from a remote system, while the Message content itself will be delivered in an event ({{events}}). The interface to Receive MAY include options specific to the Message that is to be delivered to the application.
+* Send: The action to transmit a Message or partial Message over a Connection to the remote system. The interface to Send MAY include Message Properties specific to how the Message's content is to be sent. Status of the Send operation can be delivered back to the application in an event ({{events}}).
+
+* Receive: An action that indicates that the application is ready to asynchronously accept a Message over a Connection from a remote system, while the Message content itself will be delivered in an event ({{events}}). The interface to Receive MAY include Message Properties specific to the Message that is to be delivered to the application.
 
 * Framer: A Framer is a data translation layer that can be added to a Connection to define how application-level Messages are transmitted over a transport protocol. This is particularly relevant for protocols that otherwise present unstructured streams, such as TCP.
 
