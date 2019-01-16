@@ -135,7 +135,9 @@ Listener objects are created with a Preconnection, at which point their configur
 
 # Implementing Pre-Establishment
 
-During pre-establishment the application specifies the Endpoints to be used for communication as well as its preferences via Selection Properties and, if desired, also Connection Properties. The implementation stores these objects and properties as part of the Preconnection object for use during connection establishment. For Selection Properties that are not provided by the application, the implementation must use the default values specified in the Transport Services API ({{I-D.ietf-taps-interface}}).
+During pre-establishment the application specifies the Endpoints to be used for communication as well as its preferences via Selection Properties and, if desired, also Connection Properties. Generally, Connection Properties should be configured as early as possible, as they may serve as input to decisions that are made by the implementation (the Capacity Profile may guide usage of a protocol offering scavenger-type congestion control, for example). In the remainder of this document, we only refer to Selection Properties because they are the more typical case.
+
+The implementation stores these objects and properties as part of the Preconnection object for use during connection establishment. For Selection Properties that are not provided by the application, the implementation must use the default values specified in the Transport Services API ({{I-D.ietf-taps-interface}}).
   
 ## Configuration-time errors
 
@@ -152,7 +154,7 @@ It is important to fail as early as possible in such cases in order to avoid all
 
 The properties specified during pre-establishment have a close connection to system policy. The implementation is responsible for combining and reconciling several different sources of preferences when establishing Connections. These include, but are not limited to:
 
-1. Application preferences, i.e., preferences specified during the pre-establishment via Selection and Connection Properties.
+1. Application preferences, i.e., preferences specified during the pre-establishment via Selection Properties.
 2. Dynamic system policy, i.e., policy compiled from internally and externally acquired information about available network interfaces, supported transport protocols, and current/previous Connections. Examples of ways to externally retrieve policy-support information are through OS-specific statistics/measurement tools and tools that reside on middleboxes and routers.
 3. Default implementation policy, i.e., predefined policy by OS or application.
 
@@ -181,7 +183,7 @@ Any one of these sub-entries on the aggregate connection attempt would satisfy t
 
 ## Candidate Gathering {#gathering}
 
-The step of gathering candidates involves identifying which paths, protocols, and endpoints may be used for a given Connection. This list is determined by the requirements, prohibitions, and preferences of the application as specified in the Selection and Connection Properties.
+The step of gathering candidates involves identifying which paths, protocols, and endpoints may be used for a given Connection. This list is determined by the requirements, prohibitions, and preferences of the application as specified in the Selection Properties.
 
 ### Structuring Options as a Tree
 
@@ -338,10 +340,10 @@ For example, if the application has indicated both a preference for WiFi over LT
 
 Implementations should sort the branches of the tree of connection options in order of their preference rank. 
 Leaf nodes on branches with higher rankings represent connection attempts that will be raced first.
-Implementations should order the branches to reflect the preferences expressed by the application for its new connection, including Selection and Connection Properties, which are specified in {{I-D.ietf-taps-interface}}. 
+Implementations should order the branches to reflect the preferences expressed by the application for its new connection, including Selection Properties, which are specified in {{I-D.ietf-taps-interface}}. 
 
 In addition to the properties provided by the application, an implementation may include additional criteria such as cached performance estimates, see {{performance-caches}}, or system policy, see {{role-of-system-policy}}, in the ranking.
-Two examples of how the Selection and Connection Properties may be used to sort branches are provided below:
+Two examples of how Selection and Connection Properties may be used to sort branches are provided below:
 
 * Selection Property "Interface Instance or Type":
 If the application specifies an interface type to be preferred or avoided, implementations should rank paths accordingly.
@@ -357,7 +359,7 @@ An implementation may use the Capacity Profile to prefer paths optimized for the
      Prefer paths that can satisfy the requested Stream Send or Stream Receive Bitrate, based on observed maximum throughput
 
 Implementations should process properties in the following order: Prohibit, Require, Prefer, Avoid.
-If Selection or Connection Properties contain any prohibited properties, the implementation should first purge branches containing nodes with these properties. For required properties, it should only keep branches that satisfy these requirements. Finally, it should order branches according to preferred properties, and finally use avoided properties as a tiebreaker.
+If Selection Properties contain any prohibited properties, the implementation should first purge branches containing nodes with these properties. For required properties, it should only keep branches that satisfy these requirements. Finally, it should order branches according to preferred properties, and finally use avoided properties as a tiebreaker.
 
 
 
@@ -448,9 +450,9 @@ However, if a peer is not reachable over the network using the unconnected proto
 
 When an implementation is asked to Listen, it registers with the system to wait for incoming traffic to the Local Endpoint. If no Local Endpoint is specified, the implementation should either use an ephemeral port or generate an error.
 
-If the Selection or Connection Properties do not require a single network interface or path, but allow the use of multiple paths, the Listener object should register for incoming traffic on all of the network interfaces or paths that conform to the Properties. The set of available paths can change over time, so the implementation should monitor network path changes and register and de-register the Listener across all usable paths. When using multiple paths, the Listener is generally expected to use the same port for listening on each.
+If the Selection Properties do not require a single network interface or path, but allow the use of multiple paths, the Listener object should register for incoming traffic on all of the network interfaces or paths that conform to the Properties. The set of available paths can change over time, so the implementation should monitor network path changes and register and de-register the Listener across all usable paths. When using multiple paths, the Listener is generally expected to use the same port for listening on each.
 
-If the Selection or Connection Properties allow multiple protocols to be used for listening, and the implementation supports it, the Listener object should register across the eligble protocols for each path. This means that inbound Connections delivered by the implementation may have heterogeneous protocol stacks. 
+If the Selection Properties allow multiple protocols to be used for listening, and the implementation supports it, the Listener object should register across the eligble protocols for each path. This means that inbound Connections delivered by the implementation may have heterogeneous protocol stacks. 
 
 ### Implementing listeners for Connected Protocols
 
@@ -551,7 +553,7 @@ It may happen that the application attempts to set a Protocol Property which doe
 ## Handling Path Changes
 
 When a path change occurs, the Transport Services implementation is responsible for notifying Protocol Instances in the Protocol Stack.
-If the Protocol Stack includes a transport protocol that supports multipath connectivity, an update to the available paths should inform the Protocol Instance of the new set of paths that are permissible based on the Selection or Connection Properties passed by the application. A multipath protocol can establish new subflows over new paths, and should tear down subflows over paths that are no longer available. If the Protocol Stack includes a transport protocol that does not support multipath, but support migrating between paths, the update to available paths can be used as the trigger to migrating the connection. For protocols that do not support multipath or migration, the Protocol Instances may be informed of the path change, but should not be forcibly disconnected if the previously used path becomes unavailable. An exception to this case is if the System Policy changes to prohibit traffic from the Connection based on its properties, in which case the Protocol Stack should be disconnected.
+If the Protocol Stack includes a transport protocol that supports multipath connectivity, an update to the available paths should inform the Protocol Instance of the new set of paths that are permissible based on the Selection Properties passed by the application. A multipath protocol can establish new subflows over new paths, and should tear down subflows over paths that are no longer available. If the Protocol Stack includes a transport protocol that does not support multipath, but support migrating between paths, the update to available paths can be used as the trigger to migrating the connection. For protocols that do not support multipath or migration, the Protocol Instances may be informed of the path change, but should not be forcibly disconnected if the previously used path becomes unavailable. An exception to this case is if the System Policy changes to prohibit traffic from the Connection based on its properties, in which case the Protocol Stack should be disconnected.
 
 # Implementing Termination
 
