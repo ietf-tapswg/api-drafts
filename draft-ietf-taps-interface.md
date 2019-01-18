@@ -589,6 +589,7 @@ such as metered or unmetered network access. If an application needs to prohibit
 metered interfaces, this should be specified via Provisioning Domain attributes
 (see {{prop-pvd}}) or another specific property.
 
+
 ### Provisioning Domain Instance or Type {#prop-pvd}
 
 Similar to interface instances and types (see {{prop-interface}}), this property
@@ -618,6 +619,7 @@ particular instance. While this does restrict path selection, it is broader than
 requiring specific PvD instances or interface instances, and should be preferred
 over these options.
 
+
 ### Parallel Use of Multiple Paths
 
 This property specifies whether an application considers it useful to
@@ -646,7 +648,24 @@ In case a unidirectional connection is requested, but unidirectional connections
 the system should fall back to bidirectional transport.
 
 
-### Timeout for aborting Connection Establishment {#conn-establish-timeout}
+### Notification of excessive retransmissions {#prop-establish-retrans-notify}
+
+This property specifies whether an application considers it useful to be
+informed in case sent data was retransmitted more often than a certain
+threshold. The recommended default is to have this option.
+
+
+### Notification of ICMP soft error message arrival {#prop-soft-error}
+
+This property specifies whether an application considers it useful to be
+informed when an ICMP error message arrives that does not force termination of a
+connection. When set to true, received ICMP errors will be available as
+SoftErrors. Note that even if a protocol supporting this property is selected,
+not all ICMP errors will necessarily be delivered, so applications cannot rely
+on receiving them. The recommended default is not to have this option.
+
+
+### Timeout for aborting Connection Establishment {#prop-establish-timeout}
 
 This property specifies how long to wait before aborting a Connection during establishment.
 
@@ -1580,21 +1599,6 @@ Note that many protocol properties have a corresponding selection property, whic
 prefers protocols providing a specific transport feature that controlled by
 that protocol property. \[EDITOR'S NOTE: todo: add these cross-references up to {{selection-props}}]
 
-### Notification of excessive retransmissions {#conn-retrans-notify}
-
-Type:
-: Boolean
-
-This property specifies whether an application considers it useful to be
-informed in case sent data was retransmitted more often than a certain
-threshold. When set to true, the effect is twofold: The application may receive
-events in case excessive retransmissions. In addition, the transport system
-considers this as a preference to use transports stacks that can provide this
-notification. This is not a strict requirement. If set to false, no notification
-of excessive retransmissions will be sent and this transport feature is ignored
-for protocol selection.
-
-The recommended default is to have this option.
 
 ### Retransmission threshold before excessive retransmission notification {#conn-excss-retransmit}
 
@@ -1604,24 +1608,6 @@ Type:
 This property specifies after how many retransmissions to inform the application
 about "Excessive Retransmissions".
 
-
-### Notification of ICMP soft error message arrival {#conn-soft-error}
-
-Type:
-: Boolean
-
-This property specifies whether an application considers it useful to be
-informed when an ICMP error message arrives that does not force termination of a
-connection. When set to true, received ICMP errors will be available as
-SoftErrors. Note that even if a protocol supporting this property is selected,
-not all ICMP errors will necessarily be delivered, so applications cannot rely
-on receiving them. Setting this option also implies a preference to prefer
-transports stacks that can provide this notification. If not set, no events will
-be sent for ICMP soft error message and this transport feature is ignored for
-protocol selection.
-
-This property applies to Connections and Connection Groups. The recommended
-default is not to have this option.
 
 ### Required minimum coverage of the checksum for receiving {#conn-recv-checksum}
 
@@ -1800,7 +1786,7 @@ but not specify an Advertised User Timeout value; in this case, the TCP default 
 ## Soft Errors
 
 Asynchronous introspection is also possible, via the SoftError Event. This event
-informing the application about the receipt of an ICMP error message related to
+informs the application about the receipt of an ICMP error message related to
 the Connection. This will only happen if the underlying protocol stack supports
 access to soft errors; however, even if the underlying stack supports it, there
 is no guarantee that a soft error will be signaled.
@@ -1808,6 +1794,17 @@ is no guarantee that a soft error will be signaled.
 ~~~
 Connection -> SoftError<>
 ~~~
+
+## Excessive retransmissions {#conn-retrans-notify}
+
+This event notifies the application of excessive retransmissions, based on a
+configured threshold (see {{conn-excss-retransmit}}). This will only happen if
+the underlying protocol stack supports reliability and, with it, such notifications.
+
+~~~
+Connection -> ExcessiveRetransmission<>
+~~~
+
 
 # Connection Termination {#termination}
 
