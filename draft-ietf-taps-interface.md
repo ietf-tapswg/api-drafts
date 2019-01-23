@@ -1115,10 +1115,11 @@ Lifetime specifies how long a particular Message can wait to be sent to the
 remote endpoint before it is irrelevant and no longer needs to be
 (re-)transmitted. This is a hint to the transport system -- it is not guaranteed
 that a Message will not be sent when its Lifetime has expired.
+
 Setting a Message's Lifetime to infinite indicates that the application does
 not wish to apply a time constraint on it, but it does not express a need for
 reliable delivery; reliability is adjustable per Message via the "Reliable Data Transfer (Message)"
-property (see {{#msg-reliable-message}}). The type and units of Lifetime are implementation-specific.
+property (see {{msg-reliable-message}}). The type and units of Lifetime are implementation-specific.
 
 ### Niceness {#msg-niceness}
 
@@ -1195,7 +1196,7 @@ guaranteed, any other requests are advisory.
 Type:
 : Boolean
 
-This property, if set to true, specifies that a message should be sent in such a way
+When true, this property specifies that a message should be sent in such a way
 that the transport protocol ensures all data is received on the other side
 without corruption. Changing the ´Reliable Data Transfer´ property on Messages
 is only possible if the Connection supports reliability.
