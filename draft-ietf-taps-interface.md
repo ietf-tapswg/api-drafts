@@ -1199,7 +1199,7 @@ Type:
 When true, this property specifies that a message should be sent in such a way
 that the transport protocol ensures all data is received on the other side
 without corruption. Changing the ´Reliable Data Transfer´ property on Messages
-is only possible if the Connection supports reliability.
+is only possible for Connections that were established with the Selection Property 'Reliable Data Transfer (Connection)' enabled.
 When this is not the case, changing it will generate an error.
 Disabling this property indicates that the transport system may disable retransmissions
 or other reliability mechanisms for this particular Message, but such disabling is not guaranteed.
