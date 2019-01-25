@@ -1117,7 +1117,7 @@ remote endpoint before it is irrelevant and no longer needs to be
 that a Message will not be sent when its Lifetime has expired.
 
 Setting a Message's Lifetime to infinite indicates that the application does
-not wish to apply a time constraint on it, but it does not express a need for
+not wish to apply a time constraint on the transmission of the Message, but it does not express a need for
 reliable delivery; reliability is adjustable per Message via the "Reliable Data Transfer (Message)"
 property (see {{msg-reliable-message}}). The type and units of Lifetime are implementation-specific.
 
