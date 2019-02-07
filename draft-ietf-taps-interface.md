@@ -507,7 +507,7 @@ aborted. The recommended default is to Require Reliable Data Transfer.
 
 ### Preservation of Message Boundaries {#prop-boundaries}
 
-This property specifies whether the application needs to use a transport
+This property specifies whether the application needs or prefers to use a transport
 protocol that preserves message boundaries. The recommended default
 is to Prefer Preservation of Message Boundaries.
 
@@ -540,12 +540,17 @@ within a Connection Group to be provided by streams of a single underlying
 transport connection where possible. The recommended default is to Prefer have
 this option.
 
-### Control checksum coverage on sending or receiving {#prop-checksum-control}
+### Control checksum coverage on sending {#prop-checksum-control-send}
 
 This property specifies whether the application considers it useful to enable,
-disable, or configure a checksum when sending a Message, or configure whether to
-require a checksum or not when receiving.  The recommended default is to Prefer
-this option for sending, and Require a checksum when receiving.
+disable, or configure a checksum when sending a Message.  The recommended default
+is to Prefer this option.
+
+### Control checksum coverage on receiving {#prop-checksum-control-receive}
+
+This property specifies whether the application considers it useful configure whether to
+require a checksum or not when receiving.  The recommended default is to Prefer this
+option.
 
 ### Congestion control {#prop-cc}
 
@@ -772,7 +777,7 @@ client-server interactions. Active open is supported by this interface through t
 Initiate Action:
 
 ~~~
-Connection := Preconnection.Initiate(timeout)
+Connection := Preconnection.Initiate(optional: timeout)
 ~~~
 
 The timeout parameter specifies how long to wait before aborting Active open.
@@ -1296,13 +1301,13 @@ a first Message sent.
 Without a message context (as in {{send-basic}}):
 
 ~~~
-Connection := Preconnection.InitiateWithSend(messageData, timeout)
+Connection := Preconnection.InitiateWithSend(messageData, optional: timeout)
 ~~~
 
 With a message context (as in {{message-props}}):
 
 ~~~
-Connection := Preconnection.InitiateWithSend(messageData, messageContext, timeout)
+Connection := Preconnection.InitiateWithSend(messageData, messageContext, optional: timeout)
 ~~~
 
 Whenever possible, a messageContext should be provided to declare the message passed to InitiateWithSend
@@ -1638,7 +1643,9 @@ are cloned.
 ### Timeout for aborting Connection {#conn-timeout}
 
 This property specifies how long to wait before deciding that a Connection has
-failed after establishment.
+failed when trying to reliably deliver data to the destination. Adjusting this Property
+is only take effect when the underlying stack supports reliability.
+
 
 ### Connection group transmission scheduler {#conn-scheduler}
 
