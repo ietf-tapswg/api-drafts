@@ -478,7 +478,7 @@ The effect of the application sending a Message is determined by the top-level p
 
 - Lifetime: this should be implemented by removing the Message from its queue of pending Messages after the Lifetime has expired. A queue of pending Messages within the transport system implementation that have yet to be handed to the Protocol Stack can always support this property, but once a Message has been sent into the send buffer of a protocol, only certain protocols may support de-queueing a message. For example, TCP cannot remove bytes from its send buffer, while in case of SCTP, such control over the SCTP send buffer can be exercised using the partial reliability extension {{!RFC8303}}. When there is no standing queue of Messages within the system, and the Protocol Stack does not support removing a Message from its buffer, this property may be ignored.
 
-- Niceness: this represents the ability to de-prioritize a Message in favor of other Messages. This can be implemented by the system re-ordering Messages that have yet to be handed to the Protocol Stack, or by giving relative priority hints to protocols that support priorities per Message. For example, an implementation of HTTP/2 could choose to send Messages of different niceness on streams of different priority.
+- Priority: this represents the ability to prioritize a Message over other Messages. This can be implemented by the system re-ordering Messages that have yet to be handed to the Protocol Stack, or by giving relative priority hints to protocols that support priorities per Message. For example, an implementation of HTTP/2 could choose to send Messages of different Priority on streams of different priority.
 
 - Ordered: when this is false, it disables the requirement of in-order-delivery for protocols that support configurable ordering.
 
@@ -526,7 +526,7 @@ Maintenance encompasses changes that the application can request to a Connection
 
 Appendix A.1 of {{I-D.ietf-taps-minset}} explains, using primitives that are described in {{!RFC8303}} and {{!RFC8304}}, how to implement changing the following protocol properties of an established connection with TCP and UDP. Below, we amend this description for other protocols (if applicable):
 
-- Relative niceness: for SCTP, this can be done using the primitive CONFIGURE_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
+- Priority (Connection): for SCTP, this can be done using the primitive CONFIGURE_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
 - Timeout for aborting Connection: for SCTP, this can be done using the primitive CHANGE_TIMEOUT.SCTP described in section 4 of {{!RFC8303}}.
 - Abort timeout to suggest to the Remote Endpoint: for TCP, this can be done using the primitive CHANGE_TIMEOUT.TCP described in section 4 of {{!RFC8303}}.
 - Retransmission threshold before excessive retransmission notification: for TCP, this can be done using ERROR.TCP described in section 4 of {{!RFC8303}}.

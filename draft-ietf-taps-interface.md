@@ -966,14 +966,14 @@ result in a CloneError:
 Connection -> CloneError<>
 ~~~
 
-The Protocol Property "Niceness" operates on entangled Connections as in {{msg-niceness}}:
+The Protocol Property "Priority" operates on entangled Connections as in {{msg-priority}}:
 when allocating available network
 capacity among Connections in a Connection Group, sends on Connections with
-higher Niceness values will be prioritized over sends on Connections with
-lower Niceness values. An ideal transport system implementation would assign
+higher Priority values will be prioritized over sends on Connections with
+lower Priority values. An ideal transport system implementation would assign
 each Connection the capacity share (M-N) x C / M, where N is the Connection's
-Niceness value, M is the maximum Niceness value used by all Connections in the
-group and C is the total available capacity. However, the Niceness setting is
+Priority value, M is the maximum Priority value used by all Connections in the
+group and C is the total available capacity. However, the Priority setting is
 purely advisory, and no guarantees are given about the way capacity is shared.
 Each implementation is free to implement a way to share
 capacity that it sees fit.
@@ -1121,22 +1121,22 @@ not wish to apply a time constraint on the transmission of the Message, but it d
 reliable delivery; reliability is adjustable per Message via the "Reliable Data Transfer (Message)"
 property (see {{msg-reliable-message}}). The type and units of Lifetime are implementation-specific.
 
-### Niceness {#msg-niceness}
+### Priority {#msg-priority}
 
 Type:
 : Integer (non-negative)
 
-This property represents an unbounded hierarchy of priorities.
+This property represents a hierarchy of priorities.
 It can specify the priority of a Message, relative to other Messages sent over the
 same Connection.
 
-A Message with Niceness 0 will yield to a Message with Niceness 1, which will
-yield to a Message with Niceness 2, and so on. Niceness may be used as a
+A Message with Priority 0 will yield to a Message with Priority 1, which will
+yield to a Message with Priority 2, and so on. Priorities may be used as a
 sender-side scheduling construct only, or be used to specify priorities on the
 wire for Protocol Stacks supporting prioritization.
 
-Note that this property is not a per-message override of the connection Niceness
-- see {{conn-niceness}}. Both Niceness properties may interact, but can be used
+Note that this property is not a per-message override of the connection Priority
+- see {{conn-priority}}. Both Priority properties may interact, but can be used
 independently and be realized by different mechanisms.
 
 ### Ordered {#msg-ordered}
@@ -1174,7 +1174,7 @@ indicated by marking endOfMessage. Protocols that do not support signalling
 the end of a Connection in a given direction will ignore this property.
 
 Note that a Final Message must always be sorted to the end of a list of Messages.
-The Final property overrides Niceness and any other property that would re-order
+The Final property overrides Priority and any other property that would re-order
 Messages. If another Message is sent after a Message marked as Final has already
 been sent on a Connection, the Send Action for the new Message will cause a SendError Event.
 
@@ -1626,7 +1626,7 @@ to be covered by a checksum. It is given in Bytes. A value of 0 means
 that no checksum is required, and a special value (e.g., -1) indicates
 full checksum coverage.
 
-### Niceness (Connection) {#conn-niceness}
+### Priority (Connection) {#conn-priority}
 
 Type:
 : Integer
@@ -2035,7 +2035,7 @@ TCP-specific Property: User Timeout.
 "Connection group transmission scheduler" property.
 
 * Configure priority or weight for a scheduler:  
-"Niceness (Connection)" property.
+"Priority (Connection)" property.
 
 * "Specify checksum coverage used by the sender" and "Disable checksum when sending":  
 "Corruption Protection Length" property (value 0 to disable).
