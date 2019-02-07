@@ -17,11 +17,10 @@ author:
   -
     ins: B. Trammell
     name: Brian Trammell
+    org: Independent
     role: editor
-    org: ETH Zurich
     email: ietf@trammell.ch
-    street: Gloriastrasse 35
-    city: 8092 Zurich
+    city: 8304 Wallisellen
     country: Switzerland
   -
     ins: M. Welzl
