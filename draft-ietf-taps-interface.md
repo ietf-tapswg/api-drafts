@@ -163,10 +163,11 @@ Object.Action()
 Object -> Event<>
 ~~~
 
-- An Action takes a set of Parameters; an Event contains a set of Parameters:
+- An Action takes a set of Parameters; an Event contains a set of Parameters.
+  Action parameters whose names are suffixed with a question mark are optional.
 
 ~~~
-Action(parameter, parameter, ...) / Event<parameter, parameter, ...>
+Action(param0, param1?, ...) / Event<param0, param1, ...>
 ~~~
 
 Actions associated with no Object are Actions on the abstract interface
@@ -987,6 +988,17 @@ and takes optional per-Message properties (see {{send-basic}}). All Send actions
 are asynchronous, and deliver events (see {{send-events}}). Sending partial
 Messages for streaming large data is also supported (see {{send-partial}}).
 
+Messages are sent on a Connection using the Send action:
+
+~~~
+Connection.Send(messageData, messageContext?, endOfMessage?)
+~~~
+
+where messageData is the data object to send. The optional messageContext
+parameter supports per-message properties and is described in {{message-props}}.
+The optional endOfMessage parameter supports partial sending and is described in
+{{send-partial}}.
+
 ## Basic Sending {#send-basic}
 
 The most basic form of sending on a connection involves enqueuing a single Data
@@ -1293,18 +1305,10 @@ Connection.Batch(
 
 For application-layer protocols where the Connection initiator also sends the
 first message, the InitiateWithSend() action combines Connection initiation with
-a first Message sent.
-
-Without a message context (as in {{send-basic}}):
+a first Message sent:
 
 ~~~
-Connection := Preconnection.InitiateWithSend(messageData)
-~~~
-
-With a message context (as in {{message-props}}):
-
-~~~
-Connection := Preconnection.InitiateWithSend(messageData, messageContext)
+Connection := Preconnection.InitiateWithSend(messageData, messageContext?)
 ~~~
 
 Whenever possible, a messageContext should be provided to declare the message passed to InitiateWithSend
@@ -1358,7 +1362,7 @@ is willing to receive, both of which are optional and have default values if not
 specified.
 
 ~~~
-Connection.Receive(minIncompleteLength, maxLength)
+Connection.Receive(minIncompleteLength?, maxLength?)
 ~~~
 
 By default, Receive will try to deliver complete Messages in a single event ({{receive-complete}}).
@@ -1524,7 +1528,7 @@ layer, it is bound to the Preconnection during the pre-establishment phase:
 ~~~
 Preconnection.DeframeWith(Deframer)
 
-{messageData} := Deframer.Deframe(OctetStream, ...)
+{messageData} := Deframer.Deframe(OctetStream)
 ~~~
 
 # Managing Connections {#introspection}
