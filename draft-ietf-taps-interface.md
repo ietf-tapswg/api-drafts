@@ -190,12 +190,6 @@ immediately, according to the error handling idioms of the implementation
 platform, for errors which can be immediately detected, such as inconsistency
 in Transport Properties.
 
-Not all languages have convenient syntax for optional parameters. In the
-interests of ease of use for the most common case(s), it is recommended that
-implementations of this API in such languages use two or more concrete entry
-points per Action, and that the "most common" entry point not include
-any of the optional parameters.
-
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this
 document are to be interpreted as described in BCP 14 {{!RFC2119}} {{!RFC8174}}
