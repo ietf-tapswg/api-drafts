@@ -291,7 +291,7 @@ Transport Properties can have one of a set of data types:
   property itself. The representation is implementation dependent; however,
   implementations MUST provide a method for the application to determine the
   entire set of possible values for each property.
-- Preference: can take one of five values (Prohibit, Avoid, Ignore, Prefer,
+- Preference: can take one of five values (Prohibit, Avoid, Neutral, Prefer,
   Require) for the level of preference of a given property during protocol
   selection; see {{selection-props}}.
 
@@ -434,7 +434,7 @@ preference levels:
    |------------|------------------------------------------------------------------------|
    | Require    | Select only protocols/paths providing the property, fail otherwise     |
    | Prefer     | Prefer protocols/paths providing the property, proceed otherwise       |
-   | Ignore     | Cancel any system default preference for this property                 |
+   | Neutral    | No preference                                                          |
    | Avoid      | Prefer protocols/paths not providing the property, proceed otherwise   |
    | Prohibit   | Select only protocols/paths not providing the property, fail otherwise |
 
@@ -467,7 +467,7 @@ Selection Properties can be added to a TransportProperties object using special 
 ~~~
 TransportProperties.Require(property)
 TransportProperties.Prefer(property)
-TransportProperties.Ignore(property)
+TransportProperties.Neutral(property)
 TransportProperties.Avoid(property)
 TransportProperties.Prohibit(property)
 ~~~
@@ -488,7 +488,7 @@ Properties are listed in the subsections below. Note that many properties are
 only considered during establishment, and can not be changed after a Connection
 is established; however, they can be queried. Querying a Selection Property
 after establishment yields the value Required for properties of the selected
-protocol and path, Avoid for properties avoided during selection, and Ignore for
+protocol and path, Avoid for properties avoided during selection, and Neutral for
 all other properties.
 
 An implementation of this interface must provide sensible defaults for Selection
@@ -515,8 +515,8 @@ is to Prefer Preservation of Message Boundaries.
 
 This property specifies whether an application considers it useful to indicate
 its reliability requirements on a per-Message basis. This property applies to
-Connections and Connection Groups. The recommended default is to Prefer this
-option.
+Connections and Connection Groups. The recommended default is to be Neutral about
+this option.
 
 ### Preservation of data ordering {#prop-ordering}
 
@@ -544,13 +544,13 @@ this option.
 
 This property specifies whether the application considers it useful to enable,
 disable, or configure a checksum when sending a Message.  The recommended default
-is to Prefer this option.
+is to be Neutral about this option.
 
 ### Control checksum coverage on receiving {#prop-checksum-control-receive}
 
 This property specifies whether the application considers it useful configure whether to
-require a checksum or not when receiving.  The recommended default is to Prefer this
-option.
+require a checksum or not when receiving.  The recommended default is to be Neutral about
+this option.
 
 ### Congestion control {#prop-cc}
 
@@ -643,7 +643,7 @@ delay-sensitive applications. The recommended default is to Prefer this option.
 
 This property specifies whether an application wants to use the connection for sending and/or receiving data.  Possible values are:
 
-Bidirectional (default: Prefer):
+Bidirectional (default):
 : The connection must support sending and receiving data
 
 Unidirectional send:
@@ -777,7 +777,7 @@ client-server interactions. Active open is supported by this interface through t
 Initiate Action:
 
 ~~~
-Connection := Preconnection.Initiate(optional: timeout)
+Connection := Preconnection.Initiate(timeout?)
 ~~~
 
 The timeout parameter specifies how long to wait before aborting Active open.
@@ -1301,13 +1301,13 @@ a first Message sent.
 Without a message context (as in {{send-basic}}):
 
 ~~~
-Connection := Preconnection.InitiateWithSend(messageData, optional: timeout)
+Connection := Preconnection.InitiateWithSend(messageData, timeout?)
 ~~~
 
 With a message context (as in {{message-props}}):
 
 ~~~
-Connection := Preconnection.InitiateWithSend(messageData, messageContext, optional: timeout)
+Connection := Preconnection.InitiateWithSend(messageData, messageContext, timeout?)
 ~~~
 
 Whenever possible, a messageContext should be provided to declare the message passed to InitiateWithSend
