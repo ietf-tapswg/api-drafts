@@ -1644,7 +1644,7 @@ are cloned.
 
 This property specifies how long to wait before deciding that a Connection has
 failed when trying to reliably deliver data to the destination. Adjusting this Property
-is only take effect when the underlying stack supports reliability.
+will only take effect when the underlying stack supports reliability.
 
 
 ### Connection group transmission scheduler {#conn-scheduler}
