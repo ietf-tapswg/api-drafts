@@ -17,11 +17,11 @@ author:
   -
     ins: B. Trammell
     name: Brian Trammell
+    org: Independent
     role: editor
-    org: ETH Zurich
     email: ietf@trammell.ch
-    street: Gloriastrasse 35
-    city: 8092 Zurich
+    street: ""
+    city: 8304 Wallisellen
     country: Switzerland
   -
     ins: M. Welzl
@@ -163,10 +163,11 @@ Object.Action()
 Object -> Event<>
 ~~~
 
-- An Action takes a set of Parameters; an Event contains a set of Parameters:
+- An Action takes a set of Parameters; an Event contains a set of Parameters.
+  Action parameters whose names are suffixed with a question mark are optional.
 
 ~~~
-Action(parameter, parameter, ...) / Event<parameter, parameter, ...>
+Action(param0, param1?, ...) / Event<param0, param1, ...>
 ~~~
 
 Actions associated with no Object are Actions on the abstract interface
@@ -969,14 +970,14 @@ result in a CloneError:
 Connection -> CloneError<>
 ~~~
 
-The Protocol Property "Niceness" operates on entangled Connections as in {{msg-niceness}}:
+The Protocol Property "Priority" operates on entangled Connections as in {{msg-priority}}:
 when allocating available network
 capacity among Connections in a Connection Group, sends on Connections with
-higher Niceness values will be prioritized over sends on Connections with
-lower Niceness values. An ideal transport system implementation would assign
+higher Priority values will be prioritized over sends on Connections with
+lower Priority values. An ideal transport system implementation would assign
 each Connection the capacity share (M-N) x C / M, where N is the Connection's
-Niceness value, M is the maximum Niceness value used by all Connections in the
-group and C is the total available capacity. However, the Niceness setting is
+Priority value, M is the maximum Priority value used by all Connections in the
+group and C is the total available capacity. However, the Priority setting is
 purely advisory, and no guarantees are given about the way capacity is shared.
 Each implementation is free to implement a way to share
 capacity that it sees fit.
@@ -989,6 +990,17 @@ of the data being transferred. By default, Send enqueues a complete Message,
 and takes optional per-Message properties (see {{send-basic}}). All Send actions
 are asynchronous, and deliver events (see {{send-events}}). Sending partial
 Messages for streaming large data is also supported (see {{send-partial}}).
+
+Messages are sent on a Connection using the Send action:
+
+~~~
+Connection.Send(messageData, messageContext?, endOfMessage?)
+~~~
+
+where messageData is the data object to send. The optional messageContext
+parameter supports per-message properties and is described in {{message-props}}.
+The optional endOfMessage parameter supports partial sending and is described in
+{{send-partial}}.
 
 ## Basic Sending {#send-basic}
 
@@ -1124,22 +1136,22 @@ not wish to apply a time constraint on the transmission of the Message, but it d
 reliable delivery; reliability is adjustable per Message via the "Reliable Data Transfer (Message)"
 property (see {{msg-reliable-message}}). The type and units of Lifetime are implementation-specific.
 
-### Niceness {#msg-niceness}
+### Priority {#msg-priority}
 
 Type:
 : Integer (non-negative)
 
-This property represents an unbounded hierarchy of priorities.
+This property represents a hierarchy of priorities.
 It can specify the priority of a Message, relative to other Messages sent over the
 same Connection.
 
-A Message with Niceness 0 will yield to a Message with Niceness 1, which will
-yield to a Message with Niceness 2, and so on. Niceness may be used as a
+A Message with Priority 0 will yield to a Message with Priority 1, which will
+yield to a Message with Priority 2, and so on. Priorities may be used as a
 sender-side scheduling construct only, or be used to specify priorities on the
 wire for Protocol Stacks supporting prioritization.
 
-Note that this property is not a per-message override of the connection Niceness
-- see {{conn-niceness}}. Both Niceness properties may interact, but can be used
+Note that this property is not a per-message override of the connection Priority
+- see {{conn-priority}}. Both Priority properties may interact, but can be used
 independently and be realized by different mechanisms.
 
 ### Ordered {#msg-ordered}
@@ -1177,7 +1189,7 @@ indicated by marking endOfMessage. Protocols that do not support signalling
 the end of a Connection in a given direction will ignore this property.
 
 Note that a Final Message must always be sorted to the end of a list of Messages.
-The Final property overrides Niceness and any other property that would re-order
+The Final property overrides Priority and any other property that would re-order
 Messages. If another Message is sent after a Message marked as Final has already
 been sent on a Connection, the Send Action for the new Message will cause a SendError Event.
 
@@ -1296,18 +1308,10 @@ Connection.Batch(
 
 For application-layer protocols where the Connection initiator also sends the
 first message, the InitiateWithSend() action combines Connection initiation with
-a first Message sent.
-
-Without a message context (as in {{send-basic}}):
+a first Message sent:
 
 ~~~
-Connection := Preconnection.InitiateWithSend(messageData, timeout?)
-~~~
-
-With a message context (as in {{message-props}}):
-
-~~~
-Connection := Preconnection.InitiateWithSend(messageData, messageContext, timeout?)
+Connection := Preconnection.InitiateWithSend(messageData, messageContext?, timeout?)
 ~~~
 
 Whenever possible, a messageContext should be provided to declare the message passed to InitiateWithSend
@@ -1361,7 +1365,7 @@ is willing to receive, both of which are optional and have default values if not
 specified.
 
 ~~~
-Connection.Receive(minIncompleteLength, maxLength)
+Connection.Receive(minIncompleteLength?, maxLength?)
 ~~~
 
 By default, Receive will try to deliver complete Messages in a single event ({{receive-complete}}).
@@ -1527,7 +1531,7 @@ layer, it is bound to the Preconnection during the pre-establishment phase:
 ~~~
 Preconnection.DeframeWith(Deframer)
 
-{messageData} := Deframer.Deframe(OctetStream, ...)
+{messageData} := Deframer.Deframe(OctetStream)
 ~~~
 
 # Managing Connections {#introspection}
@@ -1629,7 +1633,7 @@ to be covered by a checksum. It is given in Bytes. A value of 0 means
 that no checksum is required, and a special value (e.g., -1) indicates
 full checksum coverage.
 
-### Niceness (Connection) {#conn-niceness}
+### Priority (Connection) {#conn-priority}
 
 Type:
 : Integer
@@ -2040,7 +2044,7 @@ TCP-specific Property: User Timeout.
 "Connection group transmission scheduler" property.
 
 * Configure priority or weight for a scheduler:  
-"Niceness (Connection)" property.
+"Priority (Connection)" property.
 
 * "Specify checksum coverage used by the sender" and "Disable checksum when sending":  
 "Corruption Protection Length" property (value 0 to disable).
