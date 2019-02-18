@@ -661,7 +661,7 @@ the system should fall back to bidirectional transport.
 
 This property specifies whether an application considers it useful to be
 informed in case sent data was retransmitted more often than a certain
-threshold. The recommended default is to Prefer this option.
+threshold. The recommended default is to Ignore this option.
 
 
 ### Notification of ICMP soft error message arrival {#prop-soft-error}
@@ -671,7 +671,7 @@ informed when an ICMP error message arrives that does not force termination of a
 connection. When set to true, received ICMP errors will be available as
 SoftErrors. Note that even if a protocol supporting this property is selected,
 not all ICMP errors will necessarily be delivered, so applications cannot rely
-on receiving them. The recommended default is to Avoid this option.
+on receiving them. The recommended default is to Ignore this option.
 
 
 ## Specifying Security Parameters and Callbacks {#security-parameters}
