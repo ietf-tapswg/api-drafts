@@ -435,7 +435,7 @@ preference levels:
    |------------|------------------------------------------------------------------------|
    | Require    | Select only protocols/paths providing the property, fail otherwise     |
    | Prefer     | Prefer protocols/paths providing the property, proceed otherwise       |
-   | Ignore     | Cancel any system default preference for this property                 |
+   | Ignore    | No preference                                                          |
    | Avoid      | Prefer protocols/paths not providing the property, proceed otherwise   |
    | Prohibit   | Select only protocols/paths not providing the property, fail otherwise |
 
@@ -504,21 +504,27 @@ implemented over UDP.
 This property specifies whether the application needs to use a transport
 protocol that ensures that all data is received on the other side without
 corruption. This also entails being notified when a Connection is closed or
-aborted. The recommended default is to enable Reliable Data Transfer.
+aborted. The recommended default is to Require Reliable Data Transfer.
+
+### Preservation of Message Boundaries {#prop-boundaries}
+
+This property specifies whether the application needs or prefers to use a transport
+protocol that preserves message boundaries. The recommended default
+is to Prefer Preservation of Message Boundaries.
 
 ### Configure per-Message reliability {#prop-partially-reliable}
 
 This property specifies whether an application considers it useful to indicate
 its reliability requirements on a per-Message basis. This property applies to
-Connections and Connection Groups. The recommended default is to not have this
-option.
+Connections and Connection Groups. The recommended default is to Ignore
+this option.
 
 ### Preservation of data ordering {#prop-ordering}
 
 This property specifies whether the application wishes to use a transport
 protocol that can ensure that data is received by the application on the other
-end in the same order as it was sent. The recommended default is to preserve
-data ordering.
+end in the same order as it was sent. The recommended default is to Require
+Preservation of data ordering.
 
 ### Use 0-RTT session establishment with an idempotent Message {#prop-0rtt}
 
@@ -526,22 +532,26 @@ This property specifies whether an application would like to supply a Message to
 the transport protocol before Connection establishment, which will then be
 reliably transferred to the other side before or during Connection
 establishment, potentially multiple times. See also {{msg-idempotent}}. The
-recommended default is to not have this option.
+recommended default is to Prefer this option.
 
 ### Multistream Connections in Group {#prop-multistream}
 
 This property specifies that the application would prefer multiple Connections
 within a Connection Group to be provided by streams of a single underlying
-transport connection where possible. The recommended default is to not have
+transport connection where possible. The recommended default is to Prefer have
 this option.
 
-### Control checksum coverage on sending or receiving {#prop-checksum-control}
+### Control checksum coverage on sending {#prop-checksum-control-send}
 
 This property specifies whether the application considers it useful to enable,
-disable, or configure a checksum when sending a Message, or configure whether to
-require a checksum or not when receiving.  The recommended default is full
-checksum coverage without the option to configure it, and requiring a checksum
-when receiving.
+disable, or configure a checksum when sending a Message.  The recommended default
+is to Ignore this option.
+
+### Control checksum coverage on receiving {#prop-checksum-control-receive}
+
+This property specifies whether the application considers it useful configure whether to
+require a checksum or not when receiving.  The recommended default is to Ignore
+this option.
 
 ### Congestion control {#prop-cc}
 
@@ -551,7 +561,7 @@ controlled, an application using such a Connection should itself perform
 congestion control in accordance with {{?RFC2914}}. Also note that reliability
 is usually combined with congestion control in protocol implementations,
 rendering "reliable but not congestion controlled" a request that is unlikely to
-succeed. The recommended default is that the Connection is congestion
+succeed. The recommended default is to Require that the Connection is congestion
 controlled.
 
 
@@ -561,7 +571,7 @@ This property allows the application to select which specific network interfaces
 or categories of interfaces it wants to `Require`, `Prohibit`, `Prefer`, or
 `Avoid`.
 
-In contrast to other Selection Properties, this property is tuple of an
+In contrast to other Selection Properties, this property is a tuple of an
 (Enumerated) interface identifier and a preference, and can either be
 implemented directly as such, or for making one preference available for each
 interface and interface type available on the system.
@@ -600,7 +610,7 @@ Provisioning Domains or categories of Provisioning Domains it wants to
 consistent sets of network properties that may be more specific than network
 interfaces {{RFC7556}}.
 
-As with interface instances and types, this property is tuple of an (Enumerated)
+As with interface instances and types, this property is a tuple of an (Enumerated)
 PvD identifier and a preference, and can either be implemented directly as such,
 or for making one preference available for each interface and interface type
 available on the system.
@@ -627,9 +637,7 @@ This property specifies whether an application considers it useful to
 transfer data across multiple paths between the same end hosts. Generally,
 in most cases, this will improve performance (e.g., achieve greater throughput).
 One possible side-effect is increased jitter, which may be problematic for
-delay-sensitive applications.
-
-The recommended default is to have this option.
+delay-sensitive applications. The recommended default is to Prefer this option.
 
 
 ### Direction of communication
@@ -653,7 +661,7 @@ the system should fall back to bidirectional transport.
 
 This property specifies whether an application considers it useful to be
 informed in case sent data was retransmitted more often than a certain
-threshold. The recommended default is to have this option.
+threshold. The recommended default is to Ignore this option.
 
 
 ### Notification of ICMP soft error message arrival {#prop-soft-error}
@@ -663,13 +671,7 @@ informed when an ICMP error message arrives that does not force termination of a
 connection. When set to true, received ICMP errors will be available as
 SoftErrors. Note that even if a protocol supporting this property is selected,
 not all ICMP errors will necessarily be delivered, so applications cannot rely
-on receiving them. The recommended default is not to have this option.
-
-
-### Timeout for aborting Connection Establishment {#prop-establish-timeout}
-
-This property specifies how long to wait before aborting a Connection during establishment.
-
+on receiving them. The recommended default is to Ignore this option.
 
 
 ## Specifying Security Parameters and Callbacks {#security-parameters}
@@ -776,9 +778,10 @@ client-server interactions. Active open is supported by this interface through t
 Initiate Action:
 
 ~~~
-Connection := Preconnection.Initiate()
+Connection := Preconnection.Initiate(timeout?)
 ~~~
 
+The timeout parameter specifies how long to wait before aborting Active open.
 Before calling Initiate, the caller must have populated a Preconnection
 Object with a Remote Endpoint specifier, optionally a Local Endpoint
 specifier (if not specified, the system will attempt to determine a
@@ -817,8 +820,8 @@ available Paths and/or Protocol Stacks meeting the constraints is empty) or
 reconciled with the local and/or remote endpoints; when the remote specifier
 cannot be resolved; or when no transport-layer connection can be established to
 the remote endpoint (e.g. because the remote endpoint is not accepting
-connections, or the application is prohibited from opening a Connection by the
-operating system).
+connections, the application is prohibited from opening a Connection by the
+operating system, or the establishment attempt has timed out for any other reason).
 
 See also {{initiate-and-send}} to combine Connection establishment
 and transmission of the first message in a single action.
@@ -1308,7 +1311,7 @@ first message, the InitiateWithSend() action combines Connection initiation with
 a first Message sent:
 
 ~~~
-Connection := Preconnection.InitiateWithSend(messageData, messageContext?)
+Connection := Preconnection.InitiateWithSend(messageData, messageContext?, timeout?)
 ~~~
 
 Whenever possible, a messageContext should be provided to declare the message passed to InitiateWithSend
@@ -1644,7 +1647,9 @@ are cloned.
 ### Timeout for aborting Connection {#conn-timeout}
 
 This property specifies how long to wait before deciding that a Connection has
-failed after establishment.
+failed when trying to reliably deliver data to the destination. Adjusting this Property
+will only take effect when the underlying stack supports reliability.
+
 
 ### Connection group transmission scheduler {#conn-scheduler}
 
