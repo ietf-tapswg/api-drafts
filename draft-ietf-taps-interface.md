@@ -1405,7 +1405,7 @@ Connection -> Received<messageData, messageContext>
 
 A Received event indicates the delivery of a complete Message. It contains two objects,
 the received bytes as messageData, and the metadata and properties of the received
-Message as messageContext. See {#receive-context} for details about the received context.
+Message as messageContext. See {{receive-context}} for details about the received context.
 
 The messageData object provides access to the bytes that were received for this Message,
 along with the length of the byte array.
@@ -1783,17 +1783,17 @@ This property specifies, for the case TCP becomes the chosen transport protocol:
 
 Advertised User Timeout:
 : a time value to be advertised via the User Timeout Option (UTO) for the TCP at the remote endpoint
-to adapt its own "Timeout for aborting Connection" (see {#conn-timeout}) value accordingly
+to adapt its own "Timeout for aborting Connection" (see {{conn-timeout}}) value accordingly
 
 User Timeout Enabled:
 : a boolean (default false) to control whether the UTO option is enabled for a
 connection. This applies to both sending and receiving.
 
 Changeable:
-: a boolean (default true) which controls whether the "Timeout for aborting Connection" (see {#conn-timeout})
+: a boolean (default true) which controls whether the "Timeout for aborting Connection" (see {{conn-timeout}})
 may be changed
 based on a UTO option received from the remote peer. This boolean becomes false when
-"Timeout for aborting Connection" (see {#conn-timeout}) is used.
+"Timeout for aborting Connection" (see {{conn-timeout}}) is used.
 
 All of the above parameters are optional (e.g., it is possible to specify "User Timeout Enabled" as true,
 but not specify an Advertised User Timeout value; in this case, the TCP default will be used).
