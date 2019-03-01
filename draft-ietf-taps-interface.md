@@ -258,7 +258,7 @@ Errors and other notifications also happen asynchronously on the Connection.
 through Actions and Events in each phase of a Connection, following the phases
 described in {{I-D.ietf-taps-arch}}.
 
-## Transport Properties
+## Transport Properties {#transport-properties}
 
 Each application using the Transport Services Interface declares its preferences
 for how the transport service should operate using properties at each stage of
@@ -281,6 +281,30 @@ stages:
  - Connection Properties can be set on Preconnections
  - Message Properties can be set on Preconnections and Connections
  - The effect of Selection Properties can be queried on Connections and Messages
+
+### Transport Property Names {#property-names}
+
+Transport Properties are referred to by property names. These names are 
+lower-case strings whereby words are separated by hyphens.
+These names serve two purposes:
+
+- Allow different components of a TAPS implementation to pass Transport
+  Properties, e.g., between a language frontend and a policy manager.
+- Make code of different TAPS implementations look similar.
+
+Transport Property Names are hierarchically organized in the 
+form \[\<Namespace>.\]\<PropertyName\>.
+
+- The Namespace part is empty for well known, generic properties, i.e.,
+  for properties defined by an RFC which are not protocol specific.
+- Protocol Specific Properties must use the protocol acronym as
+  Namespace, e.g., “tcp" for TCP specific Transport Properties.
+  For IETF protocols, property names under these namespaces should
+  be defined in an RFC.
+- Vendor or implementation specific properties must use the 
+  vendor's or implementation’s name or acronym as Namespace.
+
+### Transport Property Types
 
 Transport Properties can have one of a set of data types:
 
@@ -319,6 +343,10 @@ following recommendations:
   exclusive of appendices, even if said implementation is a non-operation, e.g.
   because transport protocols implementing a given Property are not available on
   the platform.
+- Implementations may use other representations for Transport Property Names,
+  e.g., by providing constants or static singleton objects, but should provide
+  a  straight-forward mapping between their representation and the
+  property names specified here.
 
 # Pre-Establishment Phase {#pre-establishment}
 
@@ -1908,6 +1936,7 @@ The interface provides the following guarantees about the ordering of
 RFC-EDITOR: Please remove this section before publication.
 
 This document has no Actions for IANA.
+Later versions of this document may create IANA registries for generic transport property names and transport property namespaces (see {{property-names}}).
 
 # Security Considerations
 
