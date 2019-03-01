@@ -304,13 +304,15 @@ form \[\<Namespace>.\]\<PropertyName\>.
 - Vendor or implementation specific properties must use the 
   vendor's or implementation’s name or acronym as Namespace.
 
-### Transport Property Types
+### Transport Property Types {#property-types}
 
 Transport Properties can have one of a set of data types:
 
 - Boolean: can take the values "true" and "false"; representation is
   implementation-dependent.
-- Integer: can take positive or negative numeric values; range and
+- Integer: can take positive or negative numeric integer values; range and
+  representation is implementation-dependent.
+- Numeric: can take positive or negative numeric values; range and
   representation is implementation-dependent.
 - Enumeration: can take one value of a finite set of values, dependent on the
   property itself. The representation is implementation dependent; however,
@@ -456,14 +458,14 @@ selection is necessarily tied to path selection. This may involve choosing
 between multiple local interfaces that are connected to different access
 networks.
 
-Selection properties are represented as preferences, which can have one of five
-preference levels:
+Almost all Selection Properties are represented as preferences, which can
+have one of five preference levels:
 
    | Preference | Effect                                                                 |
    |------------|------------------------------------------------------------------------|
    | Require    | Select only protocols/paths providing the property, fail otherwise     |
    | Prefer     | Prefer protocols/paths providing the property, proceed otherwise       |
-   | Ignore    | No preference                                                          |
+   | Ignore     | No preference                                                          |
    | Avoid      | Prefer protocols/paths not providing the property, proceed otherwise   |
    | Prohibit   | Select only protocols/paths not providing the property, fail otherwise |
 
@@ -529,6 +531,9 @@ implemented over UDP.
 
 ### Reliable Data Transfer (Connection) {#prop-reliable}
 
+Name:
+: reliability
+
 This property specifies whether the application needs to use a transport
 protocol that ensures that all data is received on the other side without
 corruption. This also entails being notified when a Connection is closed or
@@ -536,11 +541,17 @@ aborted. The recommended default is to Require Reliable Data Transfer.
 
 ### Preservation of Message Boundaries {#prop-boundaries}
 
+Name:
+: preserve-msg-boundaries
+
 This property specifies whether the application needs or prefers to use a transport
 protocol that preserves message boundaries. The recommended default
 is to Prefer Preservation of Message Boundaries.
 
 ### Configure per-Message reliability {#prop-partially-reliable}
+
+Name:
+: per-msg-reliability
 
 This property specifies whether an application considers it useful to indicate
 its reliability requirements on a per-Message basis. This property applies to
@@ -549,12 +560,18 @@ this option.
 
 ### Preservation of data ordering {#prop-ordering}
 
+Name:
+: preserve-order
+
 This property specifies whether the application wishes to use a transport
 protocol that can ensure that data is received by the application on the other
 end in the same order as it was sent. The recommended default is to Require
 Preservation of data ordering.
 
 ### Use 0-RTT session establishment with an idempotent Message {#prop-0rtt}
+
+Name:
+: zero-rtt-msg
 
 This property specifies whether an application would like to supply a Message to
 the transport protocol before Connection establishment, which will then be
@@ -564,6 +581,9 @@ recommended default is to Prefer this option.
 
 ### Multistream Connections in Group {#prop-multistream}
 
+Name:
+: multi-streaming
+
 This property specifies that the application would prefer multiple Connections
 within a Connection Group to be provided by streams of a single underlying
 transport connection where possible. The recommended default is to Prefer have
@@ -571,17 +591,26 @@ this option.
 
 ### Control checksum coverage on sending {#prop-checksum-control-send}
 
+Name:
+: per-msg-checksum-len-send
+
 This property specifies whether the application considers it useful to enable,
 disable, or configure a checksum when sending a Message.  The recommended default
 is to Ignore this option.
 
 ### Control checksum coverage on receiving {#prop-checksum-control-receive}
 
+Name:
+: per-msg-checksum-len-recv
+
 This property specifies whether the application considers it useful configure whether to
 require a checksum or not when receiving.  The recommended default is to Ignore
 this option.
 
 ### Congestion control {#prop-cc}
+
+Name:
+: congestion-control
 
 This property specifies whether the application would like the Connection to be
 congestion controlled or not. Note that if a Connection is not congestion
@@ -594,6 +623,12 @@ controlled.
 
 
 ### Interface Instance or Type {#prop-interface}
+
+Name:
+: interface-type
+
+Type:
+: Set (Preference, Enumeration)
 
 This property allows the application to select which specific network interfaces
 or categories of interfaces it wants to `Require`, `Prohibit`, `Prefer`, or
@@ -631,6 +666,12 @@ metered interfaces, this should be specified via Provisioning Domain attributes
 
 ### Provisioning Domain Instance or Type {#prop-pvd}
 
+Name:
+: pvd-type
+
+Type:
+: Set (Preference, Enumeration)
+
 Similar to interface instances and types (see {{prop-interface}}), this property
 allows the application to control path selection by selecting which specific
 Provisioning Domains or categories of Provisioning Domains it wants to
@@ -661,6 +702,9 @@ over these options.
 
 ### Parallel Use of Multiple Paths
 
+Name:
+: multipath-transport
+
 This property specifies whether an application considers it useful to
 transfer data across multiple paths between the same end hosts. Generally,
 in most cases, this will improve performance (e.g., achieve greater throughput).
@@ -669,6 +713,12 @@ delay-sensitive applications. The recommended default is to Prefer this option.
 
 
 ### Direction of communication
+
+Name:
+: direction
+
+Type:
+: Enumeration
 
 This property specifies whether an application wants to use the connection for sending and/or receiving data.  Possible values are:
 
@@ -687,12 +737,18 @@ the system should fall back to bidirectional transport.
 
 ### Notification of excessive retransmissions {#prop-establish-retrans-notify}
 
+Name:
+:retransmit-notify
+
 This property specifies whether an application considers it useful to be
 informed in case sent data was retransmitted more often than a certain
 threshold. The recommended default is to Ignore this option.
 
 
 ### Notification of ICMP soft error message arrival {#prop-soft-error}
+
+Name:
+:soft-error-notify
 
 This property specifies whether an application considers it useful to be
 informed when an ICMP error message arrives that does not force termination of a
@@ -1151,6 +1207,9 @@ The following Message Properties are supported:
 
 ### Lifetime {#msg-lifetime}
 
+Name:
+: msg-lifetime
+
 Type:
 : Integer
 
@@ -1165,6 +1224,9 @@ reliable delivery; reliability is adjustable per Message via the "Reliable Data 
 property (see {{msg-reliable-message}}). The type and units of Lifetime are implementation-specific.
 
 ### Priority {#msg-priority}
+
+Name:
+: msg-prio
 
 Type:
 : Integer (non-negative)
@@ -1184,6 +1246,9 @@ independently and be realized by different mechanisms.
 
 ### Ordered {#msg-ordered}
 
+Name:
+: msg-ordered
+
 Type:
 : Boolean
 
@@ -1194,6 +1259,9 @@ see {{prop-ordering}}, but allow out-of-order delivery for certain messages.
 
 
 ### Idempotent {#msg-idempotent}
+
+Name:
+: msg-idempotent
 
 Type:
 : Boolean
@@ -1207,6 +1275,9 @@ may cause the remote application to receive the Message multiple times.
 
 Type:
 : Boolean
+
+Name:
+: msg-final
 
 If true, this Message is the last one that
 the application will send on a Connection. This allows underlying protocols
@@ -1223,6 +1294,9 @@ been sent on a Connection, the Send Action for the new Message will cause a Send
 
 ### Corruption Protection Length {#msg-checksum}
 
+Name:
+: msg-checksum-len
+
 Type:
 : Integer (non-negative with -1 as special value)
 
@@ -1236,6 +1310,9 @@ guaranteed, any other requests are advisory.
 
 ### Reliable Data Transfer (Message) {#msg-reliable-message}
 
+Name:
+: msg-reliable
+
 Type:
 : Boolean
 
@@ -1248,7 +1325,10 @@ Disabling this property indicates that the transport system may disable retransm
 or other reliability mechanisms for this particular Message, but such disabling is not guaranteed.
 
 
-### Transmission Profile {#send-profile}
+### Message Capacity Profile Override {#send-profile}
+
+Name:
+: msg-capacity-profile
 
 Type:
 : Enumeration
@@ -1275,6 +1355,9 @@ The following values are valid for Transmission Profile:
 \[TODO: This is inconsistent with {prop-cap-profile}} - needs to be fixed]
 
 ### Singular Transmission {#send-singular}
+
+Name:
+: msg-singular-transmission
 
 Type:
 : Boolean
@@ -1644,6 +1727,9 @@ that protocol property. \[EDITOR'S NOTE: todo: add these cross-references up to 
 
 ### Retransmission threshold before excessive retransmission notification {#conn-excss-retransmit}
 
+Name:
+: retransmit-notify-threshold
+
 Type:
 : Integer
 
@@ -1651,7 +1737,10 @@ This property specifies after how many retransmissions to inform the application
 about "Excessive Retransmissions".
 
 
-### Required minimum coverage of the checksum for receiving {#conn-recv-checksum}
+### Required minimum coverage of the Corruption Protection for receiving {#conn-recv-checksum}
+
+Name:
+: recv-checksum-len
 
 Type:
 : Integer
@@ -1662,6 +1751,9 @@ that no checksum is required, and a special value (e.g., -1) indicates
 full checksum coverage.
 
 ### Priority (Connection) {#conn-priority}
+
+Name:
+: conn-prio
 
 Type:
 : Integer
@@ -1674,6 +1766,12 @@ are cloned.
 
 ### Timeout for aborting Connection {#conn-timeout}
 
+Name:
+: conn-timeout
+
+Type:
+: Numeric
+
 This property specifies how long to wait before deciding that a Connection has
 failed when trying to reliably deliver data to the destination. Adjusting this Property
 will only take effect when the underlying stack supports reliability.
@@ -1681,14 +1779,20 @@ will only take effect when the underlying stack supports reliability.
 
 ### Connection group transmission scheduler {#conn-scheduler}
 
+Name:
+: conn-scheduler
+
 Type:
-: Enum
+: Enumeration
 
 This property specifies which scheduler should be used among Connections within
 a Connection Group, see {{groups}}. The set of schedulers can
 be taken from {{I-D.ietf-tsvwg-sctp-ndata}}.
 
 ### Maximum message size concurrent with Connection establishment {#size-idempotent}
+
+Name:
+: zero-rtt-msg-max-len
 
 Type:
 : Integer (read only)
@@ -1699,6 +1803,9 @@ It is given in Bytes.
 
 ### Maximum Message size before fragmentation or segmentation {#conn-max-msg-notfrag}
 
+Name:
+: singular-transmission-msg-max-len
+
 Type:
 : Integer (read only)
 
@@ -1708,13 +1815,18 @@ segmentation at the sender.
 
 ### Maximum Message size on send {#conn-max-msg-send}
 
+Name:
+: send-msg-max-len
+
 Type:
 : Integer (read only)
 
 This property represents the maximum Message size that can be sent. 
 
-
 ### Maximum Message size on receive {#conn-max-msg-recv}
+
+Name:
+: recv-msg-max-len
 
 Type:
 : Integer (read only)
@@ -1722,6 +1834,9 @@ Type:
 This numeric property represents the maximum Message size that can be received.
 
 ### Capacity Profile {#prop-cap-profile}
+
+Name:
+: conn-capacity-profile
 
 This property specifies the desired network treatment for traffic sent by the
 application and the tradeoffs the application is prepared to make in path and
@@ -1799,6 +1914,12 @@ per-Message basis using the Transmission Profile Message Property; see
 
 ### Bounds on Send or Receive Rate
 
+Name:
+: max-send-rate / max-recv-rate
+
+Type:
+: Integer (positive)
+
 This property specifies an upper-bound rate that a transfer is not expected to
 exceed (even if flow control and congestion control allow higher rates), and/or a
 lower-bound rate below which the application does not deem
@@ -1809,15 +1930,15 @@ a data transfer useful. It is given in bits per second.
 
 This property specifies, for the case TCP becomes the chosen transport protocol:
 
-Advertised User Timeout:
+Advertised User Timeout (name: tcp.user-timeout-value, type: Integer):
 : a time value to be advertised via the User Timeout Option (UTO) for the TCP at the remote endpoint
 to adapt its own "Timeout for aborting Connection" (see {{conn-timeout}}) value accordingly
 
-User Timeout Enabled:
+User Timeout Enabled (name: tcp.user-timeout, type: Boolean):
 : a boolean (default false) to control whether the UTO option is enabled for a
 connection. This applies to both sending and receiving.
 
-Changeable:
+Changeable (name: tcp.user-timeout-recv, type: Boolean):
 : a boolean (default true) which controls whether the "Timeout for aborting Connection" (see {{conn-timeout}})
 may be changed
 based on a UTO option received from the remote peer. This boolean becomes false when
@@ -1994,6 +2115,12 @@ addition to those specified in {{selection-props}}, {{connection-props}}, and {{
 but it was also said that this is maybe not "on the right level".
 If / when moving it to the main text, note that this is meant to be
 applicable to a Preconnection or a Message.]
+
+Name:
+: cost-preferences
+
+Type:
+: Enumeration
 
 This property describes what an application prefers regarding monetary costs,
 e.g., whether it considers it acceptable to utilize limited data volume. It
