@@ -435,9 +435,14 @@ preference levels:
    |------------|------------------------------------------------------------------------|
    | Require    | Select only protocols/paths providing the property, fail otherwise     |
    | Prefer     | Prefer protocols/paths providing the property, proceed otherwise       |
-   | Ignore    | No preference                                                          |
+   | Ignore     | No preference                                                          |
    | Avoid      | Prefer protocols/paths not providing the property, proceed otherwise   |
    | Prohibit   | Select only protocols/paths not providing the property, fail otherwise |
+   |------------|------------------------------------------------------------------------|
+
+In addition, the pseudo-level ``Default`` can be used to reset the property to the default
+level used by the implementation. This level will never show up when queuing the value of
+a preference - the effective preference must be returned instead.
 
 Internally, the transport system will first exclude all protocols and paths that
 match a Prohibit, then exclude all protocols and paths that do not match a
@@ -471,6 +476,7 @@ TransportProperties.Prefer(property)
 TransportProperties.Ignore(property)
 TransportProperties.Avoid(property)
 TransportProperties.Prohibit(property)
+TransportProperties.Default(property)
 ~~~
 
 For an existing Connection, the Transport Properties can be queried any time
