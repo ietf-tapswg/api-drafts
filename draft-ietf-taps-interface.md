@@ -312,9 +312,8 @@ Preconnection.Listen()
 
 Preconnection -> ConnectionReceived<Connection>
 
-// Only receive complete messages:
-// minIncompleteLength and maxLength are infinite by default
-Connection.Receive(minIncompleteLength, maxLength)
+// Only receive complete messages
+Connection.Receive()
 
 Connection -> Received(messageDataRequest, messageContext)
 
@@ -359,9 +358,8 @@ Connection -> Ready<>
 
 Connection.Send(messageDataRequest)
 
-// Only receive complete messages:
-// minIncompleteLength and maxLength are infinite by default
-Connection.Receive(minIncompleteLength, maxLength)
+// Only receive complete messages
+Connection.Receive()
 
 Connection -> Received(messageDataResponse, messageContext)
 
@@ -406,9 +404,8 @@ Preconnection -> RendezvousDone<Connection>
 
 Connection.Send(messageDataRequest)
 
-// Only receive complete messages:
-// minIncompleteLength and maxLength are infinite by default
-Connection.Receive(minIncompleteLength, maxLength)
+// Only receive complete messages
+Connection.Receive()
 
 Connection -> Received(messageDataResponse, messageContext)
 
