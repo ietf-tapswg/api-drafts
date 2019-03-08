@@ -80,10 +80,11 @@ informative:
     RFC2119:
     RFC3168:
     RFC4303:
+    RFC6265:
     RFC7413:
     RFC8095:
     RFC8174:
-    I-D.ietf-tls-tls13:
+    RFC8446:
     I-D.ietf-taps-minset:
     I-D.ietf-taps-interface:
     I-D.ietf-taps-impl:
@@ -100,7 +101,7 @@ This document provides an overview of the architecture of Transport Services, a 
 
 # Introduction
 
-Many application programming interfaces (APIs) to perform transport networking have been deployed, perhaps the most widely known and imitated being the BSD socket() {{POSIX}} interface. The naming of objects and functions across these APIs is not consistent, and varies depending on the protocol being used. For example, sending and receiving streams of data is conceptually the same for both an unencrypted Transmission Control Protocol (TCP) stream and operating on an encrypted Transport Layer Security (TLS) {{I-D.ietf-tls-tls13}} stream over TCP, but applications cannot use the same socket send() and recv() calls on top of both kinds of connections. Similarly, terminology for the implementation of transport protocols varies based on the context of the protocols themselves: terms such as "flow", "stream", "message", and "connection" can take on many different meanings. This variety can lead to confusion when trying to understand the similarities and differences between protocols, and how applications can use them effectively.
+Many application programming interfaces (APIs) to perform transport networking have been deployed, perhaps the most widely known and imitated being the BSD socket() {{POSIX}} interface. The naming of objects and functions across these APIs is not consistent, and varies depending on the protocol being used. For example, sending and receiving streams of data is conceptually the same for both an unencrypted Transmission Control Protocol (TCP) stream and operating on an encrypted Transport Layer Security (TLS) {{RFC8446}} stream over TCP, but applications cannot use the same socket send() and recv() calls on top of both kinds of connections. Similarly, terminology for the implementation of transport protocols varies based on the context of the protocols themselves: terms such as "flow", "stream", "message", and "connection" can take on many different meanings. This variety can lead to confusion when trying to understand the similarities and differences between protocols, and how applications can use them effectively.
 
 The goal of the Transport Services architecture is to provide a common, flexible, and reusable interface for transport protocols. As applications adopt this interface, they will benefit from a wide set of transport features that can evolve over time, and ensure that the system providing the interface can optimize its behavior based on the application requirements and network conditions, without requiring changes to the applications. This flexibility does not only enable faster deployment of new feature and protocols, but it can also support applications with racing and fallback mechanisms which otherwise need to be implemented in each application separately.
 
@@ -402,7 +403,7 @@ This list of events that can be delivered to an application is not exhaustive, b
 
 The Transport System Implementation Concepts define the set of objects used internally to a system or library to implement the functionality needed to provide a transport service across a network, as required by the abstract interface.
 
-* Connection Group: A set of Connections that share properties. For multiplexing transport protocols, the Connection Group defines the set of Connections that can be multiplexed together.
+* Connection Group: A set of Connections that share properties. For multiplexing transport protocols, the Connection Group defines the set of Connections that can be multiplexed together. Groups can be defined implicitly by the Implementation, based on which properties are compatible. However, applications SHOULD be able to explicitly define Connection Groups, as discussed in {{groups}}.
 
 * Path: Represents an available set of properties that a local system can use to communicate with a remote system, such as routes, addresses, and physical and virtual network interfaces.
 
@@ -442,7 +443,19 @@ If two different Protocol Stacks can be safely swapped, or raced in parallel (se
 
 2. Both stacks MUST offer the same transport services, as required by the application. For example, if an application specifies that it requires reliable transmission of data, then a Protocol Stack using UDP without any reliability layer on top would not be allowed to replace a Protocol Stack using TCP. However, if the application does not require reliability, then a Protocol Stack that adds unnecessary reliability might be allowed as an equivalent Protocol Stack as long as it does not conflict with any other application-requested properties.
 
-3. Both stacks MUST offer the same security properties. The inclusion of transport security protocols {{I-D.ietf-taps-transport-security}} in a Protocol Stack adds additional restrictions to Protocol Stack equivalence. Security features and properties, such as cryptographic algorithms, peer authentication, and identity privacy vary across security protocols, and across versions of security protocols. Protocol equivalence ought not to be assumed for different protocols or protocol versions, even if they offer similar application configuration options. To ensure that security protocols are not incorrectly swapped, Transport Services systems SHOULD only automatically generate equivalent Protocol Stacks when the transport security protocols within the stacks are identical. Specifically, a transport system would consider protocols identical only if they are of the same type and version. For example, the same version of TLS running over two different transport protocol stacks are considered equivalent, whereas TLS 1.2 and TLS 1.3 {{I-D.ietf-tls-tls13}} are not considered equivalent.
+3. Both stacks MUST offer the same security properties. The inclusion of transport security protocols {{I-D.ietf-taps-transport-security}} in a Protocol Stack adds additional restrictions to Protocol Stack equivalence. Security features and properties, such as cryptographic algorithms, peer authentication, and identity privacy vary across security protocols, and across versions of security protocols. Protocol equivalence ought not to be assumed for different protocols or protocol versions, even if they offer similar application configuration options. To ensure that security protocols are not incorrectly swapped, Transport Services systems SHOULD only automatically generate equivalent Protocol Stacks when the transport security protocols within the stacks are identical. Specifically, a transport system would consider protocols identical only if they are of the same type and version. For example, the same version of TLS running over two different transport protocol stacks are considered equivalent, whereas TLS 1.2 and TLS 1.3 {{RFC8446}} are not considered equivalent.
+
+### Separating Connection Groups {#groups}
+
+By default, all stored properties of the Implementation are shared within a process, such as cached protocol state, cached path state, and heuristics. This provides efficiency and convenience for the application, since the Transport System Implementation will be able to automatically optimize behavior.
+
+There are several reasons, however, that an application might want to isolate some Connections within a single process. These reasons include:
+
+- Privacy concerns about re-using cached protocol state that can lead to linkability. Sensitive state may include TLS session resumption state {{RFC8446}} and HTTP cookies {{RFC6265}}.
+- Privacy concerns about allowing Connections to multiplex together, which can tell a Remote Endpoint that all of the Connections are coming from the same application (for example, when Connections are multiplexed HTTP/2 or QUIC streams).
+- Performance concerns about Connections introducing head-of-line blocking due to multiplexing or needing to share state on a single thread.
+
+The Transport Services API SHOULD allow applications to explicitly define Connection Groups to force separation of Cached State and Protocol Stacks. The interface to specify these Groups can optionally expose fine-grained tuning for which properties and cached state is allowed to be shared with other Connections. For example, an application might want to allow sharing TCP Fast Open cookies across groups, but not TLS resumption state. 
 
 # IANA Considerations
 

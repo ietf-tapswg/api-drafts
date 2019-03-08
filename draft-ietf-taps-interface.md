@@ -1482,7 +1482,7 @@ data transfer (before connection establishment has finished). This is useful if
 applications need to treat early data separately,
 e.g., if early data has different security properties than data sent after
 connection establishment. In the case of TLS 1.3, client early data can be replayed
-maliciously (see {{!I-D.ietf-tls-tls13}}). Thus, receivers may wish to perform additional
+maliciously (see {{!RFC8446}}). Thus, receivers may wish to perform additional
 checks for early data to ensure it is idempotent or not replayed. If TLS 1.3 is available
 and the recipient Message was sent as part of early data, the corresponding metadata carries
 a flag indicating as such. If early data is enabled, applications should check this metadata

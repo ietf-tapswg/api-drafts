@@ -89,7 +89,6 @@ normative:
 
 informative:
     I-D.ietf-quic-transport:
-    I-D.ietf-tls-tls13:
     NEAT-flow-mapping:
       title: Transparent Flow Mapping for NEAT (in Workshop on Future of Internet Transport (FIT 2017))
       authors:
@@ -508,7 +507,7 @@ If a Connection becomes finished before a requested Receive action can be satisf
 
 ## Handling of data for fast-open protocols {#fastopen}
 
-Several protocols allow sending higher-level protocol or application data within the first packet of their protocol establishment, such as TCP Fast Open {{!RFC7413}} and TLS 1.3 {{I-D.ietf-tls-tls13}}. This approach is referred to as sending Zero-RTT (0-RTT) data. This is a desirable property, but poses challenges to an implementation that uses racing during connection establishment.
+Several protocols allow sending higher-level protocol or application data within the first packet of their protocol establishment, such as TCP Fast Open {{!RFC7413}} and TLS 1.3 {{!RFC8446}}. This approach is referred to as sending Zero-RTT (0-RTT) data. This is a desirable property, but poses challenges to an implementation that uses racing during connection establishment.
 
 If the application has 0-RTT data to send in any protocol handshakes, it needs to provide this data before the handshakes have begun. When racing, this means that the data should be provided before the process of connection establishment has begun. If the application wants to send 0-RTT data, it must indicate this to the implementation by setting the Idempotent send parameter to true when sending the data. In general, 0-RTT data may be replayed (for example, if a TCP SYN contains data, and the SYN is retransmitted, the data will be retransmitted as well), but racing means that different leaf nodes have the opportunity to send the same data independently. If data is truly idempotent, this should be permissible.
 
