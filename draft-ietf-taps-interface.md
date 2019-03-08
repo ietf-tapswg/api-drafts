@@ -261,14 +261,15 @@ described in {{I-D.ietf-taps-arch}}.
 ## Usage Examples
 
 The following usage examples illustrate how an application might use a
-Transport Services Interface to
+Transport Services Interface to:
 
-- Act as a server: Listen for incoming connections, receive a request, and send
-  a response, see {{server-example}}.
-- Act as a client: Connect to a remote endpoint, send a request, and receive a
-  response, see {{client-example}}.
-- Act as a peer: Connect to a remote endpoint using Rendezvous, send a Message,
-  and receive a Message, see {{peer-example}}.
+- Act as a server, by listening for incoming connections, receiving requests,
+  and sending responses, see {{server-example}}.
+- Act as a client, by connecting to a remote endpoint using Initiate, sending
+  requests, and receiving responses, see {{client-example}}.
+- Act as a peer, by connecting to a remote endpoint using Rendezvous while
+  simultaneously waiting for incoming Connections, sending Messages, and
+  receiving Messages, see {{peer-example}}.
 
 The examples in this section presume that a transport protocol is available
 between the endpoints which provides Reliable Data Transfer, Preservation of
@@ -290,13 +291,12 @@ using the Transport Services Interface, receive a request, and send a response.
 
 ~~~
 LocalSpecifier := NewLocalEndpoint()
-LocalSpecifier.WithInterface("en0")
+LocalSpecifier.WithInterface("any")
 LocalSpecifier.WithService("https")
 
 TransportProperties := NewTransportProperties()
-TransportProperties.Require(reliability)
-TransportProperties.Require(preserve-order)
 TransportProperties.Require(preserve-msg-boundaries)
+// Reliable Data Transfer and Preserve Order are Required by default
 
 SecurityParameters := NewSecurityParameters()
 SecurityParameters.AddIdentity(identity)
@@ -312,10 +312,8 @@ Preconnection.Listen()
 
 Preconnection -> ConnectionReceived<Connection>
 
-// Only receive complete messages
-minIncompleteLength = Infinite
-maxLength = Infinite
-
+// Only receive complete messages:
+// minIncompleteLength and maxLength are infinite by default
 Connection.Receive(minIncompleteLength, maxLength)
 
 Connection -> Received(messageDataRequest, messageContext)
@@ -340,9 +338,8 @@ RemoteSpecifier.WithHostname("example.com")
 RemoteSpecifier.WithService("https")
 
 TransportProperties := NewTransportProperties()
-TransportProperties.Require(reliability)
-TransportProperties.Require(preserve-order)
 TransportProperties.Require(preserve-msg-boundaries)
+// Reliable Data Transfer and Preserve Order are Required by default
 
 SecurityParameters := NewSecurityParameters()
 TrustCallback := New Callback({
@@ -362,9 +359,8 @@ Connection -> Ready<>
 
 Connection.Send(messageDataRequest)
 
-// Only receive complete messages
-minIncompleteLength = Infinite
-maxLength = Infinite
+// Only receive complete messages:
+// minIncompleteLength and maxLength are infinite by default
 Connection.Receive(minIncompleteLength, maxLength)
 
 Connection -> Received(messageDataResponse, messageContext)
@@ -386,9 +382,8 @@ RemoteSpecifier.WithHostname("example.com")
 RemoteSpecifier.WithPort(9877)
 
 TransportProperties := NewTransportProperties()
-TransportProperties.Require(reliability)
-TransportProperties.Require(preserve-order)
 TransportProperties.Require(preserve-msg-boundaries)
+// Reliable Data Transfer and Preserve Order are Required by default
 
 SecurityParameters := NewSecurityParameters()
 SecurityParameters.AddIdentity(identity)
@@ -411,9 +406,8 @@ Preconnection -> RendezvousDone<Connection>
 
 Connection.Send(messageDataRequest)
 
-// Only receive complete messages
-minIncompleteLength = Infinite
-maxLength = Infinite
+// Only receive complete messages:
+// minIncompleteLength and maxLength are infinite by default
 Connection.Receive(minIncompleteLength, maxLength)
 
 Connection -> Received(messageDataResponse, messageContext)
@@ -482,7 +476,6 @@ following recommendations:
   exclusive of appendices, even if said implementation is a non-operation, e.g.
   because transport protocols implementing a given Property are not available on
   the platform.
-
 
 # Pre-Establishment Phase {#pre-establishment}
 
