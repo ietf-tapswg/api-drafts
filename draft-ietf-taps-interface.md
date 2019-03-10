@@ -17,11 +17,11 @@ author:
   -
     ins: B. Trammell
     name: Brian Trammell
-    org: Independent
+    org: Google
     role: editor
     email: ietf@trammell.ch
-    street: ""
-    city: 8304 Wallisellen
+    street: Gustav-Gull-Platz 1
+    city: 8004 Zurich
     country: Switzerland
   -
     ins: M. Welzl
