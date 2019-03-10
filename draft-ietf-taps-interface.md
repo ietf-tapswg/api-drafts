@@ -258,6 +258,160 @@ Errors and other notifications also happen asynchronously on the Connection.
 through Actions and Events in each phase of a Connection, following the phases
 described in {{I-D.ietf-taps-arch}}.
 
+## Usage Examples
+
+The following usage examples illustrate how an application might use a
+Transport Services Interface to:
+
+- Act as a server, by listening for incoming connections, receiving requests,
+  and sending responses, see {{server-example}}.
+- Act as a client, by connecting to a remote endpoint using Initiate, sending
+  requests, and receiving responses, see {{client-example}}.
+- Act as a peer, by connecting to a remote endpoint using Rendezvous while
+  simultaneously waiting for incoming Connections, sending Messages, and
+  receiving Messages, see {{peer-example}}.
+
+The examples in this section presume that a transport protocol is available
+between the endpoints which provides Reliable Data Transfer, Preservation of
+data ordering, and Preservation of Message Boundaries. In this case, the
+application can choose to receive only complete messages.
+
+If none of the available transport protocols provides Preservation of Message
+Boundaries, but there is a transport protocol which provides a reliable ordered
+octet stream, an application may receive this octet stream as partial
+Messages and transform it into application-layer Messages.  Alternatively,
+an application may provide a Deframer, which is a function that transforms an
+octet stream into a sequence of Messages, see {{receive-framing}}.
+
+
+### Server Example
+
+This is an example of how an application might listen for incoming Connections
+using the Transport Services Interface, receive a request, and send a response.
+
+~~~
+LocalSpecifier := NewLocalEndpoint()
+LocalSpecifier.WithInterface("any")
+LocalSpecifier.WithService("https")
+
+TransportProperties := NewTransportProperties()
+TransportProperties.Require(preserve-msg-boundaries)
+// Reliable Data Transfer and Preserve Order are Required by default
+
+SecurityParameters := NewSecurityParameters()
+SecurityParameters.AddIdentity(identity)
+SecurityParameters.AddPrivateKey(privateKey, publicKey)
+
+// Specifying a remote endpoint is optional when using Listen()
+Preconnection := NewPreconnection(LocalSpecifier,
+                                  None,
+                                  TransportProperties,
+                                  SecurityParameters)
+
+Preconnection.Listen()
+
+Preconnection -> ConnectionReceived<Connection>
+
+// Only receive complete messages
+Connection.Receive()
+
+Connection -> Received(messageDataRequest, messageContext)
+
+Connection.Send(messageDataResponse)
+
+Connection.Close()
+
+// Stop listening for incoming Connections
+Preconnection.Stop()
+~~~
+
+
+### Client Example
+
+This is an example of how an application might connect to a remote application
+using the Transport Services Interface, send a request, and receive a response.
+
+~~~
+RemoteSpecifier := NewRemoteEndpoint()
+RemoteSpecifier.WithHostname("example.com")
+RemoteSpecifier.WithService("https")
+
+TransportProperties := NewTransportProperties()
+TransportProperties.Require(preserve-msg-boundaries)
+// Reliable Data Transfer and Preserve Order are Required by default
+
+SecurityParameters := NewSecurityParameters()
+TrustCallback := New Callback({
+  // Verify identity of the remote endpoint, return the result
+})
+SecurityParameters.SetTrustVerificationCallback(TrustCallback)
+
+// Specifying a local endpoint is optional when using Initiate()
+Preconnection := NewPreconnection(None,
+                                  RemoteSpecifier,
+                                  TransportPreperties,
+                                  SecurityParameters)
+
+Connection := Preconnection.Initiate()
+
+Connection -> Ready<>
+
+Connection.Send(messageDataRequest)
+
+// Only receive complete messages
+Connection.Receive()
+
+Connection -> Received(messageDataResponse, messageContext)
+
+Connection.Close()
+~~~
+
+### Peer Example
+
+This is an example of how an application might establish a connection with a
+peer using Rendezvous(), send a Message, and receive a Message.
+
+~~~
+LocalSpecifier := NewLocalEndpoint()
+LocalSpecifier.WithPort(9876)
+
+RemoteSpecifier := NewRemoteEndpoint()
+RemoteSpecifier.WithHostname("example.com")
+RemoteSpecifier.WithPort(9877)
+
+TransportProperties := NewTransportProperties()
+TransportProperties.Require(preserve-msg-boundaries)
+// Reliable Data Transfer and Preserve Order are Required by default
+
+SecurityParameters := NewSecurityParameters()
+SecurityParameters.AddIdentity(identity)
+SecurityParameters.AddPrivateKey(privateKey, publicKey)
+
+TrustCallback := New Callback({
+  // Verify identity of the remote endpoint, return the result
+})
+SecurityParameters.SetTrustVerificationCallback(trustCallback)
+
+// Both local and remote endpoint must be specified
+Preconnection := NewPreconnection(LocalSpecifier,
+                                  RemoteSpecifier,
+                                  TransportPreperties,
+                                  SecurityParameters)
+
+Preconnection.Rendezvous()
+
+Preconnection -> RendezvousDone<Connection>
+
+Connection.Send(messageDataRequest)
+
+// Only receive complete messages
+Connection.Receive()
+
+Connection -> Received(messageDataResponse, messageContext)
+
+Connection.Close()
+~~~
+
 ## Transport Properties
 
 Each application using the Transport Services Interface declares its preferences
