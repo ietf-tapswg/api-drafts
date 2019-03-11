@@ -715,6 +715,30 @@ This property specifies whether the application needs or prefers to use a transp
 protocol that preserves message boundaries. The recommended default
 is to Prefer Preservation of Message Boundaries.
 
+### Connection Pooling {#connection-pooling}
+
+Name:
+:pool-connections
+
+When using Request/Response style protocols, such as HTTP, applications
+can let the Transport System manage their connections by using Connection Pooling.
+In this case, the Transport System can automatically distribute requests across
+multiple connections towards equivalent endpoints or be multiplexed on
+multi-streaming connections.
+
+Pooled Connections behave regular connections with a few exceptions:
+
+ - Pooling Connection need to operate on Messages, not streams. Therefore, they need to have appropriate framers if used on top of a stream transport.
+ - The application can influence which of the underlying transport connections within the Pooled Connection Pool should be used. 
+   Therefore Selection Properties may be specified on a send call for Pooled Connections. 
+ - They use the msgRef/reqRef parameters of the send and receive calls to send responses on the same backing connection as the request was received.
+   - If the Message received is a request from the remote side, the reqRef provided, see {{receiving}}, must be used later when sending a response.
+   - If the Message received is a response to a request sent earlier, the reqRef provided by the transport system must match the msgRef of the original request.
+   - When sending a new request, see {{sending}}, the reqRef parameter must be undefined.
+
+As pooled connection behave quite differently from rnegular connections, the
+recommended default is to Prohibit connection pooling.
+
 ### Configure per-Message reliability {#prop-partially-reliable}
 
 Name:
@@ -1048,7 +1072,9 @@ candidate transport-layer connections to be created to the specified remote
 endpoint. The caller may immediately begin sending Messages on the Connection
 (see {{sending}}) after calling Initate(); note that any idempotent data sent
 while the Connection is being established may be sent multiple times or on
-multiple candidates.
+multiple candidates. When using Pooled Connections, additional candidate
+transport-layer connections that match the original Selection Properties
+may automatically be created at any later time.
 
 The following Events may be sent by the Connection after Initiate() is called:
 
@@ -1095,8 +1121,18 @@ The Listen() Action consumes the Preconnection. Once Listen() has been
 called, no further properties may be added to the Preconnection, and no
 subsequent establishment call may be made on the Preconnection.
 
-Listening continues until the global context shuts down, or until the Stop
-action is performed on the same Preconnection:
+~~~
+Connection := Preconnection.ListenPooled()
+~~~
+
+When using Pooled Connections, see {{connection-pooling}}, a pooled
+connection is created instead of a Listener. This connection will receive
+all messages from all underlying transport connections and can be used
+to send replies to them. 
+
+
+In both cases, Listening continues until the global context shuts down,
+or until the Stop action is performed on the same Preconnection:
 
 ~~~
 Preconnection.Stop()
@@ -1245,11 +1281,13 @@ Messages for streaming large data is also supported (see {{send-partial}}).
 Messages are sent on a Connection using the Send action:
 
 ~~~
-Connection.Send(messageData, messageContext?, endOfMessage?)
+msgRef := Connection.Send(messageData, messageContext?, reqRef?, endOfMessage?)
 ~~~
 
 where messageData is the data object to send. The optional messageContext
 parameter supports per-message properties and is described in {{message-props}}.
+The optional reqRef can be used to match requests and responses for 
+requests/response style protocols and is described in {{connection-pooling}}.
 The optional endOfMessage parameter supports partial sending and is described in
 {{send-partial}}.
 
@@ -1536,6 +1574,17 @@ transport's current estimate of its maximum transmission segment size will
 result in a `SendError`. When used with transports supporting this functionality
 and running over IP version 4, the Don't Fragment bit will be set.
 
+## Per-Request Selection Properties for Connection Pools
+
+When calling Send() on a Connection Pool, most Selection Properties that
+effect Path- and Endpoint Selection can be specified as message properties
+to select a backing connection from the pool.
+If no matching connection can be found, the Connection Pool may try to 
+initiate a new one that matches the provided Selection Properties. 
+
+If Selection Properties that are incompatible with the Connection Pool are
+specified, a Send Error is sent.
+
 ## Partial Sends {#send-partial}
 
 It is not always possible for an application to send all data associated with
@@ -1678,7 +1727,7 @@ when it is temporarily not ready to receive messages.
 ### Received {#receive-complete}
 
 ~~~
-Connection -> Received<messageData, messageContext>
+Connection -> Received<messageData, messageContext, reqRef?>
 ~~~
 
 A Received event indicates the delivery of a complete Message. It contains two objects,
@@ -1688,6 +1737,8 @@ Message as messageContext. See {{receive-context}} for details about the receive
 The messageData object provides access to the bytes that were received for this Message,
 along with the length of the byte array.
 
+In case a Message is received from a Pooled Connection, a (local) reqRef is provided to
+match requests and responses, see {{connection-pooling}}. 
 See {{receive-framing}} for handling Message framing in situations where the Protocol
 Stack provides octet-stream transport only.
 
