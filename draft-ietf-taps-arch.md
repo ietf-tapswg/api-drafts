@@ -344,7 +344,7 @@ The diagram below provides a high-level view of the actions taken during the lif
 
 * Listener: A Listener object accepts incoming transport protocol connections from remote systems and generates corresponding Connection objects. It is created from a Preconnection object that specifies the type of incoming connections it will accept.
 
-* Connection Pool: A Connection Pool hides a set of Connections and Listeners between equivalent Endpoints. When used as initiator pool, it automatically maps requests to established Connections or establishes Connections when necessary.  When used as responder pool, it automatically listens for connections and delivers messages received from these to the application.
+* Connection Pool: A Connection Pool hides a set of Connections and Listeners between equivalent Endpoints. When using an Requestor Pool, it automatically maps requests to established Connections or establishes Connections when necessary.  When using a Responder pool, it automatically listens for connections and delivers messages received from these to the application.
   
 ### Pre-Establishment {#preestablishment}
 

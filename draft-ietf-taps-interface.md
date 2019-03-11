@@ -947,33 +947,35 @@ the resolution process. This list can be passed to a peer via a signalling
 protocol, such as SIP {{?RFC3261}} or WebRTC {{?RFC7478}}, to configure the
 remote.
 
-## Connection Pools {#pools}
+## Connection Pools {#connection-pools}
 
 When using Request/Response style protocols, such as HTTP, applications
 can let the Transport System manage their connections by using Connection Pools.
-In this case, the Transport System can automatically distribute requests across multiple connections towards equivalent endpoints or be multiplexed on multi-streaming connections.
-A connection pool is created by the ConnectionPool Action:
+In this case, the Transport System can automatically distribute requests across
+multiple connections towards equivalent endpoints or be multiplexed on
+multi-streaming connections.
 
-~~~
-ConnectionPool := Preconnection.ConnectionPool()
-~~~
+Connection Pools are used like regular connections with one exception: 
+They use the msgRef/reqRef parameters of the send and receive calls
+to send responses on the same backing connection as the request was received.
+If the Message received is a request from the remote side, the reqRef provided,
+see {{receiving}}, must be used later when sending a response.
+If the Message received is a response to a request sent earlier, the
+reqRef matches the msgRef of the original request. 
+When sending a new request, see {{sending}}, the reqRef parameter must be empty.
 
-The caller should specify all properties necessary for candidate selection that are shared by all requests send or received using this connection pool.
-By specifying selection properties on a send call later, the application can influence which Connection within the Connection Pool should be used. 
+### Requestor Pools
 
-The Connection Pool can be used for sending and receiving requests and responses like a connection, see {{sending}} and {{receiving}}.
-
-~~~
-ConnectionPool.Stop()
-~~~
-
-After Stop() is called, the Connection Pool can be disposed of, all listening will be stopped, and all backing connections will be terminated.
-
-### Initiating Pools
-
-When using a connection pool to send requests, the caller must have populated
+When using a Requestor Pool to send requests, the caller must have populated
 a Preconnection Object with sufficient Endpoint specifiers to initiate 
 a Connection as described in {{initiate}}.
+The caller should specify all properties necessary for candidate selection that are shared by all requests send or received using this connection pool.
+By specifying selection properties on a send call later, the application can influence which Connection within the Connection Pool should be used. 
+A Requestor Pool is then created by the RequestorPool Action:
+
+~~~
+RequestorPool := Preconnection.RequestorPool()
+~~~
 
 There is no need to call initiate for a pool, as connections get initiated automatically when sending requests.
 Also, the connection pool will consume ConnectionReady events from the backing Connections.
@@ -984,23 +986,37 @@ ConnectionPool -> InitiateError<>
 
 When initiating of all backing Connection fail, the Connection Pool may forward initiation errors to the application.
 
-### Listening Pools
+~~~
+ConnectionPool.Stop()
+~~~
 
-When using a connection pool to send requests, the caller must have populated
+After Stop() is called, the Connection Pool can be disposed of, all backing connections will be terminated.
+
+### Responder Pools
+
+When using a Responder Pool to send requests, the caller must have populated
 a Preconnection Object with sufficient Endpoint specifiers to Listen for
 Connections as described in {{listen}}.
 
+A Responder Pool is created by the ConnectionPool Action:
+
 ~~~
-ConnectionPool.Listen()
+ResponderPool := Preconnection.ResponderPool()
 ~~~
 
-Instead of calling Listen() on the Preconnection, an application using listening pools calls Listen() directly on the connection pool.
+There is no need to call Listen() on the Preconnection, all necessary actions are performed with the Responder Pool.
 
 ~~~
 ConnectionPool -> ListenError<>
 ~~~
 
 If listening fails, the Connection Pool may forward listen errors to the application.
+
+~~~
+ConnectionPool.Stop()
+~~~
+
+After Stop() is called, the Connection Pool can be disposed of, all listening will be stopped, and all backing connections will be terminated.
 
 ## Connection Groups {#groups}
 
@@ -1055,18 +1071,15 @@ Messages for streaming large data is also supported (see {{send-partial}}).
 Messages are sent on a Connection or a Connection Pool using the Send action:
 
 ~~~
-msgRef := Connection.Send(messageData, messageContext?, endOfMessage?)
-msgRef := ConnectionPool.Send(reqRef?, messageData, messageContext?, endOfMessage?)
+msgRef := Connection.Send(messageData, messageContext?, reqRef?, endOfMessage?)
 ~~~
 
 where messageData is the data object to send. The optional messageContext
 parameter supports per-message properties and is described in {{message-props}}.
+The optional reqRef can be used to match requests and responses for 
+requests/response style protocols and is described in {connection-pools}.
 The optional endOfMessage parameter supports partial sending and is described in
 {{send-partial}}.
-
-The optional reqRef can be used to match requests and responses for 
-requests/response style protocols. When sending a request, this parameter
-must be empty. When sending a response, the reqRef received with the Receive Event must be provided.
 
 ## Basic Sending {#send-basic}
 
@@ -1439,7 +1452,6 @@ specified.
 
 ~~~
 Connection.Receive(minIncompleteLength?, maxLength?)
-ConnectionPool.Receive(minIncompleteLength?, maxLength?)
 ~~~
 
 By default, Receive will try to deliver complete Messages in a single event ({{receive-complete}}).
@@ -1474,8 +1486,7 @@ when it is temporarily not ready to receive messages.
 ### Received {#receive-complete}
 
 ~~~
-Connection -> Received<messageData, messageContext>
-ConnectionPool -> Received<messageData, messageContext, reqRef>
+Connection -> Received<messageData, messageContext, reqRef?>
 ~~~
 
 A Received event indicates the delivery of a complete Message. It contains two objects,
@@ -1485,9 +1496,8 @@ Message as messageContext. See {{receive-context}} for details about the receive
 The messageData object provides access to the bytes that were received for this Message,
 along with the length of the byte array.
 
-In case a Message is received from a Connection Pool, a (local) reqRef is provided to match requests and responses. If the Message received is
-a response to a request sent earlier, the reqRef matches the msgRef of the
-original request. If the Message received is a request from the remote side, the reqRef is provided to be used later to send a response.
+In case a Message is received from a Connection Pool, a (local) reqRef is provided to
+match requests and responses, see {{connection-pools}}. 
 
 See {{receive-framing}} for handling Message framing in situations where the Protocol
 Stack provides octet-stream transport only.
