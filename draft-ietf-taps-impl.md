@@ -832,11 +832,3 @@ If the application indicates a bound on the expected Send or Receive bitrate, an
 
 * Cost Preferences:
 If the application indicates a preference to avoid expensive paths, and some paths are associated with a monetary cost, an implementation should decrease the ranking of such paths. If the application indicates that it prohibits using expensive paths, paths that are associated with a cost should be purged from the decision tree.
-
-
-## Send Parameters {#send-params-non-consensus}
-
-In addition to the Send Parameters listed in {{send-params}}, the following  Send Parameters are under discussion:
-
-* Send Bitrate:
-If an application indicates a certain bitrate it wants to send on the connection, the implementation may limit the bitrate of the outgoing communication to that rate, for example by setting an upper bound for the TCP congestion window of a connection calculated from the Send Bitrate and the Round Trip Time. This helps to avoid bursty traffic patterns on video streaming servers, see [Trickle].
