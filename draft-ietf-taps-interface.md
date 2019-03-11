@@ -456,8 +456,8 @@ form \[\<Namespace>.\]\<PropertyName\>.
   Namespace, e.g., “tcp" for TCP specific Transport Properties.
   For IETF protocols, property names under these namespaces should
   be defined in an RFC.
-- Vendor or implementation specific properties must use the 
-  vendor's or implementation’s name or acronym as Namespace.
+- Vendor or implementation specific properties must use a 
+  a string identifying the vendor or implementation as Namespace.
 
 ### Transport Property Types {#property-types}
 
@@ -613,7 +613,7 @@ selection is necessarily tied to path selection. This may involve choosing
 between multiple local interfaces that are connected to different access
 networks.
 
-Almost all Selection Properties are represented as preferences, which can
+Most Selection Properties are represented as preferences, which can
 have one of five preference levels:
 
    | Preference | Effect                                                                 |
@@ -743,7 +743,7 @@ recommended default is to Prefer this option.
 ### Multistream Connections in Group {#prop-multistream}
 
 Name:
-: multi-streaming
+: multistreaming
 
 This property specifies that the application would prefer multiple Connections
 within a Connection Group to be provided by streams of a single underlying
@@ -786,7 +786,7 @@ controlled.
 ### Interface Instance or Type {#prop-interface}
 
 Name:
-: interface-type
+: interface
 
 Type:
 : Set (Preference, Enumeration)
@@ -828,7 +828,7 @@ metered interfaces, this should be specified via Provisioning Domain attributes
 ### Provisioning Domain Instance or Type {#prop-pvd}
 
 Name:
-: pvd-type
+: pvd
 
 Type:
 : Set (Preference, Enumeration)
@@ -864,7 +864,7 @@ over these options.
 ### Parallel Use of Multiple Paths
 
 Name:
-: multipath-transport
+: multipath
 
 This property specifies whether an application considers it useful to
 transfer data across multiple paths between the same end hosts. Generally,
@@ -1422,7 +1422,7 @@ see {{prop-ordering}}, but allow out-of-order delivery for certain messages.
 ### Idempotent {#msg-idempotent}
 
 Name:
-: msg-idempotent
+: idempotent
 
 Type:
 : Boolean
@@ -1438,7 +1438,7 @@ Type:
 : Boolean
 
 Name:
-: msg-final
+: final
 
 If true, this Message is the last one that
 the application will send on a Connection. This allows underlying protocols
@@ -1518,7 +1518,7 @@ The following values are valid for Transmission Profile:
 ### Singular Transmission {#send-singular}
 
 Name:
-: msg-singular-transmission
+: singular-transmission
 
 Type:
 : Boolean
