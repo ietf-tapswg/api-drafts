@@ -817,3 +817,26 @@ Research Council under grant EP/R04144X/1.
 Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work.
 
 --- back
+
+# Additional Properties {#appendix-non-consensus} 
+
+This appendix discusses implementation considerations for additional parameters and properties that could be used to enhance transport protocol and/or path selection, or the transmission of messages given a Protocol Stack that implements them.
+These are not part of the interface, and may be removed from the final document, but are presented here to support discussion within the TAPS working group as to whether they should be added to a future revision of the base specification.
+
+## Properties Affecting Sorting of Branches {#branch-sorting-non-consensus}
+
+In addition to the Protocol and Path Selection Properties discussed in {{branch-sorting}}, the following properties under discussion can influence branch sorting:
+
+* Bounds on Send or Receive Rate:
+If the application indicates a bound on the expected Send or Receive bitrate, an implementation may prefer a path that can likely provide the desired bandwidth, based on cached maximum throughput, see {{performance-caches}}. The application may know the Send or Receive Bitrate from metadata in adaptive HTTP streaming, such as MPEG-DASH.
+
+* Cost Preferences:
+If the application indicates a preference to avoid expensive paths, and some paths are associated with a monetary cost, an implementation should decrease the ranking of such paths. If the application indicates that it prohibits using expensive paths, paths that are associated with a cost should be purged from the decision tree.
+
+
+## Send Parameters {#send-params-non-consensus}
+
+In addition to the Send Parameters listed in {{send-params}}, the following  Send Parameters are under discussion:
+
+* Send Bitrate:
+If an application indicates a certain bitrate it wants to send on the connection, the implementation may limit the bitrate of the outgoing communication to that rate, for example by setting an upper bound for the TCP congestion window of a connection calculated from the Send Bitrate and the Round Trip Time. This helps to avoid bursty traffic patterns on video streaming servers, see [Trickle].
