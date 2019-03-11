@@ -1,26 +1,28 @@
 # TAPS Drafts
 
-This is the working area for the IETF TAPS working group Internet-Drafts for the TAPS Architecture and Abstract Interface, 
+This is the working area for the IETF TAPS working group Internet-Drafts for the TAPS Architecture, Abstract Interface, and Interface Implementation documents.
+
+**NOTE** This repository will be moving to https://github.com/ietf-tapswg/api-drafts soon. An announcement will be made on the taps@ietf.org mailing list shortly.
 
 **Contributions to this repository (commits and pull requests, as well as issues and comments) are covered under the IETF Note Well.** See [CONTRIBUTING.md](CONTRIBUTING.md) for more.
 
 ## Architecture
 
-* [Editor's Copy](https://taps-api.github.io/drafts/#go.draft-ietf-taps-arch.html)
+* [Editor's Copy](https://ietf-tapswg.github.io/api-drafts/#go.draft-ietf-taps-arch.html)
 * [Individual Draft](https://tools.ietf.org/html/draft-ietf-taps-arch)
-* [Compare Editor's Copy to Individual Draft](https://taps-api.github.io/drafts/#go.draft-ietf-taps-arch.diff)
+* [Compare Editor's Copy to Individual Draft](https://ietf-tapswg.github.io/api-drafts/#go.draft-ietf-taps-arch.diff)
 
 ## Interface
 
-* [Editor's Copy](https://taps-api.github.io/drafts/#go.draft-ietf-taps-interface.html)
+* [Editor's Copy](https://ietf-tapswg.github.io/api-drafts/#go.draft-ietf-taps-interface.html)
 * [Individual Draft](https://tools.ietf.org/html/draft-ietf-taps-interface)
-* [Compare Editor's Copy to Individual Draft](https://taps-api.github.io/drafts/#go.draft-ietf-taps-interface.diff)
+* [Compare Editor's Copy to Individual Draft](https://ietf-tapswg.github.io/api-drafts/#go.draft-ietf-taps-interface.diff)
 
 ## Implementation
 
-* [Editor's Copy](https://taps-api.github.io/drafts/#go.draft-ietf-taps-impl.html)
+* [Editor's Copy](https://ietf-tapswg.github.io/api-drafts/#go.draft-ietf-taps-impl.html)
 * [Individual Draft](https://tools.ietf.org/html/draft-ietf-taps-impl)
-* [Compare Editor's Copy to Individual Draft](https://taps-api.github.io/drafts/#go.draft-ietf-taps-impl.diff)
+* [Compare Editor's Copy to Individual Draft](https://ietf-tapswg.github.io/api-drafts/#go.draft-ietf-taps-impl.diff)
 
 
 ## Building the Draft
