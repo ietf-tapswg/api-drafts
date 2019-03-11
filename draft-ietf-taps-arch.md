@@ -447,15 +447,17 @@ If two different Protocol Stacks can be safely swapped, or raced in parallel (se
 
 ### Separating Connection Groups {#groups}
 
-By default, all stored properties of the Implementation are shared within a process, such as cached protocol state, cached path state, and heuristics. This provides efficiency and convenience for the application, since the Transport System Implementation will be able to automatically optimize behavior.
+By default, all stored properties of the Implementation are shared within a process, such as cached protocol state, cached path state, and heuristics. This provides efficiency and convenience for the application, since the Transport System Implementation can automatically optimize behavior.
 
 There are several reasons, however, that an application might want to isolate some Connections within a single process. These reasons include:
 
-- Privacy concerns about re-using cached protocol state that can lead to linkability. Sensitive state may include TLS session resumption state {{RFC8446}} and HTTP cookies {{RFC6265}}.
+- Privacy concerns about re-using cached protocol state that can lead to linkability. Sensitive state may include TLS session state {{RFC8446}} and HTTP cookies {{RFC6265}}.
 - Privacy concerns about allowing Connections to multiplex together, which can tell a Remote Endpoint that all of the Connections are coming from the same application (for example, when Connections are multiplexed HTTP/2 or QUIC streams).
 - Performance concerns about Connections introducing head-of-line blocking due to multiplexing or needing to share state on a single thread.
 
-The Transport Services API SHOULD allow applications to explicitly define Connection Groups to force separation of Cached State and Protocol Stacks. The interface to specify these Groups can optionally expose fine-grained tuning for which properties and cached state is allowed to be shared with other Connections. For example, an application might want to allow sharing TCP Fast Open cookies across groups, but not TLS resumption state. 
+The Transport Services API SHOULD allow applications to explicitly define Connection Groups to force separation of Cached State and Protocol Stacks. For example, a web browser application might use separate Connection Groups for different tabs in the browser to decrease linkability.
+
+The interface to specify these Groups can optionally expose fine-grained tuning for which properties and cached state is allowed to be shared with other Connections. For example, an application might want to allow sharing TCP Fast Open cookies across groups, but not TLS session state.
 
 # IANA Considerations
 
