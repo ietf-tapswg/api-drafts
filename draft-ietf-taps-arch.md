@@ -403,7 +403,7 @@ This list of events that can be delivered to an application is not exhaustive, b
 
 The Transport System Implementation Concepts define the set of objects used internally to a system or library to implement the functionality needed to provide a transport service across a network, as required by the abstract interface.
 
-* Connection Group: A set of Connections that share properties. For multiplexing transport protocols, the Connection Group defines the set of Connections that can be multiplexed together. Groups can be defined implicitly by the Implementation, based on which properties are compatible. However, applications SHOULD be able to explicitly define Connection Groups, as discussed in {{groups}}.
+* Connection Group: A set of Connections that share properties and caches. For multiplexing transport protocols, only Connections within the same Connection Group are allowed be multiplexed together. Applications can use their explicitly defined Connection Groups to control caching boundaries, as discussed in {{groups}}.
 
 * Path: Represents an available set of properties that a local system can use to communicate with a remote system, such as routes, addresses, and physical and virtual network interfaces.
 
@@ -455,9 +455,9 @@ There are several reasons, however, that an application might want to isolate so
 - Privacy concerns about allowing Connections to multiplex together, which can tell a Remote Endpoint that all of the Connections are coming from the same application (for example, when Connections are multiplexed HTTP/2 or QUIC streams).
 - Performance concerns about Connections introducing head-of-line blocking due to multiplexing or needing to share state on a single thread.
 
-The Transport Services API SHOULD allow applications to explicitly define Connection Groups to force separation of Cached State and Protocol Stacks. For example, a web browser application might use separate Connection Groups for different tabs in the browser to decrease linkability.
+The Transport Services API SHOULD allow applications to explicitly define Connection Groups that force separation of Cached State and Protocol Stacks. For example, a web browser application might use Connection Groups with separate caches for different tabs in the browser to decrease linkability.
 
-The interface to specify these Groups can optionally expose fine-grained tuning for which properties and cached state is allowed to be shared with other Connections. For example, an application might want to allow sharing TCP Fast Open cookies across groups, but not TLS session state.
+The interface to specify these Groups MAY expose fine-grained tuning for which properties and cached state is allowed to be shared with other Connections. For example, an application might want to allow sharing TCP Fast Open cookies across groups, but not TLS session state.
 
 # IANA Considerations
 
