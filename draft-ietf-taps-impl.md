@@ -380,11 +380,6 @@ Each approach is appropriate in different use-cases and branch types. However, t
 The timing algorithms for racing should remain independent across branches of the tree. Any timers or racing logic is isolated to a given parent node, and is not ordered precisely with regards to other children of other nodes.
 
 
-### Immediate
-
-\[MICHAEL: This seems like an easy thing to do, and its description may be obvious, but I don't think we can skip it -- it just looks odd to first introduce the three variants and then only describe two of them.]
-
-
 ### Delayed
 
 Delayed racing can be used whenever a single node of the tree has multiple child nodes. Based on the order determined when building the tree, the first child node will be initiated immediately, followed by the next child node after some delay. Once that second child node is initiated, the third child node (if present) will begin after another delay, and so on until all child nodes have been initiated, or one of the child nodes successfully completes its negotiation.
