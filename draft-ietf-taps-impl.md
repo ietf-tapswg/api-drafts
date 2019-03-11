@@ -135,7 +135,9 @@ Listener objects are created with a Preconnection, at which point their configur
 
 # Implementing Pre-Establishment
 
-During pre-establishment the application specifies the Endpoints to be used for communication as well as its preferences regarding Protocol and Path Selection. The implementation stores these objects and properties as part of the Preconnection object for use during connection establishment. For Protocol and Path Selection Properties that are not provided by the application, the implementation must use the default values specified in the Transport Services API ({{I-D.ietf-taps-interface}}).
+During pre-establishment the application specifies the Endpoints to be used for communication as well as its preferences via Selection Properties and, if desired, also Connection Properties. Generally, Connection Properties should be configured as early as possible, as they may serve as input to decisions that are made by the implementation (the Capacity Profile may guide usage of a protocol offering scavenger-type congestion control, for example). In the remainder of this document, we only refer to Selection Properties because they are the more typical case and have to be handled by all implementations.
+
+The implementation stores these objects and properties as part of the Preconnection object for use during connection establishment. For Selection Properties that are not provided by the application, the implementation must use the default values specified in the Transport Services API ({{I-D.ietf-taps-interface}}).
   
 ## Configuration-time errors
 
@@ -150,9 +152,9 @@ It is important to fail as early as possible in such cases in order to avoid all
 
 ## Role of system policy
 
-The properties specified during pre-establishment has a close connection to system policy. The implementation is responsible for combining and reconciling several different sources of preferences when establishing Connections. These include, but are not limited to:
+The properties specified during pre-establishment have a close connection to system policy. The implementation is responsible for combining and reconciling several different sources of preferences when establishing Connections. These include, but are not limited to:
 
-1. Application preferences, i.e., preferences specified during the pre-establishment such as Local Endpoint, Remote Endpoint, Path Selection Properties, and Protocol Selection Properties.
+1. Application preferences, i.e., preferences specified during the pre-establishment via Selection Properties.
 2. Dynamic system policy, i.e., policy compiled from internally and externally acquired information about available network interfaces, supported transport protocols, and current/previous Connections. Examples of ways to externally retrieve policy-support information are through OS-specific statistics/measurement tools and tools that reside on middleboxes and routers.
 3. Default implementation policy, i.e., predefined policy by OS or application.
 
@@ -181,7 +183,7 @@ Any one of these sub-entries on the aggregate connection attempt would satisfy t
 
 ## Candidate Gathering {#gathering}
 
-The step of gathering candidates involves identifying which paths, protocols, and endpoints may be used for a given Connection. This list is determined by the requirements, prohibitions, and preferences of the application as specified in the Path Selection Properties and Protocol Selection Properties.
+The step of gathering candidates involves identifying which paths, protocols, and endpoints may be used for a given Connection. This list is determined by the requirements, prohibitions, and preferences of the application as specified in the Selection Properties.
 
 ### Structuring Options as a Tree
 
@@ -322,45 +324,43 @@ Protocol options are checked next in order. Whether or not a set of protocol, or
 
 Branching for derived endpoints is the final step, and may have multiple layers of derivation or resolution, such as DNS service resolution and DNS hostname resolution.
 
+For example, if the application has indicated both a preference for WiFi over LTE and for a feature only available in SCTP, branches will be first sorted accord to path selection, with WiFi at the top. Then, branches with SCTP will be sorted to the top within their subtree according to the properties influencing protocol selection. However, if the implementation has cached the information that SCTP is not available on the path over WiFi, there is no SCTP node in the WiFi subtree. Here, the path over WiFi will be tried first, and, if connection establishment succeeds, TCP will be used. So the Selection Property of preferring WiFi takes precedence over the Property that led to a preference for SCTP.
+
+~~~~~~~~~~
+1. [www.example.com:80, Any, Any Stream]
+1.1 [192.0.2.1:80, Wi-Fi, Any Stream]
+1.1.1 [192.0.2.1:80, Wi-Fi, TCP]
+1.2 [192.0.3.1:80, LTE, Any Stream]
+1.2.1 [192.0.3.1:80, LTE, SCTP]
+1.2.2 [192.0.3.1:80, LTE, TCP]
+~~~~~~~~~~
+
 
 ## Sorting Branches {#branch-sorting}
 
 Implementations should sort the branches of the tree of connection options in order of their preference rank. 
 Leaf nodes on branches with higher rankings represent connection attempts that will be raced first.
-Implementations should order the branches to reflect the preferences expressed by the application for its new connection, including Protocol and Path Selection Properties, which are specified in {{I-D.ietf-taps-interface}}. 
+Implementations should order the branches to reflect the preferences expressed by the application for its new connection, including Selection Properties, which are specified in {{I-D.ietf-taps-interface}}. 
 
 In addition to the properties provided by the application, an implementation may include additional criteria such as cached performance estimates, see {{performance-caches}}, or system policy, see {{role-of-system-policy}}, in the ranking.
-Two examples of how the Protocol and Path Selection Properties may be used to sort branches are provided below:
+Two examples of how Selection and Connection Properties may be used to sort branches are provided below:
 
-* Interface Type:
+* "Interface Instance or Type":
 If the application specifies an interface type to be preferred or avoided, implementations should rank paths accordingly.
 If the application specifies an interface type to be required or prohibited, we expect an implementation to not include the non-conforming paths into the three.
 
-* Capacity Profile:
+* "Capacity Profile":
 An implementation may use the Capacity Profile to prefer paths optimized for the application's expected traffic pattern according to cached performance estimates, see {{performance-caches}}:
-   * Interactive/Low Latency:
-     Prefer paths with the lowest expected Round Trip Time
-   * Constant Rate:
-     Prefer paths that can satisfy the requested Stream Send or Stream Receive Bitrate, based on observed maximum throughput
-   * Scavenger/Bulk:
+   * Scavenger:
      Prefer paths with the highest expected available bandwidth, based on observed maximum throughput
-
-\[Note: See {{branch-sorting-non-consensus}} for additional examples related to Properties under discussion.]
+   * Low Latency/Interactive:
+     Prefer paths with the lowest expected Round Trip Time
+   * Constant-Rate Streaming:
+     Prefer paths that can satisfy the requested Stream Send or Stream Receive Bitrate, based on observed maximum throughput
 
 Implementations should process properties in the following order: Prohibit, Require, Prefer, Avoid.
-If Protocol or Path Selection Properties contain any prohibited properties, the implementation should first purge branches containing nodes with these properties. For required properties, it should only keep branches that satisfy these requirements. Finally, it should order branches according to preferred properties, and finally use avoided properties as a tiebreaker.
+If Selection Properties contain any prohibited properties, the implementation should first purge branches containing nodes with these properties. For required properties, it should only keep branches that satisfy these requirements. Finally, it should order branches according to preferred properties, and finally use avoided properties as a tiebreaker.
 
-For Require and Avoid, Path Selection Properties take precedence over Protocol Selection Properties.
-For example, if the application has indicated both a preference for WiFi over LTE and for a feature only available in SCTP, branches will be first sorted accord to the Path Selection Property, with WiFi at the top. Then, branches with SCTP will be sorted to the top within their subtree according to the Protocol Selection Property. However, if the implementation has cached the information that SCTP is not available on the path over WiFi, there is no SCTP node in the WiFi subtree. Here, the path over WiFi will be tried first, and, if connection establishment succeeds, TCP will be used. So the Path Selection Property of preferring WiFi takes precedence over the Protocol Selection Property of preferring SCTP.
-
-~~~~~~~~~~
-1. [www.example.com:80, Any, Any Stream]
-  1.1 [192.0.2.1:80, Wi-Fi, Any Stream]
-    1.1.1 [192.0.2.1:80, Wi-Fi, TCP]
-  1.2 [192.0.3.1:80, LTE, Any Stream]
-    1.2.1 [192.0.3.1:80, LTE, SCTP]
-    1.2.2 [192.0.3.1:80, LTE, TCP]
-~~~~~~~~~~
 
 
 ## Candidate Racing
@@ -379,7 +379,8 @@ Each approach is appropriate in different use-cases and branch types. However, t
 
 The timing algorithms for racing should remain independent across branches of the tree. Any timers or racing logic is isolated to a given parent node, and is not ordered precisely with regards to other children of other nodes.
 
-### Delayed Racing
+
+### Delayed
 
 Delayed racing can be used whenever a single node of the tree has multiple child nodes. Based on the order determined when building the tree, the first child node will be initiated immediately, followed by the next child node after some delay. Once that second child node is initiated, the third child node (if present) will begin after another delay, and so on until all child nodes have been initiated, or one of the child nodes successfully completes its negotiation.
 
@@ -444,9 +445,9 @@ However, if a peer is not reachable over the network using the unconnected proto
 
 When an implementation is asked to Listen, it registers with the system to wait for incoming traffic to the Local Endpoint. If no Local Endpoint is specified, the implementation should either use an ephemeral port or generate an error.
 
-If the Path Selection Properties do not require a single network interface or path, but allow the use of multiple paths, the Listener object should register for incoming traffic on all of the network interfaces or paths that conform to the Path Selection Properties. The set of available paths can change over time, so the implementation should monitor network path changes and register and de-register the Listener across all usable paths. When using multiple paths, the Listener is generally expected to use the same port for listening on each.
+If the Selection Properties do not require a single network interface or path, but allow the use of multiple paths, the Listener object should register for incoming traffic on all of the network interfaces or paths that conform to the Properties. The set of available paths can change over time, so the implementation should monitor network path changes and register and de-register the Listener across all usable paths. When using multiple paths, the Listener is generally expected to use the same port for listening on each.
 
-If the Protocol Selection Properties allow multiple protocols to be used for listening, and the implementation supports it, the Listener object should register across the eligble protocols for each path. This means that inbound Connections delivered by the implementation may have heterogeneous protocol stacks. 
+If the Selection Properties allow multiple protocols to be used for listening, and the implementation supports it, the Listener object should register across the eligble protocols for each path. This means that inbound Connections delivered by the implementation may have heterogeneous protocol stacks. 
 
 ### Implementing listeners for Connected Protocols
 
@@ -474,7 +475,7 @@ Protocols that provide the framing (such as length-value protocols, or protocols
 
 The effect of the application sending a Message is determined by the top-level protocol in the established Protocol Stack. That is, if the top-level protocol provides an abstraction of framed messages over a connection, the receiving application will be able to obtain multiple Messages on that connection, even if the framing protocol is built on a byte-stream protocol like TCP.
 
-#### Send Parameters {#send-params}
+#### Message Properties {#msg-properties}
 
 - Lifetime: this should be implemented by removing the Message from its queue of pending Messages after the Lifetime has expired. A queue of pending Messages within the transport system implementation that have yet to be handed to the Protocol Stack can always support this property, but once a Message has been sent into the send buffer of a protocol, only certain protocols may support de-queueing a message. For example, TCP cannot remove bytes from its send buffer, while in case of SCTP, such control over the SCTP send buffer can be exercised using the partial reliability extension {{!RFC8303}}. When there is no standing queue of Messages within the system, and the Protocol Stack does not support removing a Message from its buffer, this property may be ignored.
 
@@ -484,13 +485,14 @@ The effect of the application sending a Message is determined by the top-level p
 
 - Idempotent: when this is true, it means that the Message can be used by mechanisms that might transfer it multiple times -- e.g., as a result of racing multiple transports or as part of TCP Fast Open.
 
+- Final: when this is true, it means that a transport connection can be closed immediately after its transmission.
+
 - Corruption Protection Length: when this is set to any value other than -1, it limits the required checksum in protocols that allow limiting the checksum length (e.g. UDP-Lite).
 
-- Immediate Acknowledgement: this informs the implementation that the sender intends to execute tight control over the send buffer, and therefore wants to avoid delayed acknowledgements. In case of SCTP, a request to immediately send acknowledgements can be implemented using the "sack-immediately flag" described in Section 4.2 of {{!RFC8303}} for the SEND.SCTP primitive.
+- Transmission Profile: TBD -- because it's not final in the API yet.  Old text follows: when this is set to "Interactive/Low Latency", the Message should be sent immediately, even when this comes at the cost of using the network capacity less efficiently. For example, small messages can sometimes be bundled to fit into a single data packet for the sake of reducing header overhead; such bundling should not be used. For example, in case of TCP, the Nagle algorithm should be disabled when Interactive/Low Latency is selected as the capacity profile. Scavenger/Bulk can translate into usage of a congestion control mechanism such as LEDBAT, and/or the capacity profile can lead to a choice of a DSCP value as described in {{I-D.ietf-taps-minset}}).
 
-- Instantaneous Capacity Profile: when this is set to "Interactive/Low Latency", the Message should be sent immediately, even when this comes at the cost of using the network capacity less efficiently. For example, small messages can sometimes be bundled to fit into a single data packet for the sake of reducing header overhead; such bundling should not be used. For example, in case of TCP, the Nagle algorithm should be disabled when Interactive/Low Latency is selected as the capacity profile. Scavenger/Bulk can translate into usage of a congestion control mechanism such as LEDBAT, and/or the capacity profile can lead to a choice of a DSCP value as described in {{I-D.ietf-taps-minset}}).
+- Singular Transmission: when this is true, the application requests to avoid transport-layer segmentation or network-layer fragmentation. Some transports implement network-layer fragmentation avoidance (Path MTU Discovery) without exposing this functionality to the application; in this case, only transport-layer segmentation should be avoided, by fitting the message into a single transport-layer segment or otherwise failing. Otherwise, network-layer fragmentation should be avoided---e.g. by requesting the IP Don’t Fragment bit to be set in case of UDP(-Lite) and IPv4 (SET_DF in {{!RFC8304}}).
 
-\[Note: See also {{send-params-non-consensus}} for additional Send Parameters under discussion.]
 
 #### Send Completion
 
@@ -522,23 +524,31 @@ It is also possible that protocol stacks within a particular leaf node use 0-RTT
 
 Maintenance encompasses changes that the application can request to a Connection, or that a Connection can react to based on system and network changes.
 
-## Changing Protocol Properties
+## Managing Connections
 
-Appendix A.1 of {{I-D.ietf-taps-minset}} explains, using primitives that are described in {{!RFC8303}} and {{!RFC8304}}, how to implement changing the following protocol properties of an established connection with TCP and UDP. Below, we amend this description for other protocols (if applicable):
+Appendix A.1 of {{I-D.ietf-taps-minset}} explains, using primitives from {{!RFC8303}} and {{!RFC8304}}, how to implement changing some of the following protocol properties of an established connection with TCP and UDP. Below, we amend this description for other protocols (if applicable) and extend it with Connection Properties that are not contained in {{I-D.ietf-taps-minset}}.
 
-- Priority (Connection): for SCTP, this can be done using the primitive CONFIGURE_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
-- Timeout for aborting Connection: for SCTP, this can be done using the primitive CHANGE_TIMEOUT.SCTP described in section 4 of {{!RFC8303}}.
-- Abort timeout to suggest to the Remote Endpoint: for TCP, this can be done using the primitive CHANGE_TIMEOUT.TCP described in section 4 of {{!RFC8303}}.
-- Retransmission threshold before excessive retransmission notification: for TCP, this can be done using ERROR.TCP described in section 4 of {{!RFC8303}}.
+- Notification of excessive retransmissions: TODO
+- Retransmission threshold before excessive retransmission notification: TODO; for TCP, this can be done using ERROR.TCP described in section 4 of {{!RFC8303}}.
+- Notification of ICMP soft error message arrival: TODO
 - Required minimum coverage of the checksum for receiving: for UDP-Lite, this can be done using the primitive SET_MIN_CHECKSUM_COVERAGE.UDP-Lite described in section 4 of {{!RFC8303}}.
+- Priority (Connection): TODO; for SCTP, this can be done using the primitive CONFIGURE_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
+- Timeout for aborting Connection: for SCTP, this can be done using the primitive CHANGE_TIMEOUT.SCTP described in section 4 of {{!RFC8303}}.
 - Connection group transmission scheduler: for SCTP, this can be done using the primitive SET_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
+- Maximum message size concurrent with Connection establishment: TODO
+- Maximum Message size before fragmentation or segmentation: TODO
+- Maximum Message size on send: TODO
+- Maximum Message size on receive: TODO
+- Capacity Profile: TODO
+- Bounds on Send or Receive Rate: TODO
+- TCP-specific Property: User Timeout: for TCP, this can be configured using the primitive CHANGE_TIMEOUT.TCP described in section 4 of {{!RFC8303}}.
 
 It may happen that the application attempts to set a Protocol Property which does not apply to the actually chosen protocol. In this case, the implementation should fail gracefully, i.e., it may give a warning to the application, but it should not terminate the Connection.
 
 ## Handling Path Changes
 
 When a path change occurs, the Transport Services implementation is responsible for notifying Protocol Instances in the Protocol Stack.
-If the Protocol Stack includes a transport protocol that supports multipath connectivity, an update to the available paths should inform the Protocol Instance of the new set of paths that are permissible based on the Path Selection Properties passed by the application. A multipath protocol can establish new subflows over new paths, and should tear down subflows over paths that are no longer available. If the Protocol Stack includes a transport protocol that does not support multipath, but support migrating between paths, the update to available paths can be used as the trigger to migrating the connection. For protocols that do not support multipath or migration, the Protocol Instances may be informed of the path change, but should not be forcibly disconnected if the previously used path becomes unavailable. An exception to this case is if the System Policy changes to prohibit traffic from the Connection based on its properties, in which case the Protocol Stack should be disconnected.
+If the Protocol Stack includes a transport protocol that supports multipath connectivity, an update to the available paths should inform the Protocol Instance of the new set of paths that are permissible based on the Selection Properties passed by the application. A multipath protocol can establish new subflows over new paths, and should tear down subflows over paths that are no longer available. If the Protocol Stack includes a transport protocol that does not support multipath, but support migrating between paths, the update to available paths can be used as the trigger to migrating the connection. For protocols that do not support multipath or migration, the Protocol Instances may be informed of the path change, but should not be forcibly disconnected if the previously used path becomes unavailable. An exception to this case is if the System Policy changes to prohibit traffic from the Connection based on its properties, in which case the Protocol Stack should be disconnected.
 
 # Implementing Termination
 
@@ -817,19 +827,8 @@ These are not part of the interface, and may be removed from the final document,
 
 In addition to the Protocol and Path Selection Properties discussed in {{branch-sorting}}, the following properties under discussion can influence branch sorting:
 
-* Size to be Sent or Received:
-An implementation may use the Size to be Sent or Received in combination with cached performance estimates, see {{performance-caches}}, e.g. the observed Round Trip Time and the observed maximum throughput, to compute an estimate of the completion time of a transfer over different available paths. It may then prefer the path with the shorter expected completion time. This property may be used instead of the Capacity profile, as the application does not always know whether its transfer will be latency-bound or bandwidth-bound, and thus may not be able to specify a Capacity Profile. However, the application may know the Size to be Sent or Received from metadata, e.g., in adaptive HTTP streaming such as MPEG-DASH, or in operating system upgrades. A related paper is currently under submission.
-
-* Send / Receive Bitrate:
-If the application indicates an expected send or receive bitrate, an implementation may prefer a path that can likely provide the desired bandwidth, based on cached maximum throughput, see {{performance-caches}}. The application may know the Send or Receive Bitrate from metadata in adaptive HTTP streaming, such as MPEG-DASH.
+* Bounds on Send or Receive Rate:
+If the application indicates a bound on the expected Send or Receive bitrate, an implementation may prefer a path that can likely provide the desired bandwidth, based on cached maximum throughput, see {{performance-caches}}. The application may know the Send or Receive Bitrate from metadata in adaptive HTTP streaming, such as MPEG-DASH.
 
 * Cost Preferences:
 If the application indicates a preference to avoid expensive paths, and some paths are associated with a monetary cost, an implementation should decrease the ranking of such paths. If the application indicates that it prohibits using expensive paths, paths that are associated with a cost should be purged from the decision tree.
-
-
-## Send Parameters {#send-params-non-consensus}
-
-In addition to the Send Parameters listed in {{send-params}}, the following  Send Parameters are under discussion:
-
-* Send Bitrate:
-If an application indicates a certain bitrate it wants to send on the connection, the implementation may limit the bitrate of the outgoing communication to that rate, for example by setting an upper bound for the TCP congestion window of a connection calculated from the Send Bitrate and the Round Trip Time. This helps to avoid bursty traffic patterns on video streaming servers, see [Trickle].
