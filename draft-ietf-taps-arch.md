@@ -27,10 +27,10 @@ author:
     ins: B. Trammell
     name: Brian Trammell
     role: editor
-    org: Independent
+    org: Google
     email: ietf@trammell.ch
-    street: ""
-    city: 8304 Wallisellen
+    street: Gustav-Gull-Platz 1
+    city: 8004 Zurich
     country: Switzerland
   -
     ins: A. Brunstrom
