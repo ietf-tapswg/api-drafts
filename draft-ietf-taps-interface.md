@@ -17,11 +17,11 @@ author:
   -
     ins: B. Trammell
     name: Brian Trammell
-    org: Independent
+    org: Google
     role: editor
     email: ietf@trammell.ch
-    street: ""
-    city: 8304 Wallisellen
+    street: Gustav-Gull-Platz 1
+    city: 8004 Zurich
     country: Switzerland
   -
     ins: M. Welzl
@@ -258,20 +258,174 @@ Errors and other notifications also happen asynchronously on the Connection.
 through Actions and Events in each phase of a Connection, following the phases
 described in {{I-D.ietf-taps-arch}}.
 
-## Transport Properties
+## Usage Examples
+
+The following usage examples illustrate how an application might use a
+Transport Services Interface to:
+
+- Act as a server, by listening for incoming connections, receiving requests,
+  and sending responses, see {{server-example}}.
+- Act as a client, by connecting to a remote endpoint using Initiate, sending
+  requests, and receiving responses, see {{client-example}}.
+- Act as a peer, by connecting to a remote endpoint using Rendezvous while
+  simultaneously waiting for incoming Connections, sending Messages, and
+  receiving Messages, see {{peer-example}}.
+
+The examples in this section presume that a transport protocol is available
+between the endpoints which provides Reliable Data Transfer, Preservation of
+data ordering, and Preservation of Message Boundaries. In this case, the
+application can choose to receive only complete messages.
+
+If none of the available transport protocols provides Preservation of Message
+Boundaries, but there is a transport protocol which provides a reliable ordered
+octet stream, an application may receive this octet stream as partial
+Messages and transform it into application-layer Messages.  Alternatively,
+an application may provide a Deframer, which is a function that transforms an
+octet stream into a sequence of Messages, see {{receive-framing}}.
+
+
+### Server Example
+
+This is an example of how an application might listen for incoming Connections
+using the Transport Services Interface, receive a request, and send a response.
+
+~~~
+LocalSpecifier := NewLocalEndpoint()
+LocalSpecifier.WithInterface("any")
+LocalSpecifier.WithService("https")
+
+TransportProperties := NewTransportProperties()
+TransportProperties.Require(preserve-msg-boundaries)
+// Reliable Data Transfer and Preserve Order are Required by default
+
+SecurityParameters := NewSecurityParameters()
+SecurityParameters.AddIdentity(identity)
+SecurityParameters.AddPrivateKey(privateKey, publicKey)
+
+// Specifying a remote endpoint is optional when using Listen()
+Preconnection := NewPreconnection(LocalSpecifier,
+                                  None,
+                                  TransportProperties,
+                                  SecurityParameters)
+
+Preconnection.Listen()
+
+Preconnection -> ConnectionReceived<Connection>
+
+// Only receive complete messages
+Connection.Receive()
+
+Connection -> Received(messageDataRequest, messageContext)
+
+Connection.Send(messageDataResponse)
+
+Connection.Close()
+
+// Stop listening for incoming Connections
+Preconnection.Stop()
+~~~
+
+
+### Client Example
+
+This is an example of how an application might connect to a remote application
+using the Transport Services Interface, send a request, and receive a response.
+
+~~~
+RemoteSpecifier := NewRemoteEndpoint()
+RemoteSpecifier.WithHostname("example.com")
+RemoteSpecifier.WithService("https")
+
+TransportProperties := NewTransportProperties()
+TransportProperties.Require(preserve-msg-boundaries)
+// Reliable Data Transfer and Preserve Order are Required by default
+
+SecurityParameters := NewSecurityParameters()
+TrustCallback := New Callback({
+  // Verify identity of the remote endpoint, return the result
+})
+SecurityParameters.SetTrustVerificationCallback(TrustCallback)
+
+// Specifying a local endpoint is optional when using Initiate()
+Preconnection := NewPreconnection(None,
+                                  RemoteSpecifier,
+                                  TransportPreperties,
+                                  SecurityParameters)
+
+Connection := Preconnection.Initiate()
+
+Connection -> Ready<>
+
+Connection.Send(messageDataRequest)
+
+// Only receive complete messages
+Connection.Receive()
+
+Connection -> Received(messageDataResponse, messageContext)
+
+Connection.Close()
+~~~
+
+### Peer Example
+
+This is an example of how an application might establish a connection with a
+peer using Rendezvous(), send a Message, and receive a Message.
+
+~~~
+LocalSpecifier := NewLocalEndpoint()
+LocalSpecifier.WithPort(9876)
+
+RemoteSpecifier := NewRemoteEndpoint()
+RemoteSpecifier.WithHostname("example.com")
+RemoteSpecifier.WithPort(9877)
+
+TransportProperties := NewTransportProperties()
+TransportProperties.Require(preserve-msg-boundaries)
+// Reliable Data Transfer and Preserve Order are Required by default
+
+SecurityParameters := NewSecurityParameters()
+SecurityParameters.AddIdentity(identity)
+SecurityParameters.AddPrivateKey(privateKey, publicKey)
+
+TrustCallback := New Callback({
+  // Verify identity of the remote endpoint, return the result
+})
+SecurityParameters.SetTrustVerificationCallback(trustCallback)
+
+// Both local and remote endpoint must be specified
+Preconnection := NewPreconnection(LocalSpecifier,
+                                  RemoteSpecifier,
+                                  TransportPreperties,
+                                  SecurityParameters)
+
+Preconnection.Rendezvous()
+
+Preconnection -> RendezvousDone<Connection>
+
+Connection.Send(messageDataRequest)
+
+// Only receive complete messages
+Connection.Receive()
+
+Connection -> Received(messageDataResponse, messageContext)
+
+Connection.Close()
+~~~
+
+## Transport Properties {#transport-properties}
+
 
 Each application using the Transport Services Interface declares its preferences
 for how the transport service should operate using properties at each stage of
 the lifetime of a connection. During pre-establishment, Selection Properties
-(see {{selection-props}}) are used to specify which paths and protocol stacks can be
-used and are preferred by the application, and Connection Properties
-(see {{connection-props}}) can be used to fine-tune the eventually established
-connection. These Connection Properties can also be used later, to monitor and
-fine-tune established connections -- but configuring Connection Properties on
-Preconnections is preferred because they can then can influence
-decisions made during establishment. The behavior of the selected protocol
-stack(s) when sending Messages is controlled by Message Properties
-(see {{message-props}}).
+(see {{selection-props}}) are used to specify which paths and protocol stacks 
+can be used and are preferred by the application, and Connection Properties
+(see {{connection-props}}) can be used to influence decisions made during 
+establishment and to fine-tune the eventually established connection.
+These Connection Properties can also be used later, to monitor and
+fine-tune established connections. 
+The behavior of the selected protocol stack(s) when sending Messages is 
+controlled by Message Properties (see {{message-props}}).
 
 Collectively, Selection, Connection, and Message Properties can be
 referred to as Transport Properties. All Transport Properties, regardless of the
@@ -282,11 +436,44 @@ stages:
  - Message Properties can be set on Preconnections and Connections
  - The effect of Selection Properties can be queried on Connections and Messages
 
+Note that Configuring Connection Properties and Message Properties on 
+Preconnections is preferred over setting them later.
+Connection Properties specified early on may be used as additional input to
+the selection process. 
+Also note that Protocol Specific Properties, see {{property-names}}, should not be used as an input to the selection process.
+
+
+### Transport Property Names {#property-names}
+
+Transport Properties are referred to by property names. These names are 
+lower-case strings whereby words are separated by hyphens.
+These names serve two purposes:
+
+- Allow different components of a TAPS implementation to pass Transport
+  Properties, e.g., between a language frontend and a policy manager.
+- Make code of different TAPS implementations look similar.
+
+Transport Property Names are hierarchically organized in the 
+form \[\<Namespace>.\]\<PropertyName\>.
+
+- The Namespace part is empty for well known, generic properties, i.e.,
+  for properties defined by an RFC which are not protocol specific.
+- Protocol Specific Properties must use the protocol acronym as
+  Namespace, e.g., “tcp" for TCP specific Transport Properties.
+  For IETF protocols, property names under these namespaces should
+  be defined in an RFC.
+- Vendor or implementation specific properties must use a 
+  a string identifying the vendor or implementation as Namespace.
+
+### Transport Property Types {#property-types}
+
 Transport Properties can have one of a set of data types:
 
 - Boolean: can take the values "true" and "false"; representation is
   implementation-dependent.
-- Integer: can take positive or negative numeric values; range and
+- Integer: can take positive or negative numeric integer values; range and
+  representation is implementation-dependent.
+- Numeric: can take positive or negative numeric values; range and
   representation is implementation-dependent.
 - Enumeration: can take one value of a finite set of values, dependent on the
   property itself. The representation is implementation dependent; however,
@@ -319,6 +506,10 @@ following recommendations:
   exclusive of appendices, even if said implementation is a non-operation, e.g.
   because transport protocols implementing a given Property are not available on
   the platform.
+- Implementations may use other representations for Transport Property Names,
+  e.g., by providing constants or static singleton objects, but should provide
+  a  straight-forward mapping between their representation and the
+  property names specified here.
 
 # Pre-Establishment Phase {#pre-establishment}
 
@@ -428,8 +619,8 @@ selection is necessarily tied to path selection. This may involve choosing
 between multiple local interfaces that are connected to different access
 networks.
 
-Selection properties are represented as preferences, which can have one of five
-preference levels:
+Most Selection Properties are represented as preferences, which can
+have one of five preference levels:
 
    | Preference | Effect                                                                 |
    |------------|------------------------------------------------------------------------|
@@ -507,6 +698,9 @@ implemented over UDP.
 
 ### Reliable Data Transfer (Connection) {#prop-reliable}
 
+Name:
+: reliability
+
 This property specifies whether the application needs to use a transport
 protocol that ensures that all data is received on the other side without
 corruption. This also entails being notified when a Connection is closed or
@@ -514,11 +708,17 @@ aborted. The recommended default is to Require Reliable Data Transfer.
 
 ### Preservation of Message Boundaries {#prop-boundaries}
 
+Name:
+: preserve-msg-boundaries
+
 This property specifies whether the application needs or prefers to use a transport
 protocol that preserves message boundaries. The recommended default
 is to Prefer Preservation of Message Boundaries.
 
 ### Configure per-Message reliability {#prop-partially-reliable}
+
+Name:
+: per-msg-reliability
 
 This property specifies whether an application considers it useful to indicate
 its reliability requirements on a per-Message basis. This property applies to
@@ -527,12 +727,18 @@ this option.
 
 ### Preservation of data ordering {#prop-ordering}
 
+Name:
+: preserve-order
+
 This property specifies whether the application wishes to use a transport
 protocol that can ensure that data is received by the application on the other
 end in the same order as it was sent. The recommended default is to Require
 Preservation of data ordering.
 
 ### Use 0-RTT session establishment with an idempotent Message {#prop-0rtt}
+
+Name:
+: zero-rtt-msg
 
 This property specifies whether an application would like to supply a Message to
 the transport protocol before Connection establishment, which will then be
@@ -542,6 +748,9 @@ recommended default is to Prefer this option.
 
 ### Multistream Connections in Group {#prop-multistream}
 
+Name:
+: multistreaming
+
 This property specifies that the application would prefer multiple Connections
 within a Connection Group to be provided by streams of a single underlying
 transport connection where possible. The recommended default is to Prefer have
@@ -549,17 +758,26 @@ this option.
 
 ### Control checksum coverage on sending {#prop-checksum-control-send}
 
+Name:
+: per-msg-checksum-len-send
+
 This property specifies whether the application considers it useful to enable,
 disable, or configure a checksum when sending a Message.  The recommended default
 is to Ignore this option.
 
 ### Control checksum coverage on receiving {#prop-checksum-control-receive}
 
+Name:
+: per-msg-checksum-len-recv
+
 This property specifies whether the application considers it useful configure whether to
 require a checksum or not when receiving.  The recommended default is to Ignore
 this option.
 
 ### Congestion control {#prop-cc}
+
+Name:
+: congestion-control
 
 This property specifies whether the application would like the Connection to be
 congestion controlled or not. Note that if a Connection is not congestion
@@ -572,6 +790,12 @@ controlled.
 
 
 ### Interface Instance or Type {#prop-interface}
+
+Name:
+: interface
+
+Type:
+: Set (Preference, Enumeration)
 
 This property allows the application to select which specific network interfaces
 or categories of interfaces it wants to `Require`, `Prohibit`, `Prefer`, or
@@ -609,6 +833,12 @@ metered interfaces, this should be specified via Provisioning Domain attributes
 
 ### Provisioning Domain Instance or Type {#prop-pvd}
 
+Name:
+: pvd
+
+Type:
+: Set (Preference, Enumeration)
+
 Similar to interface instances and types (see {{prop-interface}}), this property
 allows the application to control path selection by selecting which specific
 Provisioning Domains or categories of Provisioning Domains it wants to
@@ -639,6 +869,9 @@ over these options.
 
 ### Parallel Use of Multiple Paths
 
+Name:
+: multipath
+
 This property specifies whether an application considers it useful to
 transfer data across multiple paths between the same end hosts. Generally,
 in most cases, this will improve performance (e.g., achieve greater throughput).
@@ -647,6 +880,12 @@ delay-sensitive applications. The recommended default is to Prefer this option.
 
 
 ### Direction of communication
+
+Name:
+: direction
+
+Type:
+: Enumeration
 
 This property specifies whether an application wants to use the connection for sending and/or receiving data.  Possible values are:
 
@@ -665,12 +904,18 @@ the system should fall back to bidirectional transport.
 
 ### Notification of excessive retransmissions {#prop-establish-retrans-notify}
 
+Name:
+:retransmit-notify
+
 This property specifies whether an application considers it useful to be
 informed in case sent data was retransmitted more often than a certain
 threshold. The recommended default is to Ignore this option.
 
 
 ### Notification of ICMP soft error message arrival {#prop-soft-error}
+
+Name:
+:soft-error-notify
 
 This property specifies whether an application considers it useful to be
 informed when an ICMP error message arrives that does not force termination of a
@@ -1202,6 +1447,9 @@ The following Message Properties are supported:
 
 ### Lifetime {#msg-lifetime}
 
+Name:
+: msg-lifetime
+
 Type:
 : Integer
 
@@ -1216,6 +1464,9 @@ reliable delivery; reliability is adjustable per Message via the "Reliable Data 
 property (see {{msg-reliable-message}}). The type and units of Lifetime are implementation-specific.
 
 ### Priority {#msg-priority}
+
+Name:
+: msg-prio
 
 Type:
 : Integer (non-negative)
@@ -1235,6 +1486,9 @@ independently and be realized by different mechanisms.
 
 ### Ordered {#msg-ordered}
 
+Name:
+: msg-ordered
+
 Type:
 : Boolean
 
@@ -1245,6 +1499,9 @@ see {{prop-ordering}}, but allow out-of-order delivery for certain messages.
 
 
 ### Idempotent {#msg-idempotent}
+
+Name:
+: idempotent
 
 Type:
 : Boolean
@@ -1258,6 +1515,9 @@ may cause the remote application to receive the Message multiple times.
 
 Type:
 : Boolean
+
+Name:
+: final
 
 If true, this Message is the last one that
 the application will send on a Connection. This allows underlying protocols
@@ -1274,6 +1534,9 @@ been sent on a Connection, the Send Action for the new Message will cause a Send
 
 ### Corruption Protection Length {#msg-checksum}
 
+Name:
+: msg-checksum-len
+
 Type:
 : Integer (non-negative with -1 as special value)
 
@@ -1287,6 +1550,9 @@ guaranteed, any other requests are advisory.
 
 ### Reliable Data Transfer (Message) {#msg-reliable-message}
 
+Name:
+: msg-reliable
+
 Type:
 : Boolean
 
@@ -1299,7 +1565,10 @@ Disabling this property indicates that the transport system may disable retransm
 or other reliability mechanisms for this particular Message, but such disabling is not guaranteed.
 
 
-### Transmission Profile {#send-profile}
+### Message Capacity Profile Override {#send-profile}
+
+Name:
+: msg-capacity-profile
 
 Type:
 : Enumeration
@@ -1326,6 +1595,9 @@ The following values are valid for Transmission Profile:
 \[TODO: This is inconsistent with {prop-cap-profile}} - needs to be fixed]
 
 ### Singular Transmission {#send-singular}
+
+Name:
+: singular-transmission
 
 Type:
 : Boolean
@@ -1571,7 +1843,7 @@ data transfer (before connection establishment has finished). This is useful if
 applications need to treat early data separately,
 e.g., if early data has different security properties than data sent after
 connection establishment. In the case of TLS 1.3, client early data can be replayed
-maliciously (see {{!I-D.ietf-tls-tls13}}). Thus, receivers may wish to perform additional
+maliciously (see {{!RFC8446}}). Thus, receivers may wish to perform additional
 checks for early data to ensure it is idempotent or not replayed. If TLS 1.3 is available
 and the recipient Message was sent as part of early data, the corresponding metadata carries
 a flag indicating as such. If early data is enabled, applications should check this metadata
@@ -1705,6 +1977,9 @@ that protocol property. \[EDITOR'S NOTE: todo: add these cross-references up to 
 
 ### Retransmission threshold before excessive retransmission notification {#conn-excss-retransmit}
 
+Name:
+: retransmit-notify-threshold
+
 Type:
 : Integer
 
@@ -1712,7 +1987,10 @@ This property specifies after how many retransmissions to inform the application
 about "Excessive Retransmissions".
 
 
-### Required minimum coverage of the checksum for receiving {#conn-recv-checksum}
+### Required minimum coverage of the Corruption Protection for receiving {#conn-recv-checksum}
+
+Name:
+: recv-checksum-len
 
 Type:
 : Integer
@@ -1723,6 +2001,9 @@ that no checksum is required, and a special value (e.g., -1) indicates
 full checksum coverage.
 
 ### Priority (Connection) {#conn-priority}
+
+Name:
+: conn-prio
 
 Type:
 : Integer
@@ -1735,6 +2016,12 @@ are cloned.
 
 ### Timeout for aborting Connection {#conn-timeout}
 
+Name:
+: conn-timeout
+
+Type:
+: Numeric
+
 This property specifies how long to wait before deciding that a Connection has
 failed when trying to reliably deliver data to the destination. Adjusting this Property
 will only take effect when the underlying stack supports reliability.
@@ -1742,14 +2029,20 @@ will only take effect when the underlying stack supports reliability.
 
 ### Connection group transmission scheduler {#conn-scheduler}
 
+Name:
+: conn-scheduler
+
 Type:
-: Enum
+: Enumeration
 
 This property specifies which scheduler should be used among Connections within
 a Connection Group, see {{groups}}. The set of schedulers can
 be taken from {{I-D.ietf-tsvwg-sctp-ndata}}.
 
 ### Maximum message size concurrent with Connection establishment {#size-idempotent}
+
+Name:
+: zero-rtt-msg-max-len
 
 Type:
 : Integer (read only)
@@ -1760,6 +2053,9 @@ It is given in Bytes.
 
 ### Maximum Message size before fragmentation or segmentation {#conn-max-msg-notfrag}
 
+Name:
+: singular-transmission-msg-max-len
+
 Type:
 : Integer (read only)
 
@@ -1769,13 +2065,18 @@ segmentation at the sender.
 
 ### Maximum Message size on send {#conn-max-msg-send}
 
+Name:
+: send-msg-max-len
+
 Type:
 : Integer (read only)
 
 This property represents the maximum Message size that can be sent. 
 
-
 ### Maximum Message size on receive {#conn-max-msg-recv}
+
+Name:
+: recv-msg-max-len
 
 Type:
 : Integer (read only)
@@ -1783,6 +2084,9 @@ Type:
 This numeric property represents the maximum Message size that can be received.
 
 ### Capacity Profile {#prop-cap-profile}
+
+Name:
+: conn-capacity-profile
 
 This property specifies the desired network treatment for traffic sent by the
 application and the tradeoffs the application is prepared to make in path and
@@ -1860,6 +2164,12 @@ per-Message basis using the Transmission Profile Message Property; see
 
 ### Bounds on Send or Receive Rate
 
+Name:
+: max-send-rate / max-recv-rate
+
+Type:
+: Integer (positive)
+
 This property specifies an upper-bound rate that a transfer is not expected to
 exceed (even if flow control and congestion control allow higher rates), and/or a
 lower-bound rate below which the application does not deem
@@ -1870,15 +2180,15 @@ a data transfer useful. It is given in bits per second.
 
 This property specifies, for the case TCP becomes the chosen transport protocol:
 
-Advertised User Timeout:
+Advertised User Timeout (name: tcp.user-timeout-value, type: Integer):
 : a time value to be advertised via the User Timeout Option (UTO) for the TCP at the remote endpoint
 to adapt its own "Timeout for aborting Connection" (see {{conn-timeout}}) value accordingly
 
-User Timeout Enabled:
+User Timeout Enabled (name: tcp.user-timeout, type: Boolean):
 : a boolean (default false) to control whether the UTO option is enabled for a
 connection. This applies to both sending and receiving.
 
-Changeable:
+Changeable (name: tcp.user-timeout-recv, type: Boolean):
 : a boolean (default true) which controls whether the "Timeout for aborting Connection" (see {{conn-timeout}})
 may be changed
 based on a UTO option received from the remote peer. This boolean becomes false when
@@ -1997,6 +2307,7 @@ The interface provides the following guarantees about the ordering of
 RFC-EDITOR: Please remove this section before publication.
 
 This document has no Actions for IANA.
+Later versions of this document may create IANA registries for generic transport property names and transport property namespaces (see {{property-names}}).
 
 # Security Considerations
 
@@ -2054,6 +2365,12 @@ addition to those specified in {{selection-props}}, {{connection-props}}, and {{
 but it was also said that this is maybe not "on the right level".
 If / when moving it to the main text, note that this is meant to be
 applicable to a Preconnection or a Message.]
+
+Name:
+: cost-preferences
+
+Type:
+: Enumeration
 
 This property describes what an application prefers regarding monetary costs,
 e.g., whether it considers it acceptable to utilize limited data volume. It
