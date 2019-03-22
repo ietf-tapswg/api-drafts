@@ -180,13 +180,12 @@ The Transport Services API represents data as messages, so that it more closely 
 Providing a message-based abstraction provides many benefits, such as:
 
 * the ability to associate deadlines with messages, for applications that care about timing;
-*  the ability to provide control of reliability, choosing which messages to retransmit in the event of packet loss, and how best to make use of the data that arrived;
+* the ability to provide control of reliability, choosing which messages to retransmit in the event of packet loss, and how best to make use of the data that arrived;
 * the ability to manage dependencies between messages, when the transport system could decide to not deliver a message, either following packet loss or because it has missed a deadline. In particular, this can avoid (re-)sending data that relies on a previous transmission that was never received.
+* the ability to automatically distribute messages of reordering resistant request/response protocols, like HTTP, across several underlaying transport connections.
 
-Allowing applications to interact with messages is backwards-compatible with existings protocols and APIs, as it does not change the wire format of any protocol. Instead, it gives the protocol stack additional information to allow it to make better use of modern transport services, while simplifying the application's role in parsing data.
+Allowing applications to interact with messages is backwards-compatible with existing protocols and APIs, as it does not change the wire format of any protocol. Instead, it gives the protocol stack additional information to allow it to make better use of modern transport services, while simplifying the application's role in parsing data.
 
-For request/response protocols like HTTP, that can be operated using several transport connections between equivalent endpoints or via multi-streaming connections the Transport Services API supports Connection Pools.
-These connection pools hide the connection management and provide a messages-only API that enables per-message endpoint and path selection.
 
 ## Flexibile Implementation
 
@@ -343,7 +342,7 @@ The diagram below provides a high-level view of the actions taken during the lif
 
 * Connection: A Connection object represents one or more active transport protocol instance that can send and/or receive Messages between local and remote systems. It holds state pertaining to the underlying transport protocol instance(s) and any ongoing data transfer(s).
   This represents, for example, an active connection in a connection-oriented protocol such as TCP, or a fully-specified 5-tuple for a connectionless protocol such as UDP.
-  However, a connection can also represent a pool of transport protocol instance, for example, a bunch of TCP and QUIC connections to equivalent endpoints provided by a CDN, or a set of incoming connections that are saved the same way.
+  However, a connection can also represent a pool of transport protocol instance, for example, a bunch of TCP and QUIC connections to equivalent endpoints provided by a CDN, or a set of incoming connections that are served the same way.
 
 * Listener: A Listener object accepts incoming transport protocol connections from remote systems and generates corresponding Connection objects. It is created from a Preconnection object that specifies the type of incoming connections it will accept.
 
@@ -450,6 +449,15 @@ If two different Protocol Stacks can be safely swapped, or raced in parallel (se
 2. Both stacks MUST offer the same transport services, as required by the application. For example, if an application specifies that it requires reliable transmission of data, then a Protocol Stack using UDP without any reliability layer on top would not be allowed to replace a Protocol Stack using TCP. However, if the application does not require reliability, then a Protocol Stack that adds unnecessary reliability might be allowed as an equivalent Protocol Stack as long as it does not conflict with any other application-requested properties.
 
 3. Both stacks MUST offer the same security properties. The inclusion of transport security protocols {{I-D.ietf-taps-transport-security}} in a Protocol Stack adds additional restrictions to Protocol Stack equivalence. Security features and properties, such as cryptographic algorithms, peer authentication, and identity privacy vary across security protocols, and across versions of security protocols. Protocol equivalence ought not to be assumed for different protocols or protocol versions, even if they offer similar application configuration options. To ensure that security protocols are not incorrectly swapped, Transport Services systems SHOULD only automatically generate equivalent Protocol Stacks when the transport security protocols within the stacks are identical. Specifically, a transport system would consider protocols identical only if they are of the same type and version. For example, the same version of TLS running over two different transport protocol stacks are considered equivalent, whereas TLS 1.2 and TLS 1.3 {{RFC8446}} are not considered equivalent.
+
+### Pooled Connections {#pooled-conn}
+
+For message reordering resistant request/response protocols like HTTP, interactions can be automatically distributed across several underlaying transport connections. 
+This is realized by Pooled Connections that hide the connection management and provide a messages-only API that enables per-message endpoint and path selection.
+Pooled Connections use multiple connections between equivalent endpoints using equivalent protocol stacks, see {{equivalence}}, in parallel, including multiple streams of multi-streaming connections.
+
+TODO:
+: Either define "equivalent endpoints" here (Endpoints derived from the representation given to the API) or update {{equivalence}} to do it. We need this for racing anyway.
 
 ### Separating Connection Groups {#groups}
 

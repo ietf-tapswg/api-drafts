@@ -715,27 +715,30 @@ This property specifies whether the application needs or prefers to use a transp
 protocol that preserves message boundaries. The recommended default
 is to Prefer Preservation of Message Boundaries.
 
-### Connection Pooling {#connection-pooling}
+###  Pooled Connections {#pooled-conn}
 
 Name:
 :pool-connections
 
-When using Request/Response style protocols, such as HTTP, applications
-can let the Transport System manage their connections by using Connection Pooling.
+When using Request/Response style protocols that don't require 
+message ordering, such as HTTP, applications can let the 
+Transport System manage their connections by using Connection Pooling.
 In this case, the Transport System can automatically distribute requests across
-multiple connections towards equivalent endpoints or be multiplexed on
-multi-streaming connections.
+multiple stack-equivalent connections towards equivalent endpoints or
+manage streams on a multi-streaming connections for them.
 
 Pooled Connections behave regular connections with a few exceptions:
 
- - Pooling Connection need to operate on Messages, not streams. Therefore, they need to have appropriate framers if used on top of a stream transport.
- - The application can influence which of the underlying transport connections within the Pooled Connection Pool should be used. 
-   Therefore Selection Properties may be specified on a send call for Pooled Connections. 
- - They use the msgRef/reqRef parameters of the send and receive calls to send responses on the same backing connection as the request was received.
+ - Pooled Connection need to operate on Messages, not streams. 
+   Therefore, they need to have appropriate framers if used on top of a stream transport.
+ - Pooled Connection can only be used when Preservation of data ordering, see {{prop-ordering}} is not required.
+ -  Pooled Connection usually use the msgRef/reqRef parameters of the send and receive calls to mat responses to the same underlying transport connection as the request was received.
    - If the Message received is a request from the remote side, the reqRef provided, see {{receiving}}, must be used later when sending a response.
    - If the Message received is a response to a request sent earlier, the reqRef provided by the transport system must match the msgRef of the original request.
    - When sending a new request, see {{sending}}, the reqRef parameter must be undefined.
-
+ - The application can influence which of the underlying transport connections within the Pooled Connection Pool should be used. 
+   Therefore Selection Properties may be specified on a send call for Pooled Connections. 
+ 
 As pooled connection behave quite differently from rnegular connections, the
 recommended default is to Prohibit connection pooling.
 
@@ -1125,20 +1128,21 @@ subsequent establishment call may be made on the Preconnection.
 Connection := Preconnection.ListenPooled()
 ~~~
 
-When using Pooled Connections, see {{connection-pooling}}, a pooled
+When using Pooled Connections, see {{pooled-conn}}, a pooled
 connection is created instead of a Listener. This connection will receive
 all messages from all underlying transport connections and can be used
 to send replies to them. 
 
 
 In both cases, Listening continues until the global context shuts down,
-or until the Stop action is performed on the same Preconnection:
+until the Stop action is performed on the same Preconnection, or after the Close action is performed on a Pooled Connection:
 
 ~~~
 Preconnection.Stop()
+PooledConnection.Close()
 ~~~
 
-After Stop() is called, the preconnection can be disposed of.
+After this, the preconnection can be disposed of.
 
 ~~~
 Preconnection -> ConnectionReceived<Connection>
@@ -1287,7 +1291,7 @@ msgRef := Connection.Send(messageData, messageContext?, reqRef?, endOfMessage?)
 where messageData is the data object to send. The optional messageContext
 parameter supports per-message properties and is described in {{message-props}}.
 The optional reqRef can be used to match requests and responses for 
-requests/response style protocols and is described in {{connection-pooling}}.
+requests/response style protocols and is described in {{pooled-conn}}.
 The optional endOfMessage parameter supports partial sending and is described in
 {{send-partial}}.
 
@@ -1738,7 +1742,7 @@ The messageData object provides access to the bytes that were received for this 
 along with the length of the byte array.
 
 In case a Message is received from a Pooled Connection, a (local) reqRef is provided to
-match requests and responses, see {{connection-pooling}}. 
+match requests and responses, see {{pooled-conn}}. 
 See {{receive-framing}} for handling Message framing in situations where the Protocol
 Stack provides octet-stream transport only.
 
