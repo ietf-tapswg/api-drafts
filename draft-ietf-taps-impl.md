@@ -165,7 +165,7 @@ It is expected that the database of system policies and the method of looking up
 
 The process of establishing a network connection begins when an application expresses intent to communicate with a remote endpoint by calling Initiate. (At this point, any constraints or requirements the application may have on the connection are available from pre-establishment.) The process can be considered complete once there is at least one Protocol Stack that has completed any required setup to the point that it can transmit and receive the application's data.
 
-Connection establishment is divided into two top-level steps: Candidate Gathering, to identify the paths, protocols, and endpoints to use, and Candidate Racing, in which the necessary protocol handshakes are conducted so that the transport system can select which set to use.
+Connection establishment is divided into two top-level steps: Candidate Gathering, to identify the paths, protocols, and endpoints to use, and Candidate Racing, in which the necessary protocol handshakes are conducted so that the transport system can select which set to use. This document structures candidates for racing as a tree.
 
 The most simple example of this process might involve identifying the single IP address to which the implementation wishes to connect, using the system's current default interface or path, and starting a TCP handshake to establish a stream to the specified IP address. However, each step may also vary depending on the requirements of the connection: if the endpoint is defined as a hostname and port, then there may be multiple resolved addresses that are available; there may also be multiple interfaces or paths available, other than the default system interface; and some protocols may not need any transport handshake to be considered "established" (such as UDP), while other connections may utilize layered protocol handshakes, such as TLS over TCP.
 
@@ -183,6 +183,26 @@ Any one of these sub-entries on the aggregate connection attempt would satisfy t
 ## Candidate Gathering {#gathering}
 
 The step of gathering candidates involves identifying which paths, protocols, and endpoints may be used for a given Connection. This list is determined by the requirements, prohibitions, and preferences of the application as specified in the Selection Properties.
+
+### Gathering Endpoint Candidates
+
+Both Local and Remote Endpoint Candidates must be discovered during connection establishment.  To support ICE, or similar protocols, that involve out-of-band indirect signalling to exchange candidates with the Remote Endpoint, it’s important to be able to query the set of candidate Local Endpoints, and give the protocol stack a set of candidate Remote Endpoints, before it attempts to establish connections.
+
+#### Local Endpoint candidates
+
+The set of possible Local Endpoints is gathered.  In the simple case, this merely enumerates the local interfaces and protocols, allocates ephemeral source ports.  For example, a system that has WiFi and Ethernet and supports IPv4 and IPv6 might gather four candidate locals (IPv4 on Ethernet, IPv6 on Ethernet, IPv4 on WiFi, and IPv6 on WiFi) that can form the source for a transient.
+
+If NAT traversal is required, the process of gathering Local Endpoints becomes broadly equivalent to the ICE candidate gathering phase {{?RFC5245}}.  The endpoint determines its server reflexive Local Endpoints (i.e., the translated address of a local, on the other side of a NAT) and relayed locals (e.g., via a TURN server or other relay), for each interface and network protocol.  These are added to the set of candidate Local Endpoints for this connection.
+
+Gathering Local Endpoints is primarily a local operation, although it might involve exchanges with a STUN server to derive server reflexive locals, or with a TURN server or other relay to derive relayed locals.  It does not involve communication with the Remote Endpoint.
+
+#### Remote Endpoint Candidates
+
+The Remote Endpoint is typically a name that needs to be resolved into a set of possible addresses that can be used for communication.  Resolving the Remote Endpoint is the process of recursively performing such name lookups, until fully resolved, to return the set of candidates for the remote of this connection.
+
+How this is done will depend on the type of the Remote Endpoint, and can also be specific to each Local Endpoint.  A common case is when the Remote Endpoint is a DNS name, in which case it is resolved to give a set of IPv4 and IPv6 addresses representing that name.  Some types of remote might require more complex resolution.  Resolving the Remote Endpoint for a peer-to-peer connection might involve communication with a rendezvous server, which in turn contacts the peer to gain consent to communicate and retrieve its set of candidate locals, which are returned and form the candidate remote addresses for contacting that peer.
+
+Resolving the remote is not a local operation.  It will involve a directory service, and can require communication with the remote to rendezvous and exchange peer addresses.  This can expose some or all of the candidate locals to the remote.
 
 ### Structuring Options as a Tree
 
@@ -693,94 +713,6 @@ Messages over a direct QUIC stream should be represented similarly to the TCP st
 Similar to QUIC ({{quic}}), HTTP/2 provides a multi-streaming interface. This will generally use HTTP as the unit of Messages over the streams, in which each stream can be represented as a transport Connection. The lifetime of streams and the HTTP/2 connection should be managed as described for QUIC.
 
 It is possible to treat each HTTP/2 stream as a raw byte-stream instead of a carrier for HTTP messages, in which case the Messages over the streams can be represented similarly to the TCP stream (one Message per direction, see {{tcp}}).
-
-# Rendezvous and Environment Discovery
-
-The connection establishment process outlined in {{conn-establish}} is
-appropriate for client-server connections, but needs to be expanded in
-peer-to-peer Rendezvous scenarios, as follows:
-
-* Gathering Local Endpoint candidates
-
-  The set of possible Local Endpoints is gathered.  In the simple case,
-  this merely enumerates the local interfaces and protocols, allocates
-  ephemeral source ports.  For example, a system that has WiFi and Ethernet
-  and supports IPv4 and IPv6 might gather four candidate locals (IPv4 on
-  Ethernet, IPv6 on Ethernet, IPv4 on WiFi, and IPv6 on WiFi) that can form
-  the source for a transient.
-
-  If NAT traversal is required, the process of gathering Local Endpoints
-  becomes broadly equivalent to the ICE candidate gathering phase {{?RFC5245}}.
-  The endpoint determines its server reflexive Local Endpoints (i.e., the
-  translated address of a local, on the other side of a NAT) and relayed
-  locals (e.g., via a TURN server or other relay), for each interface and
-  network protocol.  These are added to the set of candidate Local
-  Endpoints for this connection.
-
-  Gathering Local Endpoints is primarily a local operation, although it
-  might involve exchanges with a STUN server to derive server reflexive
-  locals, or with a TURN server or other relay to derive relayed locals.
-  It does not involve communication with the Remote Endpoint.
-
-* Gathering Remote Endpoint Candidates
-
-  The Remote Endpoint is typically a name that needs to be resolved into a
-  set of possible addresses that can be used for communication.  Resolving
-  the Remote Endpoint is the process of recursively performing such name
-  lookups, until fully resolved, to return the set of candidates for the
-  remote of this connection.
-
-  How this is done will depend on the type of the Remote Endpoint, and can
-  also be specific to each Local Endpoint.  A common case is when the
-  Remote Endpoint is a DNS name, in which case it is resolved to give a set
-  of IPv4 and IPv6 addresses representing that name.  Some types of remote
-  might require more complex resolution.  Resolving the Remote Endpoint for
-  a peer-to-peer connection might involve communication with a rendezvous
-  server, which in turn contacts the peer to gain consent to communicate
-  and retrieve its set of candidate locals, which are returned and form the
-  candidate remote addresses for contacting that peer.
-
-  Resolving the remote is _not_ a local operation.  It will involve a
-  directory service, and can require communication with the remote to
-  rendezvous and exchange peer addresses.  This can expose some or all of
-  the candidate locals to the remote.
-
-* Establishing Connections
-
-  The set of candidate Local Endpoints and the set of candidate Remote
-  Endpoints are paired, to derive a priority ordered set of Candidate Paths
-  that can potentially be used to establish a Connection.
-
-  Then, communication is attempted over each candidate path, in priority
-  order.  If there are multiple candidates with the same priority, then
-  connection establishment proceeds simultaneously and uses the transient
-  that wins the race to be established.  Otherwise, connection
-  establishment is sequential, paced at a rate that should not congest the
-  network.  Depending on the chosen transport, this phase might involve
-  racing TCP connections to a server over IPv4 and IPv6 {{?RFC8305}}, or it
-  could involve a STUN exchange to establish peer-to-peer UDP connectivity
-  {{?RFC5245}}, or some other means.
-
-* Confirming and Maintaining Connections
-
-  Once connectivity has been established, unused resources can be released
-  and the chosen path can be confirmed.  This is primarily required when
-  establishing peer-to-peer connectivity, where connections supporting
-  relayed locals that were not required can be closed, and where an
-  associated signalling operation might be needed to inform middleboxes and
-  proxies of the chosen path.  Keep-alive messages may also be sent, as
-  appropriate, to ensure NAT and firewall state is maintained, so the
-  Connection remains operational.
-
-To support ICE, or similar protocols, that involve an out-of-band indirect
-signalling exchange to exchange candidates with the Remote Endpoint, it's
-important to be able to query the set of candidate Local Endpoints, and
-give the protocol stack a set of candidate Remote Endpoints, before it
-attempts to establish connections.
-
-(TO-DO: It is expected that a single abstract algorithm can be identified
- that supports both the peer-to-peer and client-server connection racing,
- allowing this text to be merged with {{conn-establish}})
 
 # IANA Considerations
 
