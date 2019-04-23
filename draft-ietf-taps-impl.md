@@ -186,7 +186,7 @@ The step of gathering candidates involves identifying which paths, protocols, an
 
 ### Gathering Endpoint Candidates
 
-Both Local and Remote Endpoint Candidates must be discovered during connection establishment.  To support ICE, or similar protocols, that involve an out-of-band indirect signalling exchange to exchange candidates with the Remote Endpoint, it’s important to be able to query the set of candidate Local Endpoints, and give the protocol stack a set of candidate Remote Endpoints, before it attempts to establish connections.
+Both Local and Remote Endpoint Candidates must be discovered during connection establishment.  To support ICE, or similar protocols, that involve out-of-band indirect signalling to exchange candidates with the Remote Endpoint, it’s important to be able to query the set of candidate Local Endpoints, and give the protocol stack a set of candidate Remote Endpoints, before it attempts to establish connections.
 
 #### Local Endpoint candidates
 
