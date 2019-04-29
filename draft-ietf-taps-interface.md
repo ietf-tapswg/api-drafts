@@ -1048,7 +1048,10 @@ candidate transport-layer connections to be created to the specified remote
 endpoint. The caller may immediately begin sending Messages on the Connection
 (see {{sending}}) after calling Initate(); note that any idempotent data sent
 while the Connection is being established may be sent multiple times or on
-multiple candidates.
+multiple candidates. 
+Also note that transport-layer connections that match the original
+Selection Properties may automatically be created at any later time,
+e.g., as a result of connection migration or connection pooling.
 
 The following Events may be sent by the Connection after Initiate() is called:
 
