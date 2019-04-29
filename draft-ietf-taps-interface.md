@@ -1245,11 +1245,20 @@ Messages for streaming large data is also supported (see {{send-partial}}).
 Messages are sent on a Connection using the Send action:
 
 ~~~
-Connection.Send(messageData, messageContext?, endOfMessage?)
+msgRef := Connection.Send(messageData, messageContext?, reqRef?, endOfMessage?)
 ~~~
 
-where messageData is the data object to send. The optional messageContext
-parameter supports per-message properties and is described in {{message-props}}.
+where messageData is the data object to send. 
+
+The optional messageContext parameter supports per-message properties and is
+described in {{message-props}}.
+
+The optional reqRef informs the transport system that the message is sent in
+responses to a message with the Message Reference ```reqRef``` and enables the
+transport system to map the response to the same underlying transport
+connection or stream the request was received from. 
+The concept of Message References is described in {{msg-ref}}.
+
 The optional endOfMessage parameter supports partial sending and is described in
 {{send-partial}}.
 
@@ -1536,6 +1545,15 @@ transport's current estimate of its maximum transmission segment size will
 result in a `SendError`. When used with transports supporting this functionality
 and running over IP version 4, the Don't Fragment bit will be set.
 
+
+## Message References {#msg-ref}
+
+Message References are local, opaque identifiers provided by the transport
+system to refer to messages, e.g., in order to enable an application to
+identify a message that caused an error, see {{send-events}} or to mark 
+messages as replies to other messages, to enable the transport system to
+choose an appropriate underlaying transport connection, see {{sending}} and {{receive-events}}.
+
 ## Partial Sends {#send-partial}
 
 It is not always possible for an application to send all data associated with
@@ -1555,11 +1573,11 @@ messageContext.add(parameter, value)
 
 messageData := "hel".octets()
 endOfMessage := false
-Connection.Send(messageData, messageContext, endOfMessage)
+Connection.Send(messageData, messageContext, reqRef?, endOfMessage)
 
 messageData := "lo".octets()
 endOfMessage := true
-Connection.Send(messageData, messageContext, endOfMessage)
+Connection.Send(messageData, messageContext, reqRef?, endOfMessage)
 ~~~
 
 All data sent with the same MessageContext object will be treated as belonging
@@ -1678,7 +1696,7 @@ when it is temporarily not ready to receive messages.
 ### Received {#receive-complete}
 
 ~~~
-Connection -> Received<messageData, messageContext>
+Connection -> Received<messageData, messageContext, msgRef>
 ~~~
 
 A Received event indicates the delivery of a complete Message. It contains two objects,
@@ -1688,13 +1706,17 @@ Message as messageContext. See {{receive-context}} for details about the receive
 The messageData object provides access to the bytes that were received for this Message,
 along with the length of the byte array.
 
+A local msgRef is provided to refer to the message later on, e.g., to enable to map
+responses to the message to the same underlying transport connection or stream.
+The conectpt of Message References is described in {{msg-ref}}.
+
 See {{receive-framing}} for handling Message framing in situations where the Protocol
 Stack provides octet-stream transport only.
 
 ### ReceivedPartial {#receive-partial}
 
 ~~~
-Connection -> ReceivedPartial<messageData, messageContext, endOfMessage>
+Connection -> ReceivedPartial<messageData, messageContext, msgRef, endOfMessage>
 ~~~
 
 If a complete Message cannot be delivered in one event, one part of the Message
@@ -1702,7 +1724,7 @@ may be delivered with a ReceivedPartial event. In order to continue to receive m
 of the same Message, the application must invoke Receive again.
 
 Multiple invocations of ReceivedPartial deliver data for the same Message by
-passing the same MessageContext, until the endOfMessage flag is delivered or a
+passing the same MessageContext and msgRef, until the endOfMessage flag is delivered or a
 ReceiveError occurs. All partial blocks of a single Message are delivered in
 order without gaps. This event does not support delivering discontiguous partial
 Messages.
