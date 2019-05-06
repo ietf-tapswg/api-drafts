@@ -122,21 +122,45 @@ The Transport Services architecture {{I-D.ietf-taps-arch}} defines a system that
 
 This document serves as a guide to implementation on how to build a system that provides a Transport Services API. It is the job of an implementation of a Transport Services system to turn the requests of an application into decisions on how to establish connections, and how to transfer data over those connections once established. The terminology used in this document is based on the Architecture {{I-D.ietf-taps-arch}}.
 
-# Implementing Basic Objects
+# Connection Mappings
 
-The basic objects that are exposed to applications for Transport Services are the Preconnection, the bundle of properties that describes the application constraints on the transport; the Connection, the basic object that represents a flow of data in either direction between the Local and Remote Endpoints; and the Listener, a passive waiting object that delivers new Connections.
+Connection objects represent the interface between the application and the implementation to manage transport state, and conduct data transfer. During the process of establishment ({{conn-establish}}), the Connection will be unbound to a specific transport flow, since there may be multiple candidate Protocol Stacks being raced. Once the Connection is established, the object should be considered mapped to a specific Protocol Stack. The notion of a Connection maps to many different protocols, depending on the Protocol Stack. The mapping for common protocols is defined below.
 
-Preconnection objects should be implemented as bundles of properties that an application can both read and write. Once a Preconnection has been used to create an outbound Connection or a Listener, the implementation should ensure that the copy of the properties held by the Connection or Listener is immutable. This may involve performing a deep-copy if the application is still able to modify properties on the original Preconnection object.
+## TCP
 
-Connection objects represent the interface between the application and the implementation to manage transport state, and conduct data transfer. During the process of establishment ({{conn-establish}}), the Connection will be unbound to a specific transport flow, since there may be multiple candidate Protocol Stacks being raced. Once the Connection is established, the object should be considered mapped to a specific Protocol Stack. The notion of a Connection maps to many different protocols, depending on the Protocol Stack. For example, the Connection may ultimately represent the interface into a TCP connection, a TLS session over TCP, a UDP flow with fully-specified local and remote endpoints, a DTLS session, a SCTP stream, a QUIC stream, or an HTTP/2 stream.
+When using only TCP, a Connection object maps directly to a TCP connection, as defined by the set of ports and addresses between two endpoints.
 
-Listener objects are created with a Preconnection, at which point their configuration should be considered immutable by the implementation. The process of listening is described in {{listen}}.
+## MPTCP
+
+When using MPTCP, a Connection object maps to a MPTCP session state. As the MPTCP session moves between multiple subflows, the Connection remains the same.
+
+## UDP
+
+When using only UDP, a Connection object maps to the set of ports and addresses between two endpoints.
+
+## TLS
+
+When using TLS over TCP, a Connection object maps to the active TLS session for the TCP or MPTCP connection.
+
+## DTLS
+
+When using DTLS over UDP, a Connection object maps to the active TLS session that runs over a specific set of UDP ports and addresses between two endpoints.
+
+## QUIC
+
+When using QUIC, a Connection object maps to a single QUIC stream.
+
+## SCTP
+
+TODO
 
 # Implementing Pre-Establishment
 
 During pre-establishment the application specifies the Endpoints to be used for communication as well as its preferences via Selection Properties and, if desired, also Connection Properties. Generally, Connection Properties should be configured as early as possible, as they may serve as input to decisions that are made by the implementation (the Capacity Profile may guide usage of a protocol offering scavenger-type congestion control, for example). In the remainder of this document, we only refer to Selection Properties because they are the more typical case and have to be handled by all implementations.
 
 The implementation stores these objects and properties as part of the Preconnection object for use during connection establishment. For Selection Properties that are not provided by the application, the implementation must use the default values specified in the Transport Services API ({{I-D.ietf-taps-interface}}).
+
+Preconnection objects should be implemented as bundles of properties that an application can both read and write. Once a Preconnection has been used to create an outbound Connection or a Listener, the implementation should ensure that the copy of the properties held by the Connection or Listener is immutable. This may involve performing a deep-copy if the application is still able to modify properties on the original Preconnection object.
   
 ## Configuration-time errors
 
@@ -650,7 +674,7 @@ The reasonable lifetime for cached performance values will vary depending on the
 
 # Specific Transport Protocol Considerations
 
-## TCP {#tcp}
+## TCP
 
 Connection lifetime for TCP translates fairly simply into the the abstraction presented to an application. When the TCP three-way handshake is complete, its layer of the Protocol Stack can be considered Ready (established). This event will cause racing of Protocol Stack options to complete if TCP is the top-level protocol, at which point the application can be notified that the Connection is Ready to send and receive.
 
@@ -700,7 +724,7 @@ HTTP requests and responses map naturally into Messages, since they are delineat
 
 In order to use a transport Connection that provides HTTP Message support, the establishment and closing of the connection can be treated as it would without the framing protocol. Sending and receiving of Messages, however, changes to treat each Message as a well-delineated HTTP request or response, with the content of the Message representing the body, and the Headers being provided in Message metadata.
 
-## QUIC {#quic}
+## QUIC
 
 QUIC provides a multi-streaming interface to an encrypted transport. Each stream can be viewed as equivalent to a TLS stream over TCP, so a natural mapping is to present each QUIC stream as an individual Connection. The protocol for the stream will be considered Ready whenever the underlying QUIC connection is established to the point that this stream's data can be sent. For streams after the first stream, this will likely be an immediate operation.
 
