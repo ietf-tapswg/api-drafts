@@ -1806,7 +1806,7 @@ into individual transport datagrams.
 
 ## Defining Message Framers
 
-Applications can define a Message Framer by creating a object to represent a unique
+Applications can define a Message Framer by creating an object to represent a unique
 definition of a framing protocol. Event handlers for inbound and outbound data
 are registered on this object.
 
@@ -1860,6 +1860,7 @@ the FramerInstance. This call can be delayed in case the protocol needs to do so
 simple handshake exchange before handling application Messages.
 
 ~~~
+// instance is a FramerInstance reference
 instance.ready()
 ~~~
 
@@ -1868,6 +1869,15 @@ to fail and provide an error.
 
 ~~~
 instance.failed(Error)
+~~~
+
+Before a Message Framer marks itself as ready, it can also dynamically add a protocol or framer
+above it in the stack. This allows protocols like STARTTLS, that need to add TLS conditionally,
+to modify the Protocol Stack based on a handshake result.
+
+~~~
+otherFramer := NewMessageFramer()
+instance.prependProtocol(otherFramer)
 ~~~
 
 ## Sender-side Message Framing {#send-framing}
@@ -1890,7 +1900,7 @@ instance.send(Data)
 
 To provide an example, a simple protocol that adds a length as a header would receive
 the `NewOutputMessage` event, create a data representation of the length of the Message
-data, and then send a data that is the concatenation of the length header and the original
+data, and then send a block of data that is the concatenation of the length header and the original
 Message data.
 
 ## Receiver-side Message Framing {#receive-framing}
@@ -1902,7 +1912,7 @@ is first notified whenever new data is available to parse.
 FramerInstance -> HandleReceivedData<>
 ~~~
 
-Upon receiving this even, a Message Framer can inspect the inbound data. The
+Upon receiving this event, a Message Framer can inspect the inbound data. The
 data is parsed from a particular cursor representing the unprocessed data. The
 Framer requests a specific amount of data it needs to have available in order to parse.
 If the data is not available, the parse fails.
