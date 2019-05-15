@@ -1164,7 +1164,7 @@ resulting Connection is contained within the RendezvousDone<> Event, and is
 ready to use as soon as it is passed to the application via the Event.
 
 ~~~
-Preconnection -> RendezvousError<msgRef, error>
+Preconnection -> RendezvousError<messageContext, error>
 ~~~
 
 An RendezvousError occurs either when the Preconnection cannot be fulfilled
@@ -1245,19 +1245,13 @@ Messages for streaming large data is also supported (see {{send-partial}}).
 Messages are sent on a Connection using the Send action:
 
 ~~~
-msgRef := Connection.Send(messageData, messageContext?, reqRef?, endOfMessage?)
+messageContext := Connection.Send(messageData, messageContext?, endOfMessage?)
 ~~~
 
-where messageData is the data object to send. 
+where messageData is the data object to send.
 
 The optional messageContext parameter supports per-message properties and is
 described in {{message-props}}.
-
-The optional reqRef informs the transport system that the message is sent in
-responses to a message with the Message Reference ```reqRef``` and enables the
-transport system to map the response to the same underlying transport
-connection or stream the request was received from. 
-The concept of Message References is described in {{msg-ref}}.
 
 The optional endOfMessage parameter supports partial sending and is described in
 {{send-partial}}.
@@ -1287,6 +1281,19 @@ Size for the Connection, the Send will fail with a SendError event ({{send-error
 example, it is invalid to send a Message over a UDP connection that is larger than
 the available datagram sending size.
 
+## Sending Replies {#send-replies}
+
+When a message is sent in responses to a message received, the application
+may use the Message Context of the received Message to construct a Message Context for the reply.
+
+~~~
+replyMessgeContext := reqestMessageContext.reply()
+~~~
+
+By using the ```replyMessgeContext```, the transport system is informed that
+the message to be sent is a response and can map the response to the same underlying transport connection or stream the request was received from.
+The concept of Message Contexts is described in {{msg-ctx}}.
+
 ## Send Events {#send-events}
 
 Like all Actions in this interface, the Send Action is asynchronous. There are
@@ -1300,7 +1307,7 @@ there will be two Expired events delivered.
 ### Sent
 
 ~~~
-Connection -> Sent<msgRef>
+Connection -> Sent<messageContext>
 ~~~
 
 The Sent Event occurs when a previous Send Action has completed, i.e., when
@@ -1321,7 +1328,7 @@ calling the next Send Action.
 ### Expired
 
 ~~~
-Connection -> Expired<msgRef>
+Connection -> Expired<messageContext>
 ~~~
 
 The Expired Event occurs when a previous Send Action expired before completion;
@@ -1333,7 +1340,7 @@ implementation-specific reference to the Message to which it applies.
 ### SendError {#send-error}
 
 ~~~
-Connection -> SendError<msgRef>
+Connection -> SendError<messageContext>
 ~~~
 
 A SendError occurs when a Message could not be sent due to an error condition:
@@ -1343,16 +1350,21 @@ set of Message Properties not consistent with the Connection's transport
 properties. The SendError contains an implementation-specific reference to the
 Message to which it applies.
 
+
+
 ## Message Properties {#message-props}
 
 Applications may need to annotate the Messages they send with extra information
 to control how data is scheduled and processed by the transport protocols in the
-Connection. A MessageContext object contains properties for sending Messages,
-and can be passed to the Send Action. Note that these properties are
-per-Message, not per-Send if partial Messages are sent ({{send-partial}}). All
-data blocks associated with a single Message share properties. For example, it
-would not make sense to have the beginning of a Message expire, but allow the
-end of a Message to still be sent.
+Connection. Therefore a message context containing these properties can be passed to the Send Action. For other uses of the message context, see {{msg-ctx}}.
+
+Note that message properties are per-Message, not per-Send if partial Messages
+are sent ({{send-partial}}). All data blocks associated with a single Message
+share properties specified in the Message Contexts. For example, it would not
+make sense to have the beginning of a Message expire, but allow the end of a
+Message to still be sent.
+
+A MessageContext object contains  and metadata for  Messages to be sent or received.
 
 ~~~
 messageData := "hello".octets()
@@ -1546,14 +1558,6 @@ result in a `SendError`. When used with transports supporting this functionality
 and running over IP version 4, the Don't Fragment bit will be set.
 
 
-## Message References {#msg-ref}
-
-Message References are local, opaque identifiers provided by the transport
-system to refer to messages, e.g., in order to enable an application to
-identify a message that caused an error, see {{send-events}} or to mark 
-messages as replies to other messages, to enable the transport system to
-choose an appropriate underlaying transport connection, see {{sending}} and {{receive-events}}.
-
 ## Partial Sends {#send-partial}
 
 It is not always possible for an application to send all data associated with
@@ -1573,11 +1577,11 @@ messageContext.add(parameter, value)
 
 messageData := "hel".octets()
 endOfMessage := false
-Connection.Send(messageData, messageContext, reqRef?, endOfMessage)
+Connection.Send(messageData, messageContext, endOfMessage)
 
 messageData := "lo".octets()
 endOfMessage := true
-Connection.Send(messageData, messageContext, reqRef?, endOfMessage)
+Connection.Send(messageData, messageContext, endOfMessage)
 ~~~
 
 All data sent with the same MessageContext object will be treated as belonging
@@ -1696,27 +1700,28 @@ when it is temporarily not ready to receive messages.
 ### Received {#receive-complete}
 
 ~~~
-Connection -> Received<messageData, messageContext, msgRef>
+Connection -> Received<messageData, messageContext>
 ~~~
 
-A Received event indicates the delivery of a complete Message. It contains two objects,
-the received bytes as messageData, and the metadata and properties of the received
-Message as messageContext. See {{receive-context}} for details about the received context.
+A Received event indicates the delivery of a complete Message. It contains two
+objects, the received bytes as messageData, and the metadata and properties of
+the received Message as messageContext.
 
-The messageData object provides access to the bytes that were received for this Message,
-along with the length of the byte array.
+The messageData object provides access to the bytes that were received for this
+Message, along with the length of the byte array.
 
-A local msgRef is provided to refer to the message later on, e.g., to enable to map
-responses to the message to the same underlying transport connection or stream.
-The conectpt of Message References is described in {{msg-ref}}.
+The messageContext is provided to retrieve metadata about the message, see
+{{msg-ctx}}, and to refer to the message later on, e.g., to enable to map
+responses to the message to the same underlying transport connection or stream,
+see {{send-replies}}.
 
-See {{receive-framing}} for handling Message framing in situations where the Protocol
-Stack provides octet-stream transport only.
+See {{receive-framing}} for handling Message framing in situations where the
+Protocol Stack provides octet-stream transport only.
 
 ### ReceivedPartial {#receive-partial}
 
 ~~~
-Connection -> ReceivedPartial<messageData, messageContext, msgRef, endOfMessage>
+Connection -> ReceivedPartial<messageData, messageContext, messageContext, endOfMessage>
 ~~~
 
 If a complete Message cannot be delivered in one event, one part of the Message
@@ -1724,7 +1729,7 @@ may be delivered with a ReceivedPartial event. In order to continue to receive m
 of the same Message, the application must invoke Receive again.
 
 Multiple invocations of ReceivedPartial deliver data for the same Message by
-passing the same MessageContext and msgRef, until the endOfMessage flag is delivered or a
+passing the same MessageContext and messageContext, until the endOfMessage flag is delivered or a
 ReceiveError occurs. All partial blocks of a single Message are delivered in
 order without gaps. This event does not support delivering discontiguous partial
 Messages.
@@ -1762,9 +1767,29 @@ The ReceiveError event passes an optional associated MessageContext. This may
 indicate that a Message that was being partially received previously, but had not
 completed, encountered an error and will not be completed.
 
-## Message Receive Context {#receive-context}
+## Message Contexts {#msg-ctx}
 
-Each Received Message Context may contain metadata from protocols in the Protocol Stack;
+A MessageContext object contains properties, see {{message-props}}, and other
+metadata for Messages. Therefore, a MessageContext object can be passed to the
+Send Action and is retuned by each Send action as well as Send and Receive
+related events.
+
+The application can set, see {{message-props}} and query Message Properties using the Message Context.
+
+~~~
+PropertyValue := MessageContext.Get(property)
+~~~
+
+The application can also query information about the local and remote endpoint.
+
+~~~
+RemoteEndpoint := MessageContext.GetRemoteEndpoint()
+LocalEndpoint := MessageContext.GetLocalEndpoint()
+~~~
+
+Message Contexts can also be used to send messages that are flagged as reply to other messages, see {{send-replies}} for details.
+
+Each Message Context may contain metadata from protocols in the Protocol Stack;
 which metadata is available is Protocol Stack dependent. The following metadata
 values are supported:
 
@@ -1790,7 +1815,7 @@ field for Messages received during connection establishment and respond accordin
 
 ### Receiving Final Messages
 
-The Received Message Context can indicate whether or not this Message is
+The Message Context can indicate whether or not this Message is
 the Final Message on a Connection. For any Message that is marked as Final,
 the application can assume that there will be no more Messages received on the
 Connection once the Message has been completely delivered. This corresponds
