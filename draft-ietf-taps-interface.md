@@ -644,10 +644,8 @@ indicates a preference for a specific path by specifying an interface, but also 
 preference for a protocol not available on this path, the transport system will
 try the path first, ignoring the preference.
 
-Both Selection and Connection Properties can be added to a Preconnection to
-configure the selection process, and to further configure the eventually
-selected protocol stack(s). They are collected into a TransportProperties object
-to be passed into a Preconnection object:
+Selection, and Connection Properties, as well as defaults for Message Properties, can be added to a Preconnection to configure the selection process, and to further configure the eventually selected protocol stack(s).
+They are collected into a TransportProperties object to be passed into a Preconnection object:
 
 ~~~
 TransportProperties := NewTransportProperties()
@@ -1437,6 +1435,11 @@ If true, it specifies that a Message is safe to send to the remote endpoint
 more than once for a single Send Action. It is used to mark data safe for
 certain 0-RTT establishment techniques, where retransmission of the 0-RTT data
 may cause the remote application to receive the Message multiple times.
+
+Note that for protocols that do not protect against duplicated messages,
+e.g., UDP, all messages MUST be marked as Idempotent. 
+In order to enable protocol selection to choose such a protocol, 
+Idempotent MUST be added to the TransportProperties passed to the Preconnection.
 
 ### Final {#msg-final}
 
