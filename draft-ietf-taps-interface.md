@@ -1422,7 +1422,6 @@ Action, when such a Message exists. If false, the Message may be delivered to th
 This property is used for protocols that support preservation of data ordering,
 see {{prop-ordering}}, but allow out-of-order delivery for certain messages.
 
-
 ### Idempotent {#msg-idempotent}
 
 Name:
@@ -1437,9 +1436,11 @@ certain 0-RTT establishment techniques, where retransmission of the 0-RTT data
 may cause the remote application to receive the Message multiple times.
 
 Note that for protocols that do not protect against duplicated messages,
-e.g., UDP, all messages MUST be marked as Idempotent. 
-In order to enable protocol selection to choose such a protocol, 
-Idempotent MUST be added to the TransportProperties passed to the Preconnection.
+e.g., UDP, all messages MUST be marked as Idempotent.
+In order to enable protocol selection to choose such a protocol,
+Idempotent MUST be added to the TransportProperties passed to the
+Preconnection. If such a protocol was chosen, disabling Idempotent on
+individual messages MUST result in a SendError.
 
 ### Final {#msg-final}
 
