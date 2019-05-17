@@ -1011,6 +1011,30 @@ ChallengeCallback := NewCallback({
 SecurityParameters.SetIdentityChallengeCallback(challengeCallback)
 ~~~
 
+## Forcing the use of Specific Protocols
+
+Some application protocols need to be exercised on top of specific protocols, e.g. because they use lower layer protocol fields in their specification.
+In such cases, the application can request the transport system to use a specific set of protocols as part on the local endpoint.
+
+~~~
+LocalSpecifier := NewLocalEndpoint()
+LocalSpecifier.WithProtocol("http")
+~~~
+
+Multiple sets can be specified as alternatives:
+
+~~~
+LocalSpecifier := NewLocalEndpoint()
+LocalSpecifier.WithProtocols("tcp", "ipv4")
+LocalSpecifier.WithProtocols("tcp", "ipv6")
+~~~
+
+If at least one set is specified, the transport system will only choose protocol stack instances that use all protocols of one of given sets on the local endpoint. 
+As the transport service may involve the use of proxies, the protocols used on the remote endpoints my vary.
+
+Note that this mechanism is __not intended__ to request transport services for applications that need, e.g., TCP like transport services or have deployment issues as firewalls that require the use of specific protocols.
+For the former, Transport Property Profiles \[__TODO__: add reference once Issue #325 is fixed or remove\] should be used, while for the latter, these deployment considerations should be expressed as a system policy that is deployed with the application.
+
 # Establishing Connections {#establishment}
 
 Before a Connection can be used for data transfer, it must be established.
