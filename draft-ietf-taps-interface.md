@@ -655,7 +655,7 @@ TransportProperties := NewTransportProperties(profile?)
 
 With the creation of the TransportProperties object, an optional profile
 can be passed. These profiles consist of a list of properties that are used
-together frequently. 
+together frequently and can be overridden by adding additional TransportProperties.
 See {{property-profiles}} for a list of profiles implementations should support.
 Individual properties are then added to the TransportProperties Object:
 
@@ -2266,8 +2266,9 @@ their overall expected behavior.
 
 ## reliable-inorder-stream
 
-This profile provides TCP-like transport service. It should consist of the
-following properties:
+This profile provides reliable, in-order transport service with
+congestion control. 
+It should consist of the following properties:
 
  | Property                 | Value     |
  |:-------------------------|:----------|
@@ -2278,8 +2279,9 @@ following properties:
  
 ## reliable-message
 
-This profile provides SCTP-like transport service. It should consist of the
-following properties:
+This profile provides message-preserving, reliable, in-order 
+transport service with congestion control.
+It should consist of the following properties:
 
  | Property                 | Value     |
  |:-------------------------|:----------|
@@ -2290,16 +2292,22 @@ following properties:
 
 ## unreliable-datagram
 
-This profile provides UDP-like transport service. It should consist of the
-following properties:
+This profile provides unreliable datagram transport service.
+It should consist of the following properties:
 
  | Property                 | Value     |
  |:-------------------------|:----------|
- | reliability              | avoid     |
- | preserve-order           | avoid     |
- | congestion-control       | avoid     |
+ | reliability              | ignore    |
+ | preserve-order           | ignore    |
+ | congestion-control       | ignore    |
  | preserve-msg-boundaries  | require   |
  | idempotent               | true      |
+
+Applications that choose this Transport Property Profile for latency reasons
+should also consider setting the Capacity Profile Property,
+see {{prop-cap-profile}} accordingly and my benefit from controlling checksum
+coverage, see {{prop-checksum-control-send}} and {{prop-checksum-control-receive}}.
+
 
 
 # Additional Properties {#appendix-non-consensus}
