@@ -646,13 +646,17 @@ try the path first, ignoring the preference.
 
 Both Selection and Connection Properties can be added to a Preconnection to
 configure the selection process, and to further configure the eventually
-selected protocol stack(s). They are collected into a TransportProperties object
+selected protocol stack(s). They are collected into a TransportProperties
 to be passed into a Preconnection object:
 
 ~~~
-TransportProperties := NewTransportProperties()
+TransportProperties := NewTransportProperties(profile?)
 ~~~
 
+With the creation of the TransportProperties object, an optional profile
+can be passed. These profiles consist of a list of properties that are used
+together frequently. 
+See {{property-profiles}} for a list of profiles implementations should support.
 Individual properties are then added to the TransportProperties Object:
 
 ~~~
@@ -2250,6 +2254,53 @@ influenced this work. Thanks to Laurent Chuat and Jason Lee for initial work on
 the Post Sockets interface, from which this work has evolved.
 
 --- back
+
+
+# Transport Property Profiles {#property-profiles}
+
+To ease the use of the interface specified by this document, an implementation
+should support the following property profiles as short-hand to specifying
+frequently used sets of properties.
+Implementations may vary the Preferences in these profiles, but should retrain
+their overall expected behavior.
+
+## reliable-inorder-stream
+
+This profile provides TCP-like transport service. It should consist of the
+following properties:
+
+ | Property                 | Value     |
+ |:-------------------------|:----------|
+ | reliability              | require   |
+ | preserve-order           | require   |
+ | congestion-control       | require   |
+ | preserve-msg-boundaries  | ignore    |
+ 
+## reliable-message
+
+This profile provides SCTP-like transport service. It should consist of the
+following properties:
+
+ | Property                 | Value     |
+ |:-------------------------|:----------|
+ | reliability              | require   |
+ | preserve-order           | require   |
+ | congestion-control       | require   |
+ | preserve-msg-boundaries  | require   |
+
+## unreliable-datagram
+
+This profile provides UDP-like transport service. It should consist of the
+following properties:
+
+ | Property                 | Value     |
+ |:-------------------------|:----------|
+ | reliability              | avoid     |
+ | preserve-order           | avoid     |
+ | congestion-control       | avoid     |
+ | preserve-msg-boundaries  | require   |
+ | idempotent               | true      |
+
 
 # Additional Properties {#appendix-non-consensus}
 
