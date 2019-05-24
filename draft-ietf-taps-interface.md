@@ -2267,7 +2267,8 @@ their overall expected behavior.
 ## reliable-inorder-stream
 
 This profile provides reliable, in-order transport service with
-congestion control. 
+congestion control.
+An example of a protocol that provides this service is TCP.
 It should consist of the following properties:
 
  | Property                 | Value     |
@@ -2281,6 +2282,7 @@ It should consist of the following properties:
 
 This profile provides message-preserving, reliable, in-order 
 transport service with congestion control.
+An example of a protocol that provides this service is SCTP.
 It should consist of the following properties:
 
  | Property                 | Value     |
@@ -2293,6 +2295,7 @@ It should consist of the following properties:
 ## unreliable-datagram
 
 This profile provides unreliable datagram transport service.
+An example of a protocol that provides this service is UDP.
 It should consist of the following properties:
 
  | Property                 | Value     |
