@@ -308,9 +308,9 @@ Preconnection := NewPreconnection(LocalSpecifier,
                                   TransportProperties,
                                   SecurityParameters)
 
-Preconnection.Listen()
+Listener := Preconnection.Listen()
 
-Preconnection -> ConnectionReceived<Connection>
+Listener -> ConnectionReceived<Connection>
 
 // Only receive complete messages
 Connection.Receive()
@@ -322,7 +322,7 @@ Connection.Send(messageDataResponse)
 Connection.Close()
 
 // Stop listening for incoming Connections
-Preconnection.Stop()
+Listener.Stop()
 ~~~
 
 
@@ -1079,35 +1079,35 @@ and transmission of the first message in a single action.
 
 Passive open is the Action of waiting for Connections from remote endpoints,
 commonly used by servers in client-server interactions. Passive open is
-supported by this interface through the Listen Action:
+supported by this interface through the Listen Action and returns a Listener object:
 
 ~~~
-Preconnection.Listen()
+Listener := Preconnection.Listen()
 ~~~
 
 Before calling Listen, the caller must have initialized the Preconnection
 during the pre-establishment phase with a Local Endpoint specifier, as well
 as all properties necessary for Protocol Stack selection. A Remote Endpoint
 may optionally be specified, to constrain what Connections are accepted.
-The Listen() Action consumes the Preconnection. Once Listen() has been
-called, no further properties may be added to the Preconnection, and no
-subsequent establishment call may be made on the Preconnection.
+The Listen() Action returns a Listener object. Once Listen() has been
+called, properties added to the Preconnection have no effect on the Listener
+and the Preconnection can be disposed of or reused.
 
 Listening continues until the global context shuts down, or until the Stop
-action is performed on the same Preconnection:
+action is performed on the Listener object:
 
 ~~~
-Preconnection.Stop()
+Listener.Stop()
 ~~~
 
-After Stop() is called, the preconnection can be disposed of.
+After Stop() is called, the Listener can be disposed of.
 
 ~~~
-Preconnection -> ConnectionReceived<Connection>
+Listener -> ConnectionReceived<Connection>
 ~~~
 
 The ConnectionReceived Event occurs when a Remote Endpoint has established a
-transport-layer connection to this Preconnection (for Connection-oriented
+transport-layer connection to this Listener (for Connection-oriented
 transport protocols), or when the first Message has been received from the
 Remote Endpoint (for Connectionless protocols), causing a new Connection to be
 created. The resulting Connection is contained within the ConnectionReceived
@@ -1115,18 +1115,18 @@ event, and is ready to use as soon as it is passed to the application via the
 event.
 
 ~~~
-Preconnection -> ListenError<>
+Listener -> ListenError<>
 ~~~
 
-A ListenError occurs either when the Preconnection cannot be fulfilled for
+A ListenError occurs either when the Properties of the Preconnection cannot be fulfilled for
 listening, when the Local Endpoint (or Remote Endpoint, if specified) cannot
 be resolved, or when the application is prohibited from listening by policy.
 
 ~~~
-Preconnection -> Stopped<>
+Listener -> Stopped<>
 ~~~
 
-A Stopped event occurs after the Preconnection has stopped listening.
+A Stopped event occurs after the Listener has stopped listening.
 
 ## Peer-to-Peer Establishment: Rendezvous {#rendezvous}
 
@@ -1192,7 +1192,7 @@ remote.
 
 ## Connection Groups {#groups}
 
-Groups of Connections can be created using the Clone Action:
+Entangled Connections can be created using the Clone Action:
 
 ~~~
 Connection := Connection.Clone()
@@ -1205,11 +1205,25 @@ Group. Calling Clone on any of these two Connections adds a third Connection to
 the Connection Group, and so on. Connections in a Connection Group share all
 Protocol Properties that are not applicable to a Message.
 
-Changing one of these Protocol Properties on one Connection in the group changes it for all others. Per-Message Protocol Properties, however, are not entangled.
-For example, changing "Timeout for aborting Connection" (see {{conn-timeout}}) on one Connection in a group will automatically change this Protocol Property for all Connections in the group in the same way. However, changing "Lifetime" (see {{msg-lifetime}}) of a Message will only affect a single Message on a single Connection, entangled or not.
+In addition, incoming entangled Connections can be received by creating a
+Listener on an existing connection:
 
-If the underlying protocol supports multi-streaming, it is natural to use this functionality to implement Clone. In that case, entangled Connections are multiplexed together, giving them similar treatment not only inside endpoints but also across
-the end-to-end Internet path.
+~~~
+Listener := Connection.Listen()
+~~~
+
+Changing one of these Protocol Properties on one Connection in the group
+changes it for all others. Per-Message Protocol Properties, however, are not
+entangled. For example, changing "Timeout for aborting Connection" (see
+{{conn-timeout}}) on one Connection in a group will automatically change this
+Protocol Property for all Connections in the group in the same way. However,
+changing "Lifetime" (see {{msg-lifetime}}) of a Message will only affect a
+single Message on a single Connection, entangled or not.
+
+If the underlying protocol supports multi-streaming, it is natural to use this
+functionality to implement Clone. In that case, entangled Connections are
+multiplexed together, giving them similar treatment not only inside endpoints
+but also across the end-to-end Internet path.
 
 If the underlying Protocol Stack does not support cloning, or cannot create a
 new stream on the given Connection, then attempts to clone a connection will
