@@ -85,7 +85,6 @@ author:
   -
     ins: T. Pauly
     name: Tommy Pauly
-    role: editor
     org: Apple Inc.
     street: One Apple Park Way
     city: Cupertino, California 95014
@@ -258,7 +257,7 @@ peer to peer establishment).
 Once a Connection is established, data can be sent on it in the form of
 Messages. The interface supports the preservation of message boundaries both
 via explicit Protocol Stack support, and via application support through a
-Message Framer definition which finds message boundaries in a stream. Messages are
+Message Framer which finds message boundaries in a stream. Messages are
 received asynchronously through a callback registered by the application.
 Errors and other notifications also happen asynchronously on the Connection.
 
@@ -1778,14 +1777,14 @@ Any calls to Receive once the Final Message has been delivered will result in er
 
 # Message Framers {#framing}
 
-Message Framers are implementations of simple protocols that can convert
+Message Framers are pieces of code that define simple transformations
 between application Message data and raw transport protocol data. A Framer
 can encapsulate or encode outbound Messages, and decapsulate or decode
 inbound data into Messages.
 
 Message Framers allow message boundaries to be preserved when using
 a Connection object, even when using octet-stream transports. This facility 
-is designed based on the fact that many of our current application protocols 
+is designed based on the fact that many of the current application protocols 
 evolved over TCP, which does not provide message boundary preservation,
 and since many of these protocols require message boundaries to function,
 each application layer protocol has defined its own framing.
@@ -1797,9 +1796,9 @@ included within a Connection's Protocol Stack. As an example, TLS can
 serve the purpose of framing data over TCP, but is exposed as a protocol
 natively supported by the Transport Services interface.
 
-Most Message Framer protocols fall into one of two categories:
-- Header-prefixed record protocols, such as a basic Type-Length-Value (TLV) structure
-- Delimeter-separated protocols, such as HTTP/1.1.
+Most Message Framers fall into one of two categories:
+- Header-prefixed record formats, such as a basic Type-Length-Value (TLV) structure
+- Delimeter-separated formats, such as HTTP/1.1.
 
 Note that while Message Framers add the most value when placed above
 a protocol that otherwise does not preserve message boundaries, they can
@@ -1810,19 +1809,23 @@ into individual transport datagrams.
 
 ## Defining Message Framers
 
-Applications can define a Message Framer by creating an object to represent a unique
-definition of a framing protocol. Event handlers for inbound and outbound data
-are registered on this object.
+A Message Framer is primarily defined by the set of code that handles events
+for the Framer, specifically how it handles inbound and outbound data
+parsing.
+
+Applications can instantiate a Message Framer upon which they will receive
+framing events, or use a Message Framer defined by another library.
 
 ~~~
 framer := NewMessageFramer()
-framer.setEventHandlers()
 ~~~
 
 ## Adding Message Framers to Connections
 
 The Message Framer object can then be added to one or more Preconnections
-to run on top of transport protocols. Multiple Framers may be added.
+to run on top of transport protocols. Multiple Framers may be added. If multiple
+Framers are added, the last one added runs first when framing outbound messages,
+and last when parsing inbound data.
 
 ~~~
 Preconnection.AddFramer(framer)
@@ -1830,7 +1833,7 @@ Preconnection.AddFramer(framer)
 
 When sending Messages, applications can add specific Message
 values to a MessageContext ({{message-props}}) that is intended for a Framer.
-This can be used, for example, to set the type of a Message for a TLV protocol.
+This can be used, for example, to set the type of a Message for a TLV format.
 The namespace of values is custom for each unique Message Framer.
 
 ~~~
@@ -1849,30 +1852,31 @@ messageContext.get(framer, key) -> value
 ## Message Framer Lifetime
 
 When a Connection establishment attempt begins, an event is delivered to
-notify the framer that a new Connection is being created and has a new
-instance of a Message Framer. Similarly, a stop event is delivered when a
-Connection is being torn down.
+notify the Framer that a new Connection is being created.
+Similarly, a stop event is delivered when a Connection is being torn down.
+The Framer can use the Connection object to look up specific properties
+of the connection or the network being used that may influence how
+to frame Messages.
 
 ~~~
-FramerInstance -> Start()
-FramerInstance -> Stop()
+MessageFramer -> Start(Connection)
+MessageFramer -> Stop(Connection)
 ~~~
 
-When Message Framer gets a start message, it sets up its state and then indicates
-to the connection that it is ready to handle sending Messages by calling `ready` on
-the FramerInstance. This call can be delayed in case the protocol needs to do some
-simple handshake exchange before handling application Messages.
+When Message Framer receives a `Start` event, it has the opportunity to start
+writing some data on the Connection prior to the Connection delivering its
+`Ready` event. This allows the Framer to communicate control data to the
+remote endpoint that can be used to parse Messages.
 
 ~~~
-// instance is a FramerInstance reference
-instance.ready()
+MessageFramer.MakeConnectionReady(Connection)
 ~~~
 
 At any time if the Message Framer encounters a fatal error, it can also cause the Connection
 to fail and provide an error.
 
 ~~~
-instance.failed(Error)
+MessageFramer.FailConnection(Connection, Error)
 ~~~
 
 Before a Message Framer marks itself as ready, it can also dynamically add a protocol or framer
@@ -1881,16 +1885,15 @@ to modify the Protocol Stack based on a handshake result.
 
 ~~~
 otherFramer := NewMessageFramer()
-instance.prependProtocol(otherFramer)
+MessageFramer.PrependFramer(Connection, otherFramer)
 ~~~
 
 ## Sender-side Message Framing {#send-framing}
 
-Message Framers define an event that gets called on an instance of a
-Framer to handle a new Message being sent by the application.
+Message Framers deliver an event whenever a Connection sends a new Message.
 
 ~~~
-FramerInstance -> NewSentMessage<messageData, messageContext, endOfMessage>
+MessageFramer -> NewSentMessage<Connection, MessageData, MessageContext, IsEndOfMessage>
 ~~~
 
 Upon receiving this event, a Message Framer implementation is responsible for
@@ -1899,11 +1902,11 @@ protocol. Implementations SHOULD ensure that there is a way to pass the original
 through without copying to improve performance.
 
 ~~~
-instance.send(Data)
+MessageFramer.Send(Connection, Data)
 ~~~
 
 To provide an example, a simple protocol that adds a length as a header would receive
-the `NewOutputMessage` event, create a data representation of the length of the Message
+the `NewSentMessage` event, create a data representation of the length of the Message
 data, and then send a block of data that is the concatenation of the length header and the original
 Message data.
 
@@ -1913,7 +1916,7 @@ In order to parse an received flow of data into Messages, the Message Framer
 is first notified whenever new data is available to parse.
 
 ~~~
-FramerInstance -> HandleReceivedData<>
+MessageFramer -> HandleReceivedData<Connection>
 ~~~
 
 Upon receiving this event, a Message Framer can inspect the inbound data. The
@@ -1922,7 +1925,7 @@ Framer requests a specific amount of data it needs to have available in order to
 If the data is not available, the parse fails.
 
 ~~~
-instance.parse(minIncompleteLength, maxLength) -> (Data?, endOfMessage?)
+MessageFramer.Parse(Connection, MinimumIncompleteLength, MaximumLength) -> (Data?, IsEndOfMessage?)
 ~~~
 
 The Message Framer can directly advance the receive cursor once it has
@@ -1934,20 +1937,20 @@ send data that it has created, or deliver a range of data directly from the unde
 transport and simulatenously advance the receive cursor.
 
 ~~~
-instance.advanceReceiveCursor(length)
-instance.deliverAndAdvanceReceiveCursor(messageContext, length, endOfMessage)
-instance.deliver(messageContext, data, endOfMessage)
+MessageFramer.AdvanceReceiveCursor(Connection, Length)
+MessageFramer.DeliverAndAdvanceReceiveCursor(Connection, MessageContext, Length, IsEndOfMessage)
+MessageFramer.Deliver(Connection, MessageContext, Data, IsEndOfMessage)
 ~~~
 
-Note that `deliverAndAdvanceReceiveCursor` allows the Framer to earmark bytes
+Note that `MessageFramer.DeliverAndAdvanceReceiveCursor` allows the Framer to earmark bytes
 as part of a Message even before they are received by the transport. This allows the delivery
 of very large Messages without requiring the Framer to directly inspect all of the octets.
 
 To provide an example, a simple protocol that parses a length as a header value would
-receive the `HandleReceivedData` event, and call `parse` with a minimum and maximum
+receive the `HandleReceivedData` event, and call `Parse` with a minimum and maximum
 set to the length of the header field. Once the parse succeeded, it would call
-`advanceReceiveCursor` with the length of the header field, and then call
-`deliverAndAdvanceReceiveCursor` with the length of the body that was parsed from
+`AdvanceReceiveCursor` with the length of the header field, and then call
+`DeliverAndAdvanceReceiveCursor` with the length of the body that was parsed from
 the header, marking the new Message as complete.
 
 # Managing Connections {#introspection}
