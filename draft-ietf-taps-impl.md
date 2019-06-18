@@ -669,6 +669,7 @@ Protocols also define a notion of Data Unit. Possible values for Data Unit are:
 ## TCP {#tcp}
 
 Connectedness: Connected
+
 Data Unit: Byte-stream
 
 API mappings for TCP are as follows:
@@ -715,6 +716,7 @@ Abort:
 ## UDP
 
 Connectedness: Unconnected
+
 Data Unit: Datagram
 
 API mappings for UDP are as follows:
