@@ -650,19 +650,113 @@ The reasonable lifetime for cached performance values will vary depending on the
 
 # Specific Transport Protocol Considerations
 
+Each protocol that can run as part of a Transport Services implementation defines both its API mapping as well as implementation details.
+
+API mappings for a protocol apply most to Connections in which the given protocol is the "top" of the Protocol Stack. For example, the mapping of the `Send` function for TCP applies to Connections in which the application directly sends over TCP. If HTTP/2 is used on top of TCP, the HTTP/2 mappings take precendence.
+
+Each protocol has a notion of Connectedness. Possible values for Connectedness are:
+
+- Unconnected. Unconnected protocols do not establish explicit state between endpoints, and do not perform a handshake during Connection establishment.
+- Connected. Connected protocols establish state between endpoints, and perform a handshake during Connection establishment. The handshake may be 0-RTT to send data or resume a session, but bidirectional traffic is required to confirm connectedness.
+- Multiplexing Connected. Multiplexing Connected protocols share properties with Connected protocols, but also explictly support opening multiple application-level flows. This means that they can support cloning new Connection objects without a new explicit handshake.
+
+Protocols also define a notion of Data Unit. Possible values for Data Unit are:
+
+- Byte-stream. Byte-stream protocols do not define any Message boundaries of their own apart from the end of a stream in each direction.
+- Datagram. Datagram protocols define Message boundaries at the same level of transmission, such that only complete (not partial) Messages are supported.
+- Message. Message protocols support Message boundaries that can be sent and received either as complete or partial Messages. Maximum Message lengths can be defined, and Messages can be partially reliable.
+
 ## TCP {#tcp}
 
-Connection lifetime for TCP translates fairly simply into the the abstraction presented to an application. When the TCP three-way handshake is complete, its layer of the Protocol Stack can be considered Ready (established). This event will cause racing of Protocol Stack options to complete if TCP is the top-level protocol, at which point the application can be notified that the Connection is Ready to send and receive.
+Connectedness: Connected
+Data Unit: Byte-stream
 
-If the application sends a Close, that can translate to a graceful termination of the TCP connection, which is performed by sending a FIN to the remote endpoint. If the application sends an Abort, then the TCP state can be closed abruptly, leading to a RST being sent to the peer.
+API mappings for TCP are as follows:
 
-Without a layer of framing (a top-level protocol in the established Protocol Stack that preserves message boundaries, or an application-supplied deframer) on top of TCP, the receiver side of the transport system implementation can only treat the incoming stream of bytes as a single Message, terminated by a FIN when the Remote Endpoint closes the Connection.
+Connection Object:
+: TCP connections between two hosts maps directly to Connection objects.
+
+Initiate:
+: Calling `Initiate` on a TCP Connection causes it to reserve a local port, and send a SYN to the Remote Endpoint.
+
+InitiateWithSend:
+: Early idempotent data is sent on a TCP Connection in the SYN, as TCP Fast Open data.
+
+Ready:
+: A TCP Connection is ready once the three-way handshake is complete.
+
+InitiateError:
+: TCP can throw various errors during connection setup. Specifically, it is important to handle a RST being sent by the peer during the handshake.
+
+ConnectionError:
+: Once established, TCP throws errors whenever the connection is disconnected, such as due to receive a RST from the peer; or hitting a TCP retransmission timeout. 
+
+Listen:
+: Calling `Listen` for TCP binds a local port and prepares it to receive inbound SYN packets from peers.
+
+ConnectionReceived:
+: TCP Listeners will deliver new connections once they have replied to an inbound SYN with a SYN-ACK.
+
+Clone:
+: Calling `Clone` on a TCP Connection creates a new Connection with equivalent parameters. The two Connections are otherwise independent.
+
+Send:
+: TCP does not on its own preserve Message boundaries. Calling `Send` on a TCP connection lays out the bytes on the TCP send stream without any other delineation. Any Message marked as Final will cause TCP to send a FIN once the Message has been completely written.
+
+Receive:
+: TCP delivers a stream of bytes without any Message delineation. All data delivered in the `Received` or `ReceivedPartial` event will be part of a single stream-wide Message that is marked Final (unless a MessageFramer is used). EndOfMessage will be delivered when the TCP Connection has received a FIN from the peer.
+
+Close:
+: Calling `Close` on a TCP Connection indicates that the Connection should be gracefully closed by sending a FIN to the peer and waiting for a FIN-ACK before delivering the `Closed` event.
+
+Abort:
+: Calling `Abort` on a TCP Connection indicates that the Connection should be immediately closed by sending a RST to the peer.
 
 ## UDP
 
-UDP as a direct transport does not provide any handshake or connectivity state, so the notion of the transport protocol becoming Ready or established is degenerate. Once the system has validated that there is a route on which to send and receive UDP datagrams, the protocol is considered Ready. Similarly, a Close or Abort has no meaning to the on-the-wire protocol, but simply leads to the local state being torn down.
+Connectedness: Unconnected
+Data Unit: Datagram
 
-When sending and receiving messages over UDP, each Message should correspond to a single UDP datagram. The Message can contain metadata about the packet, such as the ECN bits applied to the packet.
+API mappings for UDP are as follows:
+
+Connection Object:
+: UDP connections represent a pair of specific IP addresses and ports on two hosts.
+
+Initiate:
+: Calling `Initiate` on a UDP Connection causes it to reserve a local port, but does not generate any traffic.
+
+InitiateWithSend:
+: Early data on a UDP Connection does not have any special meaning. The data is sent whenever the Connection is Ready.
+
+Ready:
+: A UDP Connection is ready once the system has reserved a local port and has a path to send to the Remote Endpoint.
+
+InitiateError:
+: UDP Connections can only generate errors on initiation due to port conflicts on the local system.
+
+ConnectionError:
+: Once in use, UDP throws errors upon receiving ICMP notifications indicating failures in the network. 
+
+Listen:
+: Calling `Listen` for UDP binds a local port and prepares it to receive inbound UDP datagrams from peers.
+
+ConnectionReceived:
+: UDP Listeners will deliver new connections once they have received traffic from a new Remote Endpoint.
+
+Clone:
+: Calling `Clone` on a UDP Connection creates a new Connection with equivalent parameters. The two Connections are otherwise independent.
+
+Send:
+: Calling `Send` on a UDP connection sends the data as the payload of a complete UDP datagram. Marking Messages as Final does not change anything in the datagram's contents.
+
+Receive:
+: UDP only delivers complete Messages to `Received`, each of which represents a single datagram received in a UDP packet.
+
+Close:
+: Calling `Close` on a UDP Connection releases the local port reservation.
+
+Abort:
+: Calling `Abort` on a UDP Connection is identical to calling `Close`.
 
 ## SCTP
 
