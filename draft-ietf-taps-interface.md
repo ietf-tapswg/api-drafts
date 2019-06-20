@@ -1810,7 +1810,7 @@ into individual transport datagrams.
 ## Defining Message Framers
 
 A Message Framer is primarily defined by the set of code that handles events
-for the Framer, specifically how it handles inbound and outbound data
+for a framer implementation, specifically how it handles inbound and outbound data
 parsing.
 
 Applications can instantiate a Message Framer upon which they will receive
@@ -1820,9 +1820,13 @@ framing events, or use a Message Framer defined by another library.
 framer := NewMessageFramer()
 ~~~
 
+Message Framer objects will deliver events to code that is written either as
+part of the application or a helper library. This piece of code will be referred
+to as the "framer implementation".
+
 ## Adding Message Framers to Connections
 
-The Message Framer object can then be added to one or more Preconnections
+The Message Framer object can be added to one or more Preconnections
 to run on top of transport protocols. Multiple Framers may be added. If multiple
 Framers are added, the last one added runs first when framing outbound messages,
 and last when parsing inbound data.
@@ -1830,6 +1834,9 @@ and last when parsing inbound data.
 ~~~
 Preconnection.AddFramer(framer)
 ~~~
+
+Framers have the ability to also dynamically modify Protocol Stacks, as
+described in {{framer-lifetime}}.
 
 When sending Messages, applications can add specific Message
 values to a MessageContext ({{message-props}}) that is intended for a Framer.
@@ -1849,13 +1856,13 @@ it can also look to see if a value was set by a specific Message Framer.
 messageContext.get(framer, key) -> value
 ~~~
 
-## Message Framer Lifetime
+## Message Framer Lifetime {#framer-lifetime}
 
 When a Connection establishment attempt begins, an event is delivered to
-notify the Framer that a new Connection is being created.
+notify the framer implementation that a new Connection is being created.
 Similarly, a stop event is delivered when a Connection is being torn down.
-The Framer can use the Connection object to look up specific properties
-of the connection or the network being used that may influence how
+The framer implementation can use the Connection object to look up specific
+properties of the Connection or the network being used that may influence how
 to frame Messages.
 
 ~~~
@@ -1863,25 +1870,25 @@ MessageFramer -> Start(Connection)
 MessageFramer -> Stop(Connection)
 ~~~
 
-When Message Framer receives a `Start` event, it has the opportunity to start
-writing some data on the Connection prior to the Connection delivering its
-`Ready` event. This allows the Framer to communicate control data to the
+When Message Framer generates a `Start` event, the framer implementation
+has the opportunity to start writing some data prior to the Connection delivering
+its `Ready` event. This allows the implementation to communicate control data to the
 remote endpoint that can be used to parse Messages.
 
 ~~~
 MessageFramer.MakeConnectionReady(Connection)
 ~~~
 
-At any time if the Message Framer encounters a fatal error, it can also cause the Connection
+At any time if the implementation encounters a fatal error, it can also cause the Connection
 to fail and provide an error.
 
 ~~~
 MessageFramer.FailConnection(Connection, Error)
 ~~~
 
-Before a Message Framer marks itself as ready, it can also dynamically add a protocol or framer
-above it in the stack. This allows protocols like STARTTLS, that need to add TLS conditionally,
-to modify the Protocol Stack based on a handshake result.
+Before an implementation marks a Message Framer as ready, it can also dynamically
+add a protocol or framer above it in the stack. This allows protocols like STARTTLS,
+that need to add TLS conditionally, to modify the Protocol Stack based on a handshake result.
 
 ~~~
 otherFramer := NewMessageFramer()
@@ -1890,13 +1897,13 @@ MessageFramer.PrependFramer(Connection, otherFramer)
 
 ## Sender-side Message Framing {#send-framing}
 
-Message Framers deliver an event whenever a Connection sends a new Message.
+Message Framers generate an event whenever a Connection sends a new Message.
 
 ~~~
 MessageFramer -> NewSentMessage<Connection, MessageData, MessageContext, IsEndOfMessage>
 ~~~
 
-Upon receiving this event, a Message Framer implementation is responsible for
+Upon receiving this event, a framer implementation is responsible for
 performing any necessary transformations and sending the resulting data to the next
 protocol. Implementations SHOULD ensure that there is a way to pass the original data
 through without copying to improve performance.
@@ -1913,27 +1920,27 @@ Message data.
 ## Receiver-side Message Framing {#receive-framing}
 
 In order to parse an received flow of data into Messages, the Message Framer
-is first notified whenever new data is available to parse.
+notifies the framer implementation whenever new data is available to parse.
 
 ~~~
 MessageFramer -> HandleReceivedData<Connection>
 ~~~
 
-Upon receiving this event, a Message Framer can inspect the inbound data. The
+Upon receiving this event, the framer implementation can inspect the inbound data. The
 data is parsed from a particular cursor representing the unprocessed data. The
-Framer requests a specific amount of data it needs to have available in order to parse.
+application requests a specific amount of data it needs to have available in order to parse.
 If the data is not available, the parse fails.
 
 ~~~
-MessageFramer.Parse(Connection, MinimumIncompleteLength, MaximumLength) -> (Data?, IsEndOfMessage?)
+MessageFramer.Parse(Connection, MinimumIncompleteLength, MaximumLength) -> (Data, MessageContext, IsEndOfMessage)
 ~~~
 
-The Message Framer can directly advance the receive cursor once it has
+The framer implementation can directly advance the receive cursor once it has
 parsed data to effectively discard data (for example, discard a header
 once the content has been parsed).
 
-To deliver a Message to the application, the Framer can either directly
-send data that it has created, or deliver a range of data directly from the underlying
+To deliver a Message to the application, the framer implementation can either directly
+deliever data that it has allocated, or deliver a range of data directly from the underlying
 transport and simulatenously advance the receive cursor.
 
 ~~~
@@ -1942,9 +1949,9 @@ MessageFramer.DeliverAndAdvanceReceiveCursor(Connection, MessageContext, Length,
 MessageFramer.Deliver(Connection, MessageContext, Data, IsEndOfMessage)
 ~~~
 
-Note that `MessageFramer.DeliverAndAdvanceReceiveCursor` allows the Framer to earmark bytes
-as part of a Message even before they are received by the transport. This allows the delivery
-of very large Messages without requiring the Framer to directly inspect all of the octets.
+Note that `MessageFramer.DeliverAndAdvanceReceiveCursor` allows the framer implementation
+to earmark bytes as part of a Message even before they are received by the transport. This allows the delivery
+of very large Messages without requiring the implementation to directly inspect all of the octets.
 
 To provide an example, a simple protocol that parses a length as a header value would
 receive the `HandleReceivedData` event, and call `Parse` with a minimum and maximum
