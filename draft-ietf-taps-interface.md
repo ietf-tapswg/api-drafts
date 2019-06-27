@@ -70,10 +70,10 @@ author:
     ins: P. Tiesel
     name: Philipp S. Tiesel
     org: TU Berlin
-    street: Marchstrasse 23
+    street: Einsteinufer 25
     city: 10587 Berlin
     country: Germany
-    email: philipp@inet.tu-berlin.de
+    email: philipp@tiesel.net
   -
     ins: C. Wood
     name: Chris Wood
@@ -278,10 +278,10 @@ application can choose to receive only complete messages.
 
 If none of the available transport protocols provides Preservation of Message
 Boundaries, but there is a transport protocol which provides a reliable ordered
-octet stream, an application may receive this octet stream as partial
+byte stream, an application may receive this byte stream as partial
 Messages and transform it into application-layer Messages.  Alternatively,
-an application may provide a Deframer, which is a function that transforms an
-octet stream into a sequence of Messages, see {{receive-framing}}.
+an application may provide a Deframer, which is a function that transforms a
+byte stream into a sequence of Messages, see {{receive-framing}}.
 
 
 ### Server Example
@@ -308,9 +308,9 @@ Preconnection := NewPreconnection(LocalSpecifier,
                                   TransportProperties,
                                   SecurityParameters)
 
-Preconnection.Listen()
+Listener := Preconnection.Listen()
 
-Preconnection -> ConnectionReceived<Connection>
+Listener -> ConnectionReceived<Connection>
 
 // Only receive complete messages
 Connection.Receive()
@@ -322,7 +322,7 @@ Connection.Send(messageDataResponse)
 Connection.Close()
 
 // Stop listening for incoming Connections
-Preconnection.Stop()
+Listener.Stop()
 ~~~
 
 
@@ -418,13 +418,13 @@ Connection.Close()
 Each application using the Transport Services Interface declares its preferences
 for how the transport service should operate using properties at each stage of
 the lifetime of a connection. During pre-establishment, Selection Properties
-(see {{selection-props}}) are used to specify which paths and protocol stacks 
+(see {{selection-props}}) are used to specify which paths and protocol stacks
 can be used and are preferred by the application, and Connection Properties
-(see {{connection-props}}) can be used to influence decisions made during 
+(see {{connection-props}}) can be used to influence decisions made during
 establishment and to fine-tune the eventually established connection.
 These Connection Properties can also be used later, to monitor and
-fine-tune established connections. 
-The behavior of the selected protocol stack(s) when sending Messages is 
+fine-tune established connections.
+The behavior of the selected protocol stack(s) when sending Messages is
 controlled by Message Properties (see {{message-props}}).
 
 Collectively, Selection, Connection, and Message Properties can be
@@ -436,16 +436,16 @@ stages:
  - Message Properties can be set on Preconnections and Connections
  - The effect of Selection Properties can be queried on Connections and Messages
 
-Note that Configuring Connection Properties and Message Properties on 
+Note that Configuring Connection Properties and Message Properties on
 Preconnections is preferred over setting them later.
 Connection Properties specified early on may be used as additional input to
-the selection process. 
+the selection process.
 Also note that Protocol Specific Properties, see {{property-names}}, should not be used as an input to the selection process.
 
 
 ### Transport Property Names {#property-names}
 
-Transport Properties are referred to by property names. These names are 
+Transport Properties are referred to by property names. These names are
 lower-case strings whereby words are separated by hyphens.
 These names serve two purposes:
 
@@ -453,7 +453,7 @@ These names serve two purposes:
   Properties, e.g., between a language frontend and a policy manager.
 - Make code of different TAPS implementations look similar.
 
-Transport Property Names are hierarchically organized in the 
+Transport Property Names are hierarchically organized in the
 form \[\<Namespace>.\]\<PropertyName\>.
 
 - The Namespace part is empty for well known, generic properties, i.e.,
@@ -462,7 +462,7 @@ form \[\<Namespace>.\]\<PropertyName\>.
   Namespace, e.g., “tcp" for TCP specific Transport Properties.
   For IETF protocols, property names under these namespaces should
   be defined in an RFC.
-- Vendor or implementation specific properties must use a 
+- Vendor or implementation specific properties must use a
   a string identifying the vendor or implementation as Namespace.
 
 ### Transport Property Types {#property-types}
@@ -644,10 +644,8 @@ indicates a preference for a specific path by specifying an interface, but also 
 preference for a protocol not available on this path, the transport system will
 try the path first, ignoring the preference.
 
-Both Selection and Connection Properties can be added to a Preconnection to
-configure the selection process, and to further configure the eventually
-selected protocol stack(s). They are collected into a TransportProperties object
-to be passed into a Preconnection object:
+Selection, and Connection Properties, as well as defaults for Message Properties, can be added to a Preconnection to configure the selection process, and to further configure the eventually selected protocol stack(s).
+They are collected into a TransportProperties object to be passed into a Preconnection object:
 
 ~~~
 TransportProperties := NewTransportProperties()
@@ -1048,7 +1046,7 @@ candidate transport-layer connections to be created to the specified remote
 endpoint. The caller may immediately begin sending Messages on the Connection
 (see {{sending}}) after calling Initate(); note that any idempotent data sent
 while the Connection is being established may be sent multiple times or on
-multiple candidates. 
+multiple candidates.
 
 The following Events may be sent by the Connection after Initiate() is called:
 
@@ -1081,35 +1079,35 @@ and transmission of the first message in a single action.
 
 Passive open is the Action of waiting for Connections from remote endpoints,
 commonly used by servers in client-server interactions. Passive open is
-supported by this interface through the Listen Action:
+supported by this interface through the Listen Action and returns a Listener object:
 
 ~~~
-Preconnection.Listen()
+Listener := Preconnection.Listen()
 ~~~
 
 Before calling Listen, the caller must have initialized the Preconnection
 during the pre-establishment phase with a Local Endpoint specifier, as well
 as all properties necessary for Protocol Stack selection. A Remote Endpoint
 may optionally be specified, to constrain what Connections are accepted.
-The Listen() Action consumes the Preconnection. Once Listen() has been
-called, no further properties may be added to the Preconnection, and no
-subsequent establishment call may be made on the Preconnection.
+The Listen() Action returns a Listener object. Once Listen() has been
+called, properties added to the Preconnection have no effect on the Listener
+and the Preconnection can be disposed of or reused.
 
 Listening continues until the global context shuts down, or until the Stop
-action is performed on the same Preconnection:
+action is performed on the Listener object:
 
 ~~~
-Preconnection.Stop()
+Listener.Stop()
 ~~~
 
-After Stop() is called, the preconnection can be disposed of.
+After Stop() is called, the Listener can be disposed of.
 
 ~~~
-Preconnection -> ConnectionReceived<Connection>
+Listener -> ConnectionReceived<Connection>
 ~~~
 
 The ConnectionReceived Event occurs when a Remote Endpoint has established a
-transport-layer connection to this Preconnection (for Connection-oriented
+transport-layer connection to this Listener (for Connection-oriented
 transport protocols), or when the first Message has been received from the
 Remote Endpoint (for Connectionless protocols), causing a new Connection to be
 created. The resulting Connection is contained within the ConnectionReceived
@@ -1117,18 +1115,18 @@ event, and is ready to use as soon as it is passed to the application via the
 event.
 
 ~~~
-Preconnection -> ListenError<>
+Listener -> ListenError<>
 ~~~
 
-A ListenError occurs either when the Preconnection cannot be fulfilled for
+A ListenError occurs either when the Properties of the Preconnection cannot be fulfilled for
 listening, when the Local Endpoint (or Remote Endpoint, if specified) cannot
 be resolved, or when the application is prohibited from listening by policy.
 
 ~~~
-Preconnection -> Stopped<>
+Listener -> Stopped<>
 ~~~
 
-A Stopped event occurs after the Preconnection has stopped listening.
+A Stopped event occurs after the Listener has stopped listening.
 
 ## Peer-to-Peer Establishment: Rendezvous {#rendezvous}
 
@@ -1194,7 +1192,7 @@ remote.
 
 ## Connection Groups {#groups}
 
-Groups of Connections can be created using the Clone Action:
+Entangled Connections can be created using the Clone Action:
 
 ~~~
 Connection := Connection.Clone()
@@ -1207,14 +1205,28 @@ Group. Calling Clone on any of these two Connections adds a third Connection to
 the Connection Group, and so on. Connections in a Connection Group share all
 Protocol Properties that are not applicable to a Message.
 
-Changing one of these Protocol Properties on one Connection in the group changes it for all others. Per-Message Protocol Properties, however, are not entangled.
-For example, changing "Timeout for aborting Connection" (see {{conn-timeout}}) on one Connection in a group will automatically change this Protocol Property for all Connections in the group in the same way. However, changing "Lifetime" (see {{msg-lifetime}}) of a Message will only affect a single Message on a single Connection, entangled or not.
+In addition, incoming entangled Connections can be received by creating a
+Listener on an existing connection:
 
-If the underlying protocol supports multi-streaming, it is natural to use this functionality to implement Clone. In that case, entangled Connections are multiplexed together, giving them similar treatment not only inside endpoints but also across
-the end-to-end Internet path.
+~~~
+Listener := Connection.Listen()
+~~~
+
+Changing one of these Protocol Properties on one Connection in the group
+changes it for all others. Per-Message Protocol Properties, however, are not
+entangled. For example, changing "Timeout for aborting Connection" (see
+{{conn-timeout}}) on one Connection in a group will automatically change this
+Protocol Property for all Connections in the group in the same way. However,
+changing "Lifetime" (see {{msg-lifetime}}) of a Message will only affect a
+single Message on a single Connection, entangled or not.
+
+If the underlying protocol supports multi-streaming, it is natural to use this
+functionality to implement Clone. In that case, entangled Connections are
+multiplexed together, giving them similar treatment not only inside endpoints
+but also across the end-to-end Internet path.
 
 If the underlying Protocol Stack does not support cloning, or cannot create a
-new stream on the given Connection, then attempts to clone a connection will
+new stream on the given Connection, then attempts to clone a Connection will
 result in a CloneError:
 
 ~~~
@@ -1236,7 +1248,7 @@ capacity that it sees fit.
 # Sending Data {#sending}
 
 Once a Connection has been established, it can be used for sending data. Data is
-sent in terms of Messages, which allow the application to communicate the boundaries
+sent as Messages, which allow the application to communicate the boundaries
 of the data being transferred. By default, Send enqueues a complete Message,
 and takes optional per-Message properties (see {{send-basic}}). All Send actions
 are asynchronous, and deliver events (see {{send-events}}). Sending partial
@@ -1260,11 +1272,11 @@ The optional endOfMessage parameter supports partial sending and is described in
 
 The most basic form of sending on a connection involves enqueuing a single Data
 block as a complete Message, with default Message Properties. Message data is
-created as an array of octets, and the resulting object contains both the byte
+transferred as an array of bytes, and the resulting object contains both the byte
 array and the length of the array.
 
 ~~~
-messageData := "hello".octets()
+messageData := "hello".bytes()
 Connection.Send(messageData)
 ~~~
 
@@ -1275,7 +1287,7 @@ Request for HTTP Connections.
 
 Some transport protocols can deliver arbitrarily sized Messages, but other
 protocols constrain the maximum Message size. Applications can query the
-protocol property Maximum Message Size on Send to determine the maximum size
+Connection Property "Maximum Message size on send" ({{conn-max-msg-send}}) to determine the maximum size
 allowed for a single Message. If a Message is too large to fit in the Maximum Message
 Size for the Connection, the Send will fail with a SendError event ({{send-error}}). For
 example, it is invalid to send a Message over a UDP connection that is larger than
@@ -1297,7 +1309,7 @@ The concept of Message Contexts is described in {{msg-ctx}}.
 ## Send Events {#send-events}
 
 Like all Actions in this interface, the Send Action is asynchronous. There are
-several events that can be delivered in response to Sending a Message.
+several Events that can be delivered in response to Sending a Message.
 
 Note that if partial Sends are used ({{send-partial}}), there will still be exactly
 one Send Event delivered for each call to Send. For example, if a Message
@@ -1312,8 +1324,8 @@ Connection -> Sent<messageContext>
 
 The Sent Event occurs when a previous Send Action has completed, i.e., when
 the data derived from the Message has been passed down or through the
-underlying Protocol Stack and is no longer the responsibility of the
-implementation of this interface. The exact disposition of the Message (i.e.,
+underlying Protocol Stack and is no longer the responsibility of
+this interface. The exact disposition of the Message (i.e.,
 whether it has actually been transmitted, moved into a buffer on the network
 interface, moved into a kernel buffer, and so on) when the Sent Event occurs
 is implementation-specific. The Sent Event contains an implementation-specific
@@ -1350,8 +1362,6 @@ set of Message Properties not consistent with the Connection's transport
 properties. The SendError contains an implementation-specific reference to the
 Message to which it applies.
 
-
-
 ## Message Properties {#message-props}
 
 Applications may need to annotate the Messages they send with extra information
@@ -1367,14 +1377,13 @@ Message to still be sent.
 A MessageContext object contains  and metadata for  Messages to be sent or received.
 
 ~~~
-messageData := "hello".octets()
+messageData := "hello".bytes()
 messageContext := NewMessageContext()
 messageContext.add(parameter, value)
 Connection.Send(messageData, messageContext)
 ~~~
 
-The simpler form of Send that does not take any messageContext is equivalent
-to passing a default MessageContext with not values added.
+The simpler form of Send, which does not take any messageContext, is equivalent to passing a default MessageContext without adding any Message Properties to it.
 
 If an application wants to override Message Properties for a specific message,
 it can acquire an empty MessageContext Object and add all desired Message
@@ -1401,6 +1410,9 @@ Name:
 Type:
 : Integer
 
+Recommended default:
+: infinite
+
 Lifetime specifies how long a particular Message can wait to be sent to the
 remote endpoint before it is irrelevant and no longer needs to be
 (re-)transmitted. This is a hint to the transport system -- it is not guaranteed
@@ -1418,6 +1430,9 @@ Name:
 
 Type:
 : Integer (non-negative)
+
+Recommended default:
+: 100
 
 This property represents a hierarchy of priorities.
 It can specify the priority of a Message, relative to other Messages sent over the
@@ -1440,11 +1455,13 @@ Name:
 Type:
 : Boolean
 
+Default:
+: true
+
 If true, it specifies that the receiver-side transport protocol stack only deliver the Message to the receiving application after the previous ordered Message which was passed to the same Connection via the Send
 Action, when such a Message exists. If false, the Message may be delivered to the receiving application out of order.
 This property is used for protocols that support preservation of data ordering,
 see {{prop-ordering}}, but allow out-of-order delivery for certain messages.
-
 
 ### Idempotent {#msg-idempotent}
 
@@ -1454,10 +1471,20 @@ Name:
 Type:
 : Boolean
 
+Default:
+: false
+
 If true, it specifies that a Message is safe to send to the remote endpoint
 more than once for a single Send Action. It is used to mark data safe for
 certain 0-RTT establishment techniques, where retransmission of the 0-RTT data
 may cause the remote application to receive the Message multiple times.
+
+Note that for protocols that do not protect against duplicated messages,
+e.g., UDP, all messages MUST be marked as Idempotent.
+In order to enable protocol selection to choose such a protocol,
+Idempotent MUST be added to the TransportProperties passed to the
+Preconnection. If such a protocol was chosen, disabling Idempotent on
+individual messages MUST result in a SendError.
 
 ### Final {#msg-final}
 
@@ -1466,6 +1493,9 @@ Type:
 
 Name:
 : final
+
+Default:
+: false
 
 If true, this Message is the last one that
 the application will send on a Connection. This allows underlying protocols
@@ -1488,12 +1518,15 @@ Name:
 Type:
 : Integer (non-negative with -1 as special value)
 
-This property specifies the length of the section of the Message,
+Default:
+: full coverage
+
+This property specifies the minimum length of the section of the Message,
 starting from byte 0, that the application requires to be delivered without
 corruption due to lower layer errors. It is used to specify options for simple
-integrity protection via checksums. By default, the entire Message is protected
-by a checksum. A value of 0 means that no checksum is required, and a special
-value (e.g. -1) can be used to indicate the default. Only full coverage is
+integrity protection via checksums. A value of 0 means that no checksum
+is required, and -1 means
+that the entire Message is protected by a checksum. Only full coverage is
 guaranteed, any other requests are advisory.
 
 ### Reliable Data Transfer (Message) {#msg-reliable-message}
@@ -1503,6 +1536,9 @@ Name:
 
 Type:
 : Boolean
+
+Default:
+: true
 
 When true, this property specifies that a message should be sent in such a way
 that the transport protocol ensures all data is received on the other side
@@ -1550,13 +1586,15 @@ Name:
 Type:
 : Boolean
 
+Default:
+: false
+
 This property specifies that a message should be sent and received as a single
 packet without transport-layer segmentation or network-layer fragmentation.
 Attempts to send a message with this property set with a size greater to the
 transport's current estimate of its maximum transmission segment size will
 result in a `SendError`. When used with transports supporting this functionality
 and running over IP version 4, the Don't Fragment bit will be set.
-
 
 ## Partial Sends {#send-partial}
 
@@ -1575,11 +1613,11 @@ The following example sends a Message in two separate calls to Send.
 messageContext := NewMessageContext()
 messageContext.add(parameter, value)
 
-messageData := "hel".octets()
+messageData := "hel".bytes()
 endOfMessage := false
 Connection.Send(messageData, messageContext, endOfMessage)
 
-messageData := "lo".octets()
+messageData := "lo".bytes()
 endOfMessage := true
 Connection.Send(messageData, messageContext, endOfMessage)
 ~~~
@@ -1591,7 +1629,7 @@ MessageContext object may be re-used as a new Message with identical parameters.
 
 ## Batching Sends {#send-batching}
 
-In order to reduce the overhead of sending multiple small Messages on a Connection, the
+To reduce the overhead of sending multiple small Messages on a Connection, the
 application may want to batch several Send actions together. This provides a hint to
 the system that the sending of these Messages should be coalesced when possible,
 and that sending any of the batched Messages may be delayed until the last Message
@@ -1632,7 +1670,7 @@ establishment.
 
 Sender-side framing allows a caller to provide the interface with a function
 that takes a Message of an appropriate application-layer type and returns an
-array of octets, the on-the-wire representation of the Message to be handed down
+array of bytes, the on-the-wire representation of the Message to be handed down
 to the Protocol Stack. It consists of a Framer Object with a single Action,
 Frame. Since the Framer depends on the protocol used at the application layer,
 it is bound to the Preconnection during the pre-establishment phase:
@@ -1640,7 +1678,7 @@ it is bound to the Preconnection during the pre-establishment phase:
 ~~~
 Preconnection.FrameWith(Framer)
 
-OctetArray := Framer.Frame(messageData)
+ByteArray := Framer.Frame(messageData)
 ~~~
 
 Sender-side framing is a convenience feature of the interface, for parity with
@@ -1703,25 +1741,20 @@ when it is temporarily not ready to receive messages.
 Connection -> Received<messageData, messageContext>
 ~~~
 
-A Received event indicates the delivery of a complete Message. It contains two
-objects, the received bytes as messageData, and the metadata and properties of
-the received Message as messageContext.
+A Received event indicates the delivery of a complete Message. It contains two objects,
+the received bytes as messageData, and the metadata and properties of the received
+Message as messageContext. See {{msg-context}} for details about the received context.
 
-The messageData object provides access to the bytes that were received for this
-Message, along with the length of the byte array.
+The messageData object provides access to the bytes that were received for this Message,
+along with the length of the byte array.
 
-The messageContext is provided to retrieve metadata about the message, see
-{{msg-ctx}}, and to refer to the message later on, e.g., to enable to map
-responses to the message to the same underlying transport connection or stream,
-see {{send-replies}}.
-
-See {{receive-framing}} for handling Message framing in situations where the
-Protocol Stack provides octet-stream transport only.
+See {{receive-framing}} for handling Message framing in situations where the Protocol
+Stack provides byte-stream transport only.
 
 ### ReceivedPartial {#receive-partial}
 
 ~~~
-Connection -> ReceivedPartial<messageData, messageContext, messageContext, endOfMessage>
+Connection -> ReceivedPartial<messageData, messageContext, endOfMessage>
 ~~~
 
 If a complete Message cannot be delivered in one event, one part of the Message
@@ -1729,7 +1762,7 @@ may be delivered with a ReceivedPartial event. In order to continue to receive m
 of the same Message, the application must invoke Receive again.
 
 Multiple invocations of ReceivedPartial deliver data for the same Message by
-passing the same MessageContext and messageContext, until the endOfMessage flag is delivered or a
+passing the same MessageContext, until the endOfMessage flag is delivered or a
 ReceiveError occurs. All partial blocks of a single Message are delivered in
 order without gaps. This event does not support delivering discontiguous partial
 Messages.
@@ -1834,7 +1867,7 @@ sent by the remote endpoint; i.e., it is a desired property of this interface
 that a Send at one end of a Connection maps to exactly one Receive on the
 other end. This is possible with Protocol Stacks that provide
 message boundary preservation, but is not the case over Protocol Stacks that
-provide a simple octet stream transport.
+provide a simple byte stream transport.
 
 For preserving message boundaries over stream transports, this interface
 provides receiver-side de-framing. This facility is based on the observation
@@ -1842,13 +1875,13 @@ that, since many of our current application protocols evolved over TCP, which
 does not provide message boundary preservation, and since many of these protocols
 require message boundaries to function, each application layer protocol has
 defined its own framing. A Deframer allows an application to push this
-de-framing down into the interface, in order to transform an octet stream into
+de-framing down into the interface, in order to transform an byte stream into
 a sequence of Messages.
 
 Concretely, receiver-side de-framing allows a caller to provide the interface
-with a function that takes an octet stream, as provided by the underlying
+with a function that takes an byte stream, as provided by the underlying
 Protocol Stack, reads and returns a single Message of an appropriate type for
-the application and platform, and leaves the octet stream at the start of the
+the application and platform, and leaves the byte stream at the start of the
 next Message to deframe. It consists of a Deframer Object with a single Action,
 Deframe. Since the Deframer depends on the protocol used at the application
 layer, it is bound to the Preconnection during the pre-establishment phase:
@@ -1856,7 +1889,7 @@ layer, it is bound to the Preconnection during the pre-establishment phase:
 ~~~
 Preconnection.DeframeWith(Deframer)
 
-{messageData} := Deframer.Deframe(OctetStream)
+{messageData} := Deframer.Deframe(ByteStream)
 ~~~
 
 # Managing Connections {#introspection}
@@ -1932,7 +1965,7 @@ Properties will include different information:
 ## Generic Connection Properties {#connection-props}
 
 The Connection Properties defined as independent, and available on all
-Connections are defined in the subsections below. 
+Connections are defined in the subsections below.
 
 Note that many protocol properties have a corresponding selection property, which
 prefers protocols providing a specific transport feature that controlled by
@@ -1958,6 +1991,9 @@ Name:
 
 Type:
 : Integer
+
+Default:
+: -1
 
 This property specifies the part of the received data that needs
 to be covered by a checksum. It is given in Bytes. A value of 0 means
@@ -2013,7 +2049,7 @@ Type:
 
 This property represents the maximum Message size that can be sent
 before or during Connection establishment, see also {{msg-idempotent}}.
-It is given in Bytes. 
+It is given in Bytes.
 
 ### Maximum Message size before fragmentation or segmentation {#conn-max-msg-notfrag}
 
@@ -2025,7 +2061,7 @@ Type:
 
 This property, if applicable, represents the maximum Message size that can be
 sent without incurring network-layer fragmentation or transport layer
-segmentation at the sender. 
+segmentation at the sender.
 
 ### Maximum Message size on send {#conn-max-msg-send}
 
@@ -2035,7 +2071,7 @@ Name:
 Type:
 : Integer (read only)
 
-This property represents the maximum Message size that can be sent. 
+This property represents the maximum Message size that can be sent.
 
 ### Maximum Message size on receive {#conn-max-msg-recv}
 
@@ -2059,7 +2095,7 @@ is set to a value other than Default, the transport system should select paths
 and profiles to optimize for the capacity profile specified. The following
 values are valid for the Capacity Profile:
 
-  Default: 
+  Default:
   : The application makes no representation about its expected capacity
   profile. No special optimizations of the tradeoff between delay, delay
   variation, and bandwidth efficiency should be made when selecting and
@@ -2069,7 +2105,7 @@ values are valid for the Capacity Profile:
   the Connection is multiplexed, the guidelines in section 6 of {{?RFC7657}}
   apply.
 
-  Scavenger: 
+  Scavenger:
   : The application is not interactive. It expects to send
   and/or receive data without any urgency. This can, for example, be used to
   select protocol stacks with scavenger transmission control and/or to assign
@@ -2079,7 +2115,7 @@ values are valid for the Capacity Profile:
   {{?LE-PHB=I-D.ietf-tsvwg-le-phb}} PHB; when the Connection is multiplexed, the
   guidelines in section 6 of {{?RFC7657}} apply.
 
-  Low Latency/Interactive: 
+  Low Latency/Interactive:
   : The application is interactive, and prefers loss to
   latency. Response time should be optimized at the expense of bandwidth
   efficiency and delay variation when sending on this connection. This can be
@@ -2091,7 +2127,7 @@ values are valid for the Capacity Profile:
   Expedited Forwarding {{?RFC3246}} PHB; when the Connection is multiplexed, the
   guidelines in section 6 of {{?RFC7657}} apply.
 
-  Low Latency/Non-Interactive: 
+  Low Latency/Non-Interactive:
   : The application prefers loss to latency but is
   not interactive. Response time should be optimized at the expense of bandwidth
   efficiency and delay variation when sending on this connection.Transport
@@ -2100,7 +2136,7 @@ values are valid for the Capacity Profile:
   Assured Forwarding (AF21,AF22,AF23,AF24) {{?RFC2597}} PHB; when the Connection
   is multiplexed, the guidelines in section 6 of {{?RFC7657}} apply.
 
-  Constant-Rate Streaming: 
+  Constant-Rate Streaming:
   : The application expects to send/receive data at a
   constant rate after Connection establishment. Delay and delay variation should
   be minimized at the expense of bandwidth efficiency. This implies that the
@@ -2112,7 +2148,7 @@ values are valid for the Capacity Profile:
   Assured Forwarding (AF31,AF32,AF33,AF34) {{?RFC2597}} PHB; when the Connection
   is multiplexed, the guidelines in section 6 of {{?RFC7657}} apply.
 
-  High Throughput Data: 
+  High Throughput Data:
   : The application expects to send/receive data at the
   maximum rate allowed by its congestion controller over a relatively long
   period of time. Transport system implementations that map the requested
@@ -2212,7 +2248,7 @@ Abort terminates a Connection without delivering remaining data:
 Connection.Abort()
 ~~~
 
-A ConnectionError informs the application that data to could not be delivered after a timeout, 
+A ConnectionError informs the application that data to could not be delivered after a timeout,
 or the other side has aborted the Connection; however, there is no guarantee that an Abort will indeed be signaled.
 
 ~~~
@@ -2225,7 +2261,7 @@ Connection -> ConnectionError<>
 As this interface is designed to be independent of an implementation's
 concurrency model, the
 details of how exactly actions are handled, and on which threads/callbacks
-events are dispatched, are implementation dependent. 
+events are dispatched, are implementation dependent.
 
 Each transition of connection state is associated with one of more events:
 
@@ -2447,7 +2483,7 @@ This is offered by the "Abort" action without promising that this is signaled to
 Reliability is controlled via the "Reliable Data Transfer (Message)" Message property. Transmitting data without delimiters is done by not using a Framer. The choice of congestion control is provided via the "Congestion control" property.
 
 * Configurable Message Reliability:  
-The "Lifetime" Message Property implements a time-based way to configure message reliability. 
+The "Lifetime" Message Property implements a time-based way to configure message reliability.
 
 * "Ordered message delivery (potentially slower than unordered)" and "Unordered message delivery (potentially faster than ordered)":  
 The two transport features are controlled via the Message property "Ordered".
