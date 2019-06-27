@@ -1295,14 +1295,14 @@ the available datagram sending size.
 
 ## Sending Replies {#send-replies}
 
-When a message is sent in responses to a message received, the application
+When a message is sent in response to a message received, the application
 may use the Message Context of the received Message to construct a Message Context for the reply.
 
 ~~~
-replyMessgeContext := reqestMessageContext.reply()
+replyMessgeContext := replyMessageContext.reply()
 ~~~
 
-By using the ```replyMessgeContext```, the transport system is informed that
+By using the ```replyMessageContext```, the transport system is informed that
 the message to be sent is a response and can map the response to the same underlying transport connection or stream the request was received from.
 The concept of Message Contexts is described in {{msg-ctx}}.
 
@@ -1374,7 +1374,7 @@ share properties specified in the Message Contexts. For example, it would not
 make sense to have the beginning of a Message expire, but allow the end of a
 Message to still be sent.
 
-A MessageContext object contains  and metadata for  Messages to be sent or received.
+A MessageContext object contains metadata for  Messages to be sent or received.
 
 ~~~
 messageData := "hello".bytes()
@@ -1741,12 +1741,11 @@ when it is temporarily not ready to receive messages.
 Connection -> Received<messageData, messageContext>
 ~~~
 
-A Received event indicates the delivery of a complete Message. It contains two objects,
-the received bytes as messageData, and the metadata and properties of the received
-Message as messageContext. See {{msg-context}} for details about the received context.
+A Received event indicates the delivery of a complete Message.
+It contains two objects, the received bytes as messageData, and the metadata and properties of the received Message as messageContext. 
 
-The messageData object provides access to the bytes that were received for this Message,
-along with the length of the byte array.
+The messageData object provides access to the bytes that were received for this Message, along with the length of the byte array.
+The messageContext is provided to enable retrieving metadata about the message and referring to the message, e.g., to send replies and map responses to their requests. See {{msg-ctx}} for details.
 
 See {{receive-framing}} for handling Message framing in situations where the Protocol
 Stack provides byte-stream transport only.
@@ -1802,12 +1801,10 @@ completed, encountered an error and will not be completed.
 
 ## Message Contexts {#msg-ctx}
 
-A MessageContext object contains properties, see {{message-props}}, and other
-metadata for Messages. Therefore, a MessageContext object can be passed to the
-Send Action and is retuned by each Send action as well as Send and Receive
-related events.
+Using the MessageContext object, the application can set and retrieve meta-data of the message. 
+Therefore, a MessageContext object can be passed to the Send action and is retuned by each Send action as well as Send and Receive related events.
 
-The application can set, see {{message-props}} and query Message Properties using the Message Context.
+Message properties can be set, see {{message-props}}, and queried using the Message Context:
 
 ~~~
 PropertyValue := MessageContext.Get(property)
@@ -1820,7 +1817,12 @@ RemoteEndpoint := MessageContext.GetRemoteEndpoint()
 LocalEndpoint := MessageContext.GetLocalEndpoint()
 ~~~
 
-Message Contexts can also be used to send messages that are flagged as reply to other messages, see {{send-replies}} for details.
+Message Contexts can also be used to send messages that are flagged as a reply to other messages, see {{send-replies}} for details.
+If the message received was send by the remote endpoint as a reply to an earlier message and the transports provides this information, the MessageContext of the original request can be accessed using the Message Context of the reply:
+
+~~~
+RequestMessageContext := MessageContext.GetOriginalRequest()
+~~~
 
 Each Message Context may contain metadata from protocols in the Protocol Stack;
 which metadata is available is Protocol Stack dependent. The following metadata
