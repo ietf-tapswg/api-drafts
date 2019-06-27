@@ -1263,10 +1263,12 @@ messageContext := Connection.Send(messageData, messageContext?, endOfMessage?)
 where messageData is the data object to send.
 
 The optional messageContext parameter supports per-message properties and is
-described in {{message-props}}.
+described in {{message-props}}. If provided, the Message Context object returned is identical to the one that was passed. 
 
 The optional endOfMessage parameter supports partial sending and is described in
 {{send-partial}}.
+
+The MessageContext returned by Send can be used to identify send events (see {{send-events}}) related to a specific message or to inspect meta-data related to the message sent. 
 
 ## Basic Sending {#send-basic}
 
@@ -1299,7 +1301,7 @@ When a message is sent in response to a message received, the application
 may use the Message Context of the received Message to construct a Message Context for the reply.
 
 ~~~
-replyMessgeContext := replyMessageContext.reply()
+replyMessageContext := requestMessageContext.reply()
 ~~~
 
 By using the ```replyMessageContext```, the transport system is informed that
