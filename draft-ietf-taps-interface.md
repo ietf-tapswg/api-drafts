@@ -78,10 +78,18 @@ author:
     ins: C. Wood
     name: Chris Wood
     org: Apple Inc.
-    street: 1 Infinite Loop
+    street: One Apple Park Way
     city: Cupertino, California 95014
     country: United States of America
     email: cawood@apple.com
+  -
+    ins: T. Pauly
+    name: Tommy Pauly
+    org: Apple Inc.
+    street: One Apple Park Way
+    city: Cupertino, California 95014
+    country: United States of America
+    email: tpauly@apple.com
 
 normative:
   I-D.ietf-tsvwg-sctp-ndata:
@@ -249,7 +257,7 @@ peer to peer establishment).
 Once a Connection is established, data can be sent on it in the form of
 Messages. The interface supports the preservation of message boundaries both
 via explicit Protocol Stack support, and via application support through a
-deframing callback which finds message boundaries in a stream. Messages are
+Message Framer which finds message boundaries in a stream. Messages are
 received asynchronously through a callback registered by the application.
 Errors and other notifications also happen asynchronously on the Connection.
 
@@ -280,9 +288,8 @@ If none of the available transport protocols provides Preservation of Message
 Boundaries, but there is a transport protocol which provides a reliable ordered
 byte stream, an application may receive this byte stream as partial
 Messages and transform it into application-layer Messages.  Alternatively,
-an application may provide a Deframer, which is a function that transforms a
-byte stream into a sequence of Messages, see {{receive-framing}}.
-
+an application may provide a Message Framer, which can transform a
+byte stream into a sequence of Messages ({{receive-framing}}).
 
 ### Server Example
 
@@ -540,8 +547,8 @@ incoming Connections.
 The Local Endpoint and the Remote Endpoint MUST both be specified if a
 peer-to-peer Rendezvous is to occur based on the Preconnection.
 
-Framers (see {{send-framing}}) and deframers (see {{receive-framing}}), if
-necessary, should be bound to the Preconnection during pre-establishment.
+Message Framers (see {{framing}}), if required, should be added to the 
+Preconnection during pre-establishment.
 
 ## Specifying Endpoints {#endpointspec}
 
@@ -1668,24 +1675,6 @@ the Connection could not be established will not result in a
 SendError separate from the InitiateError signaling the failure of Connection
 establishment.
 
-## Sender-side Framing {#send-framing}
-
-Sender-side framing allows a caller to provide the interface with a function
-that takes a Message of an appropriate application-layer type and returns an
-array of bytes, the on-the-wire representation of the Message to be handed down
-to the Protocol Stack. It consists of a Framer Object with a single Action,
-Frame. Since the Framer depends on the protocol used at the application layer,
-it is bound to the Preconnection during the pre-establishment phase:
-
-~~~
-Preconnection.FrameWith(Framer)
-
-ByteArray := Framer.Frame(messageData)
-~~~
-
-Sender-side framing is a convenience feature of the interface, for parity with
-receiver-side framing (see {{receive-framing}}).
-
 # Receiving Data {#receiving}
 
 Once a Connection is established, it can be used for receiving data. As with
@@ -1712,7 +1701,8 @@ By default, Receive will try to deliver complete Messages in a single event ({{r
 
 The application can set a minIncompleteLength value to indicates the smallest partial
 Message data size in bytes that should be delivered in response to this Receive. By default,
-this value is infinite, which means that only complete Messages should be delivered (see {{receive-partial}} and {{receive-framing}} for more information on how this is accomplished).
+this value is infinite, which means that only complete Messages should be delivered (see {{receive-partial}} 
+and {{receive-framing}} for more information on how this is accomplished).
 If this value is set to some smaller value, the associated receive event will be triggered
 only when at least that many bytes are available, or the Message is complete with fewer
 bytes, or the system needs to free up memory. Applications should always
@@ -1750,7 +1740,7 @@ The messageData object provides access to the bytes that were received for this 
 The messageContext is provided to enable retrieving metadata about the message and referring to the message, e.g., to send replies and map responses to their requests. See {{msg-ctx}} for details.
 
 See {{receive-framing}} for handling Message framing in situations where the Protocol
-Stack provides byte-stream transport only.
+Stack only provides a byte-stream transport.
 
 ### ReceivedPartial {#receive-partial}
 
@@ -1776,14 +1766,14 @@ delivered if one of the following conditions is true:
   the size of the Message is larger than the buffers available for a single
   message;
 * the underlying Protocol Stack does not support message boundary
-  preservation, and the deframer (see {{receive-framing}}) cannot determine
+  preservation, and the Message Framer (see {{receive-framing}}) cannot determine
   the end of the message using the buffer space it has available; or
 * the underlying Protocol Stack does not support message boundary
-  preservation, and no deframer was supplied by the application
+  preservation, and no Message Framer was supplied by the application
 
 Note that in the absence of message boundary preservation or
-deframing, all bytes received on the Connection will be represented as one
-large message of indeterminate length.
+a Message Framer, all bytes received on the Connection will be represented as one
+large Message of indeterminate length.
 
 ### ReceiveError
 
@@ -1792,7 +1782,7 @@ Connection -> ReceiveError<messageContext>
 ~~~
 
 A ReceiveError occurs when data is received by the underlying Protocol Stack
-that cannot be fully retrieved or deframed, or when some other indication is
+that cannot be fully retrieved or parsed, or when some other indication is
 received that reception has failed. Such conditions that irrevocably lead to
 the termination of the Connection are signaled using ConnectionError instead
 (see {{termination}}).
@@ -1864,37 +1854,190 @@ that the other endpoint is done sending on a connection.
 
 Any calls to Receive once the Final Message has been delivered will result in errors.
 
-## Receiver-side De-framing over Stream Protocols {#receive-framing}
+# Message Framers {#framing}
 
-The Receive Event is intended to be fired once per application-layer Message
-sent by the remote endpoint; i.e., it is a desired property of this interface
-that a Send at one end of a Connection maps to exactly one Receive on the
-other end. This is possible with Protocol Stacks that provide
-message boundary preservation, but is not the case over Protocol Stacks that
-provide a simple byte stream transport.
+Message Framers are pieces of code that define simple transformations
+between application Message data and raw transport protocol data. A Framer
+can encapsulate or encode outbound Messages, and decapsulate or decode
+inbound data into Messages.
 
-For preserving message boundaries over stream transports, this interface
-provides receiver-side de-framing. This facility is based on the observation
-that, since many of our current application protocols evolved over TCP, which
-does not provide message boundary preservation, and since many of these protocols
-require message boundaries to function, each application layer protocol has
-defined its own framing. A Deframer allows an application to push this
-de-framing down into the interface, in order to transform an byte stream into
-a sequence of Messages.
+Message Framers allow message boundaries to be preserved when using
+a Connection object, even when using byte-stream transports. This facility 
+is designed based on the fact that many of the current application protocols 
+evolved over TCP, which does not provide message boundary preservation,
+and since many of these protocols require message boundaries to function,
+each application layer protocol has defined its own framing.
 
-Concretely, receiver-side de-framing allows a caller to provide the interface
-with a function that takes an byte stream, as provided by the underlying
-Protocol Stack, reads and returns a single Message of an appropriate type for
-the application and platform, and leaves the byte stream at the start of the
-next Message to deframe. It consists of a Deframer Object with a single Action,
-Deframe. Since the Deframer depends on the protocol used at the application
-layer, it is bound to the Preconnection during the pre-establishment phase:
+While many protocols can be represented as Message Framers, for the 
+purposes of the Transport Services interface these are ways for applications
+or application frameworks to define their own Message parsing to be
+included within a Connection's Protocol Stack. As an example, TLS can
+serve the purpose of framing data over TCP, but is exposed as a protocol
+natively supported by the Transport Services interface.
+
+Most Message Framers fall into one of two categories:
+- Header-prefixed record formats, such as a basic Type-Length-Value (TLV) structure
+- Delimeter-separated formats, such as HTTP/1.1.
+
+Note that while Message Framers add the most value when placed above
+a protocol that otherwise does not preserve message boundaries, they can
+also be used with datagram- or message-based protocols. In these cases,
+they add an additional transformation to further encode or encapsulate,
+and can potentially support packing multiple application-layer Messages
+into individual transport datagrams.
+
+## Defining Message Framers
+
+A Message Framer is primarily defined by the set of code that handles events
+for a framer implementation, specifically how it handles inbound and outbound data
+parsing.
+
+Applications can instantiate a Message Framer upon which they will receive
+framing events, or use a Message Framer defined by another library.
 
 ~~~
-Preconnection.DeframeWith(Deframer)
-
-{messageData} := Deframer.Deframe(ByteStream)
+framer := NewMessageFramer()
 ~~~
+
+Message Framer objects will deliver events to code that is written either as
+part of the application or a helper library. This piece of code will be referred
+to as the "framer implementation".
+
+## Adding Message Framers to Connections
+
+The Message Framer object can be added to one or more Preconnections
+to run on top of transport protocols. Multiple Framers may be added. If multiple
+Framers are added, the last one added runs first when framing outbound messages,
+and last when parsing inbound data.
+
+~~~
+Preconnection.AddFramer(framer)
+~~~
+
+Framers have the ability to also dynamically modify Protocol Stacks, as
+described in {{framer-lifetime}}.
+
+When sending Messages, applications can add specific Message
+values to a MessageContext ({{message-props}}) that is intended for a Framer.
+This can be used, for example, to set the type of a Message for a TLV format.
+The namespace of values is custom for each unique Message Framer.
+
+~~~
+messageContext := NewMessageContext()
+messageContext.add(framer, key, value)
+Connection.Send(messageData, messageContext)
+~~~
+
+When an application receives a MessageContext in a Receive event,
+it can also look to see if a value was set by a specific Message Framer.
+
+~~~
+messageContext.get(framer, key) -> value
+~~~
+
+## Message Framer Lifetime {#framer-lifetime}
+
+When a Connection establishment attempt begins, an event is delivered to
+notify the framer implementation that a new Connection is being created.
+Similarly, a stop event is delivered when a Connection is being torn down.
+The framer implementation can use the Connection object to look up specific
+properties of the Connection or the network being used that may influence how
+to frame Messages.
+
+~~~
+MessageFramer -> Start(Connection)
+MessageFramer -> Stop(Connection)
+~~~
+
+When Message Framer generates a `Start` event, the framer implementation
+has the opportunity to start writing some data prior to the Connection delivering
+its `Ready` event. This allows the implementation to communicate control data to the
+remote endpoint that can be used to parse Messages.
+
+~~~
+MessageFramer.MakeConnectionReady(Connection)
+~~~
+
+At any time if the implementation encounters a fatal error, it can also cause the Connection
+to fail and provide an error.
+
+~~~
+MessageFramer.FailConnection(Connection, Error)
+~~~
+
+Before an implementation marks a Message Framer as ready, it can also dynamically
+add a protocol or framer above it in the stack. This allows protocols like STARTTLS,
+that need to add TLS conditionally, to modify the Protocol Stack based on a handshake result.
+
+~~~
+otherFramer := NewMessageFramer()
+MessageFramer.PrependFramer(Connection, otherFramer)
+~~~
+
+## Sender-side Message Framing {#send-framing}
+
+Message Framers generate an event whenever a Connection sends a new Message.
+
+~~~
+MessageFramer -> NewSentMessage<Connection, MessageData, MessageContext, IsEndOfMessage>
+~~~
+
+Upon receiving this event, a framer implementation is responsible for
+performing any necessary transformations and sending the resulting data to the next
+protocol. Implementations SHOULD ensure that there is a way to pass the original data
+through without copying to improve performance.
+
+~~~
+MessageFramer.Send(Connection, Data)
+~~~
+
+To provide an example, a simple protocol that adds a length as a header would receive
+the `NewSentMessage` event, create a data representation of the length of the Message
+data, and then send a block of data that is the concatenation of the length header and the original
+Message data.
+
+## Receiver-side Message Framing {#receive-framing}
+
+In order to parse an received flow of data into Messages, the Message Framer
+notifies the framer implementation whenever new data is available to parse.
+
+~~~
+MessageFramer -> HandleReceivedData<Connection>
+~~~
+
+Upon receiving this event, the framer implementation can inspect the inbound data. The
+data is parsed from a particular cursor representing the unprocessed data. The
+application requests a specific amount of data it needs to have available in order to parse.
+If the data is not available, the parse fails.
+
+~~~
+MessageFramer.Parse(Connection, MinimumIncompleteLength, MaximumLength) -> (Data, MessageContext, IsEndOfMessage)
+~~~
+
+The framer implementation can directly advance the receive cursor once it has
+parsed data to effectively discard data (for example, discard a header
+once the content has been parsed).
+
+To deliver a Message to the application, the framer implementation can either directly
+deliever data that it has allocated, or deliver a range of data directly from the underlying
+transport and simulatenously advance the receive cursor.
+
+~~~
+MessageFramer.AdvanceReceiveCursor(Connection, Length)
+MessageFramer.DeliverAndAdvanceReceiveCursor(Connection, MessageContext, Length, IsEndOfMessage)
+MessageFramer.Deliver(Connection, MessageContext, Data, IsEndOfMessage)
+~~~
+
+Note that `MessageFramer.DeliverAndAdvanceReceiveCursor` allows the framer implementation
+to earmark bytes as part of a Message even before they are received by the transport. This allows the delivery
+of very large Messages without requiring the implementation to directly inspect all of the bytes.
+
+To provide an example, a simple protocol that parses a length as a header value would
+receive the `HandleReceivedData` event, and call `Parse` with a minimum and maximum
+set to the length of the header field. Once the parse succeeded, it would call
+`AdvanceReceiveCursor` with the length of the header field, and then call
+`DeliverAndAdvanceReceiveCursor` with the length of the body that was parsed from
+the header, marking the new Message as complete.
 
 # Managing Connections {#introspection}
 
@@ -2496,10 +2639,10 @@ The two transport features are controlled via the Message property "Ordered".
 Should the protocol support it, this is one of the transport features the transport system can use when an application uses the Capacity Profile Property with value "Low Latency/Interactive".
 
 * Receive data (with no message delimiting):  
-"Received" Event without using a Deframer.
+"Received" Event without using a Message Framer.
 
 * Receive a message:  
-"Received" Event. Section 5.1 of {{I-D.ietf-taps-minset}} discusses how messages can be obtained from a bytestream in case of implementation over TCP. Here, this is dealt with by Framers and Deframers.
+"Received" Event. Section 5.1 of {{I-D.ietf-taps-minset}} discusses how messages can be obtained from a bytestream in case of implementation over TCP. Here, this is dealt with by Message Framers.
 
 * Information about partial message arrival:  
 "ReceivedPartial" Event.
