@@ -467,7 +467,7 @@ form \[\<Namespace>.\]\<PropertyName\>.
   for properties defined by an RFC which are not protocol specific.
 - Protocol Specific Properties must use the protocol acronym as
   Namespace, e.g., “tcp" for TCP specific Transport Properties.
-  For IETF protocols, property names under these namespaces should
+  For IETF protocols, property names under these namespaces SHOULD
   be defined in an RFC.
 - Vendor or implementation specific properties must use a
   a string identifying the vendor or implementation as Namespace.
