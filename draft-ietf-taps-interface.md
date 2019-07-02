@@ -1847,7 +1847,7 @@ PropertyValue := MessageContext.get(scope?, property)
 
 To get or set Message Properties, the optional scope parameter is left empty, for framing meta-data, the framer is passed.
 
-The application can also query information about the local and remote endpoint.
+For MessageContexts returned by send events (see {{send-events}}) and receive events (see {{receive-events}}), the application can query information about the local and remote endpoint:
 
 ~~~
 RemoteEndpoint := MessageContext.GetRemoteEndpoint()
@@ -1860,8 +1860,6 @@ If the message received was send by the remote endpoint as a reply to an earlier
 ~~~
 RequestMessageContext := MessageContext.GetOriginalRequest()
 ~~~
-
-
 
 # Message Framers {#framing}
 
