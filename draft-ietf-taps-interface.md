@@ -1169,7 +1169,7 @@ resulting Connection is contained within the RendezvousDone<> Event, and is
 ready to use as soon as it is passed to the application via the Event.
 
 ~~~
-Preconnection -> RendezvousError<msgRef, error>
+Preconnection -> RendezvousError<messageContext, error>
 ~~~
 
 An RendezvousError occurs either when the Preconnection cannot be fulfilled
@@ -1264,13 +1264,18 @@ Messages for streaming large data is also supported (see {{send-partial}}).
 Messages are sent on a Connection using the Send action:
 
 ~~~
-Connection.Send(messageData, messageContext?, endOfMessage?)
+messageContext := Connection.Send(messageData, messageContext?, endOfMessage?)
 ~~~
 
-where messageData is the data object to send. The optional messageContext
-parameter supports per-message properties and is described in {{message-props}}.
+where messageData is the data object to send.
+
+The optional messageContext parameter supports per-message properties and is
+described in {{message-props}}. If provided, the Message Context object returned is identical to the one that was passed. 
+
 The optional endOfMessage parameter supports partial sending and is described in
 {{send-partial}}.
+
+The MessageContext returned by Send can be used to identify send events (see {{send-events}}) related to a specific message or to inspect meta-data related to the message sent. 
 
 ## Basic Sending {#send-basic}
 
@@ -1297,6 +1302,19 @@ Size for the Connection, the Send will fail with a SendError event ({{send-error
 example, it is invalid to send a Message over a UDP connection that is larger than
 the available datagram sending size.
 
+## Sending Replies {#send-replies}
+
+When a message is sent in response to a message received, the application
+may use the Message Context of the received Message to construct a Message Context for the reply.
+
+~~~
+replyMessageContext := requestMessageContext.reply()
+~~~
+
+By using the ```replyMessageContext```, the transport system is informed that
+the message to be sent is a response and can map the response to the same underlying transport connection or stream the request was received from.
+The concept of Message Contexts is described in {{msg-ctx}}.
+
 ## Send Events {#send-events}
 
 Like all Actions in this interface, the Send Action is asynchronous. There are
@@ -1310,7 +1328,7 @@ there will be two Expired events delivered.
 ### Sent
 
 ~~~
-Connection -> Sent<msgRef>
+Connection -> Sent<messageContext>
 ~~~
 
 The Sent Event occurs when a previous Send Action has completed, i.e., when
@@ -1331,7 +1349,7 @@ calling the next Send Action.
 ### Expired
 
 ~~~
-Connection -> Expired<msgRef>
+Connection -> Expired<messageContext>
 ~~~
 
 The Expired Event occurs when a previous Send Action expired before completion;
@@ -1343,7 +1361,7 @@ implementation-specific reference to the Message to which it applies.
 ### SendError {#send-error}
 
 ~~~
-Connection -> SendError<msgRef>
+Connection -> SendError<messageContext>
 ~~~
 
 A SendError occurs when a Message could not be sent due to an error condition:
@@ -1357,12 +1375,15 @@ Message to which it applies.
 
 Applications may need to annotate the Messages they send with extra information
 to control how data is scheduled and processed by the transport protocols in the
-Connection. A MessageContext object contains properties for sending Messages,
-and can be passed to the Send Action. Note that these properties are
-per-Message, not per-Send if partial Messages are sent ({{send-partial}}). All
-data blocks associated with a single Message share properties. For example, it
-would not make sense to have the beginning of a Message expire, but allow the
-end of a Message to still be sent.
+Connection. Therefore a message context containing these properties can be passed to the Send Action. For other uses of the message context, see {{msg-ctx}}.
+
+Note that message properties are per-Message, not per-Send if partial Messages
+are sent ({{send-partial}}). All data blocks associated with a single Message
+share properties specified in the Message Contexts. For example, it would not
+make sense to have the beginning of a Message expire, but allow the end of a
+Message to still be sent.
+
+A MessageContext object contains metadata for  Messages to be sent or received.
 
 ~~~
 messageData := "hello".bytes()
@@ -1712,12 +1733,11 @@ when it is temporarily not ready to receive messages.
 Connection -> Received<messageData, messageContext>
 ~~~
 
-A Received event indicates the delivery of a complete Message. It contains two objects,
-the received bytes as messageData, and the metadata and properties of the received
-Message as messageContext. See {{receive-context}} for details about the received context.
+A Received event indicates the delivery of a complete Message.
+It contains two objects, the received bytes as messageData, and the metadata and properties of the received Message as messageContext. 
 
-The messageData object provides access to the bytes that were received for this Message,
-along with the length of the byte array.
+The messageData object provides access to the bytes that were received for this Message, along with the length of the byte array.
+The messageContext is provided to enable retrieving metadata about the message and referring to the message, e.g., to send replies and map responses to their requests. See {{msg-ctx}} for details.
 
 See {{receive-framing}} for handling Message framing in situations where the Protocol
 Stack only provides a byte-stream transport.
@@ -1771,11 +1791,12 @@ The ReceiveError event passes an optional associated MessageContext. This may
 indicate that a Message that was being partially received previously, but had not
 completed, encountered an error and will not be completed.
 
-## Message Receive Context {#receive-context}
 
-Each Received Message Context may contain metadata from protocols in the Protocol Stack;
-which metadata is available is Protocol Stack dependent. The following metadata
-values are supported:
+## Receive Message Properties {#recv-meta}
+
+Each Message Context may contain metadata from protocols in the Protocol Stack;
+which metadata is available is Protocol Stack dependent. These are exposed though additional read-only Message Properties that can be queried from the MessageContext object (see {{msg-ctx}}) passed by the receive event. 
+The following metadata values are supported:
 
 ### ECN {#receive-ecn}
 
@@ -1799,7 +1820,7 @@ field for Messages received during connection establishment and respond accordin
 
 ### Receiving Final Messages
 
-The Received Message Context can indicate whether or not this Message is
+The Message Context can indicate whether or not this Message is
 the Final Message on a Connection. For any Message that is marked as Final,
 the application can assume that there will be no more Messages received on the
 Connection once the Message has been completely delivered. This corresponds
@@ -1810,6 +1831,35 @@ Applications therefore should not rely on receiving a Message marked Final to kn
 that the other endpoint is done sending on a connection.
 
 Any calls to Receive once the Final Message has been delivered will result in errors.
+
+
+# Message Contexts {#msg-ctx}
+
+Using the MessageContext object, the application can set and retrieve meta-data of the message, including Message Properties (see {{message-props}}) and framing meta-data (see {{framing-meta}}). 
+Therefore, a MessageContext object can be passed to the Send action and is retuned by each Send and Receive related events.
+
+Message properties can be set and queried using the Message Context:
+
+~~~
+MessageContext.add(scope?, parameter, value)
+PropertyValue := MessageContext.get(scope?, property)
+~~~
+
+To get or set Message Properties, the optional scope parameter is left empty, for framing meta-data, the framer is passed.
+
+For MessageContexts returned by send events (see {{send-events}}) and receive events (see {{receive-events}}), the application can query information about the local and remote endpoint:
+
+~~~
+RemoteEndpoint := MessageContext.GetRemoteEndpoint()
+LocalEndpoint := MessageContext.GetLocalEndpoint()
+~~~
+
+Message Contexts can also be used to send messages that are flagged as a reply to other messages, see {{send-replies}} for details.
+If the message received was send by the remote endpoint as a reply to an earlier message and the transports provides this information, the MessageContext of the original request can be accessed using the Message Context of the reply:
+
+~~~
+RequestMessageContext := MessageContext.GetOriginalRequest()
+~~~
 
 # Message Framers {#framing}
 
@@ -1874,8 +1924,10 @@ Preconnection.AddFramer(framer)
 Framers have the ability to also dynamically modify Protocol Stacks, as
 described in {{framer-lifetime}}.
 
+## Framing Meta-Data {#framing-meta}
+
 When sending Messages, applications can add specific Message
-values to a MessageContext ({{message-props}}) that is intended for a Framer.
+values to a MessageContext ({{msg-ctx}}) that is intended for a Framer.
 This can be used, for example, to set the type of a Message for a TLV format.
 The namespace of values is custom for each unique Message Framer.
 
