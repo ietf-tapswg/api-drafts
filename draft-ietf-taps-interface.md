@@ -2290,7 +2290,7 @@ Name:
 : max-send-rate / max-recv-rate
 
 Type:
-: Integer (positive) / Integer (positive)
+: Numeric / Numeric
 
 Default:
 : -1 / -1 (unlimited, for both values)
