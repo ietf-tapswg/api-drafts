@@ -62,10 +62,10 @@ author:
     ins: P. Tiesel
     name: Philipp S. Tiesel
     org: TU Berlin
-    email: philipp@inet.tu-berlin.de
-    street: Marchstrasse 23
+    street: Einsteinufer 25
     city: 10587 Berlin
     country: Germany
+    email: philipp@tiesel.net
   -
     ins: C. Wood
     name: Chris Wood

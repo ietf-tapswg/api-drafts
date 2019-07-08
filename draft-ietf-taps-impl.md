@@ -61,10 +61,10 @@ author:
     ins: P. Tiesel
     name: Philipp S. Tiesel
     org: TU Berlin
-    street: Marchstrasse 23
+    street: Einsteinufer 25
     city: 10587 Berlin
     country: Germany
-    email: philipp@inet.tu-berlin.de
+    email: philipp@tiesel.net
   -
     ins: C. Perkins
     name: Colin Perkins
@@ -650,19 +650,240 @@ The reasonable lifetime for cached performance values will vary depending on the
 
 # Specific Transport Protocol Considerations
 
+Each protocol that can run as part of a Transport Services implementation defines both its API mapping as well as implementation details.
+
+API mappings for a protocol apply most to Connections in which the given protocol is the "top" of the Protocol Stack. For example, the mapping of the `Send` function for TCP applies to Connections in which the application directly sends over TCP. If HTTP/2 is used on top of TCP, the HTTP/2 mappings take precendence.
+
+Each protocol has a notion of Connectedness. Possible values for Connectedness are:
+
+- Unconnected. Unconnected protocols do not establish explicit state between endpoints, and do not perform a handshake during Connection establishment.
+- Connected. Connected protocols establish state between endpoints, and perform a handshake during Connection establishment. The handshake may be 0-RTT to send data or resume a session, but bidirectional traffic is required to confirm connectedness.
+- Multiplexing Connected. Multiplexing Connected protocols share properties with Connected protocols, but also explictly support opening multiple application-level flows. This means that they can support cloning new Connection objects without a new explicit handshake.
+
+Protocols also define a notion of Data Unit. Possible values for Data Unit are:
+
+- Byte-stream. Byte-stream protocols do not define any Message boundaries of their own apart from the end of a stream in each direction.
+- Datagram. Datagram protocols define Message boundaries at the same level of transmission, such that only complete (not partial) Messages are supported.
+- Message. Message protocols support Message boundaries that can be sent and received either as complete or partial Messages. Maximum Message lengths can be defined, and Messages can be partially reliable.
+
 ## TCP {#tcp}
 
-Connection lifetime for TCP translates fairly simply into the the abstraction presented to an application. When the TCP three-way handshake is complete, its layer of the Protocol Stack can be considered Ready (established). This event will cause racing of Protocol Stack options to complete if TCP is the top-level protocol, at which point the application can be notified that the Connection is Ready to send and receive.
+Connectedness: Connected
 
-If the application sends a Close, that can translate to a graceful termination of the TCP connection, which is performed by sending a FIN to the remote endpoint. If the application sends an Abort, then the TCP state can be closed abruptly, leading to a RST being sent to the peer.
+Data Unit: Byte-stream
 
-Without a layer of framing (a top-level protocol in the established Protocol Stack that preserves message boundaries, or an application-supplied deframer) on top of TCP, the receiver side of the transport system implementation can only treat the incoming stream of bytes as a single Message, terminated by a FIN when the Remote Endpoint closes the Connection.
+API mappings for TCP are as follows:
+
+Connection Object:
+: TCP connections between two hosts map directly to Connection objects.
+
+Initiate:
+: Calling `Initiate` on a TCP Connection causes it to reserve a local port, and send a SYN to the Remote Endpoint.
+
+InitiateWithSend:
+: Early idempotent data is sent on a TCP Connection in the SYN, as TCP Fast Open data.
+
+Ready:
+: A TCP Connection is ready once the three-way handshake is complete.
+
+InitiateError:
+: TCP can throw various errors during connection setup. Specifically, it is important to handle a RST being sent by the peer during the handshake.
+
+ConnectionError:
+: Once established, TCP throws errors whenever the connection is disconnected, such as due to receive a RST from the peer; or hitting a TCP retransmission timeout. 
+
+Listen:
+: Calling `Listen` for TCP binds a local port and prepares it to receive inbound SYN packets from peers.
+
+ConnectionReceived:
+: TCP Listeners will deliver new connections once they have replied to an inbound SYN with a SYN-ACK.
+
+Clone:
+: Calling `Clone` on a TCP Connection creates a new Connection with equivalent parameters. The two Connections are otherwise independent.
+
+Send:
+: TCP does not on its own preserve Message boundaries. Calling `Send` on a TCP connection lays out the bytes on the TCP send stream without any other delineation. Any Message marked as Final will cause TCP to send a FIN once the Message has been completely written.
+
+Receive:
+: TCP delivers a stream of bytes without any Message delineation. All data delivered in the `Received` or `ReceivedPartial` event will be part of a single stream-wide Message that is marked Final (unless a MessageFramer is used). EndOfMessage will be delivered when the TCP Connection has received a FIN from the peer.
+
+Close:
+: Calling `Close` on a TCP Connection indicates that the Connection should be gracefully closed by sending a FIN to the peer and waiting for a FIN-ACK before delivering the `Closed` event.
+
+Abort:
+: Calling `Abort` on a TCP Connection indicates that the Connection should be immediately closed by sending a RST to the peer.
 
 ## UDP
 
-UDP as a direct transport does not provide any handshake or connectivity state, so the notion of the transport protocol becoming Ready or established is degenerate. Once the system has validated that there is a route on which to send and receive UDP datagrams, the protocol is considered Ready. Similarly, a Close or Abort has no meaning to the on-the-wire protocol, but simply leads to the local state being torn down.
+Connectedness: Unconnected
 
-When sending and receiving messages over UDP, each Message should correspond to a single UDP datagram. The Message can contain metadata about the packet, such as the ECN bits applied to the packet.
+Data Unit: Datagram
+
+API mappings for UDP are as follows:
+
+Connection Object:
+: UDP connections represent a pair of specific IP addresses and ports on two hosts.
+
+Initiate:
+: Calling `Initiate` on a UDP Connection causes it to reserve a local port, but does not generate any traffic.
+
+InitiateWithSend:
+: Early data on a UDP Connection does not have any special meaning. The data is sent whenever the Connection is Ready.
+
+Ready:
+: A UDP Connection is ready once the system has reserved a local port and has a path to send to the Remote Endpoint.
+
+InitiateError:
+: UDP Connections can only generate errors on initiation due to port conflicts on the local system.
+
+ConnectionError:
+: Once in use, UDP throws errors upon receiving ICMP notifications indicating failures in the network. 
+
+Listen:
+: Calling `Listen` for UDP binds a local port and prepares it to receive inbound UDP datagrams from peers.
+
+ConnectionReceived:
+: UDP Listeners will deliver new connections once they have received traffic from a new Remote Endpoint.
+
+Clone:
+: Calling `Clone` on a UDP Connection creates a new Connection with equivalent parameters. The two Connections are otherwise independent.
+
+Send:
+: Calling `Send` on a UDP connection sends the data as the payload of a complete UDP datagram. Marking Messages as Final does not change anything in the datagram's contents.
+
+Receive:
+: UDP only delivers complete Messages to `Received`, each of which represents a single datagram received in a UDP packet.
+
+Close:
+: Calling `Close` on a UDP Connection releases the local port reservation.
+
+Abort:
+: Calling `Abort` on a UDP Connection is identical to calling `Close`.
+
+## TLS {#tls}
+
+The mapping of a TLS stream abstraction into the application is equivalent to the contract provided by TCP (see {{tcp}}), and builds upon many of the actions of TCP connections.
+
+Connectedness: Connected
+
+Data Unit: Byte-stream
+
+Connection Object:
+: Connection objects represent a single TLS connection running over a TCP connection between two hosts.
+
+Initiate:
+: Calling `Initiate` on a TLS Connection causes it to first initiate a TCP connection. Once the TCP protocol is Ready, the TLS handshake will be performed as a client (starting by sending a `client_hello`, and so on).
+
+InitiateWithSend:
+: Early idempotent data is supported by TLS 1.3, and sends encrypted application data in the first TLS message when performing session resumption. For older versions of TLS, or if a session is not being resumed, the initial data will be delayed until the TLS handshake is complete. TCP Fast Option can also be enabled automatically.
+
+Ready:
+: A TLS Connection is ready once the underlying TCP connection is Ready, and TLS handshake is also complete and keys have been established to encrypt application data.
+
+InitiateError:
+: In addition to TCP initiation errors, TLS can generate errors during its handshake. Examples of error include a failure of the peer to successfully authenticate, the peer rejecting the local authentication, or a failure to match versions or algorithms.
+
+ConnectionError:
+: TLS connections will generate TCP errors, or errors due to failures to rekey or decrypt received messages.
+
+Listen:
+: Calling `Listen` for TLS listens on TCP, and sets up received connections to perform server-side TLS handshakes.
+
+ConnectionReceived:
+: TLS Listeners will deliver new connections once they have successfully completed both TCP and TLS handshakes.
+
+Clone:
+: As with TCP, calling `Clone` on a TLS Connection creates a new Connection with equivalent parameters. The two Connections are otherwise independent.
+
+Send:
+: Like TCP, TLS does not preserve message boundaries. Although application data is framed natively in TLS, there is not a general guarantee that these TLS messages represent semantically meaningful application stream boundaries. Rather, sending data on a TLS Connection only guarantees that the application data will be transmitted in an encrypted form. Marking Messages as Final causes a `close_notify` to be generated once the data has been written.
+
+Receive:
+: Like TCP, TLS delivers a stream of bytes without any Message delineation. The data is decrypted prior to being delivered to the application. If a `close_notify` is received, the stream-wide Message will be delivered with EndOfMessage set.
+
+Close:
+: Calling `Close` on a TLS Connection indicates that the Connection should be gracefully closed by sending a `close_notify` to the peer and waiting for a corresponding `close_notify` before delivering the `Closed` event.
+
+Abort:
+: Calling `Abort` on a TCP Connection indicates that the Connection should be immediately closed by sending a `close_notify`, optionally preceded by `user_canceled`, to the peer. Implementations do not need to wait to receive `close_notify` before delivering the `Closed` event.
+
+## DTLS
+
+DTLS follows the same behavior as TLS ({{tls}}), with the notable exception of not inheriting behavior directly from TCP. Differences from TLS are detailed below, and all cases not explicitly mentioned should be considered the same as TLS.
+
+Connectedness: Connected
+
+Data Unit: Datagram
+
+Connection Object:
+: Connection objects represent a single DTLS connection running over a set of UDP ports between two hosts.
+
+Initiate:
+: Calling `Initiate` on a DTLS Connection causes it reserve a UDP local port, and begin sending handshake messages to the peer over UDP. These messages are reliable, and will be automatically retransmitted.
+
+Ready:
+: A DTLS Connection is ready once the TLS handshake is complete and keys have been established to encrypt application data.
+
+Send:
+: Sending over DTLS does preserve message boundaries in the same way that UDP datagrams do. Marking a Message as Final does send a `close_notify` like TLS.
+
+Receive:
+: Receiving over DTLS delivers one decrypted Message for each received DTLS datagram. If a `close_notify` is received, a Message will be delivered that is marked as Final.
+
+## HTTP
+
+HTTP requests and responses map naturally into Messages, since they are delineated chunks of data with metadata that can be sent over a transport. To that end, HTTP can be seen as the most prevalent framing protocol that runs on top of streams like TCP, TLS, etc.
+
+In order to use a transport Connection that provides HTTP Message support, the establishment and closing of the connection can be treated as it would without the framing protocol. Sending and receiving of Messages, however, changes to treat each Message as a well-delineated HTTP request or response, with the content of the Message representing the body, and the Headers being provided in Message metadata.
+
+Connectedness: Multiplexing Connected
+
+Data Unit: Message
+
+Connection Object:
+: Connection objects represent a flow of HTTP messages between a client and a server, which may be an HTTP/1.1 connection over TCP, or a single stream in an HTTP/2 connection.
+
+Initiate:
+: Calling `Initiate` on an HTTP connection intiates a TCP or TLS connection as a client.
+
+Clone:
+: Calling `Clone` on an HTTP Connection opens a new stream on an existing HTTP/2 connection when possible. If the underlying version does not support multiplexed streams, calling `Clone` simply creates a new parallel connection.
+
+Send:
+: When an application sends an HTTP Message, it is expected to provide HTTP header values as a MessageContext in a canonical form, along with any associated HTTP message body as the Message data. The HTTP header values are encoded in the specific version format upon sending.
+
+Receive:
+: HTTP Connections deliver Messages in which HTTP header values attached to MessageContexts, and HTTP bodies in Message data.
+
+Close:
+: Calling `Close` on an HTTP Connection will only close the underlying TLS or TCP connection if the HTTP version does not support multiplexing. For HTTP/2, for example, closing the connection
+only closes a specific stream.
+
+## QUIC {#quic}
+
+QUIC provides a multi-streaming interface to an encrypted transport. Each stream can be viewed as equivalent to a TLS stream over TCP, so a natural mapping is to present each QUIC stream as an individual Connection. The protocol for the stream will be considered Ready whenever the underlying QUIC connection is established to the point that this stream's data can be sent. For streams after the first stream, this will likely be an immediate operation.
+
+Closing a single QUIC stream, presented to the application as a Connection, does not imply closing the underlying QUIC connection itself. Rather, the implementation may choose to close the QUIC connection once all streams have been closed (often after some timeout), or after an individual stream Connection sends an Abort.
+
+Connectedness: Multiplexing Connected
+
+Data Unit: Stream
+
+Connection Object:
+: Connection objects represent a single QUIC stream on a QUIC connection.
+
+## HTTP/2 transport
+
+Similar to QUIC ({{quic}}), HTTP/2 provides a multi-streaming interface. This will generally use HTTP as the unit of Messages over the streams, in which each stream can be represented as a transport Connection. The lifetime of streams and the HTTP/2 connection should be managed as described for QUIC.
+
+It is possible to treat each HTTP/2 stream as a raw byte-stream instead of a carrier for HTTP messages, in which case the Messages over the streams can be represented similarly to the TCP stream (one Message per direction, see {{tcp}}).
+
+Connectedness: Multiplexing Connected
+
+Data Unit: Stream
+
+Connection Object:
+: Connection objects represent a single HTTP/2 stream on a HTTP/2 connection.
 
 ## SCTP
 
@@ -689,30 +910,6 @@ The problem of long messages either requiring large receiver-side buffers or get
 multiplexing is addressed by message interleaving {{!RFC8260}},
 which is yet another reason why a receivers-side transport system supporting SCTP should
 implement this mechanism.
-
-## TLS
-
-The mapping of a TLS stream abstraction into the application is equivalent to the contract provided by TCP (see {{tcp}}). The Ready state should be determined by the completion of the TLS handshake, which involves potentially several more round trips beyond the TCP handshake. The application should not be notified that the Connection is Ready until TLS is established.
-
-## HTTP
-
-HTTP requests and responses map naturally into Messages, since they are delineated chunks of data with metadata that can be sent over a transport. To that end, HTTP can be seen as the most prevalent framing protocol that runs on top of streams like TCP, TLS, etc.
-
-In order to use a transport Connection that provides HTTP Message support, the establishment and closing of the connection can be treated as it would without the framing protocol. Sending and receiving of Messages, however, changes to treat each Message as a well-delineated HTTP request or response, with the content of the Message representing the body, and the Headers being provided in Message metadata.
-
-## QUIC {#quic}
-
-QUIC provides a multi-streaming interface to an encrypted transport. Each stream can be viewed as equivalent to a TLS stream over TCP, so a natural mapping is to present each QUIC stream as an individual Connection. The protocol for the stream will be considered Ready whenever the underlying QUIC connection is established to the point that this stream's data can be sent. For streams after the first stream, this will likely be an immediate operation.
-
-Closing a single QUIC stream, presented to the application as a Connection, does not imply closing the underlying QUIC connection itself. Rather, the implementation may choose to close the QUIC connection once all streams have been closed (possibly after some timeout), or after an individual stream Connection sends an Abort.
-
-Messages over a direct QUIC stream should be represented similarly to the TCP stream (one Message per direction, see {{tcp}}), unless a framing mapping is used on top of QUIC.
-
-## HTTP/2 transport
-
-Similar to QUIC ({{quic}}), HTTP/2 provides a multi-streaming interface. This will generally use HTTP as the unit of Messages over the streams, in which each stream can be represented as a transport Connection. The lifetime of streams and the HTTP/2 connection should be managed as described for QUIC.
-
-It is possible to treat each HTTP/2 stream as a raw byte-stream instead of a carrier for HTTP messages, in which case the Messages over the streams can be represented similarly to the TCP stream (one Message per direction, see {{tcp}}).
 
 # IANA Considerations
 
