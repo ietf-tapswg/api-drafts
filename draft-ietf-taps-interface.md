@@ -933,6 +933,34 @@ SoftErrors. Note that even if a protocol supporting this property is selected,
 not all ICMP errors will necessarily be delivered, so applications cannot rely
 on receiving them. The recommended default is to Ignore this option.
 
+### Requesting Specific Protocol Stacks {#force-stack}
+
+Name:
+: protocol-stack
+
+Type:
+: List (Enumeration)
+
+Some application protocols need to be exercised on top of specific protocols, e.g. because they use lower layer protocol fields in their specification.
+This property allows the application to request the transport system to use a specific set of protocols.
+
+~~~
+TransportProperties.Add(protocol-stack, (http))
+~~~
+
+When this Property is specified multiple times, each set is considered as an alternative:
+
+~~~
+TransportProperties.Add(protocol-stack, ("tcp", "ipv4"))
+TransportProperties.Add(protocol-stack, ("tcp", "ipv6"))
+~~~
+
+If at least one set is specified, the transport system will only choose protocol stack instances that use all protocols of one of given sets on the local endpoint. 
+
+Note that this mechanism is __not intended__ to request transport services for applications that need, e.g., TCP like transport services or have deployment issues as firewalls that require the use of specific protocols.
+For the former, Transport Property Profiles \[__TODO__: add reference once Issue #325 is fixed or remove\] should be used, while for the latter, these deployment considerations should be expressed as a system policy that is deployed with the application.
+
+Also note that the protocols used at the remote endpoints my be different, as transport service may involve the use of proxies or protocol converters.
 
 ## Specifying Security Parameters and Callbacks {#security-parameters}
 
@@ -1020,29 +1048,6 @@ ChallengeCallback := NewCallback({
 SecurityParameters.SetIdentityChallengeCallback(challengeCallback)
 ~~~
 
-## Forcing the use of Specific Protocols
-
-Some application protocols need to be exercised on top of specific protocols, e.g. because they use lower layer protocol fields in their specification.
-In such cases, the application can request the transport system to use a specific set of protocols as part on the local endpoint.
-
-~~~
-LocalSpecifier := NewLocalEndpoint()
-LocalSpecifier.WithProtocol("http")
-~~~
-
-Multiple sets can be specified as alternatives:
-
-~~~
-LocalSpecifier := NewLocalEndpoint()
-LocalSpecifier.WithProtocols("tcp", "ipv4")
-LocalSpecifier.WithProtocols("tcp", "ipv6")
-~~~
-
-If at least one set is specified, the transport system will only choose protocol stack instances that use all protocols of one of given sets on the local endpoint. 
-As the transport service may involve the use of proxies, the protocols used on the remote endpoints my vary.
-
-Note that this mechanism is __not intended__ to request transport services for applications that need, e.g., TCP like transport services or have deployment issues as firewalls that require the use of specific protocols.
-For the former, Transport Property Profiles \[__TODO__: add reference once Issue #325 is fixed or remove\] should be used, while for the latter, these deployment considerations should be expressed as a system policy that is deployed with the application.
 
 # Establishing Connections {#establishment}
 
