@@ -1887,8 +1887,10 @@ serve the purpose of framing data over TCP, but is exposed as a protocol
 natively supported by the Transport Services interface.
 
 Most Message Framers fall into one of two categories:
+
 - Header-prefixed record formats, such as a basic Type-Length-Value (TLV) structure
-- Delimeter-separated formats, such as HTTP/1.1.
+
+- Delimiter-separated formats, such as HTTP/1.1.
 
 Note that while Message Framers add the most value when placed above
 a protocol that otherwise does not preserve message boundaries, they can
