@@ -655,29 +655,17 @@ Selection, and Connection Properties, as well as defaults for Message Properties
 They are collected into a TransportProperties object to be passed into a Preconnection object:
 
 ~~~
-TransportProperties := NewTransportProperties(profile?)
+TransportProperties := NewTransportProperties()
 ~~~
 
-With the creation of the TransportProperties object, an optional profile
-can be passed. These profiles consist of a list of properties that are used
-together frequently and can be overridden by adding additional TransportProperties.
-See {{property-profiles}} for a list of profiles implementations should support.
 Individual properties are then added to the TransportProperties Object:
 
 ~~~
 TransportProperties.Add(property, value)
 ~~~
 
-Selection Properties can be added to a TransportProperties object using special actions for each preference level i.e, `TransportProperties.Add(some_property, avoid)` is equivalent to `TransportProperties.Avoid(some_property)`:
-
-~~~
-TransportProperties.Require(property)
-TransportProperties.Prefer(property)
-TransportProperties.Ignore(property)
-TransportProperties.Avoid(property)
-TransportProperties.Prohibit(property)
-TransportProperties.Default(property)
-~~~
+As preference typed selection properties may be used quite frequently, implementations should provide additional convenience functions as outlined in  {{preference-conv}}.
+In addition, implementations should provide a mechanism to create TransportProperties objects that are preconfigured for common use cases as outlined in {{property-profiles}}.
 
 For an existing Connection, the Transport Properties can be queried any time
 by using the following call on the Connection Object:
@@ -2517,16 +2505,28 @@ the Post Sockets interface, from which this work has evolved.
 
 --- back
 
+# Convenience Functions
 
-# Transport Property Profiles {#property-profiles}
+## Adding Preference Properties {#preference-conv}
 
-To ease the use of the interface specified by this document, an implementation
-should support the following property profiles as short-hand to specifying
-frequently used sets of properties.
-Implementations may vary the Preferences in these profiles, but should retrain
-their overall expected behavior.
+As Selection Properties of type Preference will be added to a TransportProperties object quite frequently, implementations should provide special actions for adding each preference level i.e, `TransportProperties.Add(some_property, avoid)` is equivalent to `TransportProperties.Avoid(some_property)`:
 
-## reliable-inorder-stream
+~~~
+TransportProperties.Require(property)
+TransportProperties.Prefer(property)
+TransportProperties.Ignore(property)
+TransportProperties.Avoid(property)
+TransportProperties.Prohibit(property)
+TransportProperties.Default(property)
+~~~
+
+## Transport Property Profiles {#property-profiles}
+
+To ease the use of the interface specified by this document, implementations
+should provide a mechanism to create Transport Property objects (see {{selection-props}}) that are pre-configured with frequently used sets of properties.
+Implementations should at least short-hands to specify the following property profiles: 
+
+### reliable-inorder-stream
 
 This profile provides reliable, in-order transport service with
 congestion control.
@@ -2540,7 +2540,7 @@ It should consist of the following properties:
  | congestion-control       | require   |
  | preserve-msg-boundaries  | ignore    |
  
-## reliable-message
+### reliable-message
 
 This profile provides message-preserving, reliable, in-order 
 transport service with congestion control.
@@ -2554,7 +2554,7 @@ It should consist of the following properties:
  | congestion-control       | require   |
  | preserve-msg-boundaries  | require   |
 
-## unreliable-datagram
+### unreliable-datagram
 
 This profile provides unreliable datagram transport service.
 An example of a protocol that provides this service is UDP.
