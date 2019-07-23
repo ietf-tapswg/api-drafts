@@ -92,7 +92,6 @@ author:
     email: tpauly@apple.com
 
 normative:
-  I-D.ietf-tsvwg-sctp-ndata:
   I-D.ietf-tsvwg-rtcweb-qos:
   I-D.ietf-taps-arch:
 
@@ -457,7 +456,8 @@ lower-case strings whereby words are separated by hyphens.
 These names serve two purposes:
 
 - Allow different components of a TAPS implementation to pass Transport
-  Properties, e.g., between a language frontend and a policy manager.
+  Properties, e.g., between a language frontend and a policy manager,
+  or as a representation of properties retrieved from a file or other storage.
 - Make code of different TAPS implementations look similar.
 
 Transport Property Names are hierarchically organized in the
@@ -467,7 +467,7 @@ form \[\<Namespace>.\]\<PropertyName\>.
   for properties defined by an RFC which are not protocol specific.
 - Protocol Specific Properties must use the protocol acronym as
   Namespace, e.g., “tcp" for TCP specific Transport Properties.
-  For IETF protocols, property names under these namespaces should
+  For IETF protocols, property names under these namespaces SHOULD
   be defined in an RFC.
 - Vendor or implementation specific properties must use a
   a string identifying the vendor or implementation as Namespace.
@@ -724,7 +724,7 @@ This property specifies whether the application needs or prefers to use a transp
 protocol that preserves message boundaries. The recommended default
 is to Prefer Preservation of Message Boundaries.
 
-### Configure per-Message reliability {#prop-partially-reliable}
+### Configure Per-Message Reliability {#prop-partially-reliable}
 
 Name:
 : per-msg-reliability
@@ -734,7 +734,7 @@ its reliability requirements on a per-Message basis. This property applies to
 Connections and Connection Groups. The recommended default is to Ignore
 this option.
 
-### Preservation of data ordering {#prop-ordering}
+### Preservation of Data Ordering {#prop-ordering}
 
 Name:
 : preserve-order
@@ -744,7 +744,7 @@ protocol that can ensure that data is received by the application on the other
 end in the same order as it was sent. The recommended default is to Require
 Preservation of data ordering.
 
-### Use 0-RTT session establishment with an idempotent Message {#prop-0rtt}
+### Use 0-RTT Session Establishment with an Idempotent Message {#prop-0rtt}
 
 Name:
 : zero-rtt-msg
@@ -752,8 +752,11 @@ Name:
 This property specifies whether an application would like to supply a Message to
 the transport protocol before Connection establishment, which will then be
 reliably transferred to the other side before or during Connection
-establishment, potentially multiple times. See also {{msg-idempotent}}. The
-recommended default is to Prefer this option.
+establishment, potentially multiple times (i.e., multiple copies of the message data
+may be passed to the Remote Endpoint). See also {{msg-idempotent}}. The
+recommended default is to Ignore this option. Note that disabling this property
+has no effect for protocols that are not connection-oriented and do not protect
+against duplicated messages, e.g., UDP.
 
 ### Multistream Connections in Group {#prop-multistream}
 
@@ -762,26 +765,27 @@ Name:
 
 This property specifies that the application would prefer multiple Connections
 within a Connection Group to be provided by streams of a single underlying
-transport connection where possible. The recommended default is to Prefer have
+transport connection where possible. The recommended default is to Prefer 
 this option.
 
-### Control checksum coverage on sending {#prop-checksum-control-send}
+### Full Checksum Coverage on Sending {#prop-checksum-control-send}
 
 Name:
 : per-msg-checksum-len-send
 
-This property specifies whether the application considers it useful to enable,
-disable, or configure a checksum when sending a Message.  The recommended default
-is to Ignore this option.
+This property specifies whether the application desires protection against
+corruption for all data transmitted on this Connection. Disabling this property may enable
+to control checksum coverage later (see {{msg-checksum}}). The recommended default
+is to Require this option.
 
-### Control checksum coverage on receiving {#prop-checksum-control-receive}
+### Full Checksum Coverage on Receiving {#prop-checksum-control-receive}
 
 Name:
 : per-msg-checksum-len-recv
 
-This property specifies whether the application considers it useful configure whether to
-require a checksum or not when receiving.  The recommended default is to Ignore
-this option.
+This property specifies whether the application desires protection against
+corruption for all data received on this Connection. The recommended default
+is to Require this option.
 
 ### Congestion control {#prop-cc}
 
@@ -1173,7 +1177,7 @@ resulting Connection is contained within the RendezvousDone<> Event, and is
 ready to use as soon as it is passed to the application via the Event.
 
 ~~~
-Preconnection -> RendezvousError<msgRef, error>
+Preconnection -> RendezvousError<messageContext, error>
 ~~~
 
 An RendezvousError occurs either when the Preconnection cannot be fulfilled
@@ -1271,8 +1275,12 @@ Messages are sent on a Connection using the Send action:
 Connection.Send(messageData, messageContext?, endOfMessage?)
 ~~~
 
-where messageData is the data object to send. The optional messageContext
-parameter supports per-message properties and is described in {{message-props}}.
+where messageData is the data object to send.
+
+The optional messageContext parameter supports per-message properties and is
+described in {{message-props}}.
+It can be used to identify send events (see {{send-events}}) related to a specific message or to inspect meta-data related to the message sent (see {{msg-ctx}}).
+
 The optional endOfMessage parameter supports partial sending and is described in
 {{send-partial}}.
 
@@ -1301,6 +1309,19 @@ Size for the Connection, the Send will fail with a SendError event ({{send-error
 example, it is invalid to send a Message over a UDP connection that is larger than
 the available datagram sending size.
 
+## Sending Replies {#send-replies}
+
+When a message is sent in response to a message received, the application
+may use the Message Context of the received Message to construct a Message Context for the reply.
+
+~~~
+replyMessageContext := requestMessageContext.reply()
+~~~
+
+By using the ```replyMessageContext```, the transport system is informed that
+the message to be sent is a response and can map the response to the same underlying transport connection or stream the request was received from.
+The concept of Message Contexts is described in {{msg-ctx}}.
+
 ## Send Events {#send-events}
 
 Like all Actions in this interface, the Send Action is asynchronous. There are
@@ -1314,7 +1335,7 @@ there will be two Expired events delivered.
 ### Sent
 
 ~~~
-Connection -> Sent<msgRef>
+Connection -> Sent<messageContext>
 ~~~
 
 The Sent Event occurs when a previous Send Action has completed, i.e., when
@@ -1335,7 +1356,7 @@ calling the next Send Action.
 ### Expired
 
 ~~~
-Connection -> Expired<msgRef>
+Connection -> Expired<messageContext>
 ~~~
 
 The Expired Event occurs when a previous Send Action expired before completion;
@@ -1347,7 +1368,7 @@ implementation-specific reference to the Message to which it applies.
 ### SendError {#send-error}
 
 ~~~
-Connection -> SendError<msgRef>
+Connection -> SendError<messageContext>
 ~~~
 
 A SendError occurs when a Message could not be sent due to an error condition:
@@ -1361,12 +1382,15 @@ Message to which it applies.
 
 Applications may need to annotate the Messages they send with extra information
 to control how data is scheduled and processed by the transport protocols in the
-Connection. A MessageContext object contains properties for sending Messages,
-and can be passed to the Send Action. Note that these properties are
-per-Message, not per-Send if partial Messages are sent ({{send-partial}}). All
-data blocks associated with a single Message share properties. For example, it
-would not make sense to have the beginning of a Message expire, but allow the
-end of a Message to still be sent.
+Connection. Therefore a message context containing these properties can be passed to the Send Action. For other uses of the message context, see {{msg-ctx}}.
+
+Note that message properties are per-Message, not per-Send if partial Messages
+are sent ({{send-partial}}). All data blocks associated with a single Message
+share properties specified in the Message Contexts. For example, it would not
+make sense to have the beginning of a Message expire, but allow the end of a
+Message to still be sent.
+
+A MessageContext object contains metadata for  Messages to be sent or received.
 
 ~~~
 messageData := "hello".bytes()
@@ -1716,12 +1740,11 @@ when it is temporarily not ready to receive messages.
 Connection -> Received<messageData, messageContext>
 ~~~
 
-A Received event indicates the delivery of a complete Message. It contains two objects,
-the received bytes as messageData, and the metadata and properties of the received
-Message as messageContext. See {{receive-context}} for details about the received context.
+A Received event indicates the delivery of a complete Message.
+It contains two objects, the received bytes as messageData, and the metadata and properties of the received Message as messageContext. 
 
-The messageData object provides access to the bytes that were received for this Message,
-along with the length of the byte array.
+The messageData object provides access to the bytes that were received for this Message, along with the length of the byte array.
+The messageContext is provided to enable retrieving metadata about the message and referring to the message, e.g., to send replies and map responses to their requests. See {{msg-ctx}} for details.
 
 See {{receive-framing}} for handling Message framing in situations where the Protocol
 Stack only provides a byte-stream transport.
@@ -1775,11 +1798,12 @@ The ReceiveError event passes an optional associated MessageContext. This may
 indicate that a Message that was being partially received previously, but had not
 completed, encountered an error and will not be completed.
 
-## Message Receive Context {#receive-context}
 
-Each Received Message Context may contain metadata from protocols in the Protocol Stack;
-which metadata is available is Protocol Stack dependent. The following metadata
-values are supported:
+## Receive Message Properties {#recv-meta}
+
+Each Message Context may contain metadata from protocols in the Protocol Stack;
+which metadata is available is Protocol Stack dependent. These are exposed though additional read-only Message Properties that can be queried from the MessageContext object (see {{msg-ctx}}) passed by the receive event. 
+The following metadata values are supported:
 
 ### ECN {#receive-ecn}
 
@@ -1803,7 +1827,7 @@ field for Messages received during connection establishment and respond accordin
 
 ### Receiving Final Messages
 
-The Received Message Context can indicate whether or not this Message is
+The Message Context can indicate whether or not this Message is
 the Final Message on a Connection. For any Message that is marked as Final,
 the application can assume that there will be no more Messages received on the
 Connection once the Message has been completely delivered. This corresponds
@@ -1814,6 +1838,35 @@ Applications therefore should not rely on receiving a Message marked Final to kn
 that the other endpoint is done sending on a connection.
 
 Any calls to Receive once the Final Message has been delivered will result in errors.
+
+
+# Message Contexts {#msg-ctx}
+
+Using the MessageContext object, the application can set and retrieve meta-data of the message, including Message Properties (see {{message-props}}) and framing meta-data (see {{framing-meta}}). 
+Therefore, a MessageContext object can be passed to the Send action and is retuned by each Send and Receive related events.
+
+Message properties can be set and queried using the Message Context:
+
+~~~
+MessageContext.add(scope?, parameter, value)
+PropertyValue := MessageContext.get(scope?, property)
+~~~
+
+To get or set Message Properties, the optional scope parameter is left empty, for framing meta-data, the framer is passed.
+
+For MessageContexts returned by send events (see {{send-events}}) and receive events (see {{receive-events}}), the application can query information about the local and remote endpoint:
+
+~~~
+RemoteEndpoint := MessageContext.GetRemoteEndpoint()
+LocalEndpoint := MessageContext.GetLocalEndpoint()
+~~~
+
+Message Contexts can also be used to send messages that are flagged as a reply to other messages, see {{send-replies}} for details.
+If the message received was send by the remote endpoint as a reply to an earlier message and the transports provides this information, the MessageContext of the original request can be accessed using the Message Context of the reply:
+
+~~~
+RequestMessageContext := MessageContext.GetOriginalRequest()
+~~~
 
 # Message Framers {#framing}
 
@@ -1837,8 +1890,10 @@ serve the purpose of framing data over TCP, but is exposed as a protocol
 natively supported by the Transport Services interface.
 
 Most Message Framers fall into one of two categories:
+
 - Header-prefixed record formats, such as a basic Type-Length-Value (TLV) structure
-- Delimeter-separated formats, such as HTTP/1.1.
+
+- Delimiter-separated formats, such as HTTP/1.1.
 
 Note that while Message Framers add the most value when placed above
 a protocol that otherwise does not preserve message boundaries, they can
@@ -1878,8 +1933,10 @@ Preconnection.AddFramer(framer)
 Framers have the ability to also dynamically modify Protocol Stacks, as
 described in {{framer-lifetime}}.
 
+## Framing Meta-Data {#framing-meta}
+
 When sending Messages, applications can add specific Message
-values to a MessageContext ({{message-props}}) that is intended for a Framer.
+values to a MessageContext ({{msg-ctx}}) that is intended for a Framer.
 This can be used, for example, to set the type of a Message for a TLV format.
 The namespace of values is custom for each unique Message Framer.
 
@@ -2080,7 +2137,7 @@ prefers protocols providing a specific transport feature that controlled by
 that protocol property. \[EDITOR'S NOTE: todo: add these cross-references up to {{selection-props}}]
 
 
-### Retransmission threshold before excessive retransmission notification {#conn-excss-retransmit}
+### Retransmission Threshold Before Excessive Retransmission Notification {#conn-excss-retransmit}
 
 Name:
 : retransmit-notify-threshold
@@ -2088,11 +2145,15 @@ Name:
 Type:
 : Integer
 
+Default:
+: -1
+
 This property specifies after how many retransmissions to inform the application
-about "Excessive Retransmissions".
+about "Excessive Retransmissions". The special value
+-1 means that this notification is disabled.
 
 
-### Required minimum coverage of the Corruption Protection for receiving {#conn-recv-checksum}
+### Required Minimum Corruption Protection Coverage for Receiving {#conn-recv-checksum}
 
 Name:
 : recv-checksum-len
@@ -2105,7 +2166,7 @@ Default:
 
 This property specifies the part of the received data that needs
 to be covered by a checksum. It is given in Bytes. A value of 0 means
-that no checksum is required, and a special value (e.g., -1) indicates
+that no checksum is required, and the special value -1 indicates
 full checksum coverage.
 
 ### Priority (Connection) {#conn-priority}
@@ -2116,13 +2177,16 @@ Name:
 Type:
 : Integer
 
+Default:
+: 100
+
 This Property is a non-negative integer representing the relative inverse
 priority of this Connection relative to other Connections in the same
 Connection Group. It has no effect on Connections not part of a Connection
 Group. As noted in {{groups}}, this property is not entangled when Connections
 are cloned.
 
-### Timeout for aborting Connection {#conn-timeout}
+### Timeout for Aborting Connection {#conn-timeout}
 
 Name:
 : conn-timeout
@@ -2130,12 +2194,16 @@ Name:
 Type:
 : Numeric
 
+Default:
+: -1
+
 This property specifies how long to wait before deciding that a Connection has
 failed when trying to reliably deliver data to the destination. Adjusting this Property
-will only take effect when the underlying stack supports reliability.
+will only take effect when the underlying stack supports reliability. The special value
+-1 means that this timeout is not scheduled to happen.
 
 
-### Connection group transmission scheduler {#conn-scheduler}
+### Connection Group Transmission Scheduler {#conn-scheduler}
 
 Name:
 : conn-scheduler
@@ -2143,11 +2211,14 @@ Name:
 Type:
 : Enumeration
 
+Default:
+: Weighted Fair Queueing (see Section 3.6 in {{?RFC8260}})
+
 This property specifies which scheduler should be used among Connections within
 a Connection Group, see {{groups}}. The set of schedulers can
-be taken from {{I-D.ietf-tsvwg-sctp-ndata}}.
+be taken from {{?RFC8260}}.
 
-### Maximum message size concurrent with Connection establishment {#size-idempotent}
+### Maximum Message Size Concurrent with Connection Establishment {#size-idempotent}
 
 Name:
 : zero-rtt-msg-max-len
@@ -2159,7 +2230,7 @@ This property represents the maximum Message size that can be sent
 before or during Connection establishment, see also {{msg-idempotent}}.
 It is given in Bytes.
 
-### Maximum Message size before fragmentation or segmentation {#conn-max-msg-notfrag}
+### Maximum Message Size Before Fragmentation or Segmentation {#conn-max-msg-notfrag}
 
 Name:
 : singular-transmission-msg-max-len
@@ -2171,7 +2242,7 @@ This property, if applicable, represents the maximum Message size that can be
 sent without incurring network-layer fragmentation or transport layer
 segmentation at the sender.
 
-### Maximum Message size on send {#conn-max-msg-send}
+### Maximum Message Size on Send {#conn-max-msg-send}
 
 Name:
 : send-msg-max-len
@@ -2181,7 +2252,7 @@ Type:
 
 This property represents the maximum Message size that can be sent.
 
-### Maximum Message size on receive {#conn-max-msg-recv}
+### Maximum Message Size on Receive {#conn-max-msg-recv}
 
 Name:
 : recv-msg-max-len
@@ -2210,7 +2281,7 @@ values are valid for the Capacity Profile:
   configuring transport protocol stacks. Transport system implementations that
   map the requested capacity profile onto per-connection DSCP signaling without
   multiplexing SHOULD assign the DSCP Default Forwarding {{?RFC2474}} PHB; when
-  the Connection is multiplexed, the guidelines in section 6 of {{?RFC7657}}
+  the Connection is multiplexed, the guidelines in Section 6 of {{?RFC7657}}
   apply.
 
   Scavenger:
@@ -2221,7 +2292,7 @@ values are valid for the Capacity Profile:
   map the requested capacity profile onto per-connection DSCP signaling without
   multiplexing SHOULD assign the DSCP Less than Best Effort
   {{?LE-PHB=I-D.ietf-tsvwg-le-phb}} PHB; when the Connection is multiplexed, the
-  guidelines in section 6 of {{?RFC7657}} apply.
+  guidelines in Section 6 of {{?RFC7657}} apply.
 
   Low Latency/Interactive:
   : The application is interactive, and prefers loss to
@@ -2233,7 +2304,7 @@ values are valid for the Capacity Profile:
   Transport system implementations that map the requested capacity profile onto
   per-connection DSCP signaling without multiplexing SHOULD assign the DSCP
   Expedited Forwarding {{?RFC3246}} PHB; when the Connection is multiplexed, the
-  guidelines in section 6 of {{?RFC7657}} apply.
+  guidelines in Section 6 of {{?RFC7657}} apply.
 
   Low Latency/Non-Interactive:
   : The application prefers loss to latency but is
@@ -2242,7 +2313,7 @@ values are valid for the Capacity Profile:
   system implementations that map the requested capacity profile onto
   per-connection DSCP signaling without multiplexing SHOULD assign a DSCP
   Assured Forwarding (AF21,AF22,AF23,AF24) {{?RFC2597}} PHB; when the Connection
-  is multiplexed, the guidelines in section 6 of {{?RFC7657}} apply.
+  is multiplexed, the guidelines in Section 6 of {{?RFC7657}} apply.
 
   Constant-Rate Streaming:
   : The application expects to send/receive data at a
@@ -2254,7 +2325,7 @@ values are valid for the Capacity Profile:
   system implementations that map the requested capacity profile onto
   per-connection DSCP signaling without multiplexing SHOULD assign a DSCP
   Assured Forwarding (AF31,AF32,AF33,AF34) {{?RFC2597}} PHB; when the Connection
-  is multiplexed, the guidelines in section 6 of {{?RFC7657}} apply.
+  is multiplexed, the guidelines in Section 6 of {{?RFC7657}} apply.
 
   High Throughput Data:
   : The application expects to send/receive data at the
@@ -2262,8 +2333,8 @@ values are valid for the Capacity Profile:
   period of time. Transport system implementations that map the requested
   capacity profile onto per-connection DSCP signaling without multiplexing
   SHOULD assign a DSCP Assured Forwarding (AF11,AF12,AF13,AF14) {{?RFC2597}} PHB
-  per section 4.8 of {{?RFC4594}}. When the Connection is multiplexed, the
-  guidelines in section 6 of {{?RFC7657}} apply.
+  per Section 4.8 of {{?RFC4594}}. When the Connection is multiplexed, the
+  guidelines in Section 6 of {{?RFC7657}} apply.
 
 The Capacity Profile for a selected protocol stack may be modified on a
 per-Message basis using the Transmission Profile Message Property; see
@@ -2276,12 +2347,16 @@ Name:
 : max-send-rate / max-recv-rate
 
 Type:
-: Integer (positive)
+: Numeric / Numeric
+
+Default:
+: -1 / -1 (unlimited, for both values)
 
 This property specifies an upper-bound rate that a transfer is not expected to
 exceed (even if flow control and congestion control allow higher rates), and/or a
 lower-bound rate below which the application does not deem
-a data transfer useful. It is given in bits per second.
+a data transfer useful. It is given in bits per second. The special value -1 indicates
+that no bound is specified.
 
 
 ### TCP-specific Property: User Timeout
@@ -2289,8 +2364,8 @@ a data transfer useful. It is given in bits per second.
 This property specifies, for the case TCP becomes the chosen transport protocol:
 
 Advertised User Timeout (name: tcp.user-timeout-value, type: Integer):
-: a time value to be advertised via the User Timeout Option (UTO) for the TCP at the remote endpoint
-to adapt its own "Timeout for aborting Connection" (see {{conn-timeout}}) value accordingly
+: a time value (default: the TCP default) to be advertised via the User Timeout Option (UTO) for the TCP at the remote endpoint
+to adapt its own "Timeout for aborting Connection" (see {{conn-timeout}}) value accordingly.
 
 User Timeout Enabled (name: tcp.user-timeout, type: Boolean):
 : a boolean (default false) to control whether the UTO option is enabled for a
