@@ -664,16 +664,8 @@ Individual properties are then added to the TransportProperties Object:
 TransportProperties.Add(property, value)
 ~~~
 
-Selection Properties can be added to a TransportProperties object using special actions for each preference level i.e, `TransportProperties.Add(some_property, avoid)` is equivalent to `TransportProperties.Avoid(some_property)`:
-
-~~~
-TransportProperties.Require(property)
-TransportProperties.Prefer(property)
-TransportProperties.Ignore(property)
-TransportProperties.Avoid(property)
-TransportProperties.Prohibit(property)
-TransportProperties.Default(property)
-~~~
+As preference typed selection properties may be used quite frequently, implementations should provide additional convenience functions as outlined in  {{preference-conv}}.
+In addition, implementations should provide a mechanism to create TransportProperties objects that are preconfigured for common use cases as outlined in {{property-profiles}}.
 
 For an existing Connection, the Transport Properties can be queried any time
 by using the following call on the Connection Object:
@@ -1297,18 +1289,17 @@ Messages for streaming large data is also supported (see {{send-partial}}).
 Messages are sent on a Connection using the Send action:
 
 ~~~
-messageContext := Connection.Send(messageData, messageContext?, endOfMessage?)
+Connection.Send(messageData, messageContext?, endOfMessage?)
 ~~~
 
 where messageData is the data object to send.
 
 The optional messageContext parameter supports per-message properties and is
-described in {{message-props}}. If provided, the Message Context object returned is identical to the one that was passed. 
+described in {{message-props}}.
+It can be used to identify send events (see {{send-events}}) related to a specific message or to inspect meta-data related to the message sent (see {{msg-ctx}}).
 
 The optional endOfMessage parameter supports partial sending and is described in
 {{send-partial}}.
-
-The MessageContext returned by Send can be used to identify send events (see {{send-events}}) related to a specific message or to inspect meta-data related to the message sent. 
 
 ## Basic Sending {#send-basic}
 
@@ -1916,8 +1907,10 @@ serve the purpose of framing data over TCP, but is exposed as a protocol
 natively supported by the Transport Services interface.
 
 Most Message Framers fall into one of two categories:
+
 - Header-prefixed record formats, such as a basic Type-Length-Value (TLV) structure
-- Delimeter-separated formats, such as HTTP/1.1.
+
+- Delimiter-separated formats, such as HTTP/1.1.
 
 Note that while Message Framers add the most value when placed above
 a protocol that otherwise does not preserve message boundaries, they can
@@ -2540,6 +2533,76 @@ influenced this work. Thanks to Laurent Chuat and Jason Lee for initial work on
 the Post Sockets interface, from which this work has evolved.
 
 --- back
+
+# Convenience Functions
+
+## Adding Preference Properties {#preference-conv}
+
+As Selection Properties of type Preference will be added to a TransportProperties object quite frequently, implementations should provide special actions for adding each preference level i.e, `TransportProperties.Add(some_property, avoid)` is equivalent to `TransportProperties.Avoid(some_property)`:
+
+~~~
+TransportProperties.Require(property)
+TransportProperties.Prefer(property)
+TransportProperties.Ignore(property)
+TransportProperties.Avoid(property)
+TransportProperties.Prohibit(property)
+TransportProperties.Default(property)
+~~~
+
+## Transport Property Profiles {#property-profiles}
+
+To ease the use of the interface specified by this document, implementations
+should provide a mechanism to create Transport Property objects (see {{selection-props}}) that are pre-configured with frequently used sets of properties.
+Implementations should at least short-hands to specify the following property profiles: 
+
+### reliable-inorder-stream
+
+This profile provides reliable, in-order transport service with
+congestion control.
+An example of a protocol that provides this service is TCP.
+It should consist of the following properties:
+
+ | Property                 | Value     |
+ |:-------------------------|:----------|
+ | reliability              | require   |
+ | preserve-order           | require   |
+ | congestion-control       | require   |
+ | preserve-msg-boundaries  | ignore    |
+ 
+### reliable-message
+
+This profile provides message-preserving, reliable, in-order 
+transport service with congestion control.
+An example of a protocol that provides this service is SCTP.
+It should consist of the following properties:
+
+ | Property                 | Value     |
+ |:-------------------------|:----------|
+ | reliability              | require   |
+ | preserve-order           | require   |
+ | congestion-control       | require   |
+ | preserve-msg-boundaries  | require   |
+
+### unreliable-datagram
+
+This profile provides unreliable datagram transport service.
+An example of a protocol that provides this service is UDP.
+It should consist of the following properties:
+
+ | Property                 | Value     |
+ |:-------------------------|:----------|
+ | reliability              | ignore    |
+ | preserve-order           | ignore    |
+ | congestion-control       | ignore    |
+ | preserve-msg-boundaries  | require   |
+ | idempotent               | true      |
+
+Applications that choose this Transport Property Profile for latency reasons
+should also consider setting the Capacity Profile Property,
+see {{prop-cap-profile}} accordingly and my benefit from controlling checksum
+coverage, see {{prop-checksum-control-send}} and {{prop-checksum-control-receive}}.
+
+
 
 # Additional Properties {#appendix-non-consensus}
 
