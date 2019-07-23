@@ -950,7 +950,7 @@ TransportProperties.Add(protocol-stack, ("tcp", "ipv6"))
 If at least one set is specified, the transport system will only choose protocol stack instances that use all protocols of one of given sets on the local endpoint. 
 
 Note that this mechanism is __not intended__ to request transport services for applications that need, e.g., TCP like transport services or have deployment issues as firewalls that require the use of specific protocols.
-For the former, Transport Property Profiles \[__TODO__: add reference once Issue #325 is fixed or remove\] should be used, while for the latter, these deployment considerations should be expressed as a system policy that is deployed with the application.
+For the former, the convenience functions outlined in {{property-profiles}} should be used, while for the latter, these deployment considerations should be expressed as a system policy that is deployed with the application.
 
 Also note that the protocols used at the remote endpoints my be different, as transport service may involve the use of proxies or protocol converters.
 
