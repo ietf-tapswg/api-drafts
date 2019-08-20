@@ -95,7 +95,7 @@ informative:
 
 --- abstract
 
-This document provides an overview of the architecture of Transport Services, a model for exposing transport protocol features to applications for network communication. In contrast to what is provided by most existing Application Programming Interfaces (APIs), Transport Services is based on an asynchronous, event-driven interaction pattern; it uses messages for representing data transfer to applications; and it assumes an implementation that can use multiple IP addresses, multiple protocols, and multiple paths, and provide multiple application streams. This document further defines the common set of terminology and concepts to be used in definitions of Transport Services APIs and implementations. 
+This document provides an overview of the architecture of Transport Services, a model for exposing transport protocol features to applications for network communication. In contrast to what is provided by most existing Application Programming Interfaces (APIs), Transport Services is based on an asynchronous, event-driven interaction pattern; it uses messages for representing data transfer to applications; and it assumes an implementation that can use multiple IP addresses, multiple protocols, and multiple paths, and provide multiple application streams. This document further defines the common set of terminology and concepts to be used in definitions of Transport Services APIs and implementations.
 
 --- middle
 
@@ -105,7 +105,7 @@ Many application programming interfaces (APIs) to perform transport networking h
 
 The goal of the Transport Services architecture is to provide a common, flexible, and reusable interface for transport protocols. As applications adopt this interface, they will benefit from a wide set of transport features that can evolve over time, and ensure that the system providing the interface can optimize its behavior based on the application requirements and network conditions, without requiring changes to the applications. This flexibility does not only enable faster deployment of new feature and protocols, but it can also support applications with racing and fallback mechanisms which otherwise need to be implemented in each application separately.
 
-This document is developed in parallel with the specification of the Transport Services API {{I-D.ietf-taps-interface}} and Implementation Guidelines {{I-D.ietf-taps-impl}}. Although following the Transport Services Architecture does of course not mean that all APIs and implementations have to be identical, a common minimal set of features represented in a consistent fashion will enable applications to be easily ported from one system to the another. 
+This document is developed in parallel with the specification of the Transport Services API {{I-D.ietf-taps-interface}} and Implementation Guidelines {{I-D.ietf-taps-impl}}. Although following the Transport Services Architecture does of course not mean that all APIs and implementations have to be identical, a common minimal set of features represented in a consistent fashion will enable applications to be easily ported from one system to the another.
 
 ## Overview
 
@@ -342,7 +342,7 @@ The diagram below provides a high-level view of the actions taken during the lif
 * Connection: A Connection object represents one or more active transport protocol instances that can send and/or receive Messages between local and remote systems. It holds state pertaining to the underlying transport protocol instances and any ongoing data transfers. This represents, for example, an active connection in a connection-oriented protocol such as TCP, or a fully-specified 5-tuple for a connectionless protocol such as UDP. It can also represent a pool of transport protocol instance, e.g., a set of TCP and QUIC connections to equivalent endpoints, or a stream of a multi-streaming transport protocol instance.
 
 * Listener: A Listener object accepts incoming transport protocol connections from remote systems and generates corresponding Connection objects. It is created from a Preconnection object that specifies the type of incoming connections it will accept.
-  
+
 ### Pre-Establishment {#preestablishment}
 
 * Endpoint: An Endpoint represents an identifier for one side of a transport connection.
@@ -474,7 +474,7 @@ existing protocols by providing a generic security-related interface. Each
 provided interface translates to an existing protocol-specific interface provided by
 supported security protocols. For example, trust verification callbacks are
 common parts of TLS APIs. Transport Services APIs will expose similar
-functionality {{I-D.ietf-taps-transport-security}}. 
+functionality {{I-D.ietf-taps-transport-security}}.
 
 As described above in {{equivalence}}, if a Transport Services system races
 between two different Protocol Stacks, both MUST use the same security
@@ -486,14 +486,14 @@ to private keys or copies of pre-shared keys (PSKs), key use needs to be
 validated. For example, clients ought not to use PSK material created for the
 Encapsulating Security Protocol (ESP, part of IPsec) {{RFC4303}} with QUIC, and clients
 ought not to use private keys intended for server authentication as a keys for
-client authentication. 
+client authentication.
 
 Moreover, unlike certain transport features such as TCP
 Fast Open (TFO) {{RFC7413}} or Explicit Congestion Notification (ECN)
 {{RFC3168}} which can fall back to standard configurations, Transport
 Services systems MUST prohibit fallback for security protocols. For example,
 if a client requests TLS, yet TLS or the desired version are not available,
-its connection will fail. Clients are thus responsible for implementing 
+its connection will fail. Clients are thus responsible for implementing
 security protocol fallback or version fallback by creating multiple
 Transport Services Connections, if so desired.
 

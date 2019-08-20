@@ -547,7 +547,7 @@ incoming Connections.
 The Local Endpoint and the Remote Endpoint MUST both be specified if a
 peer-to-peer Rendezvous is to occur based on the Preconnection.
 
-Message Framers (see {{framing}}), if required, should be added to the 
+Message Framers (see {{framing}}), if required, should be added to the
 Preconnection during pre-establishment.
 
 ## Specifying Endpoints {#endpointspec}
@@ -753,7 +753,7 @@ Name:
 
 This property specifies that the application would prefer multiple Connections
 within a Connection Group to be provided by streams of a single underlying
-transport connection where possible. The recommended default is to Prefer 
+transport connection where possible. The recommended default is to Prefer
 this option.
 
 ### Full Checksum Coverage on Sending {#prop-checksum-control-send}
@@ -1696,7 +1696,7 @@ By default, Receive will try to deliver complete Messages in a single event ({{r
 
 The application can set a minIncompleteLength value to indicates the smallest partial
 Message data size in bytes that should be delivered in response to this Receive. By default,
-this value is infinite, which means that only complete Messages should be delivered (see {{receive-partial}} 
+this value is infinite, which means that only complete Messages should be delivered (see {{receive-partial}}
 and {{receive-framing}} for more information on how this is accomplished).
 If this value is set to some smaller value, the associated receive event will be triggered
 only when at least that many bytes are available, or the Message is complete with fewer
@@ -1729,7 +1729,7 @@ Connection -> Received<messageData, messageContext>
 ~~~
 
 A Received event indicates the delivery of a complete Message.
-It contains two objects, the received bytes as messageData, and the metadata and properties of the received Message as messageContext. 
+It contains two objects, the received bytes as messageData, and the metadata and properties of the received Message as messageContext.
 
 The messageData object provides access to the bytes that were received for this Message, along with the length of the byte array.
 The messageContext is provided to enable retrieving metadata about the message and referring to the message, e.g., to send replies and map responses to their requests. See {{msg-ctx}} for details.
@@ -1790,7 +1790,7 @@ completed, encountered an error and will not be completed.
 ## Receive Message Properties {#recv-meta}
 
 Each Message Context may contain metadata from protocols in the Protocol Stack;
-which metadata is available is Protocol Stack dependent. These are exposed though additional read-only Message Properties that can be queried from the MessageContext object (see {{msg-ctx}}) passed by the receive event. 
+which metadata is available is Protocol Stack dependent. These are exposed though additional read-only Message Properties that can be queried from the MessageContext object (see {{msg-ctx}}) passed by the receive event.
 The following metadata values are supported:
 
 ### ECN {#receive-ecn}
@@ -1830,7 +1830,7 @@ Any calls to Receive once the Final Message has been delivered will result in er
 
 # Message Contexts {#msg-ctx}
 
-Using the MessageContext object, the application can set and retrieve meta-data of the message, including Message Properties (see {{message-props}}) and framing meta-data (see {{framing-meta}}). 
+Using the MessageContext object, the application can set and retrieve meta-data of the message, including Message Properties (see {{message-props}}) and framing meta-data (see {{framing-meta}}).
 Therefore, a MessageContext object can be passed to the Send action and is retuned by each Send and Receive related events.
 
 Message properties can be set and queried using the Message Context:
@@ -1864,13 +1864,13 @@ can encapsulate or encode outbound Messages, and decapsulate or decode
 inbound data into Messages.
 
 Message Framers allow message boundaries to be preserved when using
-a Connection object, even when using byte-stream transports. This facility 
-is designed based on the fact that many of the current application protocols 
+a Connection object, even when using byte-stream transports. This facility
+is designed based on the fact that many of the current application protocols
 evolved over TCP, which does not provide message boundary preservation,
 and since many of these protocols require message boundaries to function,
 each application layer protocol has defined its own framing.
 
-While many protocols can be represented as Message Framers, for the 
+While many protocols can be represented as Message Framers, for the
 purposes of the Transport Services interface these are ways for applications
 or application frameworks to define their own Message parsing to be
 included within a Connection's Protocol Stack. As an example, TLS can
@@ -2524,7 +2524,7 @@ TransportProperties.Default(property)
 
 To ease the use of the interface specified by this document, implementations
 should provide a mechanism to create Transport Property objects (see {{selection-props}}) that are pre-configured with frequently used sets of properties.
-Implementations should at least short-hands to specify the following property profiles: 
+Implementations should at least short-hands to specify the following property profiles:
 
 ### reliable-inorder-stream
 
@@ -2539,10 +2539,10 @@ It should consist of the following properties:
  | preserve-order           | require   |
  | congestion-control       | require   |
  | preserve-msg-boundaries  | ignore    |
- 
+
 ### reliable-message
 
-This profile provides message-preserving, reliable, in-order 
+This profile provides message-preserving, reliable, in-order
 transport service with congestion control.
 An example of a protocol that provides this service is SCTP.
 It should consist of the following properties:
@@ -2654,98 +2654,98 @@ definition.
 
 \[EDITOR'S NOTE: This is early text. In the future, this section will contain backward references, which we currently avoid because things are still being moved around and names / categories etc. are changing.]
 
-* Connect:  
+* Connect:
 "Initiate" Action.
 
-* Listen:  
+* Listen:
 "Listen" Action.
 
-* Specify number of attempts and/or timeout for the first establishment message:  
+* Specify number of attempts and/or timeout for the first establishment message:
 "Timeout for aborting Connection Establishment" Property, using a time value.
 
-* Disable MPTCP:  
+* Disable MPTCP:
 "Parallel Use of Multiple Paths" Property.
 
-* Hand over a message to reliably transfer (possibly multiple times) before connection establishment:  
+* Hand over a message to reliably transfer (possibly multiple times) before connection establishment:
 "InitiateWithSend" Action.
 
-* Hand over a message to reliably transfer during connection establishment:  
+* Hand over a message to reliably transfer during connection establishment:
 "InitiateWithSend" Action.
 
-* Change timeout for aborting connection (using retransmit limit or time value):  
+* Change timeout for aborting connection (using retransmit limit or time value):
 "Timeout for aborting Connection" property, using a time value.
 
-* Timeout event when data could not be delivered for too long:  
+* Timeout event when data could not be delivered for too long:
 "ConnectionError" Event.
 
-* Suggest timeout to the peer:  
+* Suggest timeout to the peer:
 TCP-specific Property: User Timeout.
 
-* Notification of Excessive Retransmissions (early warning below abortion threshold):  
+* Notification of Excessive Retransmissions (early warning below abortion threshold):
 "Notification of excessive retransmissions" property.
 
-* Notification of ICMP error message arrival:  
+* Notification of ICMP error message arrival:
 "Notification of ICMP soft error message arrival" property.
 
-* Choose a scheduler to operate between streams of an association:  
+* Choose a scheduler to operate between streams of an association:
 "Connection group transmission scheduler" property.
 
-* Configure priority or weight for a scheduler:  
+* Configure priority or weight for a scheduler:
 "Priority (Connection)" property.
 
-* "Specify checksum coverage used by the sender" and "Disable checksum when sending":  
+* "Specify checksum coverage used by the sender" and "Disable checksum when sending":
 "Corruption Protection Length" property (value 0 to disable).
 
-* "Specify minimum checksum coverage required by receiver" and "Disable checksum requirement when receiving":  
+* "Specify minimum checksum coverage required by receiver" and "Disable checksum requirement when receiving":
 "Required minimum coverage of the checksum for receiving" property (value 0 to disable).
 
-* "Specify DF" field and "Request not to bundle messages:"  
+* "Specify DF" field and "Request not to bundle messages:"
 The "Singular Transmission" Message property combines both of these requests, i.e. if a request not to bundle messages is made, this also turns off DF in case of protocols that allow this (only UDP and UDP-Lite, which cannot bundle messages anyway).
 
-* Get max. transport-message size that may be sent using a non-fragmented IP packet from the configured interface:  
+* Get max. transport-message size that may be sent using a non-fragmented IP packet from the configured interface:
 "Maximum Message size before fragmentation or segmentation" property.
 
-* Get max. transport-message size that may be received from the configured interface:  
+* Get max. transport-message size that may be received from the configured interface:
 "Maximum Message size on receive" property.
 
-* Obtain ECN field:  
+* Obtain ECN field:
 "ECN" is a defined metadata value as part of the Message Receive Context.
 
-* "Specify DSCP field", "Disable Nagle algorithm", "Enable and configure a 'Low Extra Delay Background Transfer'":  
+* "Specify DSCP field", "Disable Nagle algorithm", "Enable and configure a 'Low Extra Delay Background Transfer'":
 As suggested in Section 5.5 of {{I-D.ietf-taps-minset}}, these transport features are collectively offered via the "Capacity profile" property.
 
-* Close after reliably delivering all remaining data, causing an event informing the application on the other side:  
+* Close after reliably delivering all remaining data, causing an event informing the application on the other side:
 This is offered by the "Close" Action with slightly changed semantics in line with the discussion in Section 5.2 of {{I-D.ietf-taps-minset}}.
 
-* "Abort without delivering remaining data, causing an event informing the application on the other side" and "Abort without delivering remaining data, not causing an event informing the application on the other side":  
+* "Abort without delivering remaining data, causing an event informing the application on the other side" and "Abort without delivering remaining data, not causing an event informing the application on the other side":
 This is offered by the "Abort" action without promising that this is signaled to the other side. If it is, a "ConnectionError" Event will fire at the peer.
 
-* "Reliably transfer data, with congestion control", "Reliably transfer a message, with congestion control" and "Unreliably transfer a message":  
+* "Reliably transfer data, with congestion control", "Reliably transfer a message, with congestion control" and "Unreliably transfer a message":
 Reliability is controlled via the "Reliable Data Transfer (Message)" Message property. Transmitting data without delimiters is done by not using a Framer. The choice of congestion control is provided via the "Congestion control" property.
 
-* Configurable Message Reliability:  
+* Configurable Message Reliability:
 The "Lifetime" Message Property implements a time-based way to configure message reliability.
 
-* "Ordered message delivery (potentially slower than unordered)" and "Unordered message delivery (potentially faster than ordered)":  
+* "Ordered message delivery (potentially slower than unordered)" and "Unordered message delivery (potentially faster than ordered)":
 The two transport features are controlled via the Message property "Ordered".
 
-* Request not to delay the acknowledgement (SACK) of a message:  
+* Request not to delay the acknowledgement (SACK) of a message:
 Should the protocol support it, this is one of the transport features the transport system can use when an application uses the Capacity Profile Property with value "Low Latency/Interactive".
 
-* Receive data (with no message delimiting):  
+* Receive data (with no message delimiting):
 "Received" Event without using a Message Framer.
 
-* Receive a message:  
+* Receive a message:
 "Received" Event. Section 5.1 of {{I-D.ietf-taps-minset}} discusses how messages can be obtained from a bytestream in case of implementation over TCP. Here, this is dealt with by Message Framers.
 
-* Information about partial message arrival:  
+* Information about partial message arrival:
 "ReceivedPartial" Event.
 
-* Notification of send failures:  
+* Notification of send failures:
 "Expired" and "SendError" Events.
 
-* Notification that the stack has no more user data to send:  
+* Notification that the stack has no more user data to send:
 Applications can obtain this information via the "Sent" Event.
 
-* Notification to a receiver that a partial message delivery has been aborted:  
+* Notification to a receiver that a partial message delivery has been aborted:
 "ReceiveError" Event.

@@ -118,7 +118,7 @@ The Transport Services architecture {{I-D.ietf-taps-arch}} defines a system that
 
 # Introduction
 
-The Transport Services architecture {{I-D.ietf-taps-arch}} defines a system that allows applications to use transport networking protocols flexibly. The interface such a system exposes to applications is defined as the Transport Services API {{I-D.ietf-taps-interface}}. This API is designed to be generic across multiple transport protocols and sets of protocols features. 
+The Transport Services architecture {{I-D.ietf-taps-arch}} defines a system that allows applications to use transport networking protocols flexibly. The interface such a system exposes to applications is defined as the Transport Services API {{I-D.ietf-taps-interface}}. This API is designed to be generic across multiple transport protocols and sets of protocols features.
 
 This document serves as a guide to implementation on how to build a system that provides a Transport Services API. It is the job of an implementation of a Transport Services system to turn the requests of an application into decisions on how to establish connections, and how to transfer data over those connections once established. The terminology used in this document is based on the Architecture {{I-D.ietf-taps-arch}}.
 
@@ -137,7 +137,7 @@ Listener objects are created with a Preconnection, at which point their configur
 During pre-establishment the application specifies the Endpoints to be used for communication as well as its preferences via Selection Properties and, if desired, also Connection Properties. Generally, Connection Properties should be configured as early as possible, as they may serve as input to decisions that are made by the implementation (the Capacity Profile may guide usage of a protocol offering scavenger-type congestion control, for example). In the remainder of this document, we only refer to Selection Properties because they are the more typical case and have to be handled by all implementations.
 
 The implementation stores these objects and properties as part of the Preconnection object for use during connection establishment. For Selection Properties that are not provided by the application, the implementation must use the default values specified in the Transport Services API ({{I-D.ietf-taps-interface}}).
-  
+
 ## Configuration-time errors
 
 The transport system should have a list of supported protocols available, which each have transport features reflecting the capabilities of the protocol. Once an application specifies its Transport Parameters, the transport system should match the required and prohibited properties against the transport features of the available protocols.
@@ -357,9 +357,9 @@ For example, if the application has indicated both a preference for WiFi over LT
 
 ## Sorting Branches {#branch-sorting}
 
-Implementations should sort the branches of the tree of connection options in order of their preference rank. 
+Implementations should sort the branches of the tree of connection options in order of their preference rank.
 Leaf nodes on branches with higher rankings represent connection attempts that will be raced first.
-Implementations should order the branches to reflect the preferences expressed by the application for its new connection, including Selection Properties, which are specified in {{I-D.ietf-taps-interface}}. 
+Implementations should order the branches to reflect the preferences expressed by the application for its new connection, including Selection Properties, which are specified in {{I-D.ietf-taps-interface}}.
 
 In addition to the properties provided by the application, an implementation may include additional criteria such as cached performance estimates, see {{performance-caches}}, or system policy, see {{role-of-system-policy}}, in the ranking.
 Two examples of how Selection and Connection Properties may be used to sort branches are provided below:
@@ -443,10 +443,10 @@ If all of the leaf nodes fail to connect during racing, i.e. none of the configu
 
 ## Establishing multiplexed connections {#establish-mux}
 
-Multiplexing several Connections over a single underlying transport connection requires that the Connections to be multiplexed belong to the same Connection Group (as is indicated by the application using the Clone call). When the underlying transport connection supports multi-streaming, the Transport System can map each Connection in the Connection Group to a different stream. 
+Multiplexing several Connections over a single underlying transport connection requires that the Connections to be multiplexed belong to the same Connection Group (as is indicated by the application using the Clone call). When the underlying transport connection supports multi-streaming, the Transport System can map each Connection in the Connection Group to a different stream.
 Thus, when the Connections that are offered to an application by the Transport System are multiplexed,
 the Transport System may implement the establishment of a new Connection by simply beginning to use
-a new stream of an already established transport connection and there is no need for a connection establishment 
+a new stream of an already established transport connection and there is no need for a connection establishment
 procedure. This, then, also means that there may not
 be any "establishment" message (like a TCP SYN), but the application can simply start sending
 or receiving. Therefore, when the Initiate action of a Transport System is called without Messages being
@@ -466,7 +466,7 @@ When an implementation is asked to Listen, it registers with the system to wait 
 
 If the Selection Properties do not require a single network interface or path, but allow the use of multiple paths, the Listener object should register for incoming traffic on all of the network interfaces or paths that conform to the Properties. The set of available paths can change over time, so the implementation should monitor network path changes and register and de-register the Listener across all usable paths. When using multiple paths, the Listener is generally expected to use the same port for listening on each.
 
-If the Selection Properties allow multiple protocols to be used for listening, and the implementation supports it, the Listener object should register across the eligble protocols for each path. This means that inbound Connections delivered by the implementation may have heterogeneous protocol stacks. 
+If the Selection Properties allow multiple protocols to be used for listening, and the implementation supports it, the Listener object should register across the eligble protocols for each path. This means that inbound Connections delivered by the implementation may have heterogeneous protocol stacks.
 
 ### Implementing listeners for Connected Protocols
 
@@ -690,7 +690,7 @@ InitiateError:
 : TCP can throw various errors during connection setup. Specifically, it is important to handle a RST being sent by the peer during the handshake.
 
 ConnectionError:
-: Once established, TCP throws errors whenever the connection is disconnected, such as due to receive a RST from the peer; or hitting a TCP retransmission timeout. 
+: Once established, TCP throws errors whenever the connection is disconnected, such as due to receive a RST from the peer; or hitting a TCP retransmission timeout.
 
 Listen:
 : Calling `Listen` for TCP binds a local port and prepares it to receive inbound SYN packets from peers.
@@ -737,7 +737,7 @@ InitiateError:
 : UDP Connections can only generate errors on initiation due to port conflicts on the local system.
 
 ConnectionError:
-: Once in use, UDP throws errors upon receiving ICMP notifications indicating failures in the network. 
+: Once in use, UDP throws errors upon receiving ICMP notifications indicating failures in the network.
 
 Listen:
 : Calling `Listen` for UDP binds a local port and prepares it to receive inbound UDP datagrams from peers.
@@ -946,7 +946,7 @@ Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for 
 
 --- back
 
-# Additional Properties {#appendix-non-consensus} 
+# Additional Properties {#appendix-non-consensus}
 
 This appendix discusses implementation considerations for additional parameters and properties that could be used to enhance transport protocol and/or path selection, or the transmission of messages given a Protocol Stack that implements them.
 These are not part of the interface, and may be removed from the final document, but are presented here to support discussion within the TAPS working group as to whether they should be added to a future revision of the base specification.
