@@ -1314,6 +1314,9 @@ The concept of Message Contexts is described in {{msg-ctx}}.
 
 Like all Actions in this interface, the Send Action is asynchronous. There are
 several Events that can be delivered in response to Sending a Message.
+Exactly one Event (Sent, Expired, or SendError) will be delivered in reponse
+to each call to Send. These Events can be implemented as callbacks
+that allow the specific Event to be associated with the call to Send.
 
 Note that if partial Sends are used ({{send-partial}}), there will still be exactly
 one Send Event delivered for each call to Send. For example, if a Message
