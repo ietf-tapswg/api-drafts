@@ -191,7 +191,7 @@ The Transport Services architecture is based on the survey of Services Provided 
 
 Since transport security is an increasingly relevant aspect of using transport protocols on the Internet, this architecture also considers the impact of transport security protocols on the feature-set exposed by transport services {{?I-D.ietf-taps-transport-security}}.
 
-One of the key insights to come from identifying the minimal set of features provided by transport protocols {{?I-D.ietf-taps-minset}} was that features either require application interaction and guidance (referred to as Functional Features), or else can be handled automatically by a system implementing Transport Services (referred to as Automatable Features). Among the Functional Features, some were common across all or nearly all transport protocols, while others could be seen as features that, if specified, would only be useful with a subset of protocols, but would not harm the functionality of other protocols. For example, some protocols can deliver messages faster for applications that do not require messages to arrive in the order in which they were sent. However, this functionality needs to be explicitly allowed by the application, since reordering messages would be undesirable in many cases.
+One of the key insights to come from identifying the minimal set of features provided by transport protocols {{?I-D.ietf-taps-minset}} was that features either require application interaction and guidance (referred to as Functional or Optimizing Features), or else can be handled automatically by a system implementing Transport Services (referred to as Automatable Features). Among the Functional and Optimizing Features, some were common across all or nearly all transport protocols, while others could be seen as features that, if specified, would only be useful with a subset of protocols, but would not harm the functionality of other protocols. For example, some protocols can deliver messages faster for applications that do not require messages to arrive in the order in which they were sent. However, this functionality needs to be explicitly allowed by the application, since reordering messages would be undesirable in many cases.
 
 ## Specification of Requirements
 
@@ -477,14 +477,11 @@ Encapsulating Security Protocol (ESP, part of IPsec) {{?RFC4303}} with QUIC, and
 ought not to use private keys intended for server authentication as a keys for
 client authentication.
 
-Moreover, unlike certain transport features such as TCP
-Fast Open (TFO) {{?RFC7413}} or Explicit Congestion Notification (ECN)
-{{?RFC3168}} which can fall back to standard configurations, Transport
-Services systems MUST prohibit fallback for security protocols. For example,
-if a client requests TLS, yet TLS or the desired version are not available,
-its connection will fail. Clients are thus responsible for implementing
-security protocol fallback or version fallback by creating multiple
-Transport Services Connections, if so desired.
+Moreover, Transport Services systems MUST NOT automatically fall back from secure
+protocols to insecure protocols, or to weaker versions of secure protocols.
+For example, if a client requests TLS, but the desired version of TLS is not available,
+its connection will fail. Clients are thus responsible for implementing security protocol
+fallback or version fallback by creating multiple Transport Services Connections, if so desired.
 
 # Acknowledgements
 
