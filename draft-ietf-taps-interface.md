@@ -1109,24 +1109,24 @@ After Stop() is called, the Listener can be disposed of.
 Listener -> ConnectionReceived<Connection>
 ~~~
 
-The ConnectionReceived event occurs when a Remote Endpoint has established a
+The ConnectionReceived Event occurs when a Remote Endpoint has established a
 transport-layer connection to this Listener (for Connection-oriented
 transport protocols), or when the first Message has been received from the
 Remote Endpoint (for Connectionless protocols), causing a new Connection to be
 created. The resulting Connection is contained within the ConnectionReceived
-event, and is ready to use as soon as it is passed to the application via the
+Event, and is ready to use as soon as it is passed to the application via the
 event.
 
 ~~~
 Listener.SetNewConnectionLimit(value)
 ~~~
 
-If the caller wants to rate-limit the number of inbound Connections it that will be delivered,
+If the caller wants to rate-limit the number of inbound Connections that will be delivered,
 it can set a cap using SetNewConnectionLimit(). This mechanism allows a server to
 protect itself from being drained of resources. Each time a new Connection is delivered
-by the ConnectionReceived event, the value is automatically decremented. Once the
+by the ConnectionReceived Event, the value is automatically decremented. Once the
 value reaches zero, no further Connections will be delivered until the caller sets the
-limit to a higher value. By default, this value is Infinite. The caller also is able to reset
+limit to a higher value. By default, this value is Infinite. The caller is also able to reset
 the value to Infinite at any point.
 
 ~~~
@@ -1141,7 +1141,7 @@ be resolved, or when the application is prohibited from listening by policy.
 Listener -> Stopped<>
 ~~~
 
-A Stopped event occurs after the Listener has stopped listening.
+A Stopped Event occurs after the Listener has stopped listening.
 
 ## Peer-to-Peer Establishment: Rendezvous {#rendezvous}
 
