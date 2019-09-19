@@ -1071,8 +1071,7 @@ An InitiateError occurs either when the set of transport properties and security
 parameters cannot be fulfilled on a Connection for initiation (e.g. the set of
 available Paths and/or Protocol Stacks meeting the constraints is empty) or
 reconciled with the local and/or remote endpoints; when the remote specifier
-cannot be resolved; when there is any other issue prior to attempting to establish 
-a transport-layer connection; or when no transport-layer connection can be established to
+cannot be resolved; or when no transport-layer connection can be established to
 the remote endpoint (e.g. because the remote endpoint is not accepting
 connections, the application is prohibited from opening a Connection by the
 operating system, or the establishment attempt has timed out for any other reason).
@@ -2380,7 +2379,7 @@ access to soft errors; however, even if the underlying stack supports it, there
 is no guarantee that a soft error will be signaled.
 
 ~~~
-Connection -> SoftError<reason?>
+Connection -> SoftError<>
 ~~~
 
 ## Excessive retransmissions {#conn-retrans-notify}
