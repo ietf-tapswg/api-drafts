@@ -966,37 +966,37 @@ If the application indicates a preference to avoid expensive paths, and some pat
 
 # Reasons for errors {#appendix-reasons-errors}
 
-The Transport Services API {{I-D.ietf-taps-interface}} allows for the seven generic error types to specify a more detailed reason as to why an error occurred. This appendix lists some of the possible reasons.
+The Transport Services API {{I-D.ietf-taps-interface}} allows for the several generic error types to specify a more detailed reason as to why an error occurred. This appendix lists some of the possible reasons.
 
 * BadConfiguration:
 The transport properties and endpoints provided by the application are either contradictory or incomplete. Examples include the lack of a remote endpoint on an active open or using a multicast group address while not requesting a unidirectional receive.
 
 * NoCandidates:
-None of the available transport protocols can satisfy the transport properties provided by the application.
+The configuration is valid, but none of the available transport protocols can satisfy the transport properties provided by the application.
 
-* Unresolvable:
+* ResolutionFailed:
 The remote or local specifier provided by the application can not be resolved.
 
-* CantEstablish:
+* EstablishmentFailed:
 The TAPS system was unable to establish a transport-layer connection to the remote endpoint specified by the application.
 
 * PolicyProhibited:
-The system policy prevents the TAPS system from performing the action requested by the application. 
+The system policy prevents the transport system from performing the action requested by the application. 
 
 * NotCloneable:
 The protocol stack is not capable of being cloned. 
 
-* MessageToLarge:
-The message size is too big for the taps system to handle.
+* MessageTooLarge:
+The message size is too big for the transport system to handle.
 
 * ProtocolFailure:
 The underlying protocol stack failed. 
 
-* BadMessageProperties:
-The message properties are either contradictory to the transport properties or they can not be satisfied by the TAPS system. 
+* InvalidMessageProperties:
+The message properties are either contradictory to the transport properties or they can not be satisfied by the transport system. 
 
 * BadReceive:
-The data that was received by the underlying protocol stack could not be fully retrieved by the TAPS system. 
+The data that was received by the underlying protocol stack could not be fully retrieved by the transport system. 
 
 * FailedReceive:
 The underlying protocol stack indicated that the reception of a message has failed.
