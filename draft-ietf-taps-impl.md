@@ -1002,7 +1002,7 @@ The data that was received by the underlying protocol stack could not be fully r
 The underlying protocol stack indicated that the reception of a message has failed.
 
 * ConnectionAborted:
-The connection was aborted by the remote.
+The connection was aborted by the peer.
 
 * Timeout:
-Delivery of a message to the remote was not possible after a timeout. 
+Delivery of a message was not possible after a timeout. 
