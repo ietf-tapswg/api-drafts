@@ -295,28 +295,28 @@ Beyond the basic objects, there are several high-level groups of actions that an
 
 * Termination ({{termination}}) focuses on the methods by which data transmission is stopped, and state is torn down in the transport.
 
-The diagram below provides a high-level view of the actions taken during the lifetime of a connection. Note that some actions are alternatives (e.g., whether to initiate a connection or to listen for incoming connections), others are optional (e.g., setting Connection and Message Properties in Pre-Establishment), or have been omitted for brevity.
+The diagram below provides a high-level view of the actions and events during the lifetime of a connection. Note that some actions are alternatives (e.g., whether to initiate a connection or to listen for incoming connections), others are optional (e.g., setting Connection and Message Properties in Pre-Establishment), or have been omitted for brevity.
 
 
 ~~~~~~~~~~
      Pre-Establishment     :       Established             : Termination
      -----------------     :       -----------             : -----------
-                           :                     Close()   :
-     +---------------+ Initiate() +------------+ Abort()   :
- +-->| Preconnection |----------->| Connection |---------------> Closed
- |   +---------------+     :      +------------+ Connection:
- |                         :       ^  ^  ^  |    Finished  :
- +-- Local Endpoint        :       |  |  |  |              :
- |                         :       |  |  |  +---------+    :
- +-- Remote Endpoint       :  +----+  |  +-----+      |    :
- |                         :  |       |Send()  |      |    :
- +-- Selection Properties  :  |  +---------+   |      v    :
- +-- Connection Properties ---+  | Message |   |  Message  :
- +-- Message Properties -------->| to send |   |  Received :
- |                         :     +---------+   |           :
- |   +----------+          :                   |           :
- +-->| Listener |------------------------------+           :
-     +----------+ Connection Received                      :
+                           :                       Close() :
+     +---------------+  Initiate()  +------------+ Abort() :
+ +-->| Preconnection |------------->| Connection |-----------> Closed
+ |   +---------------+ Rendezvous() +------------+ Conn.   :
+ |                         :           ^     |    Finished :
+ +-- Local Endpoint        :           |     |             :
+ |                         :           |     |             :
+ +-- Remote Endpoint       :           |     v             :
+ |                         :           | Connection        :
+ +-- Selection Properties  :           |   Ready           :
+ +-- Connection Properties :           |                   :
+ +-- Message Properties    :           |                   :
+ |                         :           |                   :
+ |   +----------+          :           |                   :
+ +-->| Listener |----------------------+                   :
+     +----------+  Connection Received                     :
            ^               :                               :
            |               :                               :
         Listen()           :                               :
