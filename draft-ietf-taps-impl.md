@@ -887,29 +887,82 @@ Connection Object:
 
 ## SCTP
 
-To support sender-side stream schedulers (which are implemented on the sender side),
-a receiver-side Transport System should
-always support message interleaving {{!RFC8260}}.
+\[EDITOR'S NOTE: The paragraph below is placed here because, currently, only the SCTP text follows this convention. However, the suggestion is to move this paragraph up, to appear directly under "Specific Transport Protocol Considerations", and also update TCP and UDP to follow this style.]
 
-SCTP messages can be very large. To allow the reception of large messages in pieces, a "partial flag" can be
-used to inform a (native SCTP) receiving application that a
-message is incomplete. After receiving the "partial flag", this application would know that the next receive calls will only
-deliver remaining parts of the same message (i.e., no messages or partial messages will arrive on other
-streams until the message is complete) (see Section 8.1.20 in {{!RFC6458}}). The "partial flag" can therefore
-facilitate the implementation of the receiver buffer in the receiving application, at the cost of limiting
-multiplexing and temporarily creating head-of-line blocking delay at the receiver.
+Below, primitives in the style of "CATEGORY.[SUBCATEGORY].PRIMITIVENAME.PROTOCOL"  (e.g., "CONNECT.SCTP") refer to the primitives with the same name in Section 4, of {{!RFC8303}}. For further implementation details, the description of these primitives in {{!RFC8303}} points to Section 3, which refers back the specifications for each protocol.
 
-When a Transport System transfers a Message, it seems natural to map the Message object to SCTP messages in order
-to support properties such as "Ordered" or "Lifetime" (which maps onto partially reliable delivery with
-a SCTP_PR_SCTP_TTL policy {{!RFC6458}}). However, since multiplexing of
-Connections onto SCTP streams may happen, and would be hidden from the application, the
-Transport System requires a per-stream receiver buffer anyway, so this potential benefit is lost
-and the "partial flag" becomes unnecessary for the system.
+Connectedness: Connected
 
-The problem of long messages either requiring large receiver-side buffers or getting in the way of
-multiplexing is addressed by message interleaving {{!RFC8260}},
-which is yet another reason why a receivers-side transport system supporting SCTP should
-implement this mechanism.
+Data Unit: Message
+
+API mappings for SCTP are as follows:
+
+Connection Object:
+: Connection objects represent a flow of SCTP messages between a client and a server, which may be an SCTP association or a stream in a SCTP association. How to map Connection objects to streams is described in {{NEAT-flow-mapping}}; in the following, a similar method is described.
+To map Connection objects to SCTP streams without head-of-line blocking on the sender
+side, both the sending and receiving SCTP implementation must support message interleaving {{!RFC8260}}.
+Both SCTP implementations must also support stream reconfiguration. Finally, both communicating endpoints
+must be aware of this intended multiplexing; {{NEAT-flow-mapping}} describes a
+way for a Transport System to negotiate the stream mapping capability using SCTP's adaptation layer indication,
+such that this functionality would only take effect if both ends sides are aware of it.
+The first flow, for which the SCTP association has been created, will always use stream id zero.
+All additional flows are assigned to unused stream ids in growing order. To avoid a conflict
+when both endpoints map new flows simultaneously, the peer which initiated the transport connection
+will use even stream numbers whereas the remote side will map its flows to odd stream numbers.
+Both sides maintain a status map of the assigned stream numbers. Generally, new streams
+must consume the lowest available (even or odd, depending on the side) stream number; this
+rule is relevant when lower numbers become available because Connection objects associated
+to the streams are closed.
+
+Initiate:
+: If this is the only Connection object that is assigned to the SCTP association or stream mapping has
+not been negotiated, CONNECT.SCTP is called. Else, a new stream is used: if there are enough streams
+available, `Initiate` is just a local operation that assigns a new stream number to the Connection object.
+The number of streams is negotiated as a parameter of the prior CONNECT.SCTP call, and it represents a
+trade-off between local resource usage and the number of Connection objects that can be mapped
+without requiring a reconfiguration signal. When running out of streams, ADD_STREAM.SCTP must be called.
+
+InitiateWithSend:
+: If this is the only Connection object that is assigned to the SCTP association or stream mapping has
+not been negotiated, CONNECT.SCTP is called with the "user message" parameter. Else, a new stream
+is used (see `Initiate` for how to handle running out of streams), and this just sends the first message
+on a new stream.
+
+Ready:
+: `Initiate` or `InitiateWithSend` returns without an error, i.e. SCTP's four-way handshake has completed. If an association with the peer already exists, and stream mapping has been negotiated and enough streams are available, a Connection Object instantly becomes Ready after calling `Initiate` or `InitiateWithSend`.
+
+InitiateError:
+: Failure of CONNECT.SCTP.
+
+ConnectionError:
+: TIMEOUT.SCTP or ABORT-EVENT.SCTP.
+
+Listen:
+: LISTEN.SCTP. If an association with the peer already exists and stream mapping has been negotiated, `Listen` just expects to receive a new message on a new stream id (chosen in accordance with the stream number assignment procedure described above) and will return upon reception of this message.
+
+ConnectionReceived:
+: LISTEN.SCTP returns without an error (a result of successful CONNECT.SCTP from the peer), or, in case of stream mapping, the first message has arrived on a new stream (in this case, `Receive` is also invoked).
+
+Clone:
+: Calling `Clone` on an SCTP association creates a new Connection object and assigns it a new stream number in accordance with the stream number assignment procedure described above. If there are not enough streams available, ADD_STREAM.SCTP must be called.
+
+Priority (Connection):
+: When this value is changed, or a Message with Message Property `Priority` is sent, and there are multiple
+Connection objects assigned to the same SCTP association,
+CONFIGURE_STREAM_SCHEDULER.SCTP is called to adjust the priorities of streams in the SCTP association.
+
+Send:
+: SEND.SCTP. Message Properties such as `Lifetime` and `Ordered` map to parameters of this primitive.
+
+Receive: 
+: RECEIVE.SCTP. The "partial flag" of RECEIVE.SCTP invokes a `ReceivedPartial` event.
+
+Close:
+If this is the only Connection object that is assigned to the SCTP association, CLOSE.SCTP is called. Else, the Connection object is one out of several Connection objects that are assigned to the same SCTP assocation, and RESET_STREAM.SCTP must be called, which informs the peer that the stream will no longer be used for mapping and can be used by future `Initiate`, `InitiateWithSend` or `Listen` calls. At the peer, the event RESET_STREAM-EVENT.SCTP will fire, which the peer must answer by issuing RESET_STREAM.SCTP too. The resulting local RESET_STREAM-EVENT.SCTP informs the transport system that the stream number can now be re-used by the next `Initiate`, `InitiateWithSend` or `Listen` calls.
+
+Abort:
+If this is the only Connection object that is assigned to the SCTP association, ABORT.SCTP is called. Else, the Connection object is one out of several Connection objects that are assigned to the same SCTP assocation, and shutdown proceeds as described under `Close`.
+
 
 # IANA Considerations
 
