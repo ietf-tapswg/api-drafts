@@ -281,13 +281,13 @@ The following diagram summarizes the top-level concepts in the architecture and 
 
 ## Transport Services API Concepts
 
-Fundamentally, a Transport Services API needs to provide basic objects ({{objects}}) that allow applications to establish communication, and then send and receive data. These could be exposed as handles or referenced objects, depending on the language.
+Fundamentally, a Transport Services API needs to provide connection objects ({{objects}}) that allow applications to establish communication, and then send and receive data. These could be exposed as handles or referenced objects, depending on the language.
 
-Beyond the basic objects, there are several high-level groups of actions that any Transport Services API implementing this specification MUST provide:
+Beyond the connection objects, there are several high-level groups of actions that any Transport Services API implementing this specification MUST provide:
 
 * Pre-Establishment ({{preestablishment}}) encompasses the properties that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. For any system that provides generic Transport Services, these properties SHOULD be defined to apply to multiple transport protocols. Properties specified during Pre-Establishment can have a large impact on the rest of the interface: they modify how establishment occurs, they influence the expectations around data transfer, and they determine the set of events that will be supported.
 
-* Establishment ({{establishment}}) focuses on the actions that an application takes on the basic objects to prepare for data transfer.
+* Establishment ({{establishment}}) focuses on the actions that an application takes on the connection objects to prepare for data transfer.
 
 * Data Transfer ({{datatransfer}}) consists of how an application represents the data to be sent and received, the functions required to send and receive that data, and how the application is notified of the status of its data transfer.
 
@@ -323,7 +323,7 @@ The diagram below provides a high-level view of the actions taken during the lif
 ~~~~~~~~~~
 {: #fig-lifetime title="The lifetime of a connection"}
 
-### Basic Objects {#objects}
+### Connection Objects {#objects}
 
 * Preconnection: A Preconnection object is a representation of a potential connection. It has state that describes parameters of a Connection that might exist in the future: the Local Endpoint from which that Connection will be established, the Remote Endpoint ({{preestablishment}}) to which it will connect, and Selection Properties ({{preestablishment}}) that influence the paths and protocols a Connection will use. A Preconnection can be fully specified such that it represents a single possible Connection, or it can be partially specified such that it represents a family of possible Connections. The Local Endpoint ({{preestablishment}}) MUST be specified if the Preconnection is used to Listen for incoming connections. The Local Endpoint is OPTIONAL if it is used to Initiate connections. The Remote Endpoint MUST be specified in the Preconnection that is used to Initiate connections. The Remote Endpoint is OPTIONAL if it is used to Listen for incoming connections. The Local Endpoint and the Remote Endpoint MUST both be specified if a peer-to-peer Rendezvous is to occur based on the Preconnection.
   * Transport Properties: Transport Properties can be specified as part of a Preconnection to allow the application to configure the Transport System and express their requirements, prohibitions, and preferences. There are three kinds of Transport Properties: Selection Properties ({{preestablishment}}), Connection Properties ({{preestablishment}}), and Message Properties ({{datatransfer}}). Message Properties can also be specified during data transfer to affect specific Messages.
