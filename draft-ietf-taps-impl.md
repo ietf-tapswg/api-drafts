@@ -938,7 +938,7 @@ ConnectionError:
 : TIMEOUT.SCTP or ABORT-EVENT.SCTP.
 
 Listen:
-: LISTEN.SCTP. If an association with the peer already exists and stream mapping has been negotiated, `Listen` just expects to receive a new message on a new stream id (chosen in accordance with the stream number assignment procedure described above) and will return upon reception of this message.
+: LISTEN.SCTP. If an association with the peer already exists and stream mapping has been negotiated, `Listen` just expects to receive a new message on a new stream id (chosen in accordance with the stream number assignment procedure described above).
 
 ConnectionReceived:
 : LISTEN.SCTP returns without an error (a result of successful CONNECT.SCTP from the peer), or, in case of stream mapping, the first message has arrived on a new stream (in this case, `Receive` is also invoked).
