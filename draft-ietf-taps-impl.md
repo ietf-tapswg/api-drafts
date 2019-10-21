@@ -976,6 +976,7 @@ This appendix gives an overview of existing implementations, at the time of writ
   Documentation: <https://developer.apple.com/documentation/network>
 
 
+
 * NEAT:
 
   NEAT is the output of the European H2020 research project "NEAT"; it is a user-space library for protocol-independent communication above TCP, UDP and SCTP, with many more features such as a policy manager.
@@ -983,7 +984,8 @@ This appendix gives an overview of existing implementations, at the time of writ
   Code: <https://github.com/NEAT-project/neat>
   
   NEAT project: <https://www.neat-project.org>
-  
+
+
 
 * PyTAPS:
 
