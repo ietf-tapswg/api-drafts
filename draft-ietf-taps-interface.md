@@ -687,7 +687,7 @@ protocol and path, Avoid for properties avoided during selection, and Ignore for
 all other properties.
 
 An implementation of this interface must provide sensible defaults for Selection
-Properties. The recommended defaults given for each property below represent a
+Properties. The defaults given for each property below represent a
 configuration that can be implemented over TCP. An alternate set of default
 Protocol Selection Properties would represent a configuration that can be
 implemented over UDP.
@@ -701,7 +701,7 @@ Name:
 This property specifies whether the application needs to use a transport
 protocol that ensures that all data is received on the other side without
 corruption. This also entails being notified when a Connection is closed or
-aborted. The recommended default is to Require Reliable Data Transfer.
+aborted. The default is to Require Reliable Data Transfer.
 
 ### Preservation of Message Boundaries {#prop-boundaries}
 
@@ -709,7 +709,7 @@ Name:
 : preserve-msg-boundaries
 
 This property specifies whether the application needs or prefers to use a transport
-protocol that preserves message boundaries. The recommended default
+protocol that preserves message boundaries. The default
 is to Prefer Preservation of Message Boundaries.
 
 ### Configure Per-Message Reliability {#prop-partially-reliable}
@@ -719,7 +719,7 @@ Name:
 
 This property specifies whether an application considers it useful to indicate
 its reliability requirements on a per-Message basis. This property applies to
-Connections and Connection Groups. The recommended default is to Ignore
+Connections and Connection Groups. The default is to Ignore
 this option.
 
 ### Preservation of Data Ordering {#prop-ordering}
@@ -729,7 +729,7 @@ Name:
 
 This property specifies whether the application wishes to use a transport
 protocol that can ensure that data is received by the application on the other
-end in the same order as it was sent. The recommended default is to Require
+end in the same order as it was sent. The default is to Require
 Preservation of data ordering.
 
 ### Use 0-RTT Session Establishment with an Idempotent Message {#prop-0rtt}
@@ -742,7 +742,7 @@ the transport protocol before Connection establishment, which will then be
 reliably transferred to the other side before or during Connection
 establishment, potentially multiple times (i.e., multiple copies of the message data
 may be passed to the Remote Endpoint). See also {{msg-idempotent}}. The
-recommended default is to Ignore this option. Note that disabling this property
+default is to Ignore this option. Note that disabling this property
 has no effect for protocols that are not connection-oriented and do not protect
 against duplicated messages, e.g., UDP.
 
@@ -753,7 +753,7 @@ Name:
 
 This property specifies that the application would prefer multiple Connections
 within a Connection Group to be provided by streams of a single underlying
-transport connection where possible. The recommended default is to Prefer
+transport connection where possible. The default is to Prefer
 this option.
 
 ### Full Checksum Coverage on Sending {#prop-checksum-control-send}
@@ -763,7 +763,7 @@ Name:
 
 This property specifies whether the application desires protection against
 corruption for all data transmitted on this Connection. Disabling this property may enable
-to control checksum coverage later (see {{msg-checksum}}). The recommended default
+to control checksum coverage later (see {{msg-checksum}}). The default
 is to Require this option.
 
 ### Full Checksum Coverage on Receiving {#prop-checksum-control-receive}
@@ -772,7 +772,7 @@ Name:
 : per-msg-checksum-len-recv
 
 This property specifies whether the application desires protection against
-corruption for all data received on this Connection. The recommended default
+corruption for all data received on this Connection. The default
 is to Require this option.
 
 ### Congestion control {#prop-cc}
@@ -786,7 +786,7 @@ controlled, an application using such a Connection should itself perform
 congestion control in accordance with {{?RFC2914}}. Also note that reliability
 is usually combined with congestion control in protocol implementations,
 rendering "reliable but not congestion controlled" a request that is unlikely to
-succeed. The recommended default is to Require that the Connection is congestion
+succeed. The default is to Require that the Connection is congestion
 controlled.
 
 
@@ -877,7 +877,7 @@ This property specifies whether an application considers it useful to
 transfer data across multiple paths between the same end hosts. Generally,
 in most cases, this will improve performance (e.g., achieve greater throughput).
 One possible side-effect is increased jitter, which may be problematic for
-delay-sensitive applications. The recommended default is to Prefer this option.
+delay-sensitive applications. The default is to Prefer this option.
 
 
 ### Direction of communication
@@ -910,7 +910,7 @@ Name:
 
 This property specifies whether an application considers it useful to be
 informed in case sent data was retransmitted more often than a certain
-threshold. The recommended default is to Ignore this option.
+threshold. The default is to Ignore this option.
 
 
 ### Notification of ICMP soft error message arrival {#prop-soft-error}
@@ -923,7 +923,7 @@ informed when an ICMP error message arrives that does not force termination of a
 connection. When set to true, received ICMP errors will be available as
 SoftErrors. Note that even if a protocol supporting this property is selected,
 not all ICMP errors will necessarily be delivered, so applications cannot rely
-on receiving them. The recommended default is to Ignore this option.
+on receiving them. The default is to Ignore this option.
 
 
 ## Specifying Security Parameters and Callbacks {#security-parameters}
@@ -958,7 +958,7 @@ SecurityParameters.AddPrivateKey(privateKey, publicKey)
 ~~~
 
 - Supported algorithms: Used to restrict what parameters are used by underlying transport security protocols.
-When not specified, these algorithms should default to known and safe defaults for the system. Parameters include:
+When not specified, these algorithms should use known and safe defaults for the system. Parameters include:
 ciphersuites, supported groups, and signature algorithms.
 
 ~~~
@@ -1429,7 +1429,7 @@ Name:
 Type:
 : Integer
 
-Recommended default:
+Default:
 : infinite
 
 Lifetime specifies how long a particular Message can wait to be sent to the
@@ -1450,7 +1450,7 @@ Name:
 Type:
 : Integer (non-negative)
 
-Recommended default:
+Default:
 : 100
 
 This property represents a hierarchy of priorities.
