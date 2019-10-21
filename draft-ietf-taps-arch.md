@@ -108,7 +108,7 @@ This document describes the Transport Services architecture in three sections:
 
 - {{model}} describes how the API model of Transport Services differs from traditional socket-based APIs. Specifically, it offers asynchronous event-driven interaction, the use of messages for data transfer, and the ability to easily adopt different transport protocols.
 
-- {{design}} explains the design principles that guide the Transport Services API. These principles are intended to make sure that transport protocols can continue to be enhanced and evolve without requiring too many changes by applications.
+- {{design}} explains the design principles that guide the Transport Services API. These principles are intended to make sure that transport protocols can continue to be enhanced and evolve without requiring too many changes by application developers.
 
 - {{concepts}} presents the Transport Services architecture diagram and defines the concepts that are used by both the API and implementation documents. The Preconnection allows applications to configure connection properties, and the Connection represents an object that can be used to send and receive Messages.
 
