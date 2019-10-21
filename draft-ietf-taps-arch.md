@@ -94,7 +94,33 @@ The goal of the Transport Services architecture is to provide a common, flexible
 
 This document is developed in parallel with the specification of the Transport Services API {{!I-D.ietf-taps-interface}} and Implementation Guidelines {{?I-D.ietf-taps-impl}}. Although following the Transport Services Architecture does not require that all APIs and implementations are identical, a common minimal set of features represented in a consistent fashion will enable applications to be easily ported from one system to another.
 
+## Background
+
+The Transport Services architecture is based on the survey of Services Provided by IETF Transport Protocols and Congestion Control Mechanisms {{?RFC8095}}, and the distilled minimal set of the features offered by transport protocols {{?I-D.ietf-taps-minset}}. These documents identified common features and patterns across all transport protocols developed thus far in the IETF.
+
+Since transport security is an increasingly relevant aspect of using transport protocols on the Internet, this architecture also considers the impact of transport security protocols on the feature-set exposed by transport services {{?I-D.ietf-taps-transport-security}}.
+
+One of the key insights to come from identifying the minimal set of features provided by transport protocols {{?I-D.ietf-taps-minset}} was that features either require application interaction and guidance (referred to as Functional or Optimizing Features), or else can be handled automatically by a system implementing Transport Services (referred to as Automatable Features). Among the Functional and Optimizing Features, some were common across all or nearly all transport protocols, while others could be seen as features that, if specified, would only be useful with a subset of protocols, but would not harm the functionality of other protocols. For example, some protocols can deliver messages faster for applications that do not require messages to arrive in the order in which they were sent. However, this functionality needs to be explicitly allowed by the application, since reordering messages would be undesirable in many cases.
+
 ## Overview
+
+This document describes the Transport Services architecture in three sections:
+
+- {{model}} describes how the API model of Transport Services differs from traditional socket-based APIs. Specifically, it offers asynchronous event-driven interaction, the use of messages for data transfer, and the ability to easily adopt different transport protocols.
+
+- {{design}} explains the design principles that guide the Transport Services API. These principles are intended to make sure that transport protocols can continue to be enhanced and evolve without requiring too many changes by application developers.
+
+- {{concepts}} presents the Transport Services architecture diagram and defines the concepts that are used by both the API and implementation documents. The Preconnection allows applications to configure connection properties, and the Connection represents an object that can be used to send and receive Messages.
+
+## Specification of Requirements
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+"SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+"OPTIONAL" in this document are to be interpreted as described in BCP 14
+{{!RFC2119}} {{!RFC8174}} when, and only when,
+they appear in all capitals, as shown here.
+
+# API Model {#model}
 
 The traditional model of using sockets for networking can be represented as follows:
 
@@ -185,23 +211,7 @@ Transport Services implementations are meant to be flexible at connection establ
 
 Flexibility after connection establishment is also important. Transport protocols that can migrate between multiple network-layer interfaces need to be able to process and react to interface changes. Protocols that support multiple application-layer streams need to support initiating and receiving new streams using existing connections.
 
-# Background
-
-The Transport Services architecture is based on the survey of Services Provided by IETF Transport Protocols and Congestion Control Mechanisms {{?RFC8095}}, and the distilled minimal set of the features offered by transport protocols {{?I-D.ietf-taps-minset}}. These documents identified common features and patterns across all transport protocols developed thus far in the IETF.
-
-Since transport security is an increasingly relevant aspect of using transport protocols on the Internet, this architecture also considers the impact of transport security protocols on the feature-set exposed by transport services {{?I-D.ietf-taps-transport-security}}.
-
-One of the key insights to come from identifying the minimal set of features provided by transport protocols {{?I-D.ietf-taps-minset}} was that features either require application interaction and guidance (referred to as Functional or Optimizing Features), or else can be handled automatically by a system implementing Transport Services (referred to as Automatable Features). Among the Functional and Optimizing Features, some were common across all or nearly all transport protocols, while others could be seen as features that, if specified, would only be useful with a subset of protocols, but would not harm the functionality of other protocols. For example, some protocols can deliver messages faster for applications that do not require messages to arrive in the order in which they were sent. However, this functionality needs to be explicitly allowed by the application, since reordering messages would be undesirable in many cases.
-
-## Specification of Requirements
-
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-"SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
-"OPTIONAL" in this document are to be interpreted as described in BCP 14
-{{!RFC2119}} {{!RFC8174}} when, and only when,
-they appear in all capitals, as shown here.
-
-# Design Principles
+# Design Principles {#design}
 
 The goal of the Transport Services architecture is to redefine the interface between applications and transports in a way that allows the transport layer to evolve and improve without fundamentally changing the contract with the application. This requires a careful consideration of how to expose the capabilities of protocols.
 
@@ -231,7 +241,7 @@ To preserve flexibility and compatibility with future protocols, top-level featu
 
 It is important to note that neither the Transport Services API {{?I-D.ietf-taps-interface}} nor the Implementation document {{?I-D.ietf-taps-impl}} define new protocols or protocol capabilities that affect what is communicated across the network. The Transport Services system MUST be deployable on one side only. A Transport Services system acting as a connection initiator can communicate with any existing system that implements the transport protocol(s) selected by the Transport Services system. Similarly, a Transport Services system acting as a listener can receive connections for any protocol that is supported by the system, from existing initiators.
 
-# Transport Services Architecture and Concepts
+# Transport Services Architecture and Concepts {#concepts}
 
 The concepts defined in this document are intended primarily for use in the documents and specifications that describe the Transport Services architecture and API. While the specific terminology can be used in some implementations, it is expected that there will remain a variety of terms used by running code.
 
@@ -389,7 +399,7 @@ This section provides the top-level categories of events events that can be deli
 
 * Abort: The action the application takes on a Connection to indicate a Close and also indicate that the transport system SHOULD NOT attempt to deliver any outstanding data.
 
-## Transport System Implementation Concepts {#concepts}
+## Transport System Implementation Concepts
 
 This section defines the set of objects used internally to a system or library to implement the functionality needed to provide a transport service across a network, as required by the abstract interface.
 
