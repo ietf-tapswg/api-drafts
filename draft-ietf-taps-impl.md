@@ -963,3 +963,30 @@ If the application indicates a bound on the expected Send or Receive bitrate, an
 
 * Cost Preferences:
 If the application indicates a preference to avoid expensive paths, and some paths are associated with a monetary cost, an implementation should decrease the ranking of such paths. If the application indicates that it prohibits using expensive paths, paths that are associated with a cost should be purged from the decision tree.
+
+# Existing Implementations {#appendix-implementations}
+
+This appendix gives an overview of existing implementations, at the time of writing, of transport systems that are (to some degree) in line with this document.
+
+
+* Apple's Network.framework:
+
+  [A very brief introduction should be added]
+  
+  Documentation: <https://developer.apple.com/documentation/network>
+
+
+* NEAT:
+
+  NEAT is the output of the European H2020 research project "NEAT"; it is a user-space library for protocol-independent communication above TCP, UDP and SCTP, with many more features such as a policy manager.
+  
+  Code: <https://github.com/NEAT-project/neat>
+  
+  NEAT project: <https://www.neat-project.org>
+  
+
+* PyTAPS:
+
+A TAPS implementation based on Python asyncio, offering protocol-independent communication to applications above TCP, UDP and TLS, with support for multicast.
+
+Code: <https://github.com/fg-inet/python-asyncio-taps>
