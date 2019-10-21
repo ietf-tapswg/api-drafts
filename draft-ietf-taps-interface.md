@@ -2687,9 +2687,6 @@ definition.
 * Hand over a message to reliably transfer (possibly multiple times) before connection establishment:
 `InitiateWithSend` Action.
 
-* Hand over a message to reliably transfer during connection establishment:
-`InitiateWithSend` Action.
-
 * Change timeout for aborting connection (using retransmit limit or time value):
 `Timeout for Aborting Connection` property, using a time value.
 

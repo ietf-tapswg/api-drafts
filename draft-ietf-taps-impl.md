@@ -651,7 +651,6 @@ The reasonable lifetime for cached performance values will vary depending on the
 # Specific Transport Protocol Considerations
 
 Each protocol that can run as part of a Transport Services implementation defines both its API mapping as well as implementation details.
-
 API mappings for a protocol apply most to Connections in which the given protocol is the "top" of the Protocol Stack. For example, the mapping of the `Send` function for TCP applies to Connections in which the application directly sends over TCP. If HTTP/2 is used on top of TCP, the HTTP/2 mappings take precendence.
 
 Each protocol has a notion of Connectedness. Possible values for Connectedness are:
@@ -666,6 +665,10 @@ Protocols also define a notion of Data Unit. Possible values for Data Unit are:
 - Datagram. Datagram protocols define Message boundaries at the same level of transmission, such that only complete (not partial) Messages are supported.
 - Message. Message protocols support Message boundaries that can be sent and received either as complete or partial Messages. Maximum Message lengths can be defined, and Messages can be partially reliable.
 
+Below, primitives in the style of "CATEGORY.[SUBCATEGORY].PRIMITIVENAME.PROTOCOL"  (e.g., "CONNECT.SCTP") refer to the primitives with the same name in section 4 of {{!RFC8303}}. For further implementation details, the description of these primitives in {{!RFC8303}} points to section 3, which refers back the specifications for each protocol. This back-tracking method applies to all elements of {{I-D.ietf-taps-minset}} (see appendix D of {{I-D.ietf-taps-interface}}): they are listed in appendix A of {{I-D.ietf-taps-minset}} with an implementation hint in the same style, pointing back to section 4 of {{!RFC8303}}.
+
+
+
 ## TCP {#tcp}
 
 Connectedness: Connected
@@ -678,22 +681,22 @@ Connection Object:
 : TCP connections between two hosts map directly to Connection objects.
 
 Initiate:
-: Calling `Initiate` on a TCP Connection causes it to reserve a local port, and send a SYN to the Remote Endpoint.
+: CONNECT.TCP. Calling `Initiate` on a TCP Connection causes it to reserve a local port, and send a SYN to the Remote Endpoint.
 
 InitiateWithSend:
-: Early idempotent data is sent on a TCP Connection in the SYN, as TCP Fast Open data.
+: CONNECT.TCP with parameter "user message". Early idempotent data is sent on a TCP Connection in the SYN, as TCP Fast Open data.
 
 Ready:
-: A TCP Connection is ready once the three-way handshake is complete.
+: `Initiate` or `InitiateWithSend` returns without an error, i.e. the three-way handshake is complete.
 
 InitiateError:
-: TCP can throw various errors during connection setup. Specifically, it is important to handle a RST being sent by the peer during the handshake.
+: Failure of CONNECT.TCP. TCP can throw various errors during connection setup. Specifically, it is important to handle a RST being sent by the peer during the handshake.
 
 ConnectionError:
-: Once established, TCP throws errors whenever the connection is disconnected, such as due to receive a RST from the peer; or hitting a TCP retransmission timeout.
+: Once established, TCP throws errors whenever the connection is disconnected, such as due to receive a RST from the peer; or hitting a TCP retransmission timeout. This can lead to ABORT-EVENT.TCP or TIMEOUT.TCP events.
 
 Listen:
-: Calling `Listen` for TCP binds a local port and prepares it to receive inbound SYN packets from peers.
+: LISTEN.TCP. Calling `Listen` for TCP binds a local port and prepares it to receive inbound SYN packets from peers.
 
 ConnectionReceived:
 : TCP Listeners will deliver new connections once they have replied to an inbound SYN with a SYN-ACK.
@@ -702,16 +705,16 @@ Clone:
 : Calling `Clone` on a TCP Connection creates a new Connection with equivalent parameters. The two Connections are otherwise independent.
 
 Send:
-: TCP does not on its own preserve Message boundaries. Calling `Send` on a TCP connection lays out the bytes on the TCP send stream without any other delineation. Any Message marked as Final will cause TCP to send a FIN once the Message has been completely written.
+: SEND.TCP. TCP does not on its own preserve Message boundaries. Calling `Send` on a TCP connection lays out the bytes on the TCP send stream without any other delineation. Any Message marked as Final will cause TCP to send a FIN once the Message has been completely written.
 
 Receive:
-: TCP delivers a stream of bytes without any Message delineation. All data delivered in the `Received` or `ReceivedPartial` event will be part of a single stream-wide Message that is marked Final (unless a MessageFramer is used). EndOfMessage will be delivered when the TCP Connection has received a FIN from the peer.
+: With RECEIVE.TCP, TCP delivers a stream of bytes without any Message delineation. All data delivered in the `Received` or `ReceivedPartial` event will be part of a single stream-wide Message that is marked Final (unless a MessageFramer is used). EndOfMessage will be delivered when the TCP Connection has received a FIN (CLOSE-EVENT.TCP or ABORT-EVENT.TCP) from the peer.
 
 Close:
-: Calling `Close` on a TCP Connection indicates that the Connection should be gracefully closed by sending a FIN to the peer and waiting for a FIN-ACK before delivering the `Closed` event.
+: Calling `Close` on a TCP Connection indicates that the Connection should be gracefully closed (CLOSE.TCP) by sending a FIN to the peer and waiting for a FIN-ACK before delivering the `Closed` event.
 
 Abort:
-: Calling `Abort` on a TCP Connection indicates that the Connection should be immediately closed by sending a RST to the peer.
+: Calling `Abort` on a TCP Connection indicates that the Connection should be immediately closed by sending a RST to the peer (ABORT.TCP).
 
 ## UDP
 
@@ -725,7 +728,7 @@ Connection Object:
 : UDP connections represent a pair of specific IP addresses and ports on two hosts.
 
 Initiate:
-: Calling `Initiate` on a UDP Connection causes it to reserve a local port, but does not generate any traffic.
+: CONNECT.UDP. Calling `Initiate` on a UDP Connection causes it to reserve a local port, but does not generate any traffic.
 
 InitiateWithSend:
 : Early data on a UDP Connection does not have any special meaning. The data is sent whenever the Connection is Ready.
@@ -737,10 +740,10 @@ InitiateError:
 : UDP Connections can only generate errors on initiation due to port conflicts on the local system.
 
 ConnectionError:
-: Once in use, UDP throws errors upon receiving ICMP notifications indicating failures in the network.
+: Once in use, UDP throws "soft errors" (ERROR.UDP(-Lite)) upon receiving ICMP notifications indicating failures in the network.
 
 Listen:
-: Calling `Listen` for UDP binds a local port and prepares it to receive inbound UDP datagrams from peers.
+: LISTEN.UDP. Calling `Listen` for UDP binds a local port and prepares it to receive inbound UDP datagrams from peers.
 
 ConnectionReceived:
 : UDP Listeners will deliver new connections once they have received traffic from a new Remote Endpoint.
@@ -749,16 +752,16 @@ Clone:
 : Calling `Clone` on a UDP Connection creates a new Connection with equivalent parameters. The two Connections are otherwise independent.
 
 Send:
-: Calling `Send` on a UDP connection sends the data as the payload of a complete UDP datagram. Marking Messages as Final does not change anything in the datagram's contents.
+: SEND.UDP(-Lite). Calling `Send` on a UDP connection sends the data as the payload of a complete UDP datagram. Marking Messages as Final does not change anything in the datagram's contents. Upon sending a UDP datagram, some relevant fields and flags in the IP header can be controlled: DSCP (SET_DSCP.UDP(-Lite)), DF in IPv4 (SET_DF.UDP(-Lite)) and ECN flag (SET_ECN.UDP(-Lite)).
 
 Receive:
-: UDP only delivers complete Messages to `Received`, each of which represents a single datagram received in a UDP packet.
+: RECEIVE.UDP(-Lite). UDP only delivers complete Messages to `Received`, each of which represents a single datagram received in a UDP packet. Upon receiving a UDP datagram, the ECN flag from the IP header can be obtained (GET_ECN.UDP(-Lite)).
 
 Close:
-: Calling `Close` on a UDP Connection releases the local port reservation.
+: Calling `Close` on a UDP Connection (ABORT.UDP(-Lite)) releases the local port reservation.
 
 Abort:
-: Calling `Abort` on a UDP Connection is identical to calling `Close`.
+: Calling `Abort` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close`.
 
 ## TLS {#tls}
 
@@ -886,10 +889,6 @@ Connection Object:
 : Connection objects represent a single HTTP/2 stream on a HTTP/2 connection.
 
 ## SCTP
-
-\[EDITOR'S NOTE: The paragraph below is placed here because, currently, only the SCTP text follows this convention. However, the suggestion is to move this paragraph up, to appear directly under "Specific Transport Protocol Considerations", and also update TCP and UDP to follow this style.]
-
-Below, primitives in the style of "CATEGORY.[SUBCATEGORY].PRIMITIVENAME.PROTOCOL"  (e.g., "CONNECT.SCTP") refer to the primitives with the same name in Section 4, of {{!RFC8303}}. For further implementation details, the description of these primitives in {{!RFC8303}} points to Section 3, which refers back the specifications for each protocol.
 
 Connectedness: Connected
 
