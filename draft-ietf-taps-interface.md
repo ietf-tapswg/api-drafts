@@ -2668,7 +2668,7 @@ definition.
 
 # Relationship to the Minimal Set of Transport Services for End Systems
 
-{{I-D.ietf-taps-minset}} identifies a minimal set of transport services that end systems should offer. These services make all transport features offered by TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT available that 1) require interaction with the application, and 2) do not get in the way of a possible implementation over TCP or, with limitations, UDP. The following text explains how this minimal set is reflected in the present API. For brevity, this uses the list in Section 4.1 of {{I-D.ietf-taps-minset}}, updated according to the discussion in Section 5 of {{I-D.ietf-taps-minset}}.
+{{I-D.ietf-taps-minset}} identifies a minimal set of transport services that end systems should offer. These services make all non-security-related transport features of TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT available that 1) require interaction with the application, and 2) do not get in the way of a possible implementation over TCP (or, with limitations, UDP). The following text explains how this minimal set is reflected in the present API. For brevity, it is based on the list in Section 4.1 of {{I-D.ietf-taps-minset}}, updated according to the discussion in Section 5 of {{I-D.ietf-taps-minset}}. This list is a subset of the transport features in Appendix A of {{I-D.ietf-taps-minset}}, which refers to the primitives in "pass 2" (Section 4) of {{!RFC8303}} for further details on the implementation with TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT.
 
 \[EDITOR'S NOTE: This is early text. In the future, this section will contain backward references, which we currently avoid because things are still being moved around and names / categories etc. are changing.]
 
@@ -2679,91 +2679,88 @@ definition.
 "Listen" Action.
 
 * Specify number of attempts and/or timeout for the first establishment message:
-"Timeout for aborting Connection Establishment" Property, using a time value.
+"timeout" parameter of `Initiate` or `InitiateWithSend` Action.
 
 * Disable MPTCP:
-"Parallel Use of Multiple Paths" Property.
+`Parallel Use of Multiple Paths` Property.
 
 * Hand over a message to reliably transfer (possibly multiple times) before connection establishment:
-"InitiateWithSend" Action.
-
-* Hand over a message to reliably transfer during connection establishment:
-"InitiateWithSend" Action.
+`InitiateWithSend` Action.
 
 * Change timeout for aborting connection (using retransmit limit or time value):
-"Timeout for aborting Connection" property, using a time value.
+`Timeout for Aborting Connection` property, using a time value.
 
 * Timeout event when data could not be delivered for too long:
-"ConnectionError" Event.
+`ConnectionError` Event.
 
 * Suggest timeout to the peer:
-TCP-specific Property: User Timeout.
+`TCP-specific Property: User Timeout`.
 
 * Notification of Excessive Retransmissions (early warning below abortion threshold):
-"Notification of excessive retransmissions" property.
+`Notification of excessive retransmissions` property.
 
 * Notification of ICMP error message arrival:
-"Notification of ICMP soft error message arrival" property.
+`Notification of ICMP soft error message arrival` property.
 
 * Choose a scheduler to operate between streams of an association:
-"Connection group transmission scheduler" property.
+`Connection Group Transmission Scheduler` property.
 
 * Configure priority or weight for a scheduler:
-"Priority (Connection)" property.
+`Priority (Connection)` property.
 
 * "Specify checksum coverage used by the sender" and "Disable checksum when sending":
-"Corruption Protection Length" property (value 0 to disable).
+`Corruption Protection Length` property and `Full Checksum Coverage on Sending` property.
 
 * "Specify minimum checksum coverage required by receiver" and "Disable checksum requirement when receiving":
-"Required minimum coverage of the checksum for receiving" property (value 0 to disable).
+`Required Minimum Corruption Protection Coverage for Receiving` property and `Full Checksum Coverage on Receiving` property.
 
 * "Specify DF" field and "Request not to bundle messages:"
-The "Singular Transmission" Message property combines both of these requests, i.e. if a request not to bundle messages is made, this also turns off DF in case of protocols that allow this (only UDP and UDP-Lite, which cannot bundle messages anyway).
+The `Singular Transmission` Message property combines both of these requests, i.e. if a request not to bundle messages is made, this also turns off DF in case of protocols that allow this (only UDP and UDP-Lite, which cannot bundle messages anyway).
 
 * Get max. transport-message size that may be sent using a non-fragmented IP packet from the configured interface:
-"Maximum Message size before fragmentation or segmentation" property.
+`Maximum Message Size Before Fragmentation or Segmentation` property.
 
 * Get max. transport-message size that may be received from the configured interface:
-"Maximum Message size on receive" property.
+`Maximum Message Size on Receive` property.
 
 * Obtain ECN field:
-"ECN" is a defined metadata value as part of the Message Receive Context.
+`ECN` is a defined read-only Message Property of the MessageContext object.
 
 * "Specify DSCP field", "Disable Nagle algorithm", "Enable and configure a 'Low Extra Delay Background Transfer'":
-As suggested in Section 5.5 of {{I-D.ietf-taps-minset}}, these transport features are collectively offered via the "Capacity profile" property.
+As suggested in Section 5.5 of {{I-D.ietf-taps-minset}}, these transport features are collectively offered via the `Capacity Profile` property.
 
 * Close after reliably delivering all remaining data, causing an event informing the application on the other side:
-This is offered by the "Close" Action with slightly changed semantics in line with the discussion in Section 5.2 of {{I-D.ietf-taps-minset}}.
+This is offered by the `Close` Action with slightly changed semantics in line with the discussion in Section 5.2 of {{I-D.ietf-taps-minset}}.
 
 * "Abort without delivering remaining data, causing an event informing the application on the other side" and "Abort without delivering remaining data, not causing an event informing the application on the other side":
-This is offered by the "Abort" action without promising that this is signaled to the other side. If it is, a "ConnectionError" Event will fire at the peer.
+This is offered by the `Abort` action without promising that this is signaled to the other side. If it is, a `ConnectionError` Event will fire at the peer.
 
 * "Reliably transfer data, with congestion control", "Reliably transfer a message, with congestion control" and "Unreliably transfer a message":
-Reliability is controlled via the "Reliable Data Transfer (Message)" Message property. Transmitting data without delimiters is done by not using a Framer. The choice of congestion control is provided via the "Congestion control" property.
+Data is tranferred via the `Send` action. Reliability is controlled via the `Reliable Data Transfer (Message)` Message property. Transmitting data as a message or without delimiters is controlled via Message Framers. The choice of congestion control is provided via the `Congestion control` property.
 
 * Configurable Message Reliability:
-The "Lifetime" Message Property implements a time-based way to configure message reliability.
+The `Lifetime` Message Property implements a time-based way to configure message reliability.
 
 * "Ordered message delivery (potentially slower than unordered)" and "Unordered message delivery (potentially faster than ordered)":
-The two transport features are controlled via the Message property "Ordered".
+The two transport features are controlled via the Message Property `Ordered`.
 
 * Request not to delay the acknowledgement (SACK) of a message:
-Should the protocol support it, this is one of the transport features the transport system can use when an application uses the Capacity Profile Property with value "Low Latency/Interactive".
+Should the protocol support it, this is one of the transport features the transport system can use when an application uses the `Capacity Profile` Property with value "Low Latency/Interactive".
 
 * Receive data (with no message delimiting):
-"Received" Event without using a Message Framer.
+`Received` Event without using a Message Framer.
 
 * Receive a message:
-"Received" Event. Section 5.1 of {{I-D.ietf-taps-minset}} discusses how messages can be obtained from a bytestream in case of implementation over TCP. Here, this is dealt with by Message Framers.
+`Received` Event, using Message Framers.
 
 * Information about partial message arrival:
-"ReceivedPartial" Event.
+`ReceivedPartial` Event.
 
 * Notification of send failures:
-"Expired" and "SendError" Events.
+`Expired` and `SendError` Events.
 
 * Notification that the stack has no more user data to send:
-Applications can obtain this information via the "Sent" Event.
+Applications can obtain this information via the `Sent` Event.
 
 * Notification to a receiver that a partial message delivery has been aborted:
-"ReceiveError" Event.
+`ReceiveError` Event.

@@ -651,7 +651,6 @@ The reasonable lifetime for cached performance values will vary depending on the
 # Specific Transport Protocol Considerations
 
 Each protocol that can run as part of a Transport Services implementation defines both its API mapping as well as implementation details.
-
 API mappings for a protocol apply most to Connections in which the given protocol is the "top" of the Protocol Stack. For example, the mapping of the `Send` function for TCP applies to Connections in which the application directly sends over TCP. If HTTP/2 is used on top of TCP, the HTTP/2 mappings take precendence.
 
 Each protocol has a notion of Connectedness. Possible values for Connectedness are:
@@ -666,6 +665,10 @@ Protocols also define a notion of Data Unit. Possible values for Data Unit are:
 - Datagram. Datagram protocols define Message boundaries at the same level of transmission, such that only complete (not partial) Messages are supported.
 - Message. Message protocols support Message boundaries that can be sent and received either as complete or partial Messages. Maximum Message lengths can be defined, and Messages can be partially reliable.
 
+Below, primitives in the style of "CATEGORY.[SUBCATEGORY].PRIMITIVENAME.PROTOCOL"  (e.g., "CONNECT.SCTP") refer to the primitives with the same name in section 4 of {{!RFC8303}}. For further implementation details, the description of these primitives in {{!RFC8303}} points to section 3, which refers back the specifications for each protocol. This back-tracking method applies to all elements of {{I-D.ietf-taps-minset}} (see appendix D of {{I-D.ietf-taps-interface}}): they are listed in appendix A of {{I-D.ietf-taps-minset}} with an implementation hint in the same style, pointing back to section 4 of {{!RFC8303}}.
+
+
+
 ## TCP {#tcp}
 
 Connectedness: Connected
@@ -678,22 +681,22 @@ Connection Object:
 : TCP connections between two hosts map directly to Connection objects.
 
 Initiate:
-: Calling `Initiate` on a TCP Connection causes it to reserve a local port, and send a SYN to the Remote Endpoint.
+: CONNECT.TCP. Calling `Initiate` on a TCP Connection causes it to reserve a local port, and send a SYN to the Remote Endpoint.
 
 InitiateWithSend:
-: Early idempotent data is sent on a TCP Connection in the SYN, as TCP Fast Open data.
+: CONNECT.TCP with parameter "user message". Early idempotent data is sent on a TCP Connection in the SYN, as TCP Fast Open data.
 
 Ready:
 : A TCP Connection is ready once the three-way handshake is complete.
 
 InitiateError:
-: TCP can throw various errors during connection setup. Specifically, it is important to handle a RST being sent by the peer during the handshake.
+: Failure of CONNECT.TCP. TCP can throw various errors during connection setup. Specifically, it is important to handle a RST being sent by the peer during the handshake.
 
 ConnectionError:
-: Once established, TCP throws errors whenever the connection is disconnected, such as due to receive a RST from the peer; or hitting a TCP retransmission timeout.
+: Once established, TCP throws errors whenever the connection is disconnected, such as due to receiving a RST from the peer; or hitting a TCP retransmission timeout.
 
 Listen:
-: Calling `Listen` for TCP binds a local port and prepares it to receive inbound SYN packets from peers.
+: LISTEN.TCP. Calling `Listen` for TCP binds a local port and prepares it to receive inbound SYN packets from peers.
 
 ConnectionReceived:
 : TCP Listeners will deliver new connections once they have replied to an inbound SYN with a SYN-ACK.
@@ -702,16 +705,16 @@ Clone:
 : Calling `Clone` on a TCP Connection creates a new Connection with equivalent parameters. The two Connections are otherwise independent.
 
 Send:
-: TCP does not on its own preserve Message boundaries. Calling `Send` on a TCP connection lays out the bytes on the TCP send stream without any other delineation. Any Message marked as Final will cause TCP to send a FIN once the Message has been completely written.
+: SEND.TCP. TCP does not on its own preserve Message boundaries. Calling `Send` on a TCP connection lays out the bytes on the TCP send stream without any other delineation. Any Message marked as Final will cause TCP to send a FIN once the Message has been completely written, by calling CLOSE.TCP immediately upon successful termination of SEND.TCP.
 
 Receive:
-: TCP delivers a stream of bytes without any Message delineation. All data delivered in the `Received` or `ReceivedPartial` event will be part of a single stream-wide Message that is marked Final (unless a MessageFramer is used). EndOfMessage will be delivered when the TCP Connection has received a FIN from the peer.
+: With RECEIVE.TCP, TCP delivers a stream of bytes without any Message delineation. All data delivered in the `Received` or `ReceivedPartial` event will be part of a single stream-wide Message that is marked Final (unless a MessageFramer is used). EndOfMessage will be delivered when the TCP Connection has received a FIN (CLOSE-EVENT.TCP or ABORT-EVENT.TCP) from the peer.
 
 Close:
-: Calling `Close` on a TCP Connection indicates that the Connection should be gracefully closed by sending a FIN to the peer and waiting for a FIN-ACK before delivering the `Closed` event.
+: Calling `Close` on a TCP Connection indicates that the Connection should be gracefully closed (CLOSE.TCP) by sending a FIN to the peer and waiting for a FIN-ACK before delivering the `Closed` event.
 
 Abort:
-: Calling `Abort` on a TCP Connection indicates that the Connection should be immediately closed by sending a RST to the peer.
+: Calling `Abort` on a TCP Connection indicates that the Connection should be immediately closed by sending a RST to the peer (ABORT.TCP).
 
 ## UDP
 
@@ -725,7 +728,7 @@ Connection Object:
 : UDP connections represent a pair of specific IP addresses and ports on two hosts.
 
 Initiate:
-: Calling `Initiate` on a UDP Connection causes it to reserve a local port, but does not generate any traffic.
+: CONNECT.UDP. Calling `Initiate` on a UDP Connection causes it to reserve a local port, but does not generate any traffic.
 
 InitiateWithSend:
 : Early data on a UDP Connection does not have any special meaning. The data is sent whenever the Connection is Ready.
@@ -737,10 +740,10 @@ InitiateError:
 : UDP Connections can only generate errors on initiation due to port conflicts on the local system.
 
 ConnectionError:
-: Once in use, UDP throws errors upon receiving ICMP notifications indicating failures in the network.
+: Once in use, UDP throws "soft errors" (ERROR.UDP(-Lite)) upon receiving ICMP notifications indicating failures in the network.
 
 Listen:
-: Calling `Listen` for UDP binds a local port and prepares it to receive inbound UDP datagrams from peers.
+: LISTEN.UDP. Calling `Listen` for UDP binds a local port and prepares it to receive inbound UDP datagrams from peers.
 
 ConnectionReceived:
 : UDP Listeners will deliver new connections once they have received traffic from a new Remote Endpoint.
@@ -749,16 +752,16 @@ Clone:
 : Calling `Clone` on a UDP Connection creates a new Connection with equivalent parameters. The two Connections are otherwise independent.
 
 Send:
-: Calling `Send` on a UDP connection sends the data as the payload of a complete UDP datagram. Marking Messages as Final does not change anything in the datagram's contents.
+: SEND.UDP(-Lite). Calling `Send` on a UDP connection sends the data as the payload of a complete UDP datagram. Marking Messages as Final does not change anything in the datagram's contents. Upon sending a UDP datagram, some relevant fields and flags in the IP header can be controlled: DSCP (SET_DSCP.UDP(-Lite)), DF in IPv4 (SET_DF.UDP(-Lite)) and ECN flag (SET_ECN.UDP(-Lite)).
 
 Receive:
-: UDP only delivers complete Messages to `Received`, each of which represents a single datagram received in a UDP packet.
+: RECEIVE.UDP(-Lite). UDP only delivers complete Messages to `Received`, each of which represents a single datagram received in a UDP packet. Upon receiving a UDP datagram, the ECN flag from the IP header can be obtained (GET_ECN.UDP(-Lite)).
 
 Close:
-: Calling `Close` on a UDP Connection releases the local port reservation.
+: Calling `Close` on a UDP Connection (ABORT.UDP(-Lite)) releases the local port reservation.
 
 Abort:
-: Calling `Abort` on a UDP Connection is identical to calling `Close`.
+: Calling `Abort` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close`.
 
 ## TLS {#tls}
 
@@ -887,29 +890,78 @@ Connection Object:
 
 ## SCTP
 
-To support sender-side stream schedulers (which are implemented on the sender side),
-a receiver-side Transport System should
-always support message interleaving {{!RFC8260}}.
+Connectedness: Connected
 
-SCTP messages can be very large. To allow the reception of large messages in pieces, a "partial flag" can be
-used to inform a (native SCTP) receiving application that a
-message is incomplete. After receiving the "partial flag", this application would know that the next receive calls will only
-deliver remaining parts of the same message (i.e., no messages or partial messages will arrive on other
-streams until the message is complete) (see Section 8.1.20 in {{!RFC6458}}). The "partial flag" can therefore
-facilitate the implementation of the receiver buffer in the receiving application, at the cost of limiting
-multiplexing and temporarily creating head-of-line blocking delay at the receiver.
+Data Unit: Message
 
-When a Transport System transfers a Message, it seems natural to map the Message object to SCTP messages in order
-to support properties such as "Ordered" or "Lifetime" (which maps onto partially reliable delivery with
-a SCTP_PR_SCTP_TTL policy {{!RFC6458}}). However, since multiplexing of
-Connections onto SCTP streams may happen, and would be hidden from the application, the
-Transport System requires a per-stream receiver buffer anyway, so this potential benefit is lost
-and the "partial flag" becomes unnecessary for the system.
+API mappings for SCTP are as follows:
 
-The problem of long messages either requiring large receiver-side buffers or getting in the way of
-multiplexing is addressed by message interleaving {{!RFC8260}},
-which is yet another reason why a receivers-side transport system supporting SCTP should
-implement this mechanism.
+Connection Object:
+: Connection objects represent a flow of SCTP messages between a client and a server, which may be an SCTP association or a stream in a SCTP association. How to map Connection objects to streams is described in {{NEAT-flow-mapping}}; in the following, a similar method is described.
+To map Connection objects to SCTP streams without head-of-line blocking on the sender
+side, both the sending and receiving SCTP implementation must support message interleaving {{!RFC8260}}.
+Both SCTP implementations must also support stream reconfiguration. Finally, both communicating endpoints
+must be aware of this intended multiplexing; {{NEAT-flow-mapping}} describes a
+way for a Transport System to negotiate the stream mapping capability using SCTP's adaptation layer indication,
+such that this functionality would only take effect if both ends sides are aware of it.
+The first flow, for which the SCTP association has been created, will always use stream id zero.
+All additional flows are assigned to unused stream ids in growing order. To avoid a conflict
+when both endpoints map new flows simultaneously, the peer which initiated the transport connection
+will use even stream numbers whereas the remote side will map its flows to odd stream numbers.
+Both sides maintain a status map of the assigned stream numbers. Generally, new streams
+must consume the lowest available (even or odd, depending on the side) stream number; this
+rule is relevant when lower numbers become available because Connection objects associated
+to the streams are closed.
+
+Initiate:
+: If this is the only Connection object that is assigned to the SCTP association or stream mapping has
+not been negotiated, CONNECT.SCTP is called. Else, a new stream is used: if there are enough streams
+available, `Initiate` is just a local operation that assigns a new stream number to the Connection object.
+The number of streams is negotiated as a parameter of the prior CONNECT.SCTP call, and it represents a
+trade-off between local resource usage and the number of Connection objects that can be mapped
+without requiring a reconfiguration signal. When running out of streams, ADD_STREAM.SCTP must be called.
+
+InitiateWithSend:
+: If this is the only Connection object that is assigned to the SCTP association or stream mapping has
+not been negotiated, CONNECT.SCTP is called with the "user message" parameter. Else, a new stream
+is used (see `Initiate` for how to handle running out of streams), and this just sends the first message
+on a new stream.
+
+Ready:
+: `Initiate` or `InitiateWithSend` returns without an error, i.e. SCTP's four-way handshake has completed. If an association with the peer already exists, and stream mapping has been negotiated and enough streams are available, a Connection Object instantly becomes Ready after calling `Initiate` or `InitiateWithSend`.
+
+InitiateError:
+: Failure of CONNECT.SCTP.
+
+ConnectionError:
+: TIMEOUT.SCTP or ABORT-EVENT.SCTP.
+
+Listen:
+: LISTEN.SCTP. If an association with the peer already exists and stream mapping has been negotiated, `Listen` just expects to receive a new message on a new stream id (chosen in accordance with the stream number assignment procedure described above).
+
+ConnectionReceived:
+: LISTEN.SCTP returns without an error (a result of successful CONNECT.SCTP from the peer), or, in case of stream mapping, the first message has arrived on a new stream (in this case, `Receive` is also invoked).
+
+Clone:
+: Calling `Clone` on an SCTP association creates a new Connection object and assigns it a new stream number in accordance with the stream number assignment procedure described above. If there are not enough streams available, ADD_STREAM.SCTP must be called.
+
+Priority (Connection):
+: When this value is changed, or a Message with Message Property `Priority` is sent, and there are multiple
+Connection objects assigned to the same SCTP association,
+CONFIGURE_STREAM_SCHEDULER.SCTP is called to adjust the priorities of streams in the SCTP association.
+
+Send:
+: SEND.SCTP. Message Properties such as `Lifetime` and `Ordered` map to parameters of this primitive.
+
+Receive: 
+: RECEIVE.SCTP. The "partial flag" of RECEIVE.SCTP invokes a `ReceivedPartial` event.
+
+Close:
+If this is the only Connection object that is assigned to the SCTP association, CLOSE.SCTP is called. Else, the Connection object is one out of several Connection objects that are assigned to the same SCTP assocation, and RESET_STREAM.SCTP must be called, which informs the peer that the stream will no longer be used for mapping and can be used by future `Initiate`, `InitiateWithSend` or `Listen` calls. At the peer, the event RESET_STREAM-EVENT.SCTP will fire, which the peer must answer by issuing RESET_STREAM.SCTP too. The resulting local RESET_STREAM-EVENT.SCTP informs the transport system that the stream number can now be re-used by the next `Initiate`, `InitiateWithSend` or `Listen` calls.
+
+Abort:
+If this is the only Connection object that is assigned to the SCTP association, ABORT.SCTP is called. Else, the Connection object is one out of several Connection objects that are assigned to the same SCTP assocation, and shutdown proceeds as described under `Close`.
+
 
 # IANA Considerations
 
