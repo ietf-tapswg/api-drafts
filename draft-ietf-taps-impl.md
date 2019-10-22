@@ -687,13 +687,13 @@ InitiateWithSend:
 : CONNECT.TCP with parameter "user message". Early idempotent data is sent on a TCP Connection in the SYN, as TCP Fast Open data.
 
 Ready:
-: `Initiate` or `InitiateWithSend` returns without an error, i.e. the three-way handshake is complete.
+: A TCP Connection is ready once the three-way handshake is complete.
 
 InitiateError:
 : Failure of CONNECT.TCP. TCP can throw various errors during connection setup. Specifically, it is important to handle a RST being sent by the peer during the handshake.
 
 ConnectionError:
-: Once established, TCP throws errors whenever the connection is disconnected, such as due to receive a RST from the peer; or hitting a TCP retransmission timeout. This can lead to ABORT-EVENT.TCP or TIMEOUT.TCP events.
+: Once established, TCP throws errors whenever the connection is disconnected, such as due to receiving a RST from the peer; or hitting a TCP retransmission timeout.
 
 Listen:
 : LISTEN.TCP. Calling `Listen` for TCP binds a local port and prepares it to receive inbound SYN packets from peers.
