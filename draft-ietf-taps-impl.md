@@ -122,9 +122,13 @@ The Transport Services architecture {{I-D.ietf-taps-arch}} defines a system that
 
 This document serves as a guide to implementation on how to build a system that provides a Transport Services API. It is the job of an implementation of a Transport Services system to turn the requests of an application into decisions on how to establish connections, and how to transfer data over those connections once established. The terminology used in this document is based on the Architecture {{I-D.ietf-taps-arch}}.
 
-# Implementing Basic Objects
+# Implementing Connection Objects
 
-The basic objects that are exposed to applications for Transport Services are the Preconnection, the bundle of properties that describes the application constraints on the transport; the Connection, the basic object that represents a flow of data in either direction between the Local and Remote Endpoints; and the Listener, a passive waiting object that delivers new Connections.
+The connection objects that are exposed to applications for Transport Services are:
+
+- the Preconnection, the bundle of properties that describes the application constraints on the transport;
+- the Connection, the basic object that represents a flow of data in either direction between the Local and Remote Endpoints;
+- and the Listener, a passive waiting object that delivers new Connections.
 
 Preconnection objects should be implemented as bundles of properties that an application can both read and write. Once a Preconnection has been used to create an outbound Connection or a Listener, the implementation should ensure that the copy of the properties held by the Connection or Listener is immutable. This may involve performing a deep-copy if the application is still able to modify properties on the original Preconnection object.
 
@@ -480,9 +484,7 @@ Unconnected protocols such as UDP and UDP-lite generally do not provide the same
 
 Protocols that provide multiplexing of streams into a single five-tuple can listen both for entirely new connections (a new HTTP/2 stream on a new TCP connection, for example) and for new sub-connections (a new HTTP/2 stream on an existing connection). If the abstraction of Connection presented to the application is mapped to the multiplexed stream, then the Listener should deliver new Connection objects in the same way for either case. The implementation should allow the application to introspect the Connection Group marked on the Connections to determine the grouping of the multiplexing.
 
-# Implementing Data Transfer
-
-## Data transfer for streams, datagrams, and frames
+# Implementing Sending and Receiving Data
 
 The most basic mapping for sending a Message is an abstraction of datagrams, in which the transport protocol naturally deals in discrete packets. Each Message here corresponds to a single datagram. Generally, these will be short enough that sending and receiving will always use a complete Message.
 
@@ -490,11 +492,11 @@ For protocols that expose byte-streams, the only delineation provided by the pro
 
 Protocols that provide the framing (such as length-value protocols, or protocols that use delimiters) provide data boundaries that may be longer than a traditional packet datagram. Each Message for framing protocols corresponds to a single frame, which may be sent either as a complete Message, or in multiple parts.
 
-### Sending Messages
+## Sending Messages
 
 The effect of the application sending a Message is determined by the top-level protocol in the established Protocol Stack. That is, if the top-level protocol provides an abstraction of framed messages over a connection, the receiving application will be able to obtain multiple Messages on that connection, even if the framing protocol is built on a byte-stream protocol like TCP.
 
-#### Message Properties {#msg-properties}
+### Message Properties {#msg-properties}
 
 - Lifetime: this should be implemented by removing the Message from its queue of pending Messages after the Lifetime has expired. A queue of pending Messages within the transport system implementation that have yet to be handed to the Protocol Stack can always support this property, but once a Message has been sent into the send buffer of a protocol, only certain protocols may support de-queueing a message. For example, TCP cannot remove bytes from its send buffer, while in case of SCTP, such control over the SCTP send buffer can be exercised using the partial reliability extension {{!RFC8303}}. When there is no standing queue of Messages within the system, and the Protocol Stack does not support removing a Message from its buffer, this property may be ignored.
 
@@ -512,16 +514,15 @@ The effect of the application sending a Message is determined by the top-level p
 
 - Singular Transmission: when this is true, the application requests to avoid transport-layer segmentation or network-layer fragmentation. Some transports implement network-layer fragmentation avoidance (Path MTU Discovery) without exposing this functionality to the application; in this case, only transport-layer segmentation should be avoided, by fitting the message into a single transport-layer segment or otherwise failing. Otherwise, network-layer fragmentation should be avoided---e.g. by requesting the IP Don’t Fragment bit to be set in case of UDP(-Lite) and IPv4 (SET_DF in {{!RFC8304}}).
 
-
-#### Send Completion
+### Send Completion
 
 The application should be notified whenever a Message or partial Message has been consumed by the Protocol Stack, or has failed to send. The meaning of the Message being consumed by the stack may vary depending on the protocol. For a basic datagram protocol like UDP, this may correspond to the time when the packet is sent into the interface driver. For a protocol that buffers data in queues, like TCP, this may correspond to when the data has entered the send buffer.
 
-#### Batching Sends
+### Batching Sends
 
 Since sending a Message may involve a context switch between the application and the transport system, sending patterns that involve multiple small Messages can incur high overhead if each needs to be enqueued separately. To avoid this, the application should have a way to indicate a batch of Send actions, during which time the implementation will hold off on processing Messages until the batch is complete. This can also help context switches when enqueuing data in the interface driver if the operation can be batched.
 
-### Receiving Messages
+## Receiving Messages
 
 Similar to sending, Receiving a Message is determined by the top-level protocol in the established Protocol Stack. The main difference with Receiving is that the size and boundaries of the Message are not known beforehand. The application can communicate in its Receive action the parameters for the Message, which can help the implementation know how much data to deliver and when. For example, if the application only wants to receive a complete Message, the implementation should wait until an entire Message (datagram, stream, or frame) is read before delivering any Message content to the application. This requires the implementation to understand where messages end, either via a supplied deframer or because the top-level protocol in the established Protocol Stack preserves message boundaries; if, on the other hand, the top-level protocol only supports a byte-stream and no deframers were supported, the application must specify the minimum number of bytes of Message content it wants to receive (which may be just a single byte) to control the flow of received data.
 
@@ -539,37 +540,28 @@ It is also possible that protocol stacks within a particular leaf node use 0-RTT
 
 0-RTT handshakes often rely on previous state, such as TCP Fast Open cookies, previously established TLS tickets, or out-of-band distributed pre-shared keys (PSKs). Implementations should be aware of security concerns around using these tokens across multiple addresses or paths when racing. In the case of TLS, any given ticket or PSK should only be used on one leaf node. If implementations have multiple tickets available from a previous connection, each leaf node attempt must use a different ticket. In effect, each leaf node will send the same early application data, yet encoded (encrypted) differently on the wire.
 
-# Implementing Maintenance
+# Implementing Connection Management
 
-Maintenance encompasses changes that the application can request to a Connection, or that a Connection can react to based on system and network changes.
+Once a Connection is established, the Transport Services system allows applications to interact with the Connection by modifying or inspecting
+Connection Properties. A Connection can also generate events in the form of Soft Errors.
 
-## Managing Connections
+The set of Connection Properties that are supported for setting and getting on a Connection are described in {{I-D.ietf-taps-interface}}. For
+any properties that are generic, and thus could apply to all protocols being used by a Connection, the Transport System should store the properties
+in a generic storage, and notify all protocol instances in the Protocol Stack whenever the properties have been modified by the application.
+For protocol-specfic properties, such as the User Timeout that applies to TCP, the Transport System only needs to update the relevant protocol instance.
 
-Appendix A.1 of {{I-D.ietf-taps-minset}} explains, using primitives from {{!RFC8303}} and {{!RFC8304}}, how to implement changing some of the following protocol properties of an established connection with TCP and UDP. Below, we amend this description for other protocols (if applicable) and extend it with Connection Properties that are not contained in {{I-D.ietf-taps-minset}}.
+If an error is encountered in setting a property (for example, if the application tries to set a TCP-specific property on a Connection that is
+not using TCP), the action should fail gracefully. The application may be informed of the error, but the Connection itself should not be terminated.
 
-- Notification of excessive retransmissions: TODO
-- Retransmission threshold before excessive retransmission notification: TODO; for TCP, this can be done using ERROR.TCP described in section 4 of {{!RFC8303}}.
-- Notification of ICMP soft error message arrival: TODO
-- Required minimum coverage of the checksum for receiving: for UDP-Lite, this can be done using the primitive SET_MIN_CHECKSUM_COVERAGE.UDP-Lite described in section 4 of {{!RFC8303}}.
-- Priority (Connection): TODO; for SCTP, this can be done using the primitive CONFIGURE_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
-- Timeout for aborting Connection: for SCTP, this can be done using the primitive CHANGE_TIMEOUT.SCTP described in section 4 of {{!RFC8303}}.
-- Connection group transmission scheduler: for SCTP, this can be done using the primitive SET_STREAM_SCHEDULER.SCTP described in section 4 of {{!RFC8303}}.
-- Maximum message size concurrent with Connection establishment: TODO
-- Maximum Message size before fragmentation or segmentation: TODO
-- Maximum Message size on send: TODO
-- Maximum Message size on receive: TODO
-- Capacity Profile: TODO
-- Bounds on Send or Receive Rate: TODO
-- TCP-specific Property: User Timeout: for TCP, this can be configured using the primitive CHANGE_TIMEOUT.TCP described in section 4 of {{!RFC8303}}.
-
-It may happen that the application attempts to set a Protocol Property which does not apply to the actually chosen protocol. In this case, the implementation should fail gracefully, i.e., it may give a warning to the application, but it should not terminate the Connection.
+The Transport Services implementation should allow protocol instances in the Protocol Stack to pass up arbitrary generic or protocol-specific
+errors that can be delivered to the application as Soft Errors. These allow the application to be informed of ICMP errors, and other similar events.
 
 ## Handling Path Changes
 
 When a path change occurs, the Transport Services implementation is responsible for notifying Protocol Instances in the Protocol Stack.
 If the Protocol Stack includes a transport protocol that supports multipath connectivity, an update to the available paths should inform the Protocol Instance of the new set of paths that are permissible based on the Selection Properties passed by the application. A multipath protocol can establish new subflows over new paths, and should tear down subflows over paths that are no longer available. If the Protocol Stack includes a transport protocol that does not support multipath, but support migrating between paths, the update to available paths can be used as the trigger to migrating the connection. For protocols that do not support multipath or migration, the Protocol Instances may be informed of the path change, but should not be forcibly disconnected if the previously used path becomes unavailable. An exception to this case is if the System Policy changes to prohibit traffic from the Connection based on its properties, in which case the Protocol Stack should be disconnected.
 
-# Implementing Termination
+# Implementing Connection Termination
 
 With TCP, when an application closes a connection, this
 means that it has no more data to send (but expects all data that has been
@@ -666,8 +658,6 @@ Protocols also define a notion of Data Unit. Possible values for Data Unit are:
 - Message. Message protocols support Message boundaries that can be sent and received either as complete or partial Messages. Maximum Message lengths can be defined, and Messages can be partially reliable.
 
 Below, primitives in the style of "CATEGORY.[SUBCATEGORY].PRIMITIVENAME.PROTOCOL"  (e.g., "CONNECT.SCTP") refer to the primitives with the same name in section 4 of {{!RFC8303}}. For further implementation details, the description of these primitives in {{!RFC8303}} points to section 3, which refers back the specifications for each protocol. This back-tracking method applies to all elements of {{I-D.ietf-taps-minset}} (see appendix D of {{I-D.ietf-taps-interface}}): they are listed in appendix A of {{I-D.ietf-taps-minset}} with an implementation hint in the same style, pointing back to section 4 of {{!RFC8303}}.
-
-
 
 ## TCP {#tcp}
 
