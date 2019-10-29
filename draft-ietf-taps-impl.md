@@ -435,7 +435,7 @@ It is useful to process success and failure throughout the tree by child nodes r
 ...
 ~~~~~~~~~~
 
-If a leaf node has successfully completed its connection, all other attempts should be made ineligible for use by the application for the original request. New connection attempts that involve transmitting data on the network should not be started after another leaf node has completed successfully, as the connection as a whole has been established. An implementation may choose to let certain handshakes and negotiations complete in order to gather metrics to influence future connections. Similarly, an implementation may choose to hold onto fully established leaf nodes that were not the first to establish for use in future connections, but this approach is not recommended since those attempts were slower to connect and may exhibit less desirable properties.
+If a leaf node has successfully completed its connection, all other attempts should be made ineligible for use by the application for the original request. New connection attempts that involve transmitting data on the network should not be started after another leaf node has completed successfully, as the connection as a whole has been established. An implementation may choose to let certain handshakes and negotiations complete in order to gather metrics to influence future connections. Similarly, an implementation may choose to hold onto fully established leaf nodes that were not the first to establish for use as part of a Pooled Connection, see {{pooled-connections}}, or in future connections. The latter is not recommended since those attempts were slower to connect and may exhibit less desirable properties.
 
 ### Determining Successful Establishment
 
@@ -556,10 +556,19 @@ not using TCP), the action should fail gracefully. The application may be inform
 The Transport Services implementation should allow protocol instances in the Protocol Stack to pass up arbitrary generic or protocol-specific
 errors that can be delivered to the application as Soft Errors. These allow the application to be informed of ICMP errors, and other similar events.
 
+## Pooled Connection {#pooled-connections}
+
+For message reordering resistant request/response protocols like HTTP, interactions can be automatically distributed across several underlying transport connections. 
+For these kinds of protocols, implementations may hide the connection management and only expose the individual requests/responses as messages.
+These Pooled Connections can use multiple connections or multiple streams of multi-streaming connections between endpoints, as long as all of these satisfy the requirements, prohibitions, and preferences specified in the Selection Properties of the Pooled Connection. 
+This enables implementations to realize transparent connection coalescing, connection migration, and to perform per-message endpoint and path selection by choosing among these underlying connections.
+
 ## Handling Path Changes
 
 When a path change occurs, the Transport Services implementation is responsible for notifying Protocol Instances in the Protocol Stack.
-If the Protocol Stack includes a transport protocol that supports multipath connectivity, an update to the available paths should inform the Protocol Instance of the new set of paths that are permissible based on the Selection Properties passed by the application. A multipath protocol can establish new subflows over new paths, and should tear down subflows over paths that are no longer available. If the Protocol Stack includes a transport protocol that does not support multipath, but support migrating between paths, the update to available paths can be used as the trigger to migrating the connection. For protocols that do not support multipath or migration, the Protocol Instances may be informed of the path change, but should not be forcibly disconnected if the previously used path becomes unavailable. An exception to this case is if the System Policy changes to prohibit traffic from the Connection based on its properties, in which case the Protocol Stack should be disconnected.
+If the Protocol Stack includes a transport protocol that supports multipath connectivity, an update to the available paths should inform the Protocol Instance of the new set of paths that are permissible based on the Selection Properties passed by the application. A multipath protocol can establish new subflows over new paths, and should tear down subflows over paths that are no longer available. Pooled Connections {{pooled-connections}} may add or remove underlaying transport connections in a similar manner. If the Protocol Stack includes a transport protocol that does not support multipath, but support migrating between paths, the update to available paths can be used as the trigger to migrating the connection. For protocols that do not support multipath or migration, the Protocol Instances may be informed of the path change, but should not be forcibly disconnected if the previously used path becomes unavailable. An exception to this case is if the System Policy changes to prohibit traffic from the Connection based on its properties, in which case the Protocol Stack should be disconnected.
+
+
 
 # Implementing Connection Termination
 
