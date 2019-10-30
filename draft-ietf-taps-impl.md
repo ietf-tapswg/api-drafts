@@ -1016,10 +1016,10 @@ This appendix gives an overview of existing implementations, at the time of writ
   * Documentation: <https://developer.apple.com/documentation/network>
 
 * NEAT:
-  * NEAT is the output of the European H2020 research project "NEAT"; it is a user-space library for protocol-independent communication above TCP, UDP and SCTP, with many more features such as a policy manager.
+  * NEAT is the output of the European H2020 research project "NEAT"; it is a user-space library for protocol-independent communication on top of TCP, UDP and SCTP, with many more features such as a policy manager.
   * Code: <https://github.com/NEAT-project/neat>
   * NEAT project: <https://www.neat-project.org>
 
 * PyTAPS:
-  * A TAPS implementation based on Python asyncio, offering protocol-independent communication to applications above TCP, UDP and TLS, with support for multicast.
+  * A TAPS implementation based on Python asyncio, offering protocol-independent communication to applications on top of TCP, UDP and TLS, with support for multicast.
   * Code: <https://github.com/fg-inet/python-asyncio-taps>
