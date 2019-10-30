@@ -559,8 +559,8 @@ errors that can be delivered to the application as Soft Errors. These allow the 
 ## Pooled Connection {#pooled-connections}
 
 For protocols that employ request/response pairs and do not require in-order delivery of the responses, like HTTP/2, interactions can be automatically distributed across several underlying transport connections. 
-For these kinds of protocols, implementations may hide the connection management and only expose the individual requests/responses as messages.
-These Pooled Connections can use multiple connections or multiple streams of multi-streaming connections between endpoints, as long as all of these satisfy the requirements, prohibitions, and preferences specified in the Selection Properties of the Pooled Connection. 
+For these kinds of protocols, implementations may hide the connection management and only expose a single Connection object and the individual requests/responses as messages.
+These Pooled Connections can use multiple connections or multiple streams of multi-streaming connections between endpoints, as long as all of these satisfy the requirements, and prohibitions specified in the Selection Properties of the Pooled Connection. 
 This enables implementations to realize transparent connection coalescing, connection migration, and to perform per-message endpoint and path selection by choosing among these underlying connections.
 
 ## Handling Path Changes
