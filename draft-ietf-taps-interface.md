@@ -99,6 +99,13 @@ informative:
   I-D.ietf-taps-minset:
   I-D.ietf-taps-transport-security:
   RFC7556:
+  PROTOCOL-WARS:
+    title: Protocol Wars (Revolution - The First 2000 Years of Computing)
+    author:
+      -
+        ins: Computer History Museum
+    target: https://www.computerhistory.org/revolution/networking/19/376
+    date: 2019
 
 --- abstract
 
@@ -114,28 +121,28 @@ and potential transport protocols to select from.
 
 # Introduction
 
-The BSD Unix Sockets API's SOCK_STREAM abstraction, by bringing network
-sockets into the UNIX programming model, allowing anyone who knew how to write
-programs that dealt with sequential-access files to also write network
-applications, was a revolution in simplicity. The simplicity of this API is a
-key reason the Internet won the protocol wars of the 1980s. SOCK_STREAM is
-tied to the Transmission Control Protocol (TCP), specified in 1981
-{{?RFC0793}}. TCP has scaled remarkably well over the past three and a half
-decades, but its total ubiquity has hidden an uncomfortable fact: the network
-is not really a file, and stream abstractions are too simplistic for many
-modern application programming models.
+The BSD Unix Sockets API's SOCK_STREAM abstraction, by bringing network sockets
+into the UNIX programming model, allowing anyone who knew how to write programs
+that dealt with sequential-access files to also write network applications, was
+a revolution in simplicity. The simplicity of this API is a key reason the
+Internet won the protocol wars {{PROTOCOL-WARS}} of the 1980s. SOCK_STREAM is
+tied to the Transmission Control Protocol (TCP), specified in 1981 {{?RFC0793}}.
+TCP has scaled remarkably well over the past three and a half decades, but its
+total ubiquity has hidden an uncomfortable fact: the network is not really a
+file, and stream abstractions are too simplistic for many modern application
+programming models.
 
 In the meantime, the nature of Internet access, and the variety of Internet
 transport protocols, is evolving. The challenges that new protocols and access
 paradigms present to the sockets API and to programming models based on them
 inspire the design principles of a new approach, which we outline in {{principles}}.
 
-As a first step to realizing this design, {{I-D.ietf-taps-arch}}
-describes a high-level architecture for transport services. This document
-builds a modern abstract programming interface atop this architecture,
-deriving specific path and protocol selection properties and supported
-transport features from the analysis provided in {{?RFC8095}},
-{{I-D.ietf-taps-minset}}, and {{I-D.ietf-taps-transport-security}}.
+This document builds a modern abstract programming interface atop the
+high-level architecture for transport services defined in
+{{I-D.ietf-taps-arch}}. It derives specific path and protocol selection
+properties and supported transport features from the analysis provided in
+{{?RFC8095}}, {{I-D.ietf-taps-minset}}, and
+{{I-D.ietf-taps-transport-security}}.
 
 # Terminology and Notation
 
@@ -185,7 +192,7 @@ given language on a given platform is largely dependent on the features of the
 language and the platform. Actions could be implemented as functions or method
 calls, for instance, and Events could be implemented via callbacks,
 communicating sequential processes, or other asynchronous calling conventions.
-The method for dispatching and handling Events is left as an implementation
+The method for dispatching and handling Events is an implementation
 detail, with the caveat that the interface for receiving Messages must require
 the application to invoke the Connection.Receive() Action once per Message to be
 received (see {{receiving}}).
@@ -194,7 +201,7 @@ This specification treats Events and errors similarly. Errors, just as any
 other Events, may occur asynchronously in network applications. However, it is
 recommended that implementations of this interface also return errors
 immediately, according to the error handling idioms of the implementation
-platform, for errors which can be immediately detected, such as inconsistency
+platform, for errors that can be immediately detected, such as inconsistency
 in Transport Properties. Errors can provide an optional reason to give the 
 application further details as to why the error occured.
 
@@ -218,8 +225,9 @@ provides:
   transport-independent way, to enable applications written to a single API
   to make use of transport protocols in terms of the features they provide;
 
-- Message- as opposed to stream-orientation, using application-assisted framing
-  and deframing where the underlying transport does not provide these;
+- Message-orientation, as opposed to stream-orientation, using
+  application-assisted framing and deframing where the underlying transport
+  does not provide these;
 
 - Asynchronous Connection establishment, transmission, and reception, allowing
   concurrent operations during establishment and supporting event-driven
@@ -239,15 +247,15 @@ provides:
 # API Summary
 
 The Transport Services Interface is the basic common abstract application
-programming interface to the Transport Services Architecture defined in
-{{I-D.ietf-taps-arch}}.
+programming interface to the Transport Services Architecture defined in the TAPS
+Architecture {{I-D.ietf-taps-arch}}.
 
-An application primarily interacts with this interface through two Objects,
+An application primarily interacts with this interface through two Objects:
 Preconnections and Connections. A Preconnection represents a set of properties
 and constraints on the selection and configuration of paths and protocols to
-establish a Connection with a remote endpoint. A Connection represents a
+establish a Connection with a remote Endpoint. A Connection represents a
 transport Protocol Stack on which data can be sent to and/or received from a
-remote endpoint (i.e., depending on the kind of transport, connections can be
+remote Endpoint (i.e., depending on the kind of transport, connections can be
 bi-directional or unidirectional). Connections can be created from
 Preconnections in three ways: by initiating the Preconnection (i.e., actively
 opening, as in a client), through listening on the Preconnection (i.e.,
@@ -280,12 +288,12 @@ Transport Services Interface to:
   receiving Messages, see {{peer-example}}.
 
 The examples in this section presume that a transport protocol is available
-between the endpoints which provides Reliable Data Transfer, Preservation of
+between the endpoints that provides Reliable Data Transfer, Preservation of
 data ordering, and Preservation of Message Boundaries. In this case, the
 application can choose to receive only complete messages.
 
 If none of the available transport protocols provides Preservation of Message
-Boundaries, but there is a transport protocol which provides a reliable ordered
+Boundaries, but there is a transport protocol that provides a reliable ordered
 byte stream, an application may receive this byte stream as partial
 Messages and transform it into application-layer Messages.  Alternatively,
 an application may provide a Message Framer, which can transform a
@@ -421,33 +429,34 @@ Connection.Close()
 
 ## Transport Properties {#transport-properties}
 
-
 Each application using the Transport Services Interface declares its preferences
 for how the transport service should operate using properties at each stage of
-the lifetime of a connection. During pre-establishment, Selection Properties
-(see {{selection-props}}) are used to specify which paths and protocol stacks
-can be used and are preferred by the application, and Connection Properties
-(see {{connection-props}}) can be used to influence decisions made during
-establishment and to fine-tune the eventually established connection.
-These Connection Properties can also be used later, to monitor and
-fine-tune established connections.
-The behavior of the selected protocol stack(s) when sending Messages is
-controlled by Message Properties (see {{message-props}}).
+the lifetime of a connection using Transport Properties, as defined in
+{{I-D.ietf-taps-arch}}. 
 
-Collectively, Selection, Connection, and Message Properties can be
-referred to as Transport Properties. All Transport Properties, regardless of the
-phase in which they are used, are organized within a single namespace. This
-enables setting them as defaults in earlier stages and querying them in later
-stages:
- - Connection Properties can be set on Preconnections
- - Message Properties can be set on Preconnections and Connections
- - The effect of Selection Properties can be queried on Connections and Messages
+Transport Properties are divided into Selection, Connection, and Message
+Properties. During pre-establishment, Selection Properties (see
+{{selection-props}}) are used to specify which paths and protocol stacks can be
+used and are preferred by the application, and Connection Properties (see
+{{connection-props}}) can be used to influence decisions made during
+establishment and to fine-tune the eventually established connection. These
+Connection Properties can also be used later, to monitor and fine-tune
+established connections. The behavior of the selected protocol stack(s) when
+sending Messages is controlled by Message Properties (see {{message-props}}).
+
+All Transport Properties, regardless of the phase in which they are used, are
+organized within a single namespace. This enables setting them as defaults in
+earlier stages and querying them in later stages:
+
+- Connection Properties can be set on Preconnections
+- Message Properties can be set on Preconnections and Connections
+- The effect of Selection Properties can be queried on Connections and Messages
 
 Note that Configuring Connection Properties and Message Properties on
-Preconnections is preferred over setting them later.
-Connection Properties specified early on may be used as additional input to
-the selection process.
-Also note that Protocol Specific Properties, see {{property-names}}, should not be used as an input to the selection process.
+Preconnections is preferred over setting them later. Early specification of
+Connection Properties allows their use as additional input to the selection
+process. Protocol Specific Properties, see {{property-names}}, should not be
+used as an input to the selection process.
 
 
 ### Transport Property Names {#property-names}
@@ -464,14 +473,13 @@ These names serve two purposes:
 Transport Property Names are hierarchically organized in the
 form \[\<Namespace>.\]\<PropertyName\>.
 
-- The Namespace part is empty for well known, generic properties, i.e.,
-  for properties defined by an RFC which are not protocol specific.
-- Protocol Specific Properties must use the protocol acronym as
-  Namespace, e.g., “tcp" for TCP specific Transport Properties.
-  For IETF protocols, property names under these namespaces SHOULD
-  be defined in an RFC.
-- Vendor or implementation specific properties must use a
-  a string identifying the vendor or implementation as Namespace.
+- The Namespace part is empty for well known, generic properties, i.e., for
+  properties that are not specific to a protocol and are defined in an RFC.
+- Protocol Specific Properties must use the protocol acronym as Namespace, e.g.,
+  “tcp" for TCP specific Transport Properties. For IETF protocols, property
+  names under these namespaces should be defined in an RFC.
+- Vendor or implementation specific properties must use a a string identifying
+  the vendor or implementation as Namespace.
 
 ### Transport Property Types {#property-types}
 
@@ -497,33 +505,36 @@ This document defines a language- and platform-independent interface to a
 Transport Services system. Given the wide variety of languages and language
 conventions used to write applications that use the transport layer to connect
 to other applications over the Internet, this independence makes this interface
-necessarily abstract. While there is no interoperability benefit to tightly
-defining how the interface be presented to application programmers in diverse
-platforms, maintaining the "shape" of the abstract interface across these
-platforms reduces the effort for programmers who learn the transport services
-interface to apply their knowledge in multiple platforms. We therefore make the
-following recommendations:
+necessarily abstract. 
 
-- Actions, Events, and Errors in implementations of this interface SHOULD carry
-  the names given for them in the document, subject to capitalization and
-  punctuation conventions in the language of the implementation, unless the
-  implementation itself uses different names for substantially equivalent
-  objects for networking by convention.
+There is no interoperability benefit in tightly defining how the interface is
+presented to application programmers across diverse platforms. However,
+maintaining the "shape" of the abstract interface across these platforms reduces
+the effort for programmers who learn the transport services interface to then
+apply their knowledge across multiple platforms.
+
+We therefore make the following recommendations:
+
+- Actions, Events, and Errors in implementations of this interface SHOULD use
+  the names given for them in the document, subject to capitalization,
+  punctuation, and other typographic conventions in the language of the
+  implementation, unless the implementation itself uses different names for
+  substantially equivalent objects for networking by convention.
 - Implementations of this interface SHOULD implement each Selection Property,
   Connection Property, and Message Context Property specified in this document,
-  exclusive of appendices, even if said implementation is a non-operation, e.g.
-  because transport protocols implementing a given Property are not available on
-  the platform.
+  exclusive of appendices. Each interface SHOULD be implemented even when this
+  will always result in no operation, e.g. there is no action when the API
+  specifies a Property that is not available in a transport protocol implemented
+  on a specific platform.
 - Implementations may use other representations for Transport Property Names,
-  e.g., by providing constants or static singleton objects, but should provide
-  a  straight-forward mapping between their representation and the
-  property names specified here.
+  e.g., by providing constants, but should provide a straight-forward mapping
+  between their representation and the property names specified here.
 
 # Pre-Establishment Phase {#pre-establishment}
 
-The pre-establishment phase allows applications to specify properties for
+The Pre-Establishment phase allows applications to specify properties for
 the Connections they are about to make, or to query the API about potential
-connections they could make.
+Connections they could make.
 
 A Preconnection Object represents a potential Connection. It has state that
 describes properties of a Connection that might exist in the future.  This state
@@ -646,14 +657,17 @@ a preference - the effective preference must be returned instead.
 Internally, the transport system will first exclude all protocols and paths that
 match a Prohibit, then exclude all protocols and paths that do not match a
 Require, then sort candidates according to Preferred properties, and then use
-Avoided properties as a tiebreaker. Selection Properties which select paths take
-preference over those which select protocols. For example, if an application
+Avoided properties as a tiebreaker. Selection Properties that select paths take
+preference over those that select protocols. For example, if an application
 indicates a preference for a specific path by specifying an interface, but also a
 preference for a protocol not available on this path, the transport system will
 try the path first, ignoring the preference.
 
-Selection, and Connection Properties, as well as defaults for Message Properties, can be added to a Preconnection to configure the selection process, and to further configure the eventually selected protocol stack(s).
-They are collected into a TransportProperties object to be passed into a Preconnection object:
+Selection, and Connection Properties, as well as defaults for Message
+Properties, can be added to a Preconnection to configure the selection process,
+and to further configure the eventually selected protocol stack(s). They are
+collected into a TransportProperties object to be passed into a Preconnection
+object:
 
 ~~~
 TransportProperties := NewTransportProperties()
@@ -688,7 +702,7 @@ protocol and path, Avoid for properties avoided during selection, and Ignore for
 all other properties.
 
 An implementation of this interface must provide sensible defaults for Selection
-Properties. The recommended defaults given for each property below represent a
+Properties. The defaults given for each property below represent a
 configuration that can be implemented over TCP. An alternate set of default
 Protocol Selection Properties would represent a configuration that can be
 implemented over UDP.
@@ -702,7 +716,7 @@ Name:
 This property specifies whether the application needs to use a transport
 protocol that ensures that all data is received on the other side without
 corruption. This also entails being notified when a Connection is closed or
-aborted. The recommended default is to Require Reliable Data Transfer.
+aborted. The default is to Require Reliable Data Transfer.
 
 ### Preservation of Message Boundaries {#prop-boundaries}
 
@@ -710,7 +724,7 @@ Name:
 : preserve-msg-boundaries
 
 This property specifies whether the application needs or prefers to use a transport
-protocol that preserves message boundaries. The recommended default
+protocol that preserves message boundaries. The default
 is to Prefer Preservation of Message Boundaries.
 
 ### Configure Per-Message Reliability {#prop-partially-reliable}
@@ -720,7 +734,7 @@ Name:
 
 This property specifies whether an application considers it useful to indicate
 its reliability requirements on a per-Message basis. This property applies to
-Connections and Connection Groups. The recommended default is to Ignore
+Connections and Connection Groups. The default is to Ignore
 this option.
 
 ### Preservation of Data Ordering {#prop-ordering}
@@ -730,7 +744,7 @@ Name:
 
 This property specifies whether the application wishes to use a transport
 protocol that can ensure that data is received by the application on the other
-end in the same order as it was sent. The recommended default is to Require
+end in the same order as it was sent. The default is to Require
 Preservation of data ordering.
 
 ### Use 0-RTT Session Establishment with an Idempotent Message {#prop-0rtt}
@@ -743,7 +757,7 @@ the transport protocol before Connection establishment, which will then be
 reliably transferred to the other side before or during Connection
 establishment, potentially multiple times (i.e., multiple copies of the message data
 may be passed to the Remote Endpoint). See also {{msg-idempotent}}. The
-recommended default is to Ignore this option. Note that disabling this property
+default is to Ignore this option. Note that disabling this property
 has no effect for protocols that are not connection-oriented and do not protect
 against duplicated messages, e.g., UDP.
 
@@ -754,7 +768,7 @@ Name:
 
 This property specifies that the application would prefer multiple Connections
 within a Connection Group to be provided by streams of a single underlying
-transport connection where possible. The recommended default is to Prefer
+transport connection where possible. The default is to Prefer
 this option.
 
 ### Full Checksum Coverage on Sending {#prop-checksum-control-send}
@@ -764,7 +778,7 @@ Name:
 
 This property specifies whether the application desires protection against
 corruption for all data transmitted on this Connection. Disabling this property may enable
-to control checksum coverage later (see {{msg-checksum}}). The recommended default
+to control checksum coverage later (see {{msg-checksum}}). The default
 is to Require this option.
 
 ### Full Checksum Coverage on Receiving {#prop-checksum-control-receive}
@@ -773,7 +787,7 @@ Name:
 : per-msg-checksum-len-recv
 
 This property specifies whether the application desires protection against
-corruption for all data received on this Connection. The recommended default
+corruption for all data received on this Connection. The default
 is to Require this option.
 
 ### Congestion control {#prop-cc}
@@ -787,8 +801,8 @@ controlled, an application using such a Connection should itself perform
 congestion control in accordance with {{?RFC2914}}. Also note that reliability
 is usually combined with congestion control in protocol implementations,
 rendering "reliable but not congestion controlled" a request that is unlikely to
-succeed. The recommended default is to Require that the Connection is congestion
-controlled.
+succeed. 
+The recommended default is to Require that the Connection is congestion controlled.
 
 
 ### Interface Instance or Type {#prop-interface}
@@ -801,28 +815,26 @@ Type:
 
 This property allows the application to select which specific network interfaces
 or categories of interfaces it wants to `Require`, `Prohibit`, `Prefer`, or
-`Avoid`.
+`Avoid`. Note that marking a specific interface as `Required` strictly limits path
+selection to a single interface, and may often lead to less flexible and resilient
+connection establishment.
 
 In contrast to other Selection Properties, this property is a tuple of an
 (Enumerated) interface identifier and a preference, and can either be
 implemented directly as such, or for making one preference available for each
 interface and interface type available on the system.
 
-Note that marking a specific interface as `Required` strictly limits path
-selection to a single interface, and leads to less flexible and resilient
-connection establishment.
-
 The set of valid interface types is implementation- and system-specific. For
 example, on a mobile device, there may be `Wi-Fi` and `Cellular` interface types
 available; whereas on a desktop computer, there may be `Wi-Fi` and `Wired
-Ethernet` interface types available. Implementations should provide all types
-that are supported on some system to all systems, in order to allow applications
-to write generic code. For example, if a single implementation is used on both
-mobile devices and desktop devices, it should define the `Cellular` interface
-type for both systems, since an application may want to always `Prohibit
-Cellular`. Note that marking a specific interface type as `Required` limits path
-selection to a small set of interfaces, and leads to less flexible and resilient
-connection establishment.
+Ethernet` interface types available. An implementation should provide all types
+that are supported on the local system to all remote systems, to allow
+applications to be written generically. For example, if a single implementation
+is used on both mobile devices and desktop devices, it should define the
+`Cellular` interface type for both systems, since an application may want to
+always `Prohibit Cellular`. Note that marking a specific interface type as
+`Required` limits path selection to a small set of interfaces, and leads to less
+flexible and resilient connection establishment.
 
 The set of interface types is expected to change over time as new access
 technologies become available.
@@ -878,7 +890,7 @@ This property specifies whether an application considers it useful to
 transfer data across multiple paths between the same end hosts. Generally,
 in most cases, this will improve performance (e.g., achieve greater throughput).
 One possible side-effect is increased jitter, which may be problematic for
-delay-sensitive applications. The recommended default is to Prefer this option.
+delay-sensitive applications. The recommended default is to Ignore this option.
 
 
 ### Direction of communication
@@ -891,17 +903,19 @@ Type:
 
 This property specifies whether an application wants to use the connection for sending and/or receiving data.  Possible values are:
 
-Bidirectional (default):
+Bidirectional:
 : The connection must support sending and receiving data
 
 Unidirectional send:
-: The connection must support sending data
+: The connection must support sending data, and the application cannot use the connection to receive any data
 
 Unidirectional receive:
-: The connection must support receiving data
+: The connection must support receiving data, and the application cannot use the connection to send any data
 
-In case a unidirectional connection is requested, but unidirectional connections are not supported by the transport protocol,
-the system should fall back to bidirectional transport.
+The default is bidirectional. Since unidirectional communication can be
+supported by transports offering bidirectional communication, specifying
+unidirectional communication may cause a transport stack that supports
+bidirectional communication to be selected.
 
 
 ### Notification of excessive retransmissions {#prop-establish-retrans-notify}
@@ -911,7 +925,7 @@ Name:
 
 This property specifies whether an application considers it useful to be
 informed in case sent data was retransmitted more often than a certain
-threshold. The recommended default is to Ignore this option.
+threshold. The default is to Ignore this option.
 
 
 ### Notification of ICMP soft error message arrival {#prop-soft-error}
@@ -924,7 +938,7 @@ informed when an ICMP error message arrives that does not force termination of a
 connection. When set to true, received ICMP errors will be available as
 SoftErrors. Note that even if a protocol supporting this property is selected,
 not all ICMP errors will necessarily be delivered, so applications cannot rely
-on receiving them. The recommended default is to Ignore this option.
+on receiving them. The default is to Ignore this option.
 
 
 ## Specifying Security Parameters and Callbacks {#security-parameters}
@@ -959,7 +973,7 @@ SecurityParameters.AddPrivateKey(privateKey, publicKey)
 ~~~
 
 - Supported algorithms: Used to restrict what parameters are used by underlying transport security protocols.
-When not specified, these algorithms should default to known and safe defaults for the system. Parameters include:
+When not specified, these algorithms should use known and safe defaults for the system. Parameters include:
 ciphersuites, supported groups, and signature algorithms.
 
 ~~~
@@ -1070,9 +1084,9 @@ Connection -> InitiateError<reason?>
 An InitiateError occurs either when the set of transport properties and security
 parameters cannot be fulfilled on a Connection for initiation (e.g. the set of
 available Paths and/or Protocol Stacks meeting the constraints is empty) or
-reconciled with the local and/or remote endpoints; when the remote specifier
+reconciled with the local and/or remote Endpoints; when the remote specifier
 cannot be resolved; or when no transport-layer connection can be established to
-the remote endpoint (e.g. because the remote endpoint is not accepting
+the remote Endpoint (e.g. because the remote Endpoint is not accepting
 connections, the application is prohibited from opening a Connection by the
 operating system, or the establishment attempt has timed out for any other reason).
 
@@ -1081,7 +1095,7 @@ and transmission of the first message in a single action.
 
 ## Passive Open: Listen {#listen}
 
-Passive open is the Action of waiting for Connections from remote endpoints,
+Passive open is the Action of waiting for Connections from remote Endpoints,
 commonly used by servers in client-server interactions. Passive open is
 supported by this interface through the Listen Action and returns a Listener object:
 
@@ -1430,7 +1444,7 @@ Name:
 Type:
 : Integer
 
-Recommended default:
+Default:
 : infinite
 
 Lifetime specifies how long a particular Message can wait to be sent to the
@@ -1451,7 +1465,7 @@ Name:
 Type:
 : Integer (non-negative)
 
-Recommended default:
+Default:
 : 100
 
 This property represents a hierarchy of priorities.
@@ -2669,7 +2683,7 @@ definition.
 
 # Relationship to the Minimal Set of Transport Services for End Systems
 
-{{I-D.ietf-taps-minset}} identifies a minimal set of transport services that end systems should offer. These services make all transport features offered by TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT available that 1) require interaction with the application, and 2) do not get in the way of a possible implementation over TCP or, with limitations, UDP. The following text explains how this minimal set is reflected in the present API. For brevity, this uses the list in Section 4.1 of {{I-D.ietf-taps-minset}}, updated according to the discussion in Section 5 of {{I-D.ietf-taps-minset}}.
+{{I-D.ietf-taps-minset}} identifies a minimal set of transport services that end systems should offer. These services make all non-security-related transport features of TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT available that 1) require interaction with the application, and 2) do not get in the way of a possible implementation over TCP (or, with limitations, UDP). The following text explains how this minimal set is reflected in the present API. For brevity, it is based on the list in Section 4.1 of {{I-D.ietf-taps-minset}}, updated according to the discussion in Section 5 of {{I-D.ietf-taps-minset}}. This list is a subset of the transport features in Appendix A of {{I-D.ietf-taps-minset}}, which refers to the primitives in "pass 2" (Section 4) of {{!RFC8303}} for further details on the implementation with TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT.
 
 \[EDITOR'S NOTE: This is early text. In the future, this section will contain backward references, which we currently avoid because things are still being moved around and names / categories etc. are changing.]
 
@@ -2680,91 +2694,88 @@ definition.
 "Listen" Action.
 
 * Specify number of attempts and/or timeout for the first establishment message:
-"Timeout for aborting Connection Establishment" Property, using a time value.
+"timeout" parameter of `Initiate` or `InitiateWithSend` Action.
 
 * Disable MPTCP:
-"Parallel Use of Multiple Paths" Property.
+`Parallel Use of Multiple Paths` Property.
 
 * Hand over a message to reliably transfer (possibly multiple times) before connection establishment:
-"InitiateWithSend" Action.
-
-* Hand over a message to reliably transfer during connection establishment:
-"InitiateWithSend" Action.
+`InitiateWithSend` Action.
 
 * Change timeout for aborting connection (using retransmit limit or time value):
-"Timeout for aborting Connection" property, using a time value.
+`Timeout for Aborting Connection` property, using a time value.
 
 * Timeout event when data could not be delivered for too long:
-"ConnectionError" Event.
+`ConnectionError` Event.
 
 * Suggest timeout to the peer:
-TCP-specific Property: User Timeout.
+`TCP-specific Property: User Timeout`.
 
 * Notification of Excessive Retransmissions (early warning below abortion threshold):
-"Notification of excessive retransmissions" property.
+`Notification of excessive retransmissions` property.
 
 * Notification of ICMP error message arrival:
-"Notification of ICMP soft error message arrival" property.
+`Notification of ICMP soft error message arrival` property.
 
 * Choose a scheduler to operate between streams of an association:
-"Connection group transmission scheduler" property.
+`Connection Group Transmission Scheduler` property.
 
 * Configure priority or weight for a scheduler:
-"Priority (Connection)" property.
+`Priority (Connection)` property.
 
 * "Specify checksum coverage used by the sender" and "Disable checksum when sending":
-"Corruption Protection Length" property (value 0 to disable).
+`Corruption Protection Length` property and `Full Checksum Coverage on Sending` property.
 
 * "Specify minimum checksum coverage required by receiver" and "Disable checksum requirement when receiving":
-"Required minimum coverage of the checksum for receiving" property (value 0 to disable).
+`Required Minimum Corruption Protection Coverage for Receiving` property and `Full Checksum Coverage on Receiving` property.
 
 * "Specify DF" field and "Request not to bundle messages:"
-The "Singular Transmission" Message property combines both of these requests, i.e. if a request not to bundle messages is made, this also turns off DF in case of protocols that allow this (only UDP and UDP-Lite, which cannot bundle messages anyway).
+The `Singular Transmission` Message property combines both of these requests, i.e. if a request not to bundle messages is made, this also turns off DF in case of protocols that allow this (only UDP and UDP-Lite, which cannot bundle messages anyway).
 
 * Get max. transport-message size that may be sent using a non-fragmented IP packet from the configured interface:
-"Maximum Message size before fragmentation or segmentation" property.
+`Maximum Message Size Before Fragmentation or Segmentation` property.
 
 * Get max. transport-message size that may be received from the configured interface:
-"Maximum Message size on receive" property.
+`Maximum Message Size on Receive` property.
 
 * Obtain ECN field:
-"ECN" is a defined metadata value as part of the Message Receive Context.
+`ECN` is a defined read-only Message Property of the MessageContext object.
 
 * "Specify DSCP field", "Disable Nagle algorithm", "Enable and configure a 'Low Extra Delay Background Transfer'":
-As suggested in Section 5.5 of {{I-D.ietf-taps-minset}}, these transport features are collectively offered via the "Capacity profile" property.
+As suggested in Section 5.5 of {{I-D.ietf-taps-minset}}, these transport features are collectively offered via the `Capacity Profile` property.
 
 * Close after reliably delivering all remaining data, causing an event informing the application on the other side:
-This is offered by the "Close" Action with slightly changed semantics in line with the discussion in Section 5.2 of {{I-D.ietf-taps-minset}}.
+This is offered by the `Close` Action with slightly changed semantics in line with the discussion in Section 5.2 of {{I-D.ietf-taps-minset}}.
 
 * "Abort without delivering remaining data, causing an event informing the application on the other side" and "Abort without delivering remaining data, not causing an event informing the application on the other side":
-This is offered by the "Abort" action without promising that this is signaled to the other side. If it is, a "ConnectionError" Event will fire at the peer.
+This is offered by the `Abort` action without promising that this is signaled to the other side. If it is, a `ConnectionError` Event will fire at the peer.
 
 * "Reliably transfer data, with congestion control", "Reliably transfer a message, with congestion control" and "Unreliably transfer a message":
-Reliability is controlled via the "Reliable Data Transfer (Message)" Message property. Transmitting data without delimiters is done by not using a Framer. The choice of congestion control is provided via the "Congestion control" property.
+Data is tranferred via the `Send` action. Reliability is controlled via the `Reliable Data Transfer (Message)` Message property. Transmitting data as a message or without delimiters is controlled via Message Framers. The choice of congestion control is provided via the `Congestion control` property.
 
 * Configurable Message Reliability:
-The "Lifetime" Message Property implements a time-based way to configure message reliability.
+The `Lifetime` Message Property implements a time-based way to configure message reliability.
 
 * "Ordered message delivery (potentially slower than unordered)" and "Unordered message delivery (potentially faster than ordered)":
-The two transport features are controlled via the Message property "Ordered".
+The two transport features are controlled via the Message Property `Ordered`.
 
 * Request not to delay the acknowledgement (SACK) of a message:
-Should the protocol support it, this is one of the transport features the transport system can use when an application uses the Capacity Profile Property with value "Low Latency/Interactive".
+Should the protocol support it, this is one of the transport features the transport system can use when an application uses the `Capacity Profile` Property with value "Low Latency/Interactive".
 
 * Receive data (with no message delimiting):
-"Received" Event without using a Message Framer.
+`Received` Event without using a Message Framer.
 
 * Receive a message:
-"Received" Event. Section 5.1 of {{I-D.ietf-taps-minset}} discusses how messages can be obtained from a bytestream in case of implementation over TCP. Here, this is dealt with by Message Framers.
+`Received` Event, using Message Framers.
 
 * Information about partial message arrival:
-"ReceivedPartial" Event.
+`ReceivedPartial` Event.
 
 * Notification of send failures:
-"Expired" and "SendError" Events.
+`Expired` and `SendError` Events.
 
 * Notification that the stack has no more user data to send:
-Applications can obtain this information via the "Sent" Event.
+Applications can obtain this information via the `Sent` Event.
 
 * Notification to a receiver that a partial message delivery has been aborted:
-"ReceiveError" Event.
+`ReceiveError` Event.
