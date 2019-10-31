@@ -1038,14 +1038,14 @@ The underlying protocol stack failed.
 The message properties are either contradictory to the transport properties or they can not be satisfied by the transport system. 
 
 * DeframingFailed:
-The data that was received by the underlying protocol stack was unable to be deframed. 
+The data that was received by the underlying protocol stack could not be deframed. 
 
 * ConnectionAborted:
 The connection was aborted by the peer.
 
 * Timeout:
 Delivery of a message was not possible after a timeout.
- 
+
 # Existing Implementations {#appendix-implementations}
 
 This appendix gives an overview of existing implementations, at the time of writing, of transport systems that are (to some degree) in line with this document.
