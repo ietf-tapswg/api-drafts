@@ -968,7 +968,7 @@ If the application indicates a preference to avoid expensive paths, and some pat
 
 The Transport Services API {{I-D.ietf-taps-interface}} allows for the several generic error types to specify a more detailed reason as to why an error occurred. This appendix lists some of the possible reasons.
 
-* BadConfiguration:
+* InvalidConfiguration:
 The transport properties and endpoints provided by the application are either contradictory or incomplete. Examples include the lack of a remote endpoint on an active open or using a multicast group address while not requesting a unidirectional receive.
 
 * NoCandidates:
