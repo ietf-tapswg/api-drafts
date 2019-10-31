@@ -989,17 +989,14 @@ The protocol stack is not capable of being cloned.
 * MessageTooLarge:
 The message size is too big for the transport system to handle.
 
-* ProtocolFailure:
+* ProtocolFailed:
 The underlying protocol stack failed. 
 
 * InvalidMessageProperties:
 The message properties are either contradictory to the transport properties or they can not be satisfied by the transport system. 
 
-* BadReceive:
-The data that was received by the underlying protocol stack could not be fully retrieved by the transport system. 
-
-* FailedReceive:
-The underlying protocol stack indicated that the reception of a message has failed.
+* DeframingFailed:
+The data that was received by the underlying protocol stack was unable to be deframed. 
 
 * ConnectionAborted:
 The connection was aborted by the peer.
