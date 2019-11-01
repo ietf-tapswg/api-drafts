@@ -1006,6 +1006,46 @@ If the application indicates a bound on the expected Send or Receive bitrate, an
 * Cost Preferences:
 If the application indicates a preference to avoid expensive paths, and some paths are associated with a monetary cost, an implementation should decrease the ranking of such paths. If the application indicates that it prohibits using expensive paths, paths that are associated with a cost should be purged from the decision tree.
 
+# Reasons for errors {#appendix-reasons-errors}
+
+The Transport Services API {{I-D.ietf-taps-interface}} allows for the several generic error types to specify a more detailed reason as to why an error occurred. This appendix lists some of the possible reasons.
+
+* InvalidConfiguration:
+The transport properties and endpoints provided by the application are either contradictory or incomplete. Examples include the lack of a remote endpoint on an active open or using a multicast group address while not requesting a unidirectional receive.
+
+* NoCandidates:
+The configuration is valid, but none of the available transport protocols can satisfy the transport properties provided by the application.
+
+* ResolutionFailed:
+The remote or local specifier provided by the application can not be resolved.
+
+* EstablishmentFailed:
+The TAPS system was unable to establish a transport-layer connection to the remote endpoint specified by the application.
+
+* PolicyProhibited:
+The system policy prevents the transport system from performing the action requested by the application. 
+
+* NotCloneable:
+The protocol stack is not capable of being cloned. 
+
+* MessageTooLarge:
+The message size is too big for the transport system to handle.
+
+* ProtocolFailed:
+The underlying protocol stack failed. 
+
+* InvalidMessageProperties:
+The message properties are either contradictory to the transport properties or they can not be satisfied by the transport system. 
+
+* DeframingFailed:
+The data that was received by the underlying protocol stack could not be deframed. 
+
+* ConnectionAborted:
+The connection was aborted by the peer.
+
+* Timeout:
+Delivery of a message was not possible after a timeout.
+
 # Existing Implementations {#appendix-implementations}
 
 This appendix gives an overview of existing implementations, at the time of writing, of transport systems that are (to some degree) in line with this document.

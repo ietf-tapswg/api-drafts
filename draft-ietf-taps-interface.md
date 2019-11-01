@@ -178,7 +178,7 @@ Object -> Event<>
 ~~~
 
 - An Action takes a set of Parameters; an Event contains a set of Parameters.
-  Action parameters whose names are suffixed with a question mark are optional.
+  Action and Event parameters whose names are suffixed with a question mark are optional.
 
 ~~~
 Action(param0, param1?, ...) / Event<param0, param1, ...>
@@ -202,7 +202,8 @@ other Events, may occur asynchronously in network applications. However, it is
 recommended that implementations of this interface also return errors
 immediately, according to the error handling idioms of the implementation
 platform, for errors that can be immediately detected, such as inconsistency
-in Transport Properties.
+in Transport Properties. Errors can provide an optional reason to give the 
+application further details as to why the error occured.
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this
@@ -1077,7 +1078,7 @@ candidate Path. No Receive Events (see {{receiving}}) will occur before
 the Ready Event for Connections established using Initiate.
 
 ~~~
-Connection -> InitiateError<>
+Connection -> InitiateError<reason?>
 ~~~
 
 An InitiateError occurs either when the set of transport properties and security
@@ -1144,7 +1145,7 @@ limit to a higher value. By default, this value is Infinite. The caller is also 
 the value to Infinite at any point.
 
 ~~~
-Listener -> ListenError<>
+Listener -> ListenError<reason?>
 ~~~
 
 A ListenError occurs either when the Properties of the Preconnection cannot be fulfilled for
@@ -1191,7 +1192,7 @@ resulting Connection is contained within the RendezvousDone<> Event, and is
 ready to use as soon as it is passed to the application via the Event.
 
 ~~~
-Preconnection -> RendezvousError<messageContext, error>
+Preconnection -> RendezvousError<messageContext, reason?>
 ~~~
 
 An RendezvousError occurs either when the Preconnection cannot be fulfilled
@@ -1259,7 +1260,7 @@ new stream on the given Connection, then attempts to clone a Connection will
 result in a CloneError:
 
 ~~~
-Connection -> CloneError<>
+Connection -> CloneError<reason?>
 ~~~
 
 The Protocol Property "Priority" operates on entangled Connections as in {{msg-priority}}:
@@ -1385,7 +1386,7 @@ implementation-specific reference to the Message to which it applies.
 ### SendError {#send-error}
 
 ~~~
-Connection -> SendError<messageContext>
+Connection -> SendError<messageContext, reason?>
 ~~~
 
 A SendError occurs when a Message could not be sent due to an error condition:
@@ -1802,7 +1803,7 @@ large Message of indeterminate length.
 ### ReceiveError
 
 ~~~
-Connection -> ReceiveError<messageContext>
+Connection -> ReceiveError<messageContext, reason?>
 ~~~
 
 A ReceiveError occurs when data is received by the underlying Protocol Stack
@@ -2452,7 +2453,7 @@ A ConnectionError informs the application that data to could not be delivered af
 or the other side has aborted the Connection; however, there is no guarantee that an Abort will indeed be signaled.
 
 ~~~
-Connection -> ConnectionError<>
+Connection -> ConnectionError<reason?>
 ~~~
 
 
