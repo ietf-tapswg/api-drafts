@@ -435,7 +435,7 @@ It is useful to process success and failure throughout the tree by child nodes r
 ...
 ~~~~~~~~~~
 
-If a leaf node has successfully completed its connection, all other attempts should be made ineligible for use by the application for the original request. New connection attempts that involve transmitting data on the network should not be started after another leaf node has completed successfully, as the connection as a whole has been established. An implementation may choose to let certain handshakes and negotiations complete in order to gather metrics to influence future connections. Similarly, an implementation may choose to hold onto fully established leaf nodes that were not the first to establish for use as part of a Pooled Connection, see {{pooled-connections}}, or in future connections. The latter is not recommended since those attempts were slower to connect and may exhibit less desirable properties.
+If a leaf node has successfully completed its connection, all other attempts should be made ineligible for use by the application for the original request. New connection attempts that involve transmitting data on the network should not be started after another leaf node has completed successfully, as the connection as a whole has been established. An implementation may choose to let certain handshakes and negotiations complete in order to gather metrics to influence future connections. Similarly, an implementation may choose to hold onto fully established leaf nodes that were not the first to establish for use as part of a Pooled Connection, see {{pooled-connections}}, or in future connections. In both cases, keeping additionalconnection is generally not recommended since those attempts were slower to connect and may exhibit less desirable properties. Still, implemenations that, e.g., realize fallback using connection pools or do per-request path selection, may make use of these.
 
 ### Determining Successful Establishment
 
@@ -558,7 +558,7 @@ errors that can be delivered to the application as Soft Errors. These allow the 
 
 ## Pooled Connection {#pooled-connections}
 
-For protocols that employ request/response pairs and do not require in-order delivery of the responses, like HTTP/2, the transport implementation may distribute interactions across several underlying transport connections. 
+For protocols that employ request/response pairs and do not require in-order delivery of the responses, like HTTP, the transport implementation may distribute interactions across several underlying transport connections. 
 For these kinds of protocols, implementations may hide the connection management and only expose a single Connection object and the individual requests/responses as messages.
 These Pooled Connections can use multiple connections or multiple streams of multi-streaming connections between endpoints, as long as all of these satisfy the requirements, and prohibitions specified in the Selection Properties of the Pooled Connection. 
 This enables implementations to realize transparent connection coalescing, connection migration, and to perform per-message endpoint and path selection by choosing among these underlying connections.
