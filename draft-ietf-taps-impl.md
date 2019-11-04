@@ -540,6 +540,143 @@ It is also possible that protocol stacks within a particular leaf node use 0-RTT
 
 0-RTT handshakes often rely on previous state, such as TCP Fast Open cookies, previously established TLS tickets, or out-of-band distributed pre-shared keys (PSKs). Implementations should be aware of security concerns around using these tokens across multiple addresses or paths when racing. In the case of TLS, any given ticket or PSK should only be used on one leaf node. If implementations have multiple tickets available from a previous connection, each leaf node attempt must use a different ticket. In effect, each leaf node will send the same early application data, yet encoded (encrypted) differently on the wire.
 
+# Implementing Message Framers
+
+Message Framers are pieces of code that define simple transformations
+between application Message data and raw transport protocol data. A Framer
+can encapsulate or encode outbound Messages, and decapsulate or decode
+inbound data into Messages.
+
+While many protocols can be represented as Message Framers, for the
+purposes of the Transport Services interface these are ways for applications
+or application frameworks to define their own Message parsing to be
+included within a Connection's Protocol Stack. As an example, TLS can
+serve the purpose of framing data over TCP, but is exposed as a protocol
+natively supported by the Transport Services interface.
+
+Most Message Framers fall into one of two categories:
+
+- Header-prefixed record formats, such as a basic Type-Length-Value (TLV) structure
+
+- Delimiter-separated formats, such as HTTP/1.1.
+
+Common Message Framers can be provided by the Transport Services implementation,
+but an implemention ought to allow custom Message Framers to be defined by
+the application or some other piece of software. This section describes one
+possible interface for defining Message Framers as an example.
+
+## Defining Message Framers
+
+A Message Framer is primarily defined by the set of code that handles events
+for a framer implementation, specifically how it handles inbound and outbound data
+parsing. The piece of code that implements custom framing logic will be referred to
+as the "framer implementation", which may be provided by the Transport Services
+implementation or the application itself. The Message Framer refers to the object
+or piece of code within the main Connection implementation that delivers events
+to the custom framer implementation whenever data is ready to be parsed or framed.
+
+When a Connection establishment attempt begins, an event can be delivered to
+notify the framer implementation that a new Connection is being created.
+Similarly, a stop event can be delivered when a Connection is being torn down.
+The framer implementation can use the Connection object to look up specific
+properties of the Connection or the network being used that may influence how
+to frame Messages.
+
+~~~
+MessageFramer -> Start(Connection)
+MessageFramer -> Stop(Connection)
+~~~
+
+When a Message Framer generates a `Start` event, the framer implementation
+has the opportunity to start writing some data prior to the Connection delivering
+its `Ready` event. This allows the implementation to communicate control data to the
+remote endpoint that can be used to parse Messages.
+
+~~~
+MessageFramer.MakeConnectionReady(Connection)
+~~~
+
+At any time if the implementation encounters a fatal error, it can also cause the Connection
+to fail and provide an error.
+
+~~~
+MessageFramer.FailConnection(Connection, Error)
+~~~
+
+Before an implementation marks a Message Framer as ready, it can also dynamically
+add a protocol or framer above it in the stack. This allows protocols like STARTTLS,
+that need to add TLS conditionally, to modify the Protocol Stack based on a handshake result.
+
+~~~
+otherFramer := NewMessageFramer()
+MessageFramer.PrependFramer(Connection, otherFramer)
+~~~
+
+## Sender-side Message Framing {#send-framing}
+
+Message Framers generate an event whenever a Connection sends a new Message.
+
+~~~
+MessageFramer -> NewSentMessage<Connection, MessageData, MessageContext, IsEndOfMessage>
+~~~
+
+Upon receiving this event, a framer implementation is responsible for
+performing any necessary transformations and sending the resulting data to the next
+protocol. Implementations SHOULD ensure that there is a way to pass the original data
+through without copying to improve performance.
+
+~~~
+MessageFramer.Send(Connection, Data)
+~~~
+
+To provide an example, a simple protocol that adds a length as a header would receive
+the `NewSentMessage` event, create a data representation of the length of the Message
+data, and then send a block of data that is the concatenation of the length header and the original
+Message data.
+
+## Receiver-side Message Framing {#receive-framing}
+
+In order to parse a received flow of data into Messages, the Message Framer
+notifies the framer implementation whenever new data is available to parse.
+
+~~~
+MessageFramer -> HandleReceivedData<Connection>
+~~~
+
+Upon receiving this event, the framer implementation can inspect the inbound data. The
+data is parsed from a particular cursor representing the unprocessed data. The
+application requests a specific amount of data it needs to have available in order to parse.
+If the data is not available, the parse fails.
+
+~~~
+MessageFramer.Parse(Connection, MinimumIncompleteLength, MaximumLength) -> (Data, MessageContext, IsEndOfMessage)
+~~~
+
+The framer implementation can directly advance the receive cursor once it has
+parsed data to effectively discard data (for example, discard a header
+once the content has been parsed).
+
+To deliver a Message to the application, the framer implementation can either directly
+deliever data that it has allocated, or deliver a range of data directly from the underlying
+transport and simulatenously advance the receive cursor.
+
+~~~
+MessageFramer.AdvanceReceiveCursor(Connection, Length)
+MessageFramer.DeliverAndAdvanceReceiveCursor(Connection, MessageContext, Length, IsEndOfMessage)
+MessageFramer.Deliver(Connection, MessageContext, Data, IsEndOfMessage)
+~~~
+
+Note that `MessageFramer.DeliverAndAdvanceReceiveCursor` allows the framer implementation
+to earmark bytes as part of a Message even before they are received by the transport. This allows the delivery
+of very large Messages without requiring the implementation to directly inspect all of the bytes.
+
+To provide an example, a simple protocol that parses a length as a header value would
+receive the `HandleReceivedData` event, and call `Parse` with a minimum and maximum
+set to the length of the header field. Once the parse succeeded, it would call
+`AdvanceReceiveCursor` with the length of the header field, and then call
+`DeliverAndAdvanceReceiveCursor` with the length of the body that was parsed from
+the header, marking the new Message as complete.
+
 # Implementing Connection Management
 
 Once a Connection is established, the Transport Services system allows applications to interact with the Connection by modifying or inspecting
@@ -707,7 +844,7 @@ Send:
 : SEND.TCP. TCP does not on its own preserve Message boundaries. Calling `Send` on a TCP connection lays out the bytes on the TCP send stream without any other delineation. Any Message marked as Final will cause TCP to send a FIN once the Message has been completely written, by calling CLOSE.TCP immediately upon successful termination of SEND.TCP.
 
 Receive:
-: With RECEIVE.TCP, TCP delivers a stream of bytes without any Message delineation. All data delivered in the `Received` or `ReceivedPartial` event will be part of a single stream-wide Message that is marked Final (unless a MessageFramer is used). EndOfMessage will be delivered when the TCP Connection has received a FIN (CLOSE-EVENT.TCP or ABORT-EVENT.TCP) from the peer.
+: With RECEIVE.TCP, TCP delivers a stream of bytes without any Message delineation. All data delivered in the `Received` or `ReceivedPartial` event will be part of a single stream-wide Message that is marked Final (unless a Message Framer is used). EndOfMessage will be delivered when the TCP Connection has received a FIN (CLOSE-EVENT.TCP or ABORT-EVENT.TCP) from the peer.
 
 Close:
 : Calling `Close` on a TCP Connection indicates that the Connection should be gracefully closed (CLOSE.TCP) by sending a FIN to the peer and waiting for a FIN-ACK before delivering the `Closed` event.
