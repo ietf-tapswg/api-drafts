@@ -298,7 +298,7 @@ Boundaries, but there is a transport protocol that provides a reliable ordered
 byte stream, an application may receive this byte stream as partial
 Messages and transform it into application-layer Messages.  Alternatively,
 an application may provide a Message Framer, which can transform a
-byte stream into a sequence of Messages ({{receive-framing}}).
+byte stream into a sequence of Messages ({{framing}}).
 
 ### Server Example
 
@@ -1728,7 +1728,7 @@ By default, Receive will try to deliver complete Messages in a single event ({{r
 The application can set a minIncompleteLength value to indicates the smallest partial
 Message data size in bytes that should be delivered in response to this Receive. By default,
 this value is infinite, which means that only complete Messages should be delivered (see {{receive-partial}}
-and {{receive-framing}} for more information on how this is accomplished).
+and {{framing}} for more information on how this is accomplished).
 If this value is set to some smaller value, the associated receive event will be triggered
 only when at least that many bytes are available, or the Message is complete with fewer
 bytes, or the system needs to free up memory. Applications should always
@@ -1765,7 +1765,7 @@ It contains two objects, the received bytes as messageData, and the metadata and
 The messageData object provides access to the bytes that were received for this Message, along with the length of the byte array.
 The messageContext is provided to enable retrieving metadata about the message and referring to the message, e.g., to send replies and map responses to their requests. See {{msg-ctx}} for details.
 
-See {{receive-framing}} for handling Message framing in situations where the Protocol
+See {{framing}} for handling Message framing in situations where the Protocol
 Stack only provides a byte-stream transport.
 
 ### ReceivedPartial {#receive-partial}
@@ -1792,7 +1792,7 @@ delivered if one of the following conditions is true:
   the size of the Message is larger than the buffers available for a single
   message;
 * the underlying Protocol Stack does not support message boundary
-  preservation, and the Message Framer (see {{receive-framing}}) cannot determine
+  preservation, and the Message Framer (see {{framing}}) cannot determine
   the end of the message using the buffer space it has available; or
 * the underlying Protocol Stack does not support message boundary
   preservation, and no Message Framer was supplied by the application
