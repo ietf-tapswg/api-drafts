@@ -1725,7 +1725,7 @@ Connection.Receive(minIncompleteLength?, maxLength?)
 
 By default, Receive will try to deliver complete Messages in a single event ({{receive-complete}}).
 
-The application can set a minIncompleteLength value to indicates the smallest partial
+The application can set a minIncompleteLength value to indicate the smallest partial
 Message data size in bytes that should be delivered in response to this Receive. By default,
 this value is infinite, which means that only complete Messages should be delivered (see {{receive-partial}}
 and {{framing}} for more information on how this is accomplished).

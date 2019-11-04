@@ -569,11 +569,11 @@ possible interface for defining Message Framers as an example.
 
 A Message Framer is primarily defined by the set of code that handles events
 for a framer implementation, specifically how it handles inbound and outbound data
-parsing. One way to represent a Message Framer is as an object that an application
-or other piece of software can interact with to receive events for parsing and sending
-data. Such Message Framer objects will deliver events to code that is written either as
-part of the application or a helper library. This piece of code that implements custom
-framing logic will be referred to as the "framer implementation".
+parsing. The piece of code that implements custom framing logic will be referred to
+as the "framer implementation", which may be provided by the Transport Services
+implementation or the application itself. The Message Framer refers to the object
+or piece of code within the main Connection implementation that delivers events
+to the custom framer implementation whenever data is ready to be parsed or framed.
 
 When a Connection establishment attempt begins, an event can be delivered to
 notify the framer implementation that a new Connection is being created.
@@ -636,7 +636,7 @@ Message data.
 
 ## Receiver-side Message Framing {#receive-framing}
 
-In order to parse an received flow of data into Messages, the Message Framer
+In order to parse a received flow of data into Messages, the Message Framer
 notifies the framer implementation whenever new data is available to parse.
 
 ~~~
