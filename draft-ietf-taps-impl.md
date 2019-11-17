@@ -908,7 +908,7 @@ Data Unit: Datagram
 API mappings for Receiving Multicast UDP are as follows:
 
 Connection Object:
-: UDP Multicast Receive connections represent a pair of specific IP addresses and ports.  The "unidirectional receive" transport property is required, and the local endpoint must be configured with a group IP address and a port.
+: Established UDP Multicast Receive connections represent a pair of specific IP addresses and ports.  The "unidirectional receive" transport property is required, and the local endpoint must be configured with a group IP address and a port.
 
 Initiate:
 : Calling `Initiate` on a UDP Multicast Receive Connection causes an immediate InitiateError.  This is an unsupported operation.
