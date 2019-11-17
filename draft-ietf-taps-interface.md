@@ -357,7 +357,7 @@ TransportProperties.Require(preserve-msg-boundaries)
 // Reliable Data Transfer and Preserve Order are Required by default
 
 SecurityParameters := NewSecurityParameters()
-TrustCallback := New Callback({
+TrustCallback := NewCallback({
   // Verify identity of the remote endpoint, return the result
 })
 SecurityParameters.SetTrustVerificationCallback(TrustCallback)
@@ -479,7 +479,7 @@ form \[\<Namespace>.\]\<PropertyName\>.
 - Protocol Specific Properties must use the protocol acronym as Namespace, e.g.,
   “tcp" for TCP specific Transport Properties. For IETF protocols, property
   names under these namespaces should be defined in an RFC.
-- Vendor or implementation specific properties must use a a string identifying
+- Vendor or implementation specific properties must use a string identifying
   the vendor or implementation as Namespace.
 
 ### Transport Property Types {#property-types}
