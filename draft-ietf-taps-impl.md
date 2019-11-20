@@ -899,6 +899,53 @@ Close:
 Abort:
 : Calling `Abort` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close`.
 
+## UDP Multicast Receive
+
+Connectedness: Unconnected
+
+Data Unit: Datagram
+
+API mappings for Receiving Multicast UDP are as follows:
+
+Connection Object:
+: Established UDP Multicast Receive connections represent a pair of specific IP addresses and ports.  The "unidirectional receive" transport property is required, and the local endpoint must be configured with a group IP address and a port.
+
+Initiate:
+: Calling `Initiate` on a UDP Multicast Receive Connection causes an immediate InitiateError.  This is an unsupported operation.
+
+InitiateWithSend:
+: Calling `InitiateWithSend` on a UDP Multicast Receive Connection causes an immediate InitiateError.  This is an unsupported operation.
+
+Ready:
+: A UDP Multicast Receive Connection is ready once the system has received traffic for the appropriate group and port.
+
+InitiateError:
+: UDP Multicast Receive Connections generate an InitiateError if Initiate is called.
+
+ConnectionError:
+: Once in use, UDP throws "soft errors" (ERROR.UDP(-Lite)) upon receiving ICMP notifications indicating failures in the network.
+
+Listen:
+: LISTEN.UDP. Calling `Listen` for UDP Multicast Receive binds a local port, prepares it to receive inbound UDP datagrams from peers, and issues a multicast host join.  If a remote endpoint with an address is supplied, the join is Source-specific Multicast, and the path selection is based on the route to the remote endpoint.  If a remote endpoint is not supplied, the join is Any-source Multicast, and the path selection is based on the outbound route to the group supplied in the local endpoint.
+
+ConnectionReceived:
+: UDP Multicast Receive Listeners will deliver new connections once they have received traffic from a new Remote Endpoint.
+
+Clone:
+: Calling `Clone` on a UDP Multicast Receive Connection creates a new Connection with equivalent parameters. The two Connections are otherwise independent.
+
+Send:
+: SEND.UDP(-Lite). Calling `Send` on a UDP Multicast Receive connection causes an immediate SendError.  This is an unsupported operation.
+
+Receive:
+: RECEIVE.UDP(-Lite). The Receive operation in a UDP Multicast Receive connection only delivers complete Messages to `Received`, each of which represents a single datagram received in a UDP packet. Upon receiving a UDP datagram, the ECN flag from the IP header can be obtained (GET_ECN.UDP(-Lite)).
+
+Close:
+: Calling `Close` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) releases the local port reservation and leaves the group.
+
+Abort:
+: Calling `Abort` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) is identical to calling `Close`.
+
 ## TLS {#tls}
 
 The mapping of a TLS stream abstraction into the application is equivalent to the contract provided by TCP (see {{tcp}}), and builds upon many of the actions of TCP connections.
