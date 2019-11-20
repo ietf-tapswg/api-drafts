@@ -96,18 +96,7 @@ informative:
           ins: F. Weinrank
         -
           ins: M. Tuexen
-    Trickle:
-      title: Trickle - Rate Limiting YouTube Video Streaming (ATC 2012)
-      url: https://www.usenix.org/system/files/conference/atc12/atc12-final236.pdf
-      authors:
-        -
-          ins: M. Ghobadi
-        -
-          ins: Y. Cheng
-        -
-          ins: A. Jain
-        -
-          ins: M. Mathis
+      date: 2017
 
 
 --- abstract

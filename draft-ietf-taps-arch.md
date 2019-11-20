@@ -79,6 +79,7 @@ informative:
     POSIX:
       title: "IEEE Std. 1003.1-2008 Standard for Information Technology -- Portable Operating System Interface (POSIX).  Open group Technical Standard: Base Specifications, Issue 7"
       url: <http://www.opengroup.org/austin>
+      date: 2008
 
 --- abstract
 
