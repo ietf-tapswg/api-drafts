@@ -174,7 +174,7 @@ The Transport Services architecture maintains this general model of interaction,
 ~~~~~~~~~~
 {: #fig-taps title="Transport Services API Model"}
 
-The Transport Services API {{?I-D.ietf-taps-interface}} defines the mechanism for an application to create network connections and transfer data. The implementation {{?I-D.ietf-taps-impl}} is responsible for mapping the API to the various available transport protocols and managing the available network interfaces and paths.
+The Transport Services API {{!I-D.ietf-taps-interface}} defines the mechanism for an application to create network connections and transfer data. The implementation {{?I-D.ietf-taps-impl}} is responsible for mapping the API to the various available transport protocols and managing the available network interfaces and paths.
 
 There are key differences between the architecture of the Transport Services system and the architecture of the sockets API: it presents an asynchronous, event-driven API; it uses messages for representing data transfer to applications; and it assumes an implementation that can use multiple IP addresses, multiple protocols, multiple paths, and provide multiple application streams.
 
@@ -233,13 +233,13 @@ Other specialized features, however, could be strictly required by an applicatio
 
 ## Scope for API and Implementation Definitions
 
-The Transport Services API is envisioned as the abstract model for a family of APIs that share a common way to expose transport features and encourage flexibility. The abstract API definition {{?I-D.ietf-taps-interface}} describes this interface and how it can be exposed to application developers.
+The Transport Services API is envisioned as the abstract model for a family of APIs that share a common way to expose transport features and encourage flexibility. The abstract API definition {{!I-D.ietf-taps-interface}} describes this interface and how it can be exposed to application developers.
 
 Implementations that provide the Transport Services API {{?I-D.ietf-taps-impl}} will vary due to system-specific support and the needs of the deployment scenario. It is expected that all implementations of Transport Services will offer the entire mandatory API. All implementations are REQUIRED to offer an API that is sufficient to use the distilled minimal set of features offered by transport protocols {{?I-D.ietf-taps-minset}}, including API support for TCP and UDP transport. However, some features provided by this API will not be functional in certain implementations. For example, it is possible that some very constrained devices might not have a full TCP implementation beneath the API.
 
-To preserve flexibility and compatibility with future protocols, top-level features in the Transport Services API SHOULD avoid referencing particular transport protocols. The mappings of these API features to specific implementations of each feature is explained in the {{?I-D.ietf-taps-impl}} along with the implications of the feature on existing protocols. It is expected that {{?I-D.ietf-taps-interface}} will be updated and supplemented as new protocols and protocol features are developed.
+To preserve flexibility and compatibility with future protocols, top-level features in the Transport Services API SHOULD avoid referencing particular transport protocols. The mappings of these API features to specific implementations of each feature is explained in the {{?I-D.ietf-taps-impl}} along with the implications of the feature on existing protocols. It is expected that {{!I-D.ietf-taps-interface}} will be updated and supplemented as new protocols and protocol features are developed.
 
-It is important to note that neither the Transport Services API {{?I-D.ietf-taps-interface}} nor the Implementation document {{?I-D.ietf-taps-impl}} define new protocols or protocol capabilities that affect what is communicated across the network. The Transport Services system MUST be deployable on one side only. A Transport Services system acting as a connection initiator can communicate with any existing system that implements the transport protocol(s) selected by the Transport Services system. Similarly, a Transport Services system acting as a listener can receive connections for any protocol that is supported by the system, from existing initiators.
+It is important to note that neither the Transport Services API {{!I-D.ietf-taps-interface}} nor the Implementation document {{?I-D.ietf-taps-impl}} define new protocols or protocol capabilities that affect what is communicated across the network. The Transport Services system MUST be deployable on one side only. A Transport Services system acting as a connection initiator can communicate with any existing system that implements the transport protocol(s) selected by the Transport Services system. Similarly, a Transport Services system acting as a listener can receive connections for any protocol that is supported by the system, from existing initiators.
 
 # Transport Services Architecture and Concepts {#concepts}
 
@@ -295,7 +295,7 @@ Fundamentally, a Transport Services API needs to provide connection objects ({{o
 
 Beyond the connection objects, there are several high-level groups of actions that any Transport Services API implementing this specification MUST provide:
 
-* Pre-Establishment ({{preestablishment}}) encompasses the properties that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. For any system that provides generic Transport Services, these properties SHOULD be defined to apply to multiple transport protocols. Properties specified during Pre-Establishment can have a large impact on the rest of the interface: they modify how establishment occurs, they influence the expectations around data transfer, and they determine the set of events that will be supported.
+* Pre-Establishment ({{preestablishment}}) encompasses the properties that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. For any system that provides generic Transport Services, these properties SHOULD apply to multiple transport protocols. Properties specified during Pre-Establishment can have a large impact on the rest of the interface: they modify how establishment occurs, they influence the expectations around data transfer, and they determine the set of events that will be supported.
 
 * Establishment ({{establishment}}) focuses on the actions that an application takes on the connection objects to prepare for data transfer.
 
