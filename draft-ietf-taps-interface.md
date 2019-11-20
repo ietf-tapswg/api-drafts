@@ -897,12 +897,10 @@ Stable:
 : Prefer the use of stable (sometimes called "permanent") local addresses
 
 Temporary:
-: Prefere the use of temporary (sometimes called "privacy") addresses {{!RFC4941}}
+: Prefer the use of temporary (sometimes called "privacy") addresses {{!RFC4941}}
 
 Default:
 : Prefer the use of stable local addresses for Listeners and Rendezvous Connections, and prefer the use of temporary addresses for other Connections.
-
-The default is Default, which adapts based on use case.
 
 
 ### Parallel Use of Multiple Paths
