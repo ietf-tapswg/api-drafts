@@ -625,7 +625,7 @@ early binding when required, for example with some Network Address Translator
 
 Specifying a multicast group address on the Local Endpoint will indicate to the transport system that the resulting connection will be used to receive multicast messages. The Remote Endpoint can be used to filter by specific senders. This will restrict the application to establishing the Preconnection by calling Listen(). The application is unable to send messages on any resulting connections, which will have the Transport Property "Direction of communication" set to "Unidirectional receive". 
 
-Similarly, specifying a multicast group address on the Remote Endpoint will indicate that the resulting conenction will be used to send multicast messages. 
+Similarly, specifying a multicast group address on the Remote Endpoint will indicate that the resulting connection will be used to send multicast messages. 
 
 ## Specifying Transport Properties {#selection-props}
 
