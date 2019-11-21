@@ -191,12 +191,12 @@ itself; they are equivalent to Actions on a per-application global context.
 How these abstract concepts map into concrete implementations of this API in a
 given language on a given platform is largely dependent on the features of the
 language and the platform. Actions could be implemented as functions or method
-calls, for instance, and Events could be implemented via callbacks,
-communicating sequential processes, or other asynchronous calling conventions.
-The method for dispatching and handling Events is an implementation
-detail, with the caveat that the interface for receiving Messages must require
-the application to invoke the Connection.Receive() Action once per Message to be
-received (see {{receiving}}).
+calls, for instance, and Events could be implemented via event queues, handler
+functions or classes, communicating sequential processes, or other asynchronous
+calling conventions. The method for dispatching and handling Events is an
+implementation detail, with the caveat that the interface for receiving Messages
+must require the application to invoke the Connection.Receive() Action once per
+Message to be received (see {{receiving}}).
 
 This specification treats Events and errors similarly. Errors, just as any
 other Events, may occur asynchronously in network applications. However, it is
@@ -267,7 +267,7 @@ Once a Connection is established, data can be sent on it in the form of
 Messages. The interface supports the preservation of message boundaries both
 via explicit Protocol Stack support, and via application support through a
 Message Framer which finds message boundaries in a stream. Messages are
-received asynchronously through a callback registered by the application.
+received asynchronously through event handlers registered by the application.
 Errors and other notifications also happen asynchronously on the Connection.
 
 {{pre-establishment}}, {{establishment}}, {{sending}}, {{receiving}}, and
@@ -1379,8 +1379,7 @@ The concept of Message Contexts is described in {{msg-ctx}}.
 Like all Actions in this interface, the Send Action is asynchronous. There are
 several Events that can be delivered in response to Sending a Message.
 Exactly one Event (Sent, Expired, or SendError) will be delivered in reponse
-to each call to Send. These Events can be implemented as callbacks
-that allow the specific Event to be associated with the call to Send.
+to each call to Send.
 
 Note that if partial Sends are used ({{send-partial}}), there will still be exactly
 one Send Event delivered for each call to Send. For example, if a Message
@@ -2381,8 +2380,7 @@ Connection -> ConnectionError<reason?>
 # Connection State and Ordering of Operations and Events
 
 As this interface is designed to be independent of an implementation's
-concurrency model, the
-details of how exactly actions are handled, and on which threads/callbacks
+concurrency model, the details of how exactly actions are handled, and how
 events are dispatched, are implementation dependent.
 
 Each transition of connection state is associated with one of more events:

@@ -183,11 +183,13 @@ There are key differences between the architecture of the Transport Services sys
 
 Originally, sockets presented a blocking interface for establishing connections and transferring data. However, most modern applications interact with the network asynchronously. When sockets are presented as an asynchronous interface, they generally use a try-and-fail model. If the application wants to read, but data has not yet been received from the peer, the call to read will fail. The application then waits and can try again later.
 
-All interaction with a Transport Services system is expected to be asynchronous, and use an event-driven model unlike sockets {{events}}. For example, if the application wants to read, its call to read will not fail, but will deliver an event containing the received data once it is available.
+In contrast to sockets, all interaction with a Transport Services system is expected to be asynchronous, and use an event-driven model (see {{events}}). For example, if the application wants to read, its call to read will not complete immediately, but will deliver an event containing the received data once it is available. Error handling is also asynchronous; a failure to send results in an asynchronous send error as an event. 
 
 The Transport Services API also delivers events regarding the lifetime of a connection and changes in the available network links, which were not previously made explicit in sockets.
 
 Using asynchronous events allows for a much simpler interaction model when establishing connections and transferring data. Events in time more closely reflect the nature of interactions over networks, as opposed to how sockets represent network resources as file system objects that may be temporarily unavailable.
+
+Separate from events, callbacks are also provided for asynchronous interactions with the API not directly related to events on the network or network interfaces.
 
 ## Data Transfer Using Messages
 
