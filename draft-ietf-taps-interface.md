@@ -623,7 +623,7 @@ The Resolve() action on Preconnection can be used by the application to force
 early binding when required, for example with some Network Address Translator
 (NAT) traversal protocols (see {{rendezvous}}).
 
-Specifying a multicast group address on the Local Endpoint will indicate to the transport system that the resulting connection will be used to receive multicast messages. In this case, the direction of communication is required to be set to Unidirectional receive. This will restrict the application to establishing the Preconnection by calling Listen(). The application is unable to send messages on any resulting connections. 
+Specifying a multicast group address on the Local Endpoint will indicate to the transport system that the resulting connection will be used to receive multicast messages. This will restrict the application to establishing the Preconnection by calling Listen(). The application is unable to send messages on any resulting connections. 
 
 ## Specifying Transport Properties {#selection-props}
 
