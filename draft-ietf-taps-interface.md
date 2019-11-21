@@ -908,12 +908,27 @@ Default:
 Name:
 : multipath
 
-This property specifies whether an application considers it useful to
-transfer data across multiple paths between the same end hosts. Generally,
-in most cases, this will improve performance (e.g., achieve greater throughput).
-One possible side-effect is increased jitter, which may be problematic for
-delay-sensitive applications. The recommended default is to Ignore this option.
+Type:
+: Enumeration
 
+This property specifies whether an application wants to take advantage of
+transferring data across multiple paths between the same end hosts. Using
+multiple paths allows connections to migrate between interfaces as
+availability and performance properties change. Possible values are:
+
+Disabled:
+: The connection will not attempt using multiple paths once established
+
+Handover:
+: The connection should attempt to migrate between different paths upon interface availability changes
+
+Interactive:
+: The connection should attempt to use multiple paths in response to loss or delay upon individual paths
+
+Aggregate:
+: The connection should attempt to use multiple paths in parallel in order to maximize bandwidth
+
+The default is Disabled. The other enumeration values are all interpreted as preferences.
 
 ### Direction of communication
 
