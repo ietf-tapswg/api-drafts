@@ -907,7 +907,7 @@ Interactive:
 Aggregate:
 : The connection should attempt to use multiple paths in parallel in order to maximize bandwidth
 
-The default is Disabled.
+The default is Disabled. The other enumeration values are all interpreted as preferences.
 
 ### Direction of communication
 
