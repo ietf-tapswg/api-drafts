@@ -1780,7 +1780,9 @@ events ({{receive-partial}}).
 
 Note that maxLength does not guarantee that the application will receive that many
 bytes if they are available; the interface may return ReceivedPartial events with less
-data than maxLength according to implementation constraints.
+data than maxLength according to implementation constraints. Note also that maxLength
+and minIncompleteLength are intended only to manage buffering, and are not interpreted
+as a reciever preference for message reordering.
 
 ## Receive Events {#receive-events}
 
