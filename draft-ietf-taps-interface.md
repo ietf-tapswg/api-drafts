@@ -191,12 +191,12 @@ itself; they are equivalent to Actions on a per-application global context.
 How these abstract concepts map into concrete implementations of this API in a
 given language on a given platform is largely dependent on the features of the
 language and the platform. Actions could be implemented as functions or method
-calls, for instance, and Events could be implemented via callbacks,
-communicating sequential processes, or other asynchronous calling conventions.
-The method for dispatching and handling Events is an implementation
-detail, with the caveat that the interface for receiving Messages must require
-the application to invoke the Connection.Receive() Action once per Message to be
-received (see {{receiving}}).
+calls, for instance, and Events could be implemented via event queues, handler
+functions or classes, communicating sequential processes, or other asynchronous
+calling conventions. The method for dispatching and handling Events is an
+implementation detail, with the caveat that the interface for receiving Messages
+must require the application to invoke the Connection.Receive() Action once per
+Message to be received (see {{receiving}}).
 
 This specification treats Events and errors similarly. Errors, just as any
 other Events, may occur asynchronously in network applications. However, it is
@@ -267,7 +267,7 @@ Once a Connection is established, data can be sent on it in the form of
 Messages. The interface supports the preservation of message boundaries both
 via explicit Protocol Stack support, and via application support through a
 Message Framer which finds message boundaries in a stream. Messages are
-received asynchronously through a callback registered by the application.
+received asynchronously through event handlers registered by the application.
 Errors and other notifications also happen asynchronously on the Connection.
 
 {{pre-establishment}}, {{establishment}}, {{sending}}, {{receiving}}, and
@@ -909,12 +909,27 @@ Default:
 Name:
 : multipath
 
-This property specifies whether an application considers it useful to
-transfer data across multiple paths between the same end hosts. Generally,
-in most cases, this will improve performance (e.g., achieve greater throughput).
-One possible side-effect is increased jitter, which may be problematic for
-delay-sensitive applications. The recommended default is to Ignore this option.
+Type:
+: Enumeration
 
+This property specifies whether an application wants to take advantage of
+transferring data across multiple paths between the same end hosts. Using
+multiple paths allows connections to migrate between interfaces as
+availability and performance properties change. Possible values are:
+
+Disabled:
+: The connection will not attempt using multiple paths once established
+
+Handover:
+: The connection should attempt to migrate between different paths upon interface availability changes
+
+Interactive:
+: The connection should attempt to use multiple paths in response to loss or delay upon individual paths
+
+Aggregate:
+: The connection should attempt to use multiple paths in parallel in order to maximize bandwidth
+
+The default is Disabled. The other enumeration values are all interpreted as preferences.
 
 ### Direction of communication
 
@@ -1365,8 +1380,7 @@ The concept of Message Contexts is described in {{msg-ctx}}.
 Like all Actions in this interface, the Send Action is asynchronous. There are
 several Events that can be delivered in response to Sending a Message.
 Exactly one Event (Sent, Expired, or SendError) will be delivered in reponse
-to each call to Send. These Events can be implemented as callbacks
-that allow the specific Event to be associated with the call to Send.
+to each call to Send.
 
 Note that if partial Sends are used ({{send-partial}}), there will still be exactly
 one Send Event delivered for each call to Send. For example, if a Message
@@ -1767,7 +1781,9 @@ events ({{receive-partial}}).
 
 Note that maxLength does not guarantee that the application will receive that many
 bytes if they are available; the interface may return ReceivedPartial events with less
-data than maxLength according to implementation constraints.
+data than maxLength according to implementation constraints. Note also that maxLength
+and minIncompleteLength are intended only to manage buffering, and are not interpreted
+as a reciever preference for message reordering.
 
 ## Receive Events {#receive-events}
 
@@ -2367,8 +2383,7 @@ Connection -> ConnectionError<reason?>
 # Connection State and Ordering of Operations and Events
 
 As this interface is designed to be independent of an implementation's
-concurrency model, the
-details of how exactly actions are handled, and on which threads/callbacks
+concurrency model, the details of how exactly actions are handled, and how
 events are dispatched, are implementation dependent.
 
 Each transition of connection state is associated with one of more events:

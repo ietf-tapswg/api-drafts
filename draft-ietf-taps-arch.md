@@ -183,11 +183,13 @@ There are key differences between the architecture of the Transport Services sys
 
 Originally, sockets presented a blocking interface for establishing connections and transferring data. However, most modern applications interact with the network asynchronously. When sockets are presented as an asynchronous interface, they generally use a try-and-fail model. If the application wants to read, but data has not yet been received from the peer, the call to read will fail. The application then waits and can try again later.
 
-All interaction with a Transport Services system is expected to be asynchronous, and use an event-driven model unlike sockets {{events}}. For example, if the application wants to read, its call to read will not fail, but will deliver an event containing the received data once it is available.
+In contrast to sockets, all interaction with a Transport Services system is expected to be asynchronous, and use an event-driven model (see {{events}}). For example, if the application wants to read, its call to read will not complete immediately, but will deliver an event containing the received data once it is available. Error handling is also asynchronous; a failure to send results in an asynchronous send error as an event. 
 
 The Transport Services API also delivers events regarding the lifetime of a connection and changes in the available network links, which were not previously made explicit in sockets.
 
 Using asynchronous events allows for a much simpler interaction model when establishing connections and transferring data. Events in time more closely reflect the nature of interactions over networks, as opposed to how sockets represent network resources as file system objects that may be temporarily unavailable.
+
+Separate from events, callbacks are also provided for asynchronous interactions with the API not directly related to events on the network or network interfaces.
 
 ## Data Transfer Using Messages
 
@@ -368,9 +370,9 @@ The diagram below provides a high-level view of the actions and events during th
 
 * Initiate: The primary action that an application can take to create a Connection to a Remote Endpoint, and prepare any required local or remote state to enable the transmission of Messages. For some protocols, this will initiate a client-to-server style handshake; for other protocols, this will just establish local state. The process of identifying options for connecting, such as resolution of the Remote Endpoint, occurs in response the Initiate call.
 
-* Listen: The action of marking a Listener as willing to accept incoming Connections. The Listener will then create Connection objects as incoming connections are accepted ({{events}}).
+* Listen: The action of marking a Listener as willing to accept incoming Connections. The Listener will then create Connection objects as incoming connections are accepted ({{events}}). Listeners by default register with multiple paths and local endpoints, unless constrained by Selection Properties. Connections can be accepted on any of the available paths or endpoints.
 
-* Rendezvous: The action of establishing a peer-to-peer connection with a Remote Endpoint. It simultaneously attempts to initiate a connection to a Remote Endpoint whilst listening for an incoming connection from that endpoint. This corresponds, for example, to a TCP simultaneous open {{?RFC0793}}. The process of identifying options for the connection, such as resolution of the Remote Endpoint, occurs during the Rendezvous call. If successful, the rendezvous call returns a Connection object to represent the established peer-to-peer connection.
+* Rendezvous: The action of establishing a peer-to-peer connection with a Remote Endpoint. It simultaneously attempts to initiate a connection to a Remote Endpoint whilst listening for an incoming connection from that endpoint. This corresponds, for example, to a TCP simultaneous open {{?RFC0793}}. The process of identifying options for the connection, such as resolution of the Remote Endpoint, occurs during the Rendezvous call. As with Listeners, the set of local paths and endpoints is contrained by Selection Properties. If successful, the Rendezvous call returns a Connection object to represent the established peer-to-peer connection.
 
 ### Data Transfer Objects and Actions {#datatransfer}
 
