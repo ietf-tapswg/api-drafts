@@ -143,7 +143,14 @@ high-level architecture for transport services defined in
 {{I-D.ietf-taps-arch}}. It derives specific path and protocol selection
 properties and supported transport features from the analysis provided in
 {{?RFC8095}}, {{I-D.ietf-taps-minset}}, and
-{{I-D.ietf-taps-transport-security}}.
+{{I-D.ietf-taps-transport-security}}. The design encourages implementations 
+underneath the interface to dynamically choose a transport protocol depending on an 
+application's choices rather than statically binding applications to a protocol at 
+compile time. We note that transport system implementations SHOULD provide
+applications a way to override transport selection and instantiate a specific stack,
+e.g. to support servers wanting to listen to a specific protocol. This specific
+transport stack choice is discouraged for general use, as it comes at the
+cost of reduced portability.
 
 # Terminology and Notation
 
