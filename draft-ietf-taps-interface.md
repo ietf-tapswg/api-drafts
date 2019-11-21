@@ -882,6 +882,27 @@ requiring specific PvD instances or interface instances, and should be preferred
 over these options.
 
 
+### Local Address Preference
+
+Name:
+: local-address-preference
+
+Type:
+: Enumeration
+
+This property specifies whether Listeners and Connections should prefer the use of temporary addresses when possible.
+This is generally used to prevent linking connections over time when a stable address is not needed. Possible values are:
+
+Stable:
+: Prefer the use of stable (sometimes called "permanent") local addresses
+
+Temporary:
+: Prefer the use of temporary (sometimes called "privacy") addresses {{!RFC4941}}
+
+Default:
+: Prefer the use of stable local addresses for Listeners and Rendezvous Connections, and prefer the use of temporary addresses for other Connections.
+
+
 ### Parallel Use of Multiple Paths
 
 Name:
