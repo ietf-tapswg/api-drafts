@@ -304,7 +304,7 @@ Beyond the connection objects, there are several high-level groups of actions th
 
 * Data Transfer ({{datatransfer}}) consists of how an application represents the data to be sent and received, the functions required to send and receive that data, and how the application is notified of the status of its data transfer.
 
-* Event Handling ({{events}}) defines the set of properties about which an application can receive notifications during the lifetime of transport objects. Events MAY also provide opportunities for the application to interact with the underlying transport by querying state or updating maintenance options.
+* Event Handling ({{events}}) defines categories of notifications which an application can receive during the lifetime of transport objects. Events MAY also provide opportunities for the application to interact with the underlying transport by querying state or updating maintenance options.
 
 * Termination ({{termination}}) focuses on the methods by which data transmission is stopped, and state is torn down in the transport.
 
@@ -378,9 +378,9 @@ The diagram below provides a high-level view of the actions and events during th
 
 * Message: A Message object is a unit of data that can be represented as bytes that can be transferred between two systems over a transport connection. The bytes within a Message are assumed to be ordered within the Message. If an application does not care about the order in which a peer receives two distinct spans of bytes, those spans of bytes are considered independent Messages. Boundaries of a Message might or might not be understood or transmitted by transport protocols. Specifically, what one application considers to be two Messages sent on a stream-based transport can be treated as a single Message by the application on the other side.
 
-* Message Properties: Message Properties can be used to annotate specific Messages. These properties might only apply to how Message is sent (such as how the transport will treat prioritization and reliability), but can also include properties that specific protocols encode and communicate to the Remote Endpoint. Message Properties MAY be set on a Preconnection to define default properties for sending. When receiving Messages, Message Properties can contain per-protocol properties for properties that are sent between the endpoints.
+* Message Properties: Message Properties can be used to annotate specific Messages. These properties might only apply to how Message is sent (such as how the transport will treat prioritization and reliability), but can also include properties that specific protocols encode and communicate to the Remote Endpoint. Message Properties MAY be set on a Preconnection to define default properties for sending. When receiving Messages, Message Properties can contain information about the received Message, such as metadata generated at the receiver and information signalled by the remote endpoint.
 
-* Send: The action to transmit a Message or partial Message over a Connection to the remote system. The interface to Send MAY include Message Properties specific to how the Message content is to be sent. The status of the Send operation can be delivered back to the sending application in an event ({{events}}).
+* Send: The action to transmit a Message or partial Message over a Connection to the remote system. The interface to Send MAY include Message Properties specific to how the Message content is to be sent. The status of the Send operation MUST be delivered back to the sending application in an event ({{events}}).
 
 * Receive: An action that indicates that the application is ready to asynchronously accept a Message over a Connection from a remote system, while the Message content itself will be delivered in an event ({{events}}). The interface to Receive MAY include Message Properties specific to the Message that is to be delivered to the application.
 
@@ -388,7 +388,7 @@ The diagram below provides a high-level view of the actions and events during th
 
 ### Event Handling {#events}
 
-This section provides the top-level categories of events that can be delivered to an application. This list is not exhaustive.
+This section provides the categories of events that can be delivered to an application. This list is not exhaustive.
 
 * Connection Ready: Signals to an application that a given Connection is ready to send and/or receive Messages. If the Connection relies on handshakes to establish state between peers, then it is assumed that these steps have been taken.
 
@@ -432,13 +432,13 @@ This section defines the set of objects used internally to a system or library t
 
 * Path Selection: Path Selection represents the act of choosing one or more paths that are available to use based on the Selection Properties provided by the application, the policies and heuristics of a Transport Services system.
 
-* Protocol Selection: Protocol Selection represents the act of choosing one or more sets of protocol options that are available to use based on the Transport Properties provided by the application, and the heuristics or policies within the Transport Services system.
+* Protocol Selection: Protocol Selection represents the act of choosing one or more sets of protocol stacks that are available to use based on the Transport Properties provided by the application, and the heuristics or policies within the Transport Services system.
 
 ### Candidate Racing {#racing}
 
 * Protocol Option Racing: Protocol Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on the composition of protocols or the options used for protocols.
 
-* Path Racing: Path Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on a selection from the available Paths. Since different Paths will have distinct configurations for local addresses and DNS servers, attempts across different Paths will perform separate DNS resolution stepss, which can lead to further racing of the resolved Remote Endpoints.
+* Path Racing: Path Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on a selection from the available Paths. Since different Paths will have distinct configurations for local addresses and DNS servers, attempts across different Paths will perform separate DNS resolution steps, which can lead to further racing of the resolved Remote Endpoints.
 
 * Remote Endpoint Racing: Remote Endpoint Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on the specific representation of the Remote Endpoint, such as IP addresses resolved from a DNS hostname.
 
@@ -488,18 +488,18 @@ As described above in {{equivalence}}, if a Transport Services system races
 between two different Protocol Stacks, both MUST use the same security
 protocols and options.
 
-Clients need to ensure that security APIs are used appropriately. In cases where
-clients use an interface to provide sensitive keying material, e.g., access
+Applications need to ensure that they use security API appropriately. In cases where
+applications use an interface to provide sensitive keying material, e.g., access
 to private keys or copies of pre-shared keys (PSKs), key use needs to be
-validated. For example, clients ought not to use PSK material created for the
-Encapsulating Security Protocol (ESP, part of IPsec) {{?RFC4303}} with QUIC, and clients
+validated. For example, applications ought not to use PSK material created for the
+Encapsulating Security Protocol (ESP, part of IPsec) {{?RFC4303}} with QUIC, and applications
 ought not to use private keys intended for server authentication as a keys for
 client authentication.
 
 Moreover, Transport Services systems MUST NOT automatically fall back from secure
 protocols to insecure protocols, or to weaker versions of secure protocols.
-For example, if a client requests TLS, but the desired version of TLS is not available,
-its connection will fail. Clients are thus responsible for implementing security protocol
+For example, if an application requests TLS, but the desired version of TLS is not available,
+its connection will fail. Applications are thus responsible for implementing security protocol
 fallback or version fallback by creating multiple Transport Services Connections, if so desired.
 
 # Acknowledgements
