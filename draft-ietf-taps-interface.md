@@ -600,6 +600,12 @@ LocalSpecifier := NewLocalEndpoint()
 LocalSpecifier.WithStunServer(address, port, credentials)
 ~~~
 
+~~~
+LocalSpecifier := NewLocalEndpoint()
+LocalSpecifier.WithIPv4Address(232.1.1.1) // Multicast
+LocalSpecifier.WithInterface("en0")
+~~~
+
 Implementations may also support additional endpoint representations and
 provide a single NewEndpoint() call that takes different endpoint representations.
 
@@ -623,7 +629,7 @@ The Resolve() action on Preconnection can be used by the application to force
 early binding when required, for example with some Network Address Translator
 (NAT) traversal protocols (see {{rendezvous}}).
 
-Specifying a multicast group address on the Local Endpoint will indicate to the transport system that the resulting connection will be used to receive multicast messages. The Remote Endpoint can be used to filter by specific senders. This will restrict the application to establishing the Preconnection by calling Listen(). The application is unable to send messages on any resulting connections, which will have the Transport Property "Direction of communication" set to "Unidirectional receive". 
+Specifying a multicast group address on the Local Endpoint will indicate to the transport system that the resulting connection will be used to receive multicast messages. The Remote Endpoint can be used to filter by specific senders. This will restrict the application to establishing the Preconnection by calling Listen(). The accepted Connections can receive messages but not send them. 
 
 Similarly, specifying a multicast group address on the Remote Endpoint will indicate that the resulting connection will be used to send multicast messages. 
 
