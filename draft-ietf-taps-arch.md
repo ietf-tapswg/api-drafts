@@ -488,7 +488,7 @@ As described above in {{equivalence}}, if a Transport Services system races
 between two different Protocol Stacks, both MUST use the same security
 protocols and options.
 
-Applications need to ensure that they use security API appropriately. In cases where
+Applications need to ensure that they use security APIs appropriately. In cases where
 applications use an interface to provide sensitive keying material, e.g., access
 to private keys or copies of pre-shared keys (PSKs), key use needs to be
 validated. For example, applications ought not to use PSK material created for the
