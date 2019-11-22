@@ -165,7 +165,7 @@ The Transport Services architecture maintains this general model of interaction,
                           |
 +-----------------------------------------------------+
 |           Transport System Implementation           |
-|       (UDP, TCP, SCTP, DCCP, TLS, QUIC, etc)        |
+|    (Using: UDP, TCP, SCTP, DCCP, TLS, QUIC, etc)    |
 +-----------------------------------------------------+
                           |
 +-----------------------------------------------------+
