@@ -2569,67 +2569,6 @@ coverage, see {{prop-checksum-control-send}} and {{prop-checksum-control-receive
 
 
 
-# Additional Properties {#appendix-non-consensus}
-
-The interface specified by this document represents the minimal common interface
-to an endpoint in the transport services architecture {{I-D.ietf-taps-arch}}, based upon
-that architecture and on the minimal set of transport service features
-elaborated in {{I-D.ietf-taps-minset}}. However, the interface has been designed with
-extension points to allow the implementation of features beyond those in the
-minimal common interface: Protocol Selection Properties, Path Selection
-Properties, and Message Properties are open sets. Implementations of the
-interface are free to extend these sets to provide additional expressiveness to
-applications written on top of them.
-
-This appendix enumerates a few additional properties that could
-be used to enhance transport protocol and/or path selection, or the transmission
-of messages given a Protocol Stack that implements them. These are not part of
-the interface, and may be removed from the final document, but are presented
-here to support discussion within the TAPS working group as to whether they
-should be added to a future revision of the base specification.
-
-## Experimental Transport Properties
-
-The following Transport Properties might be made available in
-addition to those specified in {{selection-props}}, {{connection-props}}, and {{message-props}}.
-
-
-### Cost Preferences {#cost-preferences}
-
-\[EDITOR'S NOTE: At IETF 103, opinions were that this property should stay,
-but it was also said that this is maybe not "on the right level".
-If / when moving it to the main text, note that this is meant to be
-applicable to a Preconnection or a Message.]
-
-Name:
-: cost-preferences
-
-Type:
-: Enumeration
-
-This property describes what an application prefers regarding monetary costs,
-e.g., whether it considers it acceptable to utilize limited data volume. It
-provides hints to the transport system on how to handle trade-offs between cost
-and performance or reliability.
-
-Possible values are:
-
-No Expense:
-: Avoid transports associated with monetary cost
-
-Optimize Cost:
-: Prefer inexpensive transports and accept service degradation
-
-Balance Cost:
-: Use system policy to balance cost and other criteria
-
-Ignore Cost:
-: Ignore cost, choose transport solely based on other criteria
-
-The default is "Balance Cost".
-
-
-
 # Sample API definition in Go {#appendix-api-sketch}
 
 This document defines an abstract interface. To illustrate how this would map
