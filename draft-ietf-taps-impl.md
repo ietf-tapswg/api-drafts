@@ -1234,7 +1234,7 @@ This appendix gives an overview of existing implementations, at the time of writ
 
 
 * Apple's Network.framework:
-  * [A very brief introduction should be added]
+  * Network.framework is a transport-level API built for C, Objective-C, and Swift. It a connect-by-name API that supports transport security protocols. It provides userspace implementations of TCP, UDP, TLS, DTLS, proxy protocols, and allows extension via custom framers.
   * Documentation: <https://developer.apple.com/documentation/network>
 
 * NEAT:
