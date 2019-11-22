@@ -394,7 +394,7 @@ This section provides the categories of events that can be delivered to an appli
 
 * Connection Finished: Signals to an application that a given Connection is no longer usable for sending or receiving Messages. The event SHOULD deliver a reason or error to the application that describes the nature of the termination.
 
-* Connection Received: Signals to an application that a given Listener has passively received a Connection.
+* Connection Received: Signals to an application that a given Listener has received a Connection.
 
 * Message Received: Delivers received Message content to the application, based on a Receive action. This MAY include an error if the Receive action cannot be satisfied due to the Connection being closed.
 
