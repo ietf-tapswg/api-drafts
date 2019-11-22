@@ -578,11 +578,15 @@ Subtypes of these represent various different types of endpoint identifiers,
 such as IP addresses, DNS names, and interface names, as well as port numbers
 and service names.
 
+Specify a Remote Endpoint using a hostname and service name:
+
 ~~~
 RemoteSpecifier := NewRemoteEndpoint()
 RemoteSpecifier.WithHostname("example.com")
 RemoteSpecifier.WithService("https")
 ~~~
+
+Specify a Remote Endpoint using an IPv6 address and remote port:
 
 ~~~
 RemoteSpecifier := NewRemoteEndpoint()
@@ -590,11 +594,15 @@ RemoteSpecifier.WithIPv6Address(2001:db8:4920:e29d:a420:7461:7073:0a)
 RemoteSpecifier.WithPort(443)
 ~~~
 
+Specify a Remote Endpoint using an IPv4 address and remote port:
+
 ~~~
 RemoteSpecifier := NewRemoteEndpoint()
 RemoteSpecifier.WithIPv4Address(192.0.2.21)
 RemoteSpecifier.WithPort(443)
 ~~~
+
+Specify a Local Endpoint using a local interface name and local port:
 
 ~~~
 LocalSpecifier := NewLocalEndpoint()
@@ -602,15 +610,30 @@ LocalSpecifier.WithInterface("en0")
 LocalSpecifier.WithPort(443)
 ~~~
 
+Specify a Local Endpoint using a STUN server:
+
 ~~~
 LocalSpecifier := NewLocalEndpoint()
 LocalSpecifier.WithStunServer(address, port, credentials)
 ~~~
 
+Specify a Local Endpoint using a Any-Source Multicast group to join on a named local interface:
+
 ~~~
 LocalSpecifier := NewLocalEndpoint()
-LocalSpecifier.WithIPv4Address(232.1.1.1) // Multicast
+LocalSpecifier.WithIPv4Address(233.252.0.0)
 LocalSpecifier.WithInterface("en0")
+~~~
+
+Source-Specific Multicast requires setting both a Local and Remote Endpoint:
+
+~~~
+LocalSpecifier := NewLocalEndpoint()
+LocalSpecifier.WithIPv4Address(232.1.1.1)
+LocalSpecifier.WithInterface("en0")
+
+RemoteSpecifier := NewRemoteEndpoint()
+RemoteSpecifier.WithIPv4Address(192.0.2.22)
 ~~~
 
 Implementations may also support additional endpoint representations and
