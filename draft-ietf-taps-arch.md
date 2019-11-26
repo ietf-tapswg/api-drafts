@@ -145,9 +145,9 @@ The traditional model of using sockets for networking can be represented as foll
   |  resolver  |     +------------+    +--------------+
   +------------+          |                  |
         |           +---------------------------------+
-        |           |     TCP                UDP      |
-        |           |  Kernel Protocol Implementation |
-        |           +---------------------------------+
+  +-----------------+    TCP                UDP       |
+  |    DNS               Kernel Networking Stack      |
+  +---------------------------------------------------+
         |                           |
 +-----------------------------------------------------+
 |               Network Layer Interface               |
@@ -156,7 +156,7 @@ The traditional model of using sockets for networking can be represented as foll
 ~~~~~~~~~~
 {: #fig-sockets title="socket() API Model"}
 
-The Transport Services architecture maintains this general model of interaction, but aims to both modernize the API surface exposed for transport protocols and enrich the capabilities of the transport system implementation. It combines interfaces for multiple interaction patterns into a unified whole. By combining identifier address resoulution with connection establishment and data transfer in a single API, it allows for more flexible implementations to provide path and transport protocol agility on the application's behalf.
+The Transport Services architecture evolves this general model of interaction, aiming to both modernize the API surface presented to applications by the transport layer and enrich the capabilities of the transport system implementation. It combines interfaces for multiple interaction patterns into a unified whole. By combining identifier address resoulution with connection establishment and data transfer in a single API, it allows for more flexible implementations to provide path and transport protocol agility on the application's behalf.
 
 ~~~~~~~~~~
 
@@ -165,7 +165,7 @@ The Transport Services architecture maintains this general model of interaction,
 +-----------------------------------------------------+
                           |
 +-----------------------------------------------------+
-|   Transport Services API (resolution + connection)  |
+|              Transport Services API                 |
 +-----------------------------------------------------+
                           |
 +-----------------------------------------------------+
