@@ -83,7 +83,7 @@ informative:
 
 --- abstract
 
-This document provides an overview of the architecture of Transport Services, a model for exposing transport protocol features to applications for network communication. In contrast to what is provided by most existing Application Programming Interfaces (APIs), Transport Services is based on an asynchronous, event-driven interaction pattern; it uses messages for representing data transfer to applications; and it assumes an implementation that can use multiple IP addresses, multiple protocols, and multiple paths, and provide multiple application streams. This document further defines the common set of terminology and concepts to be used in definitions of Transport Services APIs and implementations.
+This document proposal an architecture for exposing transport protocol features to applications for network communication, the Transport Services architecture. In contrast to what is provided by most existing Application Programming Interfaces (APIs), Transport Services is based on an asynchronous, event-driven interaction pattern; it uses messages for representing data transfer to applications; and it assumes an implementation that can use multiple IP addresses, multiple protocols, and multiple paths, and provide multiple application streams. This document further defines common terminology and concepts to be used in definitions of Transport Services APIs and implementations.
 
 --- middle
 
@@ -101,7 +101,7 @@ The Transport Services architecture is based on the survey of Services Provided 
 
 Since transport security is an increasingly relevant aspect of using transport protocols on the Internet, this architecture also considers the impact of transport security protocols on the feature-set exposed by transport services {{?I-D.ietf-taps-transport-security}}.
 
-One of the key insights to come from identifying the minimal set of features provided by transport protocols {{?I-D.ietf-taps-minset}} was that features either require application interaction and guidance (referred to as Functional or Optimizing Features), or else can be handled automatically by a system implementing Transport Services (referred to as Automatable Features). Among the Functional and Optimizing Features, some were common across all or nearly all transport protocols, while others could be seen as features that, if specified, would only be useful with a subset of protocols, but would not harm the functionality of other protocols. For example, some protocols can deliver messages faster for applications that do not require messages to arrive in the order in which they were sent. However, this functionality needs to be explicitly allowed by the application, since reordering messages would be undesirable in many cases.
+One of the key insights to come from identifying the minimal set of features provided by transport protocols {{?I-D.ietf-taps-minset}} was that features either require application interaction and guidance (referred to in that document as Functional or Optimizing Features), or else can be handled automatically by a system implementing Transport Services (referred to as Automatable Features). Among the Functional and Optimizing Features, some were common across all or nearly all transport protocols, while others could be seen as features that, if specified, would only be useful with a subset of protocols, but would not harm the functionality of other protocols. For example, some protocols can deliver messages faster for applications that do not require messages to arrive in the order in which they were sent. However, this functionality needs to be explicitly allowed by the application, since reordering messages would be undesirable in many cases.
 
 ## Overview
 
@@ -242,7 +242,7 @@ Implementations that provide the Transport Services API {{?I-D.ietf-taps-impl}} 
 
 To preserve flexibility and compatibility with future protocols, top-level features in the Transport Services API SHOULD avoid referencing particular transport protocols. The mappings of these API features to specific implementations of each feature is explained in the {{?I-D.ietf-taps-impl}} along with the implications of the feature on existing protocols. It is expected that {{!I-D.ietf-taps-interface}} will be updated and supplemented as new protocols and protocol features are developed.
 
-It is important to note that neither the Transport Services API {{!I-D.ietf-taps-interface}} nor the Implementation document {{?I-D.ietf-taps-impl}} define new protocols or protocol capabilities that affect what is communicated across the network. The Transport Services system MUST be deployable on one side only. A Transport Services system acting as a connection initiator can communicate with any existing system that implements the transport protocol(s) selected by the Transport Services system. Similarly, a Transport Services system acting as a listener can receive connections for any protocol that is supported by the system, from existing initiators.
+It is important to note that neither the Transport Services API {{!I-D.ietf-taps-interface}} nor the Implementation document {{?I-D.ietf-taps-impl}} define new protocols or protocol capabilities that affect what is communicated across the network: this implies that a Transport Services system MUST be deployable on only one side of a connection. A Transport Services system acting as a connection initiator can communicate with any existing system that implements the transport protocol(s) selected by the Transport Services system. Similarly, a Transport Services system acting as a listener can receive connections for any protocol that is supported by the system, from existing initiators.
 
 # Transport Services Architecture and Concepts {#concepts}
 
@@ -358,13 +358,13 @@ The diagram below provides a high-level view of the actions and events during th
   that the application uses for the source or destination of a connection.
   An Endpoint can be specified at various levels, and an Endpoint with wider scope (such as a hostname) can be resolved to more concrete identities (such as IP addresses).
 
-* Remote Endpoint: The Remote Endpoint represents the application's identifier for a peer that can participate in a transport connection. For example, the combination of a DNS name for the peer and a service name/port.
+* Remote Endpoint: The Remote Endpoint represents the application's identifier for a peer that can participate in a transport connection; for example, the combination of a DNS name for the peer and a service name/port.
 
-* Local Endpoint: The Local Endpoint represents the application's identifier for itself that it uses for transport connections. For example, a local IP address and port.
+* Local Endpoint: The Local Endpoint represents the application's identifier for itself that it uses for transport connections; for example, a local IP address and port.
 
 * Selection Properties: The Selection Properties consist of the options that an application can set to influence the selection of paths between the local and remote systems, to influence the selection of transport protocols, or to configure the behavior of generic transport protocol features. These options can take the form of requirements, prohibitions, or preferences. Examples of options that influence path selection include the interface type (such as a Wi-Fi Ethernet connection, or a Cellular LTE connection), requirements around the Maximum Transmission Unit (MTU) or path MTU (PMTU), or preferences for throughput and latency properties. Examples of options that influence protocol selection and configuration of transport protocol features include reliability, service class, multipath support, and fast open support.
 
-* Connection Properties: The Connection Properties are used to configure protocol-specific options and control per-connection behavior of the Transport System. For example, a protocol-specific Connection Property can express that if UDP is used, the implementation ought to use checksums. Note that the presence of such a property does not require that a specific protocol will be used. In general, these properties do not explicitly determine the selection of paths or protocols, but MAY be used in this way by an implementation during connection establishment. Connection Properties SHOULD be specified on a Preconnection prior to Connection establishment, but MAY be modified later. Changes made to Connection Properties after establishment take effect on a best-effort basis. Such changes do not affect protocol or path selection, but only modify the manner in which a connection sends and receives data.
+* Connection Properties: The Connection Properties are used to configure protocol-specific options and control per-connection behavior of the Transport System; for example, a protocol-specific Connection Property can express that if UDP is used, the implementation ought to use checksums. Note that the presence of such a property does not require that a specific protocol will be used. In general, these properties do not explicitly determine the selection of paths or protocols, but MAY be used in this way by an implementation during connection establishment. Connection Properties SHOULD be specified on a Preconnection prior to Connection establishment, but MAY be modified later. Changes made to Connection Properties after establishment take effect on a best-effort basis. Such changes do not affect protocol or path selection, but only modify the manner in which a connection sends and receives data.
 
 ### Establishment Actions {#establishment}
 
@@ -376,7 +376,7 @@ The diagram below provides a high-level view of the actions and events during th
 
 ### Data Transfer Objects and Actions {#datatransfer}
 
-* Message: A Message object is a unit of data that can be represented as bytes that can be transferred between two systems over a transport connection. The bytes within a Message are assumed to be ordered within the Message. If an application does not care about the order in which a peer receives two distinct spans of bytes, those spans of bytes are considered independent Messages. Boundaries of a Message might or might not be understood or transmitted by transport protocols. Specifically, what one application considers to be two Messages sent on a stream-based transport can be treated as a single Message by the application on the other side.
+* Message: A Message object is a unit of data that can be represented as bytes that can be transferred between two systems over a transport connection. The bytes within a Message are assumed to be ordered within the Message. If an application does not care about the order in which a peer receives two distinct spans of bytes, those spans of bytes are considered independent Messages. Boundaries of a Message might or might not be understood or transmitted by transport protocols. Specifically, what one application considers to be multiple Messages sent on a stream-based transport can be treated as a single Message by the application on the other side, and vice versa.
 
 * Message Properties: Message Properties can be used to annotate specific Messages. These properties might only apply to how Message is sent (such as how the transport will treat prioritization and reliability), but can also include properties that specific protocols encode and communicate to the Remote Endpoint. Message Properties MAY be set on a Preconnection to define default properties for sending. When receiving Messages, Message Properties can contain information about the received Message, such as metadata generated at the receiver and information signalled by the remote endpoint.
 
@@ -476,37 +476,38 @@ This document has no actions for IANA.
 
 # Security Considerations
 
-The Transport Services architecture does not recommend use of specific
-security protocols or algorithms. Its goal is to offer ease of use for
-existing protocols by providing a generic security-related interface. Each
-provided interface translates to an existing protocol-specific interface provided by
-supported security protocols. For example, trust verification callbacks are
-common parts of TLS APIs. Transport Services APIs will expose similar
-functionality {{?I-D.ietf-taps-transport-security}}.
+The Transport Services architecture does not recommend use of specific security
+protocols or algorithms. Its goal is to offer ease of use for existing protocols
+by providing a generic security-related interface. Each provided interface
+translates to an existing protocol-specific interface provided by supported
+security protocols. For example, trust verification callbacks are common parts
+of TLS APIs. Transport Services APIs will expose similar functionality
+{{?I-D.ietf-taps-transport-security}}.
 
 As described above in {{equivalence}}, if a Transport Services system races
-between two different Protocol Stacks, both MUST use the same security
-protocols and options.
+between two different Protocol Stacks, both MUST use the same security protocols
+and options.
 
-Applications need to ensure that they use security APIs appropriately. In cases where
-applications use an interface to provide sensitive keying material, e.g., access
-to private keys or copies of pre-shared keys (PSKs), key use needs to be
-validated. For example, applications ought not to use PSK material created for the
-Encapsulating Security Protocol (ESP, part of IPsec) {{?RFC4303}} with QUIC, and applications
-ought not to use private keys intended for server authentication as a keys for
-client authentication.
+Applications need to ensure that they use security APIs appropriately. In cases
+where applications use an interface to provide sensitive keying material, e.g.,
+access to private keys or copies of pre-shared keys (PSKs), key use needs to be
+validated. For example, applications ought not to use PSK material created for
+the Encapsulating Security Protocol (ESP, part of IPsec) {{?RFC4303}} with QUIC,
+and applications ought not to use private keys intended for server
+authentication as a keys for client authentication.
 
-Moreover, Transport Services systems MUST NOT automatically fall back from secure
-protocols to insecure protocols, or to weaker versions of secure protocols.
-For example, if an application requests TLS, but the desired version of TLS is not available,
-its connection will fail. Applications are thus responsible for implementing security protocol
-fallback or version fallback by creating multiple Transport Services Connections, if so desired.
+Moreover, Transport Services systems MUST NOT automatically fall back from
+secure protocols to insecure protocols, or to weaker versions of secure
+protocols. For example, if an application requests TLS, but the desired version
+of TLS is not available, its connection will fail. Applications are thus
+responsible for implementing security protocol fallback or version fallback by
+creating multiple Transport Services Connections, if so desired.
 
 # Acknowledgements
 
-This work has received funding from the European Union's Horizon 2020
-research and innovation programme under grant agreements No. 644334
-(NEAT) and No. 688421 (MAMI).
+This work has received funding from the European Union's Horizon 2020 research
+and innovation programme under grant agreements No. 644334 (NEAT) and No. 688421
+(MAMI).
 
 This work has been supported by Leibniz Prize project funds of DFG - German
 Research Foundation: Gottfried Wilhelm Leibniz-Preis 2011 (FKZ FE 570/4-1).
@@ -514,4 +515,6 @@ Research Foundation: Gottfried Wilhelm Leibniz-Preis 2011 (FKZ FE 570/4-1).
 This work has been supported by the UK Engineering and Physical Sciences
 Research Council under grant EP/R04144X/1.
 
-Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work.
+Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for
+their implementation and design efforts, including Happy Eyeballs, that heavily
+influenced this work.
