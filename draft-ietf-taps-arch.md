@@ -341,13 +341,13 @@ The diagram below provides a high-level view of the actions and events during th
 
 * Preconnection: A Preconnection object is a representation of a potential connection. It has state that describes parameters of a Connection that might exist in the future: the Local Endpoint from which that Connection will be established, the Remote Endpoint ({{preestablishment}}) to which it will connect, and Transport Properties that influence the paths and protocols a Connection will use. A Preconnection can be fully specified such that it represents a single possible Connection, or it can be partially specified such that it represents a family of possible Connections. The Local Endpoint ({{preestablishment}}) MUST be specified if the Preconnection is used to Listen for incoming connections. The Local Endpoint is OPTIONAL if it is used to Initiate connections. The Remote Endpoint MUST be specified in the Preconnection that is used to Initiate connections. The Remote Endpoint is OPTIONAL if it is used to Listen for incoming connections. The Local Endpoint and the Remote Endpoint MUST both be specified if a peer-to-peer Rendezvous is to occur based on the Preconnection.
 
-* Transport Properties:  Transport Properties allow the application to express their requirements, prohibitions, and preferences and configure the Transport System.  There are three kinds of Transport Properties: 
+* Transport Properties: Transport Properties allow the application to express their requirements, prohibitions, and preferences and configure the Transport System.  There are three kinds of Transport Properties: 
 
   * Selection Properties ({{preestablishment}}) that can only be specified on a Preconnection.
 
   * Connection Properties ({{preestablishment}}) that may be changed on the Connection.
 
-  *  Message Properties ({{datatransfer}}) that can also be specified during data transfer to affect specific Messages.
+  * Message Properties ({{datatransfer}}) that can also be specified during data transfer to affect specific Messages.
 
 * Connection: A Connection object represents one or more active transport protocol instances that can send and/or receive Messages between local and remote systems. It holds state pertaining to the underlying transport protocol instances and any ongoing data transfers. This represents, for example, an active connection in a connection-oriented protocol such as TCP, or a fully-specified 5-tuple for a connectionless protocol such as UDP. It can also represent a pool of transport protocol instance, e.g., a set of TCP and QUIC connections to equivalent endpoints, or a stream of a multi-streaming transport protocol instance.
 
