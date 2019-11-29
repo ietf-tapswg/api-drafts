@@ -126,24 +126,29 @@ they appear in all capitals, as shown here.
 The traditional model of using sockets for networking can be represented as follows:
 
 - Applications create connections and transfer data using the socket API.
-- The socket API provides the interface to the implementations of TCP and UDP (typically implemented in the system's kernel).
-- TCP and UDP in the kernel send and receive data over the available network layer interfaces.
+- The socket API provides the interface to the implementations of TCP and UDP
+  (typically implemented in the system's kernel).
+- TCP and UDP in the kernel send and receive data over the available network
+  layer interfaces.
+- Sockets are bound directly to transport-layer and network-layer addresses,
+  obtained via a separate resolution step, usually performed by a
+  system-provided stub resolver.
 
 ~~~~~~~~~~
 
 +-----------------------------------------------------+
 |                    Application                      |
 +-----------------------------------------------------+
-           |                             |
-+---------------------+       +-----------------------+
-|  Socket Stream API  |       |  Socket Datagram API  |
-+---------------------+       +-----------------------+
-           |                             |
-+-----------------------------------------------------+
-|         TCP                           UDP           |
-|           Kernel Protocol Implementation            |
-+-----------------------------------------------------+
-                          |
+        |                 |                  |
+  +------------+     +------------+    +--------------+
+  |    stub    |     | Stream API |    | Datagram API |
+  |  resolver  |     +------------+    +--------------+
+  +------------+          |                  |
+                    +---------------------------------+
+                    |    TCP                UDP       |
+                    |    Kernel Networking Stack      |
+                    +---------------------------------+
+                                    |
 +-----------------------------------------------------+
 |               Network Layer Interface               |
 +-----------------------------------------------------+
@@ -151,7 +156,7 @@ The traditional model of using sockets for networking can be represented as foll
 ~~~~~~~~~~
 {: #fig-sockets title="socket() API Model"}
 
-The Transport Services architecture maintains this general model of interaction, but aims to both modernize the API surface exposed for transport protocols and enrich the capabilities of the transport system implementation.
+The Transport Services architecture evolves this general model of interaction, aiming to both modernize the API surface presented to applications by the transport layer and enrich the capabilities of the transport system implementation. It combines interfaces for multiple interaction patterns into a unified whole. By combining name resolution with connection establishment and data transfer in a single API, it allows for more flexible implementations to provide path and transport protocol agility on the application's behalf.
 
 ~~~~~~~~~~
 
@@ -160,12 +165,12 @@ The Transport Services architecture maintains this general model of interaction,
 +-----------------------------------------------------+
                           |
 +-----------------------------------------------------+
-|               Transport Services API                |
+|              Transport Services API                 |
 +-----------------------------------------------------+
                           |
 +-----------------------------------------------------+
 |           Transport System Implementation           |
-|    (Using: UDP, TCP, SCTP, DCCP, TLS, QUIC, etc)    |
+|  (Using: DNS, UDP, TCP, SCTP, DCCP, TLS, QUIC, etc) |
 +-----------------------------------------------------+
                           |
 +-----------------------------------------------------+
