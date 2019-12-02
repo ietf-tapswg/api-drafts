@@ -182,7 +182,7 @@ The Transport Services architecture evolves this general model of interaction, a
 
 The Transport Services API {{!I-D.ietf-taps-interface}} defines the mechanism for an application to create network connections and transfer data. The implementation {{?I-D.ietf-taps-impl}} is responsible for mapping the API to the various available transport protocols and managing the available network interfaces and paths.
 
-There are key differences between the architecture of the Transport Services system and the architecture of the sockets API: it presents an asynchronous, event-driven API; it uses messages for representing data transfer to applications; and it assumes an implementation that can use multiple IP addresses, multiple protocols, multiple paths, and provide multiple application streams.
+There are key differences between the architecture of the Transport Services system and the architecture of the sockets API: the Transport Services API is asynchronous and event-driven; it uses messages for representing data transfer to applications, and it assumes an implementation that can use multiple IP addresses, multiple protocols, multiple paths, and provide multiple application streams.
 
 ## Event-Driven API
 
@@ -200,7 +200,7 @@ Separate from events, callbacks are also provided for asynchronous interactions 
 
 Sockets provide a message interface for datagram protocols like UDP, but provide an unstructured stream abstraction for TCP. While TCP does indeed provide the ability to send and receive data as streams, most applications need to interpret structure within these streams. For example, HTTP/1.1 uses character delimiters to segment messages over a stream {{?RFC7230}}; TLS record headers carry a version, content type, and length {{?RFC8446}}; and HTTP/2 uses frames to segment its headers and bodies {{?RFC7540}}.
 
-The Transport Services API represents data as messages, so that it more closely matches the way applications use the network. Messages seamlessly work with transport protocols that support datagrams or records, but can also be used over a stream by defining an application-layer framer {{datatransfer}}. When framing protocols are placed on top of unstructured streams, the messages used in the API represent the framed messages within the stream. In the absence of a framer, protocols that deal only in byte streams, such as TCP, represent their data in each direction as a single, long message.
+The Transport Services API represents data as messages, so that it more closely matches the way applications use the network. Messages seamlessly work with transport protocols that support datagrams or records, but can also be used over a stream by defining an application-layer framer ({{datatransfer}}). When framing protocols are placed on top of unstructured streams, the messages used in the API represent the framed messages within the stream. In the absence of a framer, protocols that deal only in byte streams, such as TCP, represent their data in each direction as a single, long message.
 
 Providing a message-based abstraction provides many benefits, such as:
 
@@ -313,7 +313,7 @@ Beyond the connection objects, there are several high-level groups of actions th
 
 * Termination ({{termination}}) focuses on the methods by which data transmission is stopped, and state is torn down in the transport.
 
-The diagram below provides a high-level view of the actions and events during the lifetime of a connection. Note that some actions are alternatives (e.g., whether to initiate a connection or to listen for incoming connections), others are optional (e.g., setting Connection and Message Properties in Pre-Establishment), or have been omitted for brevity.
+The diagram below provides a high-level view of the actions and events during the lifetime of a connection. Note that some actions are alternatives (e.g., whether to initiate a connection or to listen for incoming connections), while others are optional (e.g., setting Connection and Message Properties in Pre-Establishment) or have been omitted for brevity.
 
 
 ~~~~~~~~~~
@@ -352,7 +352,7 @@ The diagram below provides a high-level view of the actions and events during th
   * Connection Properties ({{preestablishment}})
   * and Message Properties ({{datatransfer}}); note that Message Properties can also be specified during data transfer to affect specific Messages.
 
-* Connection: A Connection object represents one or more active transport protocol instances that can send and/or receive Messages between local and remote systems. It holds state pertaining to the underlying transport protocol instances and any ongoing data transfers. This represents, for example, an active connection in a connection-oriented protocol such as TCP, or a fully-specified 5-tuple for a connectionless protocol such as UDP. It can also represent a pool of transport protocol instance, e.g., a set of TCP and QUIC connections to equivalent endpoints, or a stream of a multi-streaming transport protocol instance.
+* Connection: A Connection object represents one or more active transport protocol instances that can send and/or receive Messages between local and remote systems. It holds state pertaining to the underlying transport protocol instances and any ongoing data transfers. This represents, for example, an active connection in a connection-oriented protocol such as TCP, or a fully-specified 5-tuple for a connectionless protocol such as UDP. It can also represent a pool of transport protocol instances, e.g., a set of TCP and QUIC connections to equivalent endpoints, or a stream of a multi-streaming transport protocol instance.
 
 * Listener: A Listener object accepts incoming transport protocol connections from remote systems and generates corresponding Connection objects. It is created from a Preconnection object that specifies the type of incoming connections it will accept.
 
@@ -373,7 +373,7 @@ The diagram below provides a high-level view of the actions and events during th
 
 ### Establishment Actions {#establishment}
 
-* Initiate: The primary action that an application can take to create a Connection to a Remote Endpoint, and prepare any required local or remote state to enable the transmission of Messages. For some protocols, this will initiate a client-to-server style handshake; for other protocols, this will just establish local state. The process of identifying options for connecting, such as resolution of the Remote Endpoint, occurs in response the Initiate call.
+* Initiate: The primary action that an application can take to create a Connection to a Remote Endpoint, and prepare any required local or remote state to enable the transmission of Messages. For some protocols, this will initiate a client-to-server style handshake; for other protocols, this will just establish local state. The process of identifying options for connecting, such as resolution of the Remote Endpoint, occurs in response to the Initiate call.
 
 * Listen: The action of marking a Listener as willing to accept incoming Connections. The Listener will then create Connection objects as incoming connections are accepted ({{events}}). Listeners by default register with multiple paths, protocols, and local endpoints, unless constrained by Selection Properties. Connections can be accepted on any of the available paths or endpoints.
 
@@ -383,7 +383,7 @@ The diagram below provides a high-level view of the actions and events during th
 
 * Message: A Message object is a unit of data that can be represented as bytes that can be transferred between two systems over a transport connection. The bytes within a Message are assumed to be ordered within the Message. If an application does not care about the order in which a peer receives two distinct spans of bytes, those spans of bytes are considered independent Messages. Boundaries of a Message might or might not be understood or transmitted by transport protocols. Specifically, what one application considers to be multiple Messages sent on a stream-based transport can be treated as a single Message by the application on the other side, and vice versa.
 
-* Message Properties: Message Properties can be used to annotate specific Messages. These properties might only apply to how Message is sent (such as how the transport will treat prioritization and reliability), but can also include properties that specific protocols encode and communicate to the Remote Endpoint. Message Properties MAY be set on a Preconnection to define default properties for sending. When receiving Messages, Message Properties can contain information about the received Message, such as metadata generated at the receiver and information signalled by the remote endpoint.
+* Message Properties: Message Properties can be used to annotate specific Messages. These properties might only apply to how a Message is sent (such as how the transport will treat prioritization and reliability), but can also include properties that specific protocols encode and communicate to the Remote Endpoint. Message Properties MAY be set on a Preconnection to define default properties for sending. When receiving Messages, Message Properties can contain information about the received Message, such as metadata generated at the receiver and information signalled by the remote endpoint.
 
 * Send: The action to transmit a Message or partial Message over a Connection to the remote system. The interface to Send MAY include Message Properties specific to how the Message content is to be sent. The status of the Send operation MUST be delivered back to the sending application in an event ({{events}}).
 
@@ -435,7 +435,7 @@ This section defines the set of objects used internally to a system or library t
 
 ### Candidate Gathering {#gathering}
 
-* Path Selection: Path Selection represents the act of choosing one or more paths that are available to use based on the Selection Properties provided by the application, the policies and heuristics of a Transport Services system.
+* Path Selection: Path Selection represents the act of choosing one or more paths that are available to use based on the Selection Properties provided by the application, and the policies and heuristics of a Transport Services system.
 
 * Protocol Selection: Protocol Selection represents the act of choosing one or more sets of protocol stacks that are available to use based on the Transport Properties provided by the application, and the heuristics or policies within the Transport Services system.
 
