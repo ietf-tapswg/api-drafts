@@ -943,7 +943,7 @@ Default:
 : Prefer the use of stable local addresses for Listeners and Rendezvous Connections, and prefer the use of temporary addresses for other Connections.
 
 
-### Parallel Use of Multiple Paths
+### Parallel Use of Multiple Paths  {#parallel-multipath}
 
 Name:
 : multipath
@@ -1426,7 +1426,7 @@ one Send Event delivered for each call to Send. For example, if a Message
 expired while two requests to Send data for that Message are outstanding,
 there will be two Expired events delivered.
 
-### Sent
+### Sent {#sent}
 
 ~~~
 Connection -> Sent<messageContext>
@@ -1447,7 +1447,7 @@ times without waiting for a Sent Event, it has created more buffer inside the
 transport system than an application that always waits for the Sent Event before
 calling the next Send Action.
 
-### Expired
+### Expired {#expired}
 
 ~~~
 Connection -> Expired<messageContext>
@@ -1478,7 +1478,7 @@ Applications may need to annotate the Messages they send with extra information
 to control how data is scheduled and processed by the transport protocols in the
 Connection. Therefore a message context containing these properties can be passed to the Send Action. For other uses of the message context, see {{msg-ctx}}.
 
-Note that message properties are per-Message, not per-Send if partial Messages
+Note that Message Properties are per-Message, not per-Send if partial Messages
 are sent ({{send-partial}}). All data blocks associated with a single Message
 share properties specified in the Message Contexts. For example, it would not
 make sense to have the beginning of a Message expire, but allow the end of a
@@ -1671,22 +1671,6 @@ This enumerated property specifies the application's preferred tradeoffs for
 sending this Message; it is a per-Message override of the Capacity Profile
 protocol and path selection property (see {{prop-cap-profile}}).
 
-The following values are valid for Transmission Profile:
-
-  Default:
-  :  No special optimizations of the tradeoff between delay, delay
-  variation, and bandwidth efficiency should be made when sending this message.
-
-  Low Latency:
-  : Response time (latency) should be optimized at
-  the expense of efficiently using the available capacity when sending this
-  message. This can be used by the system to disable the coalescing of
-  multiple small Messages into larger packets (Nagle's algorithm); to prefer
-  immediate acknowledgment from the peer endpoint when supported by the
-  underlying transport; to signal a preference for lower-latency, higher-loss
-  treatment; and so on.
-
-\[TODO: This is inconsistent with {prop-cap-profile}} - needs to be fixed]
 
 ### Singular Transmission {#send-singular}
 
@@ -1878,7 +1862,7 @@ Note that in the absence of message boundary preservation or
 a Message Framer, all bytes received on the Connection will be represented as one
 large Message of indeterminate length.
 
-### ReceiveError
+### ReceiveError {#receive-error}
 
 ~~~
 Connection -> ReceiveError<messageContext, reason?>
@@ -1941,7 +1925,7 @@ Any calls to Receive once the Final Message has been delivered will result in er
 Using the MessageContext object, the application can set and retrieve meta-data of the message, including Message Properties (see {{message-props}}) and framing meta-data (see {{framing-meta}}).
 Therefore, a MessageContext object can be passed to the Send action and is retuned by each Send and Receive related events.
 
-Message properties can be set and queried using the Message Context:
+Message Properties can be set and queried using the Message Context:
 
 ~~~
 MessageContext.add(scope?, parameter, value)
@@ -2113,8 +2097,7 @@ The Connection Properties defined as independent, and available on all
 Connections are defined in the subsections below.
 
 Note that many protocol properties have a corresponding selection property, which
-prefers protocols providing a specific transport feature that controlled by
-that protocol property. \[EDITOR'S NOTE: todo: add these cross-references up to {{selection-props}}]
+prefers protocols providing a supporting transport feature.
 
 
 ### Retransmission Threshold Before Excessive Retransmission Notification {#conn-excss-retransmit}
@@ -2339,7 +2322,7 @@ a data transfer useful. It is given in bits per second. The special value -1 ind
 that no bound is specified.
 
 
-### TCP-specific Property: User Timeout
+### TCP-specific Property: User Timeout {#tcp-uto}
 
 This property specifies, for the case TCP becomes the chosen transport protocol:
 
@@ -2585,97 +2568,96 @@ definition.
 
 {{I-D.ietf-taps-minset}} identifies a minimal set of transport services that end systems should offer. These services make all non-security-related transport features of TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT available that 1) require interaction with the application, and 2) do not get in the way of a possible implementation over TCP (or, with limitations, UDP). The following text explains how this minimal set is reflected in the present API. For brevity, it is based on the list in Section 4.1 of {{I-D.ietf-taps-minset}}, updated according to the discussion in Section 5 of {{I-D.ietf-taps-minset}}. This list is a subset of the transport features in Appendix A of {{I-D.ietf-taps-minset}}, which refers to the primitives in "pass 2" (Section 4) of {{!RFC8303}} for further details on the implementation with TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT.
 
-\[EDITOR'S NOTE: This is early text. In the future, this section will contain backward references, which we currently avoid because things are still being moved around and names / categories etc. are changing.]
-
 * Connect:
-"Initiate" Action.
+"Initiate" Action ({{initiate}}).
 
 * Listen:
-"Listen" Action.
+"Listen" Action ({{listen}}).
 
 * Specify number of attempts and/or timeout for the first establishment message:
-"timeout" parameter of `Initiate` or `InitiateWithSend` Action.
+"timeout" parameter of `Initiate` ({{initiate}}) or `InitiateWithSend` Action ({{initiate-and-send}}).
 
 * Disable MPTCP:
-`Parallel Use of Multiple Paths` Property.
+`Parallel Use of Multiple Paths` Property ({{parallel-multipath}}).
 
 * Hand over a message to reliably transfer (possibly multiple times) before connection establishment:
-`InitiateWithSend` Action.
+`InitiateWithSend` Action ({{initiate-and-send}}).
 
 * Change timeout for aborting connection (using retransmit limit or time value):
-`Timeout for Aborting Connection` property, using a time value.
+`Timeout for Aborting Connection` property, using a time value ({{conn-timeout}}).
 
 * Timeout event when data could not be delivered for too long:
-`ConnectionError` Event.
+`ConnectionError` Event ({{termination}}).
 
 * Suggest timeout to the peer:
-`TCP-specific Property: User Timeout`.
+`TCP-specific Property: User Timeout` ({{tcp-uto}}).
 
 * Notification of Excessive Retransmissions (early warning below abortion threshold):
-`Notification of excessive retransmissions` property.
+`Notification of excessive retransmissions` property ({{prop-establish-retrans-notify}}).
 
 * Notification of ICMP error message arrival:
-`Notification of ICMP soft error message arrival` property.
+`Notification of ICMP soft error message arrival` property ({{prop-soft-error}}).
 
 * Choose a scheduler to operate between streams of an association:
-`Connection Group Transmission Scheduler` property.
+`Connection Group Transmission Scheduler` property ({{conn-scheduler}}).
 
 * Configure priority or weight for a scheduler:
-`Priority (Connection)` property.
+`Priority (Connection)` property ({{conn-priority}}).
 
 * "Specify checksum coverage used by the sender" and "Disable checksum when sending":
-`Corruption Protection Length` property and `Full Checksum Coverage on Sending` property.
+`Corruption Protection Length` property ({{msg-checksum}}) and `Full Checksum Coverage on Sending` property ({{prop-checksum-control-send}}).
 
 * "Specify minimum checksum coverage required by receiver" and "Disable checksum requirement when receiving":
-`Required Minimum Corruption Protection Coverage for Receiving` property and `Full Checksum Coverage on Receiving` property.
+`Required Minimum Corruption Protection Coverage for Receiving` property ({{conn-recv-checksum}}) and `Full Checksum Coverage on Receiving` property ({{prop-checksum-control-receive}}).
 
-* "Specify DF" field and "Request not to bundle messages:"
-The `Singular Transmission` Message property combines both of these requests, i.e. if a request not to bundle messages is made, this also turns off DF in case of protocols that allow this (only UDP and UDP-Lite, which cannot bundle messages anyway).
+* "Specify DF" field and "Request not to bundle messages":
+the `Singular Transmission` Message Property combines both of these requests, i.e. if a request not to bundle messages is made, this also turns off fragmentation (i.e., sets DF=1) in case of protocols that allow this (only UDP and UDP-Lite, which cannot bundle messages anyway) ({{send-singular}}).
 
 * Get max. transport-message size that may be sent using a non-fragmented IP packet from the configured interface:
-`Maximum Message Size Before Fragmentation or Segmentation` property.
+`Maximum Message Size Before Fragmentation or Segmentation` property ({{conn-max-msg-notfrag}}).
 
 * Get max. transport-message size that may be received from the configured interface:
-`Maximum Message Size on Receive` property.
+`Maximum Message Size on Receive` property ({{conn-max-msg-recv}}).
 
 * Obtain ECN field:
-`ECN` is a defined read-only Message Property of the MessageContext object.
+`ECN` is a defined read-only Message Property of the MessageContext object ({{receive-ecn}}).
 
 * "Specify DSCP field", "Disable Nagle algorithm", "Enable and configure a 'Low Extra Delay Background Transfer'":
-As suggested in Section 5.5 of {{I-D.ietf-taps-minset}}, these transport features are collectively offered via the `Capacity Profile` property.
+as suggested in Section 5.5 of {{I-D.ietf-taps-minset}}, these transport features are collectively offered via the `Capacity Profile` property ({{prop-cap-profile}}). Per-Message control is offered via the `Message Capacity Profile Override` property ({{send-profile}}).
 
 * Close after reliably delivering all remaining data, causing an event informing the application on the other side:
-This is offered by the `Close` Action with slightly changed semantics in line with the discussion in Section 5.2 of {{I-D.ietf-taps-minset}}.
+this is offered by the `Close` Action with slightly changed semantics in line with the discussion in Section 5.2 of {{I-D.ietf-taps-minset}} ({{termination}}).
 
 * "Abort without delivering remaining data, causing an event informing the application on the other side" and "Abort without delivering remaining data, not causing an event informing the application on the other side":
-This is offered by the `Abort` action without promising that this is signaled to the other side. If it is, a `ConnectionError` Event will fire at the peer.
+this is offered by the `Abort` action without promising that this is signaled to the other side. If it is, a `ConnectionError` Event will fire at the peer ({{termination}}).
 
 * "Reliably transfer data, with congestion control", "Reliably transfer a message, with congestion control" and "Unreliably transfer a message":
-Data is tranferred via the `Send` action. Reliability is controlled via the `Reliable Data Transfer (Message)` Message property. Transmitting data as a message or without delimiters is controlled via Message Framers. The choice of congestion control is provided via the `Congestion control` property.
+data is transferred via the `Send` action ({{sending}}). Reliability is controlled via the `Reliable Data Transfer (Connection)` ({{prop-reliable}}) property and the `Reliable Data Transfer (Message)` Message Property ({{msg-reliable-message}}). Transmitting data as a message or without delimiters is controlled via Message Framers ({{framing}}). The choice of congestion control is provided via the `Congestion control` property ({{prop-cc}}).
 
 * Configurable Message Reliability:
-The `Lifetime` Message Property implements a time-based way to configure message reliability.
+the `Lifetime` Message Property implements a time-based way to configure message reliability ({{msg-lifetime}}).
 
 * "Ordered message delivery (potentially slower than unordered)" and "Unordered message delivery (potentially faster than ordered)":
-The two transport features are controlled via the Message Property `Ordered`.
+these two transport features are controlled via the Message Property `Ordered` ({{msg-ordered}}).
 
 * Request not to delay the acknowledgement (SACK) of a message:
-Should the protocol support it, this is one of the transport features the transport system can use when an application uses the `Capacity Profile` Property with value "Low Latency/Interactive".
+should the protocol support it, this is one of the transport features the transport system can apply when an application uses the `Capacity Profile` Property ({{prop-cap-profile}}) or the `Message Capacity Profile Override` Message Property ({{send-profile}}) with value "Low Latency/Interactive".
 
 * Receive data (with no message delimiting):
-`Received` Event without using a Message Framer.
+`Received` Event ({{receive-complete}}). See {{framing}} for handling Message framing in situations where the Protocol
+Stack only provides a byte-stream transport.
 
 * Receive a message:
-`Received` Event, using Message Framers.
+`Received` Event ({{receive-complete}}), using Message Framers ({{framing}}).
 
 * Information about partial message arrival:
-`ReceivedPartial` Event.
+`ReceivedPartial` Event ({{receive-partial}}).
 
 * Notification of send failures:
-`Expired` and `SendError` Events.
+`Expired` Event ({{expired}}) and `SendError` Event ({{send-error}}).
 
 * Notification that the stack has no more user data to send:
-Applications can obtain this information via the `Sent` Event.
+applications can obtain this information via the `Sent` Event ({{sent}}).
 
 * Notification to a receiver that a partial message delivery has been aborted:
-`ReceiveError` Event.
+`ReceiveError` Event ({{receive-error}}).
