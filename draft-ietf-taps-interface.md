@@ -1669,7 +1669,7 @@ Type:
 
 This enumerated property specifies the application's preferred tradeoffs for
 sending this Message; it is a per-Message override of the Capacity Profile
-protocol and path selection property (see {{prop-cap-profile}}).
+connection property (see {{prop-cap-profile}}).
 
 
 ### Singular Transmission {#send-singular}
