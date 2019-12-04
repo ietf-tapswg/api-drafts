@@ -943,7 +943,7 @@ Default:
 : Prefer the use of stable local addresses for Listeners and Rendezvous Connections, and prefer the use of temporary addresses for other Connections.
 
 
-### Parallel Use of Multiple Paths  {#parallel-multipath}
+### Parallel Use of Multiple Paths {#parallel-multipath}
 
 Name:
 : multipath
