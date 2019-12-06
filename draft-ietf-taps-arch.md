@@ -128,8 +128,7 @@ The traditional model of using sockets for networking can be represented as foll
 - Applications create connections and transfer data using the socket API.
 - The socket API provides the interface to the implementations of TCP and UDP
   (typically implemented in the system's kernel).
-- TCP and UDP in the kernel send and receive data over the available network
-  layer interfaces.
+- TCP and UDP in the kernel send and receive data over the available network-layer interfaces.
 - Sockets are bound directly to transport-layer and network-layer addresses,
   obtained via a separate resolution step, usually performed by a
   system-provided stub resolver.
@@ -207,7 +206,7 @@ Providing a message-based abstraction provides many benefits, such as:
 * the ability to associate deadlines with messages, for applications that care about timing;
 *  the ability to provide control of reliability, choosing which messages to retransmit in the event of packet loss, and how best to make use of the data that arrived;
 * the ability to manage dependencies between messages, when the transport system could decide to not deliver a message, either following packet loss or because it has missed a deadline. In particular, this can avoid (re-)sending data that relies on a previous transmission that was never received.
-* the ability to automatically assign messages and connections to underlaying transport connections to utilize multi-streaming and pooled connections.
+* the ability to automatically assign messages and connections to underlying transport connections to utilize multi-streaming and pooled connections.
 
 Allowing applications to interact with messages is backwards-compatible with existings protocols and APIs, as it does not change the wire format of any protocol. Instead, it gives the protocol stack additional information to allow it to make better use of modern transport services, while simplifying the application's role in parsing data.
 
@@ -389,7 +388,7 @@ The diagram below provides a high-level view of the actions and events during th
 
 * Receive: An action that indicates that the application is ready to asynchronously accept a Message over a Connection from a remote system, while the Message content itself will be delivered in an event ({{events}}). The interface to Receive MAY include Message Properties specific to the Message that is to be delivered to the application.
 
-* Framer: A Framer is a data translation layer that can be added to a Connection to define how application-level Messages are transmitted over a transport protocol. This is particularly relevant for protocols that otherwise present unstructured streams, such as TCP.
+* Framer: A Framer is a data translation layer that can be added to a Connection to define how application-layer Messages are transmitted over a transport protocol. This is particularly relevant for protocols that otherwise present unstructured streams, such as TCP.
 
 ### Event Handling {#events}
 
@@ -499,7 +498,7 @@ access to private keys or copies of pre-shared keys (PSKs), key use needs to be
 validated. For example, applications ought not to use PSK material created for
 the Encapsulating Security Protocol (ESP, part of IPsec) {{?RFC4303}} with QUIC,
 and applications ought not to use private keys intended for server
-authentication as a keys for client authentication.
+authentication as keys for client authentication.
 
 Moreover, Transport Services systems MUST NOT automatically fall back from
 secure protocols to insecure protocols, or to weaker versions of secure
