@@ -130,7 +130,7 @@ The traditional model of using sockets for networking can be represented as foll
   (typically implemented in the system's kernel).
 - TCP and UDP in the kernel send and receive data over the available network
   layer interfaces.
-- Sockets are bound directly to transport-layer and network-layer addresses,
+- Sockets are bound directly to transport layer and network layer addresses,
   obtained via a separate resolution step, usually performed by a
   system-provided stub resolver.
 
@@ -200,14 +200,14 @@ Separate from events, callbacks are also provided for asynchronous interactions 
 
 Sockets provide a message interface for datagram protocols like UDP, but provide an unstructured stream abstraction for TCP. While TCP does indeed provide the ability to send and receive data as streams, most applications need to interpret structure within these streams. For example, HTTP/1.1 uses character delimiters to segment messages over a stream {{?RFC7230}}; TLS record headers carry a version, content type, and length {{?RFC8446}}; and HTTP/2 uses frames to segment its headers and bodies {{?RFC7540}}.
 
-The Transport Services API represents data as messages, so that it more closely matches the way applications use the network. Messages seamlessly work with transport protocols that support datagrams or records, but can also be used over a stream by defining an application-layer framer ({{datatransfer}}). When framing protocols are placed on top of unstructured streams, the messages used in the API represent the framed messages within the stream. In the absence of a framer, protocols that deal only in byte streams, such as TCP, represent their data in each direction as a single, long message.
+The Transport Services API represents data as messages, so that it more closely matches the way applications use the network. Messages seamlessly work with transport protocols that support datagrams or records, but can also be used over a stream by defining an application layer framer ({{datatransfer}}). When framing protocols are placed on top of unstructured streams, the messages used in the API represent the framed messages within the stream. In the absence of a framer, protocols that deal only in byte streams, such as TCP, represent their data in each direction as a single, long message.
 
 Providing a message-based abstraction provides many benefits, such as:
 
 * the ability to associate deadlines with messages, for applications that care about timing;
 *  the ability to provide control of reliability, choosing which messages to retransmit in the event of packet loss, and how best to make use of the data that arrived;
 * the ability to manage dependencies between messages, when the transport system could decide to not deliver a message, either following packet loss or because it has missed a deadline. In particular, this can avoid (re-)sending data that relies on a previous transmission that was never received.
-* the ability to automatically assign messages and connections to underlaying transport connections to utilize multi-streaming and pooled connections.
+* the ability to automatically assign messages and connections to underlying transport connections to utilize multi-streaming and pooled connections.
 
 Allowing applications to interact with messages is backwards-compatible with existings protocols and APIs, as it does not change the wire format of any protocol. Instead, it gives the protocol stack additional information to allow it to make better use of modern transport services, while simplifying the application's role in parsing data.
 
@@ -217,7 +217,7 @@ Sockets, for protocols like TCP, are generally limited to connecting to a single
 
 Transport Services implementations are meant to be flexible at connection establishment time, considering many different options and trying to select the most optimal combinations ({{gathering}} and {{racing}}). This requires applications to provide higher-level endpoints than IP addresses, such as hostnames and URLs, which are used by a Transport Services implementation for resolution, path selection, and racing.
 
-Flexibility after connection establishment is also important. Transport protocols that can migrate between multiple network-layer interfaces need to be able to process and react to interface changes. Protocols that support multiple application-layer streams need to support initiating and receiving new streams using existing connections.
+Flexibility after connection establishment is also important. Transport protocols that can migrate between multiple network layer interfaces need to be able to process and react to interface changes. Protocols that support multiple application layer streams need to support initiating and receiving new streams using existing connections.
 
 # Design Principles {#design}
 
@@ -389,7 +389,7 @@ The diagram below provides a high-level view of the actions and events during th
 
 * Receive: An action that indicates that the application is ready to asynchronously accept a Message over a Connection from a remote system, while the Message content itself will be delivered in an event ({{events}}). The interface to Receive MAY include Message Properties specific to the Message that is to be delivered to the application.
 
-* Framer: A Framer is a data translation layer that can be added to a Connection to define how application-level Messages are transmitted over a transport protocol. This is particularly relevant for protocols that otherwise present unstructured streams, such as TCP.
+* Framer: A Framer is a data translation layer that can be added to a Connection to define how application layer Messages are transmitted over a transport protocol. This is particularly relevant for protocols that otherwise present unstructured streams, such as TCP.
 
 ### Event Handling {#events}
 
@@ -499,7 +499,7 @@ access to private keys or copies of pre-shared keys (PSKs), key use needs to be
 validated. For example, applications ought not to use PSK material created for
 the Encapsulating Security Protocol (ESP, part of IPsec) {{?RFC4303}} with QUIC,
 and applications ought not to use private keys intended for server
-authentication as a keys for client authentication.
+authentication as keys for client authentication.
 
 Moreover, Transport Services systems MUST NOT automatically fall back from
 secure protocols to insecure protocols, or to weaker versions of secure
