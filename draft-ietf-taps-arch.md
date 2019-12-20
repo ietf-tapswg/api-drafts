@@ -89,7 +89,7 @@ This document describes an architecture for exposing transport protocol features
 
 # Introduction
 
-Many application programming interfaces (APIs) to perform transport networking have been deployed, perhaps the most widely known and imitated being the BSD socket() {{POSIX}} interface. The naming of objects and functions across these APIs is not consistent, and varies depending on the protocol being used. For example, sending and receiving streams of data is conceptually the same for both an unencrypted Transmission Control Protocol (TCP) stream and operating on an encrypted Transport Layer Security (TLS) {{?RFC8446}} stream over TCP, but applications cannot use the same socket send() and recv() calls on top of both kinds of connections. Similarly, terminology for the implementation of transport protocols varies based on the context of the protocols themselves: terms such as "flow", "stream", "message", and "connection" can take on many different meanings. This variety can lead to confusion when trying to understand the similarities and differences between protocols, and how applications can use them effectively.
+Many application programming interfaces (APIs) to perform transport networking have been deployed, perhaps the most widely known and imitated being the BSD Socket {{POSIX}} interface. The naming of objects and functions across these APIs is not consistent, and varies depending on the protocol being used. For example, sending and receiving streams of data is conceptually the same for both an unencrypted Transmission Control Protocol (TCP) stream and operating on an encrypted Transport Layer Security (TLS) {{?RFC8446}} stream over TCP, but applications cannot use the same socket ```send()``` and ```recv()``` calls on top of both kinds of connections. Similarly, terminology for the implementation of transport protocols varies based on the context of the protocols themselves: terms such as "flow", "stream", "message", and "connection" can take on many different meanings. This variety can lead to confusion when trying to understand the similarities and differences between protocols, and how applications can use them effectively.
 
 The goal of the Transport Services architecture is to provide a common, flexible, and reusable interface for transport protocols. As applications adopt this interface, they will benefit from a wide set of transport features that can evolve over time, and ensure that the system providing the interface can optimize its behavior based on the application requirements and network conditions, without requiring changes to the applications. This flexibility enables faster deployment of new features and protocols. It can also support applications by offering racing and fallback mechanisms, which otherwise need to be implemented in each application separately.
 
@@ -125,8 +125,8 @@ they appear in all capitals, as shown here.
 
 The traditional model of using sockets for networking can be represented as follows:
 
-- Applications create connections and transfer data using the socket API.
-- The socket API provides the interface to the implementations of TCP and UDP
+- Applications create connections and transfer data using the Socket API.
+- The Socket API provides the interface to the implementations of TCP and UDP
   (typically implemented in the system's kernel).
 - TCP and UDP in the kernel send and receive data over the available network-layer interfaces.
 - Sockets are bound directly to transport-layer and network-layer addresses,
@@ -153,7 +153,7 @@ The traditional model of using sockets for networking can be represented as foll
 +-----------------------------------------------------+
 
 ~~~~~~~~~~
-{: #fig-sockets title="socket() API Model"}
+{: #fig-sockets title="Socket API Model"}
 
 The Transport Services architecture evolves this general model of interaction, aiming to both modernize the API surface presented to applications by the transport layer and enrich the capabilities of the transport system implementation. It combines interfaces for multiple interaction patterns into a unified whole. By combining name resolution with connection establishment and data transfer in a single API, it allows for more flexible implementations to provide path and transport protocol agility on the application's behalf.
 
@@ -204,7 +204,7 @@ The Transport Services API represents data as messages, so that it more closely 
 Providing a message-based abstraction provides many benefits, such as:
 
 * the ability to associate deadlines with messages, for applications that care about timing;
-*  the ability to provide control of reliability, choosing which messages to retransmit in the event of packet loss, and how best to make use of the data that arrived;
+* the ability to provide control of reliability, choosing which messages to retransmit when there is packet loss, and how best to make use of the data that arrived;
 * the ability to manage dependencies between messages, when the transport system could decide to not deliver a message, either following packet loss or because it has missed a deadline. In particular, this can avoid (re-)sending data that relies on a previous transmission that was never received.
 * the ability to automatically assign messages and connections to underlying transport connections to utilize multi-streaming and pooled connections.
 
@@ -318,25 +318,22 @@ The diagram below provides a high-level view of the actions and events during th
 ~~~~~~~~~~
      Pre-Establishment     :       Established             : Termination
      -----------------     :       -----------             : -----------
-                           :                       Close() :
-     +---------------+  Initiate()  +------------+ Abort() :
+                           :                               :
+ +-- Local Endpoint        :                               :
+ +-- Remote Endpoint       :                               :
+ +-- Transport Properties  :                               :
+ |                         :                       Close() :
+ |   +---------------+  Initiate()  +------------+ Abort() :
  +-->| Preconnection |------------->| Connection |-----------> Closed
- |   +---------------+ Rendezvous() +------------+ Conn.   :
- |                         :           ^     |    Finished :
- +-- Local Endpoint        :           |     |             :
- |                         :           |     |             :
- +-- Remote Endpoint       :           |     v             :
- |                         :           | Connection        :
- +-- Selection Properties  :           |   Ready           :
- +-- Connection Properties :           |                   :
- +-- Message Properties    :           |                   :
- |                         :           |                   :
- |   +----------+          :           |                   :
- +-->| Listener |----------------------+                   :
+     +---------------+ Rendezvous() +------------+ Conn.   :
+             |             :           ^     |    Finished :
+    Listen() |             :           |     |             :
+             |             :           |     v             :
+             v             :           | Connection        :
+     +----------+          :           |   Ready           :
+     | Listener |----------------------+                   :
      +----------+  Connection Received                     :
-           ^               :                               :
-           |               :                               :
-        Listen()           :                               :
+                           :                               : 
 ~~~~~~~~~~
 {: #fig-lifetime title="The lifetime of a connection"}
 
@@ -456,7 +453,7 @@ If two different Protocol Stacks can be safely swapped, or raced in parallel (se
 
 1. Both stacks MUST offer the interface requested by the application for connection establishment and data transmission. For example, if an application requires preservation of message boundaries, a Protocol Stack that runs UDP as the top-level interface to the application is not equivalent to a Protocol Stack that runs TCP as the top-level interface. A UDP stack would allow an application to read out message boundaries based on datagrams sent from the remote system, whereas TCP does not preserve message boundaries on its own, but needs a framing protocol on top to determine message boundaries.
 
-2. Both stacks MUST offer the transport services that are required by the application. For example, if an application specifies that it requires reliable transmission of data, then a Protocol Stack using UDP without any reliability layer on top would not be allowed to replace a Protocol Stack using TCP. However, if the application does not require reliability, then a Protocol Stack that adds reliability could be regarded as an equivalent Protocol Stack as long as providing this would not conflict with any other application-requested properties.
+2. Both stacks MUST offer the transport services that are requested by the application. For example, if an application specifies that it requires reliable transmission of data, then a Protocol Stack using UDP without any reliability layer on top would not be allowed to replace a Protocol Stack using TCP. However, if the application does not require reliability, then a Protocol Stack that adds reliability could be regarded as an equivalent Protocol Stack as long as providing this would not conflict with any other application-requested properties.
 
 3. Both stacks MUST offer security protocols and parameters as requested by the application {{?I-D.ietf-taps-transport-security}}. Security features and properties, such as cryptographic algorithms, peer authentication, and identity privacy vary across security protocols, and across versions of security protocols. Protocol equivalence ought not to be assumed for different protocols or protocol versions, even if they offer similar application configuration options. To ensure that security protocols are not incorrectly swapped, Transport Services systems SHOULD only automatically generate equivalent Protocol Stacks when the transport security protocols within the stacks are identical. Specifically, a transport system would consider protocols identical only if they are of the same type and version. For example, the same version of TLS running over two different transport protocol stacks are considered equivalent, whereas TLS 1.2 and TLS 1.3 {{?RFC8446}} are not considered equivalent. However, Transport Services systems MAY allow applications to indicate that they consider two different transport protocols equivalent, e.g., to allow fallback to TLS 1.2 if TLS 1.3 is not available.
 
