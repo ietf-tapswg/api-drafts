@@ -372,7 +372,25 @@ The diagram below provides a high-level view of the actions and events during th
 
 * Listen: Enables a listener to accept incoming Connections. The Listener will then create Connection objects as incoming connections are accepted ({{events}}). Listeners by default register with multiple paths, protocols, and local endpoints, unless constrained by Selection Properties and/or the specified Local Endpoint(s). Connections can be accepted on any of the available paths or endpoints.
 
-* Rendezvous: The action of establishing a peer-to-peer connection with a Remote Endpoint. It simultaneously attempts to initiate a connection to a Remote Endpoint whilst listening for an incoming connection from that endpoint. This corresponds, for example, to a TCP simultaneous open {{?RFC0793}}. The process of identifying options for the connection, such as resolution of the Remote Endpoint, occurs during the Rendezvous call. As with Listeners, the set of local paths and endpoints is contrained by Selection Properties. If successful, the Rendezvous call returns a Connection object to represent the established peer-to-peer connection.
+* Rendezvous: The action of establishing a peer-to-peer connection with a
+  Remote Endpoint. It simultaneously attempts to initiate a connection to
+  a Remote Endpoint while listening for an incoming connection from that
+  endpoint.  The process of identifying options for the connection, such
+  as resolution of the Remote Endpoint, occurs during the Rendezvous call.
+  As with Listeners, the set of local paths and endpoints is constrained
+  by Selection Properties. If successful, the Rendezvous call returns a
+  Connection object to represent the established peer-to-peer connection.
+  The processes by which connections are initiated during a Rendezvous
+  action will depend on the set of Local and Remote Endpoints configured on
+  the Preconnection. For example, if the Local and Remote Endpoints are TCP
+  host candidates, then a TCP simultaneous open {{?RFC0793}} will be performed.
+  However, if the set of Local Endpoints includes server reflexive
+  candidates, such as those provided by STUN, a Rendezvous action will race
+  candidates in the style of the ICE algorithm {{?RFC8445}} to perform NAT
+  binding discovery and initiate a peer-to-peer connection.
+
+  
+
 
 ### Data Transfer Objects and Actions {#datatransfer}
 
