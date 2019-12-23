@@ -377,7 +377,7 @@ The diagram below provides a high-level view of the actions and events during th
 
 * Rendezvous: The action of establishing a peer-to-peer connection with a
   Remote Endpoint. It simultaneously attempts to initiate a connection to
-  a Remote Endpoint whilst listening for an incoming connection from that
+  a Remote Endpoint while listening for an incoming connection from that
   endpoint.  The process of identifying options for the connection, such
   as resolution of the Remote Endpoint, occurs during the Rendezvous call.
   As with Listeners, the set of local paths and endpoints is constrained
