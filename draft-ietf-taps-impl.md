@@ -624,7 +624,7 @@ MessageFramer -> NewSentMessage<Connection, MessageData, MessageContext, IsEndOf
 ~~~
 
 Upon receiving this event, a framer implementation is responsible for
-performing any necessary transformations and sending the resulting data back to the Message Framer, which will then send it to the next protocol. Implementations SHOULD ensure that there is a way to pass the original data
+performing any necessary transformations and sending the resulting data back to the Message Framer, which will in turn send it to the next protocol. Implementations SHOULD ensure that there is a way to pass the original data
 through without copying to improve performance. 
 
 ~~~
