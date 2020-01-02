@@ -585,14 +585,6 @@ remote endpoint that can be used to parse Messages.
 MessageFramer.MakeConnectionReady(Connection)
 ~~~
 
-Alternatively, if the framer implementation deems the candidate selected during racing unsuitable, it can signal this to the Connection. 
-
-~~~
-MessageFramer.FailCandidate(Connection)
-~~~
-
-If there are no other candidates available, the Connection will fail. Otherwise, the Connection will select a different candidate and the Message Framer will generate a new `Start` event.
-
 Similarly, when a Message Framer generates a `Stop` event, the framer implementation has the opportunity to write some final data or clear up its local state before the `Closed` event is delivered to the Application. The framer implementation can indicate that it has finished with this.
 
 ~~~
@@ -605,6 +597,9 @@ to fail and provide an error.
 ~~~
 MessageFramer.FailConnection(Connection, Error)
 ~~~
+
+Should the framer implementation deem the candidate selected during racing unsuitable it can signal this by failing the Connection prior to marking it as ready.
+If there are no other candidates available, the Connection will fail. Otherwise, the Connection will select a different candidate and the Message Framer will generate a new `Start` event.
 
 Before an implementation marks a Message Framer as ready, it can also dynamically
 add a protocol or framer above it in the stack. This allows protocols like STARTTLS,
