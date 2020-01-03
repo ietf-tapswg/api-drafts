@@ -550,7 +550,7 @@ Most Message Framers fall into one of two categories:
 - Delimiter-separated formats, such as HTTP/1.1.
 
 Common Message Framers can be provided by the Transport Services implementation,
-but an implemention ought to allow custom Message Framers to be defined by
+but an implementation ought to allow custom Message Framers to be defined by
 the application or some other piece of software. This section describes one
 possible interface for defining Message Framers as an example.
 
@@ -585,12 +585,21 @@ remote endpoint that can be used to parse Messages.
 MessageFramer.MakeConnectionReady(Connection)
 ~~~
 
+Similarly, when a Message Framer generates a `Stop` event, the framer implementation has the opportunity to write some final data or clear up its local state before the `Closed` event is delivered to the Application. The framer implementation can indicate that it has finished with this.
+
+~~~
+MessageFramer.MakeConnectionClosed(Connection)
+~~~
+
 At any time if the implementation encounters a fatal error, it can also cause the Connection
 to fail and provide an error.
 
 ~~~
 MessageFramer.FailConnection(Connection, Error)
 ~~~
+
+Should the framer implementation deem the candidate selected during racing unsuitable it can signal this by failing the Connection prior to marking it as ready.
+If there are no other candidates available, the Connection will fail. Otherwise, the Connection will select a different candidate and the Message Framer will generate a new `Start` event.
 
 Before an implementation marks a Message Framer as ready, it can also dynamically
 add a protocol or framer above it in the stack. This allows protocols like STARTTLS,
@@ -610,9 +619,8 @@ MessageFramer -> NewSentMessage<Connection, MessageData, MessageContext, IsEndOf
 ~~~
 
 Upon receiving this event, a framer implementation is responsible for
-performing any necessary transformations and sending the resulting data to the next
-protocol. Implementations SHOULD ensure that there is a way to pass the original data
-through without copying to improve performance.
+performing any necessary transformations and sending the resulting data back to the Message Framer, which will in turn send it to the next protocol. Implementations SHOULD ensure that there is a way to pass the original data
+through without copying to improve performance. 
 
 ~~~
 MessageFramer.Send(Connection, Data)
@@ -646,8 +654,8 @@ parsed data to effectively discard data (for example, discard a header
 once the content has been parsed).
 
 To deliver a Message to the application, the framer implementation can either directly
-deliever data that it has allocated, or deliver a range of data directly from the underlying
-transport and simulatenously advance the receive cursor.
+deliver data that it has allocated, or deliver a range of data directly from the underlying
+transport and simultaneously advance the receive cursor.
 
 ~~~
 MessageFramer.AdvanceReceiveCursor(Connection, Length)
