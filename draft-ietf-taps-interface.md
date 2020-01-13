@@ -335,14 +335,15 @@ Listener := Preconnection.Listen()
 
 Listener -> ConnectionReceived<Connection>
 
-// Only receive complete messages
+// Only receive complete messages in a Conn.Received handler
 Connection.Receive()
 
 Connection -> Received(messageDataRequest, messageContext)
 
+//---- Receive event handler begin ----
 Connection.Send(messageDataResponse)
-
 Connection.Close()
+//---- Receive event handler end ----
 
 // Stop listening for incoming Connections
 Listener.Stop()
@@ -379,13 +380,16 @@ Connection := Preconnection.Initiate()
 
 Connection -> Ready<>
 
+//---- Ready event handler begin ----
 Connection.Send(messageDataRequest)
 
 // Only receive complete messages
 Connection.Receive()
+//---- Ready event handler end ----
 
 Connection -> Received(messageDataResponse, messageContext)
 
+// Close the Connection in a Receive event handler
 Connection.Close()
 ~~~
 
@@ -425,13 +429,16 @@ Preconnection.Rendezvous()
 
 Preconnection -> RendezvousDone<Connection>
 
+//---- Ready event handler begin ----
 Connection.Send(messageDataRequest)
 
 // Only receive complete messages
 Connection.Receive()
+//---- Ready event handler end ----
 
 Connection -> Received(messageDataResponse, messageContext)
 
+// Close the Connection in a Receive event handler
 Connection.Close()
 ~~~
 
@@ -1521,14 +1528,14 @@ Type:
 : Integer
 
 Default:
-: infinite
+: infinite (a special value, e.g. -1)
 
 Lifetime specifies how long a particular Message can wait to be sent to the
 remote endpoint before it is irrelevant and no longer needs to be
 (re-)transmitted. This is a hint to the transport system -- it is not guaranteed
 that a Message will not be sent when its Lifetime has expired.
 
-Setting a Message's Lifetime to infinite indicates that the application does
+Setting a Message's Lifetime to infinite (e.g., -1) indicates that the application does
 not wish to apply a time constraint on the transmission of the Message, but it does not express a need for
 reliable delivery; reliability is adjustable per Message via the "Reliable Data Transfer (Message)"
 property (see {{msg-reliable-message}}). The type and units of Lifetime are implementation-specific.
@@ -1629,7 +1636,7 @@ Type:
 : Integer (non-negative with -1 as special value)
 
 Default:
-: full coverage
+: full coverage (-1)
 
 This property specifies the minimum length of the section of the Message,
 starting from byte 0, that the application requires to be delivered without
