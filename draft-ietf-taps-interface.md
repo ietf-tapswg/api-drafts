@@ -1309,8 +1309,9 @@ Calling Clone on a Connection yields a group of two Connections: the parent
 Connection on which Clone was called, and the resulting cloned Connection. These
 connections are "entangled" with each other, and become part of a Connection
 Group. Calling Clone on any of these two Connections adds a third Connection to
-the Connection Group, and so on. Connections in a Connection Group share all
-Connection Properties except "Priority (Connection)", see {{conn-priority}}.
+the Connection Group, and so on. Connections in a Connection Group generally share
+Connection Properties. However, there may be exceptions, such as "Priority
+(Connection)", see {{conn-priority}}.
 
 In addition, incoming entangled Connections can be received by creating a
 Listener on an existing connection:
