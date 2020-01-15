@@ -270,7 +270,7 @@ opening, as in a client), through listening on the Preconnection (i.e.,
 passively opening, as in a server), or rendezvousing on the Preconnection (i.e.
 peer to peer establishment).
 
-Once a Connection is established, data can be sent on it in the form of
+Once a Connection is established, data can be sent and received on it in the form of
 Messages. The interface supports the preservation of message boundaries both
 via explicit Protocol Stack support, and via application support through a
 Message Framer which finds message boundaries in a stream. Messages are
