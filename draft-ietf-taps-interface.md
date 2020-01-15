@@ -122,25 +122,24 @@ and potential transport protocols to select from.
 
 # Introduction
 
-The BSD Unix Sockets API's SOCK_STREAM abstraction, by bringing network sockets
-into the UNIX programming model, allowing anyone who knew how to write programs
-that dealt with sequential-access files to also write network applications, was
-a revolution in simplicity. The simplicity of this API is a key reason the
-Internet won the protocol wars {{PROTOCOL-WARS}} of the 1980s. SOCK_STREAM is
-tied to the Transmission Control Protocol (TCP), specified in 1981 {{?RFC0793}}.
-TCP has scaled remarkably well over the past three and a half decades, but its
-total ubiquity has hidden an uncomfortable fact: the network is not really a
-file, and stream abstractions are too simplistic for many modern application
-programming models.
-
-In the meantime, the nature of Internet access, and the variety of Internet
-transport protocols, is evolving. The challenges that new protocols and access
-paradigms present to the sockets API and to programming models based on them
-inspire the design principles of a new approach, which we outline in {{principles}}.
-
-This document builds a modern abstract programming interface atop the
+This document specifies a modern abstract programming interface atop the
 high-level architecture for transport services defined in
-{{I-D.ietf-taps-arch}}. It derives specific path and protocol selection
+{{I-D.ietf-taps-arch}}. It supports the
+asynchronous, atomic transmission of messages over transport protocols and
+network paths dynamically selected at runtime. It is intended to replace the
+traditional BSD sockets API as the lowest common denominator interface to the
+transport layer, in an environment where endpoints have multiple interfaces
+and potential transport protocols to select from.
+
+As applications adopt this interface, they will benefit from a wide set of
+transport features that can evolve over time, and ensure that the system
+providing the interface can optimize its behavior based on the application
+requirements and network conditions, without requiring changes to the
+applications.  This flexibility enables faster deployment of new features and
+protocols.  It can also support applications by offering racing and fallback
+mechanisms, which otherwise need to be implemented in each application separately.
+
+It derives specific path and protocol selection
 properties and supported transport features from the analysis provided in
 {{?RFC8095}}, {{I-D.ietf-taps-minset}}, and
 {{I-D.ietf-taps-transport-security}}. The design encourages implementations 
@@ -218,7 +217,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 document are to be interpreted as described in BCP 14 {{!RFC2119}} {{!RFC8174}}
 when, and only when, they appear in all capitals, as shown here.
 
-# Interface Design Principles {#principles}
+# Overview of Interface Design {#principles}
 
 The design of the interface specified in this document is based on a set of
 princples, themselves an elaboration on the architectural design principles
