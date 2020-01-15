@@ -742,11 +742,12 @@ after establishment yields the value Required for properties of the selected
 protocol and path, Avoid for properties avoided during selection, and Ignore for
 all other properties.
 
-An implementation of this interface must provide sensible defaults for Selection
-Properties. The defaults given for each property below represent a
-configuration that can be implemented over TCP. An alternate set of default
-Protocol Selection Properties would represent a configuration that can be
-implemented over UDP.
+An implementation of this interface SHOULD use the defaults given 
+for each property below. These values represent a configuration that 
+can be implemented over TCP. If TCP is not supported or another default
+protocol is preferred, the implementation MUST specify an alternate set of
+default Protocol Selection Properties that represents a configuration that 
+can be implemented over the preferred protocol, such as UDP.
 
 
 ### Reliable Data Transfer (Connection) {#prop-reliable}
