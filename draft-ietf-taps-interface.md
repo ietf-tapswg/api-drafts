@@ -646,7 +646,7 @@ IPv6 addresses. These multiple identifiers refer to the same transport
 endpoint.
 
 The transport services API resolves names internally, when the Initiate(),
-Listen(), or Rendezvous() method is called establish a Connection. The API
+Listen(), or Rendezvous() method is called to establish a Connection. The API
 explicitly does not require the application to resolve names, though there is
 a tradeoff between early and late binding of addresses to names. Early binding
 allows the API implementation to reduce connection setup latency, at the cost
