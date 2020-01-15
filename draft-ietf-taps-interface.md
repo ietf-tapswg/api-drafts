@@ -280,7 +280,8 @@ Errors and other notifications also happen asynchronously on the Connection.
 {{pre-establishment}}, {{establishment}}, {{sending}}, {{receiving}}, and
 {{termination}} describe the details of application interaction with Objects
 through Actions and Events in each phase of a Connection, following the phases
-described in {{I-D.ietf-taps-arch}}.
+(Pre-Establishment, Establishment, Data Transfer, and Termination)
+described in sec 4.1 in {{I-D.ietf-taps-arch}}.
 
 ## Usage Examples
 
