@@ -53,11 +53,11 @@ author:
   -
     ins: M. Kuehlewind
     name: Mirja Kuehlewind
-    org: ETH Zurich
-    email: mirja.kuehlewind@tik.ee.ethz.ch
-    street: Gloriastrasse 35
-    city: 8092 Zurich
-    country: Switzerland
+    org: Ericsson
+    email: mirja.kuehlewind@ericsson.com
+    street: Ericsson-Allee 1
+    city: Herzogenrath
+    country: Germany
   -
     ins: C. Perkins
     name: Colin Perkins
