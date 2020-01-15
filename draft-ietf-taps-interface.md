@@ -460,7 +460,7 @@ earlier stages and querying them in later stages:
 - Message Properties can be set on Preconnections and Connections
 - The effect of Selection Properties can be queried on Connections and Messages
 
-Note that Configuring Connection Properties and Message Properties on
+Note that configuring Connection Properties and Message Properties on
 Preconnections is preferred over setting them later. Early specification of
 Connection Properties allows their use as additional input to the selection
 process. Protocol Specific Properties, that enable configuration of Specialized
