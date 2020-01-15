@@ -372,7 +372,7 @@ SecurityParameters.SetTrustVerificationCallback(TrustCallback)
 // Specifying a local endpoint is optional when using Initiate()
 Preconnection := NewPreconnection(None,
                                   RemoteSpecifier,
-                                  TransportPreperties,
+                                  TransportProperties,
                                   SecurityParameters)
 
 Connection := Preconnection.Initiate()
@@ -418,7 +418,7 @@ SecurityParameters.SetTrustVerificationCallback(trustCallback)
 // Both local and remote endpoint must be specified
 Preconnection := NewPreconnection(LocalSpecifier,
                                   RemoteSpecifier,
-                                  TransportPreperties,
+                                  TransportProperties,
                                   SecurityParameters)
 
 Preconnection.Rendezvous()
