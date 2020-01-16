@@ -1310,8 +1310,9 @@ Calling Clone on a Connection yields a group of two Connections: the parent
 Connection on which Clone was called, and the resulting cloned Connection. These
 connections are "entangled" with each other, and become part of a Connection
 Group. Calling Clone on any of these two Connections adds a third Connection to
-the Connection Group, and so on. Connections in a Connection Group share all
-Protocol Properties that are not applicable to a Message.
+the Connection Group, and so on. Connections in a Connection Group generally share
+Connection Properties. However, there may be exceptions, such as "Priority
+(Connection)", see {{conn-priority}}.
 
 In addition, incoming entangled Connections can be received by creating a
 Listener on an existing connection:
@@ -1320,11 +1321,11 @@ Listener on an existing connection:
 Listener := Connection.Listen()
 ~~~
 
-Changing one of these Protocol Properties on one Connection in the group
-changes it for all others. Per-Message Protocol Properties, however, are not
+Changing one of the Connection Properties on one Connection in the group
+changes it for all others. Message Properties, however, are not
 entangled. For example, changing "Timeout for aborting Connection" (see
 {{conn-timeout}}) on one Connection in a group will automatically change this
-Protocol Property for all Connections in the group in the same way. However,
+Connection Property for all Connections in the group in the same way. However,
 changing "Lifetime" (see {{msg-lifetime}}) of a Message will only affect a
 single Message on a single Connection, entangled or not.
 
@@ -1341,7 +1342,7 @@ result in a CloneError:
 Connection -> CloneError<reason?>
 ~~~
 
-The Protocol Property "Priority" operates on entangled Connections as in {{msg-priority}}:
+The Connection Property "Priority" operates on entangled Connections as in {{msg-priority}}:
 when allocating available network
 capacity among Connections in a Connection Group, sends on Connections with
 higher Priority values will be prioritized over sends on Connections with
@@ -2094,11 +2095,11 @@ Properties will include different information:
 
 ## Generic Connection Properties {#connection-props}
 
-The Connection Properties defined as independent, and available on all
-Connections are defined in the subsections below.
+The Connection Properties defined as independent of the chosen protocol stack,
+and available on all Connections are defined in the subsections below.
 
-Note that many protocol properties have a corresponding selection property, which
-prefers protocols providing a supporting transport feature.
+Note that many Connection Properties have a corresponding Selection Property, which
+enables applications to express their preference for protocols providing a supporting transport feature.
 
 
 ### Retransmission Threshold Before Excessive Retransmission Notification {#conn-excss-retransmit}
