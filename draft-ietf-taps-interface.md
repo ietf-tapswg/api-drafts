@@ -702,7 +702,7 @@ Avoided properties as a tiebreaker. Selection Properties that select paths take
 preference over those that select protocols. For example, if an application
 indicates a preference for a specific path by specifying an interface, but also a
 preference for a protocol not available on this path, the transport system will
-try the path first, ignoring the preference.
+try the path first, ignoring the protocol preference.
 
 Selection and Connection Properties, as well as defaults for Message
 Properties, can be added to a Preconnection to configure the selection process
@@ -939,8 +939,9 @@ Stable:
 Temporary:
 : Prefer the use of temporary (sometimes called "privacy") addresses {{!RFC4941}}
 
-Default:
-: Prefer the use of stable local addresses for Listeners and Rendezvous Connections, and prefer the use of temporary addresses for other Connections.
+The default is to prefer the use of stable local addresses for Listeners and
+Rendezvous Connections, and to prefer the use of temporary addresses for other
+Connections.
 
 
 ### Parallel Use of Multiple Paths {#parallel-multipath}
@@ -998,7 +999,7 @@ bidirectional communication to be selected.
 ### Notification of excessive retransmissions {#prop-establish-retrans-notify}
 
 Name:
-:retransmit-notify
+: retransmit-notify
 
 This property specifies whether an application considers it useful to be
 informed in case sent data was retransmitted more often than a certain
@@ -1008,12 +1009,12 @@ threshold. The default is to Ignore this option.
 ### Notification of ICMP soft error message arrival {#prop-soft-error}
 
 Name:
-:soft-error-notify
+: soft-error-notify
 
 This property specifies whether an application considers it useful to be
 informed when an ICMP error message arrives that does not force termination of a
 connection. When set to true, received ICMP errors will be available as
-SoftErrors. Note that even if a protocol supporting this property is selected,
+SoftErrors, see {{soft-errors}}. Note that even if a protocol supporting this property is selected,
 not all ICMP errors will necessarily be delivered, so applications cannot rely
 on receiving them. The default is to Ignore this option.
 
@@ -1506,7 +1507,7 @@ of its properties is invalid.
 
 Message Properties may be inconsistent with the properties of the Protocol Stacks
 underlying the Connection on which a given Message is sent. For example,
-a Connection must provide reliability to allow setting an infinitie value for the
+a Connection must provide reliability to allow setting an infinite value for the
 lifetime property of a Message. Sending a Message with Message Properties
 inconsistent with the Selection Properties of the Connection yields an error.
 
@@ -1568,7 +1569,7 @@ Type:
 Default:
 : true
 
-If true, it specifies that the receiver-side transport protocol stack only deliver the Message to the receiving application after the previous ordered Message which was passed to the same Connection via the Send
+If true, it specifies that the receiver-side transport protocol stack may only deliver the Message to the receiving application after the previous ordered Message which was passed to the same Connection via the Send
 Action, when such a Message exists. If false, the Message may be delivered to the receiving application out of order.
 This property is used for protocols that support preservation of data ordering,
 see {{prop-ordering}}, but allow out-of-order delivery for certain messages.
@@ -1653,7 +1654,7 @@ Default:
 When true, this property specifies that a message should be sent in such a way
 that the transport protocol ensures all data is received on the other side
 without corruption. Changing the ´Reliable Data Transfer´ property on Messages
-is only possible for Connections that were established with the Selection Property 'Reliable Data Transfer (Connection)' enabled.
+is only possible for Connections that were established with the Selection Property 'Configure Per-Message Reliability' enabled.
 When this is not the case, changing it will generate an error.
 Disabling this property indicates that the transport system may disable retransmissions
 or other reliability mechanisms for this particular Message, but such disabling is not guaranteed.
@@ -1770,7 +1771,7 @@ an event will be delivered to complete the Receive request (see {{receive-events
 
 As with sending, the type of the Message to be passed is dependent on the
 implementation, and on the constraints on the Protocol Stacks implied by the
-Connection's transport parameters.
+Connection's Transport Properties.
 
 ## Enqueuing Receives
 
@@ -1806,7 +1807,7 @@ Note that maxLength does not guarantee that the application will receive that ma
 bytes if they are available; the interface may return ReceivedPartial events with less
 data than maxLength according to implementation constraints. Note also that maxLength
 and minIncompleteLength are intended only to manage buffering, and are not interpreted
-as a reciever preference for message reordering.
+as a receiver preference for message reordering.
 
 ## Receive Events {#receive-events}
 
@@ -1870,7 +1871,7 @@ Connection -> ReceiveError<messageContext, reason?>
 
 A ReceiveError occurs when data is received by the underlying Protocol Stack
 that cannot be fully retrieved or parsed, or when some other indication is
-received that reception has failed. Such conditions that irrevocably lead to
+received that reception has failed. In contrast, conditions that irrevocably lead to
 the termination of the Connection are signaled using ConnectionError instead
 (see {{termination}}).
 
@@ -1911,7 +1912,7 @@ The Message Context can indicate whether or not this Message is
 the Final Message on a Connection. For any Message that is marked as Final,
 the application can assume that there will be no more Messages received on the
 Connection once the Message has been completely delivered. This corresponds
-to the Final property that may be marked on a sent Message {{msg-final}}.
+to the Final property that may be marked on a sent Message, see {{msg-final}}.
 
 Some transport protocols and peers may not support signaling of the Final property.
 Applications therefore should not rely on receiving a Message marked Final to know
@@ -1923,7 +1924,7 @@ Any calls to Receive once the Final Message has been delivered will result in er
 # Message Contexts {#msg-ctx}
 
 Using the MessageContext object, the application can set and retrieve meta-data of the message, including Message Properties (see {{message-props}}) and framing meta-data (see {{framing-meta}}).
-Therefore, a MessageContext object can be passed to the Send action and is retuned by each Send and Receive related events.
+Therefore, a MessageContext object can be passed to the Send action and is returned by each Send and Receive related event.
 
 Message Properties can be set and queried using the Message Context:
 
@@ -1942,7 +1943,7 @@ LocalEndpoint := MessageContext.GetLocalEndpoint()
 ~~~
 
 Message Contexts can also be used to send messages that are flagged as a reply to other messages, see {{send-replies}} for details.
-If the message received was send by the remote endpoint as a reply to an earlier message and the transports provides this information, the MessageContext of the original request can be accessed using the Message Context of the reply:
+If the message received was sent by the remote endpoint as a reply to an earlier message and the Protocol Stack provides this information, the MessageContext of the original request can be accessed using the Message Context of the reply:
 
 ~~~
 RequestMessageContext := MessageContext.GetOriginalRequest()
@@ -2272,7 +2273,7 @@ values are valid for the Capacity Profile:
   Low Latency/Non-Interactive:
   : The application prefers loss to latency but is
   not interactive. Response time should be optimized at the expense of bandwidth
-  efficiency and delay variation when sending on this connection.Transport
+  efficiency and delay variation when sending on this connection. Transport
   system implementations that map the requested capacity profile onto
   per-connection DSCP signaling without multiplexing SHOULD assign a DSCP
   Assured Forwarding (AF21,AF22,AF23,AF24) {{?RFC2597}} PHB; when the Connection
@@ -2478,7 +2479,9 @@ programme through the "OCARINA" project.
 Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for
 their implementation and design efforts, including Happy Eyeballs, that heavily
 influenced this work. Thanks to Laurent Chuat and Jason Lee for initial work on
-the Post Sockets interface, from which this work has evolved.
+the Post Sockets interface, from which this work has evolved. Thanks to
+Maximilian Franke for asking good questions based on implementation experience
+and for contributing text, e.g., on multicast.
 
 --- back
 
