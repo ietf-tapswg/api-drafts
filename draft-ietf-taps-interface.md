@@ -1016,7 +1016,7 @@ informed when an ICMP error message arrives that does not force termination of a
 connection. When set to true, received ICMP errors will be available as
 SoftErrors, see {{soft-errors}}. Note that even if a protocol supporting this property is selected,
 not all ICMP errors will necessarily be delivered, so applications cannot rely
-on receiving them. The default is to Ignore this option.
+on receiving them. By default this option is set to false.
 
 
 ## Specifying Security Parameters and Callbacks {#security-parameters}
