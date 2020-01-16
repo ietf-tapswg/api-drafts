@@ -756,8 +756,8 @@ Name:
 
 This property specifies whether the application needs to use a transport
 protocol that ensures that all data is received on the other side without
-corruption. This also entails being notified when a Connection is closed or
-aborted. The default is to Require Reliable Data Transfer.
+corruption. The default is to Require Reliable Data Transfer. This also
+entails being notified when a Connection is closed or aborted. 
 
 ### Preservation of Message Boundaries {#prop-boundaries}
 
@@ -768,7 +768,7 @@ This property specifies whether the application needs or prefers to use a transp
 protocol that preserves message boundaries. The default
 is to Prefer Preservation of Message Boundaries.
 
-### Configure Per-Message Reliability {#prop-partially-reliable}
+### Per-Message Reliability {#prop-partially-reliable}
 
 Name:
 : per-msg-reliability
@@ -776,7 +776,7 @@ Name:
 This property specifies whether an application considers it useful to indicate
 its reliability requirements on a per-Message basis. This property applies to
 Connections and Connection Groups. The default is to Ignore
-this option.
+this Per-Message Reliability.
 
 ### Preservation of Data Ordering {#prop-ordering}
 
@@ -786,9 +786,9 @@ Name:
 This property specifies whether the application wishes to use a transport
 protocol that can ensure that data is received by the application on the other
 end in the same order as it was sent. The default is to Require
-Preservation of data ordering.
+Preservation of Data Ordering.
 
-### Use 0-RTT Session Establishment with an Idempotent Message {#prop-0rtt}
+### 0-RTT Session Establishment with an Idempotent Message {#prop-0rtt}
 
 Name:
 : zero-rtt-msg
@@ -839,11 +839,11 @@ Name:
 This property specifies whether the application would like the Connection to be
 congestion controlled or not. Note that if a Connection is not congestion
 controlled, an application using such a Connection should itself perform
-congestion control in accordance with {{?RFC2914}}. Also note that reliability
+congestion control in accordance with {{?RFC2914}} or align to requirements in
+Section 3.1 of {{?RFC8085}}. Also note that reliability
 is usually combined with congestion control in protocol implementations,
 rendering "reliable but not congestion controlled" a request that is unlikely to
-succeed. 
-The recommended default is to Require that the Connection is congestion controlled.
+succeed. The default is to Require that the Connection is congestion controlled.
 
 
 ### Interface Instance or Type {#prop-interface}
@@ -873,9 +873,7 @@ that are supported on the local system to all remote systems, to allow
 applications to be written generically. For example, if a single implementation
 is used on both mobile devices and desktop devices, it should define the
 `Cellular` interface type for both systems, since an application may want to
-always `Prohibit Cellular`. Note that marking a specific interface type as
-`Required` limits path selection to a small set of interfaces, and leads to less
-flexible and resilient connection establishment.
+always `Prohibit Cellular`.
 
 The set of interface types is expected to change over time as new access
 technologies become available.
