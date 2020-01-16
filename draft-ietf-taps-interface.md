@@ -281,7 +281,7 @@ Errors and other notifications also happen asynchronously on the Connection.
 {{termination}} describe the details of application interaction with Objects
 through Actions and Events in each phase of a Connection, following the phases
 (Pre-Establishment, Establishment, Data Transfer, and Termination)
-described in sec 4.1 in {{I-D.ietf-taps-arch}}.
+described in Section 4.1 of {{I-D.ietf-taps-arch}}.
 
 ## Usage Examples
 
