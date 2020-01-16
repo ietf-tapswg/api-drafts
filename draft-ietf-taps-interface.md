@@ -488,6 +488,11 @@ form \[\<Namespace>.\]\<PropertyName\>.
   names under these namespaces SHOULD be defined in an RFC.
 - Vendor or implementation specific properties MUST use a string identifying
   the vendor or implementation as Namespace.
+  
+Namespaces for the keywords provided in the IANA protocol numbers registry 
+(see https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml) are reserved
+for Protocol Specific Properties and MUST not be used for vendor or implementation
+specific properties. 
 
 ### Transport Property Types {#property-types}
 
