@@ -704,8 +704,8 @@ indicates a preference for a specific path by specifying an interface, but also 
 preference for a protocol not available on this path, the transport system will
 try the path first, ignoring the preference.
 
-Selection, and Connection Properties, as well as defaults for Message
-Properties, can be added to a Preconnection to configure the selection process,
+Selection and Connection Properties, as well as defaults for Message
+Properties, can be added to a Preconnection to configure the selection process
 and to further configure the eventually selected protocol stack(s). They are
 collected into a TransportProperties object to be passed into a Preconnection
 object:
