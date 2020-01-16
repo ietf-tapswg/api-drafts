@@ -463,8 +463,8 @@ earlier stages and querying them in later stages:
 Note that configuring Connection Properties and Message Properties on
 Preconnections is preferred over setting them later. Early specification of
 Connection Properties allows their use as additional input to the selection
-process. Protocol Specific Properties, that enable configuration of Specialized
-Features of a specific protocol, see Section 3.2 of {{I-D.ietf-taps-arch}}, are not
+process. Protocol Specific Properties, which enable configuration of specialized
+features of a specific protocol, see Section 3.2 of {{I-D.ietf-taps-arch}}, are not
 used as an input to the selection process but only support configuration if
 the respective prototocol has been selected.
 
