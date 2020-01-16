@@ -2204,7 +2204,7 @@ Type:
 This property, if applicable, represents the maximum Message size that can be
 sent without incurring network-layer fragmentation or transport layer
 segmentation at the sender. This property exposes the Maximum Packet Size (MPS)
-as described in Datagram PLPMTUD {{?I-D.ietf.tsvwg.datagram-plpmtud}}.
+as described in Datagram PLPMTUD {{?I-D.ietf-tsvwg-datagram-plpmtud}}.
 
 ### Maximum Message Size on Send {#conn-max-msg-send}
 
