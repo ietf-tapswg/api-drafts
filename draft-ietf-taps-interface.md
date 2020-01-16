@@ -343,10 +343,12 @@ Connection -> Received(messageDataRequest, messageContext)
 //---- Receive event handler begin ----
 Connection.Send(messageDataResponse)
 Connection.Close()
-//---- Receive event handler end ----
 
 // Stop listening for incoming Connections
+// (this example supports only one Connection)
 Listener.Stop()
+//---- Receive event handler end ----
+
 ~~~
 
 
@@ -1525,17 +1527,17 @@ Name:
 : msg-lifetime
 
 Type:
-: Integer
+: Numeric
 
 Default:
-: infinite (a special value, e.g. -1)
+: infinite
 
 Lifetime specifies how long a particular Message can wait to be sent to the
 remote endpoint before it is irrelevant and no longer needs to be
 (re-)transmitted. This is a hint to the transport system -- it is not guaranteed
 that a Message will not be sent when its Lifetime has expired.
 
-Setting a Message's Lifetime to infinite (e.g., -1) indicates that the application does
+Setting a Message's Lifetime to infinite indicates that the application does
 not wish to apply a time constraint on the transmission of the Message, but it does not express a need for
 reliable delivery; reliability is adjustable per Message via the "Reliable Data Transfer (Message)"
 property (see {{msg-reliable-message}}). The type and units of Lifetime are implementation-specific.
