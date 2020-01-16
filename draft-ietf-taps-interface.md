@@ -460,11 +460,13 @@ earlier stages and querying them in later stages:
 - Message Properties can be set on Preconnections and Connections
 - The effect of Selection Properties can be queried on Connections and Messages
 
-Note that Configuring Connection Properties and Message Properties on
+Note that configuring Connection Properties and Message Properties on
 Preconnections is preferred over setting them later. Early specification of
 Connection Properties allows their use as additional input to the selection
-process. Protocol Specific Properties, see {{property-names}}, should not be
-used as an input to the selection process.
+process. Protocol Specific Properties, which enable configuration of specialized
+features of a specific protocol, see Section 3.2 of {{I-D.ietf-taps-arch}}, are not
+used as an input to the selection process but only support configuration if
+the respective prototocol has been selected.
 
 
 ### Transport Property Names {#property-names}
