@@ -1634,7 +1634,7 @@ Type:
 : Integer (non-negative with -1 as special value)
 
 Default:
-: full coverage
+: -1 (full coverage)
 
 This property specifies the minimum length of the section of the Message,
 starting from byte 0, that the application requires to be delivered without
@@ -1642,7 +1642,8 @@ corruption due to lower layer errors. It is used to specify options for simple
 integrity protection via checksums. A value of 0 means that no checksum
 is required, and -1 means
 that the entire Message is protected by a checksum. Only full coverage is
-guaranteed, any other requests are advisory.
+guaranteed, any other requests are advisory, meaning that full coverage is applied
+anyway.
 
 ### Reliable Data Transfer (Message) {#msg-reliable-message}
 
