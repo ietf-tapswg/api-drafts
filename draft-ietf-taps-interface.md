@@ -339,7 +339,7 @@ Listener -> ConnectionReceived<Connection>
 // Only receive complete messages
 Connection.Receive()
 
-Connection -> Received(messageDataRequest, messageContext)
+Connection -> Received<messageDataRequest, messageContext>
 
 Connection.Send(messageDataResponse)
 
@@ -385,7 +385,7 @@ Connection.Send(messageDataRequest)
 // Only receive complete messages
 Connection.Receive()
 
-Connection -> Received(messageDataResponse, messageContext)
+Connection -> Received<messageDataResponse, messageContext>
 
 Connection.Close()
 ~~~
@@ -431,7 +431,7 @@ Connection.Send(messageDataRequest)
 // Only receive complete messages
 Connection.Receive()
 
-Connection -> Received(messageDataResponse, messageContext)
+Connection -> Received<messageDataResponse, messageContext>
 
 Connection.Close()
 ~~~
