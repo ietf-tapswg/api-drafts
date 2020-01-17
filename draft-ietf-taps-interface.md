@@ -1477,6 +1477,34 @@ set of Message Properties not consistent with the Connection's transport
 properties. The SendError contains an implementation-specific reference to the
 Message to which it applies.
 
+## Message Contexts {#msg-ctx}
+
+Using the MessageContext object, the application can set and retrieve meta-data of the message, including Message Properties (see {{message-props}}) and framing meta-data (see {{framing-meta}}).
+Therefore, a MessageContext object can be passed to the Send action and is returned by each Send and Receive related event.
+
+Message Properties can be set and queried using the Message Context:
+
+~~~
+MessageContext.add(scope?, parameter, value)
+PropertyValue := MessageContext.get(scope?, property)
+~~~
+
+To get or set Message Properties, the optional scope parameter is left empty, for framing meta-data, the framer is passed.
+
+For MessageContexts returned by send events (see {{send-events}}) and receive events (see {{receive-events}}), the application can query information about the local and remote endpoint:
+
+~~~
+RemoteEndpoint := MessageContext.GetRemoteEndpoint()
+LocalEndpoint := MessageContext.GetLocalEndpoint()
+~~~
+
+Message Contexts can also be used to send messages that are flagged as a reply to other messages, see {{send-replies}} for details.
+If the message received was sent by the remote endpoint as a reply to an earlier message and the Protocol Stack provides this information, the MessageContext of the original request can be accessed using the Message Context of the reply:
+
+~~~
+RequestMessageContext := MessageContext.GetOriginalRequest()
+~~~
+
 ## Message Properties {#message-props}
 
 Applications may need to annotate the Messages they send with extra information
@@ -1925,34 +1953,6 @@ that the other endpoint is done sending on a connection.
 
 Any calls to Receive once the Final Message has been delivered will result in errors.
 
-
-# Message Contexts {#msg-ctx}
-
-Using the MessageContext object, the application can set and retrieve meta-data of the message, including Message Properties (see {{message-props}}) and framing meta-data (see {{framing-meta}}).
-Therefore, a MessageContext object can be passed to the Send action and is returned by each Send and Receive related event.
-
-Message Properties can be set and queried using the Message Context:
-
-~~~
-MessageContext.add(scope?, parameter, value)
-PropertyValue := MessageContext.get(scope?, property)
-~~~
-
-To get or set Message Properties, the optional scope parameter is left empty, for framing meta-data, the framer is passed.
-
-For MessageContexts returned by send events (see {{send-events}}) and receive events (see {{receive-events}}), the application can query information about the local and remote endpoint:
-
-~~~
-RemoteEndpoint := MessageContext.GetRemoteEndpoint()
-LocalEndpoint := MessageContext.GetLocalEndpoint()
-~~~
-
-Message Contexts can also be used to send messages that are flagged as a reply to other messages, see {{send-replies}} for details.
-If the message received was sent by the remote endpoint as a reply to an earlier message and the Protocol Stack provides this information, the MessageContext of the original request can be accessed using the Message Context of the reply:
-
-~~~
-RequestMessageContext := MessageContext.GetOriginalRequest()
-~~~
 
 # Message Framers {#framing}
 
