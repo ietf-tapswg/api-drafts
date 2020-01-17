@@ -2332,26 +2332,58 @@ a data transfer useful. It is given in bits per second. The special value -1 ind
 that no bound is specified.
 
 
-### TCP-specific Property: User Timeout {#tcp-uto}
+## TCP-specific Properties: User Timeout Option (UTO) {#tcp-uto}
 
-This property specifies, for the case TCP becomes the chosen transport protocol:
+These properties specifies configurations for the User Timeout Option (UTO), 
+in case TCP becomes the chosen transport protocol. Implementation is optional
+and of course only sensible if TCP is implemented in the transport system.
 
-Advertised User Timeout (name: tcp.user-timeout-value, type: Integer):
-: a time value (default: the TCP default) to be advertised via the User Timeout Option (UTO) for the TCP at the remote endpoint
+All of the below parameters are optional (e.g., it is possible to specify "User Timeout Enabled" as true,
+but not specify an Advertised User Timeout value; in this case, the TCP default will be used).
+
+### Advertised User Timeout 
+
+Name: 
+: tcp.user-timeout-value
+
+Type: 
+: Integer
+
+Default:
+:the TCP default
+
+This time value is advertised via the TCP User Timeout Option (UTO) {{?RFC5482}} at the remote endpoint
 to adapt its own "Timeout for aborting Connection" (see {{conn-timeout}}) value accordingly.
 
-User Timeout Enabled (name: tcp.user-timeout, type: Boolean):
-: a boolean (default false) to control whether the UTO option is enabled for a
+### User Timeout Enabled 
+
+Name: 
+: tcp.user-timeout
+
+Type:
+: Boolean
+
+Default:
+: false
+
+This property controls whether the UTO option is enabled for a
 connection. This applies to both sending and receiving.
 
-Changeable (name: tcp.user-timeout-recv, type: Boolean):
-: a boolean (default true) which controls whether the "Timeout for aborting Connection" (see {{conn-timeout}})
+### Timeout Changeable (
+
+Name:
+: tcp.user-timeout-recv
+
+Type:
+: Boolean
+
+Default:
+: true
+
+This property controls whether the "Timeout for aborting Connection" (see {{conn-timeout}})
 may be changed
 based on a UTO option received from the remote peer. This boolean becomes false when
 "Timeout for aborting Connection" (see {{conn-timeout}}) is used.
-
-All of the above parameters are optional (e.g., it is possible to specify "User Timeout Enabled" as true,
-but not specify an Advertised User Timeout value; in this case, the TCP default will be used).
 
 
 ## Soft Errors
