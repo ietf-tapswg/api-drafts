@@ -2054,6 +2054,9 @@ the SetProperty action:
 Connection.SetProperty(property, value)
 ~~~
 
+Note that changing one of the Connection Properties on one Connection in a Connection Group
+will also change it for all other Connections of that group; see further {{groups}}.
+
 At any point, the application can query Connection Properties.
 
 ~~~
