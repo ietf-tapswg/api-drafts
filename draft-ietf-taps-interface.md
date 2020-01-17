@@ -2354,7 +2354,11 @@ All of the above parameters are optional (e.g., it is possible to specify "User 
 but not specify an Advertised User Timeout value; in this case, the TCP default will be used).
 
 
-## Soft Errors
+## Connection Events
+
+During the lifetime of a connection there are events that can occure when configured.
+
+### Soft Errors
 
 Asynchronous introspection is also possible, via the SoftError Event. This event
 informs the application about the receipt of an ICMP error message related to
@@ -2366,7 +2370,7 @@ is no guarantee that a soft error will be signaled.
 Connection -> SoftError<>
 ~~~
 
-## Excessive retransmissions {#conn-retrans-notify}
+### Excessive retransmissions {#conn-retrans-notify}
 
 This event notifies the application of excessive retransmissions, based on a
 configured threshold (see {{conn-excss-retransmit}}). This will only happen if
