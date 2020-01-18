@@ -505,8 +505,9 @@ of TLS APIs. Transport Services APIs will expose similar functionality
 {{?I-D.ietf-taps-transport-security}}.
 
 As described above in {{equivalence}}, if a Transport Services system races
-between two different Protocol Stacks, both MUST use the same security protocols
-and options.
+between two different Protocol Stacks, both SHOULD use the same security protocols
+and options unless the application explicitly specifies that it considers
+different security protocols or options equivalent.
 
 Applications need to ensure that they use security APIs appropriately. In cases
 where applications use an interface to provide sensitive keying material, e.g.,
@@ -518,10 +519,12 @@ authentication as keys for client authentication.
 
 Moreover, Transport Services systems MUST NOT automatically fall back from
 secure protocols to insecure protocols, or to weaker versions of secure
-protocols. For example, if an application requests TLS, but the desired version
-of TLS is not available, its connection will fail. Applications are thus
-responsible for implementing security protocol fallback or version fallback by
-creating multiple Transport Services Connections, if so desired.
+protocols. For example, if an application requests a specific version of TLS,
+but the desired version of TLS is not available, its connection will fail.
+Applications are thus responsible for implementing security protocol fallback
+or version fallback by creating multiple Transport Services Connections, if so
+desired. Alternatively, a Transport Services system MAY allow applications to
+specify that fallback to a specific other version of a protocol is allowed.
 
 # Acknowledgements
 
