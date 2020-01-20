@@ -2335,8 +2335,8 @@ that no bound is specified.
 ## TCP-specific Properties: User Timeout Option (UTO) {#tcp-uto}
 
 These properties specifies configurations for the User Timeout Option (UTO), 
-in case TCP becomes the chosen transport protocol. Implementation is optional
-and of course only sensible if TCP is implemented in the transport system.
+in case TCP becomes the chosen transport protocol as an example for a protocol-specific property. 
+Implementation is optional and of course only sensible if TCP is implemented in the transport system.
 
 All of the below parameters are optional (e.g., it is possible to specify "User Timeout Enabled" as true,
 but not specify an Advertised User Timeout value; in this case, the TCP default will be used).
@@ -2369,7 +2369,7 @@ Default:
 This property controls whether the UTO option is enabled for a
 connection. This applies to both sending and receiving.
 
-### Timeout Changeable (
+### Timeout Changeable
 
 Name:
 : tcp.user-timeout-recv
