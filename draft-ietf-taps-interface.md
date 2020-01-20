@@ -1136,9 +1136,10 @@ specifier (if not specified, the system will attempt to determine a
 suitable Local Endpoint), as well as all properties
 necessary for candidate selection.
 
-The Initiate() Action consumes the Preconnection. Once Initiate() has
-been called, no further properties may be added to the Preconnection, and
-no subsequent establishment call may be made on the Preconnection.
+The Initiate() Action returns a Connection object. Once Initiate() has been
+called, any changes to the Preconnection MUST NOT have any effect on the
+Connection. However, the Preconnection can be reused, e.g., to Initiate
+another Connection.
 
 Once Initiate is called, the candidate Protocol Stack(s) may cause one or more
 candidate transport-layer connections to be created to the specified remote
@@ -1188,9 +1189,10 @@ Before calling Listen, the caller must have initialized the Preconnection
 during the pre-establishment phase with a Local Endpoint specifier, as well
 as all properties necessary for Protocol Stack selection. A Remote Endpoint
 may optionally be specified, to constrain what Connections are accepted.
-The Listen() Action returns a Listener object. Once Listen() has been
-called, properties added to the Preconnection have no effect on the Listener
-and the Preconnection can be disposed of or reused.
+
+The Listen() Action returns a Listener object. Once Listen() has been called,
+any changes to the Preconnection MUST NOT have any effect on the Listener. The
+Preconnection can be disposed of or reused, e.g., to create another Listener.
 
 Listening continues until the global context shuts down, or until the Stop
 action is performed on the Listener object:
@@ -1257,9 +1259,10 @@ Endpoint for an incoming Connection from the Remote Endpoint, while
 simultaneously trying to establish a Connection from the Local Endpoint to the
 Remote Endpoint. This corresponds to a TCP simultaneous open, for example.
 
-The Rendezvous() Action consumes the Preconnection. Once Rendezvous() has
-been called, no further properties may be added to the Preconnection, and
-no subsequent establishment call may be made on the Preconnection.
+The Rendezvous() Action returns a Connection object. Once Rendezvous() has been
+called, any changes to the Preconnection MUST NOT have any effect on the
+Connection. However, the Preconnection can be reused, e.g., for Rendezvous of
+another Connection.
 
 ~~~
 Preconnection -> RendezvousDone<Connection>
