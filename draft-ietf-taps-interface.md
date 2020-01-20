@@ -2253,7 +2253,7 @@ when a Connection is multiplexed, the guidelines in Section 6 of {{?RFC7657}} ap
 The following values are valid for the Capacity Profile:
 
   Default:
-  : The application provides now information about its expected capacity
+  : The application provides no information about its expected capacity
   profile. Transport system implementations that
   map the requested capacity profile onto per-connection DSCP signaling 
   SHOULD assign the DSCP Default Forwarding {{?RFC2474}} PHB.
