@@ -107,7 +107,7 @@ One of the key insights to come from identifying the minimal set of features pro
 
 This document describes the Transport Services architecture in three sections:
 
-- {{model}} describes how the API model of Transport Services differs from traditional socket-based APIs. Specifically, it offers asynchronous event-driven interaction, the use of messages for data transfer, and the ability to easily adopt different transport protocols.
+- {{model}} describes how the API model of Transport Services differs from traditional socket-based APIs. Specifically, it offers asynchronous event-driven interaction, the use of messages for data transfer, and the flexibility to use different transport protocols and paths without requiring major changes to the application.
 
 - {{design}} explains the design principles behind the Transport Services API. These principles are intended to make sure that transport protocols can continue to be enhanced and evolve without requiring too many changes by application developers.
 
