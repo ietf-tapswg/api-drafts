@@ -613,6 +613,8 @@ LocalSpecifier.WithInterface("en0")
 LocalSpecifier.WithPort(443)
 ~~~
 
+As an alternative to specifying an interface name for the Local Endpoint, an application can express more fine-grained preferences using the "Interface Instance or Type" Selection Property, see {{prop-interface}}. However, if the application specifies Selection Properties which are inconsistent with the Local Endpoint, this will result in an error once the application attempts to open a Connection.
+
 Specify a Local Endpoint using a STUN server:
 
 ~~~
@@ -1229,8 +1231,7 @@ the value to Infinite at any point.
 Listener -> ListenError<reason?>
 ~~~
 
-A ListenError occurs either when the Properties of the Preconnection cannot be fulfilled for
-listening, when the Local Endpoint (or Remote Endpoint, if specified) cannot
+A ListenError occurs either when the Properties and Security Parameters of the Preconnection cannot be fulfilled for listening or cannot be reconciled with the Local Endpoint (and/or Remote Endpoint, if specified), when the Local Endpoint (or Remote Endpoint, if specified) cannot
 be resolved, or when the application is prohibited from listening by policy.
 
 ~~~
@@ -1276,8 +1277,8 @@ ready to use as soon as it is passed to the application via the Event.
 Preconnection -> RendezvousError<messageContext, reason?>
 ~~~
 
-An RendezvousError occurs either when the Preconnection cannot be fulfilled
-for listening, when the Local Endpoint or Remote Endpoint cannot be resolved,
+An RendezvousError occurs either when the Properties and Security Parameters of the Preconnection cannot be fulfilled
+for rendezvous or cannot be reconciled with the Local and/or Remote Endpoints, when the Local Endpoint or Remote Endpoint cannot be resolved,
 when no transport-layer connection can be established to the Remote Endpoint,
 or when the application is prohibited from rendezvous by policy.
 
