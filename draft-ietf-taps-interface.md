@@ -1576,7 +1576,8 @@ Default:
 If true, it specifies that the receiver-side transport protocol stack may only deliver the Message to the receiving application after the previous ordered Message which was passed to the same Connection via the Send
 Action, when such a Message exists. If false, the Message may be delivered to the receiving application out of order.
 This property is used for protocols that support preservation of data ordering,
-see {{prop-ordering}}, but allow out-of-order delivery for certain messages.
+see {{prop-ordering}}, but allow out-of-order delivery for certain messages, e.g., by multiplexing independent messages onto
+different streams.
 
 ### Idempotent {#msg-idempotent}
 
