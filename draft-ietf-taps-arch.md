@@ -506,8 +506,9 @@ of TLS APIs. Transport Services APIs will expose similar functionality
 
 As described above in {{equivalence}}, if a Transport Services system races
 between two different Protocol Stacks, both SHOULD use the same security protocols
-and options unless the application explicitly specifies that it considers
-different security protocols or options equivalent.
+and options. However, a Transport Services system MAY race different security
+protocols, e.g., if the application explicitly specifies that it considers them
+equivalent.
 
 Applications need to ensure that they use security APIs appropriately. In cases
 where applications use an interface to provide sensitive keying material, e.g.,
