@@ -2332,10 +2332,10 @@ a data transfer useful. It is given in bits per second. The special value -1 ind
 that no bound is specified.
 
 
-## TCP-specific Properties: User Timeout Option (UTO) {#tcp-uto}
+## TCP-specific Property: User Timeout Option (UTO) {#tcp-uto}
 
 These properties specifies configurations for the User Timeout Option (UTO), 
-in case TCP becomes the chosen transport protocol as an example for a protocol-specific property. 
+in case TCP becomes the chosen transport protocol. 
 Implementation is optional and of course only sensible if TCP is implemented in the transport system.
 
 All of the below parameters are optional (e.g., it is possible to specify "User Timeout Enabled" as true,
