@@ -1337,8 +1337,7 @@ functionality to implement Clone. In that case, entangled Connections are
 multiplexed together, giving them similar treatment not only inside endpoints
 but also across the end-to-end Internet path.
 
-Note that calling Clone() may result in on-the-wire signaling depending on the
-underlying Protocol Stack.
+Note that calling Clone() may result in on-the-wire signaling, e.g., to open a new connection, depending on the underlying Protocol Stack.
 
 If the underlying Protocol Stack does not support cloning, or cannot create a
 new stream on the given Connection, then attempts to clone a Connection will
