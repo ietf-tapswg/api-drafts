@@ -589,11 +589,11 @@ Preconnection during pre-establishment.
 
 ## Specifying Endpoints {#endpointspec}
 
-The transport services API uses the Local Endpoint and Remote Endpoint types
+The transport services API uses the Local Endpoint and Remote Endpoint Objects
 to refer to the endpoints of a transport connection.
-Subtypes of these represent various different types of endpoint identifiers,
-such as IP addresses, DNS names, and interface names, as well as port numbers
-and service names.
+Actions on these Objects can be used to represent various different types of
+endpoint identifiers, such as IP addresses, DNS names, and interface names,
+as well as port numbers and service names.
 
 Specify a Remote Endpoint using a hostname and service name:
 
