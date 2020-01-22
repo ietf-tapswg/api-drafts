@@ -1329,7 +1329,7 @@ connections are "entangled" with each other, and become part of a Connection
 Group. Calling Clone on any of these two Connections adds a third Connection to
 the Connection Group, and so on. Connections in a Connection Group generally share
 Connection Properties. However, there may be exceptions, such as "Priority
-(Connection)", see {{conn-priority}}.
+(Connection)", see {{conn-priority}}. Like all other Properties, Priority is copied to the new Connection when calling Clone(), but it is not entangled: Changing Priority on one Connection does not change it on the other Connections in the same Connection Group.
 
 In addition, incoming entangled Connections can be received by creating a
 Listener on an existing connection:
@@ -1350,6 +1350,8 @@ If the underlying protocol supports multi-streaming, it is natural to use this
 functionality to implement Clone. In that case, entangled Connections are
 multiplexed together, giving them similar treatment not only inside endpoints
 but also across the end-to-end Internet path.
+
+Note that calling Clone() may result in on-the-wire signaling, e.g., to open a new connection, depending on the underlying Protocol Stack.
 
 If the underlying Protocol Stack does not support cloning, or cannot create a
 new stream on the given Connection, then attempts to clone a Connection will
@@ -2171,7 +2173,7 @@ This Property is a non-negative integer representing the relative inverse
 priority of this Connection relative to other Connections in the same
 Connection Group. It has no effect on Connections not part of a Connection
 Group. As noted in {{groups}}, this property is not entangled when Connections
-are cloned.
+are cloned, i.e., changing the Priority on one Connection in a Connection Group does not change it on the other Connections in the same Connection Group.
 
 ### Timeout for Aborting Connection {#conn-timeout}
 
