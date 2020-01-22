@@ -336,17 +336,20 @@ Listener := Preconnection.Listen()
 
 Listener -> ConnectionReceived<Connection>
 
-// Only receive complete messages
+// Only receive complete messages in a Conn.Received handler
 Connection.Receive()
 
 Connection -> Received<messageDataRequest, messageContext>
 
+//---- Receive event handler begin ----
 Connection.Send(messageDataResponse)
-
 Connection.Close()
 
 // Stop listening for incoming Connections
+// (this example supports only one Connection)
 Listener.Stop()
+//---- Receive event handler end ----
+
 ~~~
 
 
@@ -380,13 +383,16 @@ Connection := Preconnection.Initiate()
 
 Connection -> Ready<>
 
+//---- Ready event handler begin ----
 Connection.Send(messageDataRequest)
 
 // Only receive complete messages
 Connection.Receive()
+//---- Ready event handler end ----
 
 Connection -> Received<messageDataResponse, messageContext>
 
+// Close the Connection in a Receive event handler
 Connection.Close()
 ~~~
 
@@ -426,13 +432,16 @@ Preconnection.Rendezvous()
 
 Preconnection -> RendezvousDone<Connection>
 
+//---- Ready event handler begin ----
 Connection.Send(messageDataRequest)
 
 // Only receive complete messages
 Connection.Receive()
+//---- Ready event handler end ----
 
 Connection -> Received<messageDataResponse, messageContext>
 
+// Close the Connection in a Receive event handler
 Connection.Close()
 ~~~
 
@@ -1523,7 +1532,7 @@ Name:
 : msg-lifetime
 
 Type:
-: Integer
+: Numeric
 
 Default:
 : infinite
