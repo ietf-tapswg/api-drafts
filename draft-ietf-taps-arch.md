@@ -80,7 +80,15 @@ informative:
       title: "IEEE Std. 1003.1-2008 Standard for Information Technology -- Portable Operating System Interface (POSIX).  Open group Technical Standard: Base Specifications, Issue 7"
       url: <http://www.opengroup.org/austin>
       date: 2008
-
+    PROTOCOL-WARS:
+      title: Protocol Wars (Revolution - The First 2000 Years of Computing)
+      author:
+        -
+          ins: Computer History Museum
+      target: https://www.computerhistory.org/revolution/networking/19/376
+      date: 2019
+    MRFC0793:
+  
 --- abstract
 
 This document describes an architecture for exposing transport protocol features to applications for network communication, the Transport Services architecture. The Transport Services Application Programming Interface (API) is based on an asynchronous, event-driven interaction pattern. It uses messages for representing data transfer to applications, and it assumes an implementation that can use multiple IP addresses, multiple protocols, and multiple paths, and provide multiple application streams. This document further defines common terminology and concepts to be used in definitions of Transport Services APIs and implementations.
@@ -96,8 +104,14 @@ The goal of the Transport Services architecture is to provide a common, flexible
 This document was developed in parallel with the specification of the Transport Services API {{!I-D.ietf-taps-interface}} and Implementation Guidelines {{?I-D.ietf-taps-impl}}. Although following the Transport Services Architecture does not require that all APIs and implementations are identical, a common minimal set of features represented in a consistent fashion will enable applications to be easily ported from one system to another.
 
 ## Background
+The BSD Unix Sockets API's SOCK_STREAM abstraction, by bringing network sockets	into the UNIX programming model, allowing anyone who knew how to write programs	that dealt with sequential-access files to also write network applications, was	
+a revolution in simplicity. The simplicity of this API is a key reason the	Internet won the protocol wars {{PROTOCOL-WARS}} of the 1980s. SOCK_STREAM is	tied to the Transmission Control Protocol (TCP), specified in 1981 {{?RFC0793}}.	
+TCP has scaled remarkably well over the past three and a half decades, but its total ubiquity has hidden an uncomfortable fact: the network is not really a	file, and stream abstractions are too simplistic for many modern application	
+programming models.	
 
-The Transport Services architecture is based on the survey of services provided by IETF transport protocols and congestion control mechanisms {{?RFC8095}}, and the distilled minimal set of the features offered by transport protocols {{?I-D.ietf-taps-minset}}. These documents identified common features and patterns across all transport protocols developed thus far in the IETF.
+In the meantime, the nature of Internet access, and the variety of Internet	transport protocols, is evolving. The challenges that new protocols and access paradigms present to the sockets API and to programming models based on them	
+inspire the design principles of a new approach.
+Threfore, the Transport Services architecture is based on the survey of services provided by IETF transport protocols and congestion control mechanisms {{?RFC8095}}, and the distilled minimal set of the features offered by transport protocols {{?I-D.ietf-taps-minset}}. These documents identified common features and patterns across all transport protocols developed thus far in the IETF.
 
 Since transport security is an increasingly relevant aspect of using transport protocols on the Internet, this architecture also considers the impact of transport security protocols on the feature-set exposed by Transport Services {{?I-D.ietf-taps-transport-security}}.
 
