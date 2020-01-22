@@ -736,8 +736,8 @@ Individual properties are then added to the TransportProperties Object:
 TransportProperties.Add(property, value)
 ~~~
 
-As preference typed selection properties may be used quite frequently, implementations should provide additional convenience functions as outlined in  {{preference-conv}}.
-In addition, implementations should provide a mechanism to create TransportProperties objects that are preconfigured for common use cases as outlined in {{property-profiles}}.
+Preference-typed Selection Properties can be frequently used. Implementations MAY therefore provide additional convenience functions, see {{preference-conv}} for examples.
+In addition, implementations MAY provide a mechanism to create TransportProperties objects that are preconfigured for common use cases as outlined in {{property-profiles}}.
 
 For an existing Connection, the Transport Properties can be queried any time
 by using the following call on the Connection Object:
