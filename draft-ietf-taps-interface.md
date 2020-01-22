@@ -53,11 +53,11 @@ author:
   -
     ins: M. Kuehlewind
     name: Mirja Kuehlewind
-    org: ETH Zurich
-    email: mirja.kuehlewind@tik.ee.ethz.ch
-    street: Gloriastrasse 35
-    city: 8092 Zurich
-    country: Switzerland
+    org: Ericsson
+    email: mirja.kuehlewind@ericsson.com
+    street: Ericsson-Allee 1
+    city: Herzogenrath
+    country: Germany
   -
     ins: C. Perkins
     name: Colin Perkins
@@ -270,7 +270,7 @@ opening, as in a client), through listening on the Preconnection (i.e.,
 passively opening, as in a server), or rendezvousing on the Preconnection (i.e.
 peer to peer establishment).
 
-Once a Connection is established, data can be sent on it in the form of
+Once a Connection is established, data can be sent and received on it in the form of
 Messages. The interface supports the preservation of message boundaries both
 via explicit Protocol Stack support, and via application support through a
 Message Framer which finds message boundaries in a stream. Messages are
@@ -280,7 +280,8 @@ Errors and other notifications also happen asynchronously on the Connection.
 {{pre-establishment}}, {{establishment}}, {{sending}}, {{receiving}}, and
 {{termination}} describe the details of application interaction with Objects
 through Actions and Events in each phase of a Connection, following the phases
-described in {{I-D.ietf-taps-arch}}.
+(Pre-Establishment, Establishment, Data Transfer, and Termination)
+described in Section 4.1 of {{I-D.ietf-taps-arch}}.
 
 ## Usage Examples
 
@@ -338,7 +339,7 @@ Listener -> ConnectionReceived<Connection>
 // Only receive complete messages in a Conn.Received handler
 Connection.Receive()
 
-Connection -> Received(messageDataRequest, messageContext)
+Connection -> Received<messageDataRequest, messageContext>
 
 //---- Receive event handler begin ----
 Connection.Send(messageDataResponse)
@@ -375,7 +376,7 @@ SecurityParameters.SetTrustVerificationCallback(TrustCallback)
 // Specifying a local endpoint is optional when using Initiate()
 Preconnection := NewPreconnection(None,
                                   RemoteSpecifier,
-                                  TransportPreperties,
+                                  TransportProperties,
                                   SecurityParameters)
 
 Connection := Preconnection.Initiate()
@@ -389,7 +390,7 @@ Connection.Send(messageDataRequest)
 Connection.Receive()
 //---- Ready event handler end ----
 
-Connection -> Received(messageDataResponse, messageContext)
+Connection -> Received<messageDataResponse, messageContext>
 
 // Close the Connection in a Receive event handler
 Connection.Close()
@@ -424,7 +425,7 @@ SecurityParameters.SetTrustVerificationCallback(trustCallback)
 // Both local and remote endpoint must be specified
 Preconnection := NewPreconnection(LocalSpecifier,
                                   RemoteSpecifier,
-                                  TransportPreperties,
+                                  TransportProperties,
                                   SecurityParameters)
 
 Preconnection.Rendezvous()
@@ -438,7 +439,7 @@ Connection.Send(messageDataRequest)
 Connection.Receive()
 //---- Ready event handler end ----
 
-Connection -> Received(messageDataResponse, messageContext)
+Connection -> Received<messageDataResponse, messageContext>
 
 // Close the Connection in a Receive event handler
 Connection.Close()
@@ -469,11 +470,13 @@ earlier stages and querying them in later stages:
 - Message Properties can be set on Preconnections and Connections
 - The effect of Selection Properties can be queried on Connections and Messages
 
-Note that Configuring Connection Properties and Message Properties on
+Note that configuring Connection Properties and Message Properties on
 Preconnections is preferred over setting them later. Early specification of
 Connection Properties allows their use as additional input to the selection
-process. Protocol Specific Properties, see {{property-names}}, should not be
-used as an input to the selection process.
+process. Protocol Specific Properties, which enable configuration of specialized
+features of a specific protocol, see Section 3.2 of {{I-D.ietf-taps-arch}}, are not
+used as an input to the selection process but only support configuration if
+the respective prototocol has been selected.
 
 
 ### Transport Property Names {#property-names}
@@ -655,7 +658,7 @@ IPv6 addresses. These multiple identifiers refer to the same transport
 endpoint.
 
 The transport services API resolves names internally, when the Initiate(),
-Listen(), or Rendezvous() method is called establish a Connection. The API
+Listen(), or Rendezvous() method is called to establish a Connection. The API
 explicitly does not require the application to resolve names, though there is
 a tradeoff between early and late binding of addresses to names. Early binding
 allows the API implementation to reduce connection setup latency, at the cost
@@ -711,10 +714,10 @@ Avoided properties as a tiebreaker. Selection Properties that select paths take
 preference over those that select protocols. For example, if an application
 indicates a preference for a specific path by specifying an interface, but also a
 preference for a protocol not available on this path, the transport system will
-try the path first, ignoring the preference.
+try the path first, ignoring the protocol preference.
 
-Selection, and Connection Properties, as well as defaults for Message
-Properties, can be added to a Preconnection to configure the selection process,
+Selection and Connection Properties, as well as defaults for Message
+Properties, can be added to a Preconnection to configure the selection process
 and to further configure the eventually selected protocol stack(s). They are
 collected into a TransportProperties object to be passed into a Preconnection
 object:
@@ -948,8 +951,9 @@ Stable:
 Temporary:
 : Prefer the use of temporary (sometimes called "privacy") addresses {{!RFC4941}}
 
-Default:
-: Prefer the use of stable local addresses for Listeners and Rendezvous Connections, and prefer the use of temporary addresses for other Connections.
+The default is to prefer the use of stable local addresses for Listeners and
+Rendezvous Connections, and to prefer the use of temporary addresses for other
+Connections.
 
 
 ### Parallel Use of Multiple Paths {#parallel-multipath}
@@ -1007,7 +1011,7 @@ bidirectional communication to be selected.
 ### Notification of excessive retransmissions {#prop-establish-retrans-notify}
 
 Name:
-:retransmit-notify
+: retransmit-notify
 
 This property specifies whether an application considers it useful to be
 informed in case sent data was retransmitted more often than a certain
@@ -1017,14 +1021,14 @@ threshold. The default is to Ignore this option.
 ### Notification of ICMP soft error message arrival {#prop-soft-error}
 
 Name:
-:soft-error-notify
+: soft-error-notify
 
 This property specifies whether an application considers it useful to be
 informed when an ICMP error message arrives that does not force termination of a
 connection. When set to true, received ICMP errors will be available as
-SoftErrors. Note that even if a protocol supporting this property is selected,
+SoftErrors, see {{soft-errors}}. Note that even if a protocol supporting this property is selected,
 not all ICMP errors will necessarily be delivered, so applications cannot rely
-on receiving them. The default is to Ignore this option.
+on receiving them. By default this option is set to false.
 
 
 ## Specifying Security Parameters and Callbacks {#security-parameters}
@@ -1318,8 +1322,9 @@ Calling Clone on a Connection yields a group of two Connections: the parent
 Connection on which Clone was called, and the resulting cloned Connection. These
 connections are "entangled" with each other, and become part of a Connection
 Group. Calling Clone on any of these two Connections adds a third Connection to
-the Connection Group, and so on. Connections in a Connection Group share all
-Protocol Properties that are not applicable to a Message.
+the Connection Group, and so on. Connections in a Connection Group generally share
+Connection Properties. However, there may be exceptions, such as "Priority
+(Connection)", see {{conn-priority}}.
 
 In addition, incoming entangled Connections can be received by creating a
 Listener on an existing connection:
@@ -1328,11 +1333,11 @@ Listener on an existing connection:
 Listener := Connection.Listen()
 ~~~
 
-Changing one of these Protocol Properties on one Connection in the group
-changes it for all others. Per-Message Protocol Properties, however, are not
+Changing one of the Connection Properties on one Connection in the group
+changes it for all others. Message Properties, however, are not
 entangled. For example, changing "Timeout for aborting Connection" (see
 {{conn-timeout}}) on one Connection in a group will automatically change this
-Protocol Property for all Connections in the group in the same way. However,
+Connection Property for all Connections in the group in the same way. However,
 changing "Lifetime" (see {{msg-lifetime}}) of a Message will only affect a
 single Message on a single Connection, entangled or not.
 
@@ -1349,7 +1354,7 @@ result in a CloneError:
 Connection -> CloneError<reason?>
 ~~~
 
-The Protocol Property "Priority" operates on entangled Connections as in {{msg-priority}}:
+The Connection Property "Priority" operates on entangled Connections as in {{msg-priority}}:
 when allocating available network
 capacity among Connections in a Connection Group, sends on Connections with
 higher Priority values will be prioritized over sends on Connections with
@@ -1515,7 +1520,7 @@ of its properties is invalid.
 
 Message Properties may be inconsistent with the properties of the Protocol Stacks
 underlying the Connection on which a given Message is sent. For example,
-a Connection must provide reliability to allow setting an infinitie value for the
+a Connection must provide reliability to allow setting an infinite value for the
 lifetime property of a Message. Sending a Message with Message Properties
 inconsistent with the Selection Properties of the Connection yields an error.
 
@@ -1577,10 +1582,11 @@ Type:
 Default:
 : true
 
-If true, it specifies that the receiver-side transport protocol stack only deliver the Message to the receiving application after the previous ordered Message which was passed to the same Connection via the Send
+If true, it specifies that the receiver-side transport protocol stack may only deliver the Message to the receiving application after the previous ordered Message which was passed to the same Connection via the Send
 Action, when such a Message exists. If false, the Message may be delivered to the receiving application out of order.
 This property is used for protocols that support preservation of data ordering,
-see {{prop-ordering}}, but allow out-of-order delivery for certain messages.
+see {{prop-ordering}}, but allow out-of-order delivery for certain messages, e.g., by multiplexing independent messages onto
+different streams.
 
 ### Idempotent {#msg-idempotent}
 
@@ -1638,7 +1644,7 @@ Type:
 : Integer (non-negative with -1 as special value)
 
 Default:
-: full coverage (-1)
+: -1 (full coverage)
 
 This property specifies the minimum length of the section of the Message,
 starting from byte 0, that the application requires to be delivered without
@@ -1646,7 +1652,8 @@ corruption due to lower layer errors. It is used to specify options for simple
 integrity protection via checksums. A value of 0 means that no checksum
 is required, and -1 means
 that the entire Message is protected by a checksum. Only full coverage is
-guaranteed, any other requests are advisory.
+guaranteed, any other requests are advisory, meaning that full coverage is applied
+anyway.
 
 ### Reliable Data Transfer (Message) {#msg-reliable-message}
 
@@ -1662,7 +1669,7 @@ Default:
 When true, this property specifies that a message should be sent in such a way
 that the transport protocol ensures all data is received on the other side
 without corruption. Changing the ´Reliable Data Transfer´ property on Messages
-is only possible for Connections that were established with the Selection Property 'Reliable Data Transfer (Connection)' enabled.
+is only possible for Connections that were established with the Selection Property 'Configure Per-Message Reliability' enabled.
 When this is not the case, changing it will generate an error.
 Disabling this property indicates that the transport system may disable retransmissions
 or other reliability mechanisms for this particular Message, but such disabling is not guaranteed.
@@ -1779,7 +1786,7 @@ an event will be delivered to complete the Receive request (see {{receive-events
 
 As with sending, the type of the Message to be passed is dependent on the
 implementation, and on the constraints on the Protocol Stacks implied by the
-Connection's transport parameters.
+Connection's Transport Properties.
 
 ## Enqueuing Receives
 
@@ -1815,7 +1822,7 @@ Note that maxLength does not guarantee that the application will receive that ma
 bytes if they are available; the interface may return ReceivedPartial events with less
 data than maxLength according to implementation constraints. Note also that maxLength
 and minIncompleteLength are intended only to manage buffering, and are not interpreted
-as a reciever preference for message reordering.
+as a receiver preference for message reordering.
 
 ## Receive Events {#receive-events}
 
@@ -1879,7 +1886,7 @@ Connection -> ReceiveError<messageContext, reason?>
 
 A ReceiveError occurs when data is received by the underlying Protocol Stack
 that cannot be fully retrieved or parsed, or when some other indication is
-received that reception has failed. Such conditions that irrevocably lead to
+received that reception has failed. In contrast, conditions that irrevocably lead to
 the termination of the Connection are signaled using ConnectionError instead
 (see {{termination}}).
 
@@ -1920,7 +1927,7 @@ The Message Context can indicate whether or not this Message is
 the Final Message on a Connection. For any Message that is marked as Final,
 the application can assume that there will be no more Messages received on the
 Connection once the Message has been completely delivered. This corresponds
-to the Final property that may be marked on a sent Message {{msg-final}}.
+to the Final property that may be marked on a sent Message, see {{msg-final}}.
 
 Some transport protocols and peers may not support signaling of the Final property.
 Applications therefore should not rely on receiving a Message marked Final to know
@@ -1932,7 +1939,7 @@ Any calls to Receive once the Final Message has been delivered will result in er
 # Message Contexts {#msg-ctx}
 
 Using the MessageContext object, the application can set and retrieve meta-data of the message, including Message Properties (see {{message-props}}) and framing meta-data (see {{framing-meta}}).
-Therefore, a MessageContext object can be passed to the Send action and is retuned by each Send and Receive related events.
+Therefore, a MessageContext object can be passed to the Send action and is returned by each Send and Receive related event.
 
 Message Properties can be set and queried using the Message Context:
 
@@ -1951,7 +1958,7 @@ LocalEndpoint := MessageContext.GetLocalEndpoint()
 ~~~
 
 Message Contexts can also be used to send messages that are flagged as a reply to other messages, see {{send-replies}} for details.
-If the message received was send by the remote endpoint as a reply to an earlier message and the transports provides this information, the MessageContext of the original request can be accessed using the Message Context of the reply:
+If the message received was sent by the remote endpoint as a reply to an earlier message and the Protocol Stack provides this information, the MessageContext of the original request can be accessed using the Message Context of the reply:
 
 ~~~
 RequestMessageContext := MessageContext.GetOriginalRequest()
@@ -2057,6 +2064,9 @@ the SetProperty action:
 Connection.SetProperty(property, value)
 ~~~
 
+Note that changing one of the Connection Properties on one Connection in a Connection Group
+will also change it for all other Connections of that group; see further {{groups}}.
+
 At any point, the application can query Connection Properties.
 
 ~~~
@@ -2102,11 +2112,11 @@ Properties will include different information:
 
 ## Generic Connection Properties {#connection-props}
 
-The Connection Properties defined as independent, and available on all
-Connections are defined in the subsections below.
+The Connection Properties defined as independent of the chosen protocol stack,
+and available on all Connections are defined in the subsections below.
 
-Note that many protocol properties have a corresponding selection property, which
-prefers protocols providing a supporting transport feature.
+Note that many Connection Properties have a corresponding Selection Property, which
+enables applications to express their preference for protocols providing a supporting transport feature.
 
 
 ### Retransmission Threshold Before Excessive Retransmission Notification {#conn-excss-retransmit}
@@ -2212,7 +2222,8 @@ Type:
 
 This property, if applicable, represents the maximum Message size that can be
 sent without incurring network-layer fragmentation or transport layer
-segmentation at the sender.
+segmentation at the sender. This property exposes the Maximum Packet Size (MPS)
+as described in Datagram PLPMTUD {{?I-D.ietf-tsvwg-datagram-plpmtud}}.
 
 ### Maximum Message Size on Send {#conn-max-msg-send}
 
@@ -2281,7 +2292,7 @@ values are valid for the Capacity Profile:
   Low Latency/Non-Interactive:
   : The application prefers loss to latency but is
   not interactive. Response time should be optimized at the expense of bandwidth
-  efficiency and delay variation when sending on this connection.Transport
+  efficiency and delay variation when sending on this connection. Transport
   system implementations that map the requested capacity profile onto
   per-connection DSCP signaling without multiplexing SHOULD assign a DSCP
   Assured Forwarding (AF21,AF22,AF23,AF24) {{?RFC2597}} PHB; when the Connection
@@ -2487,7 +2498,9 @@ programme through the "OCARINA" project.
 Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for
 their implementation and design efforts, including Happy Eyeballs, that heavily
 influenced this work. Thanks to Laurent Chuat and Jason Lee for initial work on
-the Post Sockets interface, from which this work has evolved.
+the Post Sockets interface, from which this work has evolved. Thanks to
+Maximilian Franke for asking good questions based on implementation experience
+and for contributing text, e.g., on multicast.
 
 --- back
 
