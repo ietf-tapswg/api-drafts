@@ -1378,8 +1378,8 @@ It can be used to identify send events (see {{send-events}}) related to a specif
 The optional endOfMessage parameter supports partial sending and is described in
 {{send-partial}}.
 
-Framers can be used to instruct the transport system to extend the message data
-with additional information that can be used at the receiver to detect message
+Framers can be used to extend or modify the message data
+with additional information that can be processed at the receiver to detect message
 boundaries. This is further decribed in {{framing}}.
 
 ## Basic Sending {#send-basic}
