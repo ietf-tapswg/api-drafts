@@ -493,13 +493,18 @@ These names serve two purposes:
 Transport Property Names are hierarchically organized in the
 form \[\<Namespace>.\]\<PropertyName\>.
 
-- The Namespace part is empty for well known, generic properties, i.e., for
+- The Namespace part MUST be empty for well-known, generic properties, i.e., for
   properties that are not specific to a protocol and are defined in an RFC.
-- Protocol Specific Properties must use the protocol acronym as Namespace, e.g.,
+- Protocol Specific Properties MUST use the protocol acronym as Namespace, e.g.,
   “tcp" for TCP specific Transport Properties. For IETF protocols, property
-  names under these namespaces should be defined in an RFC.
-- Vendor or implementation specific properties must use a string identifying
+  names under these namespaces SHOULD be defined in an RFC.
+- Vendor or implementation specific properties MUST use a string identifying
   the vendor or implementation as Namespace.
+  
+Namespaces for the keywords provided in the IANA protocol numbers registry 
+(see https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml) are reserved
+for Protocol Specific Properties and MUST not be used for vendor or implementation
+specific properties. 
 
 ### Transport Property Types {#property-types}
 
