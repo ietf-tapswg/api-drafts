@@ -2100,7 +2100,7 @@ Properties will include different information:
 ## Generic Connection Properties {#connection-props}
 
 Generic Connection Properties are defined independent of the chosen protocol stack
-and therefor are available on all Connections.
+and therefore available on all Connections.
 
 Note that many Connection Properties have a corresponding Selection Property which
 enables applications to express their preference for protocols providing a supporting transport feature.
