@@ -2245,7 +2245,7 @@ application and the tradeoffs the application is prepared to make in path and
 protocol selection to receive that desired treatment. When the capacity profile
 is set to a value other than Default, the transport system should select paths
 and protocols to optimize for the capacity profile specified. How this is realized
-is implementation-specific. The Capacity Profile may also be used
+is implementation-specific. The Capacity Profile MAY also be used
 to set priorities on the wire for Protocol Stacks supporting prioritization. 
 Recommendations for use with DSCP are provided below for each profile; note that
 when a Connection is multiplexed, the guidelines in Section 6 of {{?RFC7657}} apply.
