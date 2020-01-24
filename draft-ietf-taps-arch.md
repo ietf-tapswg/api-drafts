@@ -426,11 +426,14 @@ The following categories of events can be delivered to an application:
 
 * Abort: The action the application takes on a Connection to indicate a Close and also indicate that the Transport Services system SHOULD NOT attempt to deliver any outstanding data. This is intended for immediate termination of a connection, without cleaning up state.
 
+### Connection Groups
+
+A Connection Group is a set of Connections that share properties and caches. For multiplexing transport protocols, only Connections within the same Connection Group are allowed to be multiplexed together. An application can explicitly define Connection Groups to control caching boundaries, as discussed in {{groups}}.
+
 ## Transport Services Implementation Concepts
 
 This section defines the set of objects used internally to a system or library to implement the functionality needed to provide a transport service across a network, as required by the abstract interface.
 
-* Connection Group: A set of Connections that share properties and caches. For multiplexing transport protocols, only Connections within the same Connection Group are allowed to be multiplexed together. An application can explicitly define Connection Groups to control caching boundaries, as discussed in {{groups}}.
 
 * Path: Represents an available set of properties that a local system can use to communicate with a remote system, such as routes, addresses, and physical and virtual network interfaces.
 
