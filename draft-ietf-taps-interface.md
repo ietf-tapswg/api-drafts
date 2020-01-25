@@ -2615,19 +2615,6 @@ see {{prop-cap-profile}} accordingly and my benefit from controlling checksum
 coverage, see {{prop-checksum-control-send}} and {{prop-checksum-control-receive}}.
 
 
-
-# Sample API definition in Go {#appendix-api-sketch}
-
-This document defines an abstract interface. To illustrate how this would map
-concretely into a programming language, an API interface definition in Go is
-available online at https://github.com/mami-project/postsocket.  Documentation
-for this API -- an illustration of the documentation an application developer
-would see for an instance of this interface -- is available online at
-https://godoc.org/github.com/mami-project/postsocket. This API definition will
-be kept largely in sync with the development of this abstract interface
-definition.
-
-
 # Relationship to the Minimal Set of Transport Services for End Systems
 
 {{I-D.ietf-taps-minset}} identifies a minimal set of transport services that end systems should offer. These services make all non-security-related transport features of TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT available that 1) require interaction with the application, and 2) do not get in the way of a possible implementation over TCP (or, with limitations, UDP). The following text explains how this minimal set is reflected in the present API. For brevity, it is based on the list in Section 4.1 of {{I-D.ietf-taps-minset}}, updated according to the discussion in Section 5 of {{I-D.ietf-taps-minset}}. This list is a subset of the transport features in Appendix A of {{I-D.ietf-taps-minset}}, which refers to the primitives in "pass 2" (Section 4) of {{!RFC8303}} for further details on the implementation with TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT.
