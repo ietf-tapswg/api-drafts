@@ -2354,9 +2354,9 @@ All of the above parameters are optional (e.g., it is possible to specify "User 
 but not specify an Advertised User Timeout value; in this case, the TCP default will be used).
 
 
-## Connection Events
+## Connection Lifecycle Events
 
-During the lifetime of a connection there are events that can occure when configured.
+During the lifetime of a connection there are events that can occur when configured.
 
 ### Soft Errors
 
