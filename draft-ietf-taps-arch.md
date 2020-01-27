@@ -310,7 +310,7 @@ Beyond the connection objects, there are several high-level groups of actions th
 
 * Termination ({{termination}}) focuses on the methods by which data transmission is stopped, and state is torn down in the transport.
 
-The diagram below provides a high-level view of the actions and events during the lifetime of a Connection object. Note that some actions are alternatives (e.g., whether to initiate a connection or to listen for incoming connections), while others are optional (e.g., setting Connection and Message Properties in Pre-Establishment) or have been omitted for brevity.
+The diagram below provides a high-level view of the actions and events during the lifetime of a Connection object. Note that some actions are alternatives (e.g., whether to initiate a connection or to listen for incoming connections), while others are optional (e.g., setting Connection and Message Properties in Pre-Establishment) or have been omitted for brevity and simplicity.
 
 
 ~~~~~~~~~~
@@ -320,11 +320,11 @@ The diagram below provides a high-level view of the actions and events during th
  +-- Local Endpoint        :           Message             :
  +-- Remote Endpoint       :    Receive() |                :
  +-- Transport Properties  :       Send() |                :
- |                         :              |        Close() :
- |   +---------------+  Initiate()  +-----+------+ Abort() :
+ |                         :              |                :
+ |               InitiateWithSend()       |        Close() :
+ |   +---------------+   Initiate() +-----+------+ Abort() :
  +---+ Preconnection |------------->| Connection |-----------> Closed
-     +---------------+ Rendezvous() +------------+ Conn.   :
-             |             :           ^     |    Finished :
+     +---------------+ Rendezvous() +------------+         :
     Listen() |             :           |     |             :
              |             :           |     v             :
              v             :           | Connection        :
