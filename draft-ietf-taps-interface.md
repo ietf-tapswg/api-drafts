@@ -122,25 +122,24 @@ and potential transport protocols to select from.
 
 # Introduction
 
-The BSD Unix Sockets API's SOCK_STREAM abstraction, by bringing network sockets
-into the UNIX programming model, allowing anyone who knew how to write programs
-that dealt with sequential-access files to also write network applications, was
-a revolution in simplicity. The simplicity of this API is a key reason the
-Internet won the protocol wars {{PROTOCOL-WARS}} of the 1980s. SOCK_STREAM is
-tied to the Transmission Control Protocol (TCP), specified in 1981 {{?RFC0793}}.
-TCP has scaled remarkably well over the past three and a half decades, but its
-total ubiquity has hidden an uncomfortable fact: the network is not really a
-file, and stream abstractions are too simplistic for many modern application
-programming models.
-
-In the meantime, the nature of Internet access, and the variety of Internet
-transport protocols, is evolving. The challenges that new protocols and access
-paradigms present to the sockets API and to programming models based on them
-inspire the design principles of a new approach, which we outline in {{principles}}.
-
-This document builds a modern abstract programming interface atop the
+This document specifies a modern abstract programming interface atop the
 high-level architecture for transport services defined in
-{{I-D.ietf-taps-arch}}. It derives specific path and protocol selection
+{{I-D.ietf-taps-arch}}. It supports the
+asynchronous, atomic transmission of messages over transport protocols and
+network paths dynamically selected at runtime. It is intended to replace the
+traditional BSD sockets API as the lowest common denominator interface to the
+transport layer, in an environment where endpoints have multiple interfaces
+and potential transport protocols to select from.
+
+As applications adopt this interface, they will benefit from a wide set of
+transport features that can evolve over time, and ensure that the system
+providing the interface can optimize its behavior based on the application
+requirements and network conditions, without requiring changes to the
+applications.  This flexibility enables faster deployment of new features and
+protocols.  It can also support applications by offering racing and fallback
+mechanisms, which otherwise need to be implemented in each application separately.
+
+It derives specific path and protocol selection
 properties and supported transport features from the analysis provided in
 {{?RFC8095}}, {{I-D.ietf-taps-minset}}, and
 {{I-D.ietf-taps-transport-security}}. The design encourages implementations 
@@ -218,7 +217,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 document are to be interpreted as described in BCP 14 {{!RFC2119}} {{!RFC8174}}
 when, and only when, they appear in all capitals, as shown here.
 
-# Interface Design Principles {#principles}
+# Overview of Interface Design {#principles}
 
 The design of the interface specified in this document is based on a set of
 principles, themselves an elaboration on the architectural design principles
@@ -336,17 +335,20 @@ Listener := Preconnection.Listen()
 
 Listener -> ConnectionReceived<Connection>
 
-// Only receive complete messages
+// Only receive complete messages in a Conn.Received handler
 Connection.Receive()
 
 Connection -> Received<messageDataRequest, messageContext>
 
+//---- Receive event handler begin ----
 Connection.Send(messageDataResponse)
-
 Connection.Close()
 
 // Stop listening for incoming Connections
+// (this example supports only one Connection)
 Listener.Stop()
+//---- Receive event handler end ----
+
 ~~~
 
 
@@ -380,13 +382,16 @@ Connection := Preconnection.Initiate()
 
 Connection -> Ready<>
 
+//---- Ready event handler begin ----
 Connection.Send(messageDataRequest)
 
 // Only receive complete messages
 Connection.Receive()
+//---- Ready event handler end ----
 
 Connection -> Received<messageDataResponse, messageContext>
 
+// Close the Connection in a Receive event handler
 Connection.Close()
 ~~~
 
@@ -426,13 +431,16 @@ Preconnection.Rendezvous()
 
 Preconnection -> RendezvousDone<Connection>
 
+//---- Ready event handler begin ----
 Connection.Send(messageDataRequest)
 
 // Only receive complete messages
 Connection.Receive()
+//---- Ready event handler end ----
 
 Connection -> Received<messageDataResponse, messageContext>
 
+// Close the Connection in a Receive event handler
 Connection.Close()
 ~~~
 
@@ -484,13 +492,18 @@ These names serve two purposes:
 Transport Property Names are hierarchically organized in the
 form \[\<Namespace>.\]\<PropertyName\>.
 
-- The Namespace part is empty for well known, generic properties, i.e., for
+- The Namespace part MUST be empty for well-known, generic properties, i.e., for
   properties that are not specific to a protocol and are defined in an RFC.
-- Protocol Specific Properties must use the protocol acronym as Namespace, e.g.,
+- Protocol Specific Properties MUST use the protocol acronym as Namespace, e.g.,
   “tcp" for TCP specific Transport Properties. For IETF protocols, property
-  names under these namespaces should be defined in an RFC.
-- Vendor or implementation specific properties must use a string identifying
+  names under these namespaces SHOULD be defined in an RFC.
+- Vendor or implementation specific properties MUST use a string identifying
   the vendor or implementation as Namespace.
+  
+Namespaces for the keywords provided in the IANA protocol numbers registry 
+(see https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml) are reserved
+for Protocol Specific Properties and MUST not be used for vendor or implementation
+specific properties. 
 
 ### Transport Property Types {#property-types}
 
@@ -577,11 +590,11 @@ Preconnection during pre-establishment.
 
 ## Specifying Endpoints {#endpointspec}
 
-The transport services API uses the Local Endpoint and Remote Endpoint types
+The transport services API uses the Local Endpoint and Remote Endpoint Objects
 to refer to the endpoints of a transport connection.
-Subtypes of these represent various different types of endpoint identifiers,
-such as IP addresses, DNS names, and interface names, as well as port numbers
-and service names.
+Actions on these Objects can be used to represent various different types of
+endpoint identifiers, such as IP addresses, DNS names, and interface names,
+as well as port numbers and service names.
 
 Specify a Remote Endpoint using a hostname and service name:
 
@@ -614,6 +627,8 @@ LocalSpecifier := NewLocalEndpoint()
 LocalSpecifier.WithInterface("en0")
 LocalSpecifier.WithPort(443)
 ~~~
+
+As an alternative to specifying an interface name for the Local Endpoint, an application can express more fine-grained preferences using the "Interface Instance or Type" Selection Property, see {{prop-interface}}. However, if the application specifies Selection Properties which are inconsistent with the Local Endpoint, this will result in an error once the application attempts to open a Connection.
 
 Specify a Local Endpoint using a STUN server:
 
@@ -725,8 +740,8 @@ Individual properties are then added to the TransportProperties Object:
 TransportProperties.Add(property, value)
 ~~~
 
-As preference typed selection properties may be used quite frequently, implementations should provide additional convenience functions as outlined in  {{preference-conv}}.
-In addition, implementations should provide a mechanism to create TransportProperties objects that are preconfigured for common use cases as outlined in {{property-profiles}}.
+Preference-typed Selection Properties can be frequently used. Implementations MAY therefore provide additional convenience functions, see {{preference-conv}} for examples.
+In addition, implementations MAY provide a mechanism to create TransportProperties objects that are preconfigured for common use cases as outlined in {{property-profiles}}.
 
 For an existing Connection, the Transport Properties can be queried any time
 by using the following call on the Connection Object:
@@ -1138,9 +1153,10 @@ specifier (if not specified, the system will attempt to determine a
 suitable Local Endpoint), as well as all properties
 necessary for candidate selection.
 
-The Initiate() Action consumes the Preconnection. Once Initiate() has
-been called, no further properties may be added to the Preconnection, and
-no subsequent establishment call may be made on the Preconnection.
+The Initiate() Action returns a Connection object. Once Initiate() has been
+called, any changes to the Preconnection MUST NOT have any effect on the
+Connection. However, the Preconnection can be reused, e.g., to Initiate
+another Connection.
 
 Once Initiate is called, the candidate Protocol Stack(s) may cause one or more
 candidate transport-layer connections to be created to the specified remote
@@ -1190,9 +1206,10 @@ Before calling Listen, the caller must have initialized the Preconnection
 during the pre-establishment phase with a Local Endpoint specifier, as well
 as all properties necessary for Protocol Stack selection. A Remote Endpoint
 may optionally be specified, to constrain what Connections are accepted.
-The Listen() Action returns a Listener object. Once Listen() has been
-called, properties added to the Preconnection have no effect on the Listener
-and the Preconnection can be disposed of or reused.
+
+The Listen() Action returns a Listener object. Once Listen() has been called,
+any changes to the Preconnection MUST NOT have any effect on the Listener. The
+Preconnection can be disposed of or reused, e.g., to create another Listener.
 
 Listening continues until the global context shuts down, or until the Stop
 action is performed on the Listener object:
@@ -1231,8 +1248,7 @@ the value to Infinite at any point.
 Listener -> ListenError<reason?>
 ~~~
 
-A ListenError occurs either when the Properties of the Preconnection cannot be fulfilled for
-listening, when the Local Endpoint (or Remote Endpoint, if specified) cannot
+A ListenError occurs either when the Properties and Security Parameters of the Preconnection cannot be fulfilled for listening or cannot be reconciled with the Local Endpoint (and/or Remote Endpoint, if specified), when the Local Endpoint (or Remote Endpoint, if specified) cannot
 be resolved, or when the application is prohibited from listening by policy.
 
 ~~~
@@ -1259,9 +1275,10 @@ Endpoint for an incoming Connection from the Remote Endpoint, while
 simultaneously trying to establish a Connection from the Local Endpoint to the
 Remote Endpoint. This corresponds to a TCP simultaneous open, for example.
 
-The Rendezvous() Action consumes the Preconnection. Once Rendezvous() has
-been called, no further properties may be added to the Preconnection, and
-no subsequent establishment call may be made on the Preconnection.
+The Rendezvous() Action returns a Connection object. Once Rendezvous() has been
+called, any changes to the Preconnection MUST NOT have any effect on the
+Connection. However, the Preconnection can be reused, e.g., for Rendezvous of
+another Connection.
 
 ~~~
 Preconnection -> RendezvousDone<Connection>
@@ -1278,8 +1295,8 @@ ready to use as soon as it is passed to the application via the Event.
 Preconnection -> RendezvousError<messageContext, reason?>
 ~~~
 
-An RendezvousError occurs either when the Preconnection cannot be fulfilled
-for listening, when the Local Endpoint or Remote Endpoint cannot be resolved,
+An RendezvousError occurs either when the Properties and Security Parameters of the Preconnection cannot be fulfilled
+for rendezvous or cannot be reconciled with the Local and/or Remote Endpoints, when the Local Endpoint or Remote Endpoint cannot be resolved,
 when no transport-layer connection can be established to the Remote Endpoint,
 or when the application is prohibited from rendezvous by policy.
 
@@ -1317,7 +1334,7 @@ connections are "entangled" with each other, and become part of a Connection
 Group. Calling Clone on any of these two Connections adds a third Connection to
 the Connection Group, and so on. Connections in a Connection Group generally share
 Connection Properties. However, there may be exceptions, such as "Priority
-(Connection)", see {{conn-priority}}.
+(Connection)", see {{conn-priority}}. Like all other Properties, Priority is copied to the new Connection when calling Clone(), but it is not entangled: Changing Priority on one Connection does not change it on the other Connections in the same Connection Group.
 
 In addition, incoming entangled Connections can be received by creating a
 Listener on an existing connection:
@@ -1338,6 +1355,8 @@ If the underlying protocol supports multi-streaming, it is natural to use this
 functionality to implement Clone. In that case, entangled Connections are
 multiplexed together, giving them similar treatment not only inside endpoints
 but also across the end-to-end Internet path.
+
+Note that calling Clone() may result in on-the-wire signaling, e.g., to open a new connection, depending on the underlying Protocol Stack.
 
 If the underlying Protocol Stack does not support cloning, or cannot create a
 new stream on the given Connection, then attempts to clone a Connection will
@@ -1479,6 +1498,34 @@ set of Message Properties not consistent with the Connection's transport
 properties. The SendError contains an implementation-specific reference to the
 Message to which it applies.
 
+## Message Contexts {#msg-ctx}
+
+Using the MessageContext object, the application can set and retrieve meta-data of the message, including Message Properties (see {{message-props}}) and framing meta-data (see {{framing-meta}}).
+Therefore, a MessageContext object can be passed to the Send action and is returned by each Send and Receive related event.
+
+Message Properties can be set and queried using the Message Context:
+
+~~~
+MessageContext.add(scope?, parameter, value)
+PropertyValue := MessageContext.get(scope?, property)
+~~~
+
+To get or set Message Properties, the optional scope parameter is left empty, for framing meta-data, the framer is passed.
+
+For MessageContexts returned by send events (see {{send-events}}) and receive events (see {{receive-events}}), the application can query information about the local and remote endpoint:
+
+~~~
+RemoteEndpoint := MessageContext.GetRemoteEndpoint()
+LocalEndpoint := MessageContext.GetLocalEndpoint()
+~~~
+
+Message Contexts can also be used to send messages that are flagged as a reply to other messages, see {{send-replies}} for details.
+If the message received was sent by the remote endpoint as a reply to an earlier message and the Protocol Stack provides this information, the MessageContext of the original request can be accessed using the Message Context of the reply:
+
+~~~
+RequestMessageContext := MessageContext.GetOriginalRequest()
+~~~
+
 ## Message Properties {#message-props}
 
 Applications may need to annotate the Messages they send with extra information
@@ -1525,7 +1572,7 @@ Name:
 : msg-lifetime
 
 Type:
-: Integer
+: Numeric
 
 Default:
 : infinite
@@ -1929,34 +1976,6 @@ that the other endpoint is done sending on a connection.
 Any calls to Receive once the Final Message has been delivered will result in errors.
 
 
-# Message Contexts {#msg-ctx}
-
-Using the MessageContext object, the application can set and retrieve meta-data of the message, including Message Properties (see {{message-props}}) and framing meta-data (see {{framing-meta}}).
-Therefore, a MessageContext object can be passed to the Send action and is returned by each Send and Receive related event.
-
-Message Properties can be set and queried using the Message Context:
-
-~~~
-MessageContext.add(scope?, parameter, value)
-PropertyValue := MessageContext.get(scope?, property)
-~~~
-
-To get or set Message Properties, the optional scope parameter is left empty, for framing meta-data, the framer is passed.
-
-For MessageContexts returned by send events (see {{send-events}}) and receive events (see {{receive-events}}), the application can query information about the local and remote endpoint:
-
-~~~
-RemoteEndpoint := MessageContext.GetRemoteEndpoint()
-LocalEndpoint := MessageContext.GetLocalEndpoint()
-~~~
-
-Message Contexts can also be used to send messages that are flagged as a reply to other messages, see {{send-replies}} for details.
-If the message received was sent by the remote endpoint as a reply to an earlier message and the Protocol Stack provides this information, the MessageContext of the original request can be accessed using the Message Context of the reply:
-
-~~~
-RequestMessageContext := MessageContext.GetOriginalRequest()
-~~~
-
 # Message Framers {#framing}
 
 Although most applications communicate over a network using well-formed
@@ -2105,10 +2124,10 @@ Properties will include different information:
 
 ## Generic Connection Properties {#connection-props}
 
-The Connection Properties defined as independent of the chosen protocol stack,
-and available on all Connections are defined in the subsections below.
+Generic Connection Properties are defined independent of the chosen protocol stack
+and therefore available on all Connections.
 
-Note that many Connection Properties have a corresponding Selection Property, which
+Note that many Connection Properties have a corresponding Selection Property which
 enables applications to express their preference for protocols providing a supporting transport feature.
 
 
@@ -2159,7 +2178,7 @@ This Property is a non-negative integer representing the relative inverse
 priority of this Connection relative to other Connections in the same
 Connection Group. It has no effect on Connections not part of a Connection
 Group. As noted in {{groups}}, this property is not entangled when Connections
-are cloned.
+are cloned, i.e., changing the Priority on one Connection in a Connection Group does not change it on the other Connections in the same Connection Group.
 
 ### Timeout for Aborting Connection {#conn-timeout}
 
@@ -2335,26 +2354,58 @@ a data transfer useful. It is given in bits per second. The special value -1 ind
 that no bound is specified.
 
 
-### TCP-specific Property: User Timeout {#tcp-uto}
+## TCP-specific Property: User Timeout Option (UTO) {#tcp-uto}
 
-This property specifies, for the case TCP becomes the chosen transport protocol:
+These properties specifies configurations for the User Timeout Option (UTO), 
+in case TCP becomes the chosen transport protocol. 
+Implementation is optional and of course only sensible if TCP is implemented in the transport system.
 
-Advertised User Timeout (name: tcp.user-timeout-value, type: Integer):
-: a time value (default: the TCP default) to be advertised via the User Timeout Option (UTO) for the TCP at the remote endpoint
+All of the below parameters are optional (e.g., it is possible to specify "User Timeout Enabled" as true,
+but not specify an Advertised User Timeout value; in this case, the TCP default will be used).
+
+### Advertised User Timeout 
+
+Name: 
+: tcp.user-timeout-value
+
+Type: 
+: Integer
+
+Default:
+:the TCP default
+
+This time value is advertised via the TCP User Timeout Option (UTO) {{?RFC5482}} at the remote endpoint
 to adapt its own "Timeout for aborting Connection" (see {{conn-timeout}}) value accordingly.
 
-User Timeout Enabled (name: tcp.user-timeout, type: Boolean):
-: a boolean (default false) to control whether the UTO option is enabled for a
+### User Timeout Enabled 
+
+Name: 
+: tcp.user-timeout
+
+Type:
+: Boolean
+
+Default:
+: false
+
+This property controls whether the UTO option is enabled for a
 connection. This applies to both sending and receiving.
 
-Changeable (name: tcp.user-timeout-recv, type: Boolean):
-: a boolean (default true) which controls whether the "Timeout for aborting Connection" (see {{conn-timeout}})
+### Timeout Changeable
+
+Name:
+: tcp.user-timeout-recv
+
+Type:
+: Boolean
+
+Default:
+: true
+
+This property controls whether the "Timeout for aborting Connection" (see {{conn-timeout}})
 may be changed
 based on a UTO option received from the remote peer. This boolean becomes false when
 "Timeout for aborting Connection" (see {{conn-timeout}}) is used.
-
-All of the above parameters are optional (e.g., it is possible to specify "User Timeout Enabled" as true,
-but not specify an Advertised User Timeout value; in this case, the TCP default will be used).
 
 
 ## Soft Errors
@@ -2564,19 +2615,6 @@ Applications that choose this Transport Property Profile for latency reasons
 should also consider setting the Capacity Profile Property,
 see {{prop-cap-profile}} accordingly and my benefit from controlling checksum
 coverage, see {{prop-checksum-control-send}} and {{prop-checksum-control-receive}}.
-
-
-
-# Sample API definition in Go {#appendix-api-sketch}
-
-This document defines an abstract interface. To illustrate how this would map
-concretely into a programming language, an API interface definition in Go is
-available online at https://github.com/mami-project/postsocket.  Documentation
-for this API -- an illustration of the documentation an application developer
-would see for an instance of this interface -- is available online at
-https://godoc.org/github.com/mami-project/postsocket. This API definition will
-be kept largely in sync with the development of this abstract interface
-definition.
 
 
 # Relationship to the Minimal Set of Transport Services for End Systems

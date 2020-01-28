@@ -89,7 +89,7 @@ This document describes an architecture for exposing transport protocol features
 
 # Introduction
 
-Many application programming interfaces (APIs) to perform transport networking have been deployed, perhaps the most widely known and imitated being the BSD Socket {{POSIX}} interface. The naming of objects and functions across these APIs is not consistent, and varies depending on the protocol being used. For example, sending and receiving streams of data is conceptually the same for both an unencrypted Transmission Control Protocol (TCP) stream and operating on an encrypted Transport Layer Security (TLS) {{?RFC8446}} stream over TCP, but applications cannot use the same socket ```send()``` and ```recv()``` calls on top of both kinds of connections. Similarly, terminology for the implementation of transport protocols varies based on the context of the protocols themselves: terms such as "flow", "stream", "message", and "connection" can take on many different meanings. This variety can lead to confusion when trying to understand the similarities and differences between protocols, and how applications can use them effectively.
+Many application programming interfaces (APIs) to perform transport networking have been deployed, perhaps the most widely known and imitated being the BSD Socket {{POSIX}} interface (Socket API). The naming of objects and functions across these APIs is not consistent, and varies depending on the protocol being used. For example, sending and receiving streams of data is conceptually the same for both an unencrypted Transmission Control Protocol (TCP) stream and operating on an encrypted Transport Layer Security (TLS) {{?RFC8446}} stream over TCP, but applications cannot use the same socket ```send()``` and ```recv()``` calls on top of both kinds of connections. Similarly, terminology for the implementation of transport protocols varies based on the context of the protocols themselves: terms such as "flow", "stream", "message", and "connection" can take on many different meanings. This variety can lead to confusion when trying to understand the similarities and differences between protocols, and how applications can use them effectively.
 
 The goal of the Transport Services architecture is to provide a common, flexible, and reusable interface for transport protocols. As applications adopt this interface, they will benefit from a wide set of transport features that can evolve over time, and ensure that the system providing the interface can optimize its behavior based on the application requirements and network conditions, without requiring changes to the applications. This flexibility enables faster deployment of new features and protocols. It can also support applications by offering racing and fallback mechanisms, which otherwise need to be implemented in each application separately.
 
@@ -155,7 +155,7 @@ The traditional model of using sockets for networking can be represented as foll
 ~~~~~~~~~~
 {: #fig-sockets title="Socket API Model"}
 
-The Transport Services architecture evolves this general model of interaction, aiming to both modernize the API surface presented to applications by the transport layer and enrich the capabilities of the Transport System implementation. It combines interfaces for multiple interaction patterns into a unified whole. By combining name resolution with connection establishment and data transfer in a single API, it allows for more flexible implementations to provide path and transport protocol agility on the application's behalf.
+The Transport Services architecture evolves this general model of interaction, aiming to both modernize the API surface presented to applications by the transport layer and enrich the capabilities of the Transport Services implementation. It combines interfaces for multiple interaction patterns into a unified whole. By combining name resolution with connection establishment and data transfer in a single API, it allows for more flexible implementations to provide path and transport protocol agility on the application's behalf.
 
 ~~~~~~~~~~
 
@@ -168,7 +168,7 @@ The Transport Services architecture evolves this general model of interaction, a
 +-----------------------------------------------------+
                           |
 +-----------------------------------------------------+
-|           Transport System Implementation           |
+|          Transport Services Implementation          |
 |  (Using: DNS, UDP, TCP, SCTP, DCCP, TLS, QUIC, etc) |
 +-----------------------------------------------------+
                           |
@@ -203,7 +203,7 @@ The Transport Services API represents data as messages, so that it more closely 
 
 * the ability to associate deadlines with messages, for applications that care about timing;
 * the ability to provide control of reliability, choosing which messages to retransmit when there is packet loss, and how best to make use of the data that arrived;
-* the ability to manage dependencies between messages, when the Transport System could decide to not deliver a message, either following packet loss or because it has missed a deadline. In particular, this can avoid (re-)sending data that relies on a previous transmission that was never received.
+* the ability to manage dependencies between messages, when the Transport Services system could decide to not deliver a message, either following packet loss or because it has missed a deadline. In particular, this can avoid (re-)sending data that relies on a previous transmission that was never received.
 * the ability to automatically assign messages and connections to underlying transport connections to utilize multi-streaming and pooled connections.
 
 Allowing applications to interact with messages is backwards-compatible with existings protocols and APIs, as it does not change the wire format of any protocol. Instead, it gives the protocol stack additional information to allow it to make better use of modern transport services, while simplifying the application's role in parsing data. For protocols which natively use a streaming abstraction, framers ({{datatransfer}}) bridge the gap between the two abstractions.
@@ -212,7 +212,7 @@ Allowing applications to interact with messages is backwards-compatible with exi
 
 Sockets, for protocols like TCP, are generally limited to connecting to a single address over a single interface. They also present a single stream to the application. Software layers built upon sockets often propagate this limitation of a single-address single-stream model. The Transport Services architecture is designed to handle multiple candidate endpoints, protocols, and paths; and support multipath and multistreaming protocols.
 
-Transport Services implementations are meant to be flexible at connection establishment time, considering many different options and trying to select the most optimal combinations ({{gathering}} and {{racing}}). This requires applications to provide higher-level endpoints than IP addresses, such as hostnames and URLs, which are used by a Transport Services implementation for resolution, path selection, and racing.
+Transport Services implementations are meant to be flexible at connection establishment time, considering many different options and trying to select the most optimal combinations ({{gathering}} and {{racing}}). This requires applications to provide higher-level endpoints than IP addresses, such as hostnames and URLs, which are used by a Transport Services implementation for resolution, path selection, and racing. Transport services implementations can further implement fallback mechanisms if connection establishment of one protocol fails or performance is detected to be unsatisfactory.
 
 Flexibility after connection establishment is also important. Transport protocols that can migrate between multiple network-layer interfaces need to be able to process and react to interface changes. Protocols that support multiple application-layer streams need to support initiating and receiving new streams using existing connections.
 
@@ -232,7 +232,7 @@ Any Transport Services API is REQUIRED to allow access to the distilled minimal 
 
 There are applications that will need to control fine-grained details of transport protocols to optimize their behavior and ensure compatibility with remote systems. A Transport Services system therefore SHOULD also permit more specialized protocol features to be used. The interface for these specialized options ought to be exposed differently from the common options to ensure flexibility.
 
-A specialized feature could be required by an application only when using a specific protocol, and not when using others. For example, if an application is using UDP, it could require control over the checksum or fragmentation behavior for UDP; if it used a protocol to frame its data over a byte stream like TCP, it would not need these options. In such cases, the API ought to expose the features in such a way that they take effect when a particular protocol is selected, but do not imply that only that protocol could be used. For example, if the API allows an application to specify a preference to use a partial checksum, communication would not fail when a protocol such as TCP is selected, which uses a checksum covering the entire payload.
+A specialized feature could be required by an application only when using a specific protocol, and not when using others. For example, if an application is using TCP, it could require control over the User Timeout Option for TCP; these options would not take effect for other transport protocols. In such cases, the API ought to expose the features in such a way that they take effect when a particular protocol is selected, but do not imply that only that protocol could be used. For example, if the API allows an application to specify a preference to use the User Timeout Option, communication would not fail when a protocol such as QUIC is selected.
 
 Other specialized features, however, could be strictly required by an application and thus constrain the set of protocols that can be used. For example, if an application requires support for automatic handover or failover for a connection, only protocol stacks that provide this feature are eligible to be used, e.g., protocol stacks that include a multipath protocol or a protocol that supports connection migration. A Transport Services API MUST allow applications to define such requirements and constrain the system's options. Since such options are not part of the core/common features, it will generally be simple for an application to modify its set of constraints and change the set of allowable protocol features without changing the core implementation.
 
@@ -310,7 +310,7 @@ Beyond the connection objects, there are several high-level groups of actions th
 
 * Termination ({{termination}}) focuses on the methods by which data transmission is stopped, and state is torn down in the transport.
 
-The diagram below provides a high-level view of the actions and events during the lifetime of a Connection object. Note that some actions are alternatives (e.g., whether to initiate a connection or to listen for incoming connections), while others are optional (e.g., setting Connection and Message Properties in Pre-Establishment) or have been omitted for brevity.
+The diagram below provides a high-level view of the actions and events during the lifetime of a Connection object. Note that some actions are alternatives (e.g., whether to initiate a connection or to listen for incoming connections), while others are optional (e.g., setting Connection and Message Properties in Pre-Establishment) or have been omitted for brevity and simplicity.
 
 
 ~~~~~~~~~~
@@ -320,11 +320,11 @@ The diagram below provides a high-level view of the actions and events during th
  +-- Local Endpoint        :           Message             :
  +-- Remote Endpoint       :    Receive() |                :
  +-- Transport Properties  :       Send() |                :
- |                         :              |        Close() :
- |   +---------------+  Initiate()  +-----+------+ Abort() :
+ |                         :              |                :
+ |               InitiateWithSend()       |        Close() :
+ |   +---------------+   Initiate() +-----+------+ Abort() :
  +---+ Preconnection |------------->| Connection |-----------> Closed
-     +---------------+ Rendezvous() +------------+ Conn.   :
-             |             :           ^     |    Finished :
+     +---------------+ Rendezvous() +------------+         :
     Listen() |             :           |     |             :
              |             :           |     v             :
              v             :           | Connection        :
@@ -339,7 +339,7 @@ The diagram below provides a high-level view of the actions and events during th
 
 * Preconnection: A Preconnection object is a representation of a potential Connection. It has state that describes parameters of a Connection that might exist in the future: the Local Endpoint from which that Connection will be established, the Remote Endpoint ({{preestablishment}}) to which it will connect, and Transport Properties that influence the paths and protocols a Connection will use. A Preconnection can be fully specified such that it represents a single possible Connection, or it can be partially specified such that it represents a family of possible Connections. The Local Endpoint ({{preestablishment}}) MUST be specified if the Preconnection is used to Listen for incoming Connections. The Local Endpoint is OPTIONAL if it is used to Initiate Connections. The Remote Endpoint MUST be specified in the Preconnection that is used to Initiate Connections. The Remote Endpoint is OPTIONAL if it is used to Listen for incoming Connections. The Local Endpoint and the Remote Endpoint MUST both be specified if a peer-to-peer Rendezvous is to occur based on the Preconnection.
 
-* Transport Properties: Transport Properties allow the application to express their requirements, prohibitions, and preferences and configure the Transport System.  There are three kinds of Transport Properties: 
+* Transport Properties: Transport Properties allow the application to express their requirements, prohibitions, and preferences and configure the Transport Services system.  There are three kinds of Transport Properties: 
 
   * Selection Properties ({{preestablishment}}) that can only be specified on a Preconnection.
 
@@ -364,7 +364,7 @@ The diagram below provides a high-level view of the actions and events during th
 
 * Selection Properties: The Selection Properties consist of the options that an application can set to influence the selection of paths between the local and remote systems, to influence the selection of transport protocols, or to configure the behavior of generic transport protocol features. These options can take the form of requirements, prohibitions, or preferences. Examples of options that influence path selection include the interface type (such as a Wi-Fi connection, or a Cellular LTE connection), requirements around the largest Message that can be sent, or preferences for throughput and latency properties. Examples of options that influence protocol selection and configuration of transport protocol features include reliability, service class, multipath support, and fast open support.
 
-* Connection Properties: The Connection Properties are used to configure protocol-specific options and control per-connection behavior of the Transport System; for example, a protocol-specific Connection Property can express that if UDP is used, the implementation ought to use checksums. Note that the presence of such a property does not require that a specific protocol will be used. In general, these properties do not explicitly determine the selection of paths or protocols, but can be used in this way by an implementation during connection establishment. Connection Properties are specified on a Preconnection prior to Connection establishment, and can be modified on the Connection later. Changes made to Connection Properties after Connection establishment take effect on a best-effort basis.
+* Connection Properties: The Connection Properties are used to configure protocol-specific options and control per-connection behavior of the Transport Services system; for example, a protocol-specific Connection Property can express that if TCP is used, the implementation ought to use the User Timeout Option. Note that the presence of such a property does not require that a specific protocol will be used. In general, these properties do not explicitly determine the selection of paths or protocols, but can be used in this way by an implementation during connection establishment. Connection Properties are specified on a Preconnection prior to Connection establishment, and can be modified on the Connection later. Changes made to Connection Properties after Connection establishment take effect on a best-effort basis.
 
 ### Establishment Actions {#establishment}
 
@@ -424,9 +424,9 @@ The following categories of events can be delivered to an application:
 
 * Close: The action an application takes on a Connection to indicate that it no longer intends to send data, is no longer willing to receive data, and that the protocol SHOULD signal this state to the remote system if the transport protocol allows this. (Note that this is distinct from the concept of "half-closing" a bidirectional connection, such as when a FIN is sent in one direction of a TCP connection. Indicating the end of a stream in the Transport Services architecture is possible using Message Properties when sending.)
 
-* Abort: The action the application takes on a Connection to indicate a Close and also indicate that the Transport System SHOULD NOT attempt to deliver any outstanding data. This is intended for immediate termination of a connection, without cleaning up state.
+* Abort: The action the application takes on a Connection to indicate a Close and also indicate that the Transport Services system SHOULD NOT attempt to deliver any outstanding data. This is intended for immediate termination of a connection, without cleaning up state.
 
-## Transport System Implementation Concepts
+## Transport Services Implementation Concepts
 
 This section defines the set of objects used internally to a system or library to implement the functionality needed to provide a transport service across a network, as required by the abstract interface.
 
@@ -472,11 +472,11 @@ If two different Protocol Stacks can be safely swapped, or raced in parallel (se
 
 2. Both stacks MUST offer the transport services that are requested by the application. For example, if an application specifies that it requires reliable transmission of data, then a Protocol Stack using UDP without any reliability layer on top would not be allowed to replace a Protocol Stack using TCP. However, if the application does not require reliability, then a Protocol Stack that adds reliability could be regarded as an equivalent Protocol Stack as long as providing this would not conflict with any other application-requested properties.
 
-3. Both stacks MUST offer security protocols and parameters as requested by the application {{?I-D.ietf-taps-transport-security}}. Security features and properties, such as cryptographic algorithms, peer authentication, and identity privacy vary across security protocols, and across versions of security protocols. Protocol equivalence ought not to be assumed for different protocols or protocol versions, even if they offer similar application configuration options. To ensure that security protocols are not incorrectly swapped, Transport Services systems SHOULD only automatically generate equivalent Protocol Stacks when the transport security protocols within the stacks are identical. Specifically, a Transport System would consider protocols identical only if they are of the same type and version. For example, the same version of TLS running over two different transport Protocol Stacks are considered equivalent, whereas TLS 1.2 and TLS 1.3 {{?RFC8446}} are not considered equivalent. However, Transport Services systems MAY allow applications to indicate that they consider two different transport protocols equivalent, e.g., to allow fallback to TLS 1.2 if TLS 1.3 is not available.
+3. Both stacks MUST offer security protocols and parameters as requested by the application {{?I-D.ietf-taps-transport-security}}. Security features and properties, such as cryptographic algorithms, peer authentication, and identity privacy vary across security protocols, and across versions of security protocols. Protocol equivalence ought not to be assumed for different protocols or protocol versions, even if they offer similar application configuration options. To ensure that security protocols are not incorrectly swapped, Transport Services systems SHOULD only automatically generate equivalent Protocol Stacks when the transport security protocols within the stacks are identical. Specifically, a Transport Services system would consider protocols identical only if they are of the same type and version. For example, the same version of TLS running over two different transport Protocol Stacks are considered equivalent, whereas TLS 1.2 and TLS 1.3 {{?RFC8446}} are not considered equivalent. However, Transport Services systems MAY allow applications to indicate that they consider two different transport protocols equivalent, e.g., to allow fallback to TLS 1.2 if TLS 1.3 is not available.
 
 ### Separating Connection Groups {#groups}
 
-By default, stored properties of the implementation, such as cached protocol state, cached path state, and heuristics, may be shared (e.g. across multiple connections in an application). This provides efficiency and convenience for the application, since the Transport System implementation can automatically optimize behavior.
+By default, stored properties of the implementation, such as cached protocol state, cached path state, and heuristics, may be shared (e.g. across multiple connections in an application). This provides efficiency and convenience for the application, since the Transport Services implementation can automatically optimize behavior.
 
 There are several reasons, however, that an application might want to explicitly isolate some Connections. These reasons include:
 
@@ -539,6 +539,8 @@ Research Foundation: Gottfried Wilhelm Leibniz-Preis 2011 (FKZ FE 570/4-1).
 This work has been supported by the UK Engineering and Physical Sciences
 Research Council under grant EP/R04144X/1.
 
-Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for
-their implementation and design efforts, including Happy Eyeballs, that heavily
-influenced this work.
+Thanks to Theresa Enghardt, Max Franke, Mirja Kuehlewind, Jonathan Lennox, and 
+Michael Welzl for the discussions and feedback that helped shape the architecture 
+described here. Thanks as well to Stuart Cheshire, Josh Graessley, David Schinazi, 
+and Eric Kinnear for their implementation and design efforts, including Happy
+Eyeballs, that heavily influenced this work. 
