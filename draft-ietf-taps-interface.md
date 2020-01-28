@@ -958,8 +958,8 @@ Stable:
 Temporary:
 : Use temporary (sometimes called "privacy") addresses {{!RFC4941}}
 
-The default is to prefer the use of stable local addresses for Listeners and
-Rendezvous Connections, and to prefer the use of temporary addresses for other
+The default is to Prefer the use of stable local addresses for Listeners and
+Rendezvous Connections, and to Prefer the use of temporary addresses for other
 Connections.
 
 
