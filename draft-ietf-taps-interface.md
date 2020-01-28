@@ -2354,11 +2354,14 @@ that no bound is specified.
 
 ## TCP-specific Property: User Timeout Option (UTO) {#tcp-uto}
 
-These properties specifies configurations for the User Timeout Option (UTO), 
+These properties specify configurations for the User Timeout Option (UTO), 
 in case TCP becomes the chosen transport protocol. 
 Implementation is optional and of course only sensible if TCP is implemented in the transport system.
 
-All of the below parameters are optional (e.g., it is possible to specify "User Timeout Enabled" as true,
+Note that these properties are part of the minimal set of transport services
+{{I-D.ietf-taps-minset}}, therefore, they are included here.
+
+All of the below properties are optional (e.g., it is possible to specify "User Timeout Enabled" as true,
 but not specify an Advertised User Timeout value; in this case, the TCP default will be used).
 
 ### Advertised User Timeout 
@@ -2370,7 +2373,7 @@ Type:
 : Integer
 
 Default:
-:the TCP default
+: the TCP default
 
 This time value is advertised via the TCP User Timeout Option (UTO) {{?RFC5482}} at the remote endpoint
 to adapt its own "Timeout for aborting Connection" (see {{conn-timeout}}) value accordingly.
