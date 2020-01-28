@@ -2243,8 +2243,9 @@ Name:
 This property specifies the desired network treatment for traffic sent by the
 application and the tradeoffs the application is prepared to make in path and
 protocol selection to receive that desired treatment. When the capacity profile
-is set to a value other than Default, the transport system should select paths
-and protocols to optimize for the capacity profile specified. How this is realized
+is set to a value other than Default, the transport system SHOULD select paths
+and configure protocols to optimize the tradeoff between delay, delay variation, and
+bandwidth efficiency based on the capacity profile specified. How this is realized
 is implementation-specific. The Capacity Profile MAY also be used
 to set priorities on the wire for Protocol Stacks supporting prioritization. 
 Recommendations for use with DSCP are provided below for each profile; note that
@@ -2295,8 +2296,7 @@ The following values are valid for the Capacity Profile:
   breaker {{?RFC8084}} to a rate-adaptive congestion controller. Transport
   system implementations that map the requested capacity profile onto
   per-connection DSCP signaling without multiplexing SHOULD assign a DSCP
-  Assured Forwarding (AF31,AF32,AF33,AF34) {{?RFC2597}} PHB; when the Connection
-  is multiplexed, the guidelines in Section 6 of {{?RFC7657}} apply.
+  Assured Forwarding (AF31,AF32,AF33,AF34) {{?RFC2597}} PHB.
 
   High Throughput Data:
   : The application expects to send/receive data at the
@@ -2304,8 +2304,7 @@ The following values are valid for the Capacity Profile:
   period of time. Transport system implementations that map the requested
   capacity profile onto per-connection DSCP signaling without multiplexing
   SHOULD assign a DSCP Assured Forwarding (AF11,AF12,AF13,AF14) {{?RFC2597}} PHB
-  per Section 4.8 of {{?RFC4594}}. When the Connection is multiplexed, the
-  guidelines in Section 6 of {{?RFC7657}} apply.
+  per Section 4.8 of {{?RFC4594}}. 
 
 The Capacity Profile for a selected protocol stack may be modified on a
 per-Message basis using the Transmission Profile Message Property; see
