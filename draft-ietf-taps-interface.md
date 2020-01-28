@@ -452,13 +452,9 @@ the lifetime of a connection using Transport Properties, as defined in
 {{I-D.ietf-taps-arch}}. 
 
 Transport Properties are divided into Selection, Connection, and Message
-Properties. During pre-establishment, Selection Properties (see
-{{selection-props}}) are used to specify which paths and protocol stacks can be
-used and are preferred by the application during candidate selection, and Connection Properties (see
-{{connection-props}}) can be used to influence decisions made during
-establishment and to fine-tune the eventually established connection. These
-Connection Properties can also be used later, to monitor and fine-tune
-established connections. The behavior of the selected protocol stack(s) when
+Properties. Selection Properties (see {{selection-props}}) can only be set during pre-establishment. They are only used to specify which paths and protocol stacks can be used and are preferred by the application. 
+Connection Properties (see {{connection-props}}) can also be set during pre-establishment but may be changed later and are used to inform decisions made during establishment and to fine-tune the established connection.  
+The behavior of the selected protocol stack(s) when
 sending Messages is controlled by Message Properties (see {{message-props}}).
 
 All Transport Properties, regardless of the phase in which they are used, are
