@@ -946,16 +946,17 @@ Name:
 : local-address-preference
 
 Type:
-: Enumeration
+: Set (Preference, Enumeration)
 
-This property specifies whether Listeners and Connections should prefer the use of temporary addresses when possible.
-This is generally used to prevent linking connections over time when a stable address is not needed. Possible values are:
+This property allows the application to control the use of stable or temporary local addresses.
+Temporary addresses are generally used to prevent linking connections over time when a stable address is not needed.
+Note that expressing preferences for both stable and temporary addresses can be redundant and/or produce a conflict. Possible values are:
 
 Stable:
-: Prefer the use of stable (sometimes called "permanent") local addresses
+: Use stable (sometimes called "permanent") local addresses
 
 Temporary:
-: Prefer the use of temporary (sometimes called "privacy") addresses {{!RFC4941}}
+: Use temporary (sometimes called "privacy") addresses {{!RFC4941}}
 
 The default is to prefer the use of stable local addresses for Listeners and
 Rendezvous Connections, and to prefer the use of temporary addresses for other
