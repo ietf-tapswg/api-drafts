@@ -2352,14 +2352,19 @@ a data transfer useful. It is given in bits per second. The special value -1 ind
 that no bound is specified.
 
 
-## TCP-specific Property: User Timeout Option (UTO) {#tcp-uto}
+## TCP-specific Properties: User Timeout Option (UTO) {#tcp-uto}
 
 These properties specify configurations for the User Timeout Option (UTO), 
 in case TCP becomes the chosen transport protocol. 
 Implementation is optional and of course only sensible if TCP is implemented in the transport system.
 
-Note that these properties are part of the minimal set of transport services
-{{I-D.ietf-taps-minset}}, therefore, they are included here.
+These TCP-specific properties are included here because the feature "Suggest
+timeout to the peer" is part of the minimal set of transport services
+{{I-D.ietf-taps-minset}}, where this feature was categorized as "functional".
+This means that when an implementation offers this feature, it has to expose an
+interface to it to the application. Otherwise, the implementation might
+violate assumptions by the application, which could cause the application to
+fail.
 
 All of the below properties are optional (e.g., it is possible to specify "User Timeout Enabled" as true,
 but not specify an Advertised User Timeout value; in this case, the TCP default will be used).
