@@ -1400,6 +1400,10 @@ It can be used to identify send events (see {{send-events}}) related to a specif
 The optional endOfMessage parameter supports partial sending and is described in
 {{send-partial}}.
 
+Framers can be used to extend or modify the message data
+with additional information that can be processed at the receiver to detect message
+boundaries. This is further decribed in {{framing}}.
+
 ## Basic Sending {#send-basic}
 
 The most basic form of sending on a connection involves enqueuing a single Data
