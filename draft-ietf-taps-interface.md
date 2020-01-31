@@ -2406,7 +2406,11 @@ based on a UTO option received from the remote peer. This boolean becomes false 
 "Timeout for aborting Connection" (see {{conn-timeout}}) is used.
 
 
-## Soft Errors
+## Connection Lifecycle Events
+
+During the lifetime of a connection there are events that can occur when configured.
+
+### Soft Errors
 
 Asynchronous introspection is also possible, via the SoftError Event. This event
 informs the application about the receipt of an ICMP error message related to
@@ -2418,7 +2422,7 @@ is no guarantee that a soft error will be signaled.
 Connection -> SoftError<>
 ~~~
 
-## Excessive retransmissions {#conn-retrans-notify}
+### Excessive retransmissions {#conn-retrans-notify}
 
 This event notifies the application of excessive retransmissions, based on a
 configured threshold (see {{conn-excss-retransmit}}). This will only happen if
