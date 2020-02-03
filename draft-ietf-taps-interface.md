@@ -946,11 +946,11 @@ Name:
 : local-address-preference
 
 Type:
-: Set (Preference, Enumeration)
+: (Preference, Enumeration)
 
 This property allows the application to control the use of stable or temporary local addresses.
 Temporary addresses are generally used to prevent linking connections over time when a stable address is not needed.
-Note that expressing preferences for both stable and temporary addresses can be redundant and/or produce a conflict. Possible values are:
+Possible values are:
 
 Stable:
 : Use stable (sometimes called "permanent") local addresses
