@@ -861,7 +861,7 @@ congestion control in accordance with {{?RFC2914}}. Also note that reliability
 is usually combined with congestion control in protocol implementations,
 rendering "reliable but not congestion controlled" a request that is unlikely to
 succeed. 
-The recommended default is to Require that the Connection is congestion controlled.
+The default is to Require that the Connection is congestion controlled.
 
 
 ### Interface Instance or Type {#prop-interface}
@@ -903,6 +903,7 @@ such as metered or unmetered network access. If an application needs to prohibit
 metered interfaces, this should be specified via Provisioning Domain attributes
 (see {{prop-pvd}}) or another specific property.
 
+The default is to not set a preference for any interface.
 
 ### Provisioning Domain Instance or Type {#prop-pvd}
 
@@ -939,6 +940,7 @@ particular instance. While this does restrict path selection, it is broader than
 requiring specific PvD instances or interface instances, and should be preferred
 over these options.
 
+The default is to not set a preference for any PvD.
 
 ### Local Address Preference
 
