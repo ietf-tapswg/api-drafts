@@ -101,20 +101,28 @@ informative:
   I-D.ietf-taps-impl:
   RFC7556:
   TCP-COUPLING:
-    title: ctrlTCP: Reducing Latency through Coupled, Heterogeneous Multi-Flow TCP Congestion Control (in IEEE INFOCOM Global Internet Symposium (GI) workshop (GI 2018))
+    title: "ctrlTCP: Reducing Latency through Coupled, Heterogeneous Multi-Flow TCP Congestion Control"
+    seriesinfo:
+        EEE INFOCOM Global Internet Symposium (GI) workshop (GI 2018)
     authors:
       -
         ins: S. Islam
+        name: Safiqul Islam
       -
         ins: M. Welzl
+        name: Michael Welzl
       -
         ins: K. Hiorth
+        name: Kristian Hiorth
       -
         ins: D. Hayes
+        name: David Hayes
       -
         ins: G. Armitage
+        name: Grenville Armitage
       -
         ins: S. Gjessing
+        name: Stein Gjessing
     date: 2018
 
 --- abstract
