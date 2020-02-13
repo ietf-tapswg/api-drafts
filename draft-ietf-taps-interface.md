@@ -1448,7 +1448,7 @@ multiple connections being opened instead of multi-streaming,
 the transport system will ensure consistency of
 Connection Properties by uniformly applying them to all underlying connections
 in a group. Even in such a case, there are possibilities for a transport system
-to implement prioritization within a Connection Group {{TCP-COUPLING}} {{RFC8699}}.
+to implement prioritization within a Connection Group {{TCP-COUPLING}} {{?RFC8699}}.
 
 Attempts to clone a Connection can result in a CloneError:
 
