@@ -100,13 +100,22 @@ informative:
   I-D.ietf-taps-transport-security:
   I-D.ietf-taps-impl:
   RFC7556:
-  PROTOCOL-WARS:
-    title: Protocol Wars (Revolution - The First 2000 Years of Computing)
-    author:
+  TCP-COUPLING:
+    title: ctrlTCP: Reducing Latency through Coupled, Heterogeneous Multi-Flow TCP Congestion Control (in IEEE INFOCOM Global Internet Symposium (GI) workshop (GI 2018))
+    authors:
       -
-        ins: Computer History Museum
-    target: https://www.computerhistory.org/revolution/networking/19/376
-    date: 2019
+        ins: S. Islam
+      -
+        ins: M. Welzl
+      -
+        ins: K. Hiorth
+      -
+        ins: D. Hayes
+      -
+        ins: G. Armitage
+      -
+        ins: S. Gjessing
+    date: 2018
 
 --- abstract
 
@@ -277,7 +286,7 @@ received asynchronously through event handlers registered by the application.
 Errors and other notifications also happen asynchronously on the Connection.
 It is not necessary for an application to handle all events; some events may
 have implementation-specific default handlers. The application should not
-assume that ignoring all events (e.g. errors) is always safe.
+assume that ignoring events (e.g. errors) is always safe.
 
 {{pre-establishment}}, {{establishment}}, {{sending}}, {{receiving}}, and
 {{termination}} describe the details of application interaction with Objects
@@ -796,8 +805,7 @@ Default:
 : Prefer
 
 This property specifies whether the application needs or prefers to use a transport
-protocol that preserves message boundaries. The default
-is to Prefer Preservation of Message Boundaries.
+protocol that preserves message boundaries.
 
 ### Configure Per-Message Reliability {#prop-partially-reliable}
 
@@ -1001,7 +1009,7 @@ Name:
 Type:
 : Enumeration
 
-Default: for Listeners and Rendezvous Connections: Stable; for other Connections: Temporary
+Default: For Listeners and Rendezvous Connections: Stable. For other Connections: Temporary
 
 This property specifies whether Listeners and Connections should prefer the use of temporary addresses when possible.
 This is generally used to prevent linking connections over time when a stable address is not needed. Possible values are:
@@ -1410,6 +1418,9 @@ Listener on an existing connection:
 Listener := Connection.ListenClone()
 ~~~
 
+ListenClone() creates a Listener that listens on the same LocalEndpoint as the one the
+cloned Connection is using. Any new Connection received by this Listener will be
+entangled with the cloned Connection.
 Changing one of the Connection Properties on one Connection in the group
 changes it for all others. Message Properties, however, are not
 entangled. For example, changing "Timeout for aborting Connection" (see
@@ -1423,13 +1434,15 @@ functionality to implement Clone. In that case, entangled Connections are
 multiplexed together, giving them similar treatment not only inside endpoints
 but also across the end-to-end Internet path.
 
-Note that calling Clone() may result in on-the-wire signaling, e.g., to open a new connection, depending on the underlying Protocol Stack. In this case, the transport system will ensure consistency of
+Note that calling Clone() may result in on-the-wire signaling, e.g., to open a new
+connection, depending on the underlying Protocol Stack. When Clone() leads to
+multiple connections being opened instead of multi-streaming,
+the transport system will ensure consistency of
 Connection Properties by uniformly applying them to all underlying connections
-in a group.
+in a group. Even in such a case, there are possibilities for a transport system
+to implement prioritization within a Connection Group {{TCP-COUPLING}} {{RF8699}}.
 
-If the underlying Protocol Stack cannot create a
-new stream on the given Connection, then attempts to clone a Connection will
-result in a CloneError:
+Attempts to clone a Connection can result in a CloneError:
 
 ~~~
 Connection -> CloneError<reason?>
@@ -2020,7 +2033,8 @@ When available, Message metadata carries the value of the Explicit Congestion
 Notification (ECN) field. This information can be used for logging and debugging
 purposes, and for building applications which need access to information about
 the transport internals for their own operation. This property is specific to UDP
-and UDP-Lite.
+and UDP-Lite because these protocols do not implement congestion control,
+and hence expose this functionality to the application.
 
 ### Early Data {#receive-early}
 
