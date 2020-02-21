@@ -1375,7 +1375,7 @@ resulting Connection is contained within the RendezvousDone<> Event, and is
 ready to use as soon as it is passed to the application via the Event.
 
 ~~~
-Preconnection -> RendezvousError<messageContext, reason?>
+Preconnection -> RendezvousError<reason?>
 ~~~
 
 An RendezvousError occurs either when the Properties and Security Parameters of the Preconnection cannot be fulfilled
@@ -1485,9 +1485,9 @@ Connection.Send(messageData, messageContext?, endOfMessage?)
 
 where messageData is the data object to send.
 
-The optional messageContext parameter supports per-message properties and is
+The optional messageContext parameter allows adding Message Properties as
 described in {{message-props}}.
-It can be used to identify send events (see {{send-events}}) related to a specific message or to inspect meta-data related to the message sent (see {{msg-ctx}}).
+Moreover, the messageContext can be used to identify Send Events related to a specific Message (see {{send-events}}) or to inspect meta-data related to the Message sent (see {{msg-ctx}}).
 
 The optional endOfMessage parameter supports partial sending and is described in
 {{send-partial}}.
@@ -1558,8 +1558,8 @@ underlying Protocol Stack and is no longer the responsibility of
 this interface. The exact disposition of the Message (i.e.,
 whether it has actually been transmitted, moved into a buffer on the network
 interface, moved into a kernel buffer, and so on) when the Sent Event occurs
-is implementation-specific. The Sent Event contains an implementation-specific
-reference to the Message to which it applies.
+is implementation-specific. The Sent Event contains a reference to the Message
+to which it applies.
 
 Sent Events allow an application to obtain an understanding of the amount
 of buffering it creates. That is, if an application calls the Send Action multiple
@@ -1576,8 +1576,8 @@ Connection -> Expired<messageContext>
 The Expired Event occurs when a previous Send Action expired before completion;
 i.e. when the Message was not sent before its Lifetime (see {{msg-lifetime}})
 expired. This is separate from SendError, as it is an expected behavior for
-partially reliable transports. The Expired Event contains an
-implementation-specific reference to the Message to which it applies.
+partially reliable transports. The Expired Event contains a reference to the
+Message to which it applies.
 
 ### SendError {#send-error}
 
@@ -1589,8 +1589,7 @@ A SendError occurs when a Message could not be sent due to an error condition:
 an attempt to send a Message which is too large for the system and
 Protocol Stack to handle, some failure of the underlying Protocol Stack, or a
 set of Message Properties not consistent with the Connection's transport
-properties. The SendError contains an implementation-specific reference to the
-Message to which it applies.
+properties. The SendError contains a reference to the Message to which it applies.
 
 ## Message Contexts {#msg-ctx}
 
@@ -1604,7 +1603,7 @@ MessageContext.add(scope?, parameter, value)
 PropertyValue := MessageContext.get(scope?, property)
 ~~~
 
-To get or set Message Properties, the optional scope parameter is left empty, for framing meta-data, the framer is passed.
+To get or set Message Properties, the optional scope parameter is left empty. To get or set meta-data for a Framer, the application has to pass a reference to this Framer as the scope parameter.
 
 For MessageContexts returned by send events (see {{send-events}}) and receive events (see {{receive-events}}), the application can query information about the local and remote endpoint:
 
