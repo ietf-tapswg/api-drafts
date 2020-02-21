@@ -320,6 +320,7 @@ The diagram below provides a high-level view of the actions and events during th
  +-- Local Endpoint        :           Message             :
  +-- Remote Endpoint       :    Receive() |                :
  +-- Transport Properties  :       Send() |                :
+ +-- Security Parameters   :              |                :
  |                         :              |                :
  |               InitiateWithSend()       |        Close() :
  |   +---------------+   Initiate() +-----+------+ Abort() :
@@ -365,6 +366,8 @@ The diagram below provides a high-level view of the actions and events during th
 * Selection Properties: The Selection Properties consist of the options that an application can set to influence the selection of paths between the local and remote systems, to influence the selection of transport protocols, or to configure the behavior of generic transport protocol features. These options can take the form of requirements, prohibitions, or preferences. Examples of options that influence path selection include the interface type (such as a Wi-Fi connection, or a Cellular LTE connection), requirements around the largest Message that can be sent, or preferences for throughput and latency properties. Examples of options that influence protocol selection and configuration of transport protocol features include reliability, service class, multipath support, and fast open support.
 
 * Connection Properties: The Connection Properties are used to configure protocol-specific options and control per-connection behavior of the Transport Services system; for example, a protocol-specific Connection Property can express that if TCP is used, the implementation ought to use the User Timeout Option. Note that the presence of such a property does not require that a specific protocol will be used. In general, these properties do not explicitly determine the selection of paths or protocols, but can be used in this way by an implementation during connection establishment. Connection Properties are specified on a Preconnection prior to Connection establishment, and can be modified on the Connection later. Changes made to Connection Properties after Connection establishment take effect on a best-effort basis.
+
+* Security Parameters: Security Parameters define an application's requirements for authentication and encryption on a Connection. They are used by Transport Security protocols (such as those described in {{?I-D.ietf-taps-transport-security}}) to establish secure Connections. Examples of parameters that can be set include local identities, private keys, supported cryptographic algorithms, and requirements for validating trust of remote identities. Security Parameters are primarily associated with a Preconnection object, but properties related to identities can be associated directly with Endpoints.
 
 ### Establishment Actions {#establishment}
 
