@@ -1016,7 +1016,7 @@ particular instance. While this does restrict path selection, it is broader than
 requiring specific PvD instances or interface instances, and should be preferred
 over these options.
 
-### Use Temporary Local Addresses
+### Use Temporary Local Address
 
 Name:
 : use-temporary-local-address
