@@ -1031,6 +1031,9 @@ This property allows the application to express a preference for the use of
 temporary local addresses, sometimes called "privacy" addresses {{!RFC4941}}.
 Temporary addresses are generally used to prevent linking connections over time
 when a stable address, sometimes called "permanent" address, is not needed.
+Note that if an application Requires the use of temporary addresses, the
+resulting Connection cannot use IPv4, as temporary addresses do not exist in
+IPv4.
 
 
 ### Parallel Use of Multiple Paths {#parallel-multipath}
