@@ -271,9 +271,9 @@ The following diagram summarizes the top-level concepts in the architecture and 
   +-v-------------+   Connection(s)  +-------+----------+
   |  Transport    +--------+---------+                  |
   |  Services              |                            |
-  |  API                   |                            |
-  +------------------------|----------------------------+
-                           |
+  |  API                   |  +-------------+           |
+  +------------------------+--+  Framer(s)  |-----------+
+                           |  +-------------+
   +------------------------|----------------------------+
   |  Transport             |                            |
   |  System                |        +-----------------+ |
@@ -320,6 +320,7 @@ The diagram below provides a high-level view of the actions and events during th
  +-- Local Endpoint        :           Message             :
  +-- Remote Endpoint       :    Receive() |                :
  +-- Transport Properties  :       Send() |                :
+ +-- Security Parameters   :              |                :
  |                         :              |                :
  |               InitiateWithSend()       |        Close() :
  |   +---------------+   Initiate() +-----+------+ Abort() :
@@ -362,9 +363,11 @@ The diagram below provides a high-level view of the actions and events during th
 
 * Local Endpoint: The Local Endpoint represents the application's identifier for itself that it uses for transport connections; for example, a local IP address and port.
 
-* Selection Properties: The Selection Properties consist of the options that an application can set to influence the selection of paths between the local and remote systems, to influence the selection of transport protocols, or to configure the behavior of generic transport protocol features. These options can take the form of requirements, prohibitions, or preferences. Examples of options that influence path selection include the interface type (such as a Wi-Fi connection, or a Cellular LTE connection), requirements around the largest Message that can be sent, or preferences for throughput and latency properties. Examples of options that influence protocol selection and configuration of transport protocol features include reliability, service class, multipath support, and fast open support.
+* Selection Properties: The Selection Properties consist of the options that an application can set to influence the selection of paths between the local and remote systems, to influence the selection of transport protocols, or to configure the behavior of generic transport protocol features. These options can take the form of requirements, prohibitions, or preferences. Examples of options that influence path selection include the interface type (such as a Wi-Fi connection, or a Cellular LTE connection), requirements around the largest Message that can be sent, or preferences for throughput and latency properties. Examples of options that influence protocol selection and configuration of transport protocol features include reliability, multipath support, and fast open support.
 
 * Connection Properties: The Connection Properties are used to configure protocol-specific options and control per-connection behavior of the Transport Services system; for example, a protocol-specific Connection Property can express that if TCP is used, the implementation ought to use the User Timeout Option. Note that the presence of such a property does not require that a specific protocol will be used. In general, these properties do not explicitly determine the selection of paths or protocols, but can be used in this way by an implementation during connection establishment. Connection Properties are specified on a Preconnection prior to Connection establishment, and can be modified on the Connection later. Changes made to Connection Properties after Connection establishment take effect on a best-effort basis.
+
+* Security Parameters: Security Parameters define an application's requirements for authentication and encryption on a Connection. They are used by Transport Security protocols (such as those described in {{?I-D.ietf-taps-transport-security}}) to establish secure Connections. Examples of parameters that can be set include local identities, private keys, supported cryptographic algorithms, and requirements for validating trust of remote identities. Security Parameters are primarily associated with a Preconnection object, but properties related to identities can be associated directly with Endpoints.
 
 ### Establishment Actions {#establishment}
 
@@ -396,7 +399,7 @@ The diagram below provides a high-level view of the actions and events during th
 
 * Message: A Message object is a unit of data that can be represented as bytes that can be transferred between two systems over a transport connection. The bytes within a Message are assumed to be ordered. If an application does not care about the order in which a peer receives two distinct spans of bytes, those spans of bytes are considered independent Messages. 
 
-* Message Properties: Message Properties are used to specify details about Message transmission. They can be specified directly on individual Messages, or can be set on a Preconnection or Connection as defaults. These properties might only apply to how a Message is sent (such as how the transport will treat prioritization and reliability), but can also include properties that specific protocols encode and communicate to the Remote Endpoint. When receiving Messages, Message Properties can contain information about the received Message, such as metadata generated at the receiver and information signalled by the remote endpoint.
+* Message Properties: Message Properties are used to specify details about Message transmission. They can be specified directly on individual Messages, or can be set on a Preconnection or Connection as defaults. These properties might only apply to how a Message is sent (such as how the transport will treat prioritization and reliability), but can also include properties that specific protocols encode and communicate to the Remote Endpoint. When receiving Messages, Message Properties can contain information about the received Message, such as metadata generated at the receiver and information signalled by the remote endpoint. For example, a Message can be marked with a Message Property indicating that it is the final message on a connection if the peer sent a TCP FIN.
 
 * Send: The action to transmit a Message over a Connection to the remote system. The interface to Send MAY include Message Properties specific to how the Message content is to be sent. The status of the Send operation MUST be delivered back to the sending application in an event ({{events}}).
 
@@ -426,11 +429,14 @@ The following categories of events can be delivered to an application:
 
 * Abort: The action the application takes on a Connection to indicate a Close and also indicate that the Transport Services system SHOULD NOT attempt to deliver any outstanding data. This is intended for immediate termination of a connection, without cleaning up state.
 
+### Connection Groups
+
+A Connection Group is a set of Connections that share properties and caches. For multiplexing transport protocols, only Connections within the same Connection Group are allowed to be multiplexed together. An application can explicitly define Connection Groups to control caching boundaries, as discussed in {{groups}}.
+
 ## Transport Services Implementation Concepts
 
 This section defines the set of objects used internally to a system or library to implement the functionality needed to provide a transport service across a network, as required by the abstract interface.
 
-* Connection Group: A set of Connections that share properties and caches. For multiplexing transport protocols, only Connections within the same Connection Group are allowed to be multiplexed together. An application can explicitly define Connection Groups to control caching boundaries, as discussed in {{groups}}.
 
 * Path: Represents an available set of properties that a local system can use to communicate with a remote system, such as routes, addresses, and physical and virtual network interfaces.
 
@@ -464,7 +470,7 @@ Connection establishment attempts for a set of candidates may be performed simul
 
 ### Protocol Stack Equivalence {#equivalence}
 
-The Transport Services architecture defines a mechanism that allows applications to easily use different network paths and Protocol Stacks. In some cases, changing which Protocol Stacks or network paths are used will require updating the preferences expressed by the application that uses the Transport Services system. For example, an application can enable the use of a multipath or multistreaming transport protocol by modifying the properties in its Pre-Connection configuration. In some cases, however, the Transport Services system will be able to automatically change Protocol Stacks without an update to the application, either by selecting a new stack entirely, or by racing multiple candidate Protocol Stacks during connection establishment. This functionality in the API can be a powerful driver of new protocol adoption, but needs to be constrained carefully to avoid unexpected behavior that can lead to functional or security problems.
+The Transport Services architecture defines a mechanism that allows applications to easily make use of various network paths and Protocol Stacks without requiring major changes in application logic. In some cases, changing which Protocol Stacks or network paths are used will require updating the preferences expressed by the application that uses the Transport Services system. For example, an application can enable the use of a multipath or multistreaming transport protocol by modifying the properties in its Pre-Connection configuration. In some cases, however, the Transport Services system will be able to automatically change Protocol Stacks without an update to the application, either by selecting a new stack entirely, or by racing multiple candidate Protocol Stacks during connection establishment. This functionality in the API can be a powerful driver of new protocol adoption, but needs to be constrained carefully to avoid unexpected behavior that can lead to functional or security problems.
 
 If two different Protocol Stacks can be safely swapped, or raced in parallel (see {{racing}}), then they are considered to be "equivalent". Equivalent Protocol Stacks need to meet the following criteria:
 
