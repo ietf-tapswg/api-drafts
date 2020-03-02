@@ -731,21 +731,20 @@ In addition, the pseudo-level ``Default`` can be used to reset the property to t
 level used by the implementation. This level will never show up when queuing the value of
 a preference - the effective preference must be returned instead.
 
-The implementation MUST ensure a consistent outcome given the same Selection
-Properties. Internally, it MUST exclude all protocols and paths that match a
-Prohibit and exclude all protocols and paths that do not match a Require. It
-MUST then sort candidates according to Preferred properties, and then use
-Avoided properties as a tiebreaker. 
+The implementation MUST ensure an outcome that is consistent with application
+requirements as expressed using Require and Prohibit. While preferences
+expressed using Prefer and Avoid influence protocol and path selection as well,
+outcomes may vary given the same Selection Properties, as the available
+protocols and paths may vary across systems and contexts.
 
-Note that the protocols and paths which are available on a specific system may
-vary, such that application preferences may conflict with each other. For
+Note that application preferences may conflict with each other. For
 example, if an application indicates a preference for a specific path by
 specifying an interface, but also a preference for a protocol, a situation
 might occur in which the preferred protocol is not available on the preferred
-path. In such cases, implementations MUST ensure a deterministic outcome by
-prioritizing Selection Properties that select paths over those that select
-protocols. Therefore, the transport system MUST try the path first, ignoring
-the protocol preference if the protocol does not work on the path.
+path. In such cases, implementations SHOULD prioritize Selection Properties
+that select paths over those that select protocols. Therefore, the transport
+system SHOULD try the path first, ignoring the protocol preference if the
+protocol does not work on the path.
 
 Selection and Connection Properties, as well as defaults for Message
 Properties, can be added to a Preconnection to configure the selection process
