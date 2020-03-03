@@ -1045,26 +1045,53 @@ Type:
 : Enumeration
 
 Default:
-: Disabled
+: Disabled for connections created through initiate and rendezvous, Passive for listeners
 
-This property specifies whether an application wants to take advantage of
+This property specifies whether and how applications want to take advantage of
 transferring data across multiple paths between the same end hosts. Using
-multiple paths allows connections to migrate between interfaces as
-availability and performance properties change. Possible values are:
+multiple paths allows connections to migrate between interfaces or aggregate bandwidth
+as availability and performance properties change. Possible values are:
 
 Disabled:
-: The connection will not attempt using multiple paths once established
+: The connection will not allow using multiple paths once established
+
+Passive:
+: The connection will not actively try using multiple paths once established, but allow the peer endpoint to initiate using multiple paths and migrate existing connections to other paths.
 
 Handover:
-: The connection should attempt to migrate between different paths upon interface availability changes
+: The connection should only attempt to migrate between different paths when the original path is lost or becomes unreliable.
+The actual thresholds to declare a path unreliable are implementation specific.
 
 Interactive:
-: The connection should attempt to use multiple paths in response to loss or delay upon individual paths
+: The connection should attempt to use multiple paths in parallel in order to minimize loss and delay. The actual strategy is implementation specific and  my depend on the multipath protocol used, but should not aim to exceed the bandwidth provided by the best of the available paths.
+
+Passive-Interactive:
+: As Interactive, but only if using multiple paths was initiated by the peer endpoint.
 
 Aggregate:
-: The connection should attempt to use multiple paths in parallel in order to maximize bandwidth
+: The connection should attempt to use multiple paths in parallel in order to maximize bandwidth, possibly trading delay for bandwidth. The actual strategy is implementation specific.
 
-Enumeration values other than "Disabled" are interpreted as preferences.
+Passive-Aggregate:
+: As Aggregate, but only if using multiple paths was initiated by the peer endpoint.
+
+Enumeration values other than "Disabled" and "Passive" are interpreted as preferences.
+
+
+### Exposure of Alternative Addresses {#altaddr}
+
+Name:
+: advertises-altaddr
+
+Type:
+: Boolean
+
+Default:
+: False
+
+This property specifies whether addresses of other interfaces should be advertises to the
+peer endpoint by the protocol stack, e.g., to enable using multiple paths.
+Note that this may have privacy implications because it may make users linkable across multiple paths.
+
 
 ### Direction of communication
 
