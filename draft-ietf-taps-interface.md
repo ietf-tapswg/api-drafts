@@ -2683,7 +2683,7 @@ TransportProperties.Default(property)
 
 To ease the use of the interface specified by this document, implementations
 should provide a mechanism to create Transport Property objects (see {{selection-props}}) that are pre-configured with frequently used sets of properties.
-Implementations should at least short-hands to specify the following property profiles:
+Implementations should at least offer short-hands to specify the following property profiles:
 
 ### reliable-inorder-stream
 
