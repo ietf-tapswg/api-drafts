@@ -2548,12 +2548,12 @@ that the transport system implementation is either provided as library that is s
 from a trusted party, or that it is part of the operating system that the application also relies on for
 other tasks.
 
-In any case the taps API is an internal interface that is used to change information locally between two systems.
-However, of course as the transport system is resonsible for network communication, it is in the position to
-potentially share any information provided by the apllication with the network or another communication peers. 
-Most of the information provided over the taps API are most useful to configure and select protocols and paths
-and are not necessarily privacy senstive. Still, there is some information that could be privacy sensitve as
-it might reveal usage charactristics and habits of the user of an application. 
+In any case the TAPS API is an internal interface that is used to change information locally between two systems.
+However, as the transport system is responsible for network communication, it is in the position to
+potentially share any information provided by the application with the network or another communication peer. 
+Most of the information provided over the TAPS API are useful to configure and select protocols and paths
+and are not necessarily privacy sensitive. Still, there is some information that could be privacy sensitve as
+it might reveal usage characteristics and habits of the user of an application. 
 
 It should first be noted that of course any communication over a network reveals usage characteristics, as all
 packets as well as their timing and size are part of the network-visible wire image {{?RFC8546}}. However, of
@@ -2561,19 +2561,19 @@ course the selection of a protocol and its configuration impacts which informati
 clear text, to which other enties. In most cases information that is provided for protocol and path selection
 should not directly translate in information that is visible on the path. But there might be specific configuration
 information that are intended for path exposure, such as e.g. a DiffServ codepoint setting, that is either povided
-directly by the appliaction or indirectly configured over a traffic profile. 
+directly by the application or indirectly configured over a traffic profile. 
 
 Further, applications should be aware that communication attempts can lead to more than one connection establishment.
-This is for example the case when the transport system also excecutes name resolution; or when support mechasims such as
+This is for example the case when the transport system also excecutes name resolution; or when support mechanisms such as
 TURN or ICE are used to establish connectivity; or if protocols or paths are raised; or if a path fails and 
 fallback or re-establishment is supported in the transport system. 
 
-These communication activities are not different from what is used today, however, taps' goal is to support
-such mechaism as a generic service within the transport layer. This enables application to more dynamically
+These communication activities are not different from what is used today, however, the goal of a TAPS transport system is to support
+such mechanisms as a generic service within the transport layer. This enables applications to more dynamically
 benefit from innovations and new protocols in the transport system but at the same time may reduce transparency of the 
-underlying communication actions to the application itself. The taps API is designed such that protocol and path selection
+underlying communication actions to the application itself. The TAPS API is designed such that protocol and path selection
 can be limited to a small and controlled set if required by the application for functional or security purposes. Further
-taps implementations should provide an interface to pull information about which protocol and path is currently in use as
+TAPS implementations should provide an interface to pull information about which protocol and path is currently in use as
 well as provide logging about communication events of each connection.
 
 # Acknowledgements
