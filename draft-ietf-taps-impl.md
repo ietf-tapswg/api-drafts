@@ -174,8 +174,8 @@ Aggregate [Endpoint: www.example.com:80] [Interface: Any]   [Protocol: TCP]
 Any one of these sub-entries on the aggregate connection attempt would satisfy the original application intent. The concern of this section is the algorithm defining which of these options to try, when, and in what order.
 
 During Candidate Gathering, an implementation first excludes all protocols and
-paths that match a Prohibit and all protocols and paths that do not match a
-Require. Then, the implementation will sort branches according to Preferred
+paths that match a Prohibit or do not match all Require properties.
+Then, the implementation will sort branches according to Preferred
 properties, Avoided properties, and possibly other criteria.
 
 
