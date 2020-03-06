@@ -735,7 +735,9 @@ The implementation MUST ensure an outcome that is consistent with application
 requirements as expressed using Require and Prohibit. While preferences
 expressed using Prefer and Avoid influence protocol and path selection as well,
 outcomes may vary given the same Selection Properties, as the available
-protocols and paths may vary across systems and contexts.
+protocols and paths may vary across systems and contexts. However,
+implementations are RECOMMENDED to aim to provide a consistent outcome
+to an application, given the same Selection Properties.
 
 Note that application preferences may conflict with each other. For
 example, if an application indicates a preference for a specific path by
@@ -743,7 +745,7 @@ specifying an interface, but also a preference for a protocol, a situation
 might occur in which the preferred protocol is not available on the preferred
 path. In such cases, implementations SHOULD prioritize Selection Properties
 that select paths over those that select protocols. Therefore, the transport
-system SHOULD try the path first, ignoring the protocol preference if the
+system SHOULD race the path first, ignoring the protocol preference if the
 protocol does not work on the path.
 
 Selection and Connection Properties, as well as defaults for Message

@@ -380,7 +380,7 @@ Implementations should process properties in the following order: Prohibit, Requ
 If Selection Properties contain any prohibited properties, the implementation should first purge branches containing nodes with these properties. For required properties, it should only keep branches that satisfy these requirements. Finally, it should order branches according to preferred properties, and finally use avoided properties as a tiebreaker.
 When ordering branches, an implementation may give more weight to properties that the application has explicitly set than to properties that are default.
 
-As the available protocols and paths on a specific system and in a specific context may vary, the result of sorting and the outcome of racing may vary even given the same Selection and Connection Properties. However, an implementation may aim to provide a consistent outcome to applications, e.g., by preferring protocols and paths that existing Connections with similar Properties are already using.
+As the available protocols and paths on a specific system and in a specific context may vary, the result of sorting and the outcome of racing may vary even given the same Selection and Connection Properties. However, an implementation ought to aim to provide a consistent outcome to applications, e.g., by preferring protocols and paths that existing Connections with similar Properties are already using.
 
 
 ## Candidate Racing
