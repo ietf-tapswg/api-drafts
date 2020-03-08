@@ -1016,24 +1016,24 @@ particular instance. While this does restrict path selection, it is broader than
 requiring specific PvD instances or interface instances, and should be preferred
 over these options.
 
-### Local Address Preference
+### Use Temporary Local Address
 
 Name:
-: local-address-preference
+: use-temporary-local-address
 
 Type:
-: Enumeration
+: Preference
 
-Default: For Listeners and Rendezvous Connections: Stable. For other Connections: Temporary
+Default:
+: Avoid for Listeners and Rendezvous Connections. Prefer for other Connections.
 
-This property specifies whether Listeners and Connections should prefer the use of temporary addresses when possible.
-This is generally used to prevent linking connections over time when a stable address is not needed. Possible values are:
-
-Stable:
-: Prefer the use of stable (sometimes called "permanent") local addresses
-
-Temporary:
-: Prefer the use of temporary (sometimes called "privacy") addresses {{!RFC4941}}
+This property allows the application to express a preference for the use of
+temporary local addresses, sometimes called "privacy" addresses {{!RFC4941}}.
+Temporary addresses are generally used to prevent linking connections over time
+when a stable address, sometimes called "permanent" address, is not needed.
+Note that if an application Requires the use of temporary addresses, the
+resulting Connection cannot use IPv4, as temporary addresses do not exist in
+IPv4.
 
 
 ### Parallel Use of Multiple Paths {#parallel-multipath}
