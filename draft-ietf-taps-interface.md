@@ -1922,11 +1922,7 @@ Once a Connection is established, it can be used for receiving data. As with
 sending, data is received in terms of Messages. Receiving is an asynchronous
 operation, in which each call to Receive enqueues a request to receive new
 data from the connection. Once data has been received, or an error is encountered,
-an event will be delivered to complete the Receive request (see {{receive-events}}).
-
-As with sending, the type of the Message to be passed is dependent on the
-implementation, and on the constraints on the Protocol Stacks implied by the
-Connection's Transport Properties.
+an event will be delivered to complete any pending Receive requests (see {{receive-events}}). If Messages arrive at the transport system before Receive requests are issued, ensuing Receive requests will first operate on these Messages before awaiting any further Messages.
 
 ## Enqueuing Receives
 
@@ -2346,7 +2342,7 @@ The following values are valid for the Capacity Profile:
   the traffic to a lower-effort service. Transport system implementations that
   map the requested capacity profile onto per-connection DSCP signaling
   SHOULD assign the DSCP Less than Best Effort
-  {{?LE-PHB=I-D.ietf-tsvwg-le-phb}} PHB.
+  {{?RFC8622}} PHB.
 
   Low Latency/Interactive:
   : The application is interactive, and prefers loss to
@@ -2355,10 +2351,8 @@ The following values are valid for the Capacity Profile:
   used by the system to disable the coalescing of multiple small Messages into
   larger packets (Nagle's algorithm); to prefer immediate acknowledgment from
   the peer endpoint when supported by the underlying transport; and so on.
-  Transport system implementations that map the requested capacity profile onto
-  per-connection DSCP signaling without multiplexing SHOULD assign the DSCP
-  Expedited Forwarding {{?RFC3246}} PHB.
-
+  Transport system implementations that map the requested capacity profile onto per-connection DSCP signaling without multiplexing SHOULD assign a DSCP Assured Forwarding (AF41,AF42,AF43,AF44) {{?RFC2597}} PHB. Inelastic traffic that is expected to conform to the configured network service rate could be mapped to the DSCP Expedited Forwarding {{?RFC3246}} or {{?RFC5865}} PHBs.
+  
   Low Latency/Non-Interactive:
   : The application prefers loss to latency but is
   not interactive. Response time should be optimized at the expense of bandwidth
