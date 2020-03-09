@@ -103,7 +103,7 @@ informative:
   TCP-COUPLING:
     title: "ctrlTCP: Reducing Latency through Coupled, Heterogeneous Multi-Flow TCP Congestion Control"
     seriesinfo:
-        EEE INFOCOM Global Internet Symposium (GI) workshop (GI 2018)
+        IEEE INFOCOM Global Internet Symposium (GI) workshop (GI 2018)
     authors:
       -
         ins: S. Islam
@@ -123,7 +123,7 @@ informative:
       -
         ins: S. Gjessing
         name: Stein Gjessing
-    date: 2018
+    date: 2018-04-15
 
 --- abstract
 
