@@ -173,6 +173,12 @@ Aggregate [Endpoint: www.example.com:80] [Interface: Any]   [Protocol: TCP]
 
 Any one of these sub-entries on the aggregate connection attempt would satisfy the original application intent. The concern of this section is the algorithm defining which of these options to try, when, and in what order.
 
+During Candidate Gathering, an implementation first excludes all protocols and
+paths that match a Prohibit or do not match all Require properties.
+Then, the implementation will sort branches according to Preferred
+properties, Avoided properties, and possibly other criteria.
+
+
 ## Candidate Gathering {#gathering}
 
 The step of gathering candidates involves identifying which paths, protocols, and endpoints may be used for a given Connection. This list is determined by the requirements, prohibitions, and preferences of the application as specified in the Selection Properties.
@@ -372,7 +378,9 @@ An implementation may use the Capacity Profile to prefer paths optimized for the
 
 Implementations should process properties in the following order: Prohibit, Require, Prefer, Avoid.
 If Selection Properties contain any prohibited properties, the implementation should first purge branches containing nodes with these properties. For required properties, it should only keep branches that satisfy these requirements. Finally, it should order branches according to preferred properties, and finally use avoided properties as a tiebreaker.
+When ordering branches, an implementation may give more weight to properties that the application has explicitly set than to properties that are default.
 
+As the available protocols and paths on a specific system and in a specific context may vary, the result of sorting and the outcome of racing may vary even given the same Selection and Connection Properties. However, an implementation ought to aim to provide a consistent outcome to applications, e.g., by preferring protocols and paths that existing Connections with similar Properties are already using.
 
 
 ## Candidate Racing
