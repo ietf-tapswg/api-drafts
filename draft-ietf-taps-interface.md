@@ -92,7 +92,6 @@ author:
     email: tpauly@apple.com
 
 normative:
-  I-D.ietf-tsvwg-rtcweb-qos:
   I-D.ietf-taps-arch:
 
 informative:
