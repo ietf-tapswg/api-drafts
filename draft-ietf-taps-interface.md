@@ -216,10 +216,7 @@ given language on a given platform is largely dependent on the features of the
 language and the platform. Actions could be implemented as functions or method
 calls, for instance, and Events could be implemented via event queues, handler
 functions or classes, communicating sequential processes, or other asynchronous
-calling conventions. The method for dispatching and handling Events is an
-implementation detail, with the caveat that the interface for receiving Messages
-must require the application to invoke the Connection.Receive() Action once per
-Message to be received (see {{receiving}}).
+calling conventions.
 
 This specification treats Events and errors similarly. Errors, just as any
 other Events, may occur asynchronously in network applications. However, it is
@@ -259,8 +256,7 @@ provides:
   in modern platforms and programming languages;
 
 - Explicit support for security properties as first-order transport features,
-  and for long-term caching of cryptographic identities and parameters for
-  associations among endpoints; and
+  and for configuration of cryptographic identities and transport security parameters persistent across multiple Connections; and
 
 - Explicit support for multistreaming and multipath transport protocols, and
   the grouping of related Connections into Connection Groups through cloning
@@ -270,11 +266,11 @@ provides:
 
 # API Summary
 
-The Transport Services Interface is the basic common abstract application
+The Transport Services API is the basic common abstract application
 programming interface to the Transport Services Architecture defined in the TAPS
 Architecture {{I-D.ietf-taps-arch}}.
 
-An application primarily interacts with this interface through two Objects:
+An application primarily interacts with this API through two Objects:
 Preconnections and Connections. A Preconnection represents a set of properties
 and constraints on the selection and configuration of paths and protocols to
 establish a Connection with a remote Endpoint. A Connection represents a
@@ -563,11 +559,10 @@ We therefore make the following recommendations:
   implementation, unless the implementation itself uses different names for
   substantially equivalent objects for networking by convention.
 - Implementations of this interface SHOULD implement each Selection Property,
-  Connection Property, and Message Context Property specified in this document,
-  exclusive of appendices. Each interface SHOULD be implemented even when this
+  Connection Property, and Message Context Property specified in this document. Each interface SHOULD be implemented even when this
   will always result in no operation, e.g. there is no action when the API
   specifies a Property that is not available in a transport protocol implemented
-  on a specific platform.
+  on a specific platform. For example, if TCP is the only underlying transport protocol, the Message Property "msg-ordered" can be implemented even if disabling ordering will not have any effect TCP because the API does not guarantee out-of-order delivery. Similarly, the msg-lifetime" Message Property can be implemented but ignored, as the description of this Property states that "it is not guaranteed that a Message will not be sent when its Lifetime has expired".
 - Implementations may use other representations for Transport Property Names,
   e.g., by providing constants, but should provide a straight-forward mapping
   between their representation and the property names specified here.
@@ -764,7 +759,7 @@ Individual properties are then added to the TransportProperties Object:
 TransportProperties.Add(property, value)
 ~~~
 
-Preference-typed Selection Properties can be frequently used. Implementations MAY therefore provide additional convenience functions, see {{preference-conv}} for examples.
+Selection Properties of type "Preference" can be frequently used. Implementations MAY therefore provide additional convenience functions, see {{preference-conv}} for examples.
 In addition, implementations MAY provide a mechanism to create TransportProperties objects that are preconfigured for common use cases as outlined in {{property-profiles}}.
 
 For an existing Connection, the Transport Properties can be queried any time
@@ -782,7 +777,7 @@ from an antecedent via cloning; see {{groups}} for more.
 Properties are listed in the subsections below. Note that many properties are
 only considered during establishment, and can not be changed after a Connection
 is established; however, they can be queried. Querying a Selection Property
-after establishment yields the value Required for properties of the selected
+after establishment yields the value ``Require`` for properties of the selected
 protocol and path, Avoid for properties avoided during selection, and Ignore for
 all other properties.
 
@@ -950,7 +945,7 @@ Default:
 
 This property allows the application to select which specific network interfaces
 or categories of interfaces it wants to `Require`, `Prohibit`, `Prefer`, or
-`Avoid`. Note that marking a specific interface as `Required` strictly limits path
+`Avoid`. Note that marking a specific interface as `Require` strictly limits path
 selection to a single interface, and may often lead to less flexible and resilient
 connection establishment.
 
@@ -968,7 +963,7 @@ applications to be written generically. For example, if a single implementation
 is used on both mobile devices and desktop devices, it should define the
 `Cellular` interface type for both systems, since an application may want to
 always `Prohibit Cellular`. Note that marking a specific interface type as
-`Required` limits path selection to a small set of interfaces, and leads to less
+`Require` limits path selection to a small set of interfaces, and leads to less
 flexible and resilient connection establishment.
 
 The set of interface types is expected to change over time as new access
@@ -1468,7 +1463,7 @@ The Connection Property "Priority" operates on entangled Connections as in {{msg
 when allocating available network
 capacity among Connections in a Connection Group, sends on Connections with
 higher Priority values will be prioritized over sends on Connections with
-lower Priority values. An ideal transport system implementation would assign
+lower Priority values. A transport system implementation should, if possible, assign
 each Connection the capacity share (M-N) x C / M, where N is the Connection's
 Priority value, M is the maximum Priority value used by all Connections in the
 group and C is the total available capacity. However, the Priority setting is
@@ -1841,7 +1836,7 @@ Default:
 : false
 
 This property specifies that a message should be sent and received as a single
-packet without transport-layer segmentation or network-layer fragmentation.
+packet without transport-layer segmentation or network-layer fragmentation, if possible.
 Attempts to send a message with this property set with a size greater to the
 transport's current estimate of its maximum transmission segment size will
 result in a `SendError`. When used with transports supporting this functionality
@@ -2274,7 +2269,7 @@ Default:
 : 100
 
 This Property is a non-negative integer representing the relative inverse
-priority of this Connection relative to other Connections in the same
+priority (i.e., a lower value reflects a higher priority) of this Connection relative to other Connections in the same
 Connection Group. It has no effect on Connections not part of a Connection
 Group. As noted in {{groups}}, this property is not entangled when Connections
 are cloned, i.e., changing the Priority on one Connection in a Connection Group does not change it on the other Connections in the same Connection Group.
@@ -2522,9 +2517,7 @@ During the lifetime of a connection there are events that can occur when configu
 ### Soft Errors
 
 Asynchronous introspection is also possible, via the SoftError Event. This event
-informs the application about the receipt of an ICMP error message related to
-the Connection. This will only happen if the underlying protocol stack supports
-access to soft errors; however, even if the underlying stack supports it, there
+informs the application about the receipt and contents of an ICMP error message related to the Connection. This will only happen if the underlying protocol stack supports access to soft errors; however, even if the underlying stack supports it, there
 is no guarantee that a soft error will be signaled.
 
 ~~~
@@ -2700,7 +2693,7 @@ and for contributing text, e.g., on multicast.
 
 ## Adding Preference Properties {#preference-conv}
 
-As Selection Properties of type Preference will be added to a TransportProperties object quite frequently, implementations should provide special actions for adding each preference level i.e, `TransportProperties.Add(some_property, avoid)` is equivalent to `TransportProperties.Avoid(some_property)`:
+As Selection Properties of type ``Preference`` will be added to a TransportProperties object quite frequently, implementations should provide special actions for adding each preference level i.e, `TransportProperties.Add(some_property, avoid)` is equivalent to `TransportProperties.Avoid(some_property)`:
 
 ~~~
 TransportProperties.Require(property)
