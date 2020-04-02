@@ -801,7 +801,7 @@ Default:
 This property specifies whether the application needs to use a transport
 protocol that ensures that all data is received on the other side without
 corruption. This also entails being notified when a Connection is closed or
-aborted.
+aborted when reliable data transfer is enabled.
 
 ### Preservation of Message Boundaries {#prop-boundaries}
 
@@ -961,9 +961,7 @@ that are supported on the local system to all remote systems, to allow
 applications to be written generically. For example, if a single implementation
 is used on both mobile devices and desktop devices, it should define the
 `Cellular` interface type for both systems, since an application may want to
-always `Prohibit Cellular`. Note that marking a specific interface type as
-`Require` limits path selection to a small set of interfaces, and leads to less
-flexible and resilient connection establishment.
+always `Prohibit Cellular`.
 
 The set of interface types is expected to change over time as new access
 technologies become available.
