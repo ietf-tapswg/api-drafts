@@ -453,7 +453,7 @@ the lifetime of a connection using Transport Properties, as defined in
 
 Transport Properties are divided into Selection, Connection, and Message
 Properties. Selection Properties (see {{selection-props}}) can only be set during pre-establishment. They are only used to specify which paths and protocol stacks can be used and are preferred by the application. 
-Connection Properties (see {{connection-props}}) can also be set during pre-establishment but may be changed later and are used to inform decisions made during establishment and to fine-tune the established connection.  
+Connection Properties (see {{connection-props}}) can also be set during pre-establishment but may be changed later. They are used to inform decisions made during establishment and to fine-tune the established connection.  
 The behavior of the selected protocol stack(s) when
 sending Messages is controlled by Message Properties (see {{message-props}}).
 
