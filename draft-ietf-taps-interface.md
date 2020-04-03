@@ -223,7 +223,7 @@ recommended that implementations of this interface also return errors
 immediately, according to the error handling idioms of the implementation
 platform, for errors that can be immediately detected, such as inconsistency
 in Transport Properties. Errors can provide an optional reason to give the 
-application further details as to why the error occured.
+application further details as to why the error occurred.
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this
@@ -233,7 +233,7 @@ when, and only when, they appear in all capitals, as shown here.
 # Overview of Interface Design {#principles}
 
 The design of the interface specified in this document is based on a set of
-princples, themselves an elaboration on the architectural design principles
+principles, themselves an elaboration on the architectural design principles
 defined in {{I-D.ietf-taps-arch}}. The interface defined in this document
 provides:
 
@@ -465,13 +465,9 @@ the lifetime of a connection using Transport Properties, as defined in
 {{I-D.ietf-taps-arch}}. 
 
 Transport Properties are divided into Selection, Connection, and Message
-Properties. During pre-establishment, Selection Properties (see
-{{selection-props}}) are used to specify which paths and protocol stacks can be
-used and are preferred by the application, and Connection Properties (see
-{{connection-props}}) can be used to influence decisions made during
-establishment and to fine-tune the eventually established connection. These
-Connection Properties can also be used later, to monitor and fine-tune
-established connections. The behavior of the selected protocol stack(s) when
+Properties. Selection Properties (see {{selection-props}}) can only be set during pre-establishment. They are only used to specify which paths and protocol stacks can be used and are preferred by the application. 
+Connection Properties (see {{connection-props}}) can also be set during pre-establishment but may be changed later. They are used to inform decisions made during establishment and to fine-tune the established connection.  
+The behavior of the selected protocol stack(s) when
 sending Messages is controlled by Message Properties (see {{message-props}}).
 
 All Transport Properties, regardless of the phase in which they are used, are
@@ -479,7 +475,7 @@ organized within a single namespace. This enables setting them as defaults in
 earlier stages and querying them in later stages:
 
 - Connection Properties can be set on Preconnections
-- Message Properties can be set on Preconnections and Connections
+- Message Properties can be set on Preconnections, Connections and Messages
 - The effect of Selection Properties can be queried on Connections and Messages
 
 Note that configuring Connection Properties and Message Properties on
@@ -488,7 +484,7 @@ Connection Properties allows their use as additional input to the selection
 process. Protocol Specific Properties, which enable configuration of specialized
 features of a specific protocol, see Section 3.2 of {{I-D.ietf-taps-arch}}, are not
 used as an input to the selection process but only support configuration if
-the respective prototocol has been selected.
+the respective protocol has been selected.
 
 
 ### Transport Property Names {#property-names}
@@ -594,6 +590,8 @@ to Initiate() Connections, but is OPTIONAL if it is used to Listen() for
 incoming Connections.
 The Local Endpoint and the Remote Endpoint MUST both be specified if a
 peer-to-peer Rendezvous is to occur based on the Preconnection.
+
+Transport Properties MUST always be specified while security parameters are OPTIONAL.
 
 Message Framers (see {{framing}}), if required, should be added to the
 Preconnection during pre-establishment.
@@ -996,7 +994,7 @@ available on the system.
 
 The identification of a specific Provisioning Domain (PvD) is defined to be
 implementation- and system-specific, since there is not a portable standard
-format for a PvD identitfier. For example, this identifier may be a string name
+format for a PvD identifier. For example, this identifier may be a string name
 or an integer. As with requiring specific interfaces, requiring a specific PvD
 strictly limits path selection.
 
@@ -1244,7 +1242,7 @@ another Connection.
 Once Initiate is called, the candidate Protocol Stack(s) may cause one or more
 candidate transport-layer connections to be created to the specified remote
 endpoint. The caller may immediately begin sending Messages on the Connection
-(see {{sending}}) after calling Initate(); note that any idempotent data sent
+(see {{sending}}) after calling Initiate(); note that any idempotent data sent
 while the Connection is being established may be sent multiple times or on
 multiple candidates.
 
@@ -1538,7 +1536,7 @@ The concept of Message Contexts is described in {{msg-ctx}}.
 
 Like all Actions in this interface, the Send Action is asynchronous. There are
 several Events that can be delivered in response to Sending a Message.
-Exactly one Event (Sent, Expired, or SendError) will be delivered in reponse
+Exactly one Event (Sent, Expired, or SendError) will be delivered in response
 to each call to Send.
 
 Note that if partial Sends are used ({{send-partial}}), there will still be exactly
@@ -1746,11 +1744,11 @@ individual messages MUST result in a SendError.
 
 ### Final {#msg-final}
 
-Type:
-: Boolean
-
 Name:
 : final
+
+Type:
+: Boolean
 
 Default:
 : false
@@ -1903,7 +1901,7 @@ establishment, InitiateWithSend is identical to Initiate() followed by Send().
 Neither partial sends nor send batching are supported by InitiateWithSend().
 
 The Events that may be sent after InitiateWithSend() are equivalent to those
-that would be sent by an invocation of Initate() followed immediately by an
+that would be sent by an invocation of Initiate() followed immediately by an
 invocation of Send(), with the caveat that a send failure that occurs because
 the Connection could not be established will not result in a
 SendError separate from the InitiateError signaling the failure of Connection
