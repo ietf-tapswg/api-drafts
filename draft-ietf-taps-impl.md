@@ -102,7 +102,7 @@ informative:
 --- abstract
 
 The Transport Services (TAPS) system enables applications to use transport protocols flexibly for network communication
-and defines an protocol-independent TAPS Application Programming Interface (API) that is based on an asynchronous, 
+and defines a protocol-independent TAPS Application Programming Interface (API) that is based on an asynchronous, 
 event-driven interaction pattern. This document serves as a guide to implementation on how to build such a system.
 
 --- middle
