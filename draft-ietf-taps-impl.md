@@ -328,7 +328,7 @@ Another example is racing SCTP with TCP:
 
 Implementations that support racing protocols and protocol options should maintain a history of which protocols and protocol options successfully established, on a per-network basis (see {{performance-caches}}). This information can influence future racing decisions to prioritize or prune branches.
 
-## Branching Order-of-Operations
+### Branching Order-of-Operations
 
 Branch types must occur in a specific order relative to one another to avoid creating leaf nodes with invalid or incompatible settings. In the example above, it would be invalid to branch for derived endpoints (the DNS results for www.example.com) before branching between interface paths, since usable DNS results on one network may not necessarily be the same as DNS results on another network due to local network entities, supported address families, or enterprise network configurations. Implementations must be careful to branch in an order that results in usable leaf nodes whenever there are multiple branch types that could be used from a single node.
 
@@ -356,7 +356,7 @@ For example, if the application has indicated both a preference for WiFi over LT
 ~~~~~~~~~~
 
 
-## Sorting Branches {#branch-sorting}
+### Sorting Branches {#branch-sorting}
 
 Implementations should sort the branches of the tree of connection options in order of their preference rank.
 Leaf nodes on branches with higher rankings represent connection attempts that will be raced first.
