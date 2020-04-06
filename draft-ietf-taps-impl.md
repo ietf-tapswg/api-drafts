@@ -115,8 +115,8 @@ This document serves as a guide to implementation on how to build a system that 
 
 The connection objects that are exposed to applications for Transport Services are:
 
-- the Preconnection, the bundle of properties that describes the application constraints on the transport;
-- the Connection, the basic object that represents a flow of data in either direction between the Local and Remote Endpoints;
+- the Preconnection, the bundle of Properties that describes the application constraints on the transport;
+- the Connection, the basic object that represents a flow of data as Messages in either direction between the Local and Remote Endpoints;
 - and the Listener, a passive waiting object that delivers new Connections.
 
 Preconnection objects should be implemented as bundles of properties that an application can both read and write. Once a Preconnection has been used to create an outbound Connection or a Listener, the implementation should ensure that the copy of the properties held by the Connection or Listener is immutable. This may involve performing a deep-copy if the application is still able to modify properties on the original Preconnection object.
