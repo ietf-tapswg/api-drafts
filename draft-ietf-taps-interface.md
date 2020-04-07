@@ -124,17 +124,6 @@ informative:
         name: Stein Gjessing
     date: 2018-04-15
 
-  NEAT-flow-mapping:
-    title: Transparent Flow Mapping for NEAT
-    seriesinfo:
-        Workshop on Future of Internet Transport (FIT 2017)
-    authors:
-      -
-        ins: F. Weinrank
-     -
-        ins: M. Tuexen
-    date: 2017
-
 
 --- abstract
 
@@ -1157,7 +1146,7 @@ Requiring this property limits the choice of mappings to underlying protocols,
 which can reduce
 efficiency. For example, it prevents the transport system from mapping
 Connections to SCTP streams, where
-the first transmitted data takes the role of active open {{NEAT-flow-mapping}}.
+the first transmitted data takes the role of an active open signal {{I-D.ietf-taps-impl}}.
 
 
 ## Specifying Security Parameters and Callbacks {#security-parameters}
