@@ -1161,6 +1161,8 @@ This document has no actions for IANA.
 
 # Security Considerations
 
+{{I-D.ietf-taps-arch}} outlines general security consideration and requirements for any system that implements the TAPS archtecture. {{I-D.ietf-taps-interface}} provides further discussion on security and privacy implications of the TAPS API. This document provides additional guidance on implementation specifics for the TAPS API and as such the security considerations in both of these documents apply. The next two subsections discuss further considerations that are specific to mechanisms specified in this document.
+
 ## Considerations for Candidate Gathering
 
 Implementations should avoid downgrade attacks that allow network interference to cause the implementation to select less secure, or entirely insecure, combinations of paths and protocols.
