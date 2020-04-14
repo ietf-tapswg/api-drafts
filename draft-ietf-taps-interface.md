@@ -1869,8 +1869,7 @@ Connection.Send(messageData, messageContext, endOfMessage)
 
 All data sent with the same MessageContext object will be treated as belonging
 to the same Message, and will constitute an in-order series until the
-endOfMessage is marked. Once the end of the Message is marked, the
-MessageContext object may be re-used as a new Message with identical parameters.
+endOfMessage is marked.
 
 ## Batching Sends {#send-batching}
 
