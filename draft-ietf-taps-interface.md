@@ -1066,15 +1066,16 @@ Interactive:
 : The connection should attempt to use multiple paths in parallel in order to minimize loss and delay. The actual strategy is implementation specific and  my depend on the multipath protocol used, but should not aim to exceed the bandwidth provided by the best of the available paths.
 
 Passive-Interactive:
-: As Interactive, but only if using multiple paths was initiated by the peer endpoint.
+: As Interactive, but only using paths established by the peer endpoint.
 
 Aggregate:
 : The connection should attempt to use multiple paths in parallel in order to maximize bandwidth, possibly trading delay for bandwidth. The actual strategy is implementation specific.
 
 Passive-Aggregate:
-: As Aggregate, but only if using multiple paths was initiated by the peer endpoint.
+: As Aggregate, but only if using paths established by the peer endpoint.
 
-Enumeration values other than "Disabled" and "Passive" are interpreted as preferences.
+Enumeration values other than "Disabled" are interpreted as a preference for choosing protocols that can make use of multiple paths. 
+The "Disabled" value implies a requirement not to use multiple paths in parallel but does not prevent choosing a protocol that is principally capable of using multiple paths.
 
 
 ### Exposure of Alternative Addresses {#altaddr}
