@@ -777,10 +777,16 @@ from an antecedent via cloning; see {{groups}} for more.
 {{connection-props}} provides a list of Connection Properties, while Selection
 Properties are listed in the subsections below. Note that many properties are
 only considered during establishment, and can not be changed after a Connection
-is established; however, they can be queried. Querying a Selection Property
-after establishment yields the value `Require` for properties of the selected
-protocol and path, Avoid for properties avoided during selection, and Ignore for
-all other properties.
+is established; however, they can be queried. The return type of a queried
+Selection Property is Boolean, where `true` means that the Selection Property
+has been applied and `false` means that the Selection Property has not
+been applied. Note that `true` does not mean that a request has been honored.
+For example, if `Congestion control` was
+requested with preference level `Prefer`, but congestion control could not
+be supported, querying the `congestionControl` property yields the
+value `false`. If preference level `Avoid` was used for `Congestion control`,
+and, as requested, the Connection is not congestion controlled, querying
+the `congestionControl` property also yields the value `false`.
 
 An implementation of this interface must provide sensible defaults for Selection
 Properties. The defaults given for each property below represent a
