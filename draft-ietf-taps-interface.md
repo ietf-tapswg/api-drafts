@@ -1063,7 +1063,7 @@ Handover:
 The actual thresholds to declare a path unreliable are implementation specific.
 
 Interactive:
-: The connection should attempt to use multiple paths in parallel in order to minimize loss and delay. The actual strategy is implementation specific and  my depend on the multipath protocol used, but should not aim to exceed the bandwidth provided by the best of the available paths.
+: The connection should attempt to use multiple paths in parallel in order to minimize loss and delay. The actual strategy is implementation specific and may depend on the multipath protocol used, but should not aim to exceed the capacity provided by the best of the available paths.
 
 Passive-Interactive:
 : As Interactive, but only using paths established by the peer endpoint.
@@ -1072,10 +1072,10 @@ Aggregate:
 : The connection should attempt to use multiple paths in parallel in order to maximize bandwidth, possibly trading delay for bandwidth. The actual strategy is implementation specific.
 
 Passive-Aggregate:
-: As Aggregate, but only if using paths established by the peer endpoint.
+: As Aggregate, but only using paths established by the peer endpoint.
 
 Enumeration values other than "Disabled" are interpreted as a preference for choosing protocols that can make use of multiple paths. 
-The "Disabled" value implies a requirement not to use multiple paths in parallel but does not prevent choosing a protocol that is principally capable of using multiple paths.
+The "Disabled" value implies a requirement not to use multiple paths in parallel but does not prevent choosing a protocol that is capable of using multiple paths.
 
 
 ### Exposure of Alternative Addresses {#altaddr}
@@ -1089,8 +1089,8 @@ Type:
 Default:
 : False
 
-This property specifies whether addresses of other interfaces should be advertises to the
-peer endpoint by the protocol stack, e.g., to enable using multiple paths.
+This property specifies whether alternative addresses, e.g., of other interfaces, should be advertised to the
+peer endpoint by the protocol stack to enable using multiple paths.
 Note that this may have privacy implications because it may make users linkable across multiple paths.
 
 
