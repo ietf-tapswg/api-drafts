@@ -864,8 +864,9 @@ This property specifies whether an application would like to supply a Message to
 the transport protocol before Connection establishment, which will then be
 reliably transferred to the other side before or during Connection
 establishment, potentially multiple times (i.e., multiple copies of the message data
-may be passed to the Remote Endpoint). See also {{msg-idempotent}}. Note that
-disabling this property
+may be passed to the Remote Endpoint); the Message must be
+Idempotent, as defined in {{?RFC7231}}, Section 4.2.2: "A request method is considered 'idempotent' if the intended effect on the server of multiple identical requests with that method is the same as the effect for a single such request."
+See also {{msg-idempotent}}. Note that disabling this property
 has no effect for protocols that are not connection-oriented and do not protect
 against duplicated messages, e.g., UDP.
 
@@ -1740,7 +1741,8 @@ certain 0-RTT establishment techniques, where retransmission of the 0-RTT data
 may cause the remote application to receive the Message multiple times.
 
 Note that for protocols that do not protect against duplicated messages,
-e.g., UDP, all messages MUST be marked as Idempotent.
+e.g., UDP, all messages MUST be marked as Idempotent (as defined in
+Section 4.2.2 of {{?RFC7231}}).
 In order to enable protocol selection to choose such a protocol,
 Idempotent MUST be added to the TransportProperties passed to the
 Preconnection. If such a protocol was chosen, disabling Idempotent on
