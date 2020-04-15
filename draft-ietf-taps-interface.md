@@ -1191,7 +1191,7 @@ handled as client-provided callbacks. Security handshake callbacks that may be
 invoked during connection establishment include:
 
 - Trust verification callback: Invoked when a Remote Endpoint's trust must be validated before the
-handshake protocol can proceed.
+handshake protocol can continue.
 
 ~~~
 TrustCallback := NewCallback({
