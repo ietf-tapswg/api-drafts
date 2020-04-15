@@ -1077,6 +1077,7 @@ Passive-Aggregate:
 Enumeration values other than "Disabled" are interpreted as a preference for choosing protocols that can make use of multiple paths. 
 The "Disabled" value implies a requirement not to use multiple paths in parallel but does not prevent choosing a protocol that is capable of using multiple paths.
 
+Setting this property to "Handover", "Interactive" or "Aggregate" may have privacy implications: It enables the transport to establish connectivity using alternate paths that may make users linkable across multiple paths, even if the Exposure of Alternative Addresses property (see {{altaddr}} below) is set to false.
 
 ### Exposure of Alternative Addresses {#altaddr}
 
@@ -1090,9 +1091,10 @@ Default:
 : False
 
 This property specifies whether alternative addresses, e.g., of other interfaces, should be advertised to the
-peer endpoint by the protocol stack to enable using multiple paths.
-Note that this may have privacy implications because it may make users linkable across multiple paths.
+peer endpoint by the protocol stack. Advertising these addresses enables the peer-endpoint to establish additional connectivity, e.g., for connection migration or using multiple paths.
 
+Note that this may have privacy implications because it may make users linkable across multiple paths.
+Also, note that setting this to false does not prevent the local transport system from _establishing_ connectivity using alternate paths (see {{parallel-multipath}} above); it only prevents _procative advertisement_ of addresses.
 
 ### Direction of communication
 
