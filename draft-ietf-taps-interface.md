@@ -589,7 +589,9 @@ of the potential Connection (see {{endpointspec}}), the Selection Properties
 
 The Local Endpoint MUST be specified if the Preconnection is used to Listen()
 for incoming Connections, but is OPTIONAL if it is used to Initiate()
-connections. The Remote Endpoint MUST be specified if the Preconnection is used
+connections. If no Local Endpoint is specified, the Transport System will
+assign an ephemeral local port to the Connection.
+The Remote Endpoint MUST be specified if the Preconnection is used
 to Initiate() Connections, but is OPTIONAL if it is used to Listen() for
 incoming Connections.
 The Local Endpoint and the Remote Endpoint MUST both be specified if a
