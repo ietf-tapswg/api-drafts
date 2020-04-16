@@ -849,7 +849,7 @@ This property specifies whether the application wishes to use a transport
 protocol that can ensure that data is received by the application on the other
 end in the same order as it was sent.
 
-### Use 0-RTT Session Establishment with an Idempotent Message {#prop-0rtt}
+### Use 0-RTT Session Establishment with a Safely Replayable Message {#prop-0rtt}
 
 Name:
 : zeroRttMsg
@@ -864,7 +864,7 @@ This property specifies whether an application would like to supply a Message to
 the transport protocol before Connection establishment, which will then be
 reliably transferred to the other side before or during Connection
 establishment, potentially multiple times (i.e., multiple copies of the message data
-may be passed to the Remote Endpoint). See also {{msg-idempotent}}. Note that
+may be passed to the Remote Endpoint). See also {{msg-safelyreplayable}}. Note that
 disabling this property
 has no effect for protocols that are not connection-oriented and do not protect
 against duplicated messages, e.g., UDP.
@@ -1246,7 +1246,7 @@ another Connection.
 Once Initiate is called, the candidate Protocol Stack(s) may cause one or more
 candidate transport-layer connections to be created to the specified remote
 endpoint. The caller may immediately begin sending Messages on the Connection
-(see {{sending}}) after calling Initiate(); note that any idempotent data sent
+(see {{sending}}) after calling Initiate(); note that any data marked `Safely Replayable` that is sent
 while the Connection is being established may be sent multiple times or on
 multiple candidates.
 
@@ -1723,10 +1723,10 @@ This property is used for protocols that support preservation of data ordering,
 see {{prop-ordering}}, but allow out-of-order delivery for certain messages, e.g., by multiplexing independent messages onto
 different streams.
 
-### Idempotent {#msg-idempotent}
+### Safely Replayable {#msg-safelyreplayable}
 
 Name:
-: idempotent
+: safelyReplayable
 
 Type:
 : Boolean
@@ -1740,10 +1740,10 @@ certain 0-RTT establishment techniques, where retransmission of the 0-RTT data
 may cause the remote application to receive the Message multiple times.
 
 Note that for protocols that do not protect against duplicated messages,
-e.g., UDP, all messages MUST be marked as Idempotent.
+e.g., UDP, all messages MUST be marked as `Safely Replayable`.
 In order to enable protocol selection to choose such a protocol,
-Idempotent MUST be added to the TransportProperties passed to the
-Preconnection. If such a protocol was chosen, disabling Idempotent on
+`Safely Replayable` MUST be added to the TransportProperties passed to the
+Preconnection. If such a protocol was chosen, disabling `Safely Replayable` on
 individual messages MUST result in a SendError.
 
 ### Final {#msg-final}
@@ -1896,8 +1896,8 @@ a first Message sent:
 Connection := Preconnection.InitiateWithSend(messageData, messageContext?, timeout?)
 ~~~
 
-Whenever possible, a messageContext should be provided to declare the message passed to InitiateWithSend
-as idempotent. This allows the transport system to make use of 0-RTT establishment in case this is supported
+Whenever possible, a messageContext should be provided to declare the Message passed to InitiateWithSend
+as `Safely Replayable`. This allows the transport system to make use of 0-RTT establishment in case this is supported
 by the available protocol stacks. When the selected stack(s) do not support transmitting data upon connection
 establishment, InitiateWithSend is identical to Initiate() followed by Send().
 
@@ -2049,7 +2049,7 @@ applications need to treat early data separately,
 e.g., if early data has different security properties than data sent after
 connection establishment. In the case of TLS 1.3, client early data can be replayed
 maliciously (see {{!RFC8446}}). Thus, receivers may wish to perform additional
-checks for early data to ensure it is idempotent or not replayed. If TLS 1.3 is available
+checks for early data to ensure it is safely replayable. If TLS 1.3 is available
 and the recipient Message was sent as part of early data, the corresponding metadata carries
 a flag indicating as such. If early data is enabled, applications should check this metadata
 field for Messages received during connection establishment and respond accordingly.
@@ -2398,7 +2398,7 @@ a data transfer useful. It is given in bits per second. The special value `Unlim
 
 The following generic Connection Properties are read-only, i.e. they cannot be changed by an application.
 
-#### Maximum Message Size Concurrent with Connection Establishment {#size-idempotent}
+#### Maximum Message Size Concurrent with Connection Establishment {#size-safelyreplayable}
 
 Name:
 : zeroRttMsgMaxLen
@@ -2407,7 +2407,7 @@ Type:
 : Integer
 
 This property represents the maximum Message size that can be sent
-before or during Connection establishment, see also {{msg-idempotent}}.
+before or during Connection establishment, see also {{msg-safelyreplayable}}.
 It is given in Bytes.
 
 #### Maximum Message Size Before Fragmentation or Segmentation {#conn-max-msg-notfrag}
@@ -2746,7 +2746,7 @@ It should consist of the following properties:
  | preserveOrder           | ignore    |
  | congestionControl       | ignore    |
  | preserveMsgBoundaries  | require   |
- | idempotent               | true      |
+ | safely replayable        | true      |
 
 Applications that choose this Transport Property Profile for latency reasons
 should also consider setting the Capacity Profile Property,
