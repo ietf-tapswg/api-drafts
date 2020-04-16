@@ -2591,6 +2591,24 @@ Each transition of connection state is associated with one of more events:
 - ConnectionError<> occurs when a Connection transitions to Closed state due to
   an error in all other circumstances.
 
+The following diagram shows the possible states of a Connection and the
+events that occur upon a transition from one state to another.
+
+~~~~~~~~~~
+
+              (*)                (**)
+Establishing -----> Established -----> Closed
+     |                                   ^
+     |                                   |
+     +-----------------------------------+
+                  InitiateError<>
+
+(*) Ready<>, ConnectionReceived<>, RendezvousDone<>
+(**) Closed<>, ConnectionError<>
+
+~~~~~~~~~~
+{: #fig-connstates title="Connection State Diagram"}
+
 The interface provides the following guarantees about the ordering of
  operations:
 
