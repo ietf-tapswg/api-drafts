@@ -101,7 +101,9 @@ informative:
 
 --- abstract
 
-The Transport Services architecture {{I-D.ietf-taps-arch}} defines a system that allows applications to use transport networking protocols flexibly. This document serves as a guide to implementation on how to build such a system.
+The Transport Services (TAPS) system enables applications to use transport protocols flexibly for network communication
+and defines a protocol-independent TAPS Application Programming Interface (API) that is based on an asynchronous, 
+event-driven interaction pattern. This document serves as a guide to implementation on how to build such a system.
 
 --- middle
 
@@ -115,8 +117,8 @@ This document serves as a guide to implementation on how to build a system that 
 
 The connection objects that are exposed to applications for Transport Services are:
 
-- the Preconnection, the bundle of properties that describes the application constraints on the transport;
-- the Connection, the basic object that represents a flow of data in either direction between the Local and Remote Endpoints;
+- the Preconnection, the bundle of Properties that describes the application constraints on the transport;
+- the Connection, the basic object that represents a flow of data as Messages in either direction between the Local and Remote Endpoints;
 - and the Listener, a passive waiting object that delivers new Connections.
 
 Preconnection objects should be implemented as bundles of properties that an application can both read and write. Once a Preconnection has been used to create an outbound Connection or a Listener, the implementation should ensure that the copy of the properties held by the Connection or Listener is immutable. This may involve performing a deep-copy if the application is still able to modify properties on the original Preconnection object.
@@ -173,21 +175,27 @@ Aggregate [Endpoint: www.example.com:80] [Interface: Any]   [Protocol: TCP]
 
 Any one of these sub-entries on the aggregate connection attempt would satisfy the original application intent. The concern of this section is the algorithm defining which of these options to try, when, and in what order.
 
+During Candidate Gathering, an implementation first excludes all protocols and
+paths that match a Prohibit or do not match all Require properties.
+Then, the implementation will sort branches according to Preferred
+properties, Avoided properties, and possibly other criteria.
+
+
 ## Candidate Gathering {#gathering}
 
 The step of gathering candidates involves identifying which paths, protocols, and endpoints may be used for a given Connection. This list is determined by the requirements, prohibitions, and preferences of the application as specified in the Selection Properties.
 
 ### Gathering Endpoint Candidates
 
-Both Local and Remote Endpoint Candidates must be discovered during connection establishment.  To support ICE, or similar protocols, that involve out-of-band indirect signalling to exchange candidates with the Remote Endpoint, it’s important to be able to query the set of candidate Local Endpoints, and give the protocol stack a set of candidate Remote Endpoints, before it attempts to establish connections.
+Both Local and Remote Endpoint Candidates must be discovered during connection establishment.  To support Interactive Connectivity Establishment (ICE) {{?RFC8445}}, or similar protocols, that involve out-of-band indirect signalling to exchange candidates with the Remote Endpoint, it’s important to be able to query the set of candidate Local Endpoints, and give the protocol stack a set of candidate Remote Endpoints, before it attempts to establish connections.
 
 #### Local Endpoint candidates
 
 The set of possible Local Endpoints is gathered.  In the simple case, this merely enumerates the local interfaces and protocols, allocates ephemeral source ports.  For example, a system that has WiFi and Ethernet and supports IPv4 and IPv6 might gather four candidate locals (IPv4 on Ethernet, IPv6 on Ethernet, IPv4 on WiFi, and IPv6 on WiFi) that can form the source for a transient.
 
-If NAT traversal is required, the process of gathering Local Endpoints becomes broadly equivalent to the ICE candidate gathering phase {{?RFC5245}}.  The endpoint determines its server reflexive Local Endpoints (i.e., the translated address of a local, on the other side of a NAT) and relayed locals (e.g., via a TURN server or other relay), for each interface and network protocol.  These are added to the set of candidate Local Endpoints for this connection.
+If NAT traversal is required, the process of gathering Local Endpoints becomes broadly equivalent to the ICE candidate gathering phase (see Section 5.1.1. of {{RFC8445}}).  The endpoint determines its server reflexive Local Endpoints (i.e., the translated address of a local, on the other side of a NAT, e.g via a STUN sever {{?RFC5389}}) and relayed locals (e.g., via a TURN server {{?RFC5766}} or other relay), for each interface and network protocol.  These are added to the set of candidate Local Endpoints for this connection.
 
-Gathering Local Endpoints is primarily a local operation, although it might involve exchanges with a STUN server to derive server reflexive locals, or with a TURN server or other relay to derive relayed locals.  It does not involve communication with the Remote Endpoint.
+Gathering Local Endpoints is primarily a local operation, although it might involve exchanges with a STUN server to derive server reflexive locals, or with a TURN server or other relay to derive relayed locals.  However, it does not involve communication with the Remote Endpoint.
 
 #### Remote Endpoint Candidates
 
@@ -199,7 +207,7 @@ Resolving the remote is not a local operation.  It will involve a directory serv
 
 ### Structuring Options as a Tree
 
-When an implementation responsible for connection establishment needs to consider multiple options, it should logically structure these options as a hierarchical tree. Each leaf node of the tree represents a single, coherent connection attempt, with an Endpoint, a Path, and a set of protocols that can directly negotiate and send data on the network. Each node in the tree that is not a leaf represents a connection attempt that is either underspecified, or else includes multiple distinct options. For example. when connecting on an IP network, a connection attempt to a hostname and port is underspecified, because the connection attempt requires a resolved IP address as its remote endpoint. In this case, the node represented by the connection attempt to the hostname is a parent node, with child nodes for each IP address. Similarly, an implementation that is allowed to connect using multiple interfaces will have a parent node of the tree for the decision between the paths, with a branch for each interface.
+When an implementation responsible for connection establishment needs to consider multiple options, it should logically structure these options as a hierarchical tree. Each leaf node of the tree represents a single, coherent connection attempt, with an Endpoint, a Path, and a set of protocols that can directly negotiate and send data on the network. Each node in the tree that is not a leaf represents a connection attempt that is either underspecified, or else includes multiple distinct options. For example, when connecting on an IP network, a connection attempt to a hostname and port is underspecified, because the connection attempt requires a resolved IP address as its remote endpoint. In this case, the node represented by the connection attempt to the hostname is a parent node, with child nodes for each IP address. Similarly, an implementation that is allowed to connect using multiple interfaces will have a parent node of the tree for the decision between the paths, with a branch for each interface.
 
 The example aggregate connection attempt above can be drawn as a tree by grouping the addresses resolved on the same interface into branches:
 
@@ -262,7 +270,7 @@ DNS hostname-to-address resolution is the most common method of endpoint derivat
   1.4 [2001:DB8::3.80, Wi-Fi, TCP]
 ~~~~~~~~~~
 
-DNS-Based Service Discovery can also provide an endpoint derivation step. When trying to connect to a named service, the client may discover one or more hostname and port pairs on the local network using multicast DNS. These hostnames should each be treated as a branch which can be attempted independently from other hostnames. Each of these hostnames may also resolve to one or more addresses, thus creating multiple layers of branching.
+DNS-Based Service Discovery {{?RFC6763}} can also provide an endpoint derivation step. When trying to connect to a named service, the client may discover one or more hostname and port pairs on the local network using multicast DNS {{?RFC6762}}. These hostnames should each be treated as a branch which can be attempted independently from other hostnames. Each of these hostnames may also resolve to one or more addresses, thus creating multiple layers of branching.
 
 ~~~~~~~~~~
 1 [term-printer._ipp._tcp.meeting.ietf.org, Wi-Fi, TCP]
@@ -320,7 +328,7 @@ Another example is racing SCTP with TCP:
 
 Implementations that support racing protocols and protocol options should maintain a history of which protocols and protocol options successfully established, on a per-network basis (see {{performance-caches}}). This information can influence future racing decisions to prioritize or prune branches.
 
-## Branching Order-of-Operations
+### Branching Order-of-Operations
 
 Branch types must occur in a specific order relative to one another to avoid creating leaf nodes with invalid or incompatible settings. In the example above, it would be invalid to branch for derived endpoints (the DNS results for www.example.com) before branching between interface paths, since usable DNS results on one network may not necessarily be the same as DNS results on another network due to local network entities, supported address families, or enterprise network configurations. Implementations must be careful to branch in an order that results in usable leaf nodes whenever there are multiple branch types that could be used from a single node.
 
@@ -348,7 +356,7 @@ For example, if the application has indicated both a preference for WiFi over LT
 ~~~~~~~~~~
 
 
-## Sorting Branches {#branch-sorting}
+### Sorting Branches {#branch-sorting}
 
 Implementations should sort the branches of the tree of connection options in order of their preference rank.
 Leaf nodes on branches with higher rankings represent connection attempts that will be raced first.
@@ -372,7 +380,9 @@ An implementation may use the Capacity Profile to prefer paths optimized for the
 
 Implementations should process properties in the following order: Prohibit, Require, Prefer, Avoid.
 If Selection Properties contain any prohibited properties, the implementation should first purge branches containing nodes with these properties. For required properties, it should only keep branches that satisfy these requirements. Finally, it should order branches according to preferred properties, and finally use avoided properties as a tiebreaker.
+When ordering branches, an implementation may give more weight to properties that the application has explicitly set than to properties that are default.
 
+As the available protocols and paths on a specific system and in a specific context may vary, the result of sorting and the outcome of racing may vary even given the same Selection and Connection Properties. However, an implementation ought to aim to provide a consistent outcome to applications, e.g., by preferring protocols and paths that existing Connections with similar Properties are already using.
 
 
 ## Candidate Racing
@@ -455,7 +465,7 @@ However, if a peer is not reachable over the network using the unconnected proto
 
 ## Implementing listeners {#listen}
 
-When an implementation is asked to Listen, it registers with the system to wait for incoming traffic to the Local Endpoint. If no Local Endpoint is specified, the implementation should either use an ephemeral port or generate an error.
+When an implementation is asked to Listen, it registers with the system to wait for incoming traffic to the Local Endpoint. If no Local Endpoint is specified, the implementation should use an ephemeral port.
 
 If the Selection Properties do not require a single network interface or path, but allow the use of multiple paths, the Listener object should register for incoming traffic on all of the network interfaces or paths that conform to the Properties. The set of available paths can change over time, so the implementation should monitor network path changes and register and de-register the Listener across all usable paths. When using multiple paths, the Listener is generally expected to use the same port for listening on each.
 
@@ -800,7 +810,7 @@ Protocols also define a notion of Data Unit. Possible values for Data Unit are:
 - Datagram. Datagram protocols define Message boundaries at the same level of transmission, such that only complete (not partial) Messages are supported.
 - Message. Message protocols support Message boundaries that can be sent and received either as complete or partial Messages. Maximum Message lengths can be defined, and Messages can be partially reliable.
 
-Below, primitives in the style of "CATEGORY.[SUBCATEGORY].PRIMITIVENAME.PROTOCOL"  (e.g., "CONNECT.SCTP") refer to the primitives with the same name in section 4 of {{!RFC8303}}. For further implementation details, the description of these primitives in {{!RFC8303}} points to section 3, which refers back to the specifications for each protocol. This back-tracking method applies to all elements of {{I-D.ietf-taps-minset}} (see appendix D of {{I-D.ietf-taps-interface}}): they are listed in appendix A of {{I-D.ietf-taps-minset}} with an implementation hint in the same style, pointing back to section 4 of {{!RFC8303}}.
+Below, terms in capitals with a dot (e.g., "CONNECT.SCTP") refer to the primitives with the same name in section 4 of {{!RFC8303}}. For further implementation details, the description of these primitives in {{!RFC8303}} points to section 3 of {{!RFC8303}} and section 3 of {{!RFC8304}}, which refers back to the relevant specifications for each protocol. This back-tracking method applies to all elements of {{I-D.ietf-taps-minset}} (see appendix D of {{I-D.ietf-taps-interface}}): they are listed in appendix A of {{I-D.ietf-taps-minset}} with an implementation hint in the same style, pointing back to section 4 of {{!RFC8303}}.
 
 ## TCP {#tcp}
 
@@ -1150,6 +1160,8 @@ RFC-EDITOR: Please remove this section before publication.
 This document has no actions for IANA.
 
 # Security Considerations
+
+{{I-D.ietf-taps-arch}} outlines general security consideration and requirements for any system that implements the TAPS archtecture. {{I-D.ietf-taps-interface}} provides further discussion on security and privacy implications of the TAPS API. This document provides additional guidance on implementation specifics for the TAPS API and as such the security considerations in both of these documents apply. The next two subsections discuss further considerations that are specific to mechanisms specified in this document.
 
 ## Considerations for Candidate Gathering
 
