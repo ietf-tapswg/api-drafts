@@ -1661,6 +1661,8 @@ a Connection must provide reliability to allow setting an infinite value for the
 lifetime property of a Message. Sending a Message with Message Properties
 inconsistent with the Selection Properties of the Connection yields an error.
 
+Connection Properties describe the default behavior for all Messages on a Connection. If a Message Property contradicts a Connection Property, and if this per-Message behavior can be supported, it overrides the Connection Property for the specific Message. For example, if `Reliable Data Transfer (Connection)` is set to `Require` and a protocol with configurable per-Message reliability is used, setting `Reliable Data Transfer (Message)` to `false` for a particular Message will allow this Message to be unreliably delivered. Note that changing the Reliable Data Transfer property on Messages is only possible for Connections that were established with the Selection Property `Configure Per-Message Reliability` enabled.
+
 The following Message Properties are supported:
 
 ### Lifetime {#msg-lifetime}
