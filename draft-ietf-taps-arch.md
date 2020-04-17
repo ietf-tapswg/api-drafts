@@ -83,7 +83,7 @@ informative:
 
 --- abstract
 
-This document describes an architecture for exposing transport protocol features to applications for network communication, the Transport Services architecture. The Transport Services Application Programming Interface (API) is based on an asynchronous, event-driven interaction pattern. It uses messages for representing data transfer to applications, and it assumes an implementation that can use multiple IP addresses, multiple protocols, and multiple paths, and provide multiple application streams. This document further defines common terminology and concepts to be used in definitions of Transport Services APIs and implementations.
+This document describes an architecture for exposing transport protocol features to applications for network communication, the Transport Services architecture. The Transport Services Application Programming Interface (API) is based on an asynchronous, event-driven interaction pattern. It uses messages for representing data transfer to applications, and it describes how implementations can use multiple IP addresses, multiple protocols, and multiple paths, and provide multiple application streams. This document further defines common terminology and concepts to be used in definitions of Transport Services APIs and implementations.
 
 --- middle
 
@@ -181,7 +181,7 @@ The Transport Services architecture evolves this general model of interaction, a
 
 The Transport Services API {{!I-D.ietf-taps-interface}} defines the mechanism for an application to create network connections and transfer data. The implementation {{?I-D.ietf-taps-impl}} is responsible for mapping the API to the various available transport protocols and managing the available network interfaces and paths.
 
-There are key differences between the architecture of the Transport Services system and the architecture of the Socket API: the Transport Services API is asynchronous and event-driven; it uses messages for representing data transfer to applications; and it assumes an implementation that can use multiple IP addresses, multiple protocols, multiple paths, and provide multiple application streams.
+There are key differences between the architecture of the Transport Services system and the architecture of the Socket API: the Transport Services API is asynchronous and event-driven; it uses messages for representing data transfer to applications; and it describes how implementations can use multiple IP addresses, multiple protocols, multiple paths, and provide multiple application streams.
 
 ## Event-Driven API
 
