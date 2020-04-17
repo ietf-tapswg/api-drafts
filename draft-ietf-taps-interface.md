@@ -530,7 +530,9 @@ Transport Properties can have one of a set of data types:
   entire set of possible values for each property.
 - Preference: can take one of five values (Prohibit, Avoid, Ignore, Prefer,
   Require) for the level of preference of a given property during protocol
-  selection; see {{selection-props}}.
+  selection; see {{selection-props}}. When querying, a Preference is of
+  type Boolean, with `true` indicating that the Selection Property
+  has been applied.
 
 For types Integer and Numeric, special values can be defined
 per property; it is up to implementations how these special values are
