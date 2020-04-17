@@ -1125,7 +1125,7 @@ not all ICMP errors will necessarily be delivered, so applications cannot rely
 on receiving them.
 
 
-### Active side is not the first to write {#active-read-before-send}
+### Initiating side is not the first to write {#active-read-before-send}
 
 Name:
 : activeReadBeforeSend
