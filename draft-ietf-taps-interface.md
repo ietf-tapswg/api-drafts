@@ -126,13 +126,13 @@ informative:
 
 --- abstract
 
-This document describes an abstract programming interface to the transport
+This document describes an abstract programming interface, API, to the transport
 layer, following the Transport Services Architecture. It supports the
 asynchronous, atomic transmission of messages over transport protocols and
 network paths dynamically selected at runtime. It is intended to replace the
-traditional BSD sockets API as the lowest common denominator interface to the
-transport layer, in an environment where endpoints have multiple interfaces
-and potential transport protocols to select from.
+traditional BSD sockets API as the common interface to the
+transport layer, in an environment where endpoints could select from 
+multiple interfaces and potential transport protocols.
 
 --- middle
 
