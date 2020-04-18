@@ -138,14 +138,14 @@ multiple interfaces and potential transport protocols.
 
 # Introduction
 
-This document specifies a modern abstract programming interface atop the
+This document specifies a modern abstract programming interface (API) atop the
 high-level architecture for transport services defined in
 {{I-D.ietf-taps-arch}}. It supports the
 asynchronous, atomic transmission of messages over transport protocols and
 network paths dynamically selected at runtime. It is intended to replace the
-traditional BSD sockets API as the lowest common denominator interface to the
-transport layer, in an environment where endpoints have multiple interfaces
-and potential transport protocols to select from.
+traditional BSD sockets API as the common interface to the
+transport layer, in environments where endpoints select from multiple interfaces
+and potential transport protocols.
 
 As applications adopt this interface, they will benefit from a wide set of
 transport features that can evolve over time, and ensure that the system
@@ -153,7 +153,7 @@ providing the interface can optimize its behavior based on the application
 requirements and network conditions, without requiring changes to the
 applications.  This flexibility enables faster deployment of new features and
 protocols.  It can also support applications by offering racing and fallback
-mechanisms, which otherwise need to be implemented in each application separately.
+mechanisms, which otherwise need to be separately implemented in each application.
 
 It derives specific path and protocol selection
 properties and supported transport features from the analysis provided in
@@ -161,16 +161,15 @@ properties and supported transport features from the analysis provided in
 {{I-D.ietf-taps-transport-security}}. The design encourages implementations 
 underneath the interface to dynamically choose a transport protocol depending on an 
 application's choices rather than statically binding applications to a protocol at 
-compile time. We note that transport system implementations SHOULD provide
-applications a way to override transport selection and instantiate a specific stack,
-e.g. to support servers wanting to listen to a specific protocol. This specific
-transport stack choice is discouraged for general use, as it comes at the
-cost of reduced portability.
+compile time. The transport system implementations should provide
+applications with a way to override transport selection and instantiate a specific stack,
+e.g., to support servers wishing to listen to a specific protocol. This specific
+transport stack choice is discouraged for general use, because it can reduce the portability.
 
 # Terminology and Notation
 
-This API is described in terms of Objects, which an application can interact
-with; Actions the application can perform on these Objects; Events, which an
+This API is described in terms of Objects with which an application can interact; 
+Actions the application can perform on these Objects; Events, which an
 Object can send to an application asynchronously; and Parameters associated
 with these Actions and Events.
 
@@ -210,8 +209,8 @@ Action(param0, param1?, ...) / Event<param0, param1, ...>
 Actions associated with no Object are Actions on the abstract interface
 itself; they are equivalent to Actions on a per-application global context.
 
-How these abstract concepts map into concrete implementations of this API in a
-given language on a given platform is largely dependent on the features of the
+The way these abstract concepts map into concrete implementations of this API in a
+given language on a given platform largely depends on the features of the
 language and the platform. Actions could be implemented as functions or method
 calls, for instance, and Events could be implemented via event queues, handler
 functions or classes, communicating sequential processes, or other asynchronous
