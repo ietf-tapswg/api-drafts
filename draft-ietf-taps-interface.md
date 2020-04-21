@@ -138,7 +138,7 @@ multiple interfaces and potential transport protocols.
 
 # Introduction
 
-This document specifies a modern abstract programming interface (API) atop the
+This document specifies a modern abstract application programming interface (API) atop the
 high-level architecture for transport services defined in
 {{I-D.ietf-taps-arch}}. It supports the
 asynchronous, atomic transmission of messages over transport protocols and
