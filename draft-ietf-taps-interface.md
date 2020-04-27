@@ -6,7 +6,6 @@ date:
 category: std
 
 ipr: trust200902
-area: Transport
 workgroup: TAPS Working Group
 keyword: Internet-Draft
 
@@ -600,7 +599,7 @@ peer-to-peer Rendezvous is to occur based on the Preconnection.
 
 Transport Properties MUST always be specified while security parameters are OPTIONAL.
 
-Message Framers (see {{framing}}), if required, should be added to the
+If Message Framers are used (see {{framing}}), they MUST be added to the
 Preconnection during pre-establishment.
 
 ## Specifying Endpoints {#endpointspec}
