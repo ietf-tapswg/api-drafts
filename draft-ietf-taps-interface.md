@@ -977,7 +977,7 @@ always `Prohibit Cellular`.
 
 The set of interface types is expected to change over time as new access
 technologies become available. The taxonomy of interface types on a given
-TAPS system is implementation-specific.
+Transport Services system is implementation-specific.
 
 Interface types should not be treated as a proxy for properties of interfaces
 such as metered or unmetered network access. If an application needs to prohibit
