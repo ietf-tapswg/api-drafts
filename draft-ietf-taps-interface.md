@@ -1060,7 +1060,7 @@ Disabled:
 : The connection will not allow using multiple paths once established and will disable respective functionality in case the chosen transport supports it.
 
 Active:
-: The transport system will actively tries, if a to establish additional paths once the inital connection is established if advisable by the {{multipath-objective}} chosen by the application. The desireable paths to established are controlled by the Interface Instance and Provisioning Domain Instance properties (see {{prop-interface}} and {{prop-pvd}}).
+: The connection will negotiate the use of multiple paths if the chosen transport supports this. It will actively bring up paths based on the multipath policy ({{multipath-objective}}) selected by the application, as limited by the Interface Instance and Provisioning Domain Instance properties (see {{prop-interface}} and {{prop-pvd}}).
 
 Passive:
 : The transport system will not actively try to establish additional paths once the inital connection is established, but allows the peer endpoint to initiate additional paths and migrate existing connections to other paths.
