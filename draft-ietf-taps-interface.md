@@ -1039,7 +1039,7 @@ Note that if an application Requires the use of temporary addresses, the
 resulting Connection cannot use IPv4, as temporary addresses do not exist in
 IPv4.
 
-### Parallel Use of Multiple Paths {#multipath-mode}
+### Multi-Paths Transport {#multipath-mode}
 
 Name:
 : multipath
@@ -1060,20 +1060,20 @@ Disabled:
 : The connection will not use multiple paths once established, even if the chosen transport supports using multiple paths.
 
 Active:
-: The connection will negotiate the use of multiple paths if the chosen transport supports this. It will actively bring up paths based on the multipath policy ({{multipath-objective}}) selected by the application, as limited by the Interface Instance and Provisioning Domain Instance properties (see {{prop-interface}} and {{prop-pvd}}).
+: The connection will negotiate the use of multiple paths if the chosen transport supports this. It will actively bring up paths based on the multipath policy ({{multipath-policy}}) selected by the application, as limited by the Interface Instance and Provisioning Domain Instance properties (see {{prop-interface}} and {{prop-pvd}}).
 
 Passive:
 : The connection will support the use of multiple paths if the remote endpoint requests it. The connection will not actively initiate the use of any new paths, but will accept paths initiated by the remote endpoint.
 
-The objective for using multiple paths is specified using the separate ```multipath-mode property```, see {{multipath-objective}} below.
+The policy for using multiple paths is specified using the separate ```multipath-policy``` property, see {{multipath-policy}} below.
 To enable the peer endpoint to initiate additional paths towards a local address other than the one initially used, it is necessary to set the Alternative Addresses property (see {{altaddr}} below).
 
-Setting this property to "Active", may have privacy implications: It enables the transport to establish connectivity using alternate paths that may make users linkable across multiple paths, even if the Exposure of Alternative Addresses property (see {{altaddr}} below) is set to false.
+Setting this property to "Active", may have privacy implications: It enables the transport to establish connectivity using alternate paths that may make users linkable across multiple paths, even if the Advertisement of Alternative Addresses property (see {{altaddr}} below) is set to false.
 
 Enumeration values other than "Disabled" are interpreted as a preference for choosing protocols that can make use of multiple paths.
-The "Disabled" value implies a requirement not to use multiple paths in parallel but does not prevent choosing a protocol that is capable of using multiple paths.
+The "Disabled" value implies a requirement not to use multiple paths in parallel but does not prevent choosing a protocol that is capable of using multiple paths, e.g., it does not prevent choosing TCP, but prevents sending the ```MP_CAPABLE``` option in the TCP handshake.
 
-### Exposure of Alternative Addresses {#altaddr}
+### Advertisement of Alternative Addresses {#altaddr}
 
 Name:
 : advertises-altaddr
@@ -2408,10 +2408,10 @@ The Capacity Profile for a selected protocol stack may be modified on a
 per-Message basis using the Transmission Profile Message Property; see
 {{send-profile}}.
 
-### Ojective of Using Multiple Paths {#multipath-objective}
+### Policy for using Multi-Path Transports {#multipath-policy}
 
 Name:
-: multipath-objective
+: multipath-policy
 
 Type:
 : Enumeration
@@ -2419,22 +2419,18 @@ Type:
 Default:
 : Handover
 
-This property specifies the local objective of transferring data across multiple paths between the same end hosts if Parallel Use of Multiple Paths not set to Disabled (see {{multipath-mode}}). Possible values are:
-
-None:
-: Do not use other paths as long as the initial path is available, but allow the peer endpoint to make use it to achieve its objective.
+This property specifies the local policy of transferring data across multiple paths between the same end hosts if Parallel Use of Multiple Paths not set to Disabled (see {{multipath-mode}}). Possible values are:
 
 Handover:
-: The connection should only attempt to migrate between different paths when the original path is lost or becomes unreliable.
-The actual thresholds to declare a path unreliable are implementation specific.
+: The connection should only attempt to migrate between different paths when the original path is lost or becomes unusable. The actual thresholds to declare a path unusable are implementation specific.
 
 Interactive:
-: The connection should attempt to use multiple paths in parallel in order to minimize loss and delay. The actual strategy is implementation specific and may depend on the multipath protocol used, but should not aim to exceed the capacity provided by the best of the available paths.
+: The connection should attempt to use multiple paths in parallel in order to minimize loss and delay. The actual strategy is implementation specific, but should not exceed the capacity provided by the best of the available paths.
 
 Aggregate:
-: The connection should attempt to use multiple paths in parallel in order to maximize bandwidth, possibly trading delay for bandwidth. The actual strategy is implementation specific.
+: The connection should attempt to use multiple paths in parallel in order to maximize bandwidth and possibly overcome bandwidth limitations of the individual paths. The actual strategy is implementation specific.
 
-Note that the peer endpoint can choose a different objective.
+Note that this is a local choice – the peer endpoint can choose a different policy.
 
 ### Bounds on Send or Receive Rate
 
