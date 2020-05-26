@@ -1057,7 +1057,7 @@ as availability and performance properties change.
 Possible values are:
 
 Disabled:
-: The connection will not allow using multiple paths once established and will disable respective functionality in case the chosen transport supports it.
+: The connection will not use multiple paths once established, even if the chosen transport supports using multiple paths.
 
 Active:
 : The connection will negotiate the use of multiple paths if the chosen transport supports this. It will actively bring up paths based on the multipath policy ({{multipath-objective}}) selected by the application, as limited by the Interface Instance and Provisioning Domain Instance properties (see {{prop-interface}} and {{prop-pvd}}).
