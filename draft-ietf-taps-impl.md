@@ -270,7 +270,7 @@ DNS hostname-to-address resolution is the most common method of endpoint derivat
   1.4 [2001:DB8::3.80, Wi-Fi, TCP]
 ~~~~~~~~~~
 
-DNS-Based Service Discovery {{?RFC6763}} can also provide an endpoint derivation step. When trying to connect to a named service, the client may discover one or more hostname and port pairs on the local network using multicast DNS {{?RFC6762}}. These hostnames should each be treated as a branch that can be attempted independently from other hostnames. Each of these hostnames might resolve to one or more addresses, whcih would create multiple layers of branching.
+DNS-Based Service Discovery {{?RFC6763}} can also provide an endpoint derivation step. When trying to connect to a named service, the client may discover one or more hostname and port pairs on the local network using multicast DNS {{?RFC6762}}. These hostnames should each be treated as a branch that can be attempted independently from other hostnames. Each of these hostnames might resolve to one or more addresses, which would create multiple layers of branching.
 
 ~~~~~~~~~~
 1 [term-printer._ipp._tcp.meeting.ietf.org, Wi-Fi, TCP]
@@ -427,7 +427,7 @@ An example in which failover is recommended is a race between a protocol stack t
 
 The process of connection establishment completes when one leaf node of the tree has completed negotiation with the remote endpoint successfully, or else all nodes of the tree have failed to connect. The first leaf node to complete its connection is then used by the application to send and receive data.
 
-Successes and failures of given attempt should be reported up to parent nodes (towards the trunk of the tree). For example, in the following case, if 1.1.1 fails to connect, it reports the failure to 1.1. Since 1.1 has no other child nodes, it also has failed and reports that failure to 1. Because 1.2 has not yet failed, 1 is not considered to have failed. Since 1.2 has not yet started, it is started and the process continues. Similarly, if 1.1.1 successfully connects, then it marks 1.1 as connected, which propagates to the trunk node 1. At this point, the connection as a whole is considered to be successfully connected and ready to process application data
+Successes and failures of a given attempt should be reported up to parent nodes (towards the trunk of the tree). For example, in the following case, if 1.1.1 fails to connect, it reports the failure to 1.1. Since 1.1 has no other child nodes, it also has failed and reports that failure to 1. Because 1.2 has not yet failed, 1 is not considered to have failed. Since 1.2 has not yet started, it is started and the process continues. Similarly, if 1.1.1 successfully connects, then it marks 1.1 as connected, which propagates to the trunk node 1. At this point, the connection as a whole is considered to be successfully connected and ready to process application data
 
 ~~~~~~~~~~
 1 [www.example.com:80, Any, TCP]
