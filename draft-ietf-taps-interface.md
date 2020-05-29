@@ -34,11 +34,11 @@ author:
   -
     ins: T. Enghardt
     name: Theresa Enghardt
-    org: TU Berlin
-    street: Marchstrasse 23
-    city: 10587 Berlin
-    country: Germany
-    email: theresa@inet.tu-berlin.de
+    org: Netflix
+    street: 121 Albright Way
+    city: Los Gatos, CA 95032
+    country: United States of America
+    email: ietf@tenghardt.net
   -
     ins: G. Fairhurst
     name: Godred Fairhurst
