@@ -6,7 +6,6 @@ date:
 category: std
 
 ipr: trust200902
-area: Transport
 workgroup: TAPS Working Group
 keyword: Internet-Draft
 
@@ -75,13 +74,13 @@ author:
     country: Germany
     email: philipp@tiesel.net
   -
-    ins: C. Wood
-    name: Chris Wood
-    org: Apple Inc.
-    street: One Apple Park Way
-    city: Cupertino, California 95014
+    ins: C. A. Wood
+    name: Christopher A. Wood
+    org: Cloudflare
+    street: 101 Townsend St
+    city: San Francisco
     country: United States of America
-    email: cawood@apple.com
+    email: caw@heapingbits.net
   -
     ins: T. Pauly
     name: Tommy Pauly
@@ -126,26 +125,26 @@ informative:
 
 --- abstract
 
-This document describes an abstract programming interface to the transport
+This document describes an abstract application programming interface, API, to the transport
 layer, following the Transport Services Architecture. It supports the
 asynchronous, atomic transmission of messages over transport protocols and
 network paths dynamically selected at runtime. It is intended to replace the
-traditional BSD sockets API as the lowest common denominator interface to the
-transport layer, in an environment where endpoints have multiple interfaces
-and potential transport protocols to select from.
+traditional BSD sockets API as the common interface to the
+transport layer, in an environment where endpoints could select from 
+multiple interfaces and potential transport protocols.
 
 --- middle
 
 # Introduction
 
-This document specifies a modern abstract programming interface atop the
+This document specifies a modern abstract application programming interface (API) atop the
 high-level architecture for transport services defined in
 {{I-D.ietf-taps-arch}}. It supports the
 asynchronous, atomic transmission of messages over transport protocols and
 network paths dynamically selected at runtime. It is intended to replace the
-traditional BSD sockets API as the lowest common denominator interface to the
-transport layer, in an environment where endpoints have multiple interfaces
-and potential transport protocols to select from.
+traditional BSD sockets API as the common interface to the
+transport layer, in environments where endpoints select from multiple interfaces
+and potential transport protocols.
 
 As applications adopt this interface, they will benefit from a wide set of
 transport features that can evolve over time, and ensure that the system
@@ -153,7 +152,7 @@ providing the interface can optimize its behavior based on the application
 requirements and network conditions, without requiring changes to the
 applications.  This flexibility enables faster deployment of new features and
 protocols.  It can also support applications by offering racing and fallback
-mechanisms, which otherwise need to be implemented in each application separately.
+mechanisms, which otherwise need to be separately implemented in each application.
 
 It derives specific path and protocol selection
 properties and supported transport features from the analysis provided in
@@ -161,16 +160,15 @@ properties and supported transport features from the analysis provided in
 {{I-D.ietf-taps-transport-security}}. The design encourages implementations 
 underneath the interface to dynamically choose a transport protocol depending on an 
 application's choices rather than statically binding applications to a protocol at 
-compile time. We note that transport system implementations SHOULD provide
-applications a way to override transport selection and instantiate a specific stack,
-e.g. to support servers wanting to listen to a specific protocol. This specific
-transport stack choice is discouraged for general use, as it comes at the
-cost of reduced portability.
+compile time. The transport system implementations should provide
+applications with a way to override transport selection and instantiate a specific stack,
+e.g., to support servers wishing to listen to a specific protocol. This specific
+transport stack choice is discouraged for general use, because it can reduce the portability.
 
 # Terminology and Notation
 
-This API is described in terms of Objects, which an application can interact
-with; Actions the application can perform on these Objects; Events, which an
+This API is described in terms of Objects with which an application can interact; 
+Actions the application can perform on these Objects; Events, which an
 Object can send to an application asynchronously; and Parameters associated
 with these Actions and Events.
 
@@ -210,8 +208,8 @@ Action(param0, param1?, ...) / Event<param0, param1, ...>
 Actions associated with no Object are Actions on the abstract interface
 itself; they are equivalent to Actions on a per-application global context.
 
-How these abstract concepts map into concrete implementations of this API in a
-given language on a given platform is largely dependent on the features of the
+The way these abstract concepts map into concrete implementations of this API in a
+given language on a given platform largely depends on the features of the
 language and the platform. Actions could be implemented as functions or method
 calls, for instance, and Events could be implemented via event queues, handler
 functions or classes, communicating sequential processes, or other asynchronous
@@ -530,7 +528,9 @@ Transport Properties can have one of a set of data types:
   entire set of possible values for each property.
 - Preference: can take one of five values (Prohibit, Avoid, Ignore, Prefer,
   Require) for the level of preference of a given property during protocol
-  selection; see {{selection-props}}.
+  selection; see {{selection-props}}. When querying, a Preference is of
+  type Boolean, with `true` indicating that the Selection Property
+  has been applied.
 
 For types Integer and Numeric, special values can be defined
 per property; it is up to implementations how these special values are
@@ -589,7 +589,9 @@ of the potential Connection (see {{endpointspec}}), the Selection Properties
 
 The Local Endpoint MUST be specified if the Preconnection is used to Listen()
 for incoming Connections, but is OPTIONAL if it is used to Initiate()
-connections. The Remote Endpoint MUST be specified if the Preconnection is used
+connections. If no Local Endpoint is specified, the Transport System will
+assign an ephemeral local port to the Connection.
+The Remote Endpoint MUST be specified if the Preconnection is used
 to Initiate() Connections, but is OPTIONAL if it is used to Listen() for
 incoming Connections.
 The Local Endpoint and the Remote Endpoint MUST both be specified if a
@@ -597,7 +599,7 @@ peer-to-peer Rendezvous is to occur based on the Preconnection.
 
 Transport Properties MUST always be specified while security parameters are OPTIONAL.
 
-Message Framers (see {{framing}}), if required, should be added to the
+If Message Framers are used (see {{framing}}), they MUST be added to the
 Preconnection during pre-establishment.
 
 ## Specifying Endpoints {#endpointspec}
@@ -777,10 +779,16 @@ from an antecedent via cloning; see {{groups}} for more.
 {{connection-props}} provides a list of Connection Properties, while Selection
 Properties are listed in the subsections below. Note that many properties are
 only considered during establishment, and can not be changed after a Connection
-is established; however, they can be queried. Querying a Selection Property
-after establishment yields the value `Require` for properties of the selected
-protocol and path, Avoid for properties avoided during selection, and Ignore for
-all other properties.
+is established; however, they can be queried. The return type of a queried
+Selection Property is Boolean, where `true` means that the Selection Property
+has been applied and `false` means that the Selection Property has not
+been applied. Note that `true` does not mean that a request has been honored.
+For example, if `Congestion control` was
+requested with preference level `Prefer`, but congestion control could not
+be supported, querying the `congestionControl` property yields the
+value `false`. If preference level `Avoid` was used for `Congestion control`,
+and, as requested, the Connection is not congestion controlled, querying
+the `congestionControl` property also yields the value `false`.
 
 An implementation of this interface must provide sensible defaults for Selection
 Properties. The defaults given for each property below represent a
@@ -849,7 +857,7 @@ This property specifies whether the application wishes to use a transport
 protocol that can ensure that data is received by the application on the other
 end in the same order as it was sent.
 
-### Use 0-RTT Session Establishment with an Idempotent Message {#prop-0rtt}
+### Use 0-RTT Session Establishment with a Safely Replayable Message {#prop-0rtt}
 
 Name:
 : zeroRttMsg
@@ -864,7 +872,7 @@ This property specifies whether an application would like to supply a Message to
 the transport protocol before Connection establishment, which will then be
 reliably transferred to the other side before or during Connection
 establishment, potentially multiple times (i.e., multiple copies of the message data
-may be passed to the Remote Endpoint). See also {{msg-idempotent}}. Note that
+may be passed to the Remote Endpoint). See also {{msg-safelyreplayable}}. Note that
 disabling this property
 has no effect for protocols that are not connection-oriented and do not protect
 against duplicated messages, e.g., UDP.
@@ -966,7 +974,8 @@ is used on both mobile devices and desktop devices, it should define the
 always `Prohibit Cellular`.
 
 The set of interface types is expected to change over time as new access
-technologies become available.
+technologies become available. The taxonomy of interface types on a given
+Transport Services system is implementation-specific.
 
 Interface types should not be treated as a proxy for properties of interfaces
 such as metered or unmetered network access. If an application needs to prohibit
@@ -1191,7 +1200,7 @@ handled as client-provided callbacks. Security handshake callbacks that may be
 invoked during connection establishment include:
 
 - Trust verification callback: Invoked when a Remote Endpoint's trust must be validated before the
-handshake protocol can proceed.
+handshake protocol can continue.
 
 ~~~
 TrustCallback := NewCallback({
@@ -1246,7 +1255,7 @@ another Connection.
 Once Initiate is called, the candidate Protocol Stack(s) may cause one or more
 candidate transport-layer connections to be created to the specified remote
 endpoint. The caller may immediately begin sending Messages on the Connection
-(see {{sending}}) after calling Initiate(); note that any idempotent data sent
+(see {{sending}}) after calling Initiate(); note that any data marked `Safely Replayable` that is sent
 while the Connection is being established may be sent multiple times or on
 multiple candidates.
 
@@ -1659,6 +1668,8 @@ a Connection must provide reliability to allow setting an infinite value for the
 lifetime property of a Message. Sending a Message with Message Properties
 inconsistent with the Selection Properties of the Connection yields an error.
 
+Connection Properties describe the default behavior for all Messages on a Connection. If a Message Property contradicts a Connection Property, and if this per-Message behavior can be supported, it overrides the Connection Property for the specific Message. For example, if `Reliable Data Transfer (Connection)` is set to `Require` and a protocol with configurable per-Message reliability is used, setting `Reliable Data Transfer (Message)` to `false` for a particular Message will allow this Message to be unreliably delivered. Note that changing the Reliable Data Transfer property on Messages is only possible for Connections that were established with the Selection Property `Configure Per-Message Reliability` enabled.
+
 The following Message Properties are supported:
 
 ### Lifetime {#msg-lifetime}
@@ -1723,10 +1734,10 @@ This property is used for protocols that support preservation of data ordering,
 see {{prop-ordering}}, but allow out-of-order delivery for certain messages, e.g., by multiplexing independent messages onto
 different streams.
 
-### Idempotent {#msg-idempotent}
+### Safely Replayable {#msg-safelyreplayable}
 
 Name:
-: idempotent
+: safelyReplayable
 
 Type:
 : Boolean
@@ -1740,10 +1751,10 @@ certain 0-RTT establishment techniques, where retransmission of the 0-RTT data
 may cause the remote application to receive the Message multiple times.
 
 Note that for protocols that do not protect against duplicated messages,
-e.g., UDP, all messages MUST be marked as Idempotent.
+e.g., UDP, all messages MUST be marked as `Safely Replayable`.
 In order to enable protocol selection to choose such a protocol,
-Idempotent MUST be added to the TransportProperties passed to the
-Preconnection. If such a protocol was chosen, disabling Idempotent on
+`Safely Replayable` MUST be added to the TransportProperties passed to the
+Preconnection. If such a protocol was chosen, disabling `Safely Replayable` on
 individual messages MUST result in a SendError.
 
 ### Final {#msg-final}
@@ -1869,8 +1880,7 @@ Connection.Send(messageData, messageContext, endOfMessage)
 
 All data sent with the same MessageContext object will be treated as belonging
 to the same Message, and will constitute an in-order series until the
-endOfMessage is marked. Once the end of the Message is marked, the
-MessageContext object may be re-used as a new Message with identical parameters.
+endOfMessage is marked.
 
 ## Batching Sends {#send-batching}
 
@@ -1897,8 +1907,8 @@ a first Message sent:
 Connection := Preconnection.InitiateWithSend(messageData, messageContext?, timeout?)
 ~~~
 
-Whenever possible, a messageContext should be provided to declare the message passed to InitiateWithSend
-as idempotent. This allows the transport system to make use of 0-RTT establishment in case this is supported
+Whenever possible, a messageContext should be provided to declare the Message passed to InitiateWithSend
+as `Safely Replayable`. This allows the transport system to make use of 0-RTT establishment in case this is supported
 by the available protocol stacks. When the selected stack(s) do not support transmitting data upon connection
 establishment, InitiateWithSend is identical to Initiate() followed by Send().
 
@@ -2050,7 +2060,7 @@ applications need to treat early data separately,
 e.g., if early data has different security properties than data sent after
 connection establishment. In the case of TLS 1.3, client early data can be replayed
 maliciously (see {{!RFC8446}}). Thus, receivers may wish to perform additional
-checks for early data to ensure it is idempotent or not replayed. If TLS 1.3 is available
+checks for early data to ensure it is safely replayable. If TLS 1.3 is available
 and the recipient Message was sent as part of early data, the corresponding metadata carries
 a flag indicating as such. If early data is enabled, applications should check this metadata
 field for Messages received during connection establishment and respond accordingly.
@@ -2399,7 +2409,7 @@ a data transfer useful. It is given in bits per second. The special value `Unlim
 
 The following generic Connection Properties are read-only, i.e. they cannot be changed by an application.
 
-#### Maximum Message Size Concurrent with Connection Establishment {#size-idempotent}
+#### Maximum Message Size Concurrent with Connection Establishment {#size-safelyreplayable}
 
 Name:
 : zeroRttMsgMaxLen
@@ -2408,7 +2418,7 @@ Type:
 : Integer
 
 This property represents the maximum Message size that can be sent
-before or during Connection establishment, see also {{msg-idempotent}}.
+before or during Connection establishment, see also {{msg-safelyreplayable}}.
 It is given in Bytes.
 
 #### Maximum Message Size Before Fragmentation or Segmentation {#conn-max-msg-notfrag}
@@ -2592,6 +2602,24 @@ Each transition of connection state is associated with one of more events:
 - ConnectionError<> occurs when a Connection transitions to Closed state due to
   an error in all other circumstances.
 
+The following diagram shows the possible states of a Connection and the
+events that occur upon a transition from one state to another.
+
+~~~~~~~~~~
+
+              (*)                (**)
+Establishing -----> Established -----> Closed
+     |                                   ^
+     |                                   |
+     +-----------------------------------+
+                  InitiateError<>
+
+(*) Ready<>, ConnectionReceived<>, RendezvousDone<>
+(**) Closed<>, ConnectionError<>
+
+~~~~~~~~~~
+{: #fig-connstates title="Connection State Diagram"}
+
 The interface provides the following guarantees about the ordering of
  operations:
 
@@ -2747,7 +2775,7 @@ It should consist of the following properties:
  | preserveOrder           | ignore    |
  | congestionControl       | ignore    |
  | preserveMsgBoundaries  | require   |
- | idempotent               | true      |
+ | safely replayable        | true      |
 
 Applications that choose this Transport Property Profile for latency reasons
 should also consider setting the Capacity Profile Property,

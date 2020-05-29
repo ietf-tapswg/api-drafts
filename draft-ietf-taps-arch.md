@@ -67,13 +67,13 @@ author:
     country: Germany
     email: philipp@tiesel.net
   -
-    ins: C. Wood
-    name: Chris Wood
-    org: Apple Inc.
-    street: One Apple Park Way
-    city: Cupertino, California 95014
+    ins: C. A. Wood
+    name: Christopher A. Wood
+    org: Cloudflare
+    street: 101 Townsend St
+    city: San Francisco
     country: United States of America
-    email: cawood@apple.com
+    email: caw@heapingbits.net
 
 informative:
     POSIX:
@@ -83,7 +83,7 @@ informative:
 
 --- abstract
 
-This document describes an architecture for exposing transport protocol features to applications for network communication, the Transport Services architecture. The Transport Services Application Programming Interface (API) is based on an asynchronous, event-driven interaction pattern. It uses messages for representing data transfer to applications, and it assumes an implementation that can use multiple IP addresses, multiple protocols, and multiple paths, and provide multiple application streams. This document further defines common terminology and concepts to be used in definitions of Transport Services APIs and implementations.
+This document describes an architecture for exposing transport protocol features to applications for network communication, the Transport Services architecture. The Transport Services Application Programming Interface (API) is based on an asynchronous, event-driven interaction pattern. It uses messages for representing data transfer to applications, and it describes how implementations can use multiple IP addresses, multiple protocols, and multiple paths, and provide multiple application streams. This document further defines common terminology and concepts to be used in definitions of Transport Services APIs and implementations.
 
 --- middle
 
@@ -109,7 +109,7 @@ This document describes the Transport Services architecture in three sections:
 
 - {{model}} describes how the API model of Transport Services differs from traditional socket-based APIs. Specifically, it offers asynchronous event-driven interaction, the use of messages for data transfer, and the flexibility to use different transport protocols and paths without requiring major changes to the application.
 
-- {{design}} explains the design principles behind the Transport Services API. These principles are intended to make sure that transport protocols can continue to be enhanced and evolve without requiring too many changes by application developers.
+- {{requirements}} explains the fundamental requirements for a Transport Services API. These principles are intended to make sure that transport protocols can continue to be enhanced and evolve without requiring significant changes by application developers.
 
 - {{concepts}} presents the Transport Services architecture diagram and defines the concepts that are used by both the API and implementation documents. The Preconnection allows applications to configure Connection Properties, and the Connection represents an object that can be used to send and receive Messages.
 
@@ -181,7 +181,7 @@ The Transport Services architecture evolves this general model of interaction, a
 
 The Transport Services API {{!I-D.ietf-taps-interface}} defines the mechanism for an application to create network connections and transfer data. The implementation {{?I-D.ietf-taps-impl}} is responsible for mapping the API to the various available transport protocols and managing the available network interfaces and paths.
 
-There are key differences between the architecture of the Transport Services system and the architecture of the Socket API: the Transport Services API is asynchronous and event-driven; it uses messages for representing data transfer to applications; and it assumes an implementation that can use multiple IP addresses, multiple protocols, multiple paths, and provide multiple application streams.
+There are key differences between the architecture of the Transport Services system and the architecture of the Socket API: the Transport Services API is asynchronous and event-driven; it uses messages for representing data transfer to applications; and it describes how implementations can use multiple IP addresses, multiple protocols, multiple paths, and provide multiple application streams.
 
 ## Event-Driven API
 
@@ -216,35 +216,53 @@ Transport Services implementations are meant to be flexible at connection establ
 
 Flexibility after connection establishment is also important. Transport protocols that can migrate between multiple network-layer interfaces need to be able to process and react to interface changes. Protocols that support multiple application-layer streams need to support initiating and receiving new streams using existing connections.
 
-# Design Principles {#design}
+# API and Implementation Requirements {#requirements}
 
 The goal of the Transport Services architecture is to redefine the interface between applications and transports in a way that allows the transport layer to evolve and improve without fundamentally changing the contract with the application. This requires a careful consideration of how to expose the capabilities of protocols.
 
-There are several degrees in which a Transport Services system is intended to offer flexibility to an application: it can provide access to multiple sets of protocols and protocol features; it can use these protocols across multiple paths that could have different performance and functional characteristics; and it can communicate with different remote systems to optimize performance, robustness to failure, or some other metric. Beyond these, if the API for the system remains the same over time, new protocols and features could be added to the system's implementation without requiring changes in applications for adoption.
+There are several degrees in which a Transport Services system is intended to offer flexibility to an application: it can provide access to multiple sets of protocols and protocol features; it can use these protocols across multiple paths that could have different performance and functional characteristics; and it can communicate with different remote systems to optimize performance, robustness to failure, or some other metric. Beyond these, if the API for the system remains the same over time, new protocols and features can be added to the system's implementation without requiring changes in applications for adoption.
 
-## Common APIs for Common Features
+The normative requirements described here allow Transport Services APIs and Implementations to provide this functionlity without causing incompatibility or introducing security vulnerabilities. The rest of this document describes the architecture non-normatively.
 
-Functionality that is common across multiple transport protocols ought to be accessible through a unified set of API calls. An application using a Transport Services API can implement logic for its basic use of transport networking (establishing the transport, and sending and receiving data) once, and expect that implementation to continue to function as the transports change.
+## Provide Common APIs for Common Features
 
-As a baseline, any Transport Services API needs to allow access to the distilled minimal set of features offered by transport protocols {{?I-D.ietf-taps-minset}}.
+Any functionality that is common across multiple transport protocols SHOULD be made accessible through a unified set of Transport Services API calls. As a baseline, any Transport Services API MUST allow access to the minimal set of features offered by transport protocols {{?I-D.ietf-taps-minset}}.
 
-## Access to Specialized Features
+An application can specify constraints and preferences for the protocols, features, and network interfaces it will use via Properties. A Transport Services API SHOULD offer Properties that are common to multiple transport protocols, in order to enable the system to appropriately select between protocols that offer equivalent features. Similarly, a Transport Services API SHOULD offer Properties that are applicable to a variety of network layer interfaces and paths, in order to permit racing of different network paths without affecting the applications using the system. Each Property is expected to have a default value.
 
-There are applications that will need to control fine-grained details of transport protocols to optimize their behavior and ensure compatibility with remote systems. A Transport Services system therefore ought to also permit more specialized protocol features to be used. The interface for these specialized options ought to be exposed differently from the common options to ensure flexibility.
+The default values for Properties SHOULD be selected to ensure correctness for the widest set of applications, while providing the widest set of options for selection. For example, since both applications that require reliability and those that do not require reliability can function correctly when a protocol provides reliability, reliability ought to be enabled by default. As another example, the default value for a Property regarding the selection of network interfaces ought to permit as many interfaces as possible.
+
+Applications using a Transport Services system interface are REQUIRED to be robust to the automated selection provided by the system, where the automated selection is constrained by the requirements and preferences expressed by the application.
+
+## Allow Access to Specialized Features
+
+There are applications that will need to control fine-grained details of transport protocols to optimize their behavior and ensure compatibility with remote systems. A Transport Services system therefore SHOULD permit more specialized protocol features to be used.
 
 A specialized feature could be required by an application only when using a specific protocol, and not when using others. For example, if an application is using TCP, it could require control over the User Timeout Option for TCP; these options would not take effect for other transport protocols. In such cases, the API ought to expose the features in such a way that they take effect when a particular protocol is selected, but do not imply that only that protocol could be used. For example, if the API allows an application to specify a preference to use the User Timeout Option, communication would not fail when a protocol such as QUIC is selected.
 
-Other specialized features, however, could be strictly required by an application and thus constrain the set of protocols that can be used. For example, if an application requires support for automatic handover or failover for a connection, only protocol stacks that provide this feature are eligible to be used, e.g., protocol stacks that include a multipath protocol or a protocol that supports connection migration. A Transport Services API needs to allow applications to define such requirements and constrain the system's options. Since such options are not part of the core/common features, it will generally be simple for an application to modify its set of constraints and change the set of allowable protocol features without changing the core implementation.
+Other specialized features, however, can be strictly required by an application and thus constrain the set of protocols that can be used. For example, if an application requires support for automatic handover or failover for a connection, only protocol stacks that provide this feature are eligible to be used, e.g., protocol stacks that include a multipath protocol or a protocol that supports connection migration. A Transport Services API needs to allow applications to define such requirements and constrain the system's options. Since such options are not part of the core/common features, it will generally be simple for an application to modify its set of constraints and change the set of allowable protocol features without changing the core implementation.
 
-## Scope for API and Implementation Definitions
+## Select Equivalent Protocol Stacks {#equivalence}
 
-The Transport Services API is envisioned as the abstract model for a family of APIs that share a common way to expose transport features and encourage flexibility. The abstract API definition {{!I-D.ietf-taps-interface}} describes this interface and how it can be exposed to application developers.
+A Transport Services implementation can select Protocol Stacks based on the Properties communicated by the application. If two different Protocol Stacks can be safely swapped, or raced in parallel (see {{racing}}), then they are considered to be "equivalent". Equivalent Protocol Stacks are defined as stacks that can provide the same transport properties and interface expectations as requested by the application.
 
-Implementations that provide the Transport Services API {{?I-D.ietf-taps-impl}} will vary due to system-specific support and the needs of the deployment scenario. It is expected that all implementations of Transport Services will offer the entire mandatory API. All implementations are expected to offer an API that is sufficient to use the distilled minimal set of features offered by transport protocols {{?I-D.ietf-taps-minset}}, including API support for TCP and UDP transport. However, some features provided by this API will not be functional in certain implementations. For example, it is possible that some very constrained devices might not have a full TCP implementation beneath the API.
+The following two examples show non-equivalent Protocol Stacks:
 
-To preserve flexibility and compatibility with future protocols, top-level features in the Transport Services API ought to avoid referencing particular transport protocols. The mappings of these API features to specific implementations of each feature is explained in the {{?I-D.ietf-taps-impl}} along with the implications of the feature on existing protocols. It is expected that {{!I-D.ietf-taps-interface}} will be updated and supplemented as new protocols and protocol features are developed.
+ - If the application requires preservation of message boundaries, a Protocol Stack that runs UDP as the top-level interface to the application is not equivalent to a Protocol Stack that runs TCP as the top-level interface. A UDP stack would allow an application to read out message boundaries based on datagrams sent from the remote system, whereas TCP does not preserve message boundaries on its own, but needs a framing protocol on top to determine message boundaries.
 
-It is important to note that neither the Transport Services API {{!I-D.ietf-taps-interface}} nor the Implementation document {{?I-D.ietf-taps-impl}} define new protocols or protocol capabilities that affect what is communicated across the network. Use of a Transport Services system does not require that a peer on the other side of a connection uses the same API or implementation. A Transport Services system acting as a connection initiator can communicate with any existing system that implements the transport protocol(s) selected by the Transport Services system. Similarly, a Transport Services system acting as a listener can receive connections for any protocol that is supported by the system from existing initiators that implement the protocol, independent of whether the initiator uses Transport Services as well or not.
+- If the application specifies that it requires reliable transmission of data, then a Protocol Stack using UDP without any reliability layer on top would not be allowed to replace a Protocol Stack using TCP.
+
+The following example shows equivalent Protocol Stacks:
+
+- If the application does not require reliable transmission of data, then a Protocol Stack that adds reliability could be regarded as an equivalent Protocol Stack as long as providing this would not conflict with any other application-requested properties.
+
+To ensure that security protocols are not incorrectly swapped, Transport Services systems MUST only select Protocol Stacks that meet application requirements ({{?I-D.ietf-taps-transport-security}}). Systems SHOULD only race Protocol Stacks where the transport security protocols within the stacks are identical. Transport Services systems MUST NOT automatically fall back from secure protocols to insecure protocols, or to weaker versions of secure protocols. A Transport Services system MAY allow applications to explicitly specify that fallback to a specific other version of a protocol is allowed, e.g., to allow fallback to TLS 1.2 if TLS 1.3 is not available.
+
+## Maintain Interoperability
+
+It is important to note that neither the Transport Services API {{!I-D.ietf-taps-interface}} nor the Implementation document {{?I-D.ietf-taps-impl}} define new protocols or protocol capabilities that affect what is communicated across the network. Use of a Transport Services system MUST NOT require that a peer on the other side of a connection uses the same API or implementation. A Transport Services system acting as a connection initiator is able to communicate with any existing system that implements the transport protocol(s) and all the required properties selected by the Transport Services system. Similarly, a Transport Services system acting as a listener can receive connections for any protocol that is supported by the system from existing initiators that implement the protocol, independent of whether the initiator uses a Transport Services system or not.
+
+In normal use, a Transport Services system SHOULD result in consistent protocol and interface selection decisions for the same network conditions given the same set of Properties. This is intended to provide predictable outcomes to the application using the API.
 
 # Transport Services Architecture and Concepts {#concepts}
 
@@ -468,18 +486,6 @@ Connection establishment attempts for a set of candidates may be performed simul
 
 * Remote Endpoint Racing: Remote Endpoint Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on the specific representation of the Remote Endpoint, such as a particular IP address that was resolved from a DNS hostname.
 
-### Protocol Stack Equivalence {#equivalence}
-
-The Transport Services architecture defines a mechanism that allows applications to easily make use of various network paths and Protocol Stacks without requiring major changes in application logic. In some cases, changing which Protocol Stacks or network paths are used will require updating the preferences expressed by the application that uses the Transport Services system. For example, an application can enable the use of a multipath or multistreaming transport protocol by modifying the properties in its Pre-Connection configuration. In some cases, however, the Transport Services system will be able to automatically change Protocol Stacks without an update to the application, either by selecting a new stack entirely, or by racing multiple candidate Protocol Stacks during connection establishment. This functionality in the API can be a powerful driver of new protocol adoption, but needs to be constrained carefully to avoid unexpected behavior that can lead to functional or security problems.
-
-If two different Protocol Stacks can be safely swapped, or raced in parallel (see {{racing}}), then they are considered to be "equivalent". Equivalent Protocol Stacks need to meet the following criteria:
-
-1. Both stacks MUST offer the interface requested by the application for connection establishment and data transmission. For example, if an application requires preservation of message boundaries, a Protocol Stack that runs UDP as the top-level interface to the application is not equivalent to a Protocol Stack that runs TCP as the top-level interface. A UDP stack would allow an application to read out message boundaries based on datagrams sent from the remote system, whereas TCP does not preserve message boundaries on its own, but needs a framing protocol on top to determine message boundaries.
-
-2. Both stacks MUST offer the transport services that are requested by the application. For example, if an application specifies that it requires reliable transmission of data, then a Protocol Stack using UDP without any reliability layer on top would not be allowed to replace a Protocol Stack using TCP. However, if the application does not require reliability, then a Protocol Stack that adds reliability could be regarded as an equivalent Protocol Stack as long as providing this would not conflict with any other application-requested properties.
-
-3. Both stacks MUST offer security protocols and parameters as requested by the application {{?I-D.ietf-taps-transport-security}}. Security features and properties, such as cryptographic algorithms, peer authentication, and identity privacy vary across security protocols, and across versions of security protocols. Protocol equivalence ought not to be assumed for different protocols or protocol versions, even if they offer similar application configuration options. To ensure that security protocols are not incorrectly swapped, Transport Services systems SHOULD only automatically generate equivalent Protocol Stacks when the transport security protocols within the stacks are identical. Specifically, a Transport Services system would consider protocols identical only if they are of the same type and version. For example, the same version of TLS running over two different transport Protocol Stacks are considered equivalent, whereas TLS 1.2 and TLS 1.3 {{?RFC8446}} are not considered equivalent. However, Transport Services systems MAY allow applications to indicate that they consider two different transport protocols equivalent, e.g., to allow fallback to TLS 1.2 if TLS 1.3 is not available.
-
 ### Separating Connection Groups {#groups}
 
 By default, stored properties of the implementation, such as cached protocol state, cached path state, and heuristics, may be shared (e.g. across multiple connections in an application). This provides efficiency and convenience for the application, since the Transport Services implementation can automatically optimize behavior.
@@ -511,8 +517,8 @@ of TLS APIs. Transport Services APIs will expose similar functionality
 {{?I-D.ietf-taps-transport-security}}.
 
 As described above in {{equivalence}}, if a Transport Services system races
-between two different Protocol Stacks, both SHOULD use the same security protocols
-and options. However, a Transport Services system MAY race different security
+between two different Protocol Stacks, both need to use the same security protocols
+and options. However, a Transport Services system can race different security
 protocols, e.g., if the application explicitly specifies that it considers them
 equivalent.
 
@@ -524,9 +530,9 @@ the Encapsulating Security Protocol (ESP, part of IPsec) {{?RFC4303}} with QUIC,
 and applications ought not to use private keys intended for server
 authentication as keys for client authentication.
 
-Moreover, Transport Services systems MUST NOT automatically fall back from
+Moreover, Transport Services systems must not automatically fall back from
 secure protocols to insecure protocols, or to weaker versions of secure
-protocols. For example, if an application requests a specific version of TLS,
+protocols (see {{equivalence}}). For example, if an application requests a specific version of TLS,
 but the desired version of TLS is not available, its connection will fail.
 Applications are thus responsible for implementing security protocol fallback
 or version fallback by creating multiple Transport Services Connections, if so

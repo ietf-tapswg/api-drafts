@@ -258,7 +258,7 @@ There are three types of branching from a parent node into one or more child nod
 
 #### Derived Endpoints
 
-If a connection originally targets a single endpoint, there may be multiple endpoints of different types that can be derived from the original. The connection library should order the derived endpoints according to application preference, system policy and expected performance.
+If a connection originally targets a single endpoint, there may be multiple endpoints of different types that can be derived from the original. The connection library creates an ordered list of the derived endpoints according to application preference, system policy and expected performance.
 
 DNS hostname-to-address resolution is the most common method of endpoint derivation. When trying to connect to a hostname endpoint on a traditional IP network, the implementation should send DNS queries for both A (IPv4) and AAAA (IPv6) records if both are supported on the local link. The algorithm for ordering and racing these addresses should follow the recommendations in Happy Eyeballs {{!RFC8305}}.
 
@@ -270,7 +270,7 @@ DNS hostname-to-address resolution is the most common method of endpoint derivat
   1.4 [2001:DB8::3.80, Wi-Fi, TCP]
 ~~~~~~~~~~
 
-DNS-Based Service Discovery {{?RFC6763}} can also provide an endpoint derivation step. When trying to connect to a named service, the client may discover one or more hostname and port pairs on the local network using multicast DNS {{?RFC6762}}. These hostnames should each be treated as a branch which can be attempted independently from other hostnames. Each of these hostnames may also resolve to one or more addresses, thus creating multiple layers of branching.
+DNS-Based Service Discovery {{?RFC6763}} can also provide an endpoint derivation step. When trying to connect to a named service, the client may discover one or more hostname and port pairs on the local network using multicast DNS {{?RFC6762}}. These hostnames should each be treated as a branch that can be attempted independently from other hostnames. Each of these hostnames might resolve to one or more addresses, which would create multiple layers of branching.
 
 ~~~~~~~~~~
 1 [term-printer._ipp._tcp.meeting.ietf.org, Wi-Fi, TCP]
@@ -280,7 +280,7 @@ DNS-Based Service Discovery {{?RFC6763}} can also provide an endpoint derivation
 
 #### Alternate Paths
 
-If a client has multiple network interfaces available to it, such as mobile client with both Wi-Fi and Cellular connectivity, it can attempt a connection over either interface. This represents a branch point in the connection establishment. Like with derived endpoints, the interfaces should be ranked based on preference, system policy, and performance. Attempts should be started on one interface, and then on other interfaces successively after delays based on expected round-trip-time or other available metrics.
+If a client has multiple network interfaces available to it, e.g., a mobile client with both Wi-Fi and Cellular connectivity, it can attempt a connection over any of the interfaces. This represents a branch point in the connection establishment. Similar to a derived endpoint, the interfaces should be ranked based on preference, system policy, and performance. Attempts should be started on one interface, and then on other interfaces successively after delays based on expected round-trip-time or other available metrics.
 
 ~~~~~~~~~~
 1 [192.0.2.1:80, Any, TCP]
@@ -296,7 +296,7 @@ The list of available paths should be constrained by any requirements or prohibi
 
 Differences in possible protocol compositions and options can also provide a branching point in connection establishment. This allows clients to be resilient to situations in which a certain protocol is not functioning on a server or network.
 
-This approach is commonly used for connections with optional proxy server configurations. A single connection may be allowed to use an HTTP-based proxy, a SOCKS-based proxy, or connect directly. These options should be ranked and attempted in succession.
+This approach is commonly used for connections with optional proxy server configurations. A single connection might have several options available: an HTTP-based proxy, a SOCKS-based proxy, or no proxy. These options should be ranked and attempted in succession.
 
 ~~~~~~~~~~
 1 [www.example.com:80, Any, HTTP/TCP]
@@ -306,7 +306,7 @@ This approach is commonly used for connections with optional proxy server config
     1.3.1 [192.0.2.1:80, Any, HTTP/TCP]
 ~~~~~~~~~~
 
-This approach also allows a client to attempt different sets of application and transport protocols that may provide preferable characteristics when available. For example, the protocol options could involve QUIC {{I-D.ietf-quic-transport}} over UDP on one branch, and HTTP/2 {{!RFC7540}} over TLS over TCP on the other:
+This approach also allows a client to attempt different sets of application and transport protocols that, when available, could provide preferable features. For example, the protocol options could involve QUIC {{I-D.ietf-quic-transport}} over UDP on one branch, and HTTP/2 {{!RFC7540}} over TLS over TCP on the other:
 
 ~~~~~~~~~~
 1 [www.example.com:443, Any, Any HTTP]
@@ -326,11 +326,11 @@ Another example is racing SCTP with TCP:
     1.2.1 [192.0.2.1:80, Any, TCP]
 ~~~~~~~~~~
 
-Implementations that support racing protocols and protocol options should maintain a history of which protocols and protocol options successfully established, on a per-network basis (see {{performance-caches}}). This information can influence future racing decisions to prioritize or prune branches.
+Implementations that support racing protocols and protocol options should maintain a history of which protocols and protocol options successfully established, on a per-network and per-endpoint basis (see {{performance-caches}}). This information can influence future racing decisions to prioritize or prune branches.
 
 ### Branching Order-of-Operations
 
-Branch types must occur in a specific order relative to one another to avoid creating leaf nodes with invalid or incompatible settings. In the example above, it would be invalid to branch for derived endpoints (the DNS results for www.example.com) before branching between interface paths, since usable DNS results on one network may not necessarily be the same as DNS results on another network due to local network entities, supported address families, or enterprise network configurations. Implementations must be careful to branch in an order that results in usable leaf nodes whenever there are multiple branch types that could be used from a single node.
+Branch types must occur in a specific order relative to one another to avoid creating leaf nodes with invalid or incompatible settings. In the example above, it would be invalid to branch for derived endpoints (the DNS results for www.example.com) before branching between interface paths, since there are situations when the results will be different across networks due to private names or different supported IP versions. Implementations must be careful to branch in an order that results in usable leaf nodes whenever there are multiple branch types that could be used from a single node.
 
 The order of operations for branching, where lower numbers are acted upon first, should be:
 
@@ -340,11 +340,11 @@ The order of operations for branching, where lower numbers are acted upon first,
 
 Branching between paths is the first in the list because results across multiple interfaces are likely not related to one another: endpoint resolution may return different results, especially when using locally resolved host and service names, and which protocols are supported and preferred may differ across interfaces. Thus, if multiple paths are attempted, the overall connection can be seen as a race between the available paths or interfaces.
 
-Protocol options are checked next in order. Whether or not a set of protocol, or protocol-specific options, can successfully connect is generally not dependent on which specific IP address is used. Furthermore, the protocol stacks being attempted may influence or altogether change the endpoints being used. Adding a proxy to a connection's branch will change the endpoint to the proxy's IP address or hostname. Choosing an alternate protocol may also modify the ports that should be selected.
+Protocol options are next checked in order. Whether or not a set of protocol, or protocol-specific options, can successfully connect is generally not dependent on which specific IP address is used. Furthermore, the protocol stacks being attempted may influence or altogether change the endpoints being used. Adding a proxy to a connection's branch will change the endpoint to the proxy's IP address or hostname. Choosing an alternate protocol may also modify the ports that should be selected.
 
 Branching for derived endpoints is the final step, and may have multiple layers of derivation or resolution, such as DNS service resolution and DNS hostname resolution.
 
-For example, if the application has indicated both a preference for WiFi over LTE and for a feature only available in SCTP, branches will be first sorted accord to path selection, with WiFi at the top. Then, branches with SCTP will be sorted to the top within their subtree according to the properties influencing protocol selection. However, if the implementation has cached the information that SCTP is not available on the path over WiFi, there is no SCTP node in the WiFi subtree. Here, the path over WiFi will be tried first, and, if connection establishment succeeds, TCP will be used. So the Selection Property of preferring WiFi takes precedence over the Property that led to a preference for SCTP.
+For example, if the application has indicated both a preference for WiFi over LTE and for a feature only available in SCTP, branches will be first sorted accord to path selection, with WiFi at the top. Then, branches with SCTP will be sorted to the top within their subtree according to the properties influencing protocol selection. However, if the implementation has current cache information that SCTP is not available on the path over WiFi, there is no SCTP node in the WiFi subtree. Here, the path over WiFi will be tried first, and, if connection establishment succeeds, TCP will be used. So the Selection Property of preferring WiFi takes precedence over the Property that led to a preference for SCTP.
 
 ~~~~~~~~~~
 1. [www.example.com:80, Any, Any Stream]
@@ -358,7 +358,7 @@ For example, if the application has indicated both a preference for WiFi over LT
 
 ### Sorting Branches {#branch-sorting}
 
-Implementations should sort the branches of the tree of connection options in order of their preference rank.
+Implementations should sort the branches of the tree of connection options in order of their preference rank, from most preferred to least preferred.
 Leaf nodes on branches with higher rankings represent connection attempts that will be raced first.
 Implementations should order the branches to reflect the preferences expressed by the application for its new connection, including Selection Properties, which are specified in {{I-D.ietf-taps-interface}}.
 
@@ -378,7 +378,7 @@ An implementation may use the Capacity Profile to prefer paths optimized for the
    * Constant-Rate Streaming:
      Prefer paths that can satisfy the requested Stream Send or Stream Receive Bitrate, based on observed maximum throughput
 
-Implementations should process properties in the following order: Prohibit, Require, Prefer, Avoid.
+Implementations process properties in the following order: Prohibit, Require, Prefer, Avoid.
 If Selection Properties contain any prohibited properties, the implementation should first purge branches containing nodes with these properties. For required properties, it should only keep branches that satisfy these requirements. Finally, it should order branches according to preferred properties, and finally use avoided properties as a tiebreaker.
 When ordering branches, an implementation may give more weight to properties that the application has explicitly set than to properties that are default.
 
@@ -389,7 +389,7 @@ As the available protocols and paths on a specific system and in a specific cont
 
 The primary goal of the Candidate Racing process is to successfully negotiate a protocol stack to an endpoint over an interface—to connect a single leaf node of the tree—with as little delay and as few unnecessary connections attempts as possible. Optimizing these two factors improves the user experience, while minimizing network load.
 
-This section covers the dynamic aspect of connection establishment. While the tree described above is a useful conceptual and architectural model, an implementation does not know what the full tree may become up front, nor will many of the possible branches be used in the common case.
+This section covers the dynamic aspect of connection establishment. The tree described above is a useful conceptual and architectural model. However, an implementation is unable to know the full tree before it is formed and many of the possible branches ultimately might not be used.
 
 There are three different approaches to racing the attempts for different nodes of the connection establishment tree:
 
@@ -401,6 +401,9 @@ Each approach is appropriate in different use-cases and branch types. However, t
 
 The timing algorithms for racing should remain independent across branches of the tree. Any timers or racing logic is isolated to a given parent node, and is not ordered precisely with regards to other children of other nodes.
 
+### Immediate
+
+Immediate, or simultaneous, racing should be avoided by implementations. This approach can consume network resources and establish state that will not be used.
 
 ### Delayed
 
@@ -424,7 +427,7 @@ An example in which failover is recommended is a race between a protocol stack t
 
 The process of connection establishment completes when one leaf node of the tree has completed negotiation with the remote endpoint successfully, or else all nodes of the tree have failed to connect. The first leaf node to complete its connection is then used by the application to send and receive data.
 
-It is useful to process success and failure throughout the tree by child nodes reporting to their parent nodes (towards the trunk of the tree). For example, in the following case, if 1.1.1 fails to connect, it reports the failure to 1.1. Since 1.1 has no other child nodes, it also has failed and reports that failure to 1. Because 1.2 has not yet failed, 1 is not considered to have failed. Since 1.2 has not yet started, it is started and the process continues. Similarly, if 1.1.1 successfully connects, then it marks 1.1 as connected, which propagates to the trunk node 1. At this point, the connection as a whole is considered to be successfully connected and ready to process application data
+Successes and failures of a given attempt should be reported up to parent nodes (towards the trunk of the tree). For example, in the following case, if 1.1.1 fails to connect, it reports the failure to 1.1. Since 1.1 has no other child nodes, it also has failed and reports that failure to 1. Because 1.2 has not yet failed, 1 is not considered to have failed. Since 1.2 has not yet started, it is started and the process continues. Similarly, if 1.1.1 successfully connects, then it marks 1.1 as connected, which propagates to the trunk node 1. At this point, the connection as a whole is considered to be successfully connected and ready to process application data
 
 ~~~~~~~~~~
 1 [www.example.com:80, Any, TCP]
@@ -434,7 +437,7 @@ It is useful to process success and failure throughout the tree by child nodes r
 ...
 ~~~~~~~~~~
 
-If a leaf node has successfully completed its connection, all other attempts should be made ineligible for use by the application for the original request. New connection attempts that involve transmitting data on the network should not be started after another leaf node has completed successfully, as the connection as a whole has been established. An implementation may choose to let certain handshakes and negotiations complete in order to gather metrics to influence future connections. Similarly, an implementation may choose to hold onto fully established leaf nodes that were not the first to establish for use as part of a Pooled Connection, see {{pooled-connections}}, or in future connections. In both cases, keeping additional connections is generally not recommended since those attempts were slower to connect and may exhibit less desirable properties. 
+If a leaf node has successfully completed its connection, all other attempts should be made ineligible for use by the application for the original request. New connection attempts that involve transmitting data on the network ought not to be started after another leaf node has already successfully completed, because the connection as a whole has now been established. An implementation may choose to let certain handshakes and negotiations complete in order to gather metrics to influence future connections. Keeping additional connections is generally not recommended since those attempts were slower to connect and may exhibit less desirable properties. 
 
 ### Determining Successful Establishment
 
@@ -461,19 +464,19 @@ Instead, calling the ConnectionReceived event may be delayed until the first Mes
 
 While protocols that use an explicit handshake to validate a Connection to a peer can be used for racing multiple establishment attempts in parallel, "unconnected" protocols such as raw UDP do not offer a way to validate the presence of a peer or the usability of a Connection without application feedback. An implementation should consider such a protocol stack to be established as soon as a local route to the peer endpoint is confirmed.
 
-However, if a peer is not reachable over the network using the unconnected protocol, or data cannot be exchanged for any other reason, the application may want to attempt using another candidate Protocol Stack. The implementation should maintain the list of other candidate Protocol Stacks that were eligible to use. In the case that the application signals that the initial Protocol Stack is failing for some reason and that another option should be attempted, the Connection can be updated to point to the next candidate Protocol Stack. This can be viewed as an application-driven form of Protocol Stack racing.
+However, if a peer is not reachable over the network using the unconnected protocol, or data cannot be exchanged for any other reason, the application may want to attempt using another candidate Protocol Stack. The implementation should maintain the list of other candidate Protocol Stacks that were eligible to use.
 
 ## Implementing listeners {#listen}
 
-When an implementation is asked to Listen, it registers with the system to wait for incoming traffic to the Local Endpoint. If no Local Endpoint is specified, the implementation should either use an ephemeral port or generate an error.
+When an implementation is asked to Listen, it registers with the system to wait for incoming traffic to the Local Endpoint. If no Local Endpoint is specified, the implementation should use an ephemeral port.
 
 If the Selection Properties do not require a single network interface or path, but allow the use of multiple paths, the Listener object should register for incoming traffic on all of the network interfaces or paths that conform to the Properties. The set of available paths can change over time, so the implementation should monitor network path changes and register and de-register the Listener across all usable paths. When using multiple paths, the Listener is generally expected to use the same port for listening on each.
 
-If the Selection Properties allow multiple protocols to be used for listening, and the implementation supports it, the Listener object should register across the eligble protocols for each path. This means that inbound Connections delivered by the implementation may have heterogeneous protocol stacks.
+If the Selection Properties allow multiple protocols to be used for listening, and the implementation supports it, the Listener object should support receiving inbound connections for each eligible protocol on each eligible path.
 
 ### Implementing listeners for Connected Protocols
 
-Connected protocols such as TCP and TLS-over-TCP have a strong mapping between the Local and Remote Endpoints (five-tuple) and their protocol connection state. These map well into Connection objects. Whenever a new inbound handshake is being started, the Listener should generate a new Connection object and pass it to the application.
+Connected protocols such as TCP and TLS-over-TCP have a strong mapping between the Local and Remote Endpoints (five-tuple) and their protocol connection state. These map into Connection objects. Whenever a new inbound handshake is being started, the Listener should generate a new Connection object and pass it to the application.
 
 ### Implementing listeners for Unconnected Protocols
 
@@ -503,15 +506,13 @@ The effect of the application sending a Message is determined by the top-level p
 
 - Ordered: when this is false, it disables the requirement of in-order-delivery for protocols that support configurable ordering.
 
-- Idempotent: when this is true, it means that the Message can be used by mechanisms that might transfer it multiple times -- e.g., as a result of racing multiple transports or as part of TCP Fast Open.
+- Safely Replayable: when this is true, it means that the Message can be used by mechanisms that might transfer it multiple times -- e.g., as a result of racing multiple transports or as part of TCP Fast Open.
 
 - Final: when this is true, it means that a transport connection can be closed immediately after its transmission.
 
-- Corruption Protection Length: when this is set to any value other than -1, it limits the required checksum in protocols that allow limiting the checksum length (e.g. UDP-Lite).
+- Corruption Protection Length: when this is set to any value other than -1, it sets the minimum protection in protocols that allow limiting the checksum length (e.g. UDP-Lite).
 
-- Transmission Profile: TBD -- because it's not final in the API yet.  Old text follows: when this is set to "Interactive/Low Latency", the Message should be sent immediately, even when this comes at the cost of using the network capacity less efficiently. For example, small messages can sometimes be bundled to fit into a single data packet for the sake of reducing header overhead; such bundling should not be used. For example, in case of TCP, the Nagle algorithm should be disabled when Interactive/Low Latency is selected as the capacity profile. Scavenger/Bulk can translate into usage of a congestion control mechanism such as LEDBAT, and/or the capacity profile can lead to a choice of a DSCP value as described in {{I-D.ietf-taps-minset}}).
-
-- Singular Transmission: when this is true, the application requests to avoid transport-layer segmentation or network-layer fragmentation. Some transports implement network-layer fragmentation avoidance (Path MTU Discovery) without exposing this functionality to the application; in this case, only transport-layer segmentation should be avoided, by fitting the message into a single transport-layer segment or otherwise failing. Otherwise, network-layer fragmentation should be avoided---e.g. by requesting the IP Don’t Fragment bit to be set in case of UDP(-Lite) and IPv4 (SET_DF in {{!RFC8304}}).
+- Singular Transmission: When set, this property limits the message size to the Maximum Message Size Before Fragmentation or Segmentation (see Section 10.1.7 of {{I-D.ietf-taps-interface}}).  Messages larger than this size generate an error.  Setting this avoids transport-layer segmentation or network-layer fragmentation. When used with transports running over IP version 4 the Don't Fragment bit will be set to avoid on-path IP fragmentation ({{!RFC8304}}).  
 
 ### Send Completion
 
@@ -531,11 +532,11 @@ If a Connection becomes finished before a requested Receive action can be satisf
 
 Several protocols allow sending higher-level protocol or application data within the first packet of their protocol establishment, such as TCP Fast Open {{!RFC7413}} and TLS 1.3 {{!RFC8446}}. This approach is referred to as sending Zero-RTT (0-RTT) data. This is a desirable property, but poses challenges to an implementation that uses racing during connection establishment.
 
-If the application has 0-RTT data to send in any protocol handshakes, it needs to provide this data before any handshake is initiated. When racing, this means that the data should be provided before the process of connection establishment has begun. If the application wants to send 0-RTT data, it indicates this to the implementation by setting the Idempotent flag in the message context to true and providing initial data to send at the connection initiation. In general, 0-RTT data may be replayed (for example, if a TCP SYN contains data, and the SYN is retransmitted, the data will be retransmitted as well but may be considered as a new connection instead of a retransmission). Also, when racing connections, different leaf nodes may send the same data independently. If data is truly idempotent, this should be permissible.
+If the application has 0-RTT data to send in any protocol handshakes, it needs to provide this data before the handshakes have begun. When racing, this means that the data should be provided before the process of connection establishment has begun. If the application wants to send 0-RTT data, it must indicate this to the implementation by setting the `Safely Replayable` send parameter to true when sending the data. In general, 0-RTT data may be replayed (for example, if a TCP SYN contains data, and the SYN is retransmitted, the data will be retransmitted as well but may be considered as a new connection instead of a retransmission). Also, when racing connections, different leaf nodes have the opportunity to send the same data independently. If data is truly safely replayable, this should be permissible.
 
 Once the application has provided its 0-RTT data, an implementation should keep a copy of this data and provide it to each new leaf node that is started and for which a 0-RTT protocol is being used.
 
-It is also possible that protocol stacks within a particular leaf node use 0-RTT handshakes without any idempotent application data. For example, TCP Fast Open could use a Client Hello from TLS as its 0-RTT data, shortening the cumulative handshake time.
+It is also possible that protocol stacks within a particular leaf node use 0-RTT handshakes without any safely replayable application data. For example, TCP Fast Open could use a Client Hello from TLS as its 0-RTT data, shortening the cumulative handshake time.
 
 0-RTT handshakes often rely on previous state, such as TCP Fast Open cookies, previously established TLS tickets, or out-of-band distributed pre-shared keys (PSKs). Implementations should be aware of security concerns around using these tokens across multiple addresses or paths when racing. In the case of TLS, any given ticket or PSK should only be used on one leaf node, since servers will likely reject duplicate tickets in order to prevent replays (see section-8.1 {{?RFC8446}}). If implementations have multiple tickets available from a previous connection, each leaf node attempt can use a different ticket. In effect, each leaf node will send the same early application data, yet encoded (encrypted) differently on the wire.
 
@@ -810,7 +811,7 @@ Protocols also define a notion of Data Unit. Possible values for Data Unit are:
 - Datagram. Datagram protocols define Message boundaries at the same level of transmission, such that only complete (not partial) Messages are supported.
 - Message. Message protocols support Message boundaries that can be sent and received either as complete or partial Messages. Maximum Message lengths can be defined, and Messages can be partially reliable.
 
-Below, primitives in the style of "CATEGORY.[SUBCATEGORY].PRIMITIVENAME.PROTOCOL"  (e.g., "CONNECT.SCTP") refer to the primitives with the same name in section 4 of {{!RFC8303}}. For further implementation details, the description of these primitives in {{!RFC8303}} points to section 3, which refers back to the specifications for each protocol. This back-tracking method applies to all elements of {{I-D.ietf-taps-minset}} (see appendix D of {{I-D.ietf-taps-interface}}): they are listed in appendix A of {{I-D.ietf-taps-minset}} with an implementation hint in the same style, pointing back to section 4 of {{!RFC8303}}.
+Below, terms in capitals with a dot (e.g., "CONNECT.SCTP") refer to the primitives with the same name in section 4 of {{!RFC8303}}. For further implementation details, the description of these primitives in {{!RFC8303}} points to section 3 of {{!RFC8303}} and section 3 of {{!RFC8304}}, which refers back to the relevant specifications for each protocol. This back-tracking method applies to all elements of {{I-D.ietf-taps-minset}} (see appendix D of {{I-D.ietf-taps-interface}}): they are listed in appendix A of {{I-D.ietf-taps-minset}} with an implementation hint in the same style, pointing back to section 4 of {{!RFC8303}}.
 
 ## TCP {#tcp}
 
@@ -827,7 +828,7 @@ Initiate:
 : CONNECT.TCP. Calling `Initiate` on a TCP Connection causes it to reserve a local port, and send a SYN to the Remote Endpoint.
 
 InitiateWithSend:
-: CONNECT.TCP with parameter "user message". Early idempotent data is sent on a TCP Connection in the SYN, as TCP Fast Open data.
+: CONNECT.TCP with parameter `user message`. Early safely replayable data is sent on a TCP Connection in the SYN, as TCP Fast Open data.
 
 Ready:
 : A TCP Connection is ready once the three-way handshake is complete.
@@ -968,7 +969,7 @@ Initiate:
 : Calling `Initiate` on a TLS Connection causes it to first initiate a TCP connection. Once the TCP protocol is Ready, the TLS handshake will be performed as a client (starting by sending a `client_hello`, and so on).
 
 InitiateWithSend:
-: Early idempotent data is supported by TLS 1.3, and sends encrypted application data in the first TLS message when performing session resumption. For older versions of TLS, or if a session is not being resumed, the initial data will be delayed until the TLS handshake is complete. TCP Fast Option can also be enabled automatically.
+: Early safely replayable data is supported by TLS 1.3, and sends encrypted application data in the first TLS message when performing session resumption. For older versions of TLS, or if a session is not being resumed, the initial data will be delayed until the TLS handshake is complete. TCP Fast Open can also be enabled automatically.
 
 Ready:
 : A TLS Connection is ready once the underlying TCP connection is Ready, and TLS handshake is also complete and keys have been established to encrypt application data.
@@ -1160,6 +1161,8 @@ RFC-EDITOR: Please remove this section before publication.
 This document has no actions for IANA.
 
 # Security Considerations
+
+{{I-D.ietf-taps-arch}} outlines general security consideration and requirements for any system that implements the TAPS archtecture. {{I-D.ietf-taps-interface}} provides further discussion on security and privacy implications of the TAPS API. This document provides additional guidance on implementation specifics for the TAPS API and as such the security considerations in both of these documents apply. The next two subsections discuss further considerations that are specific to mechanisms specified in this document.
 
 ## Considerations for Candidate Gathering
 
