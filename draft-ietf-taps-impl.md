@@ -500,15 +500,15 @@ The effect of the application sending a Message is determined by the top-level p
 
 ### Message Properties {#msg-properties}
 
-- Lifetime: this should be implemented by removing the Message from its queue of pending Messages after the Lifetime has expired. A queue of pending Messages within the transport system implementation that have yet to be handed to the Protocol Stack can always support this property, but once a Message has been sent into the send buffer of a protocol, only certain protocols may support de-queueing a message. For example, TCP cannot remove bytes from its send buffer, while in case of SCTP, such control over the SCTP send buffer can be exercised using the partial reliability extension {{!RFC8303}}. When there is no standing queue of Messages within the system, and the Protocol Stack does not support removing a Message from its buffer, this property may be ignored.
+- Lifetime: this should be implemented by removing the Message from its queue of pending Messages after the Lifetime has expired. A queue of pending Messages within the transport system implementation that have yet to be handed to the Protocol Stack can always support this property, but once a Message has been sent into the send buffer of a protocol, only certain protocols may support de-queueing a message. For example, TCP cannot remove bytes from its send buffer, while in case of SCTP, such control over the SCTP send buffer can be exercised using the partial reliability extension {{!RFC8303}}. When there is no standing queue of Messages within the system, and the Protocol Stack does not support out-of-sequence removal of a Message from the stack's buffer, this property may be ignored.
 
 - Priority: this represents the ability to prioritize a Message over other Messages. This can be implemented by the system re-ordering Messages that have yet to be handed to the Protocol Stack, or by giving relative priority hints to protocols that support priorities per Message. For example, an implementation of HTTP/2 could choose to send Messages of different Priority on streams of different priority.
 
-- Ordered: when this is false, it disables the requirement of in-order-delivery for protocols that support configurable ordering.
+- Ordered: when this is false, this disables the requirement of in-order-delivery for protocols that support configurable ordering.
 
-- Safely Replayable: when this is true, it means that the Message can be used by mechanisms that might transfer it multiple times -- e.g., as a result of racing multiple transports or as part of TCP Fast Open.
+- Safely Replayable: when this is true, this means that the Message can be used by mechanisms that might transfer it multiple times -- e.g., as a result of racing multiple transports or as part of TCP Fast Open.
 
-- Final: when this is true, it means that a transport connection can be closed immediately after its transmission.
+- Final: when this is true, this means that a transport connection can be closed immediately after transmission of the message..
 
 - Corruption Protection Length: when this is set to any value other than -1, it sets the minimum protection in protocols that allow limiting the checksum length (e.g. UDP-Lite).
 
