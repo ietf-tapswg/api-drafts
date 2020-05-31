@@ -1510,12 +1510,10 @@ boundaries. This is further decribed in {{framing}}.
 ## Basic Sending {#send-basic}
 
 The most basic form of sending on a connection involves enqueuing a single Data
-block as a complete Message, with default Message Properties. Message data is
-transferred as an array of bytes, and the resulting object contains both the byte
-array and the length of the array.
+block as a complete Message, with default Message Properties.
 
 ~~~
-messageData := "hello".bytes()
+messageData := "hello"
 Connection.Send(messageData)
 ~~~
 
@@ -1645,7 +1643,7 @@ Message to still be sent.
 A MessageContext object contains metadata for  Messages to be sent or received.
 
 ~~~
-messageData := "hello".bytes()
+messageData := "hello"
 messageContext := NewMessageContext()
 messageContext.add(parameter, value)
 Connection.Send(messageData, messageContext)
@@ -1869,11 +1867,11 @@ The following example sends a Message in two separate calls to Send.
 messageContext := NewMessageContext()
 messageContext.add(parameter, value)
 
-messageData := "hel".bytes()
+messageData := "hel"
 endOfMessage := false
 Connection.Send(messageData, messageContext, endOfMessage)
 
-messageData := "lo".bytes()
+messageData := "lo"
 endOfMessage := true
 Connection.Send(messageData, messageContext, endOfMessage)
 ~~~
