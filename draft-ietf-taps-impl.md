@@ -366,23 +366,23 @@ In addition to the properties provided by the application, an implementation may
 Two examples of how Selection and Connection Properties may be used to sort branches are provided below:
 
 * "Interface Instance or Type":
-If the application specifies an interface type to be preferred or avoided, implementations should rank paths accordingly.
-If the application specifies an interface type to be required or prohibited, we expect an implementation to not include the non-conforming paths into the three.
+If the application specifies an interface type to be preferred or avoided, implementations should accordingly rank the paths.
+If the application specifies an interface type to be required or prohibited, an implementation is expeceted to not include the non-conforming paths.
 
 * "Capacity Profile":
-An implementation may use the Capacity Profile to prefer paths optimized for the application's expected traffic pattern according to cached performance estimates, see {{performance-caches}}:
+An implementation can use the Capacity Profile to prefer paths that match an application's expected traffic pattern. This match will use cached performance estimates, see {{performance-caches}}:
    * Scavenger:
-     Prefer paths with the highest expected available bandwidth, based on observed maximum throughput
+     Prefer paths with the highest expected available capacity, based on the observed maximum throughput;
    * Low Latency/Interactive:
-     Prefer paths with the lowest expected Round Trip Time
+     Prefer paths with the lowest expected Round Trip Time, based on observed round trip time estimates;
    * Constant-Rate Streaming:
-     Prefer paths that can satisfy the requested Stream Send or Stream Receive Bitrate, based on observed maximum throughput
+     Prefer paths that can are expected to satisy the requested Stream Send or Stream Receive Bitrate, based on the observed maximum throughput.
 
-Implementations process properties in the following order: Prohibit, Require, Prefer, Avoid.
-If Selection Properties contain any prohibited properties, the implementation should first purge branches containing nodes with these properties. For required properties, it should only keep branches that satisfy these requirements. Finally, it should order branches according to preferred properties, and finally use avoided properties as a tiebreaker.
-When ordering branches, an implementation may give more weight to properties that the application has explicitly set than to properties that are default.
+Implementations process the Properties in the following order: Prohibit, Require, Prefer, Avoid.
+If Selection Properties contain any prohibited properties, the implementation should first purge branches containing nodes with these properties. For required properties, it should only keep branches that satisfy these requirements. Finally, it should order the branches according to the preferred properties, and finally use any avoided properties as a tiebreaker.
+When ordering branches, an implementation can give more weight to properties that the application has explicitly set, than to the properties that are default.
 
-As the available protocols and paths on a specific system and in a specific context may vary, the result of sorting and the outcome of racing may vary even given the same Selection and Connection Properties. However, an implementation ought to aim to provide a consistent outcome to applications, e.g., by preferring protocols and paths that existing Connections with similar Properties are already using.
+The available protocols and paths on a specific system and in a specific context can change; therefore, the result of sorting and the outcome of racing may vary, even when using the same Selection and Connection Properties. However, an implementation ought to provide a consistent outcome to applications, e.g., by preferring protocols and paths that are already used by existing Connections that specified similar Properties.
 
 
 ## Candidate Racing
