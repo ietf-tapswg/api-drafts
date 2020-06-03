@@ -89,6 +89,7 @@ normative:
 
 informative:
     I-D.ietf-quic-transport:
+    I-D.ietf-tcpm-2140bis:
     NEAT-flow-mapping:
       title: Transparent Flow Mapping for NEAT (in Workshop on Future of Internet Transport (FIT 2017))
       authors:
@@ -792,7 +793,9 @@ These items can be cached on a per-address and per-subnet granularity, and avera
 
 An implementation should use this information, when possible, to determine preference between candidate paths, endpoints, and protocol options. Eligible options that historically had significantly better performance than others should be selected first when gathering candidates (see {{gathering}}) to ensure better performance for the application.
 
-The reasonable lifetime for cached performance values will vary depending on the nature of the value. Certain information, like the connection establishment success rate to a Remote Endpoint using a given protocol stack, can be stored for a long period of time (hours or longer), since it is expected that the capabilities of the Remote Endpoint are not changing very quickly. On the other hand, Round Trip Time observed by TCP over a particular network path may vary over a relatively short time interval. For such values, the implementation should remove them from the cache more quickly, or treat older values with less confidence/weight.
+The reasonable lifetime for cached performance values will vary depending on the nature of the value. Certain information, like the connection establishment success rate to a Remote Endpoint using a given protocol stack, can be stored for a long period of time (hours or longer), since it is expected that the capabilities of the Remote Endpoint are not changing very quickly. On the other hand, the Round Trip Time observed by TCP over a particular network path may vary over a relatively short time interval. For such values, the implementation should remove them from the cache more quickly, or treat older values with less confidence/weight.
+
+{{?I-D.ietf-tcpm-2140bis}} provides guidance about sharing of TCP Control Block information between connections on initialization.
 
 # Specific Transport Protocol Considerations
 
