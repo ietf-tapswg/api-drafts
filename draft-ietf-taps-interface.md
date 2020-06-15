@@ -2425,7 +2425,7 @@ Handover:
 : The connection should only attempt to migrate between different paths when the original path is lost or becomes unusable. The actual thresholds to declare a path unusable are implementation specific.
 
 Interactive:
-: The connection should attempt to use multiple paths in parallel in order to minimize loss and delay. The actual strategy is implementation specific, but should not exceed the capacity provided by the best of the available paths.
+: The connection should attempt to use multiple paths in parallel in order to minimize loss and delay. The actual strategy is implementation specific.
 
 Aggregate:
 : The connection should attempt to use multiple paths in parallel in order to maximize bandwidth and possibly overcome bandwidth limitations of the individual paths. The actual strategy is implementation specific.
