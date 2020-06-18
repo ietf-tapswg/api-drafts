@@ -1555,6 +1555,10 @@ one Send Event delivered for each call to Send. For example, if a Message
 expired while two requests to Send data for that Message are outstanding,
 there will be two Expired events delivered.
 
+The interface should allow the application to correlate which Send Action resulted
+in a particular Send Event. The manner in which this correlation is indicated
+is implementation-specific.
+
 ### Sent {#sent}
 
 ~~~
@@ -1969,6 +1973,10 @@ as a receiver preference for message reordering.
 Each call to Receive will be paired with a single Receive Event, which can be a success
 or an error. This allows an application to provide backpressure to the transport stack
 when it is temporarily not ready to receive messages.
+
+The interface should allow the application to correlate which call to Receive resulted
+in a particular Receive Event. The manner in which this correlation is indicated
+is implementation-specific.
 
 ### Received {#receive-complete}
 
