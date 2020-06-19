@@ -748,12 +748,12 @@ configuration that can be implemented over TCP. If these default values are used
 and TCP is not supported by a Transport Services implementation, then an application using the
 default set of Properties might not succeed in establishing a connection. Using
 the same default values for independent Transport Services implementations can be beneficical
-when application are ported between different implementation, even if the
-default could lead to a connection failure, as, for example, applications need
-explicitly be designed to also support a connectionless mode. In this case the
-application can regonized the failure and explicitly specify a different set of
-Protocol Selection Properties that result in a usable protocol. If other default
-values than recommended below are used, it is recommended to document that well.
+when application are ported between different implementations, even if this
+default could lead to a connection failure, as, for example, an application needs to be
+explicitly designed to support a connectionless mode. In this case the
+application can regonize the failure and explicitly specify a different set of
+Protocol Selection Properties that result in a usable protocol. If default
+values other than those recommended below are used, it is recommended to clearly document the differences.
 
 
 ### Reliable Data Transfer (Connection) {#prop-reliable}
