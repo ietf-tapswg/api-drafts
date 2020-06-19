@@ -1884,10 +1884,10 @@ sending this Message; it is a per-Message override of the Capacity Profile
 connection property (see {{prop-cap-profile}}).
 
 
-### Singular Transmission {#send-singular}
+### No Fragmentation {#send-singular}
 
 Name:
-: singularTransmission
+: noFragmentation
 
 Type:
 : Boolean
@@ -1896,7 +1896,7 @@ Default:
 : false
 
 This property specifies that a message should be sent and received as a single
-packet without transport-layer segmentation or network-layer fragmentation, if possible.
+packet network-layer fragmentation, if possible.
 Attempts to send a message with this property set with a size greater to the
 transport's current estimate of its maximum transmission segment size will
 result in a `SendError`. When used with transports supporting this functionality
@@ -2910,7 +2910,7 @@ coverage, see {{prop-checksum-control-send}} and {{prop-checksum-control-receive
 `Required Minimum Corruption Protection Coverage for Receiving` property ({{conn-recv-checksum}}) and `Full Checksum Coverage on Receiving` property ({{prop-checksum-control-receive}}).
 
 * "Specify DF" field and "Request not to bundle messages":
-the `Singular Transmission` Message Property combines both of these requests, i.e. if a request not to bundle messages is made, this also turns off fragmentation (i.e., sets DF=1) in case of protocols that allow this (only UDP and UDP-Lite, which cannot bundle messages anyway) ({{send-singular}}).
+the `No Fragmentation` Message Property combines both of these requests, i.e. if a request not to bundle messages is made, this also turns off fragmentation (i.e., sets DF=1) in the case of a protocol that allows this (only UDP and UDP-Lite, which cannot bundle messages anyway) ({{send-singular}}).
 
 * Get max. transport-message size that may be sent using a non-fragmented IP packet from the configured interface:
 `Maximum Message Size Before Fragmentation or Segmentation` property ({{conn-max-msg-notfrag}}).
