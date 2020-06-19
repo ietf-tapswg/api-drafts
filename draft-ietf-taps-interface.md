@@ -1199,7 +1199,8 @@ Common parameters such as TLS ciphersuites are known to implementations. Clients
 use common safe defaults for these values whenever possible. However, as discussed in
 {{I-D.ietf-taps-transport-security}}, many transport security protocols require specific
 security parameters and constraints from the client at the time of configuration and
-actively during a handshake. These configuration parameters are created as follows:
+actively during a handshake. These configuration parameters need to be specified in the
+pre-connection phase and are created as follows:
 
 ~~~
 SecurityParameters := NewSecurityParameters()
@@ -1212,8 +1213,8 @@ identity to the Remote Endpoint. (Note, if private keys are not available, e.g.,
 stored in hardware security modules (HSMs), handshake callbacks must be used. See below for details.)
 
 ~~~
-SecurityParameters.AddIdentity(identity)
-SecurityParameters.AddPrivateKey(privateKey, publicKey)
+SecurityParameters.Add('identity', identity)
+SecurityParameters.Add('keypair', privateKey, publicKey)
 ~~~
 
 - Supported algorithms: Used to restrict what parameters are used by underlying transport security protocols.
@@ -1221,19 +1222,9 @@ When not specified, these algorithms should use known and safe defaults for the 
 ciphersuites, supported groups, and signature algorithms.
 
 ~~~
-SecurityParameters.AddSupportedGroup(secp256k1)
-SecurityParameters.AddCiphersuite(TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256)
-SecurityParameters.AddSignatureAlgorithm(ed25519)
-~~~
-
-- Session cache management: Used to tune cache capacity, lifetime, re-use,
-and eviction policies, e.g., LRU or FIFO. Constants and policies for these interfaces
-are implementation-specific.
-
-~~~
-SecurityParameters.SetSessionCacheCapacity(MAX_CACHE_ELEMENTS)
-SecurityParameters.SetSessionCacheLifetime(SECONDS_PER_DAY)
-SecurityParameters.SetSessionCachePolicy(CachePolicyOneTimeUse)
+SecurityParameters.Add('supported-group', 'secp256k1')
+SecurityParameters.Add('ciphersuite, 'TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256')
+SecurityParameters.Add('signature-algorithm', 'ed25519')
 ~~~
 
 - Pre-Shared Key import: Used to install pre-shared keying material established
@@ -1241,8 +1232,11 @@ out-of-band. Each pre-shared keying material is associated with some identity th
 its use or has some protocol-specific meaning to the Remote Endpoint.
 
 ~~~
-SecurityParameters.AddPreSharedKey(key, identity)
+SecurityParameters.Add('pre-shared-key', key, identity)
 ~~~
+
+- Session cache management: Used to tune cache capacity, lifetime, re-use,
+and eviction policies, e.g., LRU or FIFO.may also me changed, but are implementation-specific.
 
 ### Connection Establishment Callbacks
 
