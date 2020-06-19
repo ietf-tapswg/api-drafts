@@ -745,9 +745,9 @@ all other properties.
 An implementation of this interface must provide sensible defaults for Selection
 Properties. The recommended default values for each property below represent a
 configuration that can be implemented over TCP. If these default values are used
-and TCP is not supported by a TAPS implementation, then an application using the
+and TCP is not supported by a Transport Services implementation, then an application using the
 default set of Properties might not succeed in establishing a connection. Using
-the same default values for independent TAPS implementations can be beneficical
+the same default values for independent Transport Services implementations can be beneficical
 when application are ported between different implementation, even if the
 default could lead to a connection failure, as, for example, applications need
 explicitly be designed to also support a connectionless mode. In this case the
