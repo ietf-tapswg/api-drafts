@@ -91,7 +91,8 @@ informative:
     I-D.ietf-quic-transport:
     I-D.ietf-tcpm-2140bis:
     NEAT-flow-mapping:
-      title: Transparent Flow Mapping for NEAT (in Workshop on Future of Internet Transport (FIT 2017))
+      title: Transparent Flow Mapping for NEAT
+      seriesinfo: Workshop on Future of Internet Transport (FIT 2017)
       authors:
         -
           ins: F. Weinrank

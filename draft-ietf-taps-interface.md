@@ -123,6 +123,7 @@ informative:
         name: Stein Gjessing
     date: 2018-04-15
 
+
 --- abstract
 
 This document describes an abstract application programming interface, API, to the transport
@@ -1131,6 +1132,31 @@ connection. When set to true, received ICMP errors will be available as
 SoftErrors, see {{soft-errors}}. Note that even if a protocol supporting this property is selected,
 not all ICMP errors will necessarily be delivered, so applications cannot rely
 on receiving them.
+
+
+### Initiating side is not the first to write {#active-read-before-send}
+
+Name:
+: activeReadBeforeSend
+
+Type:
+: Preference
+
+Default:
+: Ignore
+
+The most common client-server communication pattern involves the
+client actively opening a connection, then sending data to the server. The
+server listens (passive open), reads, and then answers. This property
+specifies whether an application wants to diverge from this pattern -- either
+by actively opening with Initiate(), immediately followed by reading, or passively opening with Listen(),
+immediately followed by writing. This property is irrelevant for connection
+establishment using Rendezvous().
+Requiring this property limits the choice of mappings to underlying protocols,
+which can reduce
+efficiency. For example, it prevents the transport system from mapping
+Connections to SCTP streams, where
+the first transmitted data takes the role of an active open signal {{I-D.ietf-taps-impl}}.
 
 
 ## Specifying Security Parameters and Callbacks {#security-parameters}
