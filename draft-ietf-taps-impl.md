@@ -404,7 +404,7 @@ The timing algorithms for racing should remain independent across branches of th
 
 ### Immediate
 
-Immediate, or simultaneous, racing should be avoided by implementations. This approach can consume network resources and establish state that will not be used.
+Immediate racing is when multiple alternate branches are started without waiting for any one branch to make progress before starting the next alternative. This means the attempts are effectively simultaneous. Immediate racing should be avoided by implementations, since it consumes extra network resources and establishes state that might not be used.
 
 ### Delayed
 
