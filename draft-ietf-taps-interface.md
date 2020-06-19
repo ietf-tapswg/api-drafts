@@ -489,18 +489,18 @@ the respective protocol has been selected.
 ### Transport Property Names {#property-names}
 
 Transport Properties are referred to by property names. These names are
-lower-case strings whereby words are separated by hyphens.
+lower-case alphanumeric strings in which words may be separated by hyphens.
 These names serve two purposes:
 
-- Allow different components of a TAPS implementation to pass Transport
+- Allowing different components of a TAPS implementation to pass Transport
   Properties, e.g., between a language frontend and a policy manager,
   or as a representation of properties retrieved from a file or other storage.
-- Make code of different TAPS implementations look similar.
+- Making code of different TAPS implementations look similar.
 
 Transport Property Names are hierarchically organized in the
 form \[\<Namespace>.\]\<PropertyName\>.
 
-- The Namespace part MUST be empty for well-known, generic properties, i.e., for
+- The Namespace component MUST be empty for well-known, generic properties, i.e., for
   properties that are not specific to a protocol and are defined in an RFC.
 - Protocol Specific Properties MUST use the protocol acronym as Namespace, e.g.,
   `tcp` for TCP specific Transport Properties. For IETF protocols, property
@@ -508,10 +508,9 @@ form \[\<Namespace>.\]\<PropertyName\>.
 - Vendor or implementation specific properties MUST use a string identifying
   the vendor or implementation as Namespace.
   
-Namespaces for the keywords provided in the IANA protocol numbers registry 
-(see https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml) are reserved
-for Protocol Specific Properties and MUST not be used for vendor or implementation
-specific properties. 
+Namespaces for each of the keywords provided in the IANA protocol numbers registry 
+(see https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml), translated to lower-case and with characters other than letters, numbers, and hyphens deleted, are reserved
+for Protocol Specific Properties and MUST not be used for vendor or implementation-specific properties. 
 
 ### Transport Property Types {#property-types}
 
