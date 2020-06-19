@@ -1677,12 +1677,8 @@ RemoteEndpoint := MessageContext.GetRemoteEndpoint()
 LocalEndpoint := MessageContext.GetLocalEndpoint()
 ~~~
 
-Message Contexts can also be used to send messages that are flagged as a reply to other messages, see {{send-replies}} for details.
-If the message received was sent by the remote endpoint as a reply to an earlier message and the Protocol Stack provides this information, the MessageContext of the original request can be accessed using the Message Context of the reply:
+Message Contexts can also be used to send messages in reply to other messages, see {{send-replies}} for details.
 
-~~~
-RequestMessageContext := MessageContext.GetOriginalRequest()
-~~~
 
 ## Message Properties {#message-props}
 
