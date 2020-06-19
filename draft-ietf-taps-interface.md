@@ -1913,16 +1913,19 @@ endOfMessage is marked.
 ## Batching Sends {#send-batching}
 
 To reduce the overhead of sending multiple small Messages on a Connection, the
-application may want to batch several Send actions together. This provides a hint to
+application may want to batch several Send Actions together. This provides a hint to
 the system that the sending of these Messages should be coalesced when possible,
 and that sending any of the batched Messages may be delayed until the last Message
 in the batch is enqueued.
 
+The semantics for starting and ending a batch can be implementation-specific, but need
+to allow multiple Send Actions to be enqueued.
+
 ~~~
-Connection.Batch(
-    Connection.Send(messageData)
-    Connection.Send(messageData)
-)
+Connection.StartBatch()
+Connection.Send(messageData)
+Connection.Send(messageData)
+Connection.EndBatch()
 ~~~
 
 ## Send on Active Open: InitiateWithSend {#initiate-and-send}
