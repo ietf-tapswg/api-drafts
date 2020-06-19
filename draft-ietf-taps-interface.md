@@ -1060,10 +1060,10 @@ Disabled:
 : The connection will not use multiple paths once established, even if the chosen transport supports using multiple paths.
 
 Active:
-: The connection will negotiate the use of multiple paths if the chosen transport supports this. It will actively bring up paths based on the multipath policy ({{multipath-policy}}) selected by the application, as limited by the Interface Instance and Provisioning Domain Instance properties (see {{prop-interface}} and {{prop-pvd}}).
+: The connection will negotiate the use of multiple paths if the chosen transport supports this. 
 
 Passive:
-: The connection will support the use of multiple paths if the remote endpoint requests it. The connection will not actively initiate the use of any new paths, but will accept paths initiated by the remote endpoint.
+: The connection will support the use of multiple paths if the remote endpoint requests it. 
 
 The policy for using multiple paths is specified using the separate ```multipath-policy``` property, see {{multipath-policy}} below.
 To enable the peer endpoint to initiate additional paths towards a local address other than the one initially used, it is necessary to set the Alternative Addresses property (see {{altaddr}} below).
