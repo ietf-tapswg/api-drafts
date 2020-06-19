@@ -2907,7 +2907,7 @@ coverage, see {{prop-checksum-control-send}} and {{prop-checksum-control-receive
 `Required Minimum Corruption Protection Coverage for Receiving` property ({{conn-recv-checksum}}) and `Full Checksum Coverage on Receiving` property ({{prop-checksum-control-receive}}).
 
 * "Specify DF" field and "Request not to bundle messages":
-the `No Fragmentation` Message Property combines both of these requests, i.e. if a request not to bundle messages is made, this also turns off fragmentation (i.e., sets DF=1) in case of protocols that allow this (only UDP and UDP-Lite, which cannot bundle messages anyway) ({{send-singular}}).
+the `No Fragmentation` Message Property combines both of these requests, i.e. if a request not to bundle messages is made, this also turns off fragmentation (i.e., sets DF=1) in the case of a protocol that allows this (only UDP and UDP-Lite, which cannot bundle messages anyway) ({{send-singular}}).
 
 * Get max. transport-message size that may be sent using a non-fragmented IP packet from the configured interface:
 `Maximum Message Size Before Fragmentation or Segmentation` property ({{conn-max-msg-notfrag}}).
