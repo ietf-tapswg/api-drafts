@@ -16,7 +16,7 @@ author:
   -
     ins: B. Trammell
     name: Brian Trammell
-    org: Google
+    org: Google Switzerland GmbH
     role: editor
     email: ietf@trammell.ch
     street: Gustav-Gull-Platz 1
