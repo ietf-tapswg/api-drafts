@@ -1176,8 +1176,8 @@ client actively opening a connection, then sending data to the server. The
 server listens (passive open), reads, and then answers. This property
 specifies whether an application wants to diverge from this pattern -- either
 by actively opening with Initiate(), immediately followed by reading, or passively opening with Listen(),
-immediately followed by writing. This property is irrelevant for connection
-establishment using Rendezvous().
+immediately followed by writing. This property is ignored when establishing
+connections using Rendezvous().
 Requiring this property limits the choice of mappings to underlying protocols,
 which can reduce
 efficiency. For example, it prevents the transport system from mapping
