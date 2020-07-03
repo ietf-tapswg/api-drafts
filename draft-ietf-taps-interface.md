@@ -1275,6 +1275,7 @@ for the Connection. Establishment may be active, using the Initiate() Action;
 passive, using the Listen() Action; or simultaneous for peer-to-peer, using
 the Rendezvous() Action. These Actions are described in the subsections below.
 
+
 ## Active Open: Initiate {#initiate}
 
 Active open is the Action of establishing a Connection to a Remote Endpoint presumed
@@ -1317,10 +1318,10 @@ candidate Path. No Receive Events (see {{receiving}}) will occur before
 the Ready Event for Connections established using Initiate.
 
 ~~~
-Connection -> InitiateError<reason?>
+Connection -> EstablishmentError<reason?>
 ~~~
 
-An InitiateError occurs either when the set of transport properties and security
+An EstablishmentError occurs either when the set of transport properties and security
 parameters cannot be fulfilled on a Connection for initiation (e.g. the set of
 available Paths and/or Protocol Stacks meeting the constraints is empty) or
 reconciled with the local and/or remote Endpoints; when the remote specifier
@@ -1385,10 +1386,10 @@ limit to a higher value. By default, this value is Infinite. The caller is also 
 the value to Infinite at any point.
 
 ~~~
-Listener -> ListenError<reason?>
+Listener -> EstablishmentError<reason?>
 ~~~
 
-A ListenError occurs either when the Properties and Security Parameters of the Preconnection cannot be fulfilled for listening or cannot be reconciled with the Local Endpoint (and/or Remote Endpoint, if specified), when the Local Endpoint (or Remote Endpoint, if specified) cannot
+A EstablishmentError occurs either when the Properties and Security Parameters of the Preconnection cannot be fulfilled for listening or cannot be reconciled with the Local Endpoint (and/or Remote Endpoint, if specified), when the Local Endpoint (or Remote Endpoint, if specified) cannot
 be resolved, or when the application is prohibited from listening by policy.
 
 ~~~
@@ -1432,10 +1433,10 @@ resulting Connection is contained within the RendezvousDone<> Event, and is
 ready to use as soon as it is passed to the application via the Event.
 
 ~~~
-Preconnection -> RendezvousError<reason?>
+Preconnection -> EstablishmentError<reason?>
 ~~~
 
-An RendezvousError occurs either when the Properties and Security Parameters of the Preconnection cannot be fulfilled
+An EstablishmentError occurs either when the Properties and Security Parameters of the Preconnection cannot be fulfilled
 for rendezvous or cannot be reconciled with the Local and/or Remote Endpoints, when the Local Endpoint or Remote Endpoint cannot be resolved,
 when no transport-layer connection can be established to the Remote Endpoint,
 or when the application is prohibited from rendezvous by policy.
