@@ -488,14 +488,14 @@ the respective protocol has been selected.
 
 ### Transport Property Names {#property-names}
 
-Transport Properties are referred to by property names. These names are
+Transport Properties are referred to by property names. For the purposes of this document, these names are
 alphanumeric strings in which words may be separated by hyphens.
 These names serve two purposes:
 
 - Allowing different components of a TAPS implementation to pass Transport
   Properties, e.g., between a language frontend and a policy manager,
   or as a representation of properties retrieved from a file or other storage.
-- Making code of different TAPS implementations look similar.
+- Making code of different TAPS implementations look similar. While individual programming languages may preclude strict adherence to the aforementioned naming convention (for instance, by prohibiting the use of hyphens in symbols), users interacting with multiple implementations will still benefit from the consistency resulting from the use of visually similar symbols.
 
 Transport Property Names are hierarchically organized in the
 form \[\<Namespace>.\]\<PropertyName\>.
@@ -509,7 +509,7 @@ form \[\<Namespace>.\]\<PropertyName\>.
   the vendor or implementation as Namespace.
   
 Namespaces for each of the keywords provided in the IANA protocol numbers registry 
-(see https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml), translated to lower-case and with characters other than letters, numbers, and hyphens deleted, are reserved
+(see https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml), reformatted where necessary to conform to an implementation's naming conventions, are reserved
 for Protocol Specific Properties and MUST not be used for vendor or implementation-specific properties. 
 
 ### Transport Property Types {#property-types}
