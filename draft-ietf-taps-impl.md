@@ -522,7 +522,7 @@ The application should be notified whenever a Message or partial Message has bee
 
 ### Batching Sends
 
-Since sending a Message may involve a context switch between the application and the transport system, sending patterns that involve multiple small Messages can incur high overhead if each needs to be enqueued separately. To avoid this, the application should have a way to indicate a batch of Send actions, during which time the implementation will hold off on processing Messages until the batch is complete. This can also help context switches when enqueuing data in the interface driver if the operation can be batched.
+Since sending a Message may involve a context switch between the application and the transport system, sending patterns that involve multiple small Messages can incur high overhead if each needs to be enqueued separately. To avoid this, the application can indicate a batch of Send actions through the API. When this is used, the implementation should hold off on processing Messages until the batch is complete.
 
 ## Receiving Messages
 
