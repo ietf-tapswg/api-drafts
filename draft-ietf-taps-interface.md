@@ -1890,7 +1890,7 @@ Default:
 : false
 
 This property specifies that a message should be sent and received as a single
-packet network-layer fragmentation, if possible.
+packet without network-layer fragmentation, if possible.
 Attempts to send a message with this property set with a size greater to the
 transport's current estimate of its maximum transmission segment size will
 result in a `SendError`. When used with transports supporting this functionality

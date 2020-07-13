@@ -502,19 +502,29 @@ The effect of the application sending a Message is determined by the top-level p
 
 ### Message Properties {#msg-properties}
 
-- Lifetime: this should be implemented by removing the Message from the queue of pending Messages after the Lifetime has expired. A queue of pending Messages within the transport system implementation that have yet to be handed to the Protocol Stack can always support this property, but once a Message has been sent into the send buffer of a protocol, only certain protocols may support removing a message. For example, an implementation cannot cannot remove bytes from a TCP send buffer, while it can remove data from a SCTP send buffer using the partial reliability extension {{!RFC8303}}. When there is no standing queue of Messages within the system, and the Protocol Stack does not support the removal of a Message from the stack's send buffer, this property may be ignored.
+- Lifetime: this should be implemented by removing the Message from the queue of pending Messages after the Lifetime has expired. A queue of pending Messages within the transport system implementation that have yet to be handed to the Protocol Stack can always support this property, but once a Message has been sent into the send buffer of a protocol, only certain protocols may support removing a message. For example, an implementation cannot remove bytes from a TCP send buffer, while it can remove data from a SCTP send buffer using the partial reliability extension {{?RFC8303}}. When there is no standing queue of Messages within the system, and the Protocol Stack does not support the removal of a Message from the stack's send buffer, this property may be ignored.
 
 - Priority: this represents the ability to prioritize a Message over other Messages. This can be implemented by the system re-ordering Messages that have yet to be handed to the Protocol Stack, or by giving relative priority hints to protocols that support priorities per Message. For example, an implementation of HTTP/2 could choose to send Messages of different Priority on streams of different priority.
 
 - Ordered: when this is false, this disables the requirement of in-order-delivery for protocols that support configurable ordering.
 
-- Safely Replayable: when this is true, this means that the Message can be used by mechanisms that might transfer it multiple times -- e.g., as a result of racing multiple transports or as part of TCP Fast Open.
+- Safely Replayable: when this is true, this means that the Message can be used by mechanisms that might transfer it multiple times -- e.g., as a result of racing multiple transports or as part of TCP Fast Open. Also, protocols that do not protect against duplicated messages, such as UDP, can only be used with Messages that are Safely Replayable.
 
 - Final: when this is true, this means that a transport connection can be closed immediately after transmission of the message.
 
-- Corruption Protection Length: when this is set to any value other than -1, it sets the minimum protection in protocols that allow limiting the checksum length (e.g. UDP-Lite).
+- Corruption Protection Length: when this is set to any value other than `Full Coverage`, it sets the minimum protection in protocols that allow limiting the checksum length (e.g. UDP-Lite).
 
-- Singular Transmission: When set, this property limits the message size to the Maximum Message Size Before Fragmentation or Segmentation (see Section 10.1.7 of {{I-D.ietf-taps-interface}}).  Messages larger than this size generate an error.  Setting this avoids transport-layer segmentation or network-layer fragmentation. When used with transports running over IP version 4 the Don't Fragment bit will be set to avoid on-path IP fragmentation ({{!RFC8304}}).  
+- Reliable Data Transfer (Message): When true, the property specifies that the Message must be reliably transmitted. When false, and if unreliable transmission is supported by the underlying protocol, then the Message should be unreliably transmitted. If the underlying
+protocol does not support unreliable transmission, the Message should be reliably transmitted.
+
+- Message Capacity Profile Override: When true, this expresses a wish to override the
+Generic Connection Property `Capacity Profile` for this Message. Depending on the
+value, this can, for example, be implemented by changing the DSCP value of the
+associated packet (note that the he guidelines in Section 6 of {{?RFC7657}} apply; e.g.,
+the DSCP value should not be changed for different packets within a reliable
+transport protocol session or DCCP connection).
+
+- No Fragmentation: When set, this property limits the message size to the Maximum Message Size Before Fragmentation or Segmentation (see Section 10.1.7 of {{I-D.ietf-taps-interface}}).  Messages larger than this size generate an error.  Setting this avoids transport-layer segmentation or network-layer fragmentation. When used with transports running over IP version 4 the Don't Fragment bit will be set to avoid on-path IP fragmentation ({{!RFC8304}}).  
 
 ### Send Completion
 
@@ -1262,10 +1272,12 @@ This appendix gives an overview of existing implementations, at the time of writ
   * Network.framework is a transport-level API built for C, Objective-C, and Swift. It a connect-by-name API that supports transport security protocols. It provides userspace implementations of TCP, UDP, TLS, DTLS, proxy protocols, and allows extension via custom framers.
   * Documentation: <https://developer.apple.com/documentation/network>
 
-* NEAT:
+* NEAT and NEATPy:
   * NEAT is the output of the European H2020 research project "NEAT"; it is a user-space library for protocol-independent communication on top of TCP, UDP and SCTP, with many more features such as a policy manager.
   * Code: <https://github.com/NEAT-project/neat>
   * NEAT project: <https://www.neat-project.org>
+  * NEATPy is a Python shim over NEAT which updates the NEAT API to be in line with version 6 of the TAPS interface draft.
+  * Code: <https://github.com/theagilepadawan/NEATPy>
 
 * PyTAPS:
   * A TAPS implementation based on Python asyncio, offering protocol-independent communication to applications on top of TCP, UDP and TLS, with support for multicast.
