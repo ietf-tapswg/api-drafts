@@ -1481,12 +1481,16 @@ In addition, incoming entangled Connections can be received by creating a
 Listener on an existing connection:
 
 ~~~
-Listener := Connection.ListenClone()
+Listener := Connection.ListenWithConnection()
 ~~~
 
-ListenClone() creates a Listener that listens on the same LocalEndpoint as the one the
-cloned Connection is using. Any new Connection received by this Listener will be
-entangled with the cloned Connection.
+ListenWithConnection() creates a Listener that can accept new streams, given
+a Connection that uses a multi-streaming protocol. Any new Connection received by
+this Listener will be "entangled" with the cloned Connection, and be part of
+the same Connection Group. If ListenWithConnection() is called on a Connection
+that does not support multi-streaming, the operation will return an error instead
+of a Listener.
+
 Changing one of the Connection Properties on one Connection in the group
 changes it for all others. Message Properties, however, are not
 entangled. For example, changing `Timeout for aborting Connection` (see
