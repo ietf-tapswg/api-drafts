@@ -810,8 +810,9 @@ The reasonable lifetime for cached performance values will vary depending on the
 
 # Specific Transport Protocol Considerations
 
-Each protocol that can run as part of a Transport Services implementation defines both its API mapping as well as implementation details.
-API mappings for a protocol apply most to Connections in which the given protocol is the "top" of the Protocol Stack. For example, the mapping of the `Send` function for TCP applies to Connections in which the application directly sends over TCP. If HTTP/2 is used on top of TCP, the HTTP/2 mappings take precendence.
+Each protocol that can run as part of a Transport Services implementation should have a well-defined API mapping.
+API mappings for a protocol apply most to Connections in which the given protocol is the "top" of the Protocol Stack.
+For example, the mapping of the `Send` function for TCP applies to Connections in which the application directly sends over TCP.
 
 Each protocol has a notion of Connectedness. Possible values for Connectedness are:
 
@@ -827,7 +828,9 @@ Protocols also define a notion of Data Unit. Possible values for Data Unit are:
 
 Below, terms in capitals with a dot (e.g., "CONNECT.SCTP") refer to the primitives with the same name in section 4 of {{!RFC8303}}. For further implementation details, the description of these primitives in {{!RFC8303}} points to section 3 of {{!RFC8303}} and section 3 of {{!RFC8304}}, which refers back to the relevant specifications for each protocol. This back-tracking method applies to all elements of {{I-D.ietf-taps-minset}} (see appendix D of {{I-D.ietf-taps-interface}}): they are listed in appendix A of {{I-D.ietf-taps-minset}} with an implementation hint in the same style, pointing back to section 4 of {{!RFC8303}}.
 
-## TCP {#tcp}
+This document defines the API mappings for protocols defined in {{I-D.ietf-taps-minset}}. Other protocol mappings can be provided as separate documents, following the mapping template {{appendix-mapping-template}}.
+
+## TCP and MPTCP {#tcp}
 
 Connectedness: Connected
 
@@ -874,7 +877,7 @@ Close:
 Abort:
 : Calling `Abort` on a TCP Connection indicates that the Connection should be immediately closed by sending a RST to the peer (ABORT.TCP).
 
-## UDP
+## UDP and UDP-Lite
 
 Connectedness: Unconnected
 
@@ -920,178 +923,6 @@ Close:
 
 Abort:
 : Calling `Abort` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close`.
-
-## UDP Multicast Receive
-
-Connectedness: Unconnected
-
-Data Unit: Datagram
-
-API mappings for Receiving Multicast UDP are as follows:
-
-Connection Object:
-: Established UDP Multicast Receive connections represent a pair of specific IP addresses and ports.  The "unidirectional receive" transport property is required, and the local endpoint must be configured with a group IP address and a port.
-
-Initiate:
-: Calling `Initiate` on a UDP Multicast Receive Connection causes an immediate InitiateError.  This is an unsupported operation.
-
-InitiateWithSend:
-: Calling `InitiateWithSend` on a UDP Multicast Receive Connection causes an immediate InitiateError.  This is an unsupported operation.
-
-Ready:
-: A UDP Multicast Receive Connection is ready once the system has received traffic for the appropriate group and port.
-
-InitiateError:
-: UDP Multicast Receive Connections generate an InitiateError if Initiate is called.
-
-ConnectionError:
-: Once in use, UDP throws "soft errors" (ERROR.UDP(-Lite)) upon receiving ICMP notifications indicating failures in the network.
-
-Listen:
-: LISTEN.UDP. Calling `Listen` for UDP Multicast Receive binds a local port, prepares it to receive inbound UDP datagrams from peers, and issues a multicast host join.  If a remote endpoint with an address is supplied, the join is Source-specific Multicast, and the path selection is based on the route to the remote endpoint.  If a remote endpoint is not supplied, the join is Any-source Multicast, and the path selection is based on the outbound route to the group supplied in the local endpoint.
-
-ConnectionReceived:
-: UDP Multicast Receive Listeners will deliver new connections once they have received traffic from a new Remote Endpoint.
-
-Clone:
-: Calling `Clone` on a UDP Multicast Receive Connection creates a new Connection with equivalent parameters. The two Connections are otherwise independent.
-
-Send:
-: SEND.UDP(-Lite). Calling `Send` on a UDP Multicast Receive connection causes an immediate SendError.  This is an unsupported operation.
-
-Receive:
-: RECEIVE.UDP(-Lite). The Receive operation in a UDP Multicast Receive connection only delivers complete Messages to `Received`, each of which represents a single datagram received in a UDP packet. Upon receiving a UDP datagram, the ECN flag from the IP header can be obtained (GET_ECN.UDP(-Lite)).
-
-Close:
-: Calling `Close` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) releases the local port reservation and leaves the group.
-
-Abort:
-: Calling `Abort` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) is identical to calling `Close`.
-
-## TLS {#tls}
-
-The mapping of a TLS stream abstraction into the application is equivalent to the contract provided by TCP (see {{tcp}}), and builds upon many of the actions of TCP connections.
-
-Connectedness: Connected
-
-Data Unit: Byte-stream
-
-Connection Object:
-: Connection objects represent a single TLS connection running over a TCP connection between two hosts.
-
-Initiate:
-: Calling `Initiate` on a TLS Connection causes it to first initiate a TCP connection. Once the TCP protocol is Ready, the TLS handshake will be performed as a client (starting by sending a `client_hello`, and so on).
-
-InitiateWithSend:
-: Early safely replayable data is supported by TLS 1.3, and sends encrypted application data in the first TLS message when performing session resumption. For older versions of TLS, or if a session is not being resumed, the initial data will be delayed until the TLS handshake is complete. TCP Fast Open can also be enabled automatically.
-
-Ready:
-: A TLS Connection is ready once the underlying TCP connection is Ready, and TLS handshake is also complete and keys have been established to encrypt application data.
-
-InitiateError:
-: In addition to TCP initiation errors, TLS can generate errors during its handshake. Examples of error include a failure of the peer to successfully authenticate, the peer rejecting the local authentication, or a failure to match versions or algorithms.
-
-ConnectionError:
-: TLS connections will generate TCP errors, or errors due to failures to rekey or decrypt received messages.
-
-Listen:
-: Calling `Listen` for TLS listens on TCP, and sets up received connections to perform server-side TLS handshakes.
-
-ConnectionReceived:
-: TLS Listeners will deliver new connections once they have successfully completed both TCP and TLS handshakes.
-
-Clone:
-: As with TCP, calling `Clone` on a TLS Connection creates a new Connection with equivalent parameters. The two Connections are otherwise independent.
-
-Send:
-: Like TCP, TLS does not preserve message boundaries. Although application data is framed natively in TLS, there is not a general guarantee that these TLS messages represent semantically meaningful application stream boundaries. Rather, sending data on a TLS Connection only guarantees that the application data will be transmitted in an encrypted form. Marking Messages as Final causes a `close_notify` to be generated once the data has been written.
-
-Receive:
-: Like TCP, TLS delivers a stream of bytes without any Message delineation. The data is decrypted prior to being delivered to the application. If a `close_notify` is received, the stream-wide Message will be delivered with EndOfMessage set.
-
-Close:
-: Calling `Close` on a TLS Connection indicates that the Connection should be gracefully closed by sending a `close_notify` to the peer and waiting for a corresponding `close_notify` before delivering the `Closed` event.
-
-Abort:
-: Calling `Abort` on a TCP Connection indicates that the Connection should be immediately closed by sending a `close_notify`, optionally preceded by `user_canceled`, to the peer. Implementations do not need to wait to receive `close_notify` before delivering the `Closed` event.
-
-## DTLS
-
-DTLS follows the same behavior as TLS ({{tls}}), with the notable exception of not inheriting behavior directly from TCP. Differences from TLS are detailed below, and all cases not explicitly mentioned should be considered the same as TLS.
-
-Connectedness: Connected
-
-Data Unit: Datagram
-
-Connection Object:
-: Connection objects represent a single DTLS connection running over a set of UDP ports between two hosts.
-
-Initiate:
-: Calling `Initiate` on a DTLS Connection causes it reserve a UDP local port, and begin sending handshake messages to the peer over UDP. These messages are reliable, and will be automatically retransmitted.
-
-Ready:
-: A DTLS Connection is ready once the TLS handshake is complete and keys have been established to encrypt application data.
-
-Send:
-: Sending over DTLS does preserve message boundaries in the same way that UDP datagrams do. Marking a Message as Final does send a `close_notify` like TLS.
-
-Receive:
-: Receiving over DTLS delivers one decrypted Message for each received DTLS datagram. If a `close_notify` is received, a Message will be delivered that is marked as Final.
-
-## HTTP
-
-HTTP requests and responses map naturally into Messages, since they are delineated chunks of data with metadata that can be sent over a transport. To that end, HTTP can be seen as the most prevalent framing protocol that runs on top of streams like TCP, TLS, etc.
-
-In order to use a transport Connection that provides HTTP Message support, the establishment and closing of the connection can be treated as it would without the framing protocol. Sending and receiving of Messages, however, changes to treat each Message as a well-delineated HTTP request or response, with the content of the Message representing the body, and the Headers being provided in Message metadata.
-
-Connectedness: Multiplexing Connected
-
-Data Unit: Message
-
-Connection Object:
-: Connection objects represent a flow of HTTP messages between a client and a server, which may be an HTTP/1.1 connection over TCP, or a single stream in an HTTP/2 connection.
-
-Initiate:
-: Calling `Initiate` on an HTTP connection intiates a TCP or TLS connection as a client.
-
-Clone:
-: Calling `Clone` on an HTTP Connection opens a new stream on an existing HTTP/2 connection when possible. If the underlying version does not support multiplexed streams, calling `Clone` simply creates a new parallel connection.
-
-Send:
-: When an application sends an HTTP Message, it is expected to provide HTTP header values as a MessageContext in a canonical form, along with any associated HTTP message body as the Message data. The HTTP header values are encoded in the specific version format upon sending.
-
-Receive:
-: HTTP Connections deliver Messages in which HTTP header values attached to MessageContexts, and HTTP bodies in Message data.
-
-Close:
-: Calling `Close` on an HTTP Connection will only close the underlying TLS or TCP connection if the HTTP version does not support multiplexing. For HTTP/2, for example, closing the connection
-only closes a specific stream.
-
-## QUIC {#quic}
-
-QUIC provides a multi-streaming interface to an encrypted transport. Each stream can be viewed as equivalent to a TLS stream over TCP, so a natural mapping is to present each QUIC stream as an individual Connection. The protocol for the stream will be considered Ready whenever the underlying QUIC connection is established to the point that this stream's data can be sent. For streams after the first stream, this will likely be an immediate operation.
-
-Closing a single QUIC stream, presented to the application as a Connection, does not imply closing the underlying QUIC connection itself. Rather, the implementation may choose to close the QUIC connection once all streams have been closed (often after some timeout), or after an individual stream Connection sends an Abort.
-
-Connectedness: Multiplexing Connected
-
-Data Unit: Stream
-
-Connection Object:
-: Connection objects represent a single QUIC stream on a QUIC connection.
-
-## HTTP/2 transport
-
-Similar to QUIC ({{quic}}), HTTP/2 provides a multi-streaming interface. This will generally use HTTP as the unit of Messages over the streams, in which each stream can be represented as a transport Connection. The lifetime of streams and the HTTP/2 connection should be managed as described for QUIC.
-
-It is possible to treat each HTTP/2 stream as a raw byte-stream instead of a carrier for HTTP messages, in which case the Messages over the streams can be represented similarly to the TCP stream (one Message per direction, see {{tcp}}).
-
-Connectedness: Multiplexing Connected
-
-Data Unit: Stream
-
-Connection Object:
-: Connection objects represent a single HTTP/2 stream on a HTTP/2 connection.
 
 ## SCTP
 
@@ -1167,7 +998,6 @@ If this is the only Connection object that is assigned to the SCTP association, 
 Abort:
 If this is the only Connection object that is assigned to the SCTP association, ABORT.SCTP is called. Else, the Connection object is one out of several Connection objects that are assigned to the same SCTP assocation, and shutdown proceeds as described under `Close`.
 
-
 # IANA Considerations
 
 RFC-EDITOR: Please remove this section before publication.
@@ -1207,6 +1037,41 @@ programme through the "OCARINA" project.
 Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work.
 
 --- back
+
+# API Mapping Template {#appendix-mapping-template}
+
+Any protocol mapping for the Transport Services API should follow a common template.
+
+Connectedness: (Unconnected/Connected/Multiplexing Connected)
+
+Data Unit: (Byte-stream/Datagram/Message)
+
+Connection Object:
+
+Initiate:
+
+InitiateWithSend: 
+
+Ready: 
+
+InitiateError:
+
+ConnectionError:
+
+Listen:
+
+ConnectionReceived:
+
+Clone:
+
+Send:
+
+Receive:
+
+Close:
+
+Abort:
+
 
 # Additional Properties {#appendix-non-consensus}
 
