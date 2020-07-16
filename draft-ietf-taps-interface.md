@@ -2155,7 +2155,7 @@ Message Framers are loaded into Connections when specified in a Preconnection.
 When Message Framers are being used, they can interact with the setup and
 teardown of a Connection. For example, a Framer can start sending data
 before the application sends data if the framing protocol requires a prefix
-or handshake (see {{RFC8229}} for an example of such a framing protocol).
+or handshake (see {{?RFC8229}} for an example of such a framing protocol).
 Most importantly, Message Framers intercept all calls to Send() or Receive(),
 and can modify application data.
 
