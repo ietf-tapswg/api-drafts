@@ -413,11 +413,13 @@ Staggered racing can be used whenever a single node of the tree has multiple chi
 
 Staggered racing attempts occur in parallel. Implementations should not terminate an earlier child connection attempt upon starting a secondary child.
 
-The delay between starting child nodes should be based on the properties of the previously started child node. For example, if the first child represents an IP address with a known route, and the second child represents another IP address, the delay between starting the first and second IP addresses can be based on the expected retransmission cadence for the first child's connection (derived from historical round-trip-time). Alternatively, if the first child represents a branch on a Wi-Fi interface, and the second child represents a branch on an LTE interface, the delay should be based on the expected time in which the branch for the first interface would be able to establish a connection, based on link quality and historical round-trip-time.
+If a child node fails to connect before the delay time has expired for the next child, the next child should be started immediately.
 
-Any delay should have a defined minimum and maximum value based on the branch type. Generally, branches between paths and protocols should have longer delays than branches between derived endpoints. The maximum delay should be considered with regards to how long a user is expected to wait for the connection to complete.
+Staggered racing between IP addresses for a generic Connection should follow the Happy Eyeballs algorithm described in {{!RFC8305}}. {{!RFC8421}} provides guidance for racing when performing Interactive Connectivity Establishment (ICE).
 
-If a child node fails to connect before the delay timer has fired for the next child, the next child should be started immediately.
+Generally, the delay before starting a given child node should be based on the length of time the previously started child node is expected to take before succeeding or making progress in connection establishment. Algorithms like Happy Eyeballs choose a delay based on how long the transport connection handshake takes. When performing staggered races in multiple layers (such as racing between network interfaces, and then racing between IP addresses), a longer delay may be given for the higher layers of racing. For example, when racing between network interfaces, the delay should also take into account the amount of time it takes to prepare the network interface (such as radio association) and name resolution over that interface, in addition to the delay that would be added for a single transport connection handshake.
+
+Any staggered delay should have a defined minimum and maximum value, which may vary depending on the layer of racing. The maximum delay should be considered with regards to how long a user is expected to wait for the connection to establish.
 
 ### Failover
 
