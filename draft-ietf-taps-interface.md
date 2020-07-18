@@ -2457,10 +2457,10 @@ Handover:
 : The connection should only attempt to migrate between different paths when the original path is lost or becomes unusable. The actual thresholds to declare a path unusable are implementation specific.
 
 Interactive:
-: The connection should attempt to minimize the latency for interactive traffic patterns by transmitting data across multiple paths.
+: The connection should attempt to minimize the latency for interactive traffic patterns by transmitting data across multiple paths when it is beneficial to do so.
 The goal of minimizing the latency will be balanced against the cost of each of these paths, meaning that depending on the cost of the
 lower-latency path, the scheduling might choose to use a higher-latency path. Traffic can be scheduled such that data may be transmitted
-on multiple paths in parallel to achieve the lowest latency possible.
+on multiple paths in parallel to achieve the lowest latency possible. The specific scheduling algorithm is implementation-specific.
 
 Aggregate:
 : The connection should attempt to use multiple paths in parallel in order to maximize bandwidth and possibly overcome bandwidth limitations of the individual paths. The actual strategy is implementation specific.
