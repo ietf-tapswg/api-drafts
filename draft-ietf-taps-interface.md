@@ -1486,8 +1486,7 @@ in the same group.
 ~~~
 
 Connections will be in the same group if the application previously called Clone.
-Passive Connections can also be added to the same group when a Listener receives
-a new Connection that is one stream of a multi-streaming protocol instance.
+Passive Connections can also be added to the same group -- e.g., when a Listener receives a new Connection that is just a new stream of an already active multi-streaming protocol instance.
 
 Changing one of the Connection Properties on one Connection in the group
 changes it for all others. Message Properties, however, are not
