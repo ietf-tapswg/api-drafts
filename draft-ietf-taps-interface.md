@@ -1527,717 +1527,6 @@ purely advisory, and no guarantees are given about the way capacity is shared.
 Each implementation is free to implement a way to share
 capacity that it sees fit.
 
-# Sending Data {#sending}
-
-Once a Connection has been established, it can be used for sending data. Data is
-sent as Messages, which allow the application to communicate the boundaries
-of the data being transferred. By default, Send enqueues a complete Message,
-and takes optional per-Message properties (see {{send-basic}}). All Send actions
-are asynchronous, and deliver events (see {{send-events}}). Sending partial
-Messages for streaming large data is also supported (see {{send-partial}}).
-
-Messages are sent on a Connection using the Send action:
-
-~~~
-Connection.Send(messageData, messageContext?, endOfMessage?)
-~~~
-
-where messageData is the data object to send.
-
-The optional messageContext parameter allows adding Message Properties as
-described in {{message-props}}.
-Moreover, the messageContext can be used to identify Send Events related to a specific Message (see {{send-events}}) or to inspect meta-data related to the Message sent (see {{msg-ctx}}).
-
-The optional endOfMessage parameter supports partial sending and is described in
-{{send-partial}}.
-
-Framers can be used to extend or modify the message data
-with additional information that can be processed at the receiver to detect message
-boundaries. This is further decribed in {{framing}}.
-
-## Basic Sending {#send-basic}
-
-The most basic form of sending on a connection involves enqueuing a single Data
-block as a complete Message, with default Message Properties.
-
-~~~
-messageData := "hello"
-Connection.Send(messageData)
-~~~
-
-The interpretation of a Message to be sent is dependent on the implementation, and
-on the constraints on the Protocol Stacks implied by the Connection’s transport properties.
-For example, a Message may be a single datagram for UDP Connections; or an HTTP
-Request for HTTP Connections.
-
-Some transport protocols can deliver arbitrarily sized Messages, but other
-protocols constrain the maximum Message size. Applications can query the
-Connection Property "Maximum Message size on send" ({{conn-max-msg-send}}) to determine the maximum size
-allowed for a single Message. If a Message is too large to fit in the Maximum Message
-Size for the Connection, the Send will fail with a SendError event ({{send-error}}). For
-example, it is invalid to send a Message over a UDP connection that is larger than
-the available datagram sending size.
-
-## Sending Replies {#send-replies}
-
-When a message is sent in response to a message received, the application
-may use the Message Context of the received Message to construct a Message Context for the reply.
-
-~~~
-replyMessageContext := requestMessageContext.reply()
-~~~
-
-By using the `replyMessageContext`, the transport system is informed that
-the message to be sent is a response and can map the response to the same underlying transport connection or stream the request was received from.
-The concept of Message Contexts is described in {{msg-ctx}}.
-
-## Send Events {#send-events}
-
-Like all Actions in this interface, the Send Action is asynchronous. There are
-several Events that can be delivered in response to Sending a Message.
-Exactly one Event (Sent, Expired, or SendError) will be delivered in response
-to each call to Send.
-
-Note that if partial Sends are used ({{send-partial}}), there will still be exactly
-one Send Event delivered for each call to Send. For example, if a Message
-expired while two requests to Send data for that Message are outstanding,
-there will be two Expired events delivered.
-
-The interface should allow the application to correlate which Send Action resulted
-in a particular Send Event. The manner in which this correlation is indicated
-is implementation-specific.
-
-### Sent {#sent}
-
-~~~
-Connection -> Sent<messageContext>
-~~~
-
-The Sent Event occurs when a previous Send Action has completed, i.e., when
-the data derived from the Message has been passed down or through the
-underlying Protocol Stack and is no longer the responsibility of
-this interface. The exact disposition of the Message (i.e.,
-whether it has actually been transmitted, moved into a buffer on the network
-interface, moved into a kernel buffer, and so on) when the Sent Event occurs
-is implementation-specific. The Sent Event contains a reference to the Message
-to which it applies.
-
-Sent Events allow an application to obtain an understanding of the amount
-of buffering it creates. That is, if an application calls the Send Action multiple
-times without waiting for a Sent Event, it has created more buffer inside the
-transport system than an application that always waits for the Sent Event before
-calling the next Send Action.
-
-### Expired {#expired}
-
-~~~
-Connection -> Expired<messageContext>
-~~~
-
-The Expired Event occurs when a previous Send Action expired before completion;
-i.e. when the Message was not sent before its Lifetime (see {{msg-lifetime}})
-expired. This is separate from SendError, as it is an expected behavior for
-partially reliable transports. The Expired Event contains a reference to the
-Message to which it applies.
-
-### SendError {#send-error}
-
-~~~
-Connection -> SendError<messageContext, reason?>
-~~~
-
-A SendError occurs when a Message could not be sent due to an error condition:
-an attempt to send a Message which is too large for the system and
-Protocol Stack to handle, some failure of the underlying Protocol Stack, or a
-set of Message Properties not consistent with the Connection's transport
-properties. The SendError contains a reference to the Message to which it applies.
-
-## Message Contexts {#msg-ctx}
-
-Using the MessageContext object, the application can set and retrieve meta-data of the message, including Message Properties (see {{message-props}}) and framing meta-data (see {{framing-meta}}).
-Therefore, a MessageContext object can be passed to the Send action and is returned by each Send and Receive related event.
-
-Message Properties can be set and queried using the Message Context:
-
-~~~
-MessageContext.add(scope?, parameter, value)
-PropertyValue := MessageContext.get(scope?, property)
-~~~
-
-To get or set Message Properties, the optional scope parameter is left empty. To get or set meta-data for a Framer, the application has to pass a reference to this Framer as the scope parameter.
-
-For MessageContexts returned by send events (see {{send-events}}) and receive events (see {{receive-events}}), the application can query information about the local and remote endpoint:
-
-~~~
-RemoteEndpoint := MessageContext.GetRemoteEndpoint()
-LocalEndpoint := MessageContext.GetLocalEndpoint()
-~~~
-
-Message Contexts can also be used to send messages in reply to other messages, see {{send-replies}} for details.
-
-
-## Message Properties {#message-props}
-
-Applications may need to annotate the Messages they send with extra information
-to control how data is scheduled and processed by the transport protocols in the
-Connection. Therefore a message context containing these properties can be passed to the Send Action. For other uses of the message context, see {{msg-ctx}}.
-
-Note that Message Properties are per-Message, not per-Send if partial Messages
-are sent ({{send-partial}}). All data blocks associated with a single Message
-share properties specified in the Message Contexts. For example, it would not
-make sense to have the beginning of a Message expire, but allow the end of a
-Message to still be sent.
-
-A MessageContext object contains metadata for  Messages to be sent or received.
-
-~~~
-messageData := "hello"
-messageContext := NewMessageContext()
-messageContext.add(parameter, value)
-Connection.Send(messageData, messageContext)
-~~~
-
-The simpler form of Send, which does not take any messageContext, is equivalent to passing a default MessageContext without adding any Message Properties to it.
-
-If an application wants to override Message Properties for a specific message,
-it can acquire an empty MessageContext Object and add all desired Message
-Properties to that Object. It can then reuse the same messageContext Object
-for sending multiple Messages with the same properties.
-
-Properties may be added to a MessageContext object only before the context is used
-for sending. Once a messageContext has been used with a Send call, modifying any
-of its properties is invalid.
-
-Message Properties may be inconsistent with the properties of the Protocol Stacks
-underlying the Connection on which a given Message is sent. For example,
-a Connection must provide reliability to allow setting an infinite value for the
-lifetime property of a Message. Sending a Message with Message Properties
-inconsistent with the Selection Properties of the Connection yields an error.
-
-Connection Properties describe the default behavior for all Messages on a Connection. If a Message Property contradicts a Connection Property, and if this per-Message behavior can be supported, it overrides the Connection Property for the specific Message. For example, if `Reliable Data Transfer (Connection)` is set to `Require` and a protocol with configurable per-Message reliability is used, setting `Reliable Data Transfer (Message)` to `false` for a particular Message will allow this Message to be unreliably delivered. Note that changing the Reliable Data Transfer property on Messages is only possible for Connections that were established with the Selection Property `Configure Per-Message Reliability` enabled.
-
-The following Message Properties are supported:
-
-### Lifetime {#msg-lifetime}
-
-Name:
-: msgLifetime
-
-Type:
-: Numeric
-
-Default:
-: infinite
-
-Lifetime specifies how long a particular Message can wait to be sent to the
-remote endpoint before it is irrelevant and no longer needs to be
-(re-)transmitted. This is a hint to the transport system -- it is not guaranteed
-that a Message will not be sent when its Lifetime has expired.
-
-Setting a Message's Lifetime to infinite indicates that the application does
-not wish to apply a time constraint on the transmission of the Message, but it does not express a need for
-reliable delivery; reliability is adjustable per Message via the `Reliable Data Transfer (Message)`
-property (see {{msg-reliable-message}}). The type and units of Lifetime are implementation-specific.
-
-### Priority {#msg-priority}
-
-Name:
-: msgPrio
-
-Type:
-: Integer (non-negative)
-
-Default:
-: 100
-
-This property represents a hierarchy of priorities.
-It can specify the priority of a Message, relative to other Messages sent over the
-same Connection.
-
-A Message with Priority 0 will yield to a Message with Priority 1, which will
-yield to a Message with Priority 2, and so on. Priorities may be used as a
-sender-side scheduling construct only, or be used to specify priorities on the
-wire for Protocol Stacks supporting prioritization.
-
-Note that this property is not a per-message override of the connection Priority
-- see {{conn-priority}}. Both Priority properties may interact, but can be used
-independently and be realized by different mechanisms.
-
-### Ordered {#msg-ordered}
-
-Name:
-: msgOrdered
-
-Type:
-: Boolean
-
-Default:
-: true
-
-If true, it specifies that the receiver-side transport protocol stack may only deliver the Message to the receiving application after the previous ordered Message which was passed to the same Connection via the Send
-Action, when such a Message exists. If false, the Message may be delivered to the receiving application out of order.
-This property is used for protocols that support preservation of data ordering,
-see {{prop-ordering}}, but allow out-of-order delivery for certain messages, e.g., by multiplexing independent messages onto
-different streams.
-
-### Safely Replayable {#msg-safelyreplayable}
-
-Name:
-: safelyReplayable
-
-Type:
-: Boolean
-
-Default:
-: false
-
-If true, it specifies that a Message is safe to send to the remote endpoint
-more than once for a single Send Action. It is used to mark data safe for
-certain 0-RTT establishment techniques, where retransmission of the 0-RTT data
-may cause the remote application to receive the Message multiple times.
-
-Note that for protocols that do not protect against duplicated messages,
-e.g., UDP, all messages MUST be marked as `Safely Replayable`.
-In order to enable protocol selection to choose such a protocol,
-`Safely Replayable` MUST be added to the TransportProperties passed to the
-Preconnection. If such a protocol was chosen, disabling `Safely Replayable` on
-individual messages MUST result in a SendError.
-
-### Final {#msg-final}
-
-Name:
-: final
-
-Type:
-: Boolean
-
-Default:
-: false
-
-If true, this Message is the last one that
-the application will send on a Connection. This allows underlying protocols
-to indicate to the Remote Endpoint that the Connection has been effectively
-closed in the sending direction. For example, TCP-based Connections can
-send a FIN once a Message marked as Final has been completely sent,
-indicated by marking endOfMessage. Protocols that do not support signalling
-the end of a Connection in a given direction will ignore this property.
-
-Note that a Final Message must always be sorted to the end of a list of Messages.
-The Final property overrides Priority and any other property that would re-order
-Messages. If another Message is sent after a Message marked as Final has already
-been sent on a Connection, the Send Action for the new Message will cause a SendError Event.
-
-### Corruption Protection Length {#msg-checksum}
-
-Name:
-: msgChecksumLen
-
-Type:
-: Integer (non-negative with special value `Full Coverage`)
-
-Default:
-: Full Coverage
-
-This property specifies the minimum length of the section of the Message,
-starting from byte 0, that the application requires to be delivered without
-corruption due to lower layer errors. It is used to specify options for simple
-integrity protection via checksums. A value of 0 means that no checksum
-is required, and `Full Coverage` means
-that the entire Message is protected by a checksum. Only `Full Coverage` is
-guaranteed, any other requests are advisory, meaning that `Full Coverage` is applied
-anyway.
-
-### Reliable Data Transfer (Message) {#msg-reliable-message}
-
-Name:
-: msgReliable
-
-Type:
-: Boolean
-
-Default:
-: true
-
-When true, this property specifies that a message should be sent in such a way
-that the transport protocol ensures all data is received on the other side
-without corruption. Changing the `Reliable Data Transfer` property on Messages
-is only possible for Connections that were established with the Selection Property `Configure Per-Message Reliability` enabled.
-When this is not the case, changing it will generate an error.
-Disabling this property indicates that the transport system may disable retransmissions
-or other reliability mechanisms for this particular Message, but such disabling is not guaranteed.
-
-
-### Message Capacity Profile Override {#send-profile}
-
-Name:
-: msgCapacityProfile
-
-Type:
-: Enumeration
-
-This enumerated property specifies the application's preferred tradeoffs for
-sending this Message; it is a per-Message override of the Capacity Profile
-connection property (see {{prop-cap-profile}}).
-
-
-### No Fragmentation {#send-singular}
-
-Name:
-: noFragmentation
-
-Type:
-: Boolean
-
-Default:
-: false
-
-This property specifies that a message should be sent and received as a single
-packet without network-layer fragmentation, if possible.
-Attempts to send a message with this property set with a size greater to the
-transport's current estimate of its maximum transmission segment size will
-result in a `SendError`. When used with transports supporting this functionality
-and running over IP version 4, the Don't Fragment bit will be set.
-
-## Partial Sends {#send-partial}
-
-It is not always possible for an application to send all data associated with
-a Message in a single Send Action. The Message data may be too large for
-the application to hold in memory at one time, or the length of the Message
-may be unknown or unbounded.
-
-Partial Message sending is supported by passing an endOfMessage boolean
-parameter to the Send Action. This value is always true by default, and
-the simpler forms of Send are equivalent to passing true for endOfMessage.
-
-The following example sends a Message in two separate calls to Send.
-
-~~~
-messageContext := NewMessageContext()
-messageContext.add(parameter, value)
-
-messageData := "hel"
-endOfMessage := false
-Connection.Send(messageData, messageContext, endOfMessage)
-
-messageData := "lo"
-endOfMessage := true
-Connection.Send(messageData, messageContext, endOfMessage)
-~~~
-
-All data sent with the same MessageContext object will be treated as belonging
-to the same Message, and will constitute an in-order series until the
-endOfMessage is marked.
-
-## Batching Sends {#send-batching}
-
-To reduce the overhead of sending multiple small Messages on a Connection, the
-application may want to batch several Send Actions together. This provides a hint to
-the system that the sending of these Messages should be coalesced when possible,
-and that sending any of the batched Messages may be delayed until the last Message
-in the batch is enqueued.
-
-The semantics for starting and ending a batch can be implementation-specific, but need
-to allow multiple Send Actions to be enqueued.
-
-~~~
-Connection.StartBatch()
-Connection.Send(messageData)
-Connection.Send(messageData)
-Connection.EndBatch()
-~~~
-
-## Send on Active Open: InitiateWithSend {#initiate-and-send}
-
-For application-layer protocols where the Connection initiator also sends the
-first message, the InitiateWithSend() action combines Connection initiation with
-a first Message sent:
-
-~~~
-Connection := Preconnection.InitiateWithSend(messageData, messageContext?, timeout?)
-~~~
-
-Whenever possible, a messageContext should be provided to declare the Message passed to InitiateWithSend
-as `Safely Replayable`. This allows the transport system to make use of 0-RTT establishment in case this is supported
-by the available protocol stacks. When the selected stack(s) do not support transmitting data upon connection
-establishment, InitiateWithSend is identical to Initiate() followed by Send().
-
-Neither partial sends nor send batching are supported by InitiateWithSend().
-
-The Events that may be sent after InitiateWithSend() are equivalent to those
-that would be sent by an invocation of Initiate() followed immediately by an
-invocation of Send(), with the caveat that a send failure that occurs because
-the Connection could not be established will not result in a
-SendError separate from the InitiateError signaling the failure of Connection
-establishment.
-
-# Receiving Data {#receiving}
-
-Once a Connection is established, it can be used for receiving data (unless the
-`Direction of Communication` property is set to `unidirectional send`). As with
-sending, data is received in terms of Messages. Receiving is an asynchronous
-operation, in which each call to Receive enqueues a request to receive new
-data from the connection. Once data has been received, or an error is encountered,
-an event will be delivered to complete any pending Receive requests (see {{receive-events}}). If Messages arrive at the transport system before Receive requests are issued, ensuing Receive requests will first operate on these Messages before awaiting any further Messages.
-
-## Enqueuing Receives
-
-Receive takes two parameters to specify the length of data that an application
-is willing to receive, both of which are optional and have default values if not
-specified.
-
-~~~
-Connection.Receive(minIncompleteLength?, maxLength?)
-~~~
-
-By default, Receive will try to deliver complete Messages in a single event ({{receive-complete}}).
-
-The application can set a minIncompleteLength value to indicate the smallest partial
-Message data size in bytes that should be delivered in response to this Receive. By default,
-this value is infinite, which means that only complete Messages should be delivered (see {{receive-partial}}
-and {{framing}} for more information on how this is accomplished).
-If this value is set to some smaller value, the associated receive event will be triggered
-only when at least that many bytes are available, or the Message is complete with fewer
-bytes, or the system needs to free up memory. Applications should always
-check the length of the data delivered to the receive event and not assume
-it will be as long as minIncompleteLength in the case of shorter complete Messages
-or memory issues.
-
-The maxLength argument indicates the maximum size of a Message in bytes
-the application is currently prepared to receive. The default
-value for maxLength is infinite. If an incoming Message is larger than the
-minimum of this size and the maximum Message size on receive for
-the Connection's Protocol Stack, it will be delivered via ReceivedPartial
-events ({{receive-partial}}).
-
-Note that maxLength does not guarantee that the application will receive that many
-bytes if they are available; the interface may return ReceivedPartial events with less
-data than maxLength according to implementation constraints. Note also that maxLength
-and minIncompleteLength are intended only to manage buffering, and are not interpreted
-as a receiver preference for message reordering.
-
-## Receive Events {#receive-events}
-
-Each call to Receive will be paired with a single Receive Event, which can be a success
-or an error. This allows an application to provide backpressure to the transport stack
-when it is temporarily not ready to receive messages.
-
-The interface should allow the application to correlate which call to Receive resulted
-in a particular Receive Event. The manner in which this correlation is indicated
-is implementation-specific.
-
-### Received {#receive-complete}
-
-~~~
-Connection -> Received<messageData, messageContext>
-~~~
-
-A Received event indicates the delivery of a complete Message.
-It contains two objects, the received bytes as messageData, and the metadata and properties of the received Message as messageContext.
-
-The messageData object provides access to the bytes that were received for this Message, along with the length of the byte array.
-The messageContext is provided to enable retrieving metadata about the message and referring to the message, e.g., to send replies and map responses to their requests. See {{msg-ctx}} for details.
-
-See {{framing}} for handling Message framing in situations where the Protocol
-Stack only provides a byte-stream transport.
-
-### ReceivedPartial {#receive-partial}
-
-~~~
-Connection -> ReceivedPartial<messageData, messageContext, endOfMessage>
-~~~
-
-If a complete Message cannot be delivered in one event, one part of the Message
-may be delivered with a ReceivedPartial event. In order to continue to receive more
-of the same Message, the application must invoke Receive again.
-
-Multiple invocations of ReceivedPartial deliver data for the same Message by
-passing the same MessageContext, until the endOfMessage flag is delivered or a
-ReceiveError occurs. All partial blocks of a single Message are delivered in
-order without gaps. This event does not support delivering discontiguous partial
-Messages.
-
-If the minIncompleteLength in the Receive request was set to be infinite (indicating
-a request to receive only complete Messages), the ReceivedPartial event may still be
-delivered if one of the following conditions is true:
-
-* the underlying Protocol Stack supports message boundary preservation, and
-  the size of the Message is larger than the buffers available for a single
-  message;
-* the underlying Protocol Stack does not support message boundary
-  preservation, and the Message Framer (see {{framing}}) cannot determine
-  the end of the message using the buffer space it has available; or
-* the underlying Protocol Stack does not support message boundary
-  preservation, and no Message Framer was supplied by the application
-
-Note that in the absence of message boundary preservation or
-a Message Framer, all bytes received on the Connection will be represented as one
-large Message of indeterminate length.
-
-### ReceiveError {#receive-error}
-
-~~~
-Connection -> ReceiveError<messageContext, reason?>
-~~~
-
-A ReceiveError occurs when data is received by the underlying Protocol Stack
-that cannot be fully retrieved or parsed, or when some other indication is
-received that reception has failed. In contrast, conditions that irrevocably lead to
-the termination of the Connection are signaled using ConnectionError instead
-(see {{termination}}).
-
-The ReceiveError event passes an optional associated MessageContext. This may
-indicate that a Message that was being partially received previously, but had not
-completed, encountered an error and will not be completed.
-
-
-## Receive Message Properties {#recv-meta}
-
-Each Message Context may contain metadata from protocols in the Protocol Stack;
-which metadata is available is Protocol Stack dependent. These are exposed though additional read-only Message Properties that can be queried from the MessageContext object (see {{msg-ctx}}) passed by the receive event.
-The following metadata values are supported:
-
-### UDP(-Lite)-specific Property: ECN {#receive-ecn}
-
-When available, Message metadata carries the value of the Explicit Congestion
-Notification (ECN) field. This information can be used for logging and debugging
-purposes, and for building applications which need access to information about
-the transport internals for their own operation. This property is specific to UDP
-and UDP-Lite because these protocols do not implement congestion control,
-and hence expose this functionality to the application.
-
-### Early Data {#receive-early}
-
-In some cases it may be valuable to know whether data was read as part of early
-data transfer (before connection establishment has finished). This is useful if
-applications need to treat early data separately,
-e.g., if early data has different security properties than data sent after
-connection establishment. In the case of TLS 1.3, client early data can be replayed
-maliciously (see {{!RFC8446}}). Thus, receivers may wish to perform additional
-checks for early data to ensure it is safely replayable. If TLS 1.3 is available
-and the recipient Message was sent as part of early data, the corresponding metadata carries
-a flag indicating as such. If early data is enabled, applications should check this metadata
-field for Messages received during connection establishment and respond accordingly.
-
-### Receiving Final Messages
-
-The Message Context can indicate whether or not this Message is
-the Final Message on a Connection. For any Message that is marked as Final,
-the application can assume that there will be no more Messages received on the
-Connection once the Message has been completely delivered. This corresponds
-to the Final property that may be marked on a sent Message, see {{msg-final}}.
-
-Some transport protocols and peers may not support signaling of the Final property.
-Applications therefore should not rely on receiving a Message marked Final to know
-that the other endpoint is done sending on a connection.
-
-Any calls to Receive once the Final Message has been delivered will result in errors.
-
-
-# Message Framers {#framing}
-
-Although most applications communicate over a network using well-formed
-Messages, the boundaries and metadata of the Messages are often not
-directly communicated by the transport protocol itself. For example,
-HTTP applications send and receive HTTP messages over a byte-stream
-transport, requiring that the boundaries of HTTP messages be parsed out
-from the stream of bytes.
-
-Message Framers allow extending a Connection's Protocol Stack to define
-how to encapsulate or encode outbound Messages, and how to decapsulate
-or decode inbound data into Messages. Message Framers allow message
-boundaries to be preserved when using a Connection object, even when
-using byte-stream transports. This facility is designed based on the fact
-that many of the current application protocols evolved over TCP, which
-does not provide message boundary preservation, and since many of these
-protocols require message boundaries to function, each application layer
-protocol has defined its own framing.
-
-To use a Message Framer, the application adds it to its Preconnection object.
-Then, the Message Framer can intercept all calls to Send() or Receive()
-on a Connection to add Message semantics, in addition to interacting with
-the setup and teardown of the Connection. A Framer can start sending data
-before the application sends data if the framing protocol requires a prefix
-or handshake (see {{?RFC8229}} for an example of such a framing protocol).
-
-~~~~~~~~~~
-
-  Initiate()   Send()   Receive()   Close()
-      |          |         ^          |
-      |          |         |          |
- +----v----------v---------+----------v-----+
- |                Connection                |
- +----+----------+---------^----------+-----+
-      |          |         |          |
-      |      +-----------------+      |
-      |      |    Messages     |      |
-      |      +-----------------+      |
-      |          |         |          |
- +----v----------v---------+----------v-----+
- |                Framer(s)                 |
- +----+----------+---------^----------+-----+
-      |          |         |          |
-      |      +-----------------+      |
-      |      |   Byte-stream   |      |
-      |      +-----------------+      |
-      |          |         |          |
- +----v----------v---------+----------v-----+
- |         Transport Protocol Stack         |
- +------------------------------------------+
-~~~~~~~~~~
-
-Note that while Message Framers add the most value when placed above
-a protocol that otherwise does not preserve message boundaries, they can
-also be used with datagram- or message-based protocols. In these cases,
-they add an additional transformation to further encode or encapsulate,
-and can potentially support packing multiple application-layer Messages
-into individual transport datagrams.
-
-The API to implement a Message Framer can vary depending on the implementation;
-guidance on implementing Message Framers can be found in {{I-D.ietf-taps-impl}}.
-
-## Adding Message Framers to Connections
-
-The Message Framer object can be added to one or more Preconnections
-to run on top of transport protocols. Multiple Framers may be added. If multiple
-Framers are added, the last one added runs first when framing outbound messages,
-and last when parsing inbound data.
-
-The following example adds a basic HTTP Message Framer to a Preconnection:
-
-~~~
-framer := NewHTTPMessageFramer()
-Preconnection.AddFramer(framer)
-~~~
-
-## Framing Meta-Data {#framing-meta}
-
-When sending Messages, applications can add specific Message
-values to a MessageContext ({{msg-ctx}}) that is intended for a Framer.
-This can be used, for example, to set the type of a Message for a TLV format.
-The namespace of values is custom for each unique Message Framer.
-
-~~~
-messageContext := NewMessageContext()
-messageContext.add(framer, key, value)
-Connection.Send(messageData, messageContext)
-~~~
-
-When an application receives a MessageContext in a Receive event,
-it can also look to see if a value was set by a specific Message Framer.
-
-~~~
-messageContext.get(framer, key) -> value
-~~~
-
-For example, if an HTTP Message Framer is used, the values could correspond
-to HTTP headers:
-
-~~~
-httpFramer := NewHTTPMessageFramer()
-...
-messageContext := NewMessageContext()
-messageContext.add(httpFramer, "accept", "text/html")
-~~~
 
 # Managing Connections {#introspection}
 
@@ -2653,6 +1942,720 @@ the underlying protocol stack supports reliability and, with it, such notificati
 Connection -> ExcessiveRetransmission<>
 ~~~
 
+# Data Transfer {#datatransfer}
+
+## Message Contexts {#msg-ctx}
+
+Using the MessageContext object, the application can set and retrieve meta-data of the message, including Message Properties (see {{message-props}}) and framing meta-data (see {{framing-meta}}).
+Therefore, a MessageContext object can be passed to the Send action and is returned by each Send and Receive related event.
+
+Message Properties can be set and queried using the Message Context:
+
+~~~
+MessageContext.add(scope?, parameter, value)
+PropertyValue := MessageContext.get(scope?, property)
+~~~
+
+To get or set Message Properties, the optional scope parameter is left empty. To get or set meta-data for a Framer, the application has to pass a reference to this Framer as the scope parameter.
+
+For MessageContexts returned by send events (see {{send-events}}) and receive events (see {{receive-events}}), the application can query information about the local and remote endpoint:
+
+~~~
+RemoteEndpoint := MessageContext.GetRemoteEndpoint()
+LocalEndpoint := MessageContext.GetLocalEndpoint()
+~~~
+
+Message Contexts can also be used to send messages in reply to other messages, see {{send-replies}} for details.
+
+
+## Message Framers {#framing}
+
+Although most applications communicate over a network using well-formed
+Messages, the boundaries and metadata of the Messages are often not
+directly communicated by the transport protocol itself. For example,
+HTTP applications send and receive HTTP messages over a byte-stream
+transport, requiring that the boundaries of HTTP messages be parsed out
+from the stream of bytes.
+
+Message Framers allow extending a Connection's Protocol Stack to define
+how to encapsulate or encode outbound Messages, and how to decapsulate
+or decode inbound data into Messages. Message Framers allow message
+boundaries to be preserved when using a Connection object, even when
+using byte-stream transports. This facility is designed based on the fact
+that many of the current application protocols evolved over TCP, which
+does not provide message boundary preservation, and since many of these
+protocols require message boundaries to function, each application layer
+protocol has defined its own framing.
+
+To use a Message Framer, the application adds it to its Preconnection object.
+Then, the Message Framer can intercept all calls to Send() or Receive()
+on a Connection to add Message semantics, in addition to interacting with
+the setup and teardown of the Connection. A Framer can start sending data
+before the application sends data if the framing protocol requires a prefix
+or handshake (see {{?RFC8229}} for an example of such a framing protocol).
+
+~~~~~~~~~~
+
+  Initiate()   Send()   Receive()   Close()
+      |          |         ^          |
+      |          |         |          |
+ +----v----------v---------+----------v-----+
+ |                Connection                |
+ +----+----------+---------^----------+-----+
+      |          |         |          |
+      |      +-----------------+      |
+      |      |    Messages     |      |
+      |      +-----------------+      |
+      |          |         |          |
+ +----v----------v---------+----------v-----+
+ |                Framer(s)                 |
+ +----+----------+---------^----------+-----+
+      |          |         |          |
+      |      +-----------------+      |
+      |      |   Byte-stream   |      |
+      |      +-----------------+      |
+      |          |         |          |
+ +----v----------v---------+----------v-----+
+ |         Transport Protocol Stack         |
+ +------------------------------------------+
+~~~~~~~~~~
+
+Note that while Message Framers add the most value when placed above
+a protocol that otherwise does not preserve message boundaries, they can
+also be used with datagram- or message-based protocols. In these cases,
+they add an additional transformation to further encode or encapsulate,
+and can potentially support packing multiple application-layer Messages
+into individual transport datagrams.
+
+The API to implement a Message Framer can vary depending on the implementation;
+guidance on implementing Message Framers can be found in {{I-D.ietf-taps-impl}}.
+
+### Adding Message Framers to Connections
+
+The Message Framer object can be added to one or more Preconnections
+to run on top of transport protocols. Multiple Framers may be added. If multiple
+Framers are added, the last one added runs first when framing outbound messages,
+and last when parsing inbound data.
+
+The following example adds a basic HTTP Message Framer to a Preconnection:
+
+~~~
+framer := NewHTTPMessageFramer()
+Preconnection.AddFramer(framer)
+~~~
+
+### Framing Meta-Data {#framing-meta}
+
+When sending Messages, applications can add specific Message
+values to a MessageContext ({{msg-ctx}}) that is intended for a Framer.
+This can be used, for example, to set the type of a Message for a TLV format.
+The namespace of values is custom for each unique Message Framer.
+
+~~~
+messageContext := NewMessageContext()
+messageContext.add(framer, key, value)
+Connection.Send(messageData, messageContext)
+~~~
+
+When an application receives a MessageContext in a Receive event,
+it can also look to see if a value was set by a specific Message Framer.
+
+~~~
+messageContext.get(framer, key) -> value
+~~~
+
+For example, if an HTTP Message Framer is used, the values could correspond
+to HTTP headers:
+
+~~~
+httpFramer := NewHTTPMessageFramer()
+...
+messageContext := NewMessageContext()
+messageContext.add(httpFramer, "accept", "text/html")
+~~~
+
+
+## Message Properties {#message-props}
+
+Applications may need to annotate the Messages they send with extra information
+to control how data is scheduled and processed by the transport protocols in the
+Connection. Therefore a message context containing these properties can be passed to the Send Action. For other uses of the message context, see {{msg-ctx}}.
+
+Note that Message Properties are per-Message, not per-Send if partial Messages
+are sent ({{send-partial}}). All data blocks associated with a single Message
+share properties specified in the Message Contexts. For example, it would not
+make sense to have the beginning of a Message expire, but allow the end of a
+Message to still be sent.
+
+A MessageContext object contains metadata for  Messages to be sent or received.
+
+~~~
+messageData := "hello"
+messageContext := NewMessageContext()
+messageContext.add(parameter, value)
+Connection.Send(messageData, messageContext)
+~~~
+
+The simpler form of Send, which does not take any messageContext, is equivalent to passing a default MessageContext without adding any Message Properties to it.
+
+If an application wants to override Message Properties for a specific message,
+it can acquire an empty MessageContext Object and add all desired Message
+Properties to that Object. It can then reuse the same messageContext Object
+for sending multiple Messages with the same properties.
+
+Properties may be added to a MessageContext object only before the context is used
+for sending. Once a messageContext has been used with a Send call, modifying any
+of its properties is invalid.
+
+Message Properties may be inconsistent with the properties of the Protocol Stacks
+underlying the Connection on which a given Message is sent. For example,
+a Connection must provide reliability to allow setting an infinite value for the
+lifetime property of a Message. Sending a Message with Message Properties
+inconsistent with the Selection Properties of the Connection yields an error.
+
+Connection Properties describe the default behavior for all Messages on a Connection. If a Message Property contradicts a Connection Property, and if this per-Message behavior can be supported, it overrides the Connection Property for the specific Message. For example, if `Reliable Data Transfer (Connection)` is set to `Require` and a protocol with configurable per-Message reliability is used, setting `Reliable Data Transfer (Message)` to `false` for a particular Message will allow this Message to be unreliably delivered. Note that changing the Reliable Data Transfer property on Messages is only possible for Connections that were established with the Selection Property `Configure Per-Message Reliability` enabled.
+
+The following Message Properties are supported:
+
+### Lifetime {#msg-lifetime}
+
+Name:
+: msgLifetime
+
+Type:
+: Numeric
+
+Default:
+: infinite
+
+Lifetime specifies how long a particular Message can wait to be sent to the
+remote endpoint before it is irrelevant and no longer needs to be
+(re-)transmitted. This is a hint to the transport system -- it is not guaranteed
+that a Message will not be sent when its Lifetime has expired.
+
+Setting a Message's Lifetime to infinite indicates that the application does
+not wish to apply a time constraint on the transmission of the Message, but it does not express a need for
+reliable delivery; reliability is adjustable per Message via the `Reliable Data Transfer (Message)`
+property (see {{msg-reliable-message}}). The type and units of Lifetime are implementation-specific.
+
+### Priority {#msg-priority}
+
+Name:
+: msgPrio
+
+Type:
+: Integer (non-negative)
+
+Default:
+: 100
+
+This property represents a hierarchy of priorities.
+It can specify the priority of a Message, relative to other Messages sent over the
+same Connection.
+
+A Message with Priority 0 will yield to a Message with Priority 1, which will
+yield to a Message with Priority 2, and so on. Priorities may be used as a
+sender-side scheduling construct only, or be used to specify priorities on the
+wire for Protocol Stacks supporting prioritization.
+
+Note that this property is not a per-message override of the connection Priority
+- see {{conn-priority}}. Both Priority properties may interact, but can be used
+independently and be realized by different mechanisms.
+
+### Ordered {#msg-ordered}
+
+Name:
+: msgOrdered
+
+Type:
+: Boolean
+
+Default:
+: true
+
+If true, it specifies that the receiver-side transport protocol stack may only deliver the Message to the receiving application after the previous ordered Message which was passed to the same Connection via the Send
+Action, when such a Message exists. If false, the Message may be delivered to the receiving application out of order.
+This property is used for protocols that support preservation of data ordering,
+see {{prop-ordering}}, but allow out-of-order delivery for certain messages, e.g., by multiplexing independent messages onto
+different streams.
+
+### Safely Replayable {#msg-safelyreplayable}
+
+Name:
+: safelyReplayable
+
+Type:
+: Boolean
+
+Default:
+: false
+
+If true, it specifies that a Message is safe to send to the remote endpoint
+more than once for a single Send Action. It is used to mark data safe for
+certain 0-RTT establishment techniques, where retransmission of the 0-RTT data
+may cause the remote application to receive the Message multiple times.
+
+Note that for protocols that do not protect against duplicated messages,
+e.g., UDP, all messages MUST be marked as `Safely Replayable`.
+In order to enable protocol selection to choose such a protocol,
+`Safely Replayable` MUST be added to the TransportProperties passed to the
+Preconnection. If such a protocol was chosen, disabling `Safely Replayable` on
+individual messages MUST result in a SendError.
+
+### Final {#msg-final}
+
+Name:
+: final
+
+Type:
+: Boolean
+
+Default:
+: false
+
+If true, this Message is the last one that
+the application will send on a Connection. This allows underlying protocols
+to indicate to the Remote Endpoint that the Connection has been effectively
+closed in the sending direction. For example, TCP-based Connections can
+send a FIN once a Message marked as Final has been completely sent,
+indicated by marking endOfMessage. Protocols that do not support signalling
+the end of a Connection in a given direction will ignore this property.
+
+Note that a Final Message must always be sorted to the end of a list of Messages.
+The Final property overrides Priority and any other property that would re-order
+Messages. If another Message is sent after a Message marked as Final has already
+been sent on a Connection, the Send Action for the new Message will cause a SendError Event.
+
+### Corruption Protection Length {#msg-checksum}
+
+Name:
+: msgChecksumLen
+
+Type:
+: Integer (non-negative with special value `Full Coverage`)
+
+Default:
+: Full Coverage
+
+This property specifies the minimum length of the section of the Message,
+starting from byte 0, that the application requires to be delivered without
+corruption due to lower layer errors. It is used to specify options for simple
+integrity protection via checksums. A value of 0 means that no checksum
+is required, and `Full Coverage` means
+that the entire Message is protected by a checksum. Only `Full Coverage` is
+guaranteed, any other requests are advisory, meaning that `Full Coverage` is applied
+anyway.
+
+### Reliable Data Transfer (Message) {#msg-reliable-message}
+
+Name:
+: msgReliable
+
+Type:
+: Boolean
+
+Default:
+: true
+
+When true, this property specifies that a message should be sent in such a way
+that the transport protocol ensures all data is received on the other side
+without corruption. Changing the `Reliable Data Transfer` property on Messages
+is only possible for Connections that were established with the Selection Property `Configure Per-Message Reliability` enabled.
+When this is not the case, changing it will generate an error.
+Disabling this property indicates that the transport system may disable retransmissions
+or other reliability mechanisms for this particular Message, but such disabling is not guaranteed.
+
+
+### Message Capacity Profile Override {#send-profile}
+
+Name:
+: msgCapacityProfile
+
+Type:
+: Enumeration
+
+This enumerated property specifies the application's preferred tradeoffs for
+sending this Message; it is a per-Message override of the Capacity Profile
+connection property (see {{prop-cap-profile}}).
+
+
+### No Fragmentation {#send-singular}
+
+Name:
+: noFragmentation
+
+Type:
+: Boolean
+
+Default:
+: false
+
+This property specifies that a message should be sent and received as a single
+packet without network-layer fragmentation, if possible.
+Attempts to send a message with this property set with a size greater to the
+transport's current estimate of its maximum transmission segment size will
+result in a `SendError`. When used with transports supporting this functionality
+and running over IP version 4, the Don't Fragment bit will be set.
+
+
+## Sending Data {#sending}
+
+Once a Connection has been established, it can be used for sending data. Data is
+sent as Messages, which allow the application to communicate the boundaries
+of the data being transferred. By default, Send enqueues a complete Message,
+and takes optional per-Message properties (see {{send-basic}}). All Send actions
+are asynchronous, and deliver events (see {{send-events}}). Sending partial
+Messages for streaming large data is also supported (see {{send-partial}}).
+
+Messages are sent on a Connection using the Send action:
+
+~~~
+Connection.Send(messageData, messageContext?, endOfMessage?)
+~~~
+
+where messageData is the data object to send.
+
+The optional messageContext parameter allows adding Message Properties as
+described in {{message-props}}.
+Moreover, the messageContext can be used to identify Send Events related to a specific Message (see {{send-events}}) or to inspect meta-data related to the Message sent (see {{msg-ctx}}).
+
+The optional endOfMessage parameter supports partial sending and is described in
+{{send-partial}}.
+
+Framers can be used to extend or modify the message data
+with additional information that can be processed at the receiver to detect message
+boundaries. This is further decribed in {{framing}}.
+
+### Basic Sending {#send-basic}
+
+The most basic form of sending on a connection involves enqueuing a single Data
+block as a complete Message, with default Message Properties.
+
+~~~
+messageData := "hello"
+Connection.Send(messageData)
+~~~
+
+The interpretation of a Message to be sent is dependent on the implementation, and
+on the constraints on the Protocol Stacks implied by the Connection’s transport properties.
+For example, a Message may be a single datagram for UDP Connections; or an HTTP
+Request for HTTP Connections.
+
+Some transport protocols can deliver arbitrarily sized Messages, but other
+protocols constrain the maximum Message size. Applications can query the
+Connection Property "Maximum Message size on send" ({{conn-max-msg-send}}) to determine the maximum size
+allowed for a single Message. If a Message is too large to fit in the Maximum Message
+Size for the Connection, the Send will fail with a SendError event ({{send-error}}). For
+example, it is invalid to send a Message over a UDP connection that is larger than
+the available datagram sending size.
+
+### Sending Replies {#send-replies}
+
+When a message is sent in response to a message received, the application
+may use the Message Context of the received Message to construct a Message Context for the reply.
+
+~~~
+replyMessageContext := requestMessageContext.reply()
+~~~
+
+By using the `replyMessageContext`, the transport system is informed that
+the message to be sent is a response and can map the response to the same underlying transport connection or stream the request was received from.
+The concept of Message Contexts is described in {{msg-ctx}}.
+
+### Send Events {#send-events}
+
+Like all Actions in this interface, the Send Action is asynchronous. There are
+several Events that can be delivered in response to Sending a Message.
+Exactly one Event (Sent, Expired, or SendError) will be delivered in response
+to each call to Send.
+
+Note that if partial Sends are used ({{send-partial}}), there will still be exactly
+one Send Event delivered for each call to Send. For example, if a Message
+expired while two requests to Send data for that Message are outstanding,
+there will be two Expired events delivered.
+
+The interface should allow the application to correlate which Send Action resulted
+in a particular Send Event. The manner in which this correlation is indicated
+is implementation-specific.
+
+#### Sent {#sent}
+
+~~~
+Connection -> Sent<messageContext>
+~~~
+
+The Sent Event occurs when a previous Send Action has completed, i.e., when
+the data derived from the Message has been passed down or through the
+underlying Protocol Stack and is no longer the responsibility of
+this interface. The exact disposition of the Message (i.e.,
+whether it has actually been transmitted, moved into a buffer on the network
+interface, moved into a kernel buffer, and so on) when the Sent Event occurs
+is implementation-specific. The Sent Event contains a reference to the Message
+to which it applies.
+
+Sent Events allow an application to obtain an understanding of the amount
+of buffering it creates. That is, if an application calls the Send Action multiple
+times without waiting for a Sent Event, it has created more buffer inside the
+transport system than an application that always waits for the Sent Event before
+calling the next Send Action.
+
+#### Expired {#expired}
+
+~~~
+Connection -> Expired<messageContext>
+~~~
+
+The Expired Event occurs when a previous Send Action expired before completion;
+i.e. when the Message was not sent before its Lifetime (see {{msg-lifetime}})
+expired. This is separate from SendError, as it is an expected behavior for
+partially reliable transports. The Expired Event contains a reference to the
+Message to which it applies.
+
+#### SendError {#send-error}
+
+~~~
+Connection -> SendError<messageContext, reason?>
+~~~
+
+A SendError occurs when a Message could not be sent due to an error condition:
+an attempt to send a Message which is too large for the system and
+Protocol Stack to handle, some failure of the underlying Protocol Stack, or a
+set of Message Properties not consistent with the Connection's transport
+properties. The SendError contains a reference to the Message to which it applies.
+
+### Partial Sends {#send-partial}
+
+It is not always possible for an application to send all data associated with
+a Message in a single Send Action. The Message data may be too large for
+the application to hold in memory at one time, or the length of the Message
+may be unknown or unbounded.
+
+Partial Message sending is supported by passing an endOfMessage boolean
+parameter to the Send Action. This value is always true by default, and
+the simpler forms of Send are equivalent to passing true for endOfMessage.
+
+The following example sends a Message in two separate calls to Send.
+
+~~~
+messageContext := NewMessageContext()
+messageContext.add(parameter, value)
+
+messageData := "hel"
+endOfMessage := false
+Connection.Send(messageData, messageContext, endOfMessage)
+
+messageData := "lo"
+endOfMessage := true
+Connection.Send(messageData, messageContext, endOfMessage)
+~~~
+
+All data sent with the same MessageContext object will be treated as belonging
+to the same Message, and will constitute an in-order series until the
+endOfMessage is marked.
+
+### Batching Sends {#send-batching}
+
+To reduce the overhead of sending multiple small Messages on a Connection, the
+application may want to batch several Send Actions together. This provides a hint to
+the system that the sending of these Messages should be coalesced when possible,
+and that sending any of the batched Messages may be delayed until the last Message
+in the batch is enqueued.
+
+The semantics for starting and ending a batch can be implementation-specific, but need
+to allow multiple Send Actions to be enqueued.
+
+~~~
+Connection.StartBatch()
+Connection.Send(messageData)
+Connection.Send(messageData)
+Connection.EndBatch()
+~~~
+
+### Send on Active Open: InitiateWithSend {#initiate-and-send}
+
+For application-layer protocols where the Connection initiator also sends the
+first message, the InitiateWithSend() action combines Connection initiation with
+a first Message sent:
+
+~~~
+Connection := Preconnection.InitiateWithSend(messageData, messageContext?, timeout?)
+~~~
+
+Whenever possible, a messageContext should be provided to declare the Message passed to InitiateWithSend
+as `Safely Replayable`. This allows the transport system to make use of 0-RTT establishment in case this is supported
+by the available protocol stacks. When the selected stack(s) do not support transmitting data upon connection
+establishment, InitiateWithSend is identical to Initiate() followed by Send().
+
+Neither partial sends nor send batching are supported by InitiateWithSend().
+
+The Events that may be sent after InitiateWithSend() are equivalent to those
+that would be sent by an invocation of Initiate() followed immediately by an
+invocation of Send(), with the caveat that a send failure that occurs because
+the Connection could not be established will not result in a
+SendError separate from the InitiateError signaling the failure of Connection
+establishment.
+
+## Receiving Data {#receiving}
+
+Once a Connection is established, it can be used for receiving data (unless the
+`Direction of Communication` property is set to `unidirectional send`). As with
+sending, data is received in terms of Messages. Receiving is an asynchronous
+operation, in which each call to Receive enqueues a request to receive new
+data from the connection. Once data has been received, or an error is encountered,
+an event will be delivered to complete any pending Receive requests (see {{receive-events}}). If Messages arrive at the transport system before Receive requests are issued, ensuing Receive requests will first operate on these Messages before awaiting any further Messages.
+
+### Enqueuing Receives
+
+Receive takes two parameters to specify the length of data that an application
+is willing to receive, both of which are optional and have default values if not
+specified.
+
+~~~
+Connection.Receive(minIncompleteLength?, maxLength?)
+~~~
+
+By default, Receive will try to deliver complete Messages in a single event ({{receive-complete}}).
+
+The application can set a minIncompleteLength value to indicate the smallest partial
+Message data size in bytes that should be delivered in response to this Receive. By default,
+this value is infinite, which means that only complete Messages should be delivered (see {{receive-partial}}
+and {{framing}} for more information on how this is accomplished).
+If this value is set to some smaller value, the associated receive event will be triggered
+only when at least that many bytes are available, or the Message is complete with fewer
+bytes, or the system needs to free up memory. Applications should always
+check the length of the data delivered to the receive event and not assume
+it will be as long as minIncompleteLength in the case of shorter complete Messages
+or memory issues.
+
+The maxLength argument indicates the maximum size of a Message in bytes
+the application is currently prepared to receive. The default
+value for maxLength is infinite. If an incoming Message is larger than the
+minimum of this size and the maximum Message size on receive for
+the Connection's Protocol Stack, it will be delivered via ReceivedPartial
+events ({{receive-partial}}).
+
+Note that maxLength does not guarantee that the application will receive that many
+bytes if they are available; the interface may return ReceivedPartial events with less
+data than maxLength according to implementation constraints. Note also that maxLength
+and minIncompleteLength are intended only to manage buffering, and are not interpreted
+as a receiver preference for message reordering.
+
+### Receive Events {#receive-events}
+
+Each call to Receive will be paired with a single Receive Event, which can be a success
+or an error. This allows an application to provide backpressure to the transport stack
+when it is temporarily not ready to receive messages.
+
+The interface should allow the application to correlate which call to Receive resulted
+in a particular Receive Event. The manner in which this correlation is indicated
+is implementation-specific.
+
+#### Received {#receive-complete}
+
+~~~
+Connection -> Received<messageData, messageContext>
+~~~
+
+A Received event indicates the delivery of a complete Message.
+It contains two objects, the received bytes as messageData, and the metadata and properties of the received Message as messageContext.
+
+The messageData object provides access to the bytes that were received for this Message, along with the length of the byte array.
+The messageContext is provided to enable retrieving metadata about the message and referring to the message, e.g., to send replies and map responses to their requests. See {{msg-ctx}} for details.
+
+See {{framing}} for handling Message framing in situations where the Protocol
+Stack only provides a byte-stream transport.
+
+#### ReceivedPartial {#receive-partial}
+
+~~~
+Connection -> ReceivedPartial<messageData, messageContext, endOfMessage>
+~~~
+
+If a complete Message cannot be delivered in one event, one part of the Message
+may be delivered with a ReceivedPartial event. In order to continue to receive more
+of the same Message, the application must invoke Receive again.
+
+Multiple invocations of ReceivedPartial deliver data for the same Message by
+passing the same MessageContext, until the endOfMessage flag is delivered or a
+ReceiveError occurs. All partial blocks of a single Message are delivered in
+order without gaps. This event does not support delivering discontiguous partial
+Messages.
+
+If the minIncompleteLength in the Receive request was set to be infinite (indicating
+a request to receive only complete Messages), the ReceivedPartial event may still be
+delivered if one of the following conditions is true:
+
+* the underlying Protocol Stack supports message boundary preservation, and
+  the size of the Message is larger than the buffers available for a single
+  message;
+* the underlying Protocol Stack does not support message boundary
+  preservation, and the Message Framer (see {{framing}}) cannot determine
+  the end of the message using the buffer space it has available; or
+* the underlying Protocol Stack does not support message boundary
+  preservation, and no Message Framer was supplied by the application
+
+Note that in the absence of message boundary preservation or
+a Message Framer, all bytes received on the Connection will be represented as one
+large Message of indeterminate length.
+
+#### ReceiveError {#receive-error}
+
+~~~
+Connection -> ReceiveError<messageContext, reason?>
+~~~
+
+A ReceiveError occurs when data is received by the underlying Protocol Stack
+that cannot be fully retrieved or parsed, or when some other indication is
+received that reception has failed. In contrast, conditions that irrevocably lead to
+the termination of the Connection are signaled using ConnectionError instead
+(see {{termination}}).
+
+The ReceiveError event passes an optional associated MessageContext. This may
+indicate that a Message that was being partially received previously, but had not
+completed, encountered an error and will not be completed.
+
+
+### Receive Message Properties {#recv-meta}
+
+Each Message Context may contain metadata from protocols in the Protocol Stack;
+which metadata is available is Protocol Stack dependent. These are exposed though additional read-only Message Properties that can be queried from the MessageContext object (see {{msg-ctx}}) passed by the receive event.
+The following metadata values are supported:
+
+#### UDP(-Lite)-specific Property: ECN {#receive-ecn}
+
+When available, Message metadata carries the value of the Explicit Congestion
+Notification (ECN) field. This information can be used for logging and debugging
+purposes, and for building applications which need access to information about
+the transport internals for their own operation. This property is specific to UDP
+and UDP-Lite because these protocols do not implement congestion control,
+and hence expose this functionality to the application.
+
+#### Early Data {#receive-early}
+
+In some cases it may be valuable to know whether data was read as part of early
+data transfer (before connection establishment has finished). This is useful if
+applications need to treat early data separately,
+e.g., if early data has different security properties than data sent after
+connection establishment. In the case of TLS 1.3, client early data can be replayed
+maliciously (see {{!RFC8446}}). Thus, receivers may wish to perform additional
+checks for early data to ensure it is safely replayable. If TLS 1.3 is available
+and the recipient Message was sent as part of early data, the corresponding metadata carries
+a flag indicating as such. If early data is enabled, applications should check this metadata
+field for Messages received during connection establishment and respond accordingly.
+
+#### Receiving Final Messages
+
+The Message Context can indicate whether or not this Message is
+the Final Message on a Connection. For any Message that is marked as Final,
+the application can assume that there will be no more Messages received on the
+Connection once the Message has been completely delivered. This corresponds
+to the Final property that may be marked on a sent Message, see {{msg-final}}.
+
+Some transport protocols and peers may not support signaling of the Final property.
+Applications therefore should not rely on receiving a Message marked Final to know
+that the other endpoint is done sending on a connection.
+
+Any calls to Receive once the Final Message has been delivered will result in errors.
 
 # Connection Termination {#termination}
 
