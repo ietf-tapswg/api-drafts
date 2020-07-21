@@ -2152,6 +2152,39 @@ does not provide message boundary preservation, and since many of these
 protocols require message boundaries to function, each application layer
 protocol has defined its own framing.
 
+To use a Message Framer, the application adds it to its Preconnection object.
+Then, the Message Framer can intercept all calls to Send() or Receive()
+on a Connection to add Message semantics, in addition to interacting with
+the setup and teardown of the Connection. A Framer can start sending data
+before the application sends data if the framing protocol requires a prefix
+or handshake (see {{?RFC8229}} for an example of such a framing protocol).
+
+~~~~~~~~~~
+
+  Initiate()   Send()   Receive()   Close()
+      |          |         ^          |
+      |          |         |          |
+ +----v----------v---------+----------v-----+
+ |                Connection                |
+ +----+----------+---------^----------+-----+
+      |          |         |          |
+      |      +-----------------+      |
+      |      |    Messages     |      |
+      |      +-----------------+      |
+      |          |         |          |
+ +----v----------v---------+----------v-----+
+ |                Framer(s)                 |
+ +----+----------+---------^----------+-----+
+      |          |         |          |
+      |      +-----------------+      |
+      |      |   Byte-stream   |      |
+      |      +-----------------+      |
+      |          |         |          |
+ +----v----------v---------+----------v-----+
+ |         Transport Protocol Stack         |
+ +------------------------------------------+
+~~~~~~~~~~
+
 Note that while Message Framers add the most value when placed above
 a protocol that otherwise does not preserve message boundaries, they can
 also be used with datagram- or message-based protocols. In these cases,
