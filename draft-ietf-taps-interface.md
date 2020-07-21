@@ -1944,7 +1944,13 @@ Connection -> ExcessiveRetransmission<>
 
 # Data Transfer {#datatransfer}
 
+Data is sent and received as Messages, which allows the application
+to communicate the boundaries of the data being transferred.
+
 ## Messages and Framers {#msg}
+
+Each Message has an optional Message Context, which allows to add Message Properties, identify Send Events related to a specific Message or to inspect meta-data related to the Message sent. Framers can be used to extend or modify the message data with additional information that can be processed at the receiver to detect message boundaries.
+
 
 ### Message Contexts {#msg-ctx}
 
@@ -2302,9 +2308,8 @@ and running over IP version 4, the Don't Fragment bit will be set.
 
 ## Sending Data {#sending}
 
-Once a Connection has been established, it can be used for sending data. Data is
-sent as Messages, which allow the application to communicate the boundaries
-of the data being transferred. By default, Send enqueues a complete Message,
+Once a Connection has been established, it can be used for sending Messages.
+By default, Send enqueues a complete Message,
 and takes optional per-Message properties (see {{send-basic}}). All Send actions
 are asynchronous, and deliver events (see {{send-events}}). Sending partial
 Messages for streaming large data is also supported (see {{send-partial}}).
@@ -2315,18 +2320,13 @@ Messages are sent on a Connection using the Send action:
 Connection.Send(messageData, messageContext?, endOfMessage?)
 ~~~
 
-where messageData is the data object to send.
-
-The optional messageContext parameter allows adding Message Properties as
-described in {{message-props}}.
-Moreover, the messageContext can be used to identify Send Events related to a specific Message (see {{send-events}}) or to inspect meta-data related to the Message sent (see {{msg-ctx}}).
+where messageData is the data object to send, and messageContext allows
+adding Message Properties, identifying Send Events related to a specific
+Message or inspecting meta-data related to the Message sent (see {{msg-ctx}}).
 
 The optional endOfMessage parameter supports partial sending and is described in
 {{send-partial}}.
 
-Framers can be used to extend or modify the message data
-with additional information that can be processed at the receiver to detect message
-boundaries. This is further decribed in {{framing}}.
 
 ### Basic Sending {#send-basic}
 
