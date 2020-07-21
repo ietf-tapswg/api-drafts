@@ -1944,7 +1944,9 @@ Connection -> ExcessiveRetransmission<>
 
 # Data Transfer {#datatransfer}
 
-## Message Contexts {#msg-ctx}
+## Messages and Framers {#msg}
+
+### Message Contexts {#msg-ctx}
 
 Using the MessageContext object, the application can set and retrieve meta-data of the message, including Message Properties (see {{message-props}}) and framing meta-data (see {{framing-meta}}).
 Therefore, a MessageContext object can be passed to the Send action and is returned by each Send and Receive related event.
@@ -1968,7 +1970,7 @@ LocalEndpoint := MessageContext.GetLocalEndpoint()
 Message Contexts can also be used to send messages in reply to other messages, see {{send-replies}} for details.
 
 
-## Message Framers {#framing}
+### Message Framers {#framing}
 
 Although most applications communicate over a network using well-formed
 Messages, the boundaries and metadata of the Messages are often not
@@ -2030,7 +2032,7 @@ into individual transport datagrams.
 The API to implement a Message Framer can vary depending on the implementation;
 guidance on implementing Message Framers can be found in {{I-D.ietf-taps-impl}}.
 
-### Adding Message Framers to Connections
+#### Adding Message Framers to Connections
 
 The Message Framer object can be added to one or more Preconnections
 to run on top of transport protocols. Multiple Framers may be added. If multiple
@@ -2044,7 +2046,7 @@ framer := NewHTTPMessageFramer()
 Preconnection.AddFramer(framer)
 ~~~
 
-### Framing Meta-Data {#framing-meta}
+#### Framing Meta-Data {#framing-meta}
 
 When sending Messages, applications can add specific Message
 values to a MessageContext ({{msg-ctx}}) that is intended for a Framer.
@@ -2075,7 +2077,7 @@ messageContext.add(httpFramer, "accept", "text/html")
 ~~~
 
 
-## Message Properties {#message-props}
+### Message Properties {#message-props}
 
 Applications may need to annotate the Messages they send with extra information
 to control how data is scheduled and processed by the transport protocols in the
@@ -2117,7 +2119,7 @@ Connection Properties describe the default behavior for all Messages on a Connec
 
 The following Message Properties are supported:
 
-### Lifetime {#msg-lifetime}
+#### Lifetime {#msg-lifetime}
 
 Name:
 : msgLifetime
@@ -2138,7 +2140,7 @@ not wish to apply a time constraint on the transmission of the Message, but it d
 reliable delivery; reliability is adjustable per Message via the `Reliable Data Transfer (Message)`
 property (see {{msg-reliable-message}}). The type and units of Lifetime are implementation-specific.
 
-### Priority {#msg-priority}
+#### Priority {#msg-priority}
 
 Name:
 : msgPrio
@@ -2162,7 +2164,7 @@ Note that this property is not a per-message override of the connection Priority
 - see {{conn-priority}}. Both Priority properties may interact, but can be used
 independently and be realized by different mechanisms.
 
-### Ordered {#msg-ordered}
+#### Ordered {#msg-ordered}
 
 Name:
 : msgOrdered
@@ -2179,7 +2181,7 @@ This property is used for protocols that support preservation of data ordering,
 see {{prop-ordering}}, but allow out-of-order delivery for certain messages, e.g., by multiplexing independent messages onto
 different streams.
 
-### Safely Replayable {#msg-safelyreplayable}
+#### Safely Replayable {#msg-safelyreplayable}
 
 Name:
 : safelyReplayable
@@ -2202,7 +2204,7 @@ In order to enable protocol selection to choose such a protocol,
 Preconnection. If such a protocol was chosen, disabling `Safely Replayable` on
 individual messages MUST result in a SendError.
 
-### Final {#msg-final}
+#### Final {#msg-final}
 
 Name:
 : final
@@ -2226,7 +2228,7 @@ The Final property overrides Priority and any other property that would re-order
 Messages. If another Message is sent after a Message marked as Final has already
 been sent on a Connection, the Send Action for the new Message will cause a SendError Event.
 
-### Corruption Protection Length {#msg-checksum}
+#### Corruption Protection Length {#msg-checksum}
 
 Name:
 : msgChecksumLen
@@ -2246,7 +2248,7 @@ that the entire Message is protected by a checksum. Only `Full Coverage` is
 guaranteed, any other requests are advisory, meaning that `Full Coverage` is applied
 anyway.
 
-### Reliable Data Transfer (Message) {#msg-reliable-message}
+#### Reliable Data Transfer (Message) {#msg-reliable-message}
 
 Name:
 : msgReliable
@@ -2266,7 +2268,7 @@ Disabling this property indicates that the transport system may disable retransm
 or other reliability mechanisms for this particular Message, but such disabling is not guaranteed.
 
 
-### Message Capacity Profile Override {#send-profile}
+#### Message Capacity Profile Override {#send-profile}
 
 Name:
 : msgCapacityProfile
@@ -2279,7 +2281,7 @@ sending this Message; it is a per-Message override of the Capacity Profile
 connection property (see {{prop-cap-profile}}).
 
 
-### No Fragmentation {#send-singular}
+#### No Fragmentation {#send-singular}
 
 Name:
 : noFragmentation
