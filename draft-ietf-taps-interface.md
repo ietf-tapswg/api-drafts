@@ -1477,16 +1477,17 @@ the Connection Group, and so on. Connections in a Connection Group generally sha
 Connection Properties. However, there may be exceptions, such as `Priority
 (Connection)`, see {{conn-priority}}. Like all other Properties, Priority is copied to the new Connection when calling Clone(), but it is not entangled: Changing Priority on one Connection does not change it on the other Connections in the same Connection Group.
 
-In addition, incoming entangled Connections can be received by creating a
-Listener on an existing connection:
+It is also possible to check which Connections belong to the same Connection Group.
+Calling GroupedConnections() on a specific Connection returns a set of all Connections
+in the same group.
 
 ~~~
-Listener := Connection.ListenClone()
+[]Connection := Connection.GroupedConnections()
 ~~~
 
-ListenClone() creates a Listener that listens on the same LocalEndpoint as the one the
-cloned Connection is using. Any new Connection received by this Listener will be
-entangled with the cloned Connection.
+Connections will be in the same group if the application previously called Clone.
+Passive Connections can also be added to the same group -- e.g., when a Listener receives a new Connection that is just a new stream of an already active multi-streaming protocol instance.
+
 Changing one of the Connection Properties on one Connection in the group
 changes it for all others. Message Properties, however, are not
 entangled. For example, changing `Timeout for aborting Connection` (see
