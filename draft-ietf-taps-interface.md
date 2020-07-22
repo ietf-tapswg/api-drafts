@@ -336,8 +336,8 @@ TransportProperties.Require(preserve-msg-boundaries)
 // Reliable Data Transfer and Preserve Order are Required by default
 
 SecurityParameters := NewSecurityParameters()
-SecurityParameters.AddIdentity(identity)
-SecurityParameters.AddPrivateKey(privateKey, publicKey)
+SecurityParameters.Set('identity', identity)
+SecurityParameters.Set('keypair', privateKey, publicKey)
 
 // Specifying a remote endpoint is optional when using Listen()
 Preconnection := NewPreconnection(LocalSpecifier,
@@ -425,8 +425,8 @@ TransportProperties.Require(preserve-msg-boundaries)
 // Reliable Data Transfer and Preserve Order are Required by default
 
 SecurityParameters := NewSecurityParameters()
-SecurityParameters.AddIdentity(identity)
-SecurityParameters.AddPrivateKey(privateKey, publicKey)
+SecurityParameters.Set('identity', identity)
+SecurityParameters.Set('keypair', privateKey, publicKey)
 
 TrustCallback := New Callback({
   // Verify identity of the remote endpoint, return the result
