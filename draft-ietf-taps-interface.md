@@ -336,8 +336,8 @@ TransportProperties.Require(preserve-msg-boundaries)
 // Reliable Data Transfer and Preserve Order are Required by default
 
 SecurityParameters := NewSecurityParameters()
-SecurityParameters.AddIdentity(identity)
-SecurityParameters.AddPrivateKey(privateKey, publicKey)
+SecurityParameters.Set('identity', identity)
+SecurityParameters.Set('keypair', privateKey, publicKey)
 
 // Specifying a remote endpoint is optional when using Listen()
 Preconnection := NewPreconnection(LocalSpecifier,
@@ -425,8 +425,8 @@ TransportProperties.Require(preserve-msg-boundaries)
 // Reliable Data Transfer and Preserve Order are Required by default
 
 SecurityParameters := NewSecurityParameters()
-SecurityParameters.AddIdentity(identity)
-SecurityParameters.AddPrivateKey(privateKey, publicKey)
+SecurityParameters.Set('identity', identity)
+SecurityParameters.Set('keypair', privateKey, publicKey)
 
 TrustCallback := New Callback({
   // Verify identity of the remote endpoint, return the result
@@ -756,10 +756,11 @@ object:
 TransportProperties := NewTransportProperties()
 ~~~
 
-Individual properties are then added to the TransportProperties Object:
+Individual properties are then set on the TransportProperties Object.
+Setting a Transport Property to a value overrides the previous value of this Transport Property.
 
 ~~~
-TransportProperties.Add(property, value)
+TransportProperties.Set(property, value)
 ~~~
 
 Selection Properties of type `Preference` can be frequently used. Implementations MAY therefore provide additional convenience functions, see {{preference-conv}} for examples.
@@ -1213,8 +1214,8 @@ identity to the Remote Endpoint. (Note, if private keys are not available, e.g.,
 stored in hardware security modules (HSMs), handshake callbacks must be used. See below for details.)
 
 ~~~
-SecurityParameters.Add('identity', identity)
-SecurityParameters.Add('keypair', privateKey, publicKey)
+SecurityParameters.Set('identity', identity)
+SecurityParameters.Set('keypair', privateKey, publicKey)
 ~~~
 
 - Supported algorithms: Used to restrict what parameters are used by underlying transport security protocols.
@@ -1222,9 +1223,9 @@ When not specified, these algorithms should use known and safe defaults for the 
 ciphersuites, supported groups, and signature algorithms.
 
 ~~~
-SecurityParameters.Add('supported-group', 'secp256k1')
-SecurityParameters.Add('ciphersuite, 'TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256')
-SecurityParameters.Add('signature-algorithm', 'ed25519')
+SecurityParameters.Set('supported-group', 'secp256k1')
+SecurityParameters.Set('ciphersuite, 'TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256')
+SecurityParameters.Set('signature-algorithm', 'ed25519')
 ~~~
 
 - Pre-Shared Key import: Used to install pre-shared keying material established
@@ -1232,7 +1233,7 @@ out-of-band. Each pre-shared keying material is associated with some identity th
 its use or has some protocol-specific meaning to the Remote Endpoint.
 
 ~~~
-SecurityParameters.Add('pre-shared-key', key, identity)
+SecurityParameters.Set('pre-shared-key', key, identity)
 ~~~
 
 - Session cache management: Used to tune cache capacity, lifetime, re-use,
@@ -2835,7 +2836,7 @@ and for contributing text, e.g., on multicast.
 
 ## Adding Preference Properties {#preference-conv}
 
-As Selection Properties of type `Preference` will be added to a TransportProperties object quite frequently, implementations should provide special actions for adding each preference level i.e, `TransportProperties.Add(some_property, avoid)` is equivalent to `TransportProperties.Avoid(some_property)`:
+As Selection Properties of type `Preference` will be set on a TransportProperties object quite frequently, implementations should provide special actions for adding each preference level i.e, `TransportProperties.Set(some_property, avoid)` is equivalent to `TransportProperties.Avoid(some_property)`:
 
 ~~~
 TransportProperties.Require(property)
