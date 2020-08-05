@@ -1096,7 +1096,7 @@ This property specifies whether alternative addresses, e.g., of other interfaces
 peer endpoint by the protocol stack. Advertising these addresses enables the peer-endpoint to establish additional connectivity, e.g., for connection migration or using multiple paths.
 
 Note that this may have privacy implications because it may make users linkable across multiple paths.
-Also, note that setting this to false does not prevent the local transport system from _establishing_ connectivity using alternate paths (see {{multipath-mode}} above); it only prevents _procative advertisement_ of addresses.
+Also, note that setting this to false does not prevent the local transport system from _establishing_ connectivity using alternate paths (see {{multipath-mode}} above); it only prevents _proactive advertisement_ of addresses.
 
 ### Direction of communication
 
