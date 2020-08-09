@@ -2755,7 +2755,7 @@ The interface provides the following guarantees about the ordering of
   events on the Connection are still locally outstanding (i.e., known to the
   interface and waiting to be dealt with by the application). ConnectionError<>
   may occur after Closed<>, but the interface must gracefully handle all cases
-  where application ignores these errors.
+  where the application ignores these errors.
 
 
 # IANA Considerations
@@ -2771,9 +2771,9 @@ This document describes a generic API for interacting with a transport services 
 Part of this API includes configuration details for transport security protocols, as discussed
 in {{security-parameters}}. It does not recommend use (or disuse) of specific
 algorithms or protocols. Any API-compatible transport security protocol should work in a TAPS system.
-Security consideration for these protocols should be discussed in the respective specifications.
+Security considerations for these protocols should be discussed in the respective specifications.
 
-The desribed API is used to exchange information between an application and the transport system. While
+The described API is used to exchange information between an application and the transport system. While
 it is not necessarily expected that both systems are implemented by the same authority, it is expected
 that the transport system implementation is either provided as a library that is selected by the application
 from a trusted party, or that it is part of the operating system that the application also relies on for
@@ -2783,27 +2783,27 @@ In either case, the TAPS API is an internal interface that is used to change inf
 However, as the transport system is responsible for network communication, it is in the position to
 potentially share any information provided by the application with the network or another communication peer. 
 Most of the information provided over the TAPS API are useful to configure and select protocols and paths
-and are not necessarily privacy sensitive. Still, there is some information that could be privacy sensitve because
-this might reveal usage characteristics and habits of the user of an application. 
+and are not necessarily privacy sensitive. Still, there is some information that could be privacy sensitive because
+it might reveal usage characteristics and habits of the user of an application. 
 
 Of course any communication over a network reveals usage characteristics, as all
-packets as well as their timing and size are part of the network-visible wire image {{?RFC8546}}. However,
+packets, as well as their timing and size, are part of the network-visible wire image {{?RFC8546}}. However,
 the selection of a protocol and its configuration also impacts which information is visible, potentially in
-clear text, and which other enties can access it. In most cases information that is provided for protocol and path selection
-should not directly translate to information that is can be observed by network devices on the path. 
+clear text, and which other entities can access it. In most cases, information provided for protocol and path selection
+should not directly translate to information that can be observed by network devices on the path. 
 But there might be specific configuration
-information that are intended for path exposure, such as e.g. a DiffServ codepoint setting, that is either povided
+information that is intended for path exposure, such as e.g. a DiffServ codepoint setting, that is either provided
 directly by the application or indirectly configured over a traffic profile. 
 
 Further, applications should be aware that communication attempts can lead to more than one connection establishment.
-This is for example the case when the transport system also excecutes name resolution; or when support mechanisms such as
-TURN or ICE are used to establish connectivity; or if protocols or paths are raised; or if a path fails and 
+This is the case, for example, when the transport system also executes name resolution, when support mechanisms such as
+TURN or ICE are used to establish connectivity, if protocols or paths are raised, or if a path fails and 
 fallback or re-establishment is supported in the transport system. 
 
-These communication activities are not different from what is used today, however, 
+These communication activities are not different from what is used today. However, 
 the goal of a TAPS transport system is to support
 such mechanisms as a generic service within the transport layer. This enables applications to more dynamically
-benefit from innovations and new protocols in the transport system but at the same time may reduce transparency of the 
+benefit from innovations and new protocols in the transport, although it reduces transparency of the 
 underlying communication actions to the application itself. The TAPS API is designed such that protocol and path selection
 can be limited to a small and controlled set if required by the application for functional or security purposes. Further,
 TAPS implementations should provide an interface to poll information about which protocol and path is currently in use as
