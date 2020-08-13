@@ -830,7 +830,7 @@ Below, terms in capitals with a dot (e.g., "CONNECT.SCTP") refer to the primitiv
 
 This document defines the API mappings for protocols defined in {{I-D.ietf-taps-minset}}. Other protocol mappings can be provided as separate documents, following the mapping template {{appendix-mapping-template}}.
 
-## TCP and MPTCP {#tcp}
+## TCP {#tcp}
 
 Connectedness: Connected
 
@@ -877,7 +877,16 @@ Close:
 Abort:
 : Calling `Abort` on a TCP Connection indicates that the Connection should be immediately closed by sending a RST to the peer (ABORT.TCP).
 
-## UDP and UDP-Lite
+## MPTCP
+
+Connectedness: Connected
+
+Data Unit: Byte-stream
+
+API mappings for MPTCP are identical to TCP. MPTCP adds support for multipath properties,
+such as "Multi-Paths Transport" and "Policy for using Multi-Path Transports".
+
+## UDP
 
 Connectedness: Unconnected
 
@@ -923,6 +932,63 @@ Close:
 
 Abort:
 : Calling `Abort` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close`.
+
+## UDP-Lite
+
+Connectedness: Unconnected
+
+Data Unit: Datagram
+
+API mappings for UDP-Lite are identical to UDP. Properties that require checksum coverage are not supported
+by UDP-Lite, such as "Corruption Protection Length", "Full Checksum Coverage on Sending", 
+"Required Minimum Corruption Protection Coverage for Receiving", and "Full Checksum Coverage on Receiving".
+
+## UDP Multicast Receive
+
+Connectedness: Unconnected
+
+Data Unit: Datagram
+
+API mappings for Receiving Multicast UDP are as follows:
+
+Connection Object:
+: Established UDP Multicast Receive connections represent a pair of specific IP addresses and ports.  The "unidirectional receive" transport property is required, and the local endpoint must be configured with a group IP address and a port.
+
+Initiate:
+: Calling `Initiate` on a UDP Multicast Receive Connection causes an immediate InitiateError.  This is an unsupported operation.
+
+InitiateWithSend:
+: Calling `InitiateWithSend` on a UDP Multicast Receive Connection causes an immediate InitiateError.  This is an unsupported operation.
+
+Ready:
+: A UDP Multicast Receive Connection is ready once the system has received traffic for the appropriate group and port.
+
+InitiateError:
+: UDP Multicast Receive Connections generate an InitiateError if Initiate is called.
+
+ConnectionError:
+: Once in use, UDP throws "soft errors" (ERROR.UDP(-Lite)) upon receiving ICMP notifications indicating failures in the network.
+
+Listen:
+: LISTEN.UDP. Calling `Listen` for UDP Multicast Receive binds a local port, prepares it to receive inbound UDP datagrams from peers, and issues a multicast host join.  If a remote endpoint with an address is supplied, the join is Source-specific Multicast, and the path selection is based on the route to the remote endpoint.  If a remote endpoint is not supplied, the join is Any-source Multicast, and the path selection is based on the outbound route to the group supplied in the local endpoint.
+
+ConnectionReceived:
+: UDP Multicast Receive Listeners will deliver new connections once they have received traffic from a new Remote Endpoint.
+
+Clone:
+: Calling `Clone` on a UDP Multicast Receive Connection creates a new Connection with equivalent parameters. The two Connections are otherwise independent.
+
+Send:
+: SEND.UDP(-Lite). Calling `Send` on a UDP Multicast Receive connection causes an immediate SendError.  This is an unsupported operation.
+
+Receive:
+: RECEIVE.UDP(-Lite). The Receive operation in a UDP Multicast Receive connection only delivers complete Messages to `Received`, each of which represents a single datagram received in a UDP packet. Upon receiving a UDP datagram, the ECN flag from the IP header can be obtained (GET_ECN.UDP(-Lite)).
+
+Close:
+: Calling `Close` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) releases the local port reservation and leaves the group.
+
+Abort:
+: Calling `Abort` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) is identical to calling `Close`.
 
 ## SCTP
 
