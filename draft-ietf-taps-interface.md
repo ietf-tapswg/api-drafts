@@ -1413,9 +1413,42 @@ Remote Endpoint, and also the transport properties and security parameters
 needed for Protocol Stack selection.
 
 The Rendezvous() Action causes the Preconnection to listen on the Local
-Endpoint for an incoming Connection from the Remote Endpoint, while
-simultaneously trying to establish a Connection from the Local Endpoint to the
-Remote Endpoint. This corresponds to a TCP simultaneous open, for example.
+Endpoint for an incoming Connection from the Remote Endpoint, while also
+simultaneously trying to establish a Connection from the Local Endpoint to
+the Remote Endpoint. 
+
+If there are multiple local or remote endpoints configured, then a rendezvous
+action will systematically probe reachability of those endpoints following the
+approach used in Interactive Connectivity Establishment (ICE) {{?RFC5245}}.
+
+If the endpoints are suspected to be behind a NAT, Rendezvous() can be
+initiated using Local and Remote Endpoints that support a method of
+discovering NAT bindings such as Session Traversal Utilities for NAT (STUN)
+{{?RFC8489}} or Traversal Using Relays around NAT (TURN) {{?RFC5766}}.
+In this case, the Local Endpoint will resolve to a mixture of local and
+server reflexive addresses. The Resolve() action on the Preconnection can
+be used to discover these bindings:
+
+~~~
+[]Preconnection := Preconnection.Resolve()
+~~~
+
+The Resolve() call returns a list of Preconnection Objects, that represent the
+concrete addresses, local and server reflexive, on which a Rendezvous() for
+the Preconnection will listen for incoming Connections. These resolved
+Preconnections will share all other Properties with the Preconnection from
+which they are derived, though some Properties may be made more-specific by
+the resolution process. 
+
+An application that uses Rendezvous() to establish a peer-to-peer connection
+in the presence of NATs will configure the Preconnection object with a Local
+Endpoint that supports NAT binding discovery. It will then Resolve() on that
+endpoint, and pass the resulting list of candidate local addresses to the
+peer via a signalling protocol, such as SIP {{?RFC3261}} or WebRTC {{?RFC7478}},
+as part of an ICE {{?RFC5245}} exchange. The peer will, via the same signalling 
+channel, return the remote endpoint candidates. These remote endpoint candidates
+are then configured on the Preconnection, allowing the Rendezvous() Action to be
+initiated.
 
 The Rendezvous() Action returns a Connection object. Once Rendezvous() has been
 called, any changes to the Preconnection MUST NOT have any effect on the
@@ -1441,26 +1474,6 @@ An EstablishmentError occurs either when the Properties and Security Parameters 
 for rendezvous or cannot be reconciled with the Local and/or Remote Endpoints, when the Local Endpoint or Remote Endpoint cannot be resolved,
 when no transport-layer connection can be established to the Remote Endpoint,
 or when the application is prohibited from rendezvous by policy.
-
-When using some NAT traversal protocols, e.g., Interactive Connectivity
-Establishment (ICE) {{?RFC5245}}, it is expected that the Local Endpoint will
-be configured with some method of discovering NAT bindings, e.g., a Session
-Traversal Utilities for NAT (STUN) server. In this case, the Local Endpoint
-may resolve to a mixture of local and server reflexive addresses. The
-Resolve() action on the Preconnection can be used to discover these bindings:
-
-~~~
-[]Preconnection := Preconnection.Resolve()
-~~~
-
-The Resolve() call returns a list of Preconnection Objects, that represent the
-concrete addresses, local and server reflexive, on which a Rendezvous() for
-the Preconnection will listen for incoming Connections. These resolved
-Preconnections will share all other Properties with the Preconnection from
-which they are derived, though some Properties may be made more-specific by
-the resolution process. This list can be passed to a peer via a signalling
-protocol, such as SIP {{?RFC3261}} or WebRTC {{?RFC7478}}, to configure the
-remote.
 
 ## Connection Groups {#groups}
 
