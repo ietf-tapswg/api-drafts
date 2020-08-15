@@ -1475,8 +1475,11 @@ Connection on which Clone was called, and the resulting cloned Connection. These
 connections are "entangled" with each other, and become part of a Connection
 Group. Calling Clone on any of these two Connections adds a third Connection to
 the Connection Group, and so on. Connections in a Connection Group generally share
-Connection Properties. However, there may be exceptions, such as `Priority
-(Connection)`, see {{conn-priority}}. Like all other Properties, Priority is copied to the new Connection when calling Clone(), but it is not entangled: Changing Priority on one Connection does not change it on the other Connections in the same Connection Group.
+Connection Properties. However, there may be exceptions, such as `Connection Priority`, 
+see {{conn-priority}}. Like all other Properties, Connection Priority is copied 
+to the new Connection when calling Clone(), but it is not entangled: Changing 
+Connection Priority on one Connection does not change it on the other Connections 
+in the same Connection Group.
 
 It is also possible to check which Connections belong to the same Connection Group.
 Calling GroupedConnections() on a specific Connection returns a set of all Connections
@@ -1516,17 +1519,18 @@ Attempts to clone a Connection can result in a CloneError:
 Connection -> CloneError<reason?>
 ~~~
 
-The Connection Property "Priority" operates on entangled Connections as in {{msg-priority}}:
-when allocating available network
+The Connection Priority Connection Property operates on entangled Connections 
+using the same approach in {{msg-priority}}: when allocating available network
 capacity among Connections in a Connection Group, sends on Connections with
 higher Priority values will be prioritized over sends on Connections with
-lower Priority values. A transport system implementation should, if possible, assign
-each Connection the capacity share (M-N) x C / M, where N is the Connection's
-Priority value, M is the maximum Priority value used by all Connections in the
-group and C is the total available capacity. However, the Priority setting is
-purely advisory, and no guarantees are given about the way capacity is shared.
-Each implementation is free to implement a way to share
-capacity that it sees fit.
+lower Priority values. In keeping with the principle of least surprise,
+transport system implementation should, in the absense of other requirements, 
+assign each Connection the capacity share (M-N) x C / M, where N is the 
+Connection's Priority value, M is the maximum Priority value used by all 
+Connections in the group and C is the total available capacity. However, 
+the Priority setting is purely advisory, and no guarantees are given 
+about the way capacity is shared. Each implementation is free to implement a 
+way to sharecapacity that it sees fit. See {{priority-in-taps}}.
 
 
 # Managing Connections {#introspection}
@@ -1641,7 +1645,7 @@ This property specifies the part of the received data that needs
 to be covered by a checksum. It is given in Bytes. A value of 0 means
 that no checksum is required.
 
-### Priority (Connection) {#conn-priority}
+### Connection Priority {#conn-priority}
 
 Name:
 : connPrio
@@ -1653,10 +1657,13 @@ Default:
 : 100
 
 This Property is a non-negative integer representing the relative inverse
-priority (i.e., a lower value reflects a higher priority) of this Connection relative to other Connections in the same
+priority (i.e., a lower value reflects a higher priority) of this Connection 
+relative to other Connections in the same
 Connection Group. It has no effect on Connections not part of a Connection
 Group. As noted in {{groups}}, this property is not entangled when Connections
-are cloned, i.e., changing the Priority on one Connection in a Connection Group does not change it on the other Connections in the same Connection Group.
+are cloned, i.e., changing the Priority on one Connection in a Connection Group 
+does not change it on the other Connections in the same Connection Group. 
+See {{priority-in-taps}}.
 
 ### Timeout for Aborting Connection {#conn-timeout}
 
@@ -2168,8 +2175,8 @@ sender-side scheduling construct only, or be used to specify priorities on the
 wire for Protocol Stacks supporting prioritization.
 
 Note that this property is not a per-message override of the connection Priority
-- see {{conn-priority}}. Both Priority properties may interact, but can be used
-independently and be realized by different mechanisms.
+- see {{conn-priority}}. The Priority properties may interact, but can be used
+independently and be realized by different mechanisms; see {{priority-in-taps}}.
 
 #### Ordered {#msg-ordered}
 
@@ -2497,6 +2504,25 @@ invocation of Send(), with the caveat that a send failure that occurs because
 the Connection could not be established will not result in a
 SendError separate from the InitiateError signaling the failure of Connection
 establishment.
+
+### Priority in TAPS {#priority-in-taps}
+
+The Transport Services interface provides two properties to allow a sender 
+to signal the relative priority of data transmission: the Priority Message 
+Property {{msg-priority}}, and the Connection Priority Connection Property 
+{{conn-priority}}. These properties are designed to allow the expression 
+and implementation a wide variety of approaches to transmission priority in 
+the transport and application layer, including those which do not appear on
+the wire (affecting only sender-side transmission scheduling) as well as those
+that do (e.g. {{?I-D.ietf-httpbis-priority}}.
+
+Given this variety, the specific behaviors of the prioritization framework 
+are leftto the transport system implementation and/or the implementation of 
+the underlying protocol stack. Specifically, there is no strict ordering
+imposed on the interaction of the connection and message priority systems:
+whether a priority 0 message on a priority 1 connection in a group
+will send before a priority 1 message on a priority 0 connection in the same
+group is left undefined.
 
 ## Receiving Data {#receiving}
 
@@ -2939,7 +2965,7 @@ coverage, see {{prop-checksum-control-send}} and {{prop-checksum-control-receive
 `Connection Group Transmission Scheduler` property ({{conn-scheduler}}).
 
 * Configure priority or weight for a scheduler:
-`Priority (Connection)` property ({{conn-priority}}).
+`Connection Priority` property ({{conn-priority}}).
 
 * "Specify checksum coverage used by the sender" and "Disable checksum when sending":
 `Corruption Protection Length` property ({{msg-checksum}}) and `Full Checksum Coverage on Sending` property ({{prop-checksum-control-send}}).
