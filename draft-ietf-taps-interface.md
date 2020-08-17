@@ -817,7 +817,7 @@ Default:
 : Require
 
 This property specifies whether the application needs to use a transport
-protocol that ensures that all data is received at the remote endppoint without
+protocol that ensures that all data is received at the Remote Endpoint without
 corruption. When reliable data transfer is enabled, this
 also entails being notified when a Connection is closed or aborted.
 
@@ -911,9 +911,9 @@ Type:
 Default:
 : Require
 
-This property specifies whether the application desires protection against
+This property specifies the application's need for protection against
 corruption for all data transmitted on this Connection. Disabling this property could enable
-later control of sender checksum coverage (see {{msg-checksum}}).
+later control of the sender checksum coverage (see {{msg-checksum}}).
 
 ### Full Checksum Coverage on Receiving {#prop-checksum-control-receive}
 
@@ -926,9 +926,9 @@ Type:
 Default:
 : Require
 
-This property specifies whether the application desires protection against
+This property specifies the application's need for protection against
 corruption for all data received on this Connection. Disabling this property could enable
-later control of receiver checksum coverage (see {{msg-checksum}}).
+later control of the required minimum receiver checksum coverage (see {{recvChecksumLen}}).
 
 ### Congestion control {#prop-cc}
 
@@ -1637,12 +1637,11 @@ Type:
 Default:
 : Full Coverage
 
-This property specifies the number of bytes in a received
-message that needs to be covered by a checksum. A special value of 0 means
-that no checksum is required. A receiving endpoint usin gan underlying stack 
-that supports reliability will not forward messages smaller
-than this size. The application is responsible for handling
-any corruption within the non-protected payload {{BCP145}}.
+This property specifies the minimum number of bytes in a received
+message that need to be covered by a checksum. A special value of 0 means
+that no checksum is permitted. A receiving endpoint will not forward messages to the application
+that have less coverage. The application is responsible for handling
+any corruption within the non-protected part of the message {{BCP145}}.
 
 ### Priority (Connection) {#conn-priority}
 
@@ -2241,7 +2240,7 @@ The Final property overrides Priority and any other property that would re-order
 Messages. If another Message is sent after a Message marked as Final has already
 been sent on a Connection, the Send Action for the new Message will cause a SendError Event.
 
-#### Corruption Protection Length {#msg-checksum}
+#### Sending Corruption Protection Length {#msg-checksum}
 
 Name:
 : msgChecksumLen
@@ -2257,9 +2256,8 @@ starting from byte 0, that the application requires to be delivered without
 corruption due to lower layer errors. It is used to specify options for simple
 integrity protection via checksums. A value of 0 means that no checksum
 is required, and `Full Coverage` means
-that the entire Message is protected by a checksum. Only `Full Coverage` is
-guaranteed, any other requests are advisory, meaning that `Full Coverage` is applied
-anyway.
+that the entire Message needs to be protected by a checksum. Only `Full Coverage` is
+guaranteed, any other requests are advisory, which may result in `Full Coverage` being applied.
 
 #### Reliable Data Transfer (Message) {#msg-reliable-message}
 
