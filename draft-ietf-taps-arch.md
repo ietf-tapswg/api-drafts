@@ -354,7 +354,7 @@ The diagram below provides a high-level view of the actions and events during th
 ~~~~~~~~~~
 {: #fig-lifetime title="The lifetime of a Connection object"}
 
-### Endpoints
+### Endpoint Objects
 
 * Endpoint: An Endpoint represents an identifier for one side of a transport connection.
   Endpoints can be Local Endpoints or Remote Endpoints, and respectively represent an identity
