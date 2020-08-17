@@ -961,7 +961,7 @@ Default:
 
 This property specifies whether the application would like the Connection to send
 keep-alive packets or not. Note that if a Connection determines that keep-alive
-packets are being sent, it should itself avoid generating additional keep alive
+packets are being sent, the applicaton should itself avoid generating additional keep alive
 message {{!BCP145}}. Note that when supported, the system also needs to
 configure the generation and use of the keep alive-packets.
 
@@ -1692,7 +1692,7 @@ will only take effect when the underlying stack supports reliability. The specia
 choice with unreliable data transfer (e.g., when UDP is the underlying transport protocol).
 See also {{keep-alive-timeout}}.
 
-### Timeout for Keepalives {#keep-alive-timeout}
+### Timeout for keep alive packets {#keep-alive-timeout}
 
 Name:
 : keepaliveTimeout
@@ -1703,7 +1703,9 @@ Type:
 Default:
 : Disabled
 
-This property specifies the maximum time an idle connection should wait before 
+A transport system can be requested a protcol that supports sending keep alive packets {{keep-alive}}.
+This property specifies the maximum time an idle connection (one for which no transport
+packets have been sent) should wait before 
 the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting this Property
 will only take effect when the underlying stack supports sending keep-alive packet. The special value
 `Disabled` means that this timeout is not scheduled to happen, and does not request the
@@ -1721,16 +1723,16 @@ Type:
 Default:
 : 5
 
-Some protocols track received responses to sent keep-alive packets returned by the remote
-peer. When this function is supported, this property
-specifies the number of consecutive keep alive packets that are permitted to fail
-before a Connection is aborted. This Property
+Some protocols track responses to the sent keep-alive packets that are returned by the remote
+peer. When this function is supported, the Local Endpoint counts the number of consecutive 
+keep-alive packets for which no corresponding response is received. If this count
+equals the `keepaliveTimeout` then the Connection is aborted. This Property
 will only take effect when the underlying stack both supports sending keep-alive packets
 and the `keepaliveTimeout` is enabled. 
 
-A value greater than 1 is desired to provide robustness to loss of a keep-alive excanage.
-A larger value can impact the time to detect a path failurem, or perform multipath fail-over {{multipath-policy}}. 
-The special value `Disabled` means that  the Local Endpoint does not need to monitor responses to keep-alive
+A value greater than 1 is desired to provide robustness to loss of a keep-alive packet or its response.
+A larger value can increase the time to detect a path failure or to perform multipath fail-over {{multipath-policy}}. 
+The special value `Disabled` means that the Local Endpoint does not need to monitor responses to keep-alive
 messages. 
 
 ### Connection Group Transmission Scheduler {#conn-scheduler}
