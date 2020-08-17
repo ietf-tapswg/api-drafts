@@ -144,7 +144,7 @@ high-level architecture for transport services defined in
 asynchronous, atomic transmission of messages over transport protocols and
 network paths dynamically selected at runtime. It is intended to replace the
 traditional BSD sockets API as the common interface to the
-transport layer, in environments where endpoints select from multiple interfaces
+transport layer, in environments where an endpoint selects from multiple interfaces
 and potential transport protocols.
 
 As applications adopt this interface, they will benefit from a wide set of
@@ -271,9 +271,9 @@ Architecture {{I-D.ietf-taps-arch}}.
 An application primarily interacts with this API through two Objects:
 Preconnections and Connections. A Preconnection represents a set of properties
 and constraints on the selection and configuration of paths and protocols to
-establish a Connection with a remote Endpoint. A Connection represents a
+establish a Connection with a Remote Endpoint. A Connection represents a
 transport Protocol Stack on which data can be sent to and/or received from a
-remote Endpoint (i.e., depending on the kind of transport, connections can be
+Remote Endpoint (i.e., depending on the kind of transport, connections can be
 bi-directional or unidirectional). Connections can be created from
 Preconnections in three ways: by initiating the Preconnection (i.e., actively
 opening, as in a client), through listening on the Preconnection (i.e.,
@@ -303,14 +303,14 @@ Transport Services Interface to:
 
 - Act as a server, by listening for incoming connections, receiving requests,
   and sending responses, see {{server-example}}.
-- Act as a client, by connecting to a remote endpoint using Initiate, sending
+- Act as a client, by connecting to a Remote Endpoint using Initiate, sending
   requests, and receiving responses, see {{client-example}}.
-- Act as a peer, by connecting to a remote endpoint using Rendezvous while
+- Act as a peer, by connecting to a Remote Endpoint using Rendezvous while
   simultaneously waiting for incoming Connections, sending Messages, and
   receiving Messages, see {{peer-example}}.
 
 The examples in this section presume that a transport protocol is available
-between the endpoints that provides Reliable Data Transfer, Preservation of
+between the Locala and Remopt Endpoints that provides Reliable Data Transfer, Preservation of
 data ordering, and Preservation of Message Boundaries. In this case, the
 application can choose to receive only complete messages.
 
@@ -1326,9 +1326,9 @@ Connection -> EstablishmentError<reason?>
 An EstablishmentError occurs either when the set of transport properties and security
 parameters cannot be fulfilled on a Connection for initiation (e.g., the set of
 available Paths and/or Protocol Stacks meeting the constraints is empty) or
-reconciled with the local and/or remote Endpoints; when the remote specifier
+reconciled with the Local and/or Remote Endpoints; when the remote specifier
 cannot be resolved; or when no transport-layer connection can be established to
-the remote Endpoint (e.g., because the remote Endpoint is not accepting
+the Remote Endpoint (e.g., because the Remote Endpoint is not accepting
 connections, the application is prohibited from opening a Connection by the
 operating system, or the establishment attempt has timed out for any other reason).
 
@@ -1337,7 +1337,7 @@ and transmission of the first message can be combine in a single action {{initia
 
 ## Passive Open: Listen {#listen}
 
-Passive open is the Action of waiting for Connections from remote Endpoints,
+Passive open is the Action of waiting for Connections from Remote Endpoints,
 commonly used by servers in client-server interactions. Passive open is
 supported by this interface through the Listen Action and returns a Listener object:
 
@@ -1639,7 +1639,7 @@ Default:
 
 This property specifies the minimum number of bytes in a received
 message that need to be covered by a checksum. A special value of 0 means
-that no checksum is permitted. A receiving endpoint will not forward messages to the application
+that no checksum is permitted. A receiving Endpoint will not forward messages to the application
 that have less coverage. The application is responsible for handling
 any corruption within the non-protected part of the message {{BCP145}}.
 
@@ -1789,9 +1789,9 @@ lower-latency path, the scheduling might choose to use a higher-latency path. Tr
 on multiple paths in parallel to achieve the lowest latency possible. The specific scheduling algorithm is implementation-specific.
 
 Aggregate:
-: The connection ought attempt to use multiple paths in parallel in order to maximize bandwidth and possibly overcome bandwidth limitations of the individual paths. The actual strategy is implementation specific.
+: The connection ought to attempt to use multiple paths in parallel to maximize available capacity and possibly overcome caacity limitations of the individual paths. The actual strategy is implementation specific.
 
-Note that this is a local choice – the peer endpoint can choose a different policy.
+Note that this is a local choice – the Remote Endpoint can choose a different policy.
 
 ### Bounds on Send or Receive Rate
 
@@ -1807,7 +1807,7 @@ Default:
 This property specifies an upper-bound rate that a transfer is not expected to
 exceed (even if flow control and congestion control allow higher rates), and/or a
 lower-bound rate below which the application does not deem
-a data transfer useful. It is specified in bits per second. 
+a will be useful. These are specified in bits per second. 
 The special value `Unlimited` indicates that no bound is specified.
 
 ### Read-only Connection Properties {#read-only-conn-prop}
@@ -1888,7 +1888,7 @@ Type:
 Default:
 : the TCP default
 
-This time value is advertised via the TCP User Timeout Option (UTO) {{?RFC5482}} at the remote endpoint
+This time value is advertised via the TCP User Timeout Option (UTO) {{?RFC5482}} at the Remote Endpoint
 to adapt its own `Timeout for aborting Connection` (see {{conn-timeout}}) value.
 
 ### User Timeout Enabled 
@@ -1970,7 +1970,7 @@ PropertyValue := MessageContext.get(scope?, property)
 
 To get or set Message Properties, the optional scope parameter is left empty. To get or set meta-data for a Framer, the application has to pass a reference to this Framer as the scope parameter.
 
-For MessageContexts returned by send events (see {{send-events}}) and receive events (see {{receive-events}}), the application can query information about the local and remote endpoint:
+For MessageContexts returned by send Events (see {{send-events}}) and receive Events (see {{receive-events}}), the application can query information about the local and Remote Endpoint:
 
 ~~~
 RemoteEndpoint := MessageContext.GetRemoteEndpoint()
@@ -2141,7 +2141,7 @@ Default:
 : infinite
 
 The Lifetime specifies how long a particular Message can wait to be sent to the
-remote endpoint before it is irrelevant and no longer needs to be
+Remote Endpoint before it is irrelevant and no longer needs to be
 (re-)transmitted. This is a hint to the transport system -- it is not guaranteed
 that a Message will not be sent when its Lifetime has expired.
 
@@ -2204,7 +2204,7 @@ Type:
 Default:
 : false
 
-If true, Safely Replayable specifies that a Message is safe to send to the remote endpoint
+If true, Safely Replayable specifies that a Message is safe to send to the Remote Endpoint
 more than once for a single Send Action. It marks the data as safe for
 certain 0-RTT establishment techniques, where retransmission of the 0-RTT data
 may cause the remote application to receive the Message multiple times.
@@ -2662,7 +2662,7 @@ to the Final property that may be marked on a sent Message, see {{msg-final}}.
 
 Some transport protocols and peers do not support signaling of the Final property.
 Applications therefore should not rely on receiving a Message marked Final to know
-that the other endpoint is done sending on a connection.
+that the sending endpoint is done sending on a connection.
 
 Any calls to Receive once the Final Message has been delivered will result in errors.
 
