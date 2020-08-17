@@ -1525,7 +1525,7 @@ lower Priority values. A transport system implementation should, if possible, as
 each Connection the capacity share (M-N) x C / M, where N is the Connection's
 Priority value, M is the maximum Priority value used by all Connections in the
 group and C is the total available capacity. However, this Priority setting is
-purely advisory, and provies no guarantees about the way capacity is shared.
+purely advisory, and provides no guarantees about the way capacity is shared.
 Each implementation is free to implement a way to share
 capacity that it sees fit.
 
@@ -1780,16 +1780,16 @@ Default:
 This property specifies the local policy for transferring data across multiple paths between the same end hosts if Parallel Use of Multiple Paths is not set to Disabled (see {{multipath-mode}}). Possible values are:
 
 Handover:
-: The connection ought only to attempt to migrate between different paths when the original path is lost or becomes unusable. The actual thresholds to declare a path unusable are implementation specific.
+: The connection ought only to attempt to migrate between different paths when the original path is lost or becomes unusable. The thresholds used to declare a path unusable are implementation specific.
 
 Interactive:
 : The connection ought only to attempt to minimize the latency for interactive traffic patterns by transmitting data across multiple paths when this is beneficial.
-The goal of minimizing the latency will be balanced against the cost of each of these paths, meaning that depending on the cost of the
+The goal of minimizing the latency will be balanced against the cost of each of these paths. Depending on the cost of the
 lower-latency path, the scheduling might choose to use a higher-latency path. Traffic can be scheduled such that data may be transmitted
-on multiple paths in parallel to achieve the lowest latency possible. The specific scheduling algorithm is implementation-specific.
+on multiple paths in parallel to achieve a lower latency. The specific scheduling algorithm is implementation-specific.
 
 Aggregate:
-: The connection ought to attempt to use multiple paths in parallel to maximize available capacity and possibly overcome caacity limitations of the individual paths. The actual strategy is implementation specific.
+: The connection ought to attempt to use multiple paths in parallel to maximize available capacity and possibly overcome the capacity limitations of the individual paths. The actual strategy is implementation specific.
 
 Note that this is a local choice – the Remote Endpoint can choose a different policy.
 
