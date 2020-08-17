@@ -944,7 +944,7 @@ Default:
 This property specifies whether the application would like the Connection to be
 congestion controlled or not. Note that if a Connection is not congestion
 controlled, an application using such a Connection SHOULD itself perform
-congestion control in accordance with {{?RFC2914}}, {{BCP14}}. Also note that reliability
+congestion control in accordance with {{?RFC2914}}, {{!BCP14}}. Also note that reliability
 is usually combined with congestion control in protocol implementations,
 rendering "reliable but not congestion controlled" a request that is unlikely to
 succeed.
@@ -1159,7 +1159,7 @@ informed when an ICMP error message arrives that does not force termination of a
 connection. When set to true, received ICMP errors are available as
 SoftErrors, see {{soft-errors}}. Note that even if a protocol supporting this property is selected,
 not all ICMP errors will necessarily be delivered, so applications cannot rely
-upon receiving them {{BCP145}}.
+upon receiving them {{!BCP145}}.
 
 
 ### Initiating side is not the first to write {#active-read-before-send}
@@ -1641,7 +1641,7 @@ This property specifies the minimum number of bytes in a received
 message that need to be covered by a checksum. A special value of 0 means
 that no checksum is permitted. A receiving Endpoint will not forward messages to the application
 that have less coverage. The application is responsible for handling
-any corruption within the non-protected part of the message {{BCP145}}.
+any corruption within the non-protected part of the message {{!BCP145}}.
 
 ### Priority (Connection) {#conn-priority}
 
