@@ -948,6 +948,22 @@ is usually combined with congestion control in protocol implementations,
 rendering "reliable but not congestion controlled" a request that is unlikely to
 succeed.
 
+## Keep alive {#keep-alive}
+
+Name:
+: keepAlive
+
+Type:
+: Preference
+
+Default:
+: Ignore
+
+This property specifies whether the application would like the Connection to send
+keep-alive packets or not. Note that if a Connection determines that keep-alive
+packets are being sent, it should itself avoid generating additional keep alive
+message {{!BCP145}}. Note that when supported, the system also needs to
+configure the generation and use of the keep alive-packets.
 
 ### Interface Instance or Type {#prop-interface}
 
@@ -1669,12 +1685,53 @@ Type:
 Default:
 : Disabled
 
-This property specifies how long to wait before deciding that a Connection has
-failed when trying to reliably deliver data to the destination. Adjusting this Property
+This property specifies how long to wait before deciding that an active Connection has
+failed when trying to reliably deliver data to the Remote Endpoint. Adjusting this Property
 will only take effect when the underlying stack supports reliability. The special value
 `Disabled` means that this timeout is not scheduled to happen. This can be a valid
 choice with unreliable data transfer (e.g., when UDP is the underlying transport protocol).
+See also {{keep-alive-timeout}}.
 
+### Timeout for Keepalives {#keep-alive-timeout}
+
+Name:
+: keepaliveTimeout
+
+Type:
+: Numeric, with special value `Disabled`
+
+Default:
+: Disabled
+
+This property specifies the maximum time an idle connection should wait before 
+the Local Endpoint sends a keep-alive signal to the Remote Endpoint. Adjusting this Property
+will only take effect when the underlying stack supports sebding keep-alive signals. The special value
+`Disabled` means that this timeout is not scheduled to happen, and does not request the
+transport system to send keep-alive packets. Guidance on setting this value is 
+provided in {{!BCP145}}.
+
+### Limit for Keepalives {#keep-alive-count}
+
+Name:
+: keepaliveCount
+
+Type:
+: Numeric, with special value `Disabled`
+
+Default:
+: 5
+
+Some protocols track the responses to keep-alive signals returned by the remote
+peer. When this function is supported, this property
+specifies the number of consecutive keep alive packets that are permitted to fail
+before a Connection is aborted. This Property
+will only take effect when the underlying stack both supports sending keep-alive signals
+and the `keepaliveTimeout` is enabled. 
+
+A value greater than 1 is desired to provide robustness to loss of a keep-alive excanage.
+A larger value can impact the time to detect a path failurem, or perform multipath fail-over {{multipath-policy}}. 
+The special value `Disabled` means that  the Local Endpoint does not need to monitor responses to keep-alive
+messages. 
 
 ### Connection Group Transmission Scheduler {#conn-scheduler}
 
