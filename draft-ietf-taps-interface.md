@@ -1718,7 +1718,7 @@ Name:
 : keepaliveCount
 
 Type:
-: Numeric, with special value `Disabled`
+: Numeric`
 
 Default:
 : 5
@@ -1731,9 +1731,6 @@ will only take effect when the underlying stack both supports sending keep-alive
 and the `keepaliveTimeout` is enabled. 
 
 A value greater than 1 is desired to provide robustness to loss of a keep-alive packet or its response.
-A larger value can increase the time to detect a path failure or to perform multipath fail-over {{multipath-policy}}. 
-The special value `Disabled` means that the Local Endpoint does not need to monitor responses to keep-alive
-messages. 
 
 ### Connection Group Transmission Scheduler {#conn-scheduler}
 
