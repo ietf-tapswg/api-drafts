@@ -962,7 +962,7 @@ Default:
 This property specifies whether the application would like the Connection to send
 keep-alive packets or not. Note that if a Connection determines that keep-alive
 packets are being sent, the applicaton should itself avoid generating additional keep alive
-message {{!BCP145}}. Note that when supported, the system also needs to
+messages. Note that when supported, the system also needs to
 configure the generation and use of the keep alive-packets.
 
 ### Interface Instance or Type {#prop-interface}
@@ -1703,13 +1703,13 @@ Type:
 Default:
 : Disabled
 
-A transport system can be requested a protcol that supports sending keep alive packets {{keep-alive}}.
+A transport system can be requested a protocol that supports sending keep alive packets {{keep-alive}}.
 This property specifies the maximum time an idle connection (one for which no transport
 packets have been sent) should wait before 
 the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting this Property
 will only take effect when the underlying stack supports sending keep-alive packet. The special value
 `Disabled` means that this timeout is not scheduled to happen, and does not request the
-transport system to send keep-alive packets. Guidance on setting this value is 
+transport system to send keep-alive packets. Guidance on setting this value for datagram transports is 
 provided in {{!BCP145}}.
 
 ### Limit for Keepalives {#keep-alive-count}
