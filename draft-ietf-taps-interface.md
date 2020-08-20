@@ -1417,9 +1417,10 @@ Endpoint for an incoming Connection from the Remote Endpoint, while also
 simultaneously trying to establish a Connection from the Local Endpoint to
 the Remote Endpoint. 
 
-If there are multiple local or remote endpoints configured, then a rendezvous
-action will need to systematically probe reachability of those endpoints following an
-approach such as that used in Interactive Connectivity Establishment (ICE) {{?RFC5245}}.
+If there are multiple Local Endpoints or Remote Endpoints configured, then 
+initiating a rendezvous action will systematically probe the reachability
+of those endpoints following an approach such as that used in Interactive
+Connectivity Establishment (ICE) {{?RFC5245}}.
 
 If the endpoints are suspected to be behind a NAT, Rendezvous() can be
 initiated using Local and Remote Endpoints that support a method of
