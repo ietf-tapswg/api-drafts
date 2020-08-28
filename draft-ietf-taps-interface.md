@@ -531,6 +531,12 @@ Transport Properties can have one of a set of data types:
   selection; see {{selection-props}}. When querying, a Preference is of
   type Boolean, with `true` indicating that the Selection Property
   has been applied.
+- Tuple: takes values composed from types defined above.
+  In this this document, it is written as a list in brackets, e.g., ```(Enumeration, Preference)``` 
+  The compsition of types and the order depends on the property and is fix for the property.
+  The actual representation is implementation-dependen.
+- Collection: takes a valiable number of a single of the above types.
+  The actual representation, e.g. as set or array, is implementation-dependen.
 
 For types Integer and Numeric, special values can be defined
 per property; it is up to implementations how these special values are
@@ -955,10 +961,10 @@ Name:
 : interface
 
 Type:
-: Set (Preference, Enumeration)
+: Collection of (Preference, Enumeration)
 
 Default:
-: Empty set (not setting a preference for any interface)
+: Empty (not setting a preference for any interface)
 
 This property allows the application to select which specific network interfaces
 or categories of interfaces it wants to `Require`, `Prohibit`, `Prefer`, or
@@ -996,10 +1002,10 @@ Name:
 : pvd
 
 Type:
-: Set (Preference, Enumeration)
+: Collection of (Preference, Enumeration)
 
 Default:
-: Empty set (not setting a preference for any PvD)
+: Empty (not setting a preference for any PvD)
 
 Similar to interface instances and types (see {{prop-interface}}), this property
 allows the application to control path selection by selecting which specific
@@ -1220,7 +1226,7 @@ SecurityParameters.Set('keypair', privateKey, publicKey)
 
 - Supported algorithms: Used to restrict what parameters are used by underlying transport security protocols.
 When not specified, these algorithms should use known and safe defaults for the system. Parameters include:
-ciphersuites, supported groups, and signature algorithms.
+ciphersuites, supported groups, and signature algorithms. These parameters take a collection of supported algorithms as parameter.
 
 ~~~
 SecurityParameters.Set('supported-group', 'secp256k1')
