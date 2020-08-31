@@ -536,7 +536,7 @@ Transport Properties can have one of a set of data types:
   The compsition of types and the order depends on the property and is fix for the property.
   The actual representation is implementation-dependen.
 - Collection: takes a valiable number of a single of the above types.
-  The actual representation, e.g. as set or array, is implementation-dependen.
+  The actual representation, e.g. as a set or an array, is implementation-dependent.
 
 For types Integer and Numeric, special values can be defined
 per property; it is up to implementations how these special values are
