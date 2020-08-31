@@ -533,7 +533,7 @@ Transport Properties can have one of a set of data types:
   has been applied.
 - Tuple: takes values composed from types defined above.
   In this this document, it is written as a list in brackets, e.g., ```(Enumeration, Preference)``` 
-  The compsition of types and the order depends on the property and is fix for the property.
+  The composition of types and the order depends on the property and is fixed for the property.
   The actual representation is implementation-dependen.
 - Collection: takes a valiable number of a single of the above types.
   The actual representation, e.g. as a set or an array, is implementation-dependent.
