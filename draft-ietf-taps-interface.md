@@ -531,7 +531,7 @@ Transport Properties can have one of a set of data types:
   selection; see {{selection-props}}. When querying, a Preference is of
   type Boolean, with `true` indicating that the Selection Property
   has been applied.
-- Tuple: takes values composed from types defined above.
+- Tuple: A specific grouping of multiple value types.
   In this this document, it is written as a list in brackets, e.g., ```(Enumeration, Preference)``` 
   The composition of types and the order depends on the property and is fixed for the property.
   The actual representation is implementation-dependen.
