@@ -1943,6 +1943,16 @@ the underlying protocol stack supports reliability and, with it, such notificati
 Connection -> ExcessiveRetransmission<>
 ~~~
 
+### Path change {#conn-path-change}
+
+This event notifies the application when the path has changed. Changes occure
+on a single path when the PMTU changes as well as when multiple paths are used
+in a Connection Group and paths are added/removed or a handover has been performed.
+
+~~~
+Connection -> PathChange<>
+~~~
+
 # Data Transfer {#datatransfer}
 
 Data is sent and received as Messages, which allows the application
