@@ -221,8 +221,8 @@ other Events, may occur asynchronously in network applications. However, it is
 recommended that implementations of this interface also return Errors
 immediately, according to the error handling idioms of the implementation
 platform, for errors that can be immediately detected, such as inconsistency
-in Transport Properties. Errors can provide an optional reason to the
-application with further details about why the error occurred.
+in Transport Properties. An error can provide an optional reason to the 
+application with further details about to why the error occurred.
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this
