@@ -1004,7 +1004,7 @@ Default:
 
 Similar to interface instances and types (see {{prop-interface}}), this property
 allows the application to control path selection by selecting which specific
-Provisioning Domain (PvD) or categories of PVD it wants to
+Provisioning Domain (PvD) or categories of PVDs it wants to
 `Require`, `Prohibit`, `Prefer`, or `Avoid`. Provisioning Domains define
 consistent sets of network properties that may be more specific than network
 interfaces {{RFC7556}}.
