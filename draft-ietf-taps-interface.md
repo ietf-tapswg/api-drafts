@@ -2306,7 +2306,7 @@ Default:
 This property specifies that a message should be sent and received as a single
 packet without network-layer fragmentation, if possible.
 Attempts to send a message with this property set to a size greater than the
-transport's current estimate of its maximum packet segment size (`singularTransmissionMsgMaxLen`)
+transport's current estimate of its maximum packet size (`singularTransmissionMsgMaxLen`)
 will
 result in a `SendError`. When used with transports supporting this functionality
 and running over IP version 4, the Don't Fragment bit will be set.
