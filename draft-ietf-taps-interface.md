@@ -2693,8 +2693,8 @@ Abort terminates a Connection without delivering any remaining data:
 Connection.Abort()
 ~~~
 
-A ConnectionError informs the application that data could not be delivered after a timeout,
-or afer the other side has aborted the Connection. 
+A ConnectionError informs the application that: 1) data could not be delivered after a timeout, 
+or 2) the other side has aborted the Connection.
 There is no guarantee that an Abort will indeed be signaled.
 
 ~~~
