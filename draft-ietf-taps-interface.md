@@ -1159,7 +1159,7 @@ informed when an ICMP error message arrives that does not force termination of a
 connection. When set to true, received ICMP errors are available as
 SoftErrors, see {{soft-errors}}. Note that even if a protocol supporting this property is selected,
 not all ICMP errors will necessarily be delivered, so applications cannot rely
-upon receiving them {{!BCP145}}.
+upon receiving them {{!RFC8085}}.
 
 
 ### Initiating side is not the first to write {#active-read-before-send}
