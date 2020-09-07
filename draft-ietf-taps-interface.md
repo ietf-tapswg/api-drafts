@@ -879,7 +879,7 @@ Default:
 This property specifies whether an application would like to supply a Message to
 the transport protocol before Connection establishment that will then be
 reliably transferred to the other side before or during Connection
-establishment. This can potentially be received multiple times (i.e., multiple copies of the message data
+establishment. This Message can potentially be received multiple times (i.e., multiple copies of the message data
 may be passed to the Remote Endpoint). See also {{msg-safelyreplayable}}. Note that
 disabling this property
 has no effect for protocols that are not connection-oriented and do not protect
