@@ -944,7 +944,7 @@ Default:
 This property specifies whether the application would like the Connection to be
 congestion controlled or not. Note that if a Connection is not congestion
 controlled, an application using such a Connection SHOULD itself perform
-congestion control in accordance with {{?RFC2914}}, {{!BCP14}}. Also note that reliability
+congestion control in accordance with {{!RFC2914}}, {{!RFC2119}}. Also note that reliability
 is usually combined with congestion control in protocol implementations,
 rendering "reliable but not congestion controlled" a request that is unlikely to
 succeed.
