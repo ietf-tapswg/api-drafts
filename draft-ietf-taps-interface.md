@@ -310,7 +310,7 @@ Transport Services Interface to:
   receiving Messages, see {{peer-example}}.
 
 The examples in this section presume that a transport protocol is available
-between the Locala and Remopt Endpoints that provides Reliable Data Transfer, Preservation of
+between the Local and Remote Endpoints that provides Reliable Data Transfer, Preservation of
 data ordering, and Preservation of Message Boundaries. In this case, the
 application can choose to receive only complete messages.
 
