@@ -1333,7 +1333,7 @@ connections, the application is prohibited from opening a Connection by the
 operating system, or the establishment attempt has timed out for any other reason).
 
 Connection establishment
-and transmission of the first message can be combine in a single action {{initiate-and-send}}.
+and transmission of the first message can be combined in a single action {{initiate-and-send}}.
 
 ## Passive Open: Listen {#listen}
 
