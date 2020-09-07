@@ -1641,7 +1641,7 @@ This property specifies the minimum number of bytes in a received
 message that need to be covered by a checksum. A special value of 0 means
 that no checksum is permitted. A receiving Endpoint will not forward messages to the application
 that have less coverage. The application is responsible for handling
-any corruption within the non-protected part of the message {{!BCP145}}.
+any corruption within the non-protected part of the message {{!RFC8085}}.
 
 ### Priority (Connection) {#conn-priority}
 
