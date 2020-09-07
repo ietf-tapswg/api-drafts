@@ -1015,7 +1015,7 @@ or for making one preference available for each interface and interface type
 available on the system.
 
 The identification of a specific PvD is
-implementation- and system-specific, because there is curently no portable standard
+implementation- and system-specific, because there is currently no portable standard
 format for a PvD identifier. For example, this identifier might be a string name
 or an integer. As with requiring specific interfaces, requiring a specific PvD
 strictly limits the path selection.
