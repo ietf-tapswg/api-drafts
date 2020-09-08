@@ -1127,7 +1127,7 @@ unidirectional communication may cause a transport stack that supports
 bidirectional communication to be selected.
 
 
-### Notification of Excessive Loss {#prop-establish-loss-notify}
+### Notification of Excessive Loss {#prop-establish-excss-loss-notify}
 
 Name:
 : excessLossNotify
@@ -2938,7 +2938,7 @@ coverage, see {{prop-checksum-control-send}} and {{prop-checksum-control-receive
 `TCP-specific Property: User Timeout` ({{tcp-uto}}).
 
 * Notification of Excessive Retransmissions (early warning below abortion threshold):
-`Notification of excessive retransmissions` property ({{prop-establish-retrans-notify}}).
+`Notification of excessive retransmissions` property ({{prop-establish-excss-loss-notify}}).
 
 * Notification of ICMP error message arrival:
 `Notification of ICMP soft error message arrival` property ({{prop-soft-error}}).
