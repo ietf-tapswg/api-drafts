@@ -1710,7 +1710,7 @@ the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting t
 will only take effect when the underlying stack supports sending keep-alive packet. The special value
 `Disabled` means that this timeout is not scheduled to happen, and does not request the
 transport system to send keep-alive packets. Guidance on setting this value for datagram transports is 
-provided in {{!BCP145}}.
+provided in {{!RFC8085}}.
 
 ### Limit for Keepalives {#keep-alive-count}
 
