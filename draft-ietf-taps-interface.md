@@ -723,7 +723,7 @@ have one of five preference levels:
    | Ignore     | No preference                                                          |
    | Avoid      | Prefer protocols/paths not providing the property, proceed otherwise   |
    | Prohibit   | Select only protocols/paths not providing the property, fail otherwise |
-{: #tab-pref-levels title="Selection Properties Preference Levels"}
+{: #tab-pref-levels title="Selection Property Preference Levels"}
 
 In addition, the pseudo-level `Default` can be used to reset the property to the default
 level used by the implementation. This level will never show up when queuing the value of
