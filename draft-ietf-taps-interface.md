@@ -1127,10 +1127,10 @@ unidirectional communication may cause a transport stack that supports
 bidirectional communication to be selected.
 
 
-### Notification of excessive retransmissions {#prop-establish-retrans-notify}
+### Notification of Excessive Loss {#prop-establish-loss-notify}
 
 Name:
-: retransmitNotify
+: excessLossNotify
 
 Type:
 : Preference
@@ -1139,8 +1139,8 @@ Default:
 : Ignore
 
 This property specifies whether an application considers it useful to be
-informed in case sent data was retransmitted more often than a certain
-threshold (see {{conn-excss-retransmit}} for configuration of this threshold).
+informed in case sent data was lost more often than a certain
+threshold (see {{conn-excss-loss}} for configuration of this threshold).
 
 
 ### Notification of ICMP soft error message arrival {#prop-soft-error}
@@ -1612,19 +1612,19 @@ Many Connection Properties have a corresponding Selection Property that
 enables applications to express their preference for protocols providing a supporting transport feature.
 
 
-### Retransmission Threshold Before Excessive Retransmission Notification {#conn-excss-retransmit}
+### Loss Threshold before Excessive Loss Notification {#conn-excss-loss}
 
 Name:
-: retransmitNotifyThreshold
+: excessLossNotifyThreshold
 
 Type:
-: Integer, with special value `Disabled`
+: Numeric, with special value `Disabled`
 
 Default:
 : Disabled
 
-This property specifies the number of retransmissions required to cause the application
-to be notified of `Excessive Retransmissions`.
+This property specifies the number of lost packtes per second required to cause the application
+to be notified of `Excessive Loss`.
 
 ### Required Minimum Corruption Protection Coverage for Receiving {#conn-recv-checksum}
 
@@ -1936,14 +1936,15 @@ is no guarantee that a soft error will be signaled.
 Connection -> SoftError<>
 ~~~
 
-### Excessive retransmissions {#conn-retrans-notify}
+### Excessive Loss {#conn-excss-loss-notify}
 
-This event notifies the application of excessive retransmissions, based on a
-configured threshold (see {{conn-excss-retransmit}}). This will only happen if
-the underlying protocol stack supports reliability and, with it, such notifications.
+This event notifies the application of excessive loss events,
+e.g., indicated by non-acked packets or exessive retransmissions,
+based on a configured threshold (see {{conn-excss-loss}}).
+This will only happen if the underlying protocol stack supports loss detection and, with it, such notifications.
 
 ~~~
-Connection -> ExcessiveRetransmission<>
+Connection -> ExcessiveLoss<>
 ~~~
 
 # Data Transfer {#datatransfer}
