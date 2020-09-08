@@ -531,11 +531,11 @@ Transport Properties can have one of a set of data types:
   selection; see {{selection-props}}. When querying, a Preference is of
   type Boolean, with `true` indicating that the Selection Property
   has been applied.
-- Tuple: A specific grouping of multiple value types.
+- Tuple: An ordered grouping of multiple value types.
   In this this document, it is written as a list in brackets, e.g., ```(Enumeration, Preference)``` 
-  The composition of types and the order depends on the property and is fixed for the property.
-  The actual representation is implementation-dependen.
-- Collection: A group of one or more value of the same type.
+  The composition of types and their order depends on the property and is fixed for the property.
+  The actual representation is implementation-dependent.
+- Collection: An unordered grouping of one or more values of the same type.
   The actual representation, e.g. as a set or an array, is implementation-dependent.
 
 For types Integer and Numeric, special values can be defined
