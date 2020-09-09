@@ -721,7 +721,7 @@ have one of five preference levels:
    | Ignore     | No preference                                                          |
    | Avoid      | Prefer protocols/paths not providing the property, proceed otherwise   |
    | Prohibit   | Select only protocols/paths not providing the property, fail otherwise |
-   |------------|------------------------------------------------------------------------|
+{: #tab-pref-levels title="Selection Property Preference Levels"}
 
 In addition, the pseudo-level `Default` can be used to reset the property to the default
 level used by the implementation. This level will never show up when queuing the value of
@@ -2029,6 +2029,7 @@ or handshake (see {{?RFC8229}} for an example of such a framing protocol).
  |         Transport Protocol Stack         |
  +------------------------------------------+
 ~~~~~~~~~~
+{: #fig-framer-stack title="Protocol Stack showing a Message Framer"}
 
 Note that while Message Framers add the most value when placed above
 a protocol that otherwise does not preserve message boundaries, they can
