@@ -2522,7 +2522,7 @@ the wire (affecting only sender-side transmission scheduling) as well as those
 that do (e.g. {{?I-D.ietf-httpbis-priority}}.
 
 Given this variety, the specific behaviors of the prioritization framework 
-are leftto the transport system implementation and/or the implementation of 
+are left to the transport system implementation and/or the implementation of 
 the underlying protocol stack. Specifically, there is no strict ordering
 imposed on the interaction of the connection and message priority systems:
 whether a priority 0 message on a priority 1 connection in a group
