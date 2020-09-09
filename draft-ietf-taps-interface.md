@@ -948,10 +948,11 @@ Default:
 This property specifies whether the application would like the Connection to be
 congestion controlled or not. Note that if a Connection is not congestion
 controlled, an application using such a Connection SHOULD itself perform
-congestion control in accordance with {{!RFC2914}}, {{!RFC2119}}. Also note that reliability
+congestion control in accordance with {{!RFC8085}}, {{!RFC2914}}, {{!RFC2119}}. Also note that reliability
 is usually combined with congestion control in protocol implementations,
 rendering "reliable but not congestion controlled" a request that is unlikely to
-succeed.
+succeed. If the Connection is congestion controlled, performing additional congestion control
+in the application can have negative performance implications.
 
 
 ### Interface Instance or Type {#prop-interface}
@@ -1358,14 +1359,12 @@ The Listen() Action returns a Listener object. Once Listen() has been called,
 any changes to the Preconnection MUST NOT have any effect on the Listener. The
 Preconnection can be disposed of or reused, e.g., to create another Listener.
 
-Listening continues until the global context shuts down, or until the Stop
-action is performed on the Listener object:
-
 ~~~
 Listener.Stop()
 ~~~
 
-After calling Stop(), the Listener object can be disposed of.
+Listening continues until the global context shuts down, or until the Stop
+action is performed on the Listener object.
 
 ~~~
 Listener -> ConnectionReceived<Connection>
@@ -1800,18 +1799,18 @@ Note that this is a local choice – the Remote Endpoint can choose a different 
 ### Bounds on Send or Receive Rate
 
 Name:
-: maxSendRate / maxRecvRate
+: minSendRate / minRecvRate / maxSendRate / maxRecvRate
 
 Type:
-: Numeric (with special value `Unlimited`) / Numeric (with special value `Unlimited`)
+: Numeric (with special value `Unlimited`) / Numeric (with special value `Unlimited`) / Numeric (with special value `Unlimited`) / Numeric (with special value `Unlimited`)
 
 Default:
-: Unlimited / Unlimited
+: Unlimited / Unlimited / Unlimited / Unlimited
 
 This property specifies an upper-bound rate that a transfer is not expected to
 exceed (even if flow control and congestion control allow higher rates), and/or a
 lower-bound rate below which the application does not deem
-a will be useful. These are specified in bits per second. 
+it will be useful. These are specified in bits per second. 
 The special value `Unlimited` indicates that no bound is specified.
 
 ### Read-only Connection Properties {#read-only-conn-prop}
@@ -1880,6 +1879,7 @@ fail.
 
 All of the below properties are optional (e.g., it is possible to specify `User Timeout Enabled` as true,
 but not specify an Advertised User Timeout value; in this case, the TCP default will be used).
+These properties reflect the API extension specified in Section 3 of {{?RFC5482}}.
 
 ### Advertised User Timeout 
 
