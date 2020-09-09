@@ -523,9 +523,7 @@ Transport Properties can have one of a set of data types:
 - Numeric: can take positive or negative numeric values; range and
   representation is implementation-dependent.
 - Enumeration: can take one value of a finite set of values, dependent on the
-  property itself. The representation is implementation dependent; however,
-  implementations MUST provide a method for the application to determine the
-  entire set of possible values for each property.
+  property itself. The representation is implementation dependent.
 - Preference: can take one of five values (Prohibit, Avoid, Ignore, Prefer,
   Require) for the level of preference of a given property during protocol
   selection; see {{selection-props}}. When querying, a Preference is of
