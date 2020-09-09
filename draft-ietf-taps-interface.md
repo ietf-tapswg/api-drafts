@@ -324,7 +324,7 @@ byte stream into a sequence of Messages ({{framing}}).
 ### Server Example
 
 This is an example of how an application might listen for incoming Connections
-using the Transport Services Interface, receive a request, and send a response.
+using the Transport Services Interface, and receive a request, and send a response.
 
 ~~~
 LocalSpecifier := NewLocalEndpoint()
@@ -367,8 +367,8 @@ Listener.Stop()
 
 ### Client Example
 
-This is an example of how an application might connect to a remote application
-using the Transport Services Interface, send a request, and receive a response.
+This is an example of how an application might open two Connections to a remote application
+using the Transport Services Interface, and send a request as well as receive a response on each of them.
 
 ~~~
 RemoteSpecifier := NewRemoteEndpoint()
@@ -391,20 +391,24 @@ Preconnection := NewPreconnection(RemoteSpecifier,
                                   SecurityParameters)
 
 Connection := Preconnection.Initiate()
+Connection2 := Connection.Clone()
 
 Connection -> Ready<>
+Connection2 -> Ready<>
 
-//---- Ready event handler begin ----
-Connection.Send(messageDataRequest)
+//---- Ready event handler for any Connection C begin ----
+C.Send(messageDataRequest)
 
 // Only receive complete messages
-Connection.Receive()
-//---- Ready event handler end ----
+C.Receive()
+//---- Ready event handler for any Connection C end ----
 
 Connection -> Received<messageDataResponse, messageContext>
+Connection2 -> Received<messageDataResponse, messageContext>
 
 // Close the Connection in a Receive event handler
 Connection.Close()
+Connection2.Close()
 ~~~
 
 ### Peer Example
@@ -1924,6 +1928,24 @@ This property controls whether the `Timeout for aborting Connection` (see {{conn
 may be changed
 based on a UTO option received from the remote peer. This boolean becomes false when
 `Timeout for aborting Connection` (see {{conn-timeout}}) is used.
+
+
+### Group Connection Limit
+
+Name:
+: groupConnLimit
+
+Type:
+: Numeric (with special value `Unlimited`)
+
+Default:
+: Unlimited
+
+This property controls the number Connections that may arrive from
+a peer as new members of the Connection's group. Similar to SetNewConnectionLimit(),
+this limits the number of ConnectionReceived Events that will occur, but constrained
+to the group of the Connection associated with this property. In case of a multi-streaming
+transport, this takes the role of a limit on the number of allowed streams.
 
 
 ## Connection Lifecycle Events
