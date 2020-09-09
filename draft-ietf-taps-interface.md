@@ -2516,7 +2516,7 @@ The Transport Services interface provides two properties to allow a sender
 to signal the relative priority of data transmission: the Priority Message 
 Property {{msg-priority}}, and the Connection Priority Connection Property 
 {{conn-priority}}. These properties are designed to allow the expression 
-and implementation a wide variety of approaches to transmission priority in 
+and implementation of a wide variety of approaches to transmission priority in 
 the transport and application layer, including those which do not appear on
 the wire (affecting only sender-side transmission scheduling) as well as those
 that do (e.g. {{?I-D.ietf-httpbis-priority}}.
