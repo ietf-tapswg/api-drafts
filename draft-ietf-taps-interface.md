@@ -1139,7 +1139,7 @@ Default:
 : Ignore
 
 This property specifies whether an application considers it useful to be
-informed in case sent data was lost more often than a certain
+informed in case packets of the underlying transport protocol have been lost more often than a certain
 threshold (see {{conn-excss-loss}} for configuration of this threshold).
 
 
