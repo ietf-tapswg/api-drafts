@@ -1947,7 +1947,7 @@ Connection -> ExcessiveRetransmission<>
 
 This event notifies the application when at least one of the paths underlying a Connection has changed. Changes occur
 on a single path when the PMTU changes as well as when multiple paths are used
-in a Connection Group and paths are added or removed, or a handover has been performed.
+and paths are added or removed, or a handover has been performed.
 
 ~~~
 Connection -> PathChange<>
