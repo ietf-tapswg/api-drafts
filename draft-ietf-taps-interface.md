@@ -1680,15 +1680,15 @@ Name:
 : connTimeout
 
 Type:
-: Numeric, with special value `Default`
+: Numeric, with special value `Disabled`
 
 Default:
-: Default
+: Disabled
 
 This property specifies how long to wait before deciding that an active Connection has
 failed when trying to reliably deliver data to the Remote Endpoint. Adjusting this Property
 will only take effect when the underlying stack supports reliability. The special value
-`Default` means that this timeout will use the default for the selected transport. 
+`Disabled` means that this timeout is not scheduled to happen.
 
 ### Timeout for keep alive packets {#keep-alive-timeout}
 
@@ -1696,10 +1696,10 @@ Name:
 : keepaliveTimeout
 
 Type:
-: Numeric, with special value `Disabled`
+: Numeric, with special value `Default`
 
 Default:
-: Disabled
+: Default
 
 A transport system can request a protocol that supports sending keep alive packets {{keep-alive}}.
 This property specifies the maximum time an idle connection (one for which no transport
@@ -1708,8 +1708,7 @@ the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting t
 will only take effect when the underlying stack supports sending keep-alive packet. 
 Guidance on setting this value for datagram transports is 
 provided in {{!RFC8085}}. The special value
-`Disabled` means that this timeout is not scheduled to happen, and does not request the
-transport system to send keep-alive packets. 
+`Default` means that this timeout will use the default for the selected transport. 
 A value greater than {{conn-timeout}} will disable sending of keep-alive packets.
 
 ### Connection Group Transmission Scheduler {#conn-scheduler}
