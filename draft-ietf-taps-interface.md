@@ -236,8 +236,7 @@ principles, themselves an elaboration on the architectural design principles
 defined in {{I-D.ietf-taps-arch}}. The interface defined in this document
 provides:
 
-- Access to a variety of transport protocols
-  under a variety of application design patterns, independent of the
+- Access to a variety of transport protocols, independent of the
   the Protocol Stacks that will be used at
   runtime, such that all common features of these protocol
   stacks are made available to the application in a
