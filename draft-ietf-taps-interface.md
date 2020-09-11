@@ -1043,12 +1043,12 @@ This property allows the application to express a preference for the use of
 temporary local addresses, sometimes called "privacy" addresses {{!RFC4941}}.
 Temporary addresses are generally used to prevent linking connections over time
 when a stable address, sometimes called "permanent" address, is not needed.
-There are two caveats to note when specifying this property. First, if an
-application Requires the use of temporary addresses, the resulting Connection 
+There are some caveats to note when specifying this property. First, if an
+application Requires the use of temporary addresses, the resulting Connection
 cannot use IPv4, as temporary addresses do not exist in IPv4. Second, temporary
-local addresses may involve privacy/performance tradeoffs with protocol 
-stacks and networks that use session resumption in the presence of network 
-address translation.
+local addresses may involve trading off privacy for performance. For instance,
+temporary addresses can interfere with resumption mechanisms that some protocols
+rely on to reduce first-packet latency.
 
 
 ### Multi-Paths Transport {#multipath-mode}
