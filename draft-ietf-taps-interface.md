@@ -962,8 +962,8 @@ Default:
 This property specifies whether the application would like the Connection to send
 keep-alive packets or not. Note that if a Connection determines that keep-alive
 packets are being sent, the applicaton should itself avoid generating additional keep alive
-messages. Note that when supported, the system also needs to
-configure the generation and use of the keep alive-packets.
+messages. Note that when supported, the system will use the default periodic
+for generation of the keep alive-packets. (See also {{keep-alive-timeout}}).
 
 ### Interface Instance or Type {#prop-interface}
 
@@ -1680,17 +1680,15 @@ Name:
 : connTimeout
 
 Type:
-: Numeric, with special value `Disabled`
+: Numeric, with special value `Default`
 
 Default:
-: Disabled
+: Default
 
 This property specifies how long to wait before deciding that an active Connection has
 failed when trying to reliably deliver data to the Remote Endpoint. Adjusting this Property
 will only take effect when the underlying stack supports reliability. The special value
-`Disabled` means that this timeout is not scheduled to happen. This can be a valid
-choice with unreliable data transfer (e.g., when UDP is the underlying transport protocol).
-See also {{keep-alive-timeout}}.
+`Default` means that this timeout will use the default for the selected transport. 
 
 ### Timeout for keep alive packets {#keep-alive-timeout}
 
@@ -1703,34 +1701,16 @@ Type:
 Default:
 : Disabled
 
-A transport system can be requested a protocol that supports sending keep alive packets {{keep-alive}}.
+A transport system can request a protocol that supports sending keep alive packets {{keep-alive}}.
 This property specifies the maximum time an idle connection (one for which no transport
 packets have been sent) should wait before 
 the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting this Property
-will only take effect when the underlying stack supports sending keep-alive packet. The special value
+will only take effect when the underlying stack supports sending keep-alive packet. 
+Guidance on setting this value for datagram transports is 
+provided in {{!RFC8085}}. The special value
 `Disabled` means that this timeout is not scheduled to happen, and does not request the
-transport system to send keep-alive packets. Guidance on setting this value for datagram transports is 
-provided in {{!RFC8085}}.
-
-### Limit for Keepalives {#keep-alive-count}
-
-Name:
-: keepaliveCount
-
-Type:
-: Numeric`
-
-Default:
-: 5
-
-Some protocols track responses to the sent keep-alive packets that are returned by the remote
-peer. When this function is supported, the Local Endpoint counts the number of consecutive 
-keep-alive packets for which no corresponding response is received. If this count
-equals the `keepaliveTimeout` then the Connection is aborted. This Property
-will only take effect when the underlying stack both supports sending keep-alive packets
-and the `keepaliveTimeout` is enabled. 
-
-A value greater than 1 is desired to provide robustness to loss of a keep-alive packet or its response.
+transport system to send keep-alive packets. 
+A value greater than {{conn-timeout}} will disable sending of keep-alive packets.
 
 ### Connection Group Transmission Scheduler {#conn-scheduler}
 
