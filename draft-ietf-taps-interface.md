@@ -322,7 +322,7 @@ Boundaries, but there is a transport protocol that provides a reliable ordered
 byte stream, an application could receive this byte stream as partial
 Messages and transform it into application-layer Messages.  Alternatively,
 an application might provide a Message Framer, which transforms a
-byte stream to or from a sequence of Messages ({{framing}}).
+sequence of Messages into a byte stream and vice versa ({{framing}}).
 
 ### Server Example
 
