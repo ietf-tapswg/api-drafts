@@ -236,12 +236,11 @@ principles, themselves an elaboration on the architectural design principles
 defined in {{I-D.ietf-taps-arch}}. The interface defined in this document
 provides:
 
-- A single interface to a variety of transport protocols to be
-  used in a variety of application design patterns, independent of the
-  properties of the application and the Protocol Stacks that will be used at
-  runtime, such that  all common specialized features of these protocol
-  stacks are made available to the application as necessary in a
-  transport-independent way, to enable applications written to a single API
+- Access to a variety of transport protocols, independent of the
+  the Protocol Stacks that will be used at
+  runtime, such that all common features of these protocol
+  stacks are made available to the application in a
+  transport-independent way to the degree possible, enabling applications written to a single API
   to make use of transport protocols in terms of the features they provide;
 
 - Message-orientation, as opposed to stream-orientation, using
@@ -252,6 +251,9 @@ provides:
   concurrent operations during establishment and supporting event-driven
   application interactions with the transport layer, in line with developments
   in modern platforms and programming languages;
+
+- Explicit support for transport-specific features to be applied should that
+  particular transport be part of a chosen Protocol Stack.
 
 - Explicit support for security properties as first-order transport features,
   and for configuration of cryptographic identities and transport security parameters persistent across multiple Connections; and
@@ -319,7 +321,7 @@ Boundaries, but there is a transport protocol that provides a reliable ordered
 byte stream, an application could receive this byte stream as partial
 Messages and transform it into application-layer Messages.  Alternatively,
 an application might provide a Message Framer, which can transform a
-byte stream into a sequence of Messages ({{framing}}).
+sequence of Messages into a byte stream and vice versa ({{framing}}).
 
 ### Server Example
 
@@ -565,7 +567,7 @@ We therefore make the following recommendations:
   Connection Property, and Message Context Property specified in this document. Each interface SHOULD be implemented even when in a specific implementation/platform it
   will always result in no operation, e.g. there is no action when the API
   specifies a Property that is not available in a transport protocol implemented
-  on a specific platform. For example, if TCP is the only underlying transport protocol, the Message Property `msgOrdered` can be implemented even if disabling ordering will not have any effect TCP because the API does not guarantee out-of-order delivery. Similarly, the `msg-lifetime` Message Property can be implemented but ignored, as the description of this Property states that "it is not guaranteed that a Message will not be sent when its Lifetime has expired".
+  on a specific platform. For example, if TCP is the only underlying transport protocol, the Message Property `msgOrdered` can be implemented (trivially, as a no-op) as disabling the requirement for ordering will not have any effect on delivery order for Connections over TCP. Similarly, the `msg-lifetime` Message Property can be implemented but ignored, as the description of this Property states that "it is not guaranteed that a Message will not be sent when its Lifetime has expired".
 - Implementations may use other representations for Transport Property Names,
   e.g., by providing constants, but should provide a straight-forward mapping
   between their representation and the property names specified here.
@@ -594,7 +596,7 @@ of the potential Connection (see {{endpointspec}}), the Selection Properties
 The Local Endpoint MUST be specified if the Preconnection is used to Listen()
 for incoming Connections, but is OPTIONAL if it is used to Initiate()
 connections. If no Local Endpoint is specified, the Transport System will
-assign an ephemeral local port to the Connection.
+assign an ephemeral local port to the Connection on the appropriate interface(s).
 The Remote Endpoint MUST be specified if the Preconnection is used
 to Initiate() Connections, but is OPTIONAL if it is used to Listen() for
 incoming Connections.
@@ -730,8 +732,8 @@ have one of five preference levels:
 {: #tab-pref-levels title="Selection Property Preference Levels"}
 
 In addition, the pseudo-level `Default` can be used to reset the property to the default
-level used by the implementation. This level will never show up when queuing the value of
-a preference - the effective preference must be returned instead.
+level used by the implementation. This level will never show up when querying the value of
+a preference: the effective preference must be returned instead.
 
 The implementation MUST ensure an outcome that is consistent with all application
 requirements expressed using Require and Prohibit. While preferences
@@ -945,7 +947,8 @@ Default:
 This property specifies whether the application would like the Connection to be
 congestion controlled or not. Note that if a Connection is not congestion
 controlled, an application using such a Connection SHOULD itself perform
-congestion control in accordance with {{!RFC8085}}, {{!RFC2914}}, {{!RFC2119}}. Also note that reliability
+congestion control in accordance with {{!RFC2914}} or use a circuit breaker in
+accordance with {{!RFC8084}}, whichever is appropriate. Also note that reliability
 is usually combined with congestion control in protocol implementations,
 rendering "reliable but not congestion controlled" a request that is unlikely to
 succeed. If the Connection is congestion controlled, performing additional congestion control
@@ -982,7 +985,7 @@ that are supported on the local system to all remote systems, to allow
 applications to be written generically. For example, if a single implementation
 is used on both mobile devices and desktop devices, it should define the
 `Cellular` interface type for both systems, since an application might wish to
-always `Prohibit Cellular`.
+always prohibit cellular.
 
 The set of interface types is expected to change over time as new access
 technologies become available. The taxonomy of interface types on a given
@@ -1240,7 +1243,7 @@ SecurityParameters.Set('pre-shared-key', key, identity)
 ~~~
 
 - Session cache management: Used to tune cache capacity, lifetime, re-use,
-and eviction policies, e.g., LRU or FIFO.may also me changed, but are implementation-specific.
+and eviction policies, e.g., LRU or FIFO.
 
 ### Connection Establishment Callbacks
 
@@ -2104,9 +2107,9 @@ Preconnection.AddFramer(framer)
 
 #### Framing Meta-Data {#framing-meta}
 
-When sending Messages, applications can add specific Message
-values to a MessageContext ({{msg-ctx}}) that is intended for a Framer.
-This can be used, for example, to set the type of a Message for a TLV format.
+When sending Messages, applications can add Framer-specific
+key/value pairs to a MessageContext ({{msg-ctx}}).
+This mechanism can be used, for example, to set the type of a Message for a TLV format.
 The namespace of values is custom for each unique Message Framer.
 
 ~~~
@@ -2135,9 +2138,9 @@ messageContext.add(httpFramer, "accept", "text/html")
 
 ### Message Properties {#message-props}
 
-Applications can need to annotate the Messages they send with extra information
-to control how data is scheduled and processed by the transport protocols in the
-Connection. Therefore a message context containing these properties can be passed to the Send Action. For other uses of the message context, see {{msg-ctx}}.
+Applications needing to annotate the Messages they send with extra information
+(for example, to control how data is scheduled and processed by the transport protocols supporting the
+Connection) can include this information in the Message Context passed to the Send Action. For other uses of the message context, see {{msg-ctx}}.
 
 Message Properties are per-Message, not per-Send if partial Messages
 are sent ({{send-partial}}). All data blocks associated with a single Message
