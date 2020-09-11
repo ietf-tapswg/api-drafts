@@ -1053,7 +1053,7 @@ application Requires the use of temporary addresses, the resulting Connection
 cannot use IPv4, as temporary addresses do not exist in IPv4. Second, temporary
 local addresses may involve trading off privacy for performance. For instance,
 temporary addresses can interfere with resumption mechanisms that some protocols
-rely on to reduce first-packet latency.
+rely on to reduce initial latency.
 
 ### Multi-Paths Transport {#multipath-mode}
 
