@@ -1246,7 +1246,7 @@ SecurityParameters.Set('pre-shared-key', key, identity)
 ~~~
 
 - Session cache management: Used to tune cache capacity, lifetime, re-use,
-and eviction policies, e.g., LRU or FIFO.may also be changed, but are implementation-specific.
+and eviction policies, e.g., LRU or FIFO.
 
 ### Connection Establishment Callbacks
 
