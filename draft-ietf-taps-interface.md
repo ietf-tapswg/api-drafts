@@ -1445,8 +1445,8 @@ An application that uses Rendezvous() to establish a peer-to-peer connection
 in the presence of NATs will configure the Preconnection object with a Local
 Endpoint that supports NAT binding discovery. It will then Resolve() on that
 endpoint, and pass the resulting list of candidate local addresses to the
-peer via a signalling protocol, such as SIP {{?RFC3261}} or WebRTC {{?RFC7478}},
-as part of an ICE {{?RFC5245}} exchange. The peer will, via the same signalling 
+peer via a signalling protocol, for example as part of an ICE {{?RFC5245}}
+exchange within SIP {{?RFC3261}} or WebRTC {{?RFC7478}}.  The peer will, via the same signalling
 channel, return the remote endpoint candidates. These remote endpoint candidates
 are then configured on the Preconnection, allowing the Rendezvous() Action to be
 initiated.
