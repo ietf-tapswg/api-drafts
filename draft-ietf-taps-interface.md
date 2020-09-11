@@ -473,7 +473,7 @@ All Transport Properties, regardless of the phase in which they are used, are
 organized within a single namespace. This enables setting them as defaults at
 earlier stages and querying them in later stages:
 
-- Connection Properties can be set on Preconnections
+- Connection Properties can be set on Preconnections and Connections
 - Message Properties can be set on Preconnections, Connections and Messages
 - The effect of Selection Properties can be queried on Connections and Messages
 
@@ -802,10 +802,7 @@ and TCP is not supported by a Transport Services implementation, then an applica
 default set of Properties might not succeed in establishing a connection. Using
 the same default values for independent Transport Services implementations can be beneficial
 when applications are ported between different implementations/platforms, even if this
-default could lead to a connection failure, as, for example, an application needs to be
-explicitly designed to support a connectionless mode. In this case, the
-application can recognize the failure and explicitly specify a different set of
-Protocol Selection Properties that result in a usable protocol. If default
+default could lead to a connection failure when TCP is not available. If default
 values other than those recommended below are used, it is recommended to clearly document any differences.
 
 
@@ -1512,8 +1509,8 @@ Calling Clone on a Connection yields a group of Connections: the parent
 Connection on which Clone was called, and a resulting cloned Connection. The
 connections within a group are "entangled" with each other, and become part of a Connection
 Group. Calling Clone on any of these Connections adds another Connection to
-the Connection Group, and so on. Connections in a Connection Group generally share
-Connection Properties. However, there may be exceptions, such as `Priority
+the Connection Group, and so on. "Entangled" Connections share all
+Connection Properties except `Priority
 (Connection)`, see {{conn-priority}}. Like all other Properties, Priority is copied to the new Connection when calling Clone(), but it is not entangled: Changing Priority on one Connection does not change it on the other Connections in the same Connection Group.
 
 It is also possible to check which Connections belong to the same Connection Group.
@@ -2160,8 +2157,8 @@ invalid to modify any of its properties.
 
 The Message Properties could be inconsistent with the properties of the Protocol Stacks
 underlying the Connection on which a given Message is sent. For example,
-a Connection must provide reliability to allow setting an infinite value for the
-lifetime property of a Message. Sending a Message with Message Properties
+a Protocol Stack must be able to provide ordering if the msgOrdered
+property of a Message is enabled. Sending a Message with Message Properties
 inconsistent with the Selection Properties of the Connection yields an error.
 
 Connection Properties describe the default behavior for all Messages on a Connection. If a Message Property contradicts a Connection Property, and if this per-Message behavior can be supported, it overrides the Connection Property for the specific Message. For example, if `Reliable Data Transfer (Connection)` is set to `Require` and a protocol with configurable per-Message reliability is used, setting `Reliable Data Transfer (Message)` to `false` for a particular Message will allow this Message to be unreliably delivered. Changing the Reliable Data Transfer property on Messages is only possible for Connections that were established enabling the Selection Property `Configure Per-Message Reliability`.
@@ -2710,8 +2707,8 @@ Any calls to Receive once the Final Message has been delivered will result in er
 Close terminates a Connection after satisfying all the requirements that were
 specified regarding the delivery of Messages that the application has already
 given to the transport system. For example, if reliable delivery was requested
-for a Message handed over before calling Close, the transport system will ensure
-that this Message is indeed delivered. If the Remote Endpoint still has data to
+for a Message handed over before calling Close, the Closed Event will signify
+that this Message has indeed been delivered. If the Remote Endpoint still has data to
 send, it cannot be received after this call.
 
 ~~~
@@ -2732,8 +2729,9 @@ Abort terminates a Connection without delivering any remaining data:
 Connection.Abort()
 ~~~
 
-A ConnectionError informs the application that: 1) data could not be delivered after a timeout, 
-or 2) the other side has aborted the Connection.
+A ConnectionError informs the application that: 1) data could not be delivered to the
+peer after a timeout, 
+or 2) the Connection has been aborted (e.g., because the peer has called Abort).
 There is no guarantee that an Abort will indeed be signaled.
 
 ~~~
@@ -2796,12 +2794,10 @@ The interface provides the following guarantees about the ordering of
   RendezvousDone<> containing that Connection.
 
 - No events will occur on a Connection after it is Closed; i.e., after a
-  Closed<> event, an InitiateError<> or ConnectionError<> on that connection. To
+  Closed<> event, an InitiateError<> or ConnectionError<> will not occur on that connection. To
   ensure this ordering, Closed<> will not occur on a Connection while other
   events on the Connection are still locally outstanding (i.e., known to the
-  interface and waiting to be dealt with by the application). ConnectionError<>
-  can occur after Closed<>, but the interface must gracefully handle all cases
-  where the application ignores these errors.
+  interface and waiting to be dealt with by the application).
 
 
 # IANA Considerations
