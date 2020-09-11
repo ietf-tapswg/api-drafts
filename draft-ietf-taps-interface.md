@@ -1521,16 +1521,10 @@ Connection -> CloneError<reason?>
 The Connection Priority Connection Property operates on entangled Connections 
 using the same approach as in {{msg-priority}}: when allocating available network
 capacity among Connections in a Connection Group, sends on Connections with
-higher Priority values will be prioritized over sends on Connections with
-lower Priority values. In keeping with the principle of least surprise,
-transport system implementation should, in the absense of other requirements, 
-assign each Connection the capacity share (M-N) x C / M, where N is the 
-Connection's Priority value, M is the maximum Priority value used by all 
-Connections in the group and C is the total available capacity. However, 
-the Priority setting is purely advisory, and no guarantees are given 
-about the way capacity is shared. Each implementation is free to implement a 
-way to share capacity that it sees fit. See {{priority-in-taps}}.
-
+lower Priority values will be prioritized over sends on Connections with
+higher Priority values. Capacity will be shared among these Connections according to
+the Connection Group Transmission Scheduler property ({{conn-scheduler}}). 
+See {{priority-in-taps}} for more.
 
 # Managing Connections {#introspection}
 
@@ -2521,13 +2515,20 @@ the transport and application layer, including those which do not appear on
 the wire (affecting only sender-side transmission scheduling) as well as those
 that do (e.g. {{?I-D.ietf-httpbis-priority}}.
 
-Given this variety, the specific behaviors of the prioritization framework 
-are left to the transport system implementation and/or the implementation of 
-the underlying protocol stack. Specifically, there is no strict ordering
-imposed on the interaction of the connection and message priority systems:
-whether a priority 0 message on a priority 1 connection in a group
-will send before a priority 1 message on a priority 0 connection in the same
-group is left undefined.
+A Transport Services system gives no guarantees about how its expression of
+relative priorities will be realized; for example, if a transport stack that
+only provides a single in-order reliable stream is selected, prioritization
+information can only be ignored. However, the Transport Services system will
+seek to ensure that performance of relatively-prioritized connections and
+messages is not worse with respect to those connections and messages than
+an equivalent configuration in which all prioritization properties are left 
+at their defaults.
+
+The Transport Services interface does order Connection Priority over 
+the Priority Message Property. In the absense of other externalities
+(e.g., transport-layer flow control), a priority 1 Message on a priority 0
+Connection will be sent before a priority 0 Message on a priority 1 
+Connection in the same group.
 
 ## Receiving Data {#receiving}
 
