@@ -2593,7 +2593,11 @@ Multiple invocations of ReceivedPartial deliver data for the same Message by
 passing the same MessageContext, until the endOfMessage flag is delivered or a
 ReceiveError occurs. All partial blocks of a single Message are delivered in
 order without gaps. This event does not support delivering discontiguous partial
-Messages.
+Messages. If, for example, Message A is divided into three pieces (A1, A2, A3) and
+Message B is divided into three pieces (B1, B2, B3), the ReceivedPartial may deliver
+them in a sequence like this: A1, B1, B2, A2, A3, B3, because the messageContext
+allows the application to identify the pieces as belonging to Message A and B, respectively.
+However, a sequence like: A1, A3 will never occur.
 
 If the minIncompleteLength in the Receive request was set to be infinite (indicating
 a request to receive only complete Messages), the ReceivedPartial event may still be
