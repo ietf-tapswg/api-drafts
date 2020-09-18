@@ -2258,10 +2258,9 @@ Type:
 : Boolean
 
 Default:
-: true
+: the queried Boolean value of the Selection Property `reliability` ({{#prop-reliable}})
 
-If true, it specifies that the receiver-side transport protocol stack only delivers the Message to the receiving application after any existing previous ordered Message that was passed to the same Connection via the Send
-Action. 
+The order in which Messages were submitted for transmission via the Send Action will be preserved on delivery via Receive<> events for all Messages on a Connection that have this Message Property set to true.
 
 If false, the Message is delivered to the receiving application without preserving the ordering.
 This property is used for protocols that support preservation of data ordering,
@@ -2343,7 +2342,7 @@ Type:
 : Boolean
 
 Default:
-: true
+: the queried Boolean value of the Selection Property `reliability` ({{#prop-reliable}})
 
 When true, this property specifies that a Message should be sent in such a way
 that the transport protocol ensures all data is received on the other side
@@ -2362,12 +2361,16 @@ Name:
 Type:
 : Enumeration
 
+Default:
+: inherited from the Connection Property `connCapacityProfile` ({{#prop-cap-profile}})
+
+
 This enumerated property specifies the application's preferred tradeoffs for
 sending this Message; it is a per-Message override of the Capacity Profile
 connection property (see {{prop-cap-profile}}).
 
 
-#### No Fragmentation {#send-singular}
+#### No Network-Layer Fragmentation {#send-singular}
 
 Name:
 : noFragmentation
@@ -2380,11 +2383,27 @@ Default:
 
 This property specifies that a message should be sent and received as a single
 packet without network-layer fragmentation, if possible.
-Attempts to send a message with this property set to a size greater than the
+This only takes effect when used with transports supporting this functionality
+and running over IP version 4. When it does take effect, setting this property to
+true will cause the Don't Fragment bit to be set in the IP header, and
+attempts to send a message with this property set to a size greater than the
 transport's current estimate of its maximum packet size (`singularTransmissionMsgMaxLen`)
-will
-result in a `SendError`. When used with transports supporting this functionality
-and running over IP version 4, the Don't Fragment bit will be set.
+will result in a `SendError`.
+
+#### No Transport-Layer Fragmentation {#no-transport-fragmentation}
+
+Name:
+: noTransportFragmentation
+
+Type:
+: Boolean
+
+Default:
+: false
+
+This property specifies that a message should be sent and received as a single
+network-layer datagram without transport-layer fragmentation, if possible.
+This only takes effect when used with transports supporting this functionality.
 
 
 ## Sending Data {#sending}
@@ -3054,8 +3073,11 @@ coverage, see {{prop-checksum-control-send}} and {{prop-checksum-control-receive
 * "Specify minimum checksum coverage required by receiver" and "Disable checksum requirement when receiving":
 `Required Minimum Corruption Protection Coverage for Receiving` property ({{conn-recv-checksum}}) and `Full Checksum Coverage on Receiving` property ({{prop-checksum-control-receive}}).
 
-* "Specify DF" field and "Request not to bundle messages":
-the `No Fragmentation` Message Property combines both of these requests, i.e. if a request not to bundle messages is made, this also turns off fragmentation (i.e., sets DF=1) in the case of a protocol that allows this (only UDP and UDP-Lite, which cannot bundle messages anyway) ({{send-singular}}).
+* "Specify DF field":
+`No Network-Layer Fragmentation` property ({{send-singular}}).
+
+* "Request not to bundle messages":
+`No Transport-Layer Fragmentation` property ({{no-transport-fragmentation}}).
 
 * Get max. transport-message size that may be sent using a non-fragmented IP packet from the configured interface:
 `Maximum Message Size Before Fragmentation or Segmentation` property ({{conn-max-msg-notfrag}}).
