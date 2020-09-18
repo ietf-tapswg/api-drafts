@@ -2258,7 +2258,7 @@ Type:
 : Boolean
 
 Default:
-: the queried Boolean value of the Selection Property `reliability` ({{#prop-reliable}})
+: the queried Boolean value of the Selection Property `reliability` ({{prop-reliable}})
 
 The order in which Messages were submitted for transmission via the Send Action will be preserved on delivery via Receive<> events for all Messages on a Connection that have this Message Property set to true.
 
@@ -2342,7 +2342,7 @@ Type:
 : Boolean
 
 Default:
-: the queried Boolean value of the Selection Property `reliability` ({{#prop-reliable}})
+: the queried Boolean value of the Selection Property `reliability` ({{prop-reliable}})
 
 When true, this property specifies that a Message should be sent in such a way
 that the transport protocol ensures all data is received on the other side
@@ -2362,7 +2362,7 @@ Type:
 : Enumeration
 
 Default:
-: inherited from the Connection Property `connCapacityProfile` ({{#prop-cap-profile}})
+: inherited from the Connection Property `connCapacityProfile` ({{prop-cap-profile}})
 
 
 This enumerated property specifies the application's preferred tradeoffs for
