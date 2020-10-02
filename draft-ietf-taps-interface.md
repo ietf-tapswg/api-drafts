@@ -690,14 +690,8 @@ IPv6 addresses. These multiple identifiers refer to the same transport
 endpoint.
 
 The transport services API resolves names internally, when the Initiate(),
-Listen(), or Rendezvous() method is called to establish a Connection. The API
-explicitly does not require the application to resolve names, though there is
-a tradeoff between early and late binding of addresses to names. Early binding
-allows the API implementation to reduce connection setup latency, at the cost
-of potentially limited scope for alternate path discovery during Connection
-establishment, as well as potential additional information leakage about
-application interest when used with a resolution method (such as DNS without
-TLS) which does not protect query confidentiality.
+Listen(), or Rendezvous() method is called to establish a Connection. Privacy
+considerations for the timing of this resolution are given in {{privacy-security}}.
 
 The Resolve() action on Preconnection can be used by the application to force
 early binding when required, for example with some Network Address Translator
@@ -2837,7 +2831,7 @@ RFC-EDITOR: Please remove this section before publication.
 This document has no Actions for IANA.
 Later versions of this document may create IANA registries for generic transport property names and transport property namespaces (see {{property-names}}).
 
-# Security Considerations
+# Privacy and Security Considerations {#privacy-security}
 
 This document describes a generic API for interacting with a transport services (TAPS) system.
 Part of this API includes configuration details for transport security protocols, as discussed
@@ -2871,6 +2865,14 @@ Applications should be aware that communication attempts can lead to more than o
 This is the case, for example, when the transport system also executes name resolution, when support mechanisms such as
 TURN or ICE are used to establish connectivity, if protocols or paths are raised, or if a path fails and 
 fallback or re-establishment is supported in the transport system. 
+
+The interface explicitly does not require the application to resolve names, though there is
+a tradeoff between early and late binding of addresses to names. Early binding
+allows the API implementation to reduce connection setup latency, at the cost
+of potentially limited scope for alternate path discovery during Connection
+establishment, as well as potential additional information leakage about
+application interest when used with a resolution method (such as DNS without
+TLS) which does not protect query confidentiality.
 
 These communication activities are not different from what is used today. However, 
 the goal of a TAPS transport system is to support
