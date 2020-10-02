@@ -1514,7 +1514,7 @@ Connection on which Clone was called, and a resulting cloned Connection. The
 connections within a group are "entangled" with each other, and become part of a Connection
 Group. Calling Clone on any of these Connections adds another Connection to
 the Connection Group, and so on. "Entangled" Connections share all
-Connection Properties except `Connection Priority` (see {{conn-priority}}) 
+Connection Properties except `Connection Priority` (see {{conn-priority}}) .
 Like all other Properties, Connection Priority is copied 
 to the new Connection when calling Clone(), but it is not entangled: Changing 
 Connection Priority on one Connection does not change it on the other Connections 
