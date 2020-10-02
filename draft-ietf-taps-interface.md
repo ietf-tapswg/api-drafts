@@ -1514,11 +1514,16 @@ Connection on which Clone was called, and a resulting cloned Connection. The
 connections within a group are "entangled" with each other, and become part of a Connection
 Group. Calling Clone on any of these Connections adds another Connection to
 the Connection Group, and so on. "Entangled" Connections share all
-Connection Properties except `Connection Priority`, see {{conn-priority}}.
+Connection Properties except `Connection Priority` (see {{conn-priority}}) .
 Like all other Properties, Connection Priority is copied 
 to the new Connection when calling Clone(), but it is not entangled: Changing 
 Connection Priority on one Connection does not change it on the other Connections 
-in the same Connection Group.
+in the same Connection Group. 
+
+The stack of Message Framers associated with a Connection are also copied to 
+the cloned Connection when calling Clone. In other words, a cloned Connection 
+has the same stack of Message Framers as the Connection from which they
+are Cloned, but these Framers may internally maintain per-Connection state.
 
 It is also possible to check which Connections belong to the same Connection Group.
 Calling GroupedConnections() on a specific Connection returns a set of all Connections
@@ -1529,7 +1534,9 @@ in the same group.
 ~~~
 
 Connections will belong to the same group if the application previously called Clone.
-Passive Connections can also be added to the same group -- e.g., when a Listener receives a new Connection that is just a new stream of an already active multi-streaming protocol instance.
+Passive Connections can also be added to the same group -- e.g., when a Listener
+receives a new Connection that is just a new stream of an already active multi-streaming
+protocol instance.
 
 Changing one of the Connection Properties on one Connection in the group
 changes it for all others. Message Properties, however, are not
@@ -2110,9 +2117,9 @@ guidance on implementing Message Framers can be found in {{I-D.ietf-taps-impl}}.
 #### Adding Message Framers to Connections
 
 The Message Framer object can be added to one or more Preconnections
-to run on top of transport protocols. Multiple Framers may be added. If multiple
-Framers are added, the last one added runs first when framing outbound messages,
-and last when parsing inbound data.
+to run on top of transport protocols. Multiple Framers may be added to a preconnection;
+in this case, the Framers operate as a framing stack, i.e. the last one added runs 
+first when framing outbound messages, and last when parsing inbound data.
 
 The following example adds a basic HTTP Message Framer to a Preconnection:
 
@@ -2120,6 +2127,9 @@ The following example adds a basic HTTP Message Framer to a Preconnection:
 framer := NewHTTPMessageFramer()
 Preconnection.AddFramer(framer)
 ~~~
+
+Since Message Framers pass from Preconnection to Listener or Connection, addition of
+Framers must happen before any operation that may result in the creation of a Connection.
 
 #### Framing Meta-Data {#framing-meta}
 
