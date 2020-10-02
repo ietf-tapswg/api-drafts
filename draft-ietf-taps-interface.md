@@ -610,7 +610,7 @@ peer-to-peer Rendezvous is to occur based on the Preconnection.
 Transport Properties MUST always be specified while security parameters are OPTIONAL.
 
 If Message Framers are used (see {{framing}}), they MUST be added to the
-Preconnection during pre-establishment or cloning.
+Preconnection during pre-establishment.
 
 ## Specifying Endpoints {#endpointspec}
 
@@ -1518,8 +1518,11 @@ Connection Properties except `Connection Priority` (see {{conn-priority}})
 Like all other Properties, Connection Priority is copied 
 to the new Connection when calling Clone(), but it is not entangled: Changing 
 Connection Priority on one Connection does not change it on the other Connections 
-in the same Connection Group. Message Framers are also "copied" when calling Clone:
-a cloned Connection has the same Message Framers as the Connection from which they
+in the same Connection Group. 
+
+The stack of Message Framers associated with a Connection are also copied to 
+the cloned Connection when calling Clone. In other words, a cloned Connection 
+has the same stack of Message Framers as the Connection from which they
 are Cloned, but these Framers may internally maintain per-Connection state,
 if necessary.
 
@@ -2115,9 +2118,9 @@ guidance on implementing Message Framers can be found in {{I-D.ietf-taps-impl}}.
 #### Adding Message Framers to Connections
 
 The Message Framer object can be added to one or more Preconnections
-to run on top of transport protocols. Multiple Framers may be added. If multiple
-Framers are added, the last one added runs first when framing outbound messages,
-and last when parsing inbound data.
+to run on top of transport protocols. Multiple Framers may be added to a connection;
+in this case, the Framers operate as a framing stack, i.e. the last one added runs 
+first when framing outbound messages, and last when parsing inbound data.
 
 The following example adds a basic HTTP Message Framer to a Preconnection:
 
@@ -2125,6 +2128,9 @@ The following example adds a basic HTTP Message Framer to a Preconnection:
 framer := NewHTTPMessageFramer()
 Preconnection.AddFramer(framer)
 ~~~
+
+Since Message Framers pass from Preconnection to Listener or Connection, addition of
+Framers must happen before any operation that may result in the creation of a Connection.
 
 #### Framing Meta-Data {#framing-meta}
 
