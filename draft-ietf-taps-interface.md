@@ -610,7 +610,7 @@ peer-to-peer Rendezvous is to occur based on the Preconnection.
 Transport Properties MUST always be specified while security parameters are OPTIONAL.
 
 If Message Framers are used (see {{framing}}), they MUST be added to the
-Preconnection during pre-establishment.
+Preconnection during pre-establishment or cloning.
 
 ## Specifying Endpoints {#endpointspec}
 
@@ -1514,11 +1514,14 @@ Connection on which Clone was called, and a resulting cloned Connection. The
 connections within a group are "entangled" with each other, and become part of a Connection
 Group. Calling Clone on any of these Connections adds another Connection to
 the Connection Group, and so on. "Entangled" Connections share all
-Connection Properties except `Connection Priority`, see {{conn-priority}}.
+Connection Properties except `Connection Priority` (see {{conn-priority}}) 
 Like all other Properties, Connection Priority is copied 
 to the new Connection when calling Clone(), but it is not entangled: Changing 
 Connection Priority on one Connection does not change it on the other Connections 
-in the same Connection Group.
+in the same Connection Group. Message Framers are also "copied" when calling Clone:
+a cloned Connection has the same Message Framers as the Connection from which they
+are Cloned, but these Framers may internally maintain per-Connection state,
+if necessary.
 
 It is also possible to check which Connections belong to the same Connection Group.
 Calling GroupedConnections() on a specific Connection returns a set of all Connections
@@ -1529,7 +1532,9 @@ in the same group.
 ~~~
 
 Connections will belong to the same group if the application previously called Clone.
-Passive Connections can also be added to the same group -- e.g., when a Listener receives a new Connection that is just a new stream of an already active multi-streaming protocol instance.
+Passive Connections can also be added to the same group -- e.g., when a Listener
+receives a new Connection that is just a new stream of an already active multi-streaming
+protocol instance.
 
 Changing one of the Connection Properties on one Connection in the group
 changes it for all others. Message Properties, however, are not
