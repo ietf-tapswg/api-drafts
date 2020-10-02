@@ -952,6 +952,22 @@ rendering "reliable but not congestion controlled" a request that is unlikely to
 succeed. If the Connection is congestion controlled, performing additional congestion control
 in the application can have negative performance implications.
 
+## Keep alive {#keep-alive}
+
+Name:
+: keepAlive
+
+Type:
+: Preference
+
+Default:
+: Ignore
+
+This property specifies whether the application would like the Connection to send
+keep-alive packets or not. Note that if a Connection determines that keep-alive
+packets are being sent, the applicaton should itself avoid generating additional keep alive
+messages. Note that when supported, the system will use the default periodic
+for generation of the keep alive-packets. (See also {{keep-alive-timeout}}).
 
 ### Interface Instance or Type {#prop-interface}
 
@@ -1680,12 +1696,31 @@ Type:
 Default:
 : Disabled
 
-This property specifies how long to wait before deciding that a Connection has
-failed when trying to reliably deliver data to the destination. Adjusting this Property
+This property specifies how long to wait before deciding that an active Connection has
+failed when trying to reliably deliver data to the Remote Endpoint. Adjusting this Property
 will only take effect when the underlying stack supports reliability. The special value
-`Disabled` means that this timeout is not scheduled to happen. This can be a valid
-choice with unreliable data transfer (e.g., when UDP is the underlying transport protocol).
+`Disabled` means that this timeout is not scheduled to happen.
 
+### Timeout for keep alive packets {#keep-alive-timeout}
+
+Name:
+: keepaliveTimeout
+
+Type:
+: Numeric, with special value `Default`
+
+Default:
+: Default
+
+A transport system can request a protocol that supports sending keep alive packets {{keep-alive}}.
+This property specifies the maximum time an idle connection (one for which no transport
+packets have been sent) should wait before 
+the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting this Property
+will only take effect when the underlying stack supports sending keep-alive packet. 
+Guidance on setting this value for datagram transports is 
+provided in {{!RFC8085}}. The special value
+`Default` means that this timeout will use the default for the selected transport. 
+A value greater than {{conn-timeout}} will disable sending of keep-alive packets.
 
 ### Connection Group Transmission Scheduler {#conn-scheduler}
 
