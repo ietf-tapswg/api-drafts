@@ -691,7 +691,7 @@ endpoint.
 
 The transport services API resolves names internally, when the Initiate(),
 Listen(), or Rendezvous() method is called to establish a Connection. Privacy
-considerations for the timing of this resolution are given in {{privacy-security}}
+considerations for the timing of this resolution are given in {{privacy-security}}.
 
 The Resolve() action on Preconnection can be used by the application to force
 early binding when required, for example with some Network Address Translator
