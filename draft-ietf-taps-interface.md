@@ -1523,8 +1523,7 @@ in the same Connection Group.
 The stack of Message Framers associated with a Connection are also copied to 
 the cloned Connection when calling Clone. In other words, a cloned Connection 
 has the same stack of Message Framers as the Connection from which they
-are Cloned, but these Framers may internally maintain per-Connection state,
-if necessary.
+are Cloned, but these Framers may internally maintain per-Connection state.
 
 It is also possible to check which Connections belong to the same Connection Group.
 Calling GroupedConnections() on a specific Connection returns a set of all Connections
