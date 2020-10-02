@@ -2117,7 +2117,7 @@ guidance on implementing Message Framers can be found in {{I-D.ietf-taps-impl}}.
 #### Adding Message Framers to Connections
 
 The Message Framer object can be added to one or more Preconnections
-to run on top of transport protocols. Multiple Framers may be added to a connection;
+to run on top of transport protocols. Multiple Framers may be added to a preconnection;
 in this case, the Framers operate as a framing stack, i.e. the last one added runs 
 first when framing outbound messages, and last when parsing inbound data.
 
