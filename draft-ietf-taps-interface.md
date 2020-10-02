@@ -966,7 +966,7 @@ Default:
 This property specifies whether the application would like the Connection to send
 keep-alive packets or not. Note that if a Connection determines that keep-alive
 packets are being sent, the applicaton should itself avoid generating additional keep alive
-messages. Note that when supported, the system will use the default periodic
+messages. Note that when supported, the system will use the default period
 for generation of the keep alive-packets. (See also {{keep-alive-timeout}}).
 
 ### Interface Instance or Type {#prop-interface}
@@ -1723,11 +1723,11 @@ A transport system can request a protocol that supports sending keep alive packe
 This property specifies the maximum time an idle connection (one for which no transport
 packets have been sent) should wait before 
 the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting this Property
-will only take effect when the underlying stack supports sending keep-alive packet. 
+will only take effect when the underlying stack supports sending keep-alive packets. 
 Guidance on setting this value for datagram transports is 
 provided in {{!RFC8085}}. The special value
 `Default` means that this timeout will use the default for the selected transport. 
-A value greater than {{conn-timeout}} will disable sending of keep-alive packets.
+A value greater than the connection timeout ({{conn-timeout}}) will disable the sending of keep-alive packets.
 
 ### Connection Group Transmission Scheduler {#conn-scheduler}
 
