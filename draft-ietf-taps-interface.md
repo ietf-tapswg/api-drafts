@@ -1139,22 +1139,6 @@ unidirectional communication may cause a transport stack that supports
 bidirectional communication to be selected.
 
 
-### Notification of excessive retransmissions {#prop-establish-retrans-notify}
-
-Name:
-: retransmitNotify
-
-Type:
-: Preference
-
-Default:
-: Ignore
-
-This property specifies whether an application considers it useful to be
-informed in case sent data was retransmitted more often than a certain
-threshold (see {{conn-excss-retransmit}} for configuration of this threshold).
-
-
 ### Notification of ICMP soft error message arrival {#prop-soft-error}
 
 Name:
@@ -1654,20 +1638,6 @@ Many Connection Properties have a corresponding Selection Property that
 enables applications to express their preference for protocols providing a supporting transport feature.
 
 
-### Retransmission Threshold Before Excessive Retransmission Notification {#conn-excss-retransmit}
-
-Name:
-: retransmitNotifyThreshold
-
-Type:
-: Integer, with special value `Disabled`
-
-Default:
-: Disabled
-
-This property specifies the number of retransmissions required to cause the application
-to be notified of `Excessive Retransmissions`.
-
 ### Required Minimum Corruption Protection Coverage for Receiving {#conn-recv-checksum}
 
 Name:
@@ -2000,15 +1970,6 @@ is no guarantee that a soft error will be signaled.
 Connection -> SoftError<>
 ~~~
 
-### Excessive retransmissions {#conn-retrans-notify}
-
-This event notifies the application of excessive retransmissions, based on a
-configured threshold (see {{conn-excss-retransmit}}). This will only happen if
-the underlying protocol stack supports reliability and, with it, such notifications.
-
-~~~
-Connection -> ExcessiveRetransmission<>
-~~~
 
 ### Path change {#conn-path-change}
 
@@ -3014,7 +2975,8 @@ coverage, see {{prop-checksum-control-send}} and {{prop-checksum-control-receive
 
 # Relationship to the Minimal Set of Transport Services for End Systems
 
-{{I-D.ietf-taps-minset}} identifies a minimal set of transport services that end systems should offer. These services make all non-security-related transport features of TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT available that 1) require interaction with the application, and 2) do not get in the way of a possible implementation over TCP (or, with limitations, UDP). The following text explains how this minimal set is reflected in the present API. For brevity, it is based on the list in Section 4.1 of {{I-D.ietf-taps-minset}}, updated according to the discussion in Section 5 of {{I-D.ietf-taps-minset}}. This list is a subset of the transport features in Appendix A of {{I-D.ietf-taps-minset}}, which refers to the primitives in "pass 2" (Section 4) of {{!RFC8303}} for further details on the implementation with TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT.
+{{I-D.ietf-taps-minset}} identifies a minimal set of transport services that end systems should offer. These services make all non-security-related transport features of TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT available that 1) require interaction with the application, and 2) do not get in the way of a possible implementation over TCP (or, with limitations, UDP). The following text explains how this minimal set is reflected in the present API. For brevity, it is based on the list in Section 4.1 of {{I-D.ietf-taps-minset}}, updated according to the discussion in Section 5 of {{I-D.ietf-taps-minset}}. The present API covers all elements of this section except `Notification of Excessive Retransmissions (early warning below abortion threshold)`.
+This list is a subset of the transport features in Appendix A of {{I-D.ietf-taps-minset}}, which refers to the primitives in "pass 2" (Section 4) of {{!RFC8303}} for further details on the implementation with TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT.
 
 * Connect:
 `Initiate` Action ({{initiate}}).
@@ -3039,9 +3001,6 @@ coverage, see {{prop-checksum-control-send}} and {{prop-checksum-control-receive
 
 * Suggest timeout to the peer:
 `TCP-specific Property: User Timeout` ({{tcp-uto}}).
-
-* Notification of Excessive Retransmissions (early warning below abortion threshold):
-`Notification of excessive retransmissions` property ({{prop-establish-retrans-notify}}).
 
 * Notification of ICMP error message arrival:
 `Notification of ICMP soft error message arrival` property ({{prop-soft-error}}).
