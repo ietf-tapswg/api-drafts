@@ -1873,11 +1873,11 @@ Type:
 Default:
 : Unlimited
 
-This property controls the number of Connections that may arrive from
+This property controls the number of Connections that can be accepted from
 a peer as new members of the Connection's group. Similar to SetNewConnectionLimit(),
 this limits the number of ConnectionReceived Events that will occur, but constrained
-to the group of the Connection associated with this property. In case of a multi-streaming
-transport, this takes the role of a limit on the number of allowed streams.
+to the group of the Connection associated with this property. For a multi-streaming transport,
+this limits the number of allowed streams.
 
 ### Read-only Connection Properties {#read-only-conn-prop}
 
