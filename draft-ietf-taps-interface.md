@@ -89,6 +89,14 @@ author:
     city: Cupertino, California 95014
     country: United States of America
     email: tpauly@apple.com
+  -
+    ins: K. Rose
+    name: Kyle Rose
+    org: Akamai Technologies, Inc.
+    street: 145 Broadway
+    city: Cambridge, MA
+    country: United States of America
+    email: krose@krose.org
 
 normative:
   I-D.ietf-taps-arch:
@@ -164,7 +172,7 @@ applications with a way to override transport selection and instantiate a specif
 e.g., to support servers wishing to listen to a specific protocol. This specific
 transport stack choice is discouraged for general use, because it can reduce the portability.
 
-# Terminology and Notation
+## Terminology and Notation {#notation}
 
 This API is described in terms of Objects with which an application can interact; 
 Actions the application can perform on these Objects; Events, which an
@@ -207,20 +215,30 @@ Action(param0, param1?, ...) / Event<param0, param1, ...>
 Actions associated with no Object are Actions on the abstract interface
 itself; they are equivalent to Actions on a per-application global context.
 
-The way these abstract concepts map into concrete implementations of this API in a
-given language on a given platform largely depends on the features of the
-language and the platform. Actions could be implemented as functions or method
-calls, for instance, and Events could be implemented via event queues, handler
-functions or classes, communicating sequential processes, or other asynchronous
-calling conventions.
+We also make use of the following basic types:
 
-This specification treats Events and Errors similarly. Errors, just as any
-other Events, may occur asynchronously in network applications. However, it is
-recommended that implementations of this interface also return Errors
-immediately, according to the error handling idioms of the implementation
-platform, for errors that can be immediately detected, such as inconsistency
-in Transport Properties. An error can provide an optional reason to the 
-application with further details about why the error occurred.
+- Boolean: Instances take the value `true` or `false`.
+- Integer: Instances take positive or negative numeric integer values, or sometimes
+  special non-numeric (symbolic) values.
+- Numeric: Instances take positive or negative numeric values, or sometimes special
+  non-numeric (symbolic) values.
+- Enumeration: A family of types in which each instance takes one of a fixed,
+  predefined set of values specific to a given enumerated type.
+- Tuple: An ordered grouping of multiple value types, represented as a
+  comma-separated list in parentheses, e.g., ```(Enumeration, Preference)```.
+  Instances take a sequence of values each valid for the corresponding value
+  type. The composition of types and their order depends on the property and is
+  fixed for the property.
+- Array: Denoted []Type, an instance takes a value for each of zero or more
+  elements in a sequence of the given Type. An array may be of fixed or
+  variable length.
+- Collection: An unordered grouping of one or more values of the same type.
+
+For guidance on how these abstract concepts may be implemented in languages
+in accordance with native design patterns and language and platform features,
+see {{implmapping}}.
+
+## Specification of Requirements
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this
@@ -518,31 +536,16 @@ for Protocol Specific Properties and MUST NOT be used for vendor or implementati
 
 ### Transport Property Types {#property-types}
 
-Transport Properties can have one of a set of data types:
+Transport Properties each have a type, which can be:
 
-- Boolean: can take the values `true` and `false`; representation is
-  implementation-dependent.
-- Integer: can take positive or negative numeric integer values; range and
-  representation is implementation-dependent.
-- Numeric: can take positive or negative numeric values; range and
-  representation is implementation-dependent.
-- Enumeration: can take one value of a finite set of values, dependent on the
-  property itself. The representation is implementation dependent.
-- Preference: can take one of five values (Prohibit, Avoid, Ignore, Prefer,
-  Require) for the level of preference of a given property during protocol
-  selection; see {{selection-props}}. When querying, a Preference is of
-  type Boolean, with `true` indicating that the Selection Property
-  has been applied.
-- Tuple: An ordered grouping of multiple value types.
-  In this this document, it is written as a list in brackets, e.g., ```(Enumeration, Preference)``` 
-  The composition of types and their order depends on the property and is fixed for the property.
-  The actual representation is implementation-dependent.
-- Collection: An unordered grouping of one or more values of the same type.
-  The actual representation, e.g. as a set or an array, is implementation-dependent.
-
-For types Integer and Numeric, special values can be defined
-per property; it is up to implementations how these special values are
-represented (e.g., by using -1 for an otherwise non-negative value).
+- One of the basic types described in {{notation}}; or
+- Preference, which on Preconnection is an Enumeration with six possible
+  values: Prohibit, Avoid, Ignore, Prefer, Require, or Default. Each of the
+  first five denotes a level of preference of a given property during protocol
+  selection, while Default indicates deference to an implementation's preference.
+  (See {{selection-props}}.) When querying the properties of a Connection
+  following protocol selection, a Preference is of type Boolean, with `true`
+  indicating that the Selection Property applies to the chosen transport.
 
 ## Scope of the Interface Definition
 
@@ -829,8 +832,8 @@ selection is necessarily tied to path selection. This may involve choosing
 between multiple local interfaces that are connected to different access
 networks.
 
-Most Selection Properties are represented as preferences, which can
-have one of five preference levels:
+Most Selection Properties are represented as Preferences, which can
+take one of six values:
 
    | Preference | Effect                                                                 |
    |------------|------------------------------------------------------------------------|
@@ -839,11 +842,8 @@ have one of five preference levels:
    | Ignore     | No preference                                                          |
    | Avoid      | Prefer protocols/paths not providing the property, proceed otherwise   |
    | Prohibit   | Select only protocols/paths not providing the property, fail otherwise |
+   | Default    | Use the implementation's default preference level for this property    |
 {: #tab-pref-levels title="Selection Property Preference Levels"}
-
-In addition, the pseudo-level `Default` can be used to reset the property to the default
-level used by the implementation. This level will never show up when querying the value of
-a preference: the effective preference must be returned instead.
 
 The implementation MUST ensure an outcome that is consistent with all application
 requirements expressed using Require and Prohibit. While preferences
@@ -887,6 +887,20 @@ by using the following call on the Connection Object:
 
 ~~~
 TransportProperties := Connection.GetTransportProperties()
+~~~
+
+An individual property is then queried via the following call on the
+`TransportProperties` object:
+
+~~~
+value := TransportProperties.Get(property)
+~~~
+
+If the given Transport Property is of type Boolean, `Has` may be provided as an
+alias for `Get`, useful for readability in such constructions as the following:
+
+~~~
+if TransportProperties.Has(boolean_property) then ...
 ~~~
 
 A Connection gets its Transport Properties either by being explicitly configured
@@ -2242,7 +2256,7 @@ guidance on implementing Message Framers can be found in {{I-D.ietf-taps-impl}}.
 #### Adding Message Framers to Connections
 
 The Message Framer object can be added to one or more Preconnections
-to run on top of transport protocols. Multiple Framers may be added to a preconnection;
+to run on top of transport protocols. Multiple Framers may be added to a Preconnection;
 in this case, the Framers operate as a framing stack, i.e. the last one added runs 
 first when framing outbound messages, and last when parsing inbound data.
 
@@ -3099,6 +3113,44 @@ Maximilian Franke for asking good questions based on implementation experience
 and for contributing text, e.g., on multicast.
 
 --- back
+
+# Implementation Mapping {#implmapping}
+
+The way the concepts from this abstract interface map into concrete APIs in a
+given language on a given platform largely depends on the features and norms of
+the language and the platform. Actions could be implemented as functions or
+method calls, for instance, and Events could be implemented via event queues,
+handler functions or classes, communicating sequential processes, or other
+asynchronous calling conventions.
+
+## Types
+
+The basic types mentioned in {{notation}} typically have natural
+correspondences in practical programming languages, perhaps constrained by
+implementation-specific limitations. For example:
+
+- An Integer can typically be represented in C by an `int` or `long`, subject
+  to the underlying platform's ranges for each. To accommodate special values,
+  a C function that returns a non-negative `int` on success may return -1 on
+  failure. In Python, such a function might return `None` or raise an
+  exception.
+- In C, a Tuple may be represented as a `struct` with one member for each of
+  the value types in the ordered grouping. In Python, by contrast, a Tuple may
+  be represented natively as a `tuple`, a sequence of dynamically-typed
+  elements.
+- A Collection may be represented as a `std::set` in C++ or as a `set` in
+  Python. In C, it may be represented as an array or as a higher-level data
+  structure with appropriate accessors defined.
+
+## Events and Errors
+
+This specification treats Events and Errors similarly. Errors, just as any
+other Events, may occur asynchronously in network applications. However, it is
+recommended that implementations of this interface also return Errors
+immediately, according to the error handling idioms of the implementation
+platform, for errors that can be immediately detected, such as inconsistency
+in Transport Properties. An error can provide an optional reason to the
+application with further details about why the error occurred.
 
 # Convenience Functions
 
