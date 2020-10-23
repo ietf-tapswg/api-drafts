@@ -952,7 +952,7 @@ rendering "reliable but not congestion controlled" a request that is unlikely to
 succeed. If the Connection is congestion controlled, performing additional congestion control
 in the application can have negative performance implications.
 
-## Keep alive {#keep-alive}
+### Keep alive {#keep-alive}
 
 Name:
 : keepAlive
