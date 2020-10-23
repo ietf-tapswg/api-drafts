@@ -2048,9 +2048,6 @@ RemoteEndpoint := MessageContext.GetRemoteEndpoint()
 LocalEndpoint := MessageContext.GetLocalEndpoint()
 ~~~
 
-Message Contexts can also be used to send messages in reply to other messages, see {{send-replies}} for details.
-
-
 ### Message Framers {#framing}
 
 Although most applications communicate over a network using well-formed
@@ -2457,20 +2454,6 @@ allowed for a single Message. If a Message is too large to fit in the Maximum Me
 Size for the Connection, the Send will fail with a SendError event ({{send-error}}). For
 example, it is invalid to send a Message over a UDP connection that is larger than
 the available datagram sending size.
-
-### Sending Replies {#send-replies}
-
-When a message is sent in response to a message received, the application
-can use the Message Context of the received Message to construct a Message Context for the reply.
-
-~~~
-replyMessageContext := requestMessageContext.reply()
-~~~
-
-By using the `replyMessageContext`, the transport system is informed that
-the message to be sent is a response and can map the response to the same underlying 
-transport connection or the stream from which the request was received.
-The concept of Message Contexts is described in {{msg-ctx}}.
 
 ### Send Events {#send-events}
 
