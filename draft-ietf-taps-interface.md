@@ -94,8 +94,6 @@ normative:
   I-D.ietf-taps-arch:
 
 informative:
-  I-D.ietf-taps-minset:
-  I-D.ietf-taps-transport-security:
   I-D.ietf-taps-impl:
   RFC7556:
   TCP-COUPLING:
@@ -157,8 +155,8 @@ mechanisms, which otherwise need to be separately implemented in each applicatio
 
 It derives specific path and protocol selection
 properties and supported transport features from the analysis provided in
-{{?RFC8095}}, {{I-D.ietf-taps-minset}}, and
-{{I-D.ietf-taps-transport-security}}. The design encourages implementations 
+{{?RFC8095}}, {{?RFC8923}}, and
+{{?RFC8922}}. The design encourages implementations 
 underneath the interface to dynamically choose a transport protocol depending on an 
 application's choices rather than statically binding applications to a protocol at 
 compile time. The transport system implementations should provide
@@ -1205,7 +1203,7 @@ are inherited during cloning (see {{groups}}).
 
 Common parameters such as TLS ciphersuites are known to implementations. Clients should
 use common safe defaults for these values whenever possible. However, as discussed in
-{{I-D.ietf-taps-transport-security}}, many transport security protocols require specific
+{{?RFC8922}}, many transport security protocols require specific
 security parameters and constraints from the client at the time of configuration and
 actively during a handshake. These configuration parameters need to be specified in the
 pre-connection phase and are created as follows:
@@ -1937,7 +1935,7 @@ Implementation is optional and useful only if TCP is implemented in the transpor
 
 These TCP-specific properties are included here because the feature `Suggest
 timeout to the peer` is part of the minimal set of transport services
-{{I-D.ietf-taps-minset}}, where this feature was categorized as "functional".
+{{?RFC8923}}, where this feature was categorized as "functional".
 This means that when an implementation offers this feature, it has to expose an
 interface to it to the application. Otherwise, the implementation might
 violate assumptions by the application, which could cause the application to
@@ -3031,8 +3029,8 @@ coverage, see {{prop-checksum-control-send}} and {{prop-checksum-control-receive
 
 # Relationship to the Minimal Set of Transport Services for End Systems
 
-{{I-D.ietf-taps-minset}} identifies a minimal set of transport services that end systems should offer. These services make all non-security-related transport features of TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT available that 1) require interaction with the application, and 2) do not get in the way of a possible implementation over TCP (or, with limitations, UDP). The following text explains how this minimal set is reflected in the present API. For brevity, it is based on the list in Section 4.1 of {{I-D.ietf-taps-minset}}, updated according to the discussion in Section 5 of {{I-D.ietf-taps-minset}}. The present API covers all elements of this section except `Notification of Excessive Retransmissions (early warning below abortion threshold)`.
-This list is a subset of the transport features in Appendix A of {{I-D.ietf-taps-minset}}, which refers to the primitives in "pass 2" (Section 4) of {{!RFC8303}} for further details on the implementation with TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT.
+{{?RFC8923}} identifies a minimal set of transport services that end systems should offer. These services make all non-security-related transport features of TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT available that 1) require interaction with the application, and 2) do not get in the way of a possible implementation over TCP (or, with limitations, UDP). The following text explains how this minimal set is reflected in the present API. For brevity, it is based on the list in Section 4.1 of {{?RFC8923}}, updated according to the discussion in Section 5 of {{?RFC8923}}. The present API covers all elements of this section except `Notification of Excessive Retransmissions (early warning below abortion threshold)`.
+This list is a subset of the transport features in Appendix A of {{?RFC8923}}, which refers to the primitives in "pass 2" (Section 4) of {{!RFC8303}} for further details on the implementation with TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT.
 
 * Connect:
 `Initiate` Action ({{initiate}}).
@@ -3089,10 +3087,10 @@ This list is a subset of the transport features in Appendix A of {{I-D.ietf-taps
 `ECN` is a defined UDP(-Lite)-specific read-only Message Property of the MessageContext object ({{receive-ecn}}).
 
 * "Specify DSCP field", "Disable Nagle algorithm", "Enable and configure a `Low Extra Delay Background Transfer`":
-as suggested in Section 5.5 of {{I-D.ietf-taps-minset}}, these transport features are collectively offered via the `Capacity Profile` property ({{prop-cap-profile}}). Per-Message control is offered via the `Message Capacity Profile Override` property ({{send-profile}}).
+as suggested in Section 5.5 of {{?RFC8923}}, these transport features are collectively offered via the `Capacity Profile` property ({{prop-cap-profile}}). Per-Message control is offered via the `Message Capacity Profile Override` property ({{send-profile}}).
 
 * Close after reliably delivering all remaining data, causing an event informing the application on the other side:
-this is offered by the `Close` Action with slightly changed semantics in line with the discussion in Section 5.2 of {{I-D.ietf-taps-minset}} ({{termination}}).
+this is offered by the `Close` Action with slightly changed semantics in line with the discussion in Section 5.2 of {{?RFC8923}} ({{termination}}).
 
 * "Abort without delivering remaining data, causing an event informing the application on the other side" and "Abort without delivering remaining data, not causing an event informing the application on the other side":
 this is offered by the `Abort` action without promising that this is signaled to the other side. If it is, a `ConnectionError` Event will fire at the peer ({{termination}}).
