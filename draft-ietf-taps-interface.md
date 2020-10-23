@@ -1690,7 +1690,8 @@ Connection Group. It has no effect on Connections not part of a Connection
 Group. As noted in {{groups}}, this property is not entangled when Connections
 are cloned, i.e., changing the Priority on one Connection in a Connection Group 
 does not change it on the other Connections in the same Connection Group. 
-See {{priority-in-taps}}.
+No guarantees of a specific behavior regarding Connection Priority are given;
+a transport system may ignore this property. See {{priority-in-taps}} for more details.
 
 ### Timeout for Aborting Connection {#conn-timeout}
 
@@ -1861,6 +1862,23 @@ lower-bound rate below which the application does not deem
 it will be useful. These are specified in bits per second. 
 The special value `Unlimited` indicates that no bound is specified.
 
+### Group Connection Limit
+
+Name:
+: groupConnLimit
+
+Type:
+: Numeric (with special value `Unlimited`)
+
+Default:
+: Unlimited
+
+This property controls the number of Connections that can be accepted from
+a peer as new members of the Connection's group. Similar to SetNewConnectionLimit(),
+this limits the number of ConnectionReceived Events that will occur, but constrained
+to the group of the Connection associated with this property. For a multi-streaming transport,
+this limits the number of allowed streams.
+
 ### Read-only Connection Properties {#read-only-conn-prop}
 
 The following generic Connection Properties are read-only, i.e. they cannot be changed by an application.
@@ -1972,24 +1990,6 @@ This property controls whether the `Timeout for aborting Connection` (see {{conn
 may be changed
 based on a UTO option received from the remote peer. This boolean becomes false when
 `Timeout for aborting Connection` (see {{conn-timeout}}) is used.
-
-
-### Group Connection Limit
-
-Name:
-: groupConnLimit
-
-Type:
-: Numeric (with special value `Unlimited`)
-
-Default:
-: Unlimited
-
-This property controls the number of Connections that may arrive from
-a peer as new members of the Connection's group. Similar to SetNewConnectionLimit(),
-this limits the number of ConnectionReceived Events that will occur, but constrained
-to the group of the Connection associated with this property. In case of a multi-streaming
-transport, this takes the role of a limit on the number of allowed streams.
 
 
 ## Connection Lifecycle Events
