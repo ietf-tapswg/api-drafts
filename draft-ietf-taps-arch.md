@@ -97,11 +97,11 @@ This document was developed in parallel with the specification of the Transport 
 
 ## Background
 
-The Transport Services architecture is based on the survey of services provided by IETF transport protocols and congestion control mechanisms {{?RFC8095}}, and the distilled minimal set of the features offered by transport protocols {{?I-D.ietf-taps-minset}}. These documents identified common features and patterns across all transport protocols developed thus far in the IETF.
+The Transport Services architecture is based on the survey of services provided by IETF transport protocols and congestion control mechanisms {{?RFC8095}}, and the distilled minimal set of the features offered by transport protocols {{?RFC8923}}. These documents identified common features and patterns across all transport protocols developed thus far in the IETF.
 
-Since transport security is an increasingly relevant aspect of using transport protocols on the Internet, this architecture also considers the impact of transport security protocols on the feature-set exposed by Transport Services {{?I-D.ietf-taps-transport-security}}.
+Since transport security is an increasingly relevant aspect of using transport protocols on the Internet, this architecture also considers the impact of transport security protocols on the feature-set exposed by Transport Services {{?RFC8922}}.
 
-One of the key insights to come from identifying the minimal set of features provided by transport protocols {{?I-D.ietf-taps-minset}} was that features either require application interaction and guidance (referred to in that document as Functional or Optimizing Features), or else can be handled automatically by a system implementing Transport Services (referred to as Automatable Features). Among the identified Functional and Optimizing Features, some were common across all or nearly all transport protocols, while others could be seen as features that, if specified, would only be useful with a subset of protocols, but would not harm the functionality of other protocols. For example, some protocols can deliver messages faster for applications that do not require messages to arrive in the order in which they were sent. However, this functionality needs to be explicitly allowed by the application, since reordering messages would be undesirable in many cases.
+One of the key insights to come from identifying the minimal set of features provided by transport protocols {{?RFC8923}} was that features either require application interaction and guidance (referred to in that document as Functional or Optimizing Features), or else can be handled automatically by a system implementing Transport Services (referred to as Automatable Features). Among the identified Functional and Optimizing Features, some were common across all or nearly all transport protocols, while others could be seen as features that, if specified, would only be useful with a subset of protocols, but would not harm the functionality of other protocols. For example, some protocols can deliver messages faster for applications that do not require messages to arrive in the order in which they were sent. However, this functionality needs to be explicitly allowed by the application, since reordering messages would be undesirable in many cases.
 
 ## Overview
 
@@ -226,7 +226,7 @@ The normative requirements described here allow Transport Services APIs and Impl
 
 ## Provide Common APIs for Common Features
 
-Any functionality that is common across multiple transport protocols SHOULD be made accessible through a unified set of Transport Services API calls. As a baseline, any Transport Services API MUST allow access to the minimal set of features offered by transport protocols {{?I-D.ietf-taps-minset}}.
+Any functionality that is common across multiple transport protocols SHOULD be made accessible through a unified set of Transport Services API calls. As a baseline, any Transport Services API MUST allow access to the minimal set of features offered by transport protocols {{?RFC8923}}.
 
 An application can specify constraints and preferences for the protocols, features, and network interfaces it will use via Properties. A Transport Services API SHOULD offer Properties that are common to multiple transport protocols, which enables the system to appropriately select between protocols that offer equivalent features. Similarly, a Transport Services API SHOULD offer Properties that are applicable to a variety of network layer interfaces and paths, which permits racing of different network paths without affecting the applications using the system. Each Property is expected to have a default value.
 
@@ -256,7 +256,7 @@ The following example shows equivalent Protocol Stacks:
 
 - If the application does not require reliable transmission of data, then a Protocol Stack that adds reliability could be regarded as an equivalent Protocol Stack as long as providing this would not conflict with any other application-requested properties.
 
-To ensure that security protocols are not incorrectly swapped, Transport Services systems MUST only select Protocol Stacks that meet application requirements ({{?I-D.ietf-taps-transport-security}}). Systems SHOULD only race Protocol Stacks where the transport security protocols within the stacks are identical. Transport Services systems MUST NOT automatically fall back from secure protocols to insecure protocols, or to weaker versions of secure protocols. A Transport Services system MAY allow applications to explicitly specify that fallback to a specific other version of a protocol is allowed, e.g., to allow fallback to TLS 1.2 if TLS 1.3 is not available.
+To ensure that security protocols are not incorrectly swapped, Transport Services systems MUST only select Protocol Stacks that meet application requirements ({{?RFC8922}}). Systems SHOULD only race Protocol Stacks where the transport security protocols within the stacks are identical. Transport Services systems MUST NOT automatically fall back from secure protocols to insecure protocols, or to weaker versions of secure protocols. A Transport Services system MAY allow applications to explicitly specify that fallback to a specific other version of a protocol is allowed, e.g., to allow fallback to TLS 1.2 if TLS 1.3 is not available.
 
 ## Maintain Interoperability
 
@@ -387,7 +387,7 @@ The diagram below provides a high-level view of the actions and events during th
 
 * Connection Properties: The Connection Properties are used to configure protocol-specific options and control per-connection behavior of the Transport Services system; for example, a protocol-specific Connection Property can express that if TCP is used, the implementation ought to use the User Timeout Option. Note that the presence of such a property does not require that a specific protocol will be used. In general, these properties do not explicitly determine the selection of paths or protocols, but can be used by an implementation during connection establishment. Connection Properties are specified on a Preconnection prior to Connection establishment, and can be modified on the Connection later. Changes made to Connection Properties after Connection establishment take effect on a best-effort basis.
 
-* Security Parameters: Security Parameters define an application's requirements for authentication and encryption on a Connection. They are used by Transport Security protocols (such as those described in {{?I-D.ietf-taps-transport-security}}) to establish secure Connections. Examples of parameters that can be set include local identities, private keys, supported cryptographic algorithms, and requirements for validating trust of remote identities. Security Parameters are primarily associated with a Preconnection object, but properties related to identities can be associated directly with Endpoints.
+* Security Parameters: Security Parameters define an application's requirements for authentication and encryption on a Connection. They are used by Transport Security protocols (such as those described in {{?RFC8922}}) to establish secure Connections. Examples of parameters that can be set include local identities, private keys, supported cryptographic algorithms, and requirements for validating trust of remote identities. Security Parameters are primarily associated with a Preconnection object, but properties related to identities can be associated directly with Endpoints.
 
 ### Establishment Actions {#establishment}
 
@@ -516,7 +516,7 @@ by providing a generic security-related interface. Each provided interface
 translates to an existing protocol-specific interface provided by supported
 security protocols. For example, trust verification callbacks are common parts
 of TLS APIs. Transport Services APIs will expose similar functionality
-{{?I-D.ietf-taps-transport-security}}.
+{{?RFC8922}}.
 
 As described above in {{equivalence}}, if a Transport Services system races
 between two different Protocol Stacks, both need to use the same security protocols
