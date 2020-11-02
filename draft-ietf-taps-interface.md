@@ -660,12 +660,6 @@ RemoteSpecifier.WithIPv6Address(2001:db8:4920:e29d:a420:7461:7073:0a)
 LocalSpecifier.WithInterface("en0")
 ~~~
 
-- Protocol (implementation-specific enumeration)
-
-~~~
-LocalSpecifier.WithProtocol(TCP)
-~~~
-
 An Endpoint cannot have multiple identifiers of a same type set. That is,
 an endpoint cannot have two IP addresses specified. Two separate IP addresses
 are represented as two Endpoint Objects. If a Preconnection specifies a Remote
@@ -701,6 +695,20 @@ on two different port numbers depending on which protocol is used.
 
 To support this, Endpoint Objects can specify "aliases". An Endpoint can have
 multiple aliases set.
+
+~~~
+RemoteSpecifier.AddAlias(AlternateRemoteSpecifier)
+~~~
+
+In order to scope an alias to a specific transport protocol, an Endpoint can
+specify a protocol identifier. These identifiers MUST only be set for aliases.
+
+~~~
+RemoteSpecifier.WithProtocol(QUIC)
+~~~
+
+The following example shows a case where "example.com" has a server
+running on port 443, with an alternate port of 8443 for QUIC.
 
 ~~~
 RemoteSpecifier := NewRemoteEndpoint()
