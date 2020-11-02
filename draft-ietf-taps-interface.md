@@ -592,7 +592,7 @@ of the potential Connection (see {{endpointspec}}), the Selection Properties
    Preconnection := NewPreconnection(LocalEndpoint?,
                                      RemoteEndpoint?,
                                      TransportProperties,
-                                     SecurityParams)
+                                     SecurityParameters)
 ~~~
 
 The Local Endpoint MUST be specified if the Preconnection is used to Listen()
@@ -1241,8 +1241,13 @@ its use or has some protocol-specific meaning to the Remote Endpoint.
 SecurityParameters.Set('pre-shared-key', key, identity)
 ~~~
 
-- Session cache management: Used to tune cache capacity, lifetime, re-use,
-and eviction policies, e.g., LRU or FIFO.
+- Session cache management: Used to tune session cache capacity, lifetime, and
+other policies.
+
+~~~
+SecurityParameters.Set('max-cached-sessions', 16)
+SecurityParameters.Set('cached-session-lifetime-seconds', 3600)
+~~~
 
 ### Connection Establishment Callbacks
 
