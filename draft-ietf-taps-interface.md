@@ -613,10 +613,111 @@ Preconnection during pre-establishment.
 ## Specifying Endpoints {#endpointspec}
 
 The transport services API uses the Local Endpoint and Remote Endpoint Objects
-to refer to the endpoints of a transport connection.
-Actions on these Objects can be used to represent various different types of
-endpoint identifiers, such as IP addresses, DNS names, and interface names,
-as well as port numbers and service names.
+to refer to the endpoints of a transport connection. Endpoints can be created
+as either Remote or Local:
+
+~~~
+RemoteSpecifier := NewRemoteEndpoint()
+LocalSpecifier := NewLocalEndpoint()
+~~~
+
+A single Endpoint Object represents the identity of a network host. That endpoint
+can be more or less specific depending on which identifiers are set. For example,
+an Endpoint that only specifies a hostname may in fact end up corresponding
+to several different IP addresses on different hosts.
+
+An Endpoint Object can be configured with the following identifiers:
+
+- Hostname (string)
+
+~~~
+RemoteSpecifier.WithHostname("example.com")
+~~~
+
+- Port (a 16-bit integer) or a Service (string) that maps to a port
+
+~~~
+RemoteSpecifier.WithService(443)
+~~~
+
+~~~
+RemoteSpecifier.WithService("https")
+~~~
+
+- IP address (IPv4 or IPv6 address)
+
+~~~
+RemoteSpecifier.WithIPv4Address(192.0.2.21)
+~~~
+
+~~~
+RemoteSpecifier.WithIPv6Address(2001:db8:4920:e29d:a420:7461:7073:0a)
+~~~
+
+- Interface (string name)
+
+~~~
+LocalSpecifier.WithInterface("en0")
+~~~
+
+- Protocol (implementation-specific enumeration)
+
+~~~
+LocalSpecifier.WithProtocol(TCP)
+~~~
+
+An Endpoint cannot have multiple identifiers of a same type set. That is,
+an endpoint cannot have two IP addresses specified. Two separate IP addresses
+are represented as two Endpoint Objects. If a Preconnection specifies a Remote
+Endpoint with a specific IP address set, it will only establish Connections to
+that IP address. If, on the other hand, the Remote Endpoint specifies a hostname
+but no addresses, the Connection can perform name resolution and attempt
+using any address derived from the original hostname Remote Endpoint.
+
+The Transport Services API resolves names internally, when the Initiate(),
+Listen(), or Rendezvous() method is called to establish a Connection. Privacy
+considerations for the timing of this resolution are given in {{privacy-security}}.
+
+The Resolve() action on Preconnection can be used by the application to force
+early binding when required, for example with some Network Address Translator
+(NAT) traversal protocols (see {{rendezvous}}).
+
+### Using Multicast Endpoints
+
+Specifying a multicast group address on a Local Endpoint will indicate to the transport
+system that the resulting connection will be used to receive multicast messages. The
+Remote Endpoint can be used to filter incoming multicast from specific senders. Such
+a Preconnection will only support calling Listen(), not Initiate(). The accepted Connections
+are receive-only.
+
+Similarly, specifying a multicast group address on the Remote Endpoint will indicate that the
+resulting connection will be used to send multicast messages.
+
+### Endpoint Aliases
+
+An Endpoint can have an alternative definition when using different protocols.
+For example, a server that supports both TLS/TCP and QUIC may be accessible
+on two different port numbers depending on which protocol is used.
+
+To support this, Endpoint Objects can specify "aliases". An Endpoint can have
+multiple aliases set.
+
+~~~
+RemoteSpecifier := NewRemoteEndpoint()
+RemoteSpecifier.WithHostname("example.com")
+RemoteSpecifier.WithPort(443)
+
+QUICRemoteSpecifier := NewRemoteEndpoint()
+QUICRemoteSpecifier.WithHostname("example.com")
+QUICRemoteSpecifier.WithPort(8443)
+QUICRemoteSpecifier.WithProtocol(QUIC)
+
+RemoteSpecifier.AddAlias(QUICRemoteSpecifier)
+~~~
+
+### Endpoint Examples
+
+The following examples of Endpoints show common usage patterns.
 
 Specify a Remote Endpoint using a hostname and service name:
 
@@ -650,7 +751,11 @@ LocalSpecifier.WithInterface("en0")
 LocalSpecifier.WithPort(443)
 ~~~
 
-As an alternative to specifying an interface name for the Local Endpoint, an application can express more fine-grained preferences using the `Interface Instance or Type` Selection Property, see {{prop-interface}}. However, if the application specifies Selection Properties that are inconsistent with the Local Endpoint, this will result in an Error once the application attempts to open a Connection.
+As an alternative to specifying an interface name for the Local Endpoint, an application
+can express more fine-grained preferences using the `Interface Instance or Type`
+Selection Property, see {{prop-interface}}. However, if the application specifies Selection
+Properties that are inconsistent with the Local Endpoint, this will result in an Error once the
+application attempts to open a Connection.
 
 Specify a Local Endpoint using a STUN server:
 
@@ -677,27 +782,6 @@ LocalSpecifier.WithInterface("en0")
 RemoteSpecifier := NewRemoteEndpoint()
 RemoteSpecifier.WithIPv4Address(192.0.2.22)
 ~~~
-
-Implementations may also support additional endpoint representations and
-provide a single NewEndpoint() call that takes different endpoint representations.
-
-Multiple endpoint identifiers can be specified for each Local Endpoint and
-Remote Endpoint.  For example, a Local Endpoint could be configured with two
-interface names, or a Remote Endpoint could be specified via both IPv4 and
-IPv6 addresses. These multiple identifiers refer to the same transport
-endpoint.
-
-The transport services API resolves names internally, when the Initiate(),
-Listen(), or Rendezvous() method is called to establish a Connection. Privacy
-considerations for the timing of this resolution are given in {{privacy-security}}.
-
-The Resolve() action on Preconnection can be used by the application to force
-early binding when required, for example with some Network Address Translator
-(NAT) traversal protocols (see {{rendezvous}}).
-
-Specifying a multicast group address on the Local Endpoint will indicate to the transport system that the resulting connection will be used to receive multicast messages. The Remote Endpoint can be used to filter by specific senders. This will restrict the application to establishing the Preconnection by calling Listen(). The accepted Connections are receive-only. 
-
-Similarly, specifying a multicast group address on the Remote Endpoint will indicate that the resulting connection will be used to send multicast messages. 
 
 ## Specifying Transport Properties {#selection-props}
 
