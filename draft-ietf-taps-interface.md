@@ -637,7 +637,7 @@ RemoteSpecifier.WithHostname("example.com")
 - Port (a 16-bit integer) or a Service (string) that maps to a port
 
 ~~~
-RemoteSpecifier.WithService(443)
+RemoteSpecifier.WithPort(443)
 ~~~
 
 ~~~
@@ -672,13 +672,13 @@ are represented as two Endpoint Objects. If a Preconnection specifies a Remote
 Endpoint with a specific IP address set, it will only establish Connections to
 that IP address. If, on the other hand, the Remote Endpoint specifies a hostname
 but no addresses, the Connection can perform name resolution and attempt
-using any address derived from the original hostname Remote Endpoint.
+using any address derived from the original hostname of the Remote Endpoint.
 
 The Transport Services API resolves names internally, when the Initiate(),
 Listen(), or Rendezvous() method is called to establish a Connection. Privacy
 considerations for the timing of this resolution are given in {{privacy-security}}.
 
-The Resolve() action on Preconnection can be used by the application to force
+The Resolve() action on a Preconnection can be used by the application to force
 early binding when required, for example with some Network Address Translator
 (NAT) traversal protocols (see {{rendezvous}}).
 
