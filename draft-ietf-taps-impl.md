@@ -143,7 +143,7 @@ In the following cases, failure should be detected during pre-establishment:
 - A request by an application for Protocol Properties that include requirements or prohibitions that cannot be satisfied by any of the available protocols. For example, if an application requires "Configure Reliability per Message", but no such protocol is available on the host running the transport system this should result in an error, e.g., when SCTP is not supported by the operating system.
 - A request by an application for Protocol Properties that are in conflict with each other, i.e., the required and prohibited properties cannot be satisfied by the same protocol. For example, if an application prohibits "Reliable Data Transfer" but then requires "Configure Reliability per Message", this mismatch should result in an error.
 
-To avoid allocating resources, it is important that such cases fail as early as possible, e.g., to endpoint resolution, only to find out later that there is no protocol that satisfies the requirements.
+To avoid allocating resources, it is important that such cases fail as early as possible, e.g., prior to endpoint resolution, only to find out later that there is no protocol that satisfies the requirements.
 
 ## Role of system policy
 
@@ -731,7 +731,7 @@ For protocols that do not support multipath or migration, the Protocol Instances
 
 If the Protocol Stack includes a transport protocol that also supports multipath connectivity with migration support, the Transport Services implementation should also inform the Protocol Instance of potentially new paths that become permissible based on the Selection Properties passed by the application. A protocol can then establish new subflows over new paths while an active path is still available or, if migration is supported, also after a break has been detected, and should attempt to tear down subflows over paths that are no longer used. The Transport Services API provides an interface to set a multipath policy that indicates when and how different paths should be used. However, detailed handling of these policies is still implementation-specific. The decision about when to create a new path or to announce a new path or set of paths to the remote endpoint, e.g., in the form of additional IP addresses, is implementation-specific or could be be supported by future API extensions. If the Protocol Stack includes a transport protocol that does not support multipath, but does support migrating between paths, the update to the set of available paths can trigger the connection to be migrated. 
 
-In case of Pooled Connections {{pooled-connections}}, the transport system may add connections over new paths or different protocols to the pool if permissible based on the multipath policy and Selection Properties. In case a previously used path becomes unavailable, the transport system may disconnect all connections that require this path, but should not disconnect the pooled connection object exposed to the application. The strategy how is implementation-specific, but should be consistent with the behavior of multipath transports. 
+In case of Pooled Connections {{pooled-connections}}, the transport system may add connections over new paths or different protocols to the pool if permissible based on the multipath policy and Selection Properties. In case a previously used path becomes unavailable, the transport system may disconnect all connections that require this path, but should not disconnect the pooled connection object exposed to the application. The strategy to do so is implementation-specific, but should be consistent with the behavior of multipath transports. 
 
 
 # Implementing Connection Termination
@@ -891,7 +891,7 @@ Connectedness: Connected
 Data Unit: Byte-stream
 
 API mappings for MPTCP are identical to TCP. MPTCP adds support for multipath properties,
-such as "Multi-Paths Transport" and "Policy for using Multi-Path Transports".
+such as "Multi-Path Transport" and "Policy for using Multi-Path Transports".
 
 ## UDP
 
