@@ -521,7 +521,7 @@ protocol does not support unreliable transmission, the Message should be reliabl
 - Message Capacity Profile Override: When true, this expresses a wish to override the
 Generic Connection Property `Capacity Profile` for this Message. Depending on the
 value, this can, for example, be implemented by changing the DSCP value of the
-associated packet (note that the he guidelines in Section 6 of {{?RFC7657}} apply; e.g.,
+associated packet (note that the guidelines in Section 6 of {{?RFC7657}} apply; e.g.,
 the DSCP value should not be changed for different packets within a reliable
 transport protocol session or DCCP connection).
 
