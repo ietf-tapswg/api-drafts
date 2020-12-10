@@ -417,40 +417,37 @@ This is an example of how an application might establish a connection with a
 peer using Rendezvous(), send a Message, and receive a Message.
 
 ~~~
-LocalSpecifier := NewLocalEndpoint()
-LocalSpecifier.WithPort(9876)
+// Configure local candidates: a port on the local host and via a STUN server
+HostCandidate := NewLocalEndpoint()
+HostCandidate.WithPort(9876)
 
-RemoteSpecifier := NewRemoteEndpoint()
-RemoteSpecifier.WithHostname("example.com")
-RemoteSpecifier.WithPort(9877)
+StunCandidate := NewLocalEndpoint()
+StunCandidate.WithStunServer(address, port, credentials)
 
-TransportProperties := NewTransportProperties()
-TransportProperties.Require(preserve-msg-boundaries)
-// Reliable Data Transfer and Preserve Order are Required by default
+LocalCandidates = [HostCandidate, StunCandidate]
 
-SecurityParameters := NewSecurityParameters()
-SecurityParameters.Set('identity', identity)
-SecurityParameters.Set('keypair', privateKey, publicKey)
+// Configure transport and security properties
+TransportProperties := ...
+SecurityParameters  := ...
 
-TrustCallback := New Callback({
-  // Verify identity of the remote endpoint, return the result
-})
-SecurityParameters.SetTrustVerificationCallback(trustCallback)
-
-// Both local and remote endpoint must be specified
-Preconnection := NewPreconnection(LocalSpecifier,
-                                  RemoteSpecifier,
+Preconnection := NewPreconnection(LocalCandidates,
+                                  [], // No remote candidates yet
                                   TransportProperties,
                                   SecurityParameters)
 
+// Resolve the LocalCandidates
+ResolvedLocal, _ = Preconnection.Resolve()
+
+// ...Send ResolvedLocal to peer via signalling channel
+// ...Receive RemoteCandidates from peer via signalling channel
+
+Preconnection.AddRemote(RemoteCandidates)
 Preconnection.Rendezvous()
 
 Preconnection -> RendezvousDone<Connection>
 
 //---- Ready event handler begin ----
 Connection.Send(messageDataRequest)
-
-// Only receive complete messages
 Connection.Receive()
 //---- Ready event handler end ----
 
