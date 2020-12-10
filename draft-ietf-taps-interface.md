@@ -589,21 +589,43 @@ of the potential Connection (see {{endpointspec}}), the Selection Properties
 {{security-parameters}}):
 
 ~~~
-   Preconnection := NewPreconnection(LocalEndpoint?,
-                                     RemoteEndpoint?,
+   Preconnection := NewPreconnection([]LocalEndpoint,
+                                     []RemoteEndpoint,
                                      TransportProperties,
                                      SecurityParameters)
 ~~~
 
-The Local Endpoint MUST be specified if the Preconnection is used to Listen()
-for incoming Connections, but is OPTIONAL if it is used to Initiate()
+At least one Local Endpoint MUST be specified if the Preconnection is used to Listen()
+for incoming Connections, but the list of Local Endpoints MAY be empty if
+the Preconnection is used to Initiate()
 connections. If no Local Endpoint is specified, the Transport System will
 assign an ephemeral local port to the Connection on the appropriate interface(s).
-The Remote Endpoint MUST be specified if the Preconnection is used
-to Initiate() Connections, but is OPTIONAL if it is used to Listen() for
-incoming Connections.
-The Local Endpoint and the Remote Endpoint MUST both be specified if a
+At least one Remote Endpoint MUST be specified if the Preconnection is used
+to Initiate() Connections, but the list of Remote Endpoints MAY be empty if 
+the Preconnection is used to Listen() for incoming Connections.
+At least one Local Endpoint and one Remote Endpoint MUST be specified if a
 peer-to-peer Rendezvous is to occur based on the Preconnection.
+
+If more than one Local Endpoint is specified on a Preconnection, then all
+the Local Endpoints on the Preconnection MUST represent the same host. For
+example, they might correspond to different interfaces on a multi-homed
+host, of they might correspond to local interfaces and a STUN server that
+can be resolved to a server reflexive address for a Preconnection used to
+make a peer-to-peer Rendezvous().
+
+If more than one Remote Endpoint is specified on the Preconnection, then
+all the Remote Endpoints on the Preconnection SHOULD represent the same
+host. For example, the Remote Endpoints might represent various network
+interfaces of a host, or a server reflexive address that can be used to
+reach a host, or a set of hosts that provide equivalent local balanced
+service. 
+
+In most cases, it is expected that a single Remote Endpoint will be
+specified by name, and a later call to  Initiate() the Preconnection
+(see {{initiate}}) will internally resolve that name to a list of concrete
+endpoints. Specifying multiple Remote Endpoints on a Preconnection allows
+applications to override this for more detailed control.
+
 
 Transport Properties MUST always be specified while security parameters are OPTIONAL.
 
