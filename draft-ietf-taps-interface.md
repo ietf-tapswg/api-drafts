@@ -435,11 +435,14 @@ Preconnection := NewPreconnection(LocalCandidates,
                                   TransportProperties,
                                   SecurityParameters)
 
-// Resolve the LocalCandidates
-ResolvedLocal, _ = Preconnection.Resolve()
+// Resolve the LocalCandidates. The Preconnection.Resolve() call 
+// resolves both local and remote candidates but, since the remote
+// candidates have not yet been specified, the ResolvedRemote list
+// returned will be empty and is not used.
+ResolvedLocal, ResolvedRemote = Preconnection.Resolve()
 
-// ...Send ResolvedLocal to peer via signalling channel
-// ...Receive RemoteCandidates from peer via signalling channel
+// ...Send the ResolvedLocal list to peer via signalling channel
+// ...Receive a list of RemoteCandidates from peer via signalling channel
 
 Preconnection.AddRemote(RemoteCandidates)
 Preconnection.Rendezvous()
