@@ -98,6 +98,30 @@ informative:
         -
           ins: M. Tuexen
       date: 2017
+    TCP-COUPLING:
+      title: "ctrlTCP: Reducing Latency through Coupled, Heterogeneous Multi-Flow TCP Congestion Control"
+      seriesinfo:
+          IEEE INFOCOM Global Internet Symposium (GI) workshop (GI 2018)
+      authors:
+      -
+        ins: S. Islam
+        name: Safiqul Islam
+      -
+        ins: M. Welzl
+        name: Michael Welzl
+      -
+        ins: K. Hiorth
+        name: Kristian Hiorth
+      -
+        ins: D. Hayes
+        name: David Hayes
+      -
+        ins: G. Armitage
+        name: Grenville Armitage
+      -
+        ins: S. Gjessing
+        name: Stein Gjessing
+    date: 2018-04-15
 
 
 --- abstract
@@ -870,7 +894,7 @@ ConnectionReceived:
 : TCP Listeners will deliver new connections once they have replied to an inbound SYN with a SYN-ACK.
 
 Clone:
-: Calling `Clone` on a TCP Connection creates a new Connection with equivalent parameters. The two Connections are otherwise independent.
+: Calling `Clone` on a TCP Connection creates a new Connection with equivalent parameters. These Connections, and Connections generated via later calls to `Clone` on one of them, form a Connection Group. To realize `entanglement` for these Connections, with the exception of `Connection Priority`, changing a Connection Property on one of them must affect the Connection Properties of the others too. No guarantees of honoring the Connection Property `Connection Priority` are given, and thus it is safe for an implementation of a transport system to ignore this property. When it is reasonable to assume that Connections traverse the same path (e.g., when they share the same encapsulation), support for it can also experimentally be implemented using a congestion control coupling mechanism (see for example {{TCP-COUPLING}} or {{?RFC3124}}).
 
 Send:
 : SEND.TCP. TCP does not on its own preserve Message boundaries. Calling `Send` on a TCP connection lays out the bytes on the TCP send stream without any other delineation. Any Message marked as Final will cause TCP to send a FIN once the Message has been completely written, by calling CLOSE.TCP immediately upon successful termination of SEND.TCP.
@@ -1024,7 +1048,8 @@ to the streams are closed.
 
 Initiate:
 : If this is the only Connection object that is assigned to the SCTP association or stream mapping has
-not been negotiated, CONNECT.SCTP is called. Else, a new stream is used: if there are enough streams
+not been negotiated, CONNECT.SCTP is called. Else, unless the Selection Property `activeReadBeforeSend`
+is Preferred or Required, a new stream is used: if there are enough streams
 available, `Initiate` is just a local operation that assigns a new stream number to the Connection object.
 The number of streams is negotiated as a parameter of the prior CONNECT.SCTP call, and it represents a
 trade-off between local resource usage and the number of Connection objects that can be mapped
