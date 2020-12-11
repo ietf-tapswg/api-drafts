@@ -1513,7 +1513,7 @@ Local Endpoint candidates and the Remote Endpoint candidates specified,
 along with the transport properties and security parameters needed for
 Protocol Stack selection, before the Rendezvous() Action is initiated.
 
-The Rendezvous() Action causes the caller to listen on the Local Endpoint
+The Rendezvous() Action listens on the Local Endpoint
 candidates for an incoming Connection from the Remote Endpoint candidates,
 while also simultaneously trying to establish a Connection from the Local
 Endpoint candidates to the Remote Endpoint candidates.
