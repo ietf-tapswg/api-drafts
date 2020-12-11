@@ -159,7 +159,7 @@ properties and supported transport features from the analysis provided in
 {{?RFC8922}}. The design encourages implementations 
 underneath the interface to dynamically choose a transport protocol depending on an 
 application's choices rather than statically binding applications to a protocol at 
-compile time. The transport system implementations should provide
+compile time. The Transport Services system implementations should provide
 applications with a way to override transport selection and instantiate a specific stack,
 e.g., to support servers wishing to listen to a specific protocol. This specific
 transport stack choice is discouraged for general use, because it can reduce the portability.
@@ -598,7 +598,7 @@ of the potential Connection (see {{endpointspec}}), the Selection Properties
 At least one Local Endpoint MUST be specified if the Preconnection is used to Listen()
 for incoming Connections, but the list of Local Endpoints MAY be empty if
 the Preconnection is used to Initiate()
-connections. If no Local Endpoint is specified, the Transport System will
+connections. If no Local Endpoint is specified, the Transport Services system will
 assign an ephemeral local port to the Connection on the appropriate interface(s).
 At least one Remote Endpoint MUST be specified if the Preconnection is used
 to Initiate() Connections, but the list of Remote Endpoints MAY be empty if 
@@ -1231,7 +1231,7 @@ This property specifies whether alternative addresses, e.g., of other interfaces
 peer endpoint by the protocol stack. Advertising these addresses enables the peer-endpoint to establish additional connectivity, e.g., for connection migration or using multiple paths.
 
 Note that this can have privacy implications because it might result in users being linkable across the multiple paths.
-Also, note that setting this to false does not prevent the local transport system from _establishing_ connectivity using alternate paths (see {{multipath-mode}} above); it only prevents _proactive advertisement_ of addresses.
+Also, note that setting this to false does not prevent the local Transport Services system from _establishing_ connectivity using alternate paths (see {{multipath-mode}} above); it only prevents _proactive advertisement_ of addresses.
 
 ### Direction of communication
 
@@ -1300,7 +1300,7 @@ immediately followed by writing. This property is ignored when establishing
 connections using Rendezvous().
 Requiring this property limits the choice of mappings to underlying protocols,
 which can reduce
-efficiency. For example, it prevents the transport system from mapping
+efficiency. For example, it prevents the Transport Services system from mapping
 Connections to SCTP streams, where
 the first transmitted data takes the role of an active open signal {{I-D.ietf-taps-impl}}.
 
@@ -1662,9 +1662,9 @@ but also across the end-to-end Internet path.
 Note that calling Clone() can result in on-the-wire signaling, e.g., to open a new
 connection, depending on the underlying Protocol Stack. When Clone() leads to
 multiple connections being opened instead of multi-streaming,
-the transport system will ensure consistency of
+the Transport Services system will ensure consistency of
 Connection Properties by uniformly applying them to all underlying connections
-in a group. Even in such a case, there are possibilities for a transport system
+in a group. Even in such a case, there are possibilities for a Transport Services system
 to implement prioritization within a Connection Group {{TCP-COUPLING}} {{?RFC8699}}.
 
 Attempts to clone a Connection can result in a CloneError:
@@ -1799,7 +1799,7 @@ Group. As noted in {{groups}}, this property is not entangled when Connections
 are cloned, i.e., changing the Priority on one Connection in a Connection Group 
 does not change it on the other Connections in the same Connection Group. 
 No guarantees of a specific behavior regarding Connection Priority are given;
-a transport system may ignore this property. See {{priority-in-taps}} for more details.
+a Transport Services system may ignore this property. See {{priority-in-taps}} for more details.
 
 ### Timeout for Aborting Connection {#conn-timeout}
 
@@ -1828,7 +1828,7 @@ Type:
 Default:
 : Default
 
-A transport system can request a protocol that supports sending keep alive packets {{keep-alive}}.
+A Transport Services system can request a protocol that supports sending keep alive packets {{keep-alive}}.
 This property specifies the maximum time an idle connection (one for which no transport
 packets have been sent) should wait before 
 the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting this Property
@@ -1861,7 +1861,7 @@ Name:
 This property specifies the desired network treatment for traffic sent by the
 application and the tradeoffs the application is prepared to make in path and
 protocol selection to receive that desired treatment. When the capacity profile
-is set to a value other than Default, the transport system SHOULD select paths
+is set to a value other than Default, the Transport Services system SHOULD select paths
 and configure protocols to optimize the tradeoff between delay, delay variation, and
 efficient use of the available capacity based on the capacity profile specified. How this is realized
 is implementation-specific. The Capacity Profile MAY also be used
@@ -1873,7 +1873,7 @@ The following values are valid for the Capacity Profile:
 
   Default:
   : The application provides no information about its expected capacity
-  profile. Transport system implementations that
+  profile. Transport Services system implementations that
   map the requested capacity profile onto per-connection DSCP signaling 
   SHOULD assign the DSCP Default Forwarding {{?RFC2474}} Per Hop Behaviour (PHB).
 
@@ -1881,7 +1881,7 @@ The following values are valid for the Capacity Profile:
   : The application is not interactive. It expects to send
   and/or receive data without any urgency. This can, for example, be used to
   select protocol stacks with scavenger transmission control and/or to assign
-  the traffic to a lower-effort service. Transport system implementations that
+  the traffic to a lower-effort service. Transport Services system implementations that
   map the requested capacity profile onto per-connection DSCP signaling
   SHOULD assign the DSCP Less than Best Effort
   {{?RFC8622}} PHB.
@@ -1893,7 +1893,7 @@ The following values are valid for the Capacity Profile:
   used by the system to disable the coalescing of multiple small Messages into
   larger packets (Nagle's algorithm); to prefer immediate acknowledgment from
   the peer endpoint when supported by the underlying transport; and so on.
-  Transport system implementations that map the requested capacity profile onto per-connection DSCP signaling without multiplexing SHOULD assign a DSCP Assured Forwarding (AF41,AF42,AF43,AF44) {{?RFC2597}} PHB. Inelastic traffic that is expected to conform to the configured network service rate could be mapped to the DSCP Expedited Forwarding {{?RFC3246}} or {{?RFC5865}} PHBs.
+  Transport Services system implementations that map the requested capacity profile onto per-connection DSCP signaling without multiplexing SHOULD assign a DSCP Assured Forwarding (AF41,AF42,AF43,AF44) {{?RFC2597}} PHB. Inelastic traffic that is expected to conform to the configured network service rate could be mapped to the DSCP Expedited Forwarding {{?RFC3246}} or {{?RFC5865}} PHBs.
   
   Low Latency/Non-Interactive:
   : The application prefers loss to latency, but is
@@ -1917,7 +1917,7 @@ The following values are valid for the Capacity Profile:
   Capacity-Seeking:
   : The application expects to send/receive data at the
   maximum rate allowed by its congestion controller over a relatively long
-  period of time. Transport system implementations that map the requested
+  period of time. Transport Services system implementations that map the requested
   capacity profile onto per-connection DSCP signaling without multiplexing
   SHOULD assign a DSCP Assured Forwarding (AF11,AF12,AF13,AF14) {{?RFC2597}} PHB
   per Section 4.8 of {{?RFC4594}}. 
@@ -2041,7 +2041,7 @@ This numeric property represents the maximum Message size that an application ca
 
 These properties specify configurations for the User Timeout Option (UTO), 
 in the case that TCP becomes the chosen transport protocol. 
-Implementation is optional and useful only if TCP is implemented in the transport system.
+Implementation is optional and useful only if TCP is implemented in the Transport Services system.
 
 These TCP-specific properties are included here because the feature `Suggest
 timeout to the peer` is part of the minimal set of transport services
@@ -2322,7 +2322,7 @@ Default:
 
 The Lifetime specifies how long a particular Message can wait to be sent to the
 Remote Endpoint before it is irrelevant and no longer needs to be
-(re-)transmitted. This is a hint to the transport system -- it is not guaranteed
+(re-)transmitted. This is a hint to the Transport Services system -- it is not guaranteed
 that a Message will not be sent when its Lifetime has expired.
 
 Setting a Message's Lifetime to infinite indicates that the application does
@@ -2455,7 +2455,7 @@ without corruption. Changing the `Reliable Data Transfer` property on Messages
 is only possible for Connections that were established enabling the Selection Property `Configure Per-Message Reliability`.
 When this is not the case, changing `msgReliable` will generate an error.
 
-Disabling this property indicates that the transport system may disable retransmissions
+Disabling this property indicates that the Transport Services system may disable retransmissions
 or other reliability mechanisms for this particular Message, but such disabling is not guaranteed.
 
 #### Message Capacity Profile Override {#send-profile}
@@ -2597,7 +2597,7 @@ to which it applies.
 Sent Events allow an application to obtain an understanding of the amount
 of buffering it creates. That is, if an application calls the Send Action multiple
 times without waiting for a Sent Event, it has created more buffer inside the
-transport system than an application that always waits for the Sent Event before
+Transport Services system than an application that always waits for the Sent Event before
 calling the next Send Action.
 
 #### Expired {#expired}
@@ -2683,7 +2683,7 @@ Connection := Preconnection.InitiateWithSend(messageData, messageContext?, timeo
 ~~~
 
 Whenever possible, a messageContext should be provided to declare the Message passed to InitiateWithSend
-as `Safely Replayable`. This allows the transport system to make use of 0-RTT establishment in case this is supported
+as `Safely Replayable`. This allows the Transport Services system to make use of 0-RTT establishment in case this is supported
 by the available protocol stacks. When the selected stack(s) do not support transmitting data upon connection
 establishment, InitiateWithSend is identical to Initiate() followed by Send().
 
@@ -2729,7 +2729,9 @@ Once a Connection is established, it can be used for receiving data (unless the
 sending, the data is received in Messages. Receiving is an asynchronous
 operation, in which each call to Receive enqueues a request to receive new
 data from the connection. Once data has been received, or an error is encountered,
-an event will be delivered to complete any pending Receive requests (see {{receive-events}}). If Messages arrive at the transport system before Receive requests are issued, ensuing Receive requests will first operate on these Messages before awaiting any further Messages.
+an event will be delivered to complete any pending Receive requests (see {{receive-events}}).
+If Messages arrive at the Transport Services system before Receive requests are issued,
+ensuing Receive requests will first operate on these Messages before awaiting any further Messages.
 
 ### Enqueuing Receives
 
@@ -2892,7 +2894,7 @@ Any calls to Receive once the Final Message has been delivered will result in er
 
 Close terminates a Connection after satisfying all the requirements that were
 specified regarding the delivery of Messages that the application has already
-given to the transport system. For example, if reliable delivery was requested
+given to the Transport Services system. For example, if reliable delivery was requested
 for a Message handed over before calling Close, the Closed Event will signify
 that this Message has indeed been delivered. If the Remote Endpoint still has data to
 send, it cannot be received after this call.
@@ -3001,16 +3003,16 @@ in {{security-parameters}}. It does not recommend use (or disuse) of specific
 algorithms or protocols. Any API-compatible transport security protocol ought to work in a TAPS system.
 Security considerations for these protocols are discussed in the respective specifications.
 
-The described API is used to exchange information between an application and the transport system. While
+The described API is used to exchange information between an application and the Transport Services system. While
 it is not necessarily expected that both systems are implemented by the same authority, it is expected
-that the transport system implementation is either provided as a library that is selected by the application
+that the Transport Services system implementation is either provided as a library that is selected by the application
 from a trusted party, or that it is part of the operating system that the application also relies on for
 other tasks.
 
-In either case, the TAPS API is an internal interface that is used to change information locally between two systems.
-However, as the transport system is responsible for network communication, it is in the position to
+In either case, the Transport Services API is an internal interface that is used to change information locally between two systems.
+However, as the Transport Services system is responsible for network communication, it is in the position to
 potentially share any information provided by the application with the network or another communication peer. 
-Most of the information provided over the TAPS API are useful to configure and select protocols and paths
+Most of the information provided over the Transport Services API are useful to configure and select protocols and paths
 and are not necessarily privacy sensitive. Still, some information could be privacy sensitive because
 it might reveal usage characteristics and habits of the user of an application. 
 
@@ -3024,9 +3026,9 @@ information that is intended for path exposure, e.g., a DiffServ codepoint setti
 directly by the application or indirectly configured for a traffic profile. 
 
 Applications should be aware that communication attempts can lead to more than one connection establishment.
-This is the case, for example, when the transport system also executes name resolution, when support mechanisms such as
+This is the case, for example, when the Transport Services system also executes name resolution, when support mechanisms such as
 TURN or ICE are used to establish connectivity, if protocols or paths are raised, or if a path fails and 
-fallback or re-establishment is supported in the transport system. 
+fallback or re-establishment is supported in the Transport Services system. 
 
 The interface explicitly does not require the application to resolve names, though there is
 a tradeoff between early and late binding of addresses to names. Early binding
@@ -3037,7 +3039,7 @@ application interest when used with a resolution method (such as DNS without
 TLS) which does not protect query confidentiality.
 
 These communication activities are not different from what is used today. However, 
-the goal of a TAPS transport system is to support
+the goal of a Transport Services system is to support
 such mechanisms as a generic service within the transport layer. This enables applications to more dynamically
 benefit from innovations and new protocols in the transport, although it reduces transparency of the 
 underlying communication actions to the application itself. The TAPS API is designed such that protocol and path selection
@@ -3215,7 +3217,7 @@ the `Lifetime` Message Property implements a time-based way to configure message
 these two transport features are controlled via the Message Property `Ordered` ({{msg-ordered}}).
 
 * Request not to delay the acknowledgement (SACK) of a message:
-should the protocol support it, this is one of the transport features the transport system can apply when an application uses the `Capacity Profile` Property ({{prop-cap-profile}}) or the `Message Capacity Profile Override` Message Property ({{send-profile}}) with value `Low Latency/Interactive`.
+should the protocol support it, this is one of the transport features the Transport Services system can apply when an application uses the `Capacity Profile` Property ({{prop-cap-profile}}) or the `Message Capacity Profile Override` Message Property ({{send-profile}}) with value `Low Latency/Interactive`.
 
 * Receive data (with no message delimiting):
 `Received` Event ({{receive-complete}}). See {{framing}} for handling Message framing in situations where the Protocol
