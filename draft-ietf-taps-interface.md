@@ -1543,7 +1543,7 @@ and to which it will attempt to establish connections.
 An application that uses Rendezvous() to establish a peer-to-peer connection
 in the presence of NATs will configure the Preconnection object with at least
 one a Local Endpoint that supports NAT binding discovery. It will then Resolve()
-the Preconnection, and pass the resulting list of Local Endpoints candidates to
+the Preconnection, and pass the resulting list of Local Endpoint candidates to
 the peer via a signalling protocol, for example as part of an ICE {{?RFC5245}}
 exchange within SIP {{?RFC3261}} or WebRTC {{?RFC7478}}.  The peer will then,
 via the same signalling channel, return the Remote Endpoint candidates.
@@ -1571,7 +1571,7 @@ transport-layer connection is established; for Connectionless transports,
 it occurs when the first Message is received from the Remote Endpoint. The
 resulting Connection is contained within the RendezvousDone<> Event, and is
 ready to use as soon as it is passed to the application via the Event.
-Changes made to a Preconnection made after Rendezvous() has been called do
+Changes made to a Preconnection after Rendezvous() has been called do
 not have any effect on existing Connections. 
 
 An EstablishmentError occurs either when the Properties and Security
