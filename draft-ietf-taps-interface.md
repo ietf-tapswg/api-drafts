@@ -621,7 +621,7 @@ reach a host, or a set of hosts that provide equivalent local balanced
 service. 
 
 In most cases, it is expected that a single Remote Endpoint will be
-specified by name, and a later call to  Initiate() the Preconnection
+specified by name, and a later call to  Initiate() on the Preconnection
 (see {{initiate}}) will internally resolve that name to a list of concrete
 endpoints. Specifying multiple Remote Endpoints on a Preconnection allows
 applications to override this for more detailed control.
