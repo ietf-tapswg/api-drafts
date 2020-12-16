@@ -160,7 +160,7 @@ The implementation stores these properties as a part of the Preconnection object
 
 ## Configuration-time errors
 
-The transport system should have a list of supported protocols available, which each have transport features reflecting the capabilities of the protocol. Once an application specifies its Transport Properties, the transport system matches the required and prohibited properties against the transport features of the available protocols.
+The Transport Services system should have a list of supported protocols available, which each have transport features reflecting the capabilities of the protocol. Once an application specifies its Transport Properties, the transport system matches the required and prohibited properties against the transport features of the available protocols.
 
 In the following cases, failure should be detected during pre-establishment:
 
