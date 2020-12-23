@@ -1054,6 +1054,8 @@ and assume a client-server communication model in the following explanation.
 Stream mapping requires an association to already be in place between the client
 and the server, and it requires the server to understand that a new incoming stream
 should be represented as a new Connection Object by the Transport Services system.
+[TO BE UPDATED: We should reserve an Adaptation Code Point and describe how
+to use it, and what it means to fall back in case it is not supported by the peer.]
 SCTP has no defined way to signal the use of stream mapping; {{NEAT-flow-mapping}}
 describes a work-around, where a Transport Services system negotiates the stream mapping
 capability using SCTP's adaptation layer indication.
