@@ -125,7 +125,7 @@ informative:
         name: Stein Gjessing
     date: 2018-04-15
     NEATPy:
-      title: Transport Services: A Modern API for an Adaptive Internet Transport Layer
+      title: "Transport Services: A Modern API for an Adaptive Internet Transport Layer"
       seriesinfo: IEEE Communications Magazine, April 2021
       author:
       -
