@@ -94,8 +94,6 @@ normative:
   I-D.ietf-taps-arch:
 
 informative:
-  I-D.ietf-taps-minset:
-  I-D.ietf-taps-transport-security:
   I-D.ietf-taps-impl:
   RFC7556:
   TCP-COUPLING:
@@ -157,11 +155,11 @@ mechanisms, which otherwise need to be separately implemented in each applicatio
 
 It derives specific path and protocol selection
 properties and supported transport features from the analysis provided in
-{{?RFC8095}}, {{I-D.ietf-taps-minset}}, and
-{{I-D.ietf-taps-transport-security}}. The design encourages implementations 
+{{?RFC8095}}, {{?RFC8923}}, and
+{{?RFC8922}}. The design encourages implementations 
 underneath the interface to dynamically choose a transport protocol depending on an 
 application's choices rather than statically binding applications to a protocol at 
-compile time. The transport system implementations should provide
+compile time. The Transport Services system implementations should provide
 applications with a way to override transport selection and instantiate a specific stack,
 e.g., to support servers wishing to listen to a specific protocol. This specific
 transport stack choice is discouraged for general use, because it can reduce the portability.
@@ -419,40 +417,40 @@ This is an example of how an application might establish a connection with a
 peer using Rendezvous(), send a Message, and receive a Message.
 
 ~~~
-LocalSpecifier := NewLocalEndpoint()
-LocalSpecifier.WithPort(9876)
+// Configure local candidates: a port on the local host and via a STUN server
+HostCandidate := NewLocalEndpoint()
+HostCandidate.WithPort(9876)
 
-RemoteSpecifier := NewRemoteEndpoint()
-RemoteSpecifier.WithHostname("example.com")
-RemoteSpecifier.WithPort(9877)
+StunCandidate := NewLocalEndpoint()
+StunCandidate.WithStunServer(address, port, credentials)
 
-TransportProperties := NewTransportProperties()
-TransportProperties.Require(preserve-msg-boundaries)
-// Reliable Data Transfer and Preserve Order are Required by default
+LocalCandidates = [HostCandidate, StunCandidate]
 
-SecurityParameters := NewSecurityParameters()
-SecurityParameters.Set('identity', identity)
-SecurityParameters.Set('keypair', privateKey, publicKey)
+// Configure transport and security properties
+TransportProperties := ...
+SecurityParameters  := ...
 
-TrustCallback := New Callback({
-  // Verify identity of the remote endpoint, return the result
-})
-SecurityParameters.SetTrustVerificationCallback(trustCallback)
-
-// Both local and remote endpoint must be specified
-Preconnection := NewPreconnection(LocalSpecifier,
-                                  RemoteSpecifier,
+Preconnection := NewPreconnection(LocalCandidates,
+                                  [], // No remote candidates yet
                                   TransportProperties,
                                   SecurityParameters)
 
+// Resolve the LocalCandidates. The Preconnection.Resolve() call 
+// resolves both local and remote candidates but, since the remote
+// candidates have not yet been specified, the ResolvedRemote list
+// returned will be empty and is not used.
+ResolvedLocal, ResolvedRemote = Preconnection.Resolve()
+
+// ...Send the ResolvedLocal list to peer via signalling channel
+// ...Receive a list of RemoteCandidates from peer via signalling channel
+
+Preconnection.AddRemote(RemoteCandidates)
 Preconnection.Rendezvous()
 
 Preconnection -> RendezvousDone<Connection>
 
 //---- Ready event handler begin ----
 Connection.Send(messageDataRequest)
-
-// Only receive complete messages
 Connection.Receive()
 //---- Ready event handler end ----
 
@@ -591,21 +589,43 @@ of the potential Connection (see {{endpointspec}}), the Selection Properties
 {{security-parameters}}):
 
 ~~~
-   Preconnection := NewPreconnection(LocalEndpoint?,
-                                     RemoteEndpoint?,
+   Preconnection := NewPreconnection([]LocalEndpoint,
+                                     []RemoteEndpoint,
                                      TransportProperties,
-                                     SecurityParams)
+                                     SecurityParameters)
 ~~~
 
-The Local Endpoint MUST be specified if the Preconnection is used to Listen()
-for incoming Connections, but is OPTIONAL if it is used to Initiate()
-connections. If no Local Endpoint is specified, the Transport System will
+At least one Local Endpoint MUST be specified if the Preconnection is used to Listen()
+for incoming Connections, but the list of Local Endpoints MAY be empty if
+the Preconnection is used to Initiate()
+connections. If no Local Endpoint is specified, the Transport Services system will
 assign an ephemeral local port to the Connection on the appropriate interface(s).
-The Remote Endpoint MUST be specified if the Preconnection is used
-to Initiate() Connections, but is OPTIONAL if it is used to Listen() for
-incoming Connections.
-The Local Endpoint and the Remote Endpoint MUST both be specified if a
+At least one Remote Endpoint MUST be specified if the Preconnection is used
+to Initiate() Connections, but the list of Remote Endpoints MAY be empty if 
+the Preconnection is used to Listen() for incoming Connections.
+At least one Local Endpoint and one Remote Endpoint MUST be specified if a
 peer-to-peer Rendezvous is to occur based on the Preconnection.
+
+If more than one Local Endpoint is specified on a Preconnection, then all
+the Local Endpoints on the Preconnection MUST represent the same host. For
+example, they might correspond to different interfaces on a multi-homed
+host, of they might correspond to local interfaces and a STUN server that
+can be resolved to a server reflexive address for a Preconnection used to
+make a peer-to-peer Rendezvous().
+
+If more than one Remote Endpoint is specified on the Preconnection, then
+all the Remote Endpoints on the Preconnection SHOULD represent the same
+host. For example, the Remote Endpoints might represent various network
+interfaces of a host, or a server reflexive address that can be used to
+reach a host, or a set of hosts that provide equivalent local balanced
+service. 
+
+In most cases, it is expected that a single Remote Endpoint will be
+specified by name, and a later call to  Initiate() on the Preconnection
+(see {{initiate}}) will internally resolve that name to a list of concrete
+endpoints. Specifying multiple Remote Endpoints on a Preconnection allows
+applications to override this for more detailed control.
+
 
 Transport Properties MUST always be specified while security parameters are OPTIONAL.
 
@@ -615,10 +635,119 @@ Preconnection during pre-establishment.
 ## Specifying Endpoints {#endpointspec}
 
 The transport services API uses the Local Endpoint and Remote Endpoint Objects
-to refer to the endpoints of a transport connection.
-Actions on these Objects can be used to represent various different types of
-endpoint identifiers, such as IP addresses, DNS names, and interface names,
-as well as port numbers and service names.
+to refer to the endpoints of a transport connection. Endpoints can be created
+as either Remote or Local:
+
+~~~
+RemoteSpecifier := NewRemoteEndpoint()
+LocalSpecifier := NewLocalEndpoint()
+~~~
+
+A single Endpoint Object represents the identity of a network host. That endpoint
+can be more or less specific depending on which identifiers are set. For example,
+an Endpoint that only specifies a hostname may in fact end up corresponding
+to several different IP addresses on different hosts.
+
+An Endpoint Object can be configured with the following identifiers:
+
+- Hostname (string)
+
+~~~
+RemoteSpecifier.WithHostname("example.com")
+~~~
+
+- Port (a 16-bit integer) or a Service (string) that maps to a port
+
+~~~
+RemoteSpecifier.WithPort(443)
+~~~
+
+~~~
+RemoteSpecifier.WithService("https")
+~~~
+
+- IP address (IPv4 or IPv6 address)
+
+~~~
+RemoteSpecifier.WithIPv4Address(192.0.2.21)
+~~~
+
+~~~
+RemoteSpecifier.WithIPv6Address(2001:db8:4920:e29d:a420:7461:7073:0a)
+~~~
+
+- Interface (string name)
+
+~~~
+LocalSpecifier.WithInterface("en0")
+~~~
+
+An Endpoint cannot have multiple identifiers of a same type set. That is,
+an endpoint cannot have two IP addresses specified. Two separate IP addresses
+are represented as two Endpoint Objects. If a Preconnection specifies a Remote
+Endpoint with a specific IP address set, it will only establish Connections to
+that IP address. If, on the other hand, the Remote Endpoint specifies a hostname
+but no addresses, the Connection can perform name resolution and attempt
+using any address derived from the original hostname of the Remote Endpoint.
+
+The Transport Services API resolves names internally, when the Initiate(),
+Listen(), or Rendezvous() method is called to establish a Connection. Privacy
+considerations for the timing of this resolution are given in {{privacy-security}}.
+
+The Resolve() action on a Preconnection can be used by the application to force
+early binding when required, for example with some Network Address Translator
+(NAT) traversal protocols (see {{rendezvous}}).
+
+### Using Multicast Endpoints
+
+Specifying a multicast group address on a Local Endpoint will indicate to the transport
+system that the resulting connection will be used to receive multicast messages. The
+Remote Endpoint can be used to filter incoming multicast from specific senders. Such
+a Preconnection will only support calling Listen(), not Initiate(). The accepted Connections
+are receive-only.
+
+Similarly, specifying a multicast group address on the Remote Endpoint will indicate that the
+resulting connection will be used to send multicast messages.
+
+### Endpoint Aliases
+
+An Endpoint can have an alternative definition when using different protocols.
+For example, a server that supports both TLS/TCP and QUIC may be accessible
+on two different port numbers depending on which protocol is used.
+
+To support this, Endpoint Objects can specify "aliases". An Endpoint can have
+multiple aliases set.
+
+~~~
+RemoteSpecifier.AddAlias(AlternateRemoteSpecifier)
+~~~
+
+In order to scope an alias to a specific transport protocol, an Endpoint can
+specify a protocol identifier. These identifiers MUST only be set for aliases.
+
+~~~
+RemoteSpecifier.WithProtocol(QUIC)
+~~~
+
+The following example shows a case where "example.com" has a server
+running on port 443, with an alternate port of 8443 for QUIC.
+
+~~~
+RemoteSpecifier := NewRemoteEndpoint()
+RemoteSpecifier.WithHostname("example.com")
+RemoteSpecifier.WithPort(443)
+
+QUICRemoteSpecifier := NewRemoteEndpoint()
+QUICRemoteSpecifier.WithHostname("example.com")
+QUICRemoteSpecifier.WithPort(8443)
+QUICRemoteSpecifier.WithProtocol(QUIC)
+
+RemoteSpecifier.AddAlias(QUICRemoteSpecifier)
+~~~
+
+### Endpoint Examples
+
+The following examples of Endpoints show common usage patterns.
 
 Specify a Remote Endpoint using a hostname and service name:
 
@@ -652,7 +781,11 @@ LocalSpecifier.WithInterface("en0")
 LocalSpecifier.WithPort(443)
 ~~~
 
-As an alternative to specifying an interface name for the Local Endpoint, an application can express more fine-grained preferences using the `Interface Instance or Type` Selection Property, see {{prop-interface}}. However, if the application specifies Selection Properties that are inconsistent with the Local Endpoint, this will result in an Error once the application attempts to open a Connection.
+As an alternative to specifying an interface name for the Local Endpoint, an application
+can express more fine-grained preferences using the `Interface Instance or Type`
+Selection Property, see {{prop-interface}}. However, if the application specifies Selection
+Properties that are inconsistent with the Local Endpoint, this will result in an Error once the
+application attempts to open a Connection.
 
 Specify a Local Endpoint using a STUN server:
 
@@ -679,33 +812,6 @@ LocalSpecifier.WithInterface("en0")
 RemoteSpecifier := NewRemoteEndpoint()
 RemoteSpecifier.WithIPv4Address(192.0.2.22)
 ~~~
-
-Implementations may also support additional endpoint representations and
-provide a single NewEndpoint() call that takes different endpoint representations.
-
-Multiple endpoint identifiers can be specified for each Local Endpoint and
-Remote Endpoint.  For example, a Local Endpoint could be configured with two
-interface names, or a Remote Endpoint could be specified via both IPv4 and
-IPv6 addresses. These multiple identifiers refer to the same transport
-endpoint.
-
-The transport services API resolves names internally, when the Initiate(),
-Listen(), or Rendezvous() method is called to establish a Connection. The API
-explicitly does not require the application to resolve names, though there is
-a tradeoff between early and late binding of addresses to names. Early binding
-allows the API implementation to reduce connection setup latency, at the cost
-of potentially limited scope for alternate path discovery during Connection
-establishment, as well as potential additional information leakage about
-application interest when used with a resolution method (such as DNS without
-TLS) which does not protect query confidentiality.
-
-The Resolve() action on Preconnection can be used by the application to force
-early binding when required, for example with some Network Address Translator
-(NAT) traversal protocols (see {{rendezvous}}).
-
-Specifying a multicast group address on the Local Endpoint will indicate to the transport system that the resulting connection will be used to receive multicast messages. The Remote Endpoint can be used to filter by specific senders. This will restrict the application to establishing the Preconnection by calling Listen(). The accepted Connections are receive-only. 
-
-Similarly, specifying a multicast group address on the Remote Endpoint will indicate that the resulting connection will be used to send multicast messages. 
 
 ## Specifying Transport Properties {#selection-props}
 
@@ -958,6 +1064,22 @@ rendering "reliable but not congestion controlled" a request that is unlikely to
 succeed. If the Connection is congestion controlled, performing additional congestion control
 in the application can have negative performance implications.
 
+### Keep alive {#keep-alive}
+
+Name:
+: keepAlive
+
+Type:
+: Preference
+
+Default:
+: Ignore
+
+This property specifies whether the application would like the Connection to send
+keep-alive packets or not. Note that if a Connection determines that keep-alive
+packets are being sent, the applicaton should itself avoid generating additional keep alive
+messages. Note that when supported, the system will use the default period
+for generation of the keep alive-packets. (See also {{keep-alive-timeout}}).
 
 ### Interface Instance or Type {#prop-interface}
 
@@ -1109,7 +1231,7 @@ This property specifies whether alternative addresses, e.g., of other interfaces
 peer endpoint by the protocol stack. Advertising these addresses enables the peer-endpoint to establish additional connectivity, e.g., for connection migration or using multiple paths.
 
 Note that this can have privacy implications because it might result in users being linkable across the multiple paths.
-Also, note that setting this to false does not prevent the local transport system from _establishing_ connectivity using alternate paths (see {{multipath-mode}} above); it only prevents _proactive advertisement_ of addresses.
+Also, note that setting this to false does not prevent the local Transport Services system from _establishing_ connectivity using alternate paths (see {{multipath-mode}} above); it only prevents _proactive advertisement_ of addresses.
 
 ### Direction of communication
 
@@ -1137,22 +1259,6 @@ Since unidirectional communication can be
 supported by transports offering bidirectional communication, specifying
 unidirectional communication may cause a transport stack that supports
 bidirectional communication to be selected.
-
-
-### Notification of excessive retransmissions {#prop-establish-retrans-notify}
-
-Name:
-: retransmitNotify
-
-Type:
-: Preference
-
-Default:
-: Ignore
-
-This property specifies whether an application considers it useful to be
-informed in case sent data was retransmitted more often than a certain
-threshold (see {{conn-excss-retransmit}} for configuration of this threshold).
 
 
 ### Notification of ICMP soft error message arrival {#prop-soft-error}
@@ -1194,7 +1300,7 @@ immediately followed by writing. This property is ignored when establishing
 connections using Rendezvous().
 Requiring this property limits the choice of mappings to underlying protocols,
 which can reduce
-efficiency. For example, it prevents the transport system from mapping
+efficiency. For example, it prevents the Transport Services system from mapping
 Connections to SCTP streams, where
 the first transmitted data takes the role of an active open signal {{I-D.ietf-taps-impl}}.
 
@@ -1211,7 +1317,7 @@ are inherited during cloning (see {{groups}}).
 
 Common parameters such as TLS ciphersuites are known to implementations. Clients should
 use common safe defaults for these values whenever possible. However, as discussed in
-{{I-D.ietf-taps-transport-security}}, many transport security protocols require specific
+{{?RFC8922}}, many transport security protocols require specific
 security parameters and constraints from the client at the time of configuration and
 actively during a handshake. These configuration parameters need to be specified in the
 pre-connection phase and are created as follows:
@@ -1249,8 +1355,13 @@ its use or has some protocol-specific meaning to the Remote Endpoint.
 SecurityParameters.Set('pre-shared-key', key, identity)
 ~~~
 
-- Session cache management: Used to tune cache capacity, lifetime, re-use,
-and eviction policies, e.g., LRU or FIFO.
+- Session cache management: Used to tune session cache capacity, lifetime, and
+other policies.
+
+~~~
+SecurityParameters.Set('max-cached-sessions', 16)
+SecurityParameters.Set('cached-session-lifetime-seconds', 3600)
+~~~
 
 ### Connection Establishment Callbacks
 
@@ -1419,53 +1530,58 @@ Rendezvous() Action:
 Preconnection.Rendezvous()
 ~~~
 
-The Preconnection Object must be specified with both a Local Endpoint and a
-Remote Endpoint, and also the transport properties and security parameters
-needed for Protocol Stack selection.
+A Preconnection Object used in a Rendezvous() MUST have both the
+Local Endpoint candidates and the Remote Endpoint candidates specified,
+along with the transport properties and security parameters needed for
+Protocol Stack selection, before the Rendezvous() Action is initiated.
 
-The Rendezvous() Action causes the Preconnection to listen on the Local
-Endpoint for an incoming Connection from the Remote Endpoint, while also
-simultaneously trying to establish a Connection from the Local Endpoint to
-the Remote Endpoint. 
+The Rendezvous() Action listens on the Local Endpoint
+candidates for an incoming Connection from the Remote Endpoint candidates,
+while also simultaneously trying to establish a Connection from the Local
+Endpoint candidates to the Remote Endpoint candidates.
 
-If there are multiple Local Endpoints or Remote Endpoints configured, then 
-initiating a rendezvous action will systematically probe the reachability
-of those endpoints following an approach such as that used in Interactive
-Connectivity Establishment (ICE) {{?RFC5245}}.
+If there are multiple Local Endpoints or Remote Endpoints configured, then
+initiating a Rendezvous() action will systematically probe the reachability
+of those endpoint candidates following an approach such as that used in
+Interactive Connectivity Establishment (ICE) {{?RFC5245}}.
 
 If the endpoints are suspected to be behind a NAT, Rendezvous() can be
-initiated using Local and Remote Endpoints that support a method of
-discovering NAT bindings such as Session Traversal Utilities for NAT (STUN)
-{{?RFC8489}} or Traversal Using Relays around NAT (TURN) {{?RFC5766}}.
-In this case, the Local Endpoint will resolve to a mixture of local and
-server reflexive addresses. The Resolve() action on the Preconnection can
-be used to discover these bindings:
+initiated using Local Endpoints that support a method of discovering NAT
+bindings such as Session Traversal Utilities for NAT (STUN) {{?RFC8489}} or
+Traversal Using Relays around NAT (TURN) {{?RFC5766}}.  In this case, the
+Local Endpoint will resolve to a mixture of local and server reflexive
+addresses. The Resolve() action on the Preconnection can be used to
+discover these bindings:
 
 ~~~
-[]Preconnection := Preconnection.Resolve()
+[]LocalEndpoint, []RemoteEndpoint := Preconnection.Resolve()
 ~~~
 
-The Resolve() call returns a list of Preconnection Objects, that represent the
-concrete addresses, local and server reflexive, on which a Rendezvous() for
-the Preconnection will listen for incoming Connections. These resolved
-Preconnections will share all other Properties with the Preconnection from
-which they are derived, though some Properties may be made more-specific by
-the resolution process. 
+The Resolve() call returns lists of Local Endpoints and Remote Endpoints,
+that represent the concrete addresses, local and server reflexive, on which
+a Rendezvous() for the Preconnection will listen for incoming Connections,
+and to which it will attempt to establish connections.
 
 An application that uses Rendezvous() to establish a peer-to-peer connection
-in the presence of NATs will configure the Preconnection object with a Local
-Endpoint that supports NAT binding discovery. It will then Resolve() on that
-endpoint, and pass the resulting list of candidate local addresses to the
-peer via a signalling protocol, for example as part of an ICE {{?RFC5245}}
-exchange within SIP {{?RFC3261}} or WebRTC {{?RFC7478}}.  The peer will, via the same signalling
-channel, return the remote endpoint candidates. These remote endpoint candidates
-are then configured on the Preconnection, allowing the Rendezvous() Action to be
-initiated.
+in the presence of NATs will configure the Preconnection object with at least
+one a Local Endpoint that supports NAT binding discovery. It will then Resolve()
+the Preconnection, and pass the resulting list of Local Endpoint candidates to
+the peer via a signalling protocol, for example as part of an ICE {{?RFC5245}}
+exchange within SIP {{?RFC3261}} or WebRTC {{?RFC7478}}.  The peer will then,
+via the same signalling channel, return the Remote Endpoint candidates.
+The set of Remote Endpoint candidates are then configured onto the Preconnection:
 
-The Rendezvous() Action returns a Connection object. Once Rendezvous() has been
-called, any changes to the Preconnection MUST NOT have any effect on the
-Connection. However, the Preconnection can be reused, e.g., for Rendezvous of
-another Connection.
+~~~
+Preconnection.AddRemote([]RemoteEndpoint)
+~~~
+
+The Rendezvous() Action can be initiated once both the Local Endpoint
+candidates and the Remote Endpoint candidates retrieved from the peer via
+the signalling channel have been added to the Preconnection.
+
+
+If successful, the Rendezvous() Action returns a Connection object via a
+RendezvousDone<> Event: 
 
 ~~~
 Preconnection -> RendezvousDone<Connection>
@@ -1477,35 +1593,21 @@ transport-layer connection is established; for Connectionless transports,
 it occurs when the first Message is received from the Remote Endpoint. The
 resulting Connection is contained within the RendezvousDone<> Event, and is
 ready to use as soon as it is passed to the application via the Event.
+Changes made to a Preconnection after Rendezvous() has been called do
+not have any effect on existing Connections. 
+
+An EstablishmentError occurs either when the Properties and Security
+Parameters of the Preconnection cannot be fulfilled for rendezvous or
+cannot be reconciled with the Local and/or Remote Endpoints, when the Local
+Endpoint or Remote Endpoint cannot be resolved, when no transport-layer
+connection can be established to the Remote Endpoint, or when the
+application is prohibited from rendezvous by policy:
 
 ~~~
 Preconnection -> EstablishmentError<reason?>
 ~~~
 
-An EstablishmentError occurs either when the Properties and Security Parameters of the Preconnection cannot be fulfilled
-for rendezvous or cannot be reconciled with the Local and/or Remote Endpoints, when the Local Endpoint or Remote Endpoint cannot be resolved,
-when no transport-layer connection can be established to the Remote Endpoint,
-or when the application is prohibited from rendezvous by policy.
 
-When using some NAT traversal protocols, e.g., Interactive Connectivity
-Establishment (ICE) {{?RFC5245}}, it is expected that the Local Endpoint will
-be configured with some method of discovering NAT bindings, e.g., a Session
-Traversal Utilities for NAT (STUN) server. In this case, the Local Endpoint
-may resolve to a mixture of local and server reflexive addresses. The
-Resolve() action on the Preconnection can be used to discover these bindings:
-
-~~~
-[]Preconnection := Preconnection.Resolve()
-~~~
-
-The Resolve() call returns a list of Preconnection Objects, that represent the
-concrete addresses, local and server reflexive, on which a Rendezvous() for
-the Preconnection will listen for incoming Connections. These resolved
-Preconnections will share all other Properties with the Preconnection from
-which they are derived, though some Properties may be made more-specific by
-the resolution process. This list can be passed to a peer via a signalling
-protocol, such as SIP {{?RFC3261}} or WebRTC {{?RFC7478}}, to configure the
-remote endpoint.
 
 ## Connection Groups {#groups}
 
@@ -1520,8 +1622,16 @@ Connection on which Clone was called, and a resulting cloned Connection. The
 connections within a group are "entangled" with each other, and become part of a Connection
 Group. Calling Clone on any of these Connections adds another Connection to
 the Connection Group, and so on. "Entangled" Connections share all
-Connection Properties except `Priority
-(Connection)`, see {{conn-priority}}. Like all other Properties, Priority is copied to the new Connection when calling Clone(), but it is not entangled: Changing Priority on one Connection does not change it on the other Connections in the same Connection Group.
+Connection Properties except `Connection Priority` (see {{conn-priority}}) .
+Like all other Properties, Connection Priority is copied 
+to the new Connection when calling Clone(), but it is not entangled: Changing 
+Connection Priority on one Connection does not change it on the other Connections 
+in the same Connection Group. 
+
+The stack of Message Framers associated with a Connection are also copied to 
+the cloned Connection when calling Clone. In other words, a cloned Connection 
+has the same stack of Message Framers as the Connection from which they
+are Cloned, but these Framers may internally maintain per-Connection state.
 
 It is also possible to check which Connections belong to the same Connection Group.
 Calling GroupedConnections() on a specific Connection returns a set of all Connections
@@ -1532,7 +1642,9 @@ in the same group.
 ~~~
 
 Connections will belong to the same group if the application previously called Clone.
-Passive Connections can also be added to the same group -- e.g., when a Listener receives a new Connection that is just a new stream of an already active multi-streaming protocol instance.
+Passive Connections can also be added to the same group -- e.g., when a Listener
+receives a new Connection that is just a new stream of an already active multi-streaming
+protocol instance.
 
 Changing one of the Connection Properties on one Connection in the group
 changes it for all others. Message Properties, however, are not
@@ -1550,9 +1662,9 @@ but also across the end-to-end Internet path.
 Note that calling Clone() can result in on-the-wire signaling, e.g., to open a new
 connection, depending on the underlying Protocol Stack. When Clone() leads to
 multiple connections being opened instead of multi-streaming,
-the transport system will ensure consistency of
+the Transport Services system will ensure consistency of
 Connection Properties by uniformly applying them to all underlying connections
-in a group. Even in such a case, there are possibilities for a transport system
+in a group. Even in such a case, there are possibilities for a Transport Services system
 to implement prioritization within a Connection Group {{TCP-COUPLING}} {{?RFC8699}}.
 
 Attempts to clone a Connection can result in a CloneError:
@@ -1561,18 +1673,13 @@ Attempts to clone a Connection can result in a CloneError:
 Connection -> CloneError<reason?>
 ~~~
 
-The Connection Property "Priority" operates on entangled Connections as in {{msg-priority}}:
-when allocating available network
+The Connection Priority Connection Property operates on entangled Connections 
+using the same approach as in {{msg-priority}}: when allocating available network
 capacity among Connections in a Connection Group, sends on Connections with
-higher Priority values will be prioritized over sends on Connections with
-lower Priority values. A transport system implementation should, if possible, assign
-each Connection the capacity share (M-N) x C / M, where N is the Connection's
-Priority value, M is the maximum Priority value used by all Connections in the
-group and C is the total available capacity. However, this Priority setting is
-purely advisory, and provides no guarantees about the way capacity is shared.
-Each implementation is free to implement a way to share
-capacity that it sees fit.
-
+lower Priority values will be prioritized over sends on Connections with
+higher Priority values. Capacity will be shared among these Connections according to
+the Connection Group Transmission Scheduler property ({{conn-scheduler}}). 
+See {{priority-in-taps}} for more.
 
 # Managing Connections {#introspection}
 
@@ -1656,20 +1763,6 @@ Many Connection Properties have a corresponding Selection Property that
 enables applications to express their preference for protocols providing a supporting transport feature.
 
 
-### Retransmission Threshold Before Excessive Retransmission Notification {#conn-excss-retransmit}
-
-Name:
-: retransmitNotifyThreshold
-
-Type:
-: Integer, with special value `Disabled`
-
-Default:
-: Disabled
-
-This property specifies the number of retransmissions required to cause the application
-to be notified of `Excessive Retransmissions`.
-
 ### Required Minimum Corruption Protection Coverage for Receiving {#conn-recv-checksum}
 
 Name:
@@ -1687,7 +1780,7 @@ that no checksum is permitted. A receiving Endpoint will not forward messages to
 that have less coverage. The application is responsible for handling
 any corruption within the non-protected part of the message {{!RFC8085}}.
 
-### Priority (Connection) {#conn-priority}
+### Connection Priority {#conn-priority}
 
 Name:
 : connPrio
@@ -1699,10 +1792,14 @@ Default:
 : 100
 
 This Property is a non-negative integer representing the relative inverse
-priority (i.e., a lower value reflects a higher priority) of this Connection relative to other Connections in the same
+priority (i.e., a lower value reflects a higher priority) of this Connection 
+relative to other Connections in the same
 Connection Group. It has no effect on Connections not part of a Connection
 Group. As noted in {{groups}}, this property is not entangled when Connections
-are cloned, i.e., changing the Priority on one Connection in a Connection Group does not change it on the other Connections in the same Connection Group.
+are cloned, i.e., changing the Priority on one Connection in a Connection Group 
+does not change it on the other Connections in the same Connection Group. 
+No guarantees of a specific behavior regarding Connection Priority are given;
+a Transport Services system may ignore this property. See {{priority-in-taps}} for more details.
 
 ### Timeout for Aborting Connection {#conn-timeout}
 
@@ -1715,12 +1812,31 @@ Type:
 Default:
 : Disabled
 
-This property specifies how long to wait before deciding that a Connection has
-failed when trying to reliably deliver data to the destination. Adjusting this Property
+This property specifies how long to wait before deciding that an active Connection has
+failed when trying to reliably deliver data to the Remote Endpoint. Adjusting this Property
 will only take effect when the underlying stack supports reliability. The special value
-`Disabled` means that this timeout is not scheduled to happen. This can be a valid
-choice with unreliable data transfer (e.g., when UDP is the underlying transport protocol).
+`Disabled` means that this timeout is not scheduled to happen.
 
+### Timeout for keep alive packets {#keep-alive-timeout}
+
+Name:
+: keepaliveTimeout
+
+Type:
+: Numeric, with special value `Default`
+
+Default:
+: Default
+
+A Transport Services system can request a protocol that supports sending keep alive packets {{keep-alive}}.
+This property specifies the maximum time an idle connection (one for which no transport
+packets have been sent) should wait before 
+the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting this Property
+will only take effect when the underlying stack supports sending keep-alive packets. 
+Guidance on setting this value for datagram transports is 
+provided in {{!RFC8085}}. The special value
+`Default` means that this timeout will use the default for the selected transport. 
+A value greater than the connection timeout ({{conn-timeout}}) will disable the sending of keep-alive packets.
 
 ### Connection Group Transmission Scheduler {#conn-scheduler}
 
@@ -1745,7 +1861,7 @@ Name:
 This property specifies the desired network treatment for traffic sent by the
 application and the tradeoffs the application is prepared to make in path and
 protocol selection to receive that desired treatment. When the capacity profile
-is set to a value other than Default, the transport system SHOULD select paths
+is set to a value other than Default, the Transport Services system SHOULD select paths
 and configure protocols to optimize the tradeoff between delay, delay variation, and
 efficient use of the available capacity based on the capacity profile specified. How this is realized
 is implementation-specific. The Capacity Profile MAY also be used
@@ -1757,7 +1873,7 @@ The following values are valid for the Capacity Profile:
 
   Default:
   : The application provides no information about its expected capacity
-  profile. Transport system implementations that
+  profile. Transport Services system implementations that
   map the requested capacity profile onto per-connection DSCP signaling 
   SHOULD assign the DSCP Default Forwarding {{?RFC2474}} Per Hop Behaviour (PHB).
 
@@ -1765,7 +1881,7 @@ The following values are valid for the Capacity Profile:
   : The application is not interactive. It expects to send
   and/or receive data without any urgency. This can, for example, be used to
   select protocol stacks with scavenger transmission control and/or to assign
-  the traffic to a lower-effort service. Transport system implementations that
+  the traffic to a lower-effort service. Transport Services system implementations that
   map the requested capacity profile onto per-connection DSCP signaling
   SHOULD assign the DSCP Less than Best Effort
   {{?RFC8622}} PHB.
@@ -1777,7 +1893,7 @@ The following values are valid for the Capacity Profile:
   used by the system to disable the coalescing of multiple small Messages into
   larger packets (Nagle's algorithm); to prefer immediate acknowledgment from
   the peer endpoint when supported by the underlying transport; and so on.
-  Transport system implementations that map the requested capacity profile onto per-connection DSCP signaling without multiplexing SHOULD assign a DSCP Assured Forwarding (AF41,AF42,AF43,AF44) {{?RFC2597}} PHB. Inelastic traffic that is expected to conform to the configured network service rate could be mapped to the DSCP Expedited Forwarding {{?RFC3246}} or {{?RFC5865}} PHBs.
+  Transport Services system implementations that map the requested capacity profile onto per-connection DSCP signaling without multiplexing SHOULD assign a DSCP Assured Forwarding (AF41,AF42,AF43,AF44) {{?RFC2597}} PHB. Inelastic traffic that is expected to conform to the configured network service rate could be mapped to the DSCP Expedited Forwarding {{?RFC3246}} or {{?RFC5865}} PHBs.
   
   Low Latency/Non-Interactive:
   : The application prefers loss to latency, but is
@@ -1801,7 +1917,7 @@ The following values are valid for the Capacity Profile:
   Capacity-Seeking:
   : The application expects to send/receive data at the
   maximum rate allowed by its congestion controller over a relatively long
-  period of time. Transport system implementations that map the requested
+  period of time. Transport Services system implementations that map the requested
   capacity profile onto per-connection DSCP signaling without multiplexing
   SHOULD assign a DSCP Assured Forwarding (AF11,AF12,AF13,AF14) {{?RFC2597}} PHB
   per Section 4.8 of {{?RFC4594}}. 
@@ -1853,6 +1969,23 @@ exceed (even if flow control and congestion control allow higher rates), and/or 
 lower-bound rate below which the application does not deem
 it will be useful. These are specified in bits per second. 
 The special value `Unlimited` indicates that no bound is specified.
+
+### Group Connection Limit
+
+Name:
+: groupConnLimit
+
+Type:
+: Numeric (with special value `Unlimited`)
+
+Default:
+: Unlimited
+
+This property controls the number of Connections that can be accepted from
+a peer as new members of the Connection's group. Similar to SetNewConnectionLimit(),
+this limits the number of ConnectionReceived Events that will occur, but constrained
+to the group of the Connection associated with this property. For a multi-streaming transport,
+this limits the number of allowed streams.
 
 ### Read-only Connection Properties {#read-only-conn-prop}
 
@@ -1908,11 +2041,11 @@ This numeric property represents the maximum Message size that an application ca
 
 These properties specify configurations for the User Timeout Option (UTO), 
 in the case that TCP becomes the chosen transport protocol. 
-Implementation is optional and useful only if TCP is implemented in the transport system.
+Implementation is optional and useful only if TCP is implemented in the Transport Services system.
 
 These TCP-specific properties are included here because the feature `Suggest
 timeout to the peer` is part of the minimal set of transport services
-{{I-D.ietf-taps-minset}}, where this feature was categorized as "functional".
+{{?RFC8923}}, where this feature was categorized as "functional".
 This means that when an implementation offers this feature, it has to expose an
 interface to it to the application. Otherwise, the implementation might
 violate assumptions by the application, which could cause the application to
@@ -1967,24 +2100,6 @@ based on a UTO option received from the remote peer. This boolean becomes false 
 `Timeout for aborting Connection` (see {{conn-timeout}}) is used.
 
 
-### Group Connection Limit
-
-Name:
-: groupConnLimit
-
-Type:
-: Numeric (with special value `Unlimited`)
-
-Default:
-: Unlimited
-
-This property controls the number of Connections that may arrive from
-a peer as new members of the Connection's group. Similar to SetNewConnectionLimit(),
-this limits the number of ConnectionReceived Events that will occur, but constrained
-to the group of the Connection associated with this property. In case of a multi-streaming
-transport, this takes the role of a limit on the number of allowed streams.
-
-
 ## Connection Lifecycle Events
 
 During the lifetime of a connection there are events that can occur when configured.
@@ -1999,15 +2114,6 @@ is no guarantee that a soft error will be signaled.
 Connection -> SoftError<>
 ~~~
 
-### Excessive retransmissions {#conn-retrans-notify}
-
-This event notifies the application of excessive retransmissions, based on a
-configured threshold (see {{conn-excss-retransmit}}). This will only happen if
-the underlying protocol stack supports reliability and, with it, such notifications.
-
-~~~
-Connection -> ExcessiveRetransmission<>
-~~~
 
 ### Path change {#conn-path-change}
 
@@ -2049,9 +2155,6 @@ For MessageContexts returned by send Events (see {{send-events}}) and receive Ev
 RemoteEndpoint := MessageContext.GetRemoteEndpoint()
 LocalEndpoint := MessageContext.GetLocalEndpoint()
 ~~~
-
-Message Contexts can also be used to send messages in reply to other messages, see {{send-replies}} for details.
-
 
 ### Message Framers {#framing}
 
@@ -2119,9 +2222,9 @@ guidance on implementing Message Framers can be found in {{I-D.ietf-taps-impl}}.
 #### Adding Message Framers to Connections
 
 The Message Framer object can be added to one or more Preconnections
-to run on top of transport protocols. Multiple Framers may be added. If multiple
-Framers are added, the last one added runs first when framing outbound messages,
-and last when parsing inbound data.
+to run on top of transport protocols. Multiple Framers may be added to a preconnection;
+in this case, the Framers operate as a framing stack, i.e. the last one added runs 
+first when framing outbound messages, and last when parsing inbound data.
 
 The following example adds a basic HTTP Message Framer to a Preconnection:
 
@@ -2129,6 +2232,9 @@ The following example adds a basic HTTP Message Framer to a Preconnection:
 framer := NewHTTPMessageFramer()
 Preconnection.AddFramer(framer)
 ~~~
+
+Since Message Framers pass from Preconnection to Listener or Connection, addition of
+Framers must happen before any operation that may result in the creation of a Connection.
 
 #### Framing Meta-Data {#framing-meta}
 
@@ -2216,7 +2322,7 @@ Default:
 
 The Lifetime specifies how long a particular Message can wait to be sent to the
 Remote Endpoint before it is irrelevant and no longer needs to be
-(re-)transmitted. This is a hint to the transport system -- it is not guaranteed
+(re-)transmitted. This is a hint to the Transport Services system -- it is not guaranteed
 that a Message will not be sent when its Lifetime has expired.
 
 Setting a Message's Lifetime to infinite indicates that the application does
@@ -2245,8 +2351,8 @@ sender-side scheduling construct only, or be used to specify priorities on the
 wire for Protocol Stacks supporting prioritization.
 
 Note that this property is not a per-message override of the connection Priority
-- see {{conn-priority}}. Both Priority properties may interact, but can be used
-independently and be realized by different mechanisms.
+- see {{conn-priority}}. The Priority properties may interact, but can be used
+independently and be realized by different mechanisms; see {{priority-in-taps}}.
 
 #### Ordered {#msg-ordered}
 
@@ -2257,10 +2363,9 @@ Type:
 : Boolean
 
 Default:
-: true
+: the queried Boolean value of the Selection Property `reliability` ({{prop-reliable}})
 
-If true, it specifies that the receiver-side transport protocol stack only delivers the Message to the receiving application after any existing previous ordered Message that was passed to the same Connection via the Send
-Action. 
+The order in which Messages were submitted for transmission via the Send Action will be preserved on delivery via Receive<> events for all Messages on a Connection that have this Message Property set to true.
 
 If false, the Message is delivered to the receiving application without preserving the ordering.
 This property is used for protocols that support preservation of data ordering,
@@ -2342,7 +2447,7 @@ Type:
 : Boolean
 
 Default:
-: true
+: the queried Boolean value of the Selection Property `reliability` ({{prop-reliable}})
 
 When true, this property specifies that a Message should be sent in such a way
 that the transport protocol ensures all data is received on the other side
@@ -2350,7 +2455,7 @@ without corruption. Changing the `Reliable Data Transfer` property on Messages
 is only possible for Connections that were established enabling the Selection Property `Configure Per-Message Reliability`.
 When this is not the case, changing `msgReliable` will generate an error.
 
-Disabling this property indicates that the transport system may disable retransmissions
+Disabling this property indicates that the Transport Services system may disable retransmissions
 or other reliability mechanisms for this particular Message, but such disabling is not guaranteed.
 
 #### Message Capacity Profile Override {#send-profile}
@@ -2361,12 +2466,16 @@ Name:
 Type:
 : Enumeration
 
+Default:
+: inherited from the Connection Property `connCapacityProfile` ({{prop-cap-profile}})
+
+
 This enumerated property specifies the application's preferred tradeoffs for
 sending this Message; it is a per-Message override of the Capacity Profile
 connection property (see {{prop-cap-profile}}).
 
 
-#### No Fragmentation {#send-singular}
+#### No Network-Layer Fragmentation {#send-singular}
 
 Name:
 : noFragmentation
@@ -2379,11 +2488,34 @@ Default:
 
 This property specifies that a message should be sent and received as a single
 packet without network-layer fragmentation, if possible.
-Attempts to send a message with this property set to a size greater than the
+This only takes effect when the transport uses a network layer that supports this functionality.
+When it does take effect, setting this property to
+true will cause the Don't Fragment bit to be set in the IP header, and
+attempts to send a message with this property set to a size greater than the
 transport's current estimate of its maximum packet size (`singularTransmissionMsgMaxLen`)
-will
-result in a `SendError`. When used with transports supporting this functionality
-and running over IP version 4, the Don't Fragment bit will be set.
+will result in a `SendError`.
+
+#### No Segmentation {#no-transport-fragmentation}
+
+Name:
+: noTransportFragmentation
+
+Type:
+: Boolean
+
+Default:
+: false
+
+When set to true, this property requests the network layer at the
+sending endpoint to not fragment the packets generated by the
+transport layer. When running over IPv4, setting this property to
+true will also cause the Don't Fragment bit to be set in the IP header.
+When this property is set, an
+attempt to send a message size greater than the
+transport's current estimate of its maximum packet size (singularTransmissionMsgMaxLen)
+will result in a SendError.
+This only takes effect when the transport and network layer
+support this functionality.
 
 
 ## Sending Data {#sending}
@@ -2431,20 +2563,6 @@ Size for the Connection, the Send will fail with a SendError event ({{send-error
 example, it is invalid to send a Message over a UDP connection that is larger than
 the available datagram sending size.
 
-### Sending Replies {#send-replies}
-
-When a message is sent in response to a message received, the application
-can use the Message Context of the received Message to construct a Message Context for the reply.
-
-~~~
-replyMessageContext := requestMessageContext.reply()
-~~~
-
-By using the `replyMessageContext`, the transport system is informed that
-the message to be sent is a response and can map the response to the same underlying 
-transport connection or the stream from which the request was received.
-The concept of Message Contexts is described in {{msg-ctx}}.
-
 ### Send Events {#send-events}
 
 Like all Actions in this interface, the Send Action is asynchronous. There are
@@ -2479,7 +2597,7 @@ to which it applies.
 Sent Events allow an application to obtain an understanding of the amount
 of buffering it creates. That is, if an application calls the Send Action multiple
 times without waiting for a Sent Event, it has created more buffer inside the
-transport system than an application that always waits for the Sent Event before
+Transport Services system than an application that always waits for the Sent Event before
 calling the next Send Action.
 
 #### Expired {#expired}
@@ -2565,7 +2683,7 @@ Connection := Preconnection.InitiateWithSend(messageData, messageContext?, timeo
 ~~~
 
 Whenever possible, a messageContext should be provided to declare the Message passed to InitiateWithSend
-as `Safely Replayable`. This allows the transport system to make use of 0-RTT establishment in case this is supported
+as `Safely Replayable`. This allows the Transport Services system to make use of 0-RTT establishment in case this is supported
 by the available protocol stacks. When the selected stack(s) do not support transmitting data upon connection
 establishment, InitiateWithSend is identical to Initiate() followed by Send().
 
@@ -2578,6 +2696,32 @@ the Connection could not be established will not result in a
 SendError separate from the InitiateError signaling the failure of Connection
 establishment.
 
+### Priority in TAPS {#priority-in-taps}
+
+The Transport Services interface provides two properties to allow a sender 
+to signal the relative priority of data transmission: the Priority Message 
+Property {{msg-priority}}, and the Connection Priority Connection Property 
+{{conn-priority}}. These properties are designed to allow the expression 
+and implementation of a wide variety of approaches to transmission priority in 
+the transport and application layer, including those which do not appear on
+the wire (affecting only sender-side transmission scheduling) as well as those
+that do (e.g. {{?I-D.ietf-httpbis-priority}}.
+
+A Transport Services system gives no guarantees about how its expression of
+relative priorities will be realized; for example, if a transport stack that
+only provides a single in-order reliable stream is selected, prioritization
+information can only be ignored. However, the Transport Services system will
+seek to ensure that performance of relatively-prioritized connections and
+messages is not worse with respect to those connections and messages than
+an equivalent configuration in which all prioritization properties are left 
+at their defaults.
+
+The Transport Services interface does order Connection Priority over 
+the Priority Message Property. In the absense of other externalities
+(e.g., transport-layer flow control), a priority 1 Message on a priority 0
+Connection will be sent before a priority 0 Message on a priority 1 
+Connection in the same group.
+
 ## Receiving Data {#receiving}
 
 Once a Connection is established, it can be used for receiving data (unless the
@@ -2585,7 +2729,9 @@ Once a Connection is established, it can be used for receiving data (unless the
 sending, the data is received in Messages. Receiving is an asynchronous
 operation, in which each call to Receive enqueues a request to receive new
 data from the connection. Once data has been received, or an error is encountered,
-an event will be delivered to complete any pending Receive requests (see {{receive-events}}). If Messages arrive at the transport system before Receive requests are issued, ensuing Receive requests will first operate on these Messages before awaiting any further Messages.
+an event will be delivered to complete any pending Receive requests (see {{receive-events}}).
+If Messages arrive at the Transport Services system before Receive requests are issued,
+ensuing Receive requests will first operate on these Messages before awaiting any further Messages.
 
 ### Enqueuing Receives
 
@@ -2662,7 +2808,11 @@ Multiple invocations of ReceivedPartial deliver data for the same Message by
 passing the same MessageContext, until the endOfMessage flag is delivered or a
 ReceiveError occurs. All partial blocks of a single Message are delivered in
 order without gaps. This event does not support delivering discontiguous partial
-Messages.
+Messages. If, for example, Message A is divided into three pieces (A1, A2, A3) and
+Message B is divided into three pieces (B1, B2, B3), the ReceivedPartial may deliver
+them in a sequence like this: A1, B1, B2, A2, A3, B3, because the messageContext
+allows the application to identify the pieces as belonging to Message A and B, respectively.
+However, a sequence like: A1, A3 will never occur.
 
 If the minIncompleteLength in the Receive request was set to be infinite (indicating
 a request to receive only complete Messages), the ReceivedPartial event may still be
@@ -2744,7 +2894,7 @@ Any calls to Receive once the Final Message has been delivered will result in er
 
 Close terminates a Connection after satisfying all the requirements that were
 specified regarding the delivery of Messages that the application has already
-given to the transport system. For example, if reliable delivery was requested
+given to the Transport Services system. For example, if reliable delivery was requested
 for a Message handed over before calling Close, the Closed Event will signify
 that this Message has indeed been delivered. If the Remote Endpoint still has data to
 send, it cannot be received after this call.
@@ -2845,7 +2995,7 @@ RFC-EDITOR: Please remove this section before publication.
 This document has no Actions for IANA.
 Later versions of this document may create IANA registries for generic transport property names and transport property namespaces (see {{property-names}}).
 
-# Security Considerations
+# Privacy and Security Considerations {#privacy-security}
 
 This document describes a generic API for interacting with a transport services (TAPS) system.
 Part of this API includes configuration details for transport security protocols, as discussed
@@ -2853,16 +3003,16 @@ in {{security-parameters}}. It does not recommend use (or disuse) of specific
 algorithms or protocols. Any API-compatible transport security protocol ought to work in a TAPS system.
 Security considerations for these protocols are discussed in the respective specifications.
 
-The described API is used to exchange information between an application and the transport system. While
+The described API is used to exchange information between an application and the Transport Services system. While
 it is not necessarily expected that both systems are implemented by the same authority, it is expected
-that the transport system implementation is either provided as a library that is selected by the application
+that the Transport Services system implementation is either provided as a library that is selected by the application
 from a trusted party, or that it is part of the operating system that the application also relies on for
 other tasks.
 
-In either case, the TAPS API is an internal interface that is used to change information locally between two systems.
-However, as the transport system is responsible for network communication, it is in the position to
+In either case, the Transport Services API is an internal interface that is used to change information locally between two systems.
+However, as the Transport Services system is responsible for network communication, it is in the position to
 potentially share any information provided by the application with the network or another communication peer. 
-Most of the information provided over the TAPS API are useful to configure and select protocols and paths
+Most of the information provided over the Transport Services API are useful to configure and select protocols and paths
 and are not necessarily privacy sensitive. Still, some information could be privacy sensitive because
 it might reveal usage characteristics and habits of the user of an application. 
 
@@ -2876,12 +3026,20 @@ information that is intended for path exposure, e.g., a DiffServ codepoint setti
 directly by the application or indirectly configured for a traffic profile. 
 
 Applications should be aware that communication attempts can lead to more than one connection establishment.
-This is the case, for example, when the transport system also executes name resolution, when support mechanisms such as
+This is the case, for example, when the Transport Services system also executes name resolution, when support mechanisms such as
 TURN or ICE are used to establish connectivity, if protocols or paths are raised, or if a path fails and 
-fallback or re-establishment is supported in the transport system. 
+fallback or re-establishment is supported in the Transport Services system. 
+
+The interface explicitly does not require the application to resolve names, though there is
+a tradeoff between early and late binding of addresses to names. Early binding
+allows the API implementation to reduce connection setup latency, at the cost
+of potentially limited scope for alternate path discovery during Connection
+establishment, as well as potential additional information leakage about
+application interest when used with a resolution method (such as DNS without
+TLS) which does not protect query confidentiality.
 
 These communication activities are not different from what is used today. However, 
-the goal of a TAPS transport system is to support
+the goal of a Transport Services system is to support
 such mechanisms as a generic service within the transport layer. This enables applications to more dynamically
 benefit from innovations and new protocols in the transport, although it reduces transparency of the 
 underlying communication actions to the application itself. The TAPS API is designed such that protocol and path selection
@@ -2983,7 +3141,8 @@ coverage, see {{prop-checksum-control-send}} and {{prop-checksum-control-receive
 
 # Relationship to the Minimal Set of Transport Services for End Systems
 
-{{I-D.ietf-taps-minset}} identifies a minimal set of transport services that end systems should offer. These services make all non-security-related transport features of TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT available that 1) require interaction with the application, and 2) do not get in the way of a possible implementation over TCP (or, with limitations, UDP). The following text explains how this minimal set is reflected in the present API. For brevity, it is based on the list in Section 4.1 of {{I-D.ietf-taps-minset}}, updated according to the discussion in Section 5 of {{I-D.ietf-taps-minset}}. This list is a subset of the transport features in Appendix A of {{I-D.ietf-taps-minset}}, which refers to the primitives in "pass 2" (Section 4) of {{!RFC8303}} for further details on the implementation with TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT.
+{{?RFC8923}} identifies a minimal set of transport services that end systems should offer. These services make all non-security-related transport features of TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT available that 1) require interaction with the application, and 2) do not get in the way of a possible implementation over TCP (or, with limitations, UDP). The following text explains how this minimal set is reflected in the present API. For brevity, it is based on the list in Section 4.1 of {{?RFC8923}}, updated according to the discussion in Section 5 of {{?RFC8923}}. The present API covers all elements of this section except `Notification of Excessive Retransmissions (early warning below abortion threshold)`.
+This list is a subset of the transport features in Appendix A of {{?RFC8923}}, which refers to the primitives in "pass 2" (Section 4) of {{!RFC8303}} for further details on the implementation with TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT.
 
 * Connect:
 `Initiate` Action ({{initiate}}).
@@ -3016,7 +3175,7 @@ coverage, see {{prop-checksum-control-send}} and {{prop-checksum-control-receive
 `Connection Group Transmission Scheduler` property ({{conn-scheduler}}).
 
 * Configure priority or weight for a scheduler:
-`Priority (Connection)` property ({{conn-priority}}).
+`Connection Priority` property ({{conn-priority}}).
 
 * "Specify checksum coverage used by the sender" and "Disable checksum when sending":
 `Corruption Protection Length` property ({{msg-checksum}}) and `Full Checksum Coverage on Sending` property ({{prop-checksum-control-send}}).
@@ -3024,8 +3183,11 @@ coverage, see {{prop-checksum-control-send}} and {{prop-checksum-control-receive
 * "Specify minimum checksum coverage required by receiver" and "Disable checksum requirement when receiving":
 `Required Minimum Corruption Protection Coverage for Receiving` property ({{conn-recv-checksum}}) and `Full Checksum Coverage on Receiving` property ({{prop-checksum-control-receive}}).
 
-* "Specify DF" field and "Request not to bundle messages":
-the `No Fragmentation` Message Property combines both of these requests, i.e. if a request not to bundle messages is made, this also turns off fragmentation (i.e., sets DF=1) in the case of a protocol that allows this (only UDP and UDP-Lite, which cannot bundle messages anyway) ({{send-singular}}).
+* "Specify DF field":
+`No Network-Layer Fragmentation` property ({{send-singular}}).
+
+* "Request not to bundle messages":
+`No Transport-Layer Fragmentation` property ({{no-transport-fragmentation}}).
 
 * Get max. transport-message size that may be sent using a non-fragmented IP packet from the configured interface:
 `Maximum Message Size Before Fragmentation or Segmentation` property ({{conn-max-msg-notfrag}}).
@@ -3037,10 +3199,10 @@ the `No Fragmentation` Message Property combines both of these requests, i.e. if
 `ECN` is a defined UDP(-Lite)-specific read-only Message Property of the MessageContext object ({{receive-ecn}}).
 
 * "Specify DSCP field", "Disable Nagle algorithm", "Enable and configure a `Low Extra Delay Background Transfer`":
-as suggested in Section 5.5 of {{I-D.ietf-taps-minset}}, these transport features are collectively offered via the `Capacity Profile` property ({{prop-cap-profile}}). Per-Message control is offered via the `Message Capacity Profile Override` property ({{send-profile}}).
+as suggested in Section 5.5 of {{?RFC8923}}, these transport features are collectively offered via the `Capacity Profile` property ({{prop-cap-profile}}). Per-Message control is offered via the `Message Capacity Profile Override` property ({{send-profile}}).
 
 * Close after reliably delivering all remaining data, causing an event informing the application on the other side:
-this is offered by the `Close` Action with slightly changed semantics in line with the discussion in Section 5.2 of {{I-D.ietf-taps-minset}} ({{termination}}).
+this is offered by the `Close` Action with slightly changed semantics in line with the discussion in Section 5.2 of {{?RFC8923}} ({{termination}}).
 
 * "Abort without delivering remaining data, causing an event informing the application on the other side" and "Abort without delivering remaining data, not causing an event informing the application on the other side":
 this is offered by the `Abort` action without promising that this is signaled to the other side. If it is, a `ConnectionError` Event will fire at the peer ({{termination}}).
@@ -3055,7 +3217,7 @@ the `Lifetime` Message Property implements a time-based way to configure message
 these two transport features are controlled via the Message Property `Ordered` ({{msg-ordered}}).
 
 * Request not to delay the acknowledgement (SACK) of a message:
-should the protocol support it, this is one of the transport features the transport system can apply when an application uses the `Capacity Profile` Property ({{prop-cap-profile}}) or the `Message Capacity Profile Override` Message Property ({{send-profile}}) with value `Low Latency/Interactive`.
+should the protocol support it, this is one of the transport features the Transport Services system can apply when an application uses the `Capacity Profile` Property ({{prop-cap-profile}}) or the `Message Capacity Profile Override` Message Property ({{send-profile}}) with value `Low Latency/Interactive`.
 
 * Receive data (with no message delimiting):
 `Received` Event ({{receive-complete}}). See {{framing}} for handling Message framing in situations where the Protocol
