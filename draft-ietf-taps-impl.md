@@ -1051,52 +1051,58 @@ Connection Object:
 : Connection objects can be an SCTP association or a stream in an SCTP association.
 We call the process of mapping Connection objects to SCTP streams "stream mapping",
 and assume a client-server communication model in the following explanation.
+
 Stream mapping requires an association to already be in place between the client
 and the server, and it requires the server to understand that a new incoming stream
 should be represented as a new Connection Object by the Transport Services system.
-[TO BE UPDATED: We should reserve an Adaptation Code Point and describe how
-to use it, and what it means to fall back in case it is not supported by the peer.]
-SCTP has no defined way to signal the use of stream mapping; {{NEAT-flow-mapping}}
-describes a work-around, where a Transport Services system negotiates the stream mapping
-capability using SCTP's adaptation layer indication.
-In the absence of a defined signaling mechanism to tell the peer that stream mapping will
-be used, an application needs to be aware that the peer does not directly access SCTP streams.
+To signal the use of stream mapping, the server SHOULD use the adaptation layer indication
+parameter of LISTEN.SCTP and the client SHOULD use the adaptation layer indication
+parameter of CONNECT.SCTP, both with the "Stream Mapping" adaptation code point.
+Reception of an adaptation layer indication notification with same adaptation code point value
+then indicates that the peer is aware of stream mapping.
 
+In the absence of an adaptation layer indication notification carrying a "Stream Mapping"
+daptation code point, stream mapping can still be
+used if the application is aware that the peer application does not directly access SCTP streams.
 If, for example, a transport-protocol-agnostic client application tries to connect to a
 native SCTP server application that does not implement stream mapping, and assumes
 that a new Message sent on this Connection will look like the first Message of a new
 Connection on the server side, communication will fail because the
 SCTP-based application on the server side does not obtain a new Connection.
-If, on the other hand, both the client and server are
+As a counter-example, if both the client and server are
 written over a Transport Services system, and the server listens on all available protocols, stream
-mapping works without the application having to be aware of it (a code example, described
-in {{NEATPy}}, is available from the NEATPy repository mentioned in {{appendix-implementations}}
-at the time of writing).
+mapping works without the application having to be aware of it (a code example that works
+without the adaptation layer notification, described in {{NEATPy}}, is available from the
+NEATPy repository mentioned in {{appendix-implementations}} at the time of writing).
 
-A new SCTP stream is created by sending a message with a new stream id. Thus, to
+A new SCTP stream is created by sending an SCTP message with a new stream id. Thus, to
 implement stream mapping,
-the Transport Services system must provide a newly created Connection Object to the
+the Transport Services system MUST provide a newly created Connection Object to the
 application upon the reception of such a message. The necessary semantics to
 implement a Transport Services system's `Close` and `Abort` primitives are provided
 by the stream reconfiguration (reset) procedure described in {{?RFC6525}}. This also
 allows to re-use a stream id after resetting ("closing") the stream.
-To implement this functionality, SCTP stream reconfiguration {{?RFC6525}} must be
+To implement this functionality, SCTP stream reconfiguration {{?RFC6525}} MUST be
 supported by both the client and the server side.
 
-To avoid head-of-line blocking, stream mapping should only be implemented
+To avoid head-of-line blocking, stream mapping SHOULD only be implemented
 when both sides support message interleaving {{?RFC8260}}. This allows a sender to
-schedule transmissions between multiple streams without risking that a very long message
-transmission on one stream might block transmissions on other streams for a long time.
+schedule transmissions between multiple streams without risking that transmission
+of a large message on one stream might block transmissions on other streams
+for a long time.
 
 To avoid conflicts between stream ids, the following procedure is recommended:
-the first Connection, for which the SCTP association has been created, will always use stream id zero.
+the first Connection, for which the SCTP association has been created, MUST always use stream id zero.
 All additional Connections are assigned to unused stream ids in growing order. To avoid a conflict
-when both endpoints map new Connection simultaneously, the peer which initiated association
-will use even stream ids whereas the remote side will map its Connections to odd stream ids.
+when both endpoints map new Connections simultaneously, the peer which initiated association
+MUST use even stream ids whereas the remote side MUST map its Connections to odd stream ids.
 Both sides maintain a status map of the assigned stream ids. Generally, new streams
-must consume the lowest available (even or odd, depending on the side) stream id; this
+SHOULD consume the lowest available (even or odd, depending on the side) stream id; this
 rule is relevant when lower ids become available because Connection objects associated
 with the streams are closed.
+
+SCTP stream mapping as described here has been implemented in a research prototype; a
+desription of this implementation is given in {{NEAT-flow-mapping}}.
 
 Initiate:
 : If this is the only Connection object that is assigned to the SCTP association or stream mapping is
@@ -1149,9 +1155,8 @@ If this is the only Connection object that is assigned to the SCTP association, 
 
 # IANA Considerations
 
-RFC-EDITOR: Please remove this section before publication.
-
-This document has no actions for IANA.
+This document requests the definition of a new SCTP Adaptation Code Point value
+called "Stream Mapping". The SCTP Adaptation Coide Point is defined in RFC 5061.
 
 # Security Considerations
 
