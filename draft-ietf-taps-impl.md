@@ -820,8 +820,10 @@ Cached protocol state is primarily used during Connection establishment for a si
 implementation's preference between several candidate Protocol Stacks. For example, if two IP address Endpoints are otherwise
 equally preferred, an implementation may choose to attempt a connection to an address for which it has a TCP Fast Open cookie.
 
-Applications must have a way to flush protocol cache state if desired. This may be necessary, for example, if
-application-layer identifiers rotate and clients wish to avoid linkability via trackable TLS tickets or TFO cookies.
+Applications must have a way to not use protocol cache state for certain
+connections, if desired. This may be necessary, for example, if application-
+layer identifiers rotate and clients wish to avoid linkability via trackable TLS
+tickets or TFO cookies.
 
 ## Performance caches
 

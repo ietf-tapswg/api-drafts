@@ -1987,6 +1987,22 @@ this limits the number of ConnectionReceived Events that will occur, but constra
 to the group of the Connection associated with this property. For a multi-streaming transport,
 this limits the number of allowed streams.
 
+### Private Session (#private-session}
+Name:
+: privateSession
+
+Type:
+: Boolean
+
+Default:
+: false
+
+When set to true, this property will initiate new connections without using
+any cached information (such as session tickets or cookies) from previous
+connections that are not entangled with it. The residue of this connection will
+only be shared with entangled connections. Cloned connections will use saved
+state from within the Connection Group.
+
 ### Read-only Connection Properties {#read-only-conn-prop}
 
 The following generic Connection Properties are read-only, i.e. they cannot be changed by an application.
