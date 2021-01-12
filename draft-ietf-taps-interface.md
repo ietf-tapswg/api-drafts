@@ -3236,9 +3236,3 @@ applications can obtain this information via the `Sent` Event ({{sent}}).
 
 * Notification to a receiver that a partial message delivery has been aborted:
 `ReceiveError` Event ({{receive-error}}).
-
-
-## Unsupported Elements of the Minimal Set
-
-* Notification of Excessive Retransmissions (early warning below abortion threshold):
-This is not supported because it is TCP-specific and hardly
