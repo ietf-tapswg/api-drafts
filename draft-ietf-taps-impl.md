@@ -903,7 +903,7 @@ Receive:
 : With RECEIVE.TCP, TCP delivers a stream of bytes without any Message delineation. All data delivered in the `Received` or `ReceivedPartial` event will be part of a single stream-wide Message that is marked Final (unless a Message Framer is used). EndOfMessage will be delivered when the TCP Connection has received a FIN (CLOSE-EVENT.TCP or ABORT-EVENT.TCP) from the peer. Note that reception of a FIN should not cause the `Closed` event to be delivered to the application, as it will still be possible for the application to send data.
 
 Close:
-: Calling `Close` on a TCP Connection indicates that the Connection should be gracefully closed (CLOSE.TCP) by sending a FIN to the peer. It will then still be possible to receive data until the peer closes or aborts the TCP connection. The `Closed` event will be issued upon reception of a FIN-ACK.
+: Calling `Close` on a TCP Connection indicates that the Connection should be gracefully closed (CLOSE.TCP) by sending a FIN to the peer. It will then still be possible to receive data until the peer closes or aborts the TCP connection. The `Closed` event will be issued upon reception of a FIN.
 
 Abort:
 : Calling `Abort` on a TCP Connection indicates that the Connection should be immediately closed by sending a RST to the peer (ABORT.TCP).
