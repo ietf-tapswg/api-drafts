@@ -1048,9 +1048,9 @@ Data Unit: Message
 API mappings for SCTP are as follows:
 
 Connection Object:
-: Connection objects can be an SCTP association or a stream in an SCTP association.
-We call the process of mapping Connection objects to SCTP streams "stream mapping",
-and assume a client-server communication model in the following explanation.
+: Connection objects can be mapped to an SCTP association or a stream in an SCTP association.
+Mapping Connection objects to SCTP streams is called "stream mapping" and has additional requirements as follows.
+The following explanation assumes a client-server communication model.
 
 Stream mapping requires an association to already be in place between the client
 and the server, and it requires the server to understand that a new incoming stream
