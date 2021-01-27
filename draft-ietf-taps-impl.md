@@ -1058,8 +1058,8 @@ should be represented as a new Connection Object by the Transport Services syste
 To signal the use of stream mapping, the server SHOULD use the adaptation layer indication
 parameter of LISTEN.SCTP and the client SHOULD use the adaptation layer indication
 parameter of CONNECT.SCTP, both with the "Stream Mapping" adaptation code point.
-Reception of an adaptation layer indication notification with same adaptation code point value
-then indicates that the peer is aware of stream mapping.
+Reception of an adaptation layer indication notification with the same adaptation code point value
+then indicates that the peer is capable of stream mapping.
 
 In the absence of an adaptation layer indication notification carrying a "Stream Mapping"
 daptation code point, stream mapping can still be
