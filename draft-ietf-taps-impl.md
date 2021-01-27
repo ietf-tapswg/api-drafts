@@ -1062,7 +1062,7 @@ Reception of an adaptation layer indication notification with the same adaptatio
 then indicates that the peer is capable of stream mapping.
 
 In the absence of an adaptation layer indication notification carrying a "Stream Mapping"
-daptation code point, stream mapping can still be
+adaptation code point, stream mapping can still be
 used if the application is aware that the peer application does not directly access SCTP streams.
 If, for example, a transport-protocol-agnostic client application tries to connect to a
 native SCTP server application that does not implement stream mapping, and assumes
