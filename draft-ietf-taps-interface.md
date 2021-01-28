@@ -539,13 +539,11 @@ for Protocol Specific Properties and MUST NOT be used for vendor or implementati
 Transport Properties each have a type, which can be:
 
 - One of the basic types described in {{notation}}; or
-- Preference, which on Preconnection is an Enumeration with six possible
-  values: Prohibit, Avoid, Ignore, Prefer, Require, or Default. Each of the
-  first five denotes a level of preference of a given property during protocol
-  selection, while Default indicates deference to an implementation's preference.
-  (See {{selection-props}}.) When querying the properties of a Connection
-  following protocol selection, a Preference is of type Boolean, with `true`
-  indicating that the Selection Property applies to the chosen transport.
+- Preference, which is an Enumeration with five possible
+  values: Prohibit, Avoid, Ignore, Prefer, or Require. Each of these
+  denotes a level of preference of a given property during protocol
+  selection.
+  (See {{selection-props}}.) The Preference type is used only on Preconnections, and only for Selection Properties.
 
 ## Scope of the Interface Definition
 
@@ -833,7 +831,7 @@ between multiple local interfaces that are connected to different access
 networks.
 
 Most Selection Properties are represented as Preferences, which can
-take one of six values:
+take one of five values:
 
    | Preference | Effect                                                                 |
    |------------|------------------------------------------------------------------------|
@@ -842,7 +840,6 @@ take one of six values:
    | Ignore     | No preference                                                          |
    | Avoid      | Prefer protocols/paths not providing the property, proceed otherwise   |
    | Prohibit   | Select only protocols/paths not providing the property, fail otherwise |
-   | Default    | Use the implementation's default preference level for this property    |
 {: #tab-pref-levels title="Selection Property Preference Levels"}
 
 The implementation MUST ensure an outcome that is consistent with all application
@@ -879,7 +876,13 @@ Setting a Transport Property to a value overrides the previous value of this Tra
 TransportProperties.Set(property, value)
 ~~~
 
-Selection Properties of type `Preference` might often be frequently used. Implementations MAY therefore provide additional convenience functions to simplify use, see {{preference-conv}} for examples.
+Transport Properties may also be restored to implementation defaults:
+
+~~~
+TransportProperties.Unset(property)
+~~~
+
+To aid readability, implementations MAY provide additional convenience functions to simplify use of Selection Properties: see {{preference-conv}} for examples.
 In addition, implementations MAY provide a mechanism to create TransportProperties objects that are preconfigured for common use cases as outlined in {{property-profiles}}.
 
 For an existing Connection, the Transport Properties can be queried any time
@@ -1826,10 +1829,10 @@ Type:
 Default:
 : Disabled
 
-This property specifies how long to wait before deciding that an active Connection has
+This property specifies how many seconds to wait before deciding that an active Connection has
 failed when trying to reliably deliver data to the Remote Endpoint. Adjusting this Property
 will only take effect when the underlying stack supports reliability. The special value
-`Disabled` means that this timeout is not scheduled to happen.
+`Disabled` means that no timeout is scheduled.
 
 ### Timeout for keep alive packets {#keep-alive-timeout}
 
@@ -1837,19 +1840,18 @@ Name:
 : keepaliveTimeout
 
 Type:
-: Numeric, with special value `Default`
+: Numeric
 
 Default:
-: Default
+: Implementation-defined
 
 A Transport Services system can request a protocol that supports sending keep alive packets {{keep-alive}}.
-This property specifies the maximum time an idle connection (one for which no transport
+This property specifies the maximum number of seconds an idle connection (one for which no transport
 packets have been sent) should wait before 
 the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting this Property
 will only take effect when the underlying stack supports sending keep-alive packets. 
 Guidance on setting this value for datagram transports is 
-provided in {{!RFC8085}}. The special value
-`Default` means that this timeout will use the default for the selected transport. 
+provided in {{!RFC8085}}.
 A value greater than the connection timeout ({{conn-timeout}}) will disable the sending of keep-alive packets.
 
 ### Connection Group Transmission Scheduler {#conn-scheduler}
@@ -3145,11 +3147,12 @@ implementation-specific limitations. For example:
 ## Events and Errors
 
 This specification treats Events and Errors similarly. Errors, just as any
-other Events, may occur asynchronously in network applications. However, it is
-recommended that implementations of this interface also return Errors
-immediately, according to the error handling idioms of the implementation
-platform, for errors that can be immediately detected, such as inconsistency
-in Transport Properties. An error can provide an optional reason to the
+other Events, may occur asynchronously in network applications. However,
+implementations of this interface may report Errors synchronously,
+according to the error handling idioms of the implementation
+platform, where they can be immediately detected, such as by throwing an
+exception when attempting to initiate a connection with inconsistent
+Transport Properties. An error can provide an optional reason to the
 application with further details about why the error occurred.
 
 # Convenience Functions
@@ -3164,7 +3167,6 @@ TransportProperties.Prefer(property)
 TransportProperties.Ignore(property)
 TransportProperties.Avoid(property)
 TransportProperties.Prohibit(property)
-TransportProperties.Default(property)
 ~~~
 
 ## Transport Property Profiles {#property-profiles}
