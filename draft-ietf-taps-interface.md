@@ -354,8 +354,8 @@ TransportProperties.Require(preserve-msg-boundaries)
 // Reliable Data Transfer and Preserve Order are Required by default
 
 SecurityParameters := NewSecurityParameters()
-SecurityParameters.Set('identity', identity)
-SecurityParameters.Set('keypair', privateKey, publicKey)
+SecurityParameters.Set(identity, myIdentity)
+SecurityParameters.Set(key-pair, myPrivateKey, myPublicKey)
 
 // Specifying a remote endpoint is optional when using Listen()
 Preconnection := NewPreconnection(LocalSpecifier,
@@ -545,7 +545,7 @@ Transport Properties each have a type, which can be:
   selection.
   (See {{selection-props}}.) The Preference type is used only on Preconnections, and only for Selection Properties.
 
-## Scope of the Interface Definition
+## Scope of the Interface Definition {#scope-of-interface-defn}
 
 This document defines a language- and platform-independent interface to a
 Transport Services system. Given the wide variety of languages and language
@@ -1350,8 +1350,8 @@ identity to the Remote Endpoint. (Note, if private keys are not available, e.g.,
 stored in hardware security modules (HSMs), handshake callbacks must be used. See below for details.)
 
 ~~~
-SecurityParameters.Set('identity', identity)
-SecurityParameters.Set('keypair', privateKey, publicKey)
+SecurityParameters.Set(identity, myIdentity)
+SecurityParameters.Set(key-pair, myPrivateKey, myPublicKey)
 ~~~
 
 - Supported algorithms: Used to restrict what parameters are used by underlying transport security protocols.
@@ -1359,9 +1359,9 @@ When not specified, these algorithms should use known and safe defaults for the 
 ciphersuites, supported groups, and signature algorithms. These parameters take a collection of supported algorithms as parameter.
 
 ~~~
-SecurityParameters.Set('supported-group', 'secp256k1')
-SecurityParameters.Set('ciphersuite, 'TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256')
-SecurityParameters.Set('signature-algorithm', 'ed25519')
+SecurityParameters.Set(supported-group, "secp256k1")
+SecurityParameters.Set(ciphersuite, "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256")
+SecurityParameters.Set(signature-algorithm, "ed25519")
 ~~~
 
 - Pre-Shared Key import: Used to install pre-shared keying material established
@@ -1369,16 +1369,18 @@ out-of-band. Each pre-shared keying material is associated with some identity th
 its use or has some protocol-specific meaning to the Remote Endpoint.
 
 ~~~
-SecurityParameters.Set('pre-shared-key', key, identity)
+SecurityParameters.Set(pre-shared-key, key, identity)
 ~~~
 
 - Session cache management: Used to tune session cache capacity, lifetime, and
 other policies.
 
 ~~~
-SecurityParameters.Set('max-cached-sessions', 16)
-SecurityParameters.Set('cached-session-lifetime-seconds', 3600)
+SecurityParameters.Set(max-cached-sessions, 16)
+SecurityParameters.Set(cached-session-lifetime-seconds, 3600)
 ~~~
+
+Representation of Security Parameters in implementations should parallel that chosen for Transport Property names as recommended in {{scope-of-interface-defn}}.
 
 ### Connection Establishment Callbacks
 
