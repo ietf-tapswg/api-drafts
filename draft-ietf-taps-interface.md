@@ -2920,7 +2920,7 @@ Connection.Abort()
 ~~~
 
 AbortGroup terminates a Connection and also terminates any other Connections that are
-entangled with this on in a Connection Group. For example, all of the Connections in a
+entangled with this one in a Connection Group. For example, all of the Connections in a
 group might be streams of a single session for a multistreaming protocol; aborting the entire
 group would close the underlying session. See also {{groups}}.
 
