@@ -652,12 +652,20 @@ Should the framer implementation deem the candidate selected during racing unsui
 If there are no other candidates available, the Connection will fail. Otherwise, the Connection will select a different candidate and the Message Framer will generate a new `Start` event.
 
 Before an implementation marks a Message Framer as ready, it can also dynamically
-add a protocol or framer above it in the stack. This allows protocols like STARTTLS,
-that need to add TLS conditionally, to modify the Protocol Stack based on a handshake result.
+add a protocol or framer above it in the stack. This allows protocols that need to add TLS conditionally,
+like STARTTLS {{?RFC3207}}, to modify the Protocol Stack based on a handshake result.
 
 ~~~
 otherFramer := NewMessageFramer()
 MessageFramer.PrependFramer(Connection, otherFramer)
+~~~
+
+A Message Framer might also choose to go into a passthrough mode once an initial exchange or handshake has been completed, such as the STARTTLS case mentioned above.
+This can also be useful for proxy protocols like SOCKS {{?RFC1928}} or HTTP CONNECT {{?RFC7230}}. In such cases, a Message Framer implementation can intercept
+sending and receiving of messages at first, but then indicate that no more processing is needed.
+
+~~~
+MessageFramer.StartPassthrough()
 ~~~
 
 ## Sender-side Message Framing {#send-framing}
@@ -753,6 +761,8 @@ When a path change occurs, e.g., when the IP address of an interface changes or 
 
 For protocols that do not support multipath or migration, the Protocol Instances should be informed of the path change, but should not be forcibly disconnected if the previously used path becomes unavailable.
 
+There are many common user scenarios that can lead to a path becoming temporarily unavailable, and then recovering before the transport protocol reaches a timeout error. These are particularly common using mobile devices. Examples include: an Ethernet cable becoming unplugged and then plugged back in; a device losing a Wi-Fi signal while a user is in an elevator, and reattaching when the user leaves the elevator; and a user losing the radio signal while riding a train through a tunnel. If the device is able to rejoin a network with the same IP address, a stateful transport connection can generally resume. Thus, while it is useful for a Protocol Instance to be aware of a temporary loss of connectivity, the Transport Services implementation should not aggressively close connections in these scenarios.
+
 If the Protocol Stack includes a transport protocol that also supports multipath connectivity with migration support, the Transport Services implementation should also inform the Protocol Instance of potentially new paths that become permissible based on the Selection Properties passed by the application. A protocol can then establish new subflows over new paths while an active path is still available or, if migration is supported, also after a break has been detected, and should attempt to tear down subflows over paths that are no longer used. The Transport Services API provides an interface to set a multipath policy that indicates when and how different paths should be used. However, detailed handling of these policies is still implementation-specific. The decision about when to create a new path or to announce a new path or set of paths to the remote endpoint, e.g., in the form of additional IP addresses, is implementation-specific or could be be supported by future API extensions. If the Protocol Stack includes a transport protocol that does not support multipath, but does support migrating between paths, the update to the set of available paths can trigger the connection to be migrated. 
 
 In case of Pooled Connections {{pooled-connections}}, the transport system may add connections over new paths or different protocols to the pool if permissible based on the multipath policy and Selection Properties. In case a previously used path becomes unavailable, the transport system may disconnect all connections that require this path, but should not disconnect the pooled connection object exposed to the application. The strategy to do so is implementation-specific, but should be consistent with the behavior of multipath transports. 
@@ -820,8 +830,12 @@ Cached protocol state is primarily used during Connection establishment for a si
 implementation's preference between several candidate Protocol Stacks. For example, if two IP address Endpoints are otherwise
 equally preferred, an implementation may choose to attempt a connection to an address for which it has a TCP Fast Open cookie.
 
-Applications must have a way to flush protocol cache state if desired. This may be necessary, for example, if
-application-layer identifiers rotate and clients wish to avoid linkability via trackable TLS tickets or TFO cookies.
+Applications can request that a Connection Group maintain a separate cache for
+protocol state. Connections in the group will not use cached state
+from connections outside the group, and connections outside the group will not
+use state cached from connections inside the group. This may be necessary, for
+example, if application-layer identifiers rotate and clients wish to avoid
+linkability via trackable TLS tickets or TFO cookies.
 
 ## Performance caches
 
