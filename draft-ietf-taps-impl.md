@@ -652,12 +652,20 @@ Should the framer implementation deem the candidate selected during racing unsui
 If there are no other candidates available, the Connection will fail. Otherwise, the Connection will select a different candidate and the Message Framer will generate a new `Start` event.
 
 Before an implementation marks a Message Framer as ready, it can also dynamically
-add a protocol or framer above it in the stack. This allows protocols like STARTTLS,
-that need to add TLS conditionally, to modify the Protocol Stack based on a handshake result.
+add a protocol or framer above it in the stack. This allows protocols that need to add TLS conditionally,
+like STARTTLS {{?RFC3207}}, to modify the Protocol Stack based on a handshake result.
 
 ~~~
 otherFramer := NewMessageFramer()
 MessageFramer.PrependFramer(Connection, otherFramer)
+~~~
+
+A Message Framer might also choose to go into a passthrough mode once an initial exchange or handshake has been completed, such as the STARTTLS case mentioned above.
+This can also be useful for proxy protocols like SOCKS {{?RFC1928}} or HTTP CONNECT {{?RFC7230}}. In such cases, a Message Framer implementation can intercept
+sending and receiving of messages at first, but then indicate that no more processing is needed.
+
+~~~
+MessageFramer.StartPassthrough()
 ~~~
 
 ## Sender-side Message Framing {#send-framing}
