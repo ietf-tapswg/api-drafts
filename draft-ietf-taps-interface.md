@@ -2916,8 +2916,7 @@ Close terminates a Connection after satisfying all the requirements that were
 specified regarding the delivery of Messages that the application has already
 given to the Transport Services system. For example, if reliable delivery was requested
 for a Message handed over before calling Close, the Closed Event will signify
-that this Message has indeed been delivered. If the Remote Endpoint still has data to
-send, it cannot be received after this call. This action does not affect any other Connection
+that this Message has indeed been delivered. This action does not affect any other Connection
 that is entangled with this one in a Connection Group.
 
 ~~~
