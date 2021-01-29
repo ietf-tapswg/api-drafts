@@ -2917,7 +2917,8 @@ specified regarding the delivery of Messages that the application has already
 given to the Transport Services system. For example, if reliable delivery was requested
 for a Message handed over before calling Close, the Closed Event will signify
 that this Message has indeed been delivered. If the Remote Endpoint still has data to
-send, it cannot be received after this call.
+send, it cannot be received after this call. This action does not affect any other Connection
+that is entangled with this one in a Connection Group.
 
 ~~~
 Connection.Close()
@@ -2931,10 +2932,20 @@ signaled.
 Connection -> Closed<>
 ~~~
 
-Abort terminates a Connection without delivering any remaining data:
+Abort terminates a Connection without delivering any remaining data. This action does
+not affect any other Connection that is entangled with this one in a Connection Group.
 
 ~~~
 Connection.Abort()
+~~~
+
+AbortGroup terminates a Connection and also terminates any other Connections that are
+entangled with this one in a Connection Group. For example, all of the Connections in a
+group might be streams of a single session for a multistreaming protocol; aborting the entire
+group would close the underlying session. See also {{groups}}.
+
+~~~
+Connection.AbortGroup()
 ~~~
 
 A ConnectionError informs the application that: 1) data could not be delivered to the
