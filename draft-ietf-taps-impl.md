@@ -487,7 +487,7 @@ handed over, it cannot be guaranteed that the other endpoint will have any way t
 a passive endpoint's ConnectionReceived event may not be called upon an active endpoint's Inititate.
 Instead, calling the ConnectionReceived event may be delayed until the first Message arrives.
 
-## Handling racing with "unconnected" protocols {#unconnected-racing}
+## Handling "unconnected" protocols {#unconnected-racing}
 
 While protocols that use an explicit handshake to validate a Connection to a peer can be used for racing multiple establishment attempts in parallel, "unconnected" protocols such as raw UDP do not offer a way to validate the presence of a peer or the usability of a Connection without application feedback. An implementation should consider such a protocol stack to be established as soon as connectivity with the peer endpoint is established.
 
