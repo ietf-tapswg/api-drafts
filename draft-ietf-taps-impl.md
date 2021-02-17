@@ -1055,26 +1055,6 @@ The following explanation assumes a client-server communication model.
 Stream mapping requires an association to already be in place between the client
 and the server, and it requires the server to understand that a new incoming stream
 should be represented as a new Connection Object by the Transport Services system.
-To signal the use of stream mapping, the server SHOULD use the adaptation layer indication
-parameter of LISTEN.SCTP and the client SHOULD use the adaptation layer indication
-parameter of CONNECT.SCTP, both with the "Stream Mapping" adaptation code point.
-Reception of an adaptation layer indication notification with the same adaptation code point value
-then indicates that the peer is capable of stream mapping.
-
-In the absence of an adaptation layer indication notification carrying a "Stream Mapping"
-adaptation code point, stream mapping can still be
-used if the application is aware that the peer application does not directly access SCTP streams.
-If, for example, a transport-protocol-agnostic client application tries to connect to a
-native SCTP server application that does not implement stream mapping, and assumes
-that a new Message sent on this Connection will look like the first Message of a new
-Connection on the server side, communication will fail because the
-SCTP-based application on the server side does not obtain a new Connection.
-As a counter-example, if both the client and server are
-written over a Transport Services system, and the server listens on all available protocols, stream
-mapping works without the application having to be aware of it (a code example that works
-without the adaptation layer notification, described in {{NEATPy}}, is available from the
-NEATPy repository mentioned in {{appendix-implementations}} at the time of writing).
-
 A new SCTP stream is created by sending an SCTP message with a new stream id. Thus, to
 implement stream mapping,
 the Transport Services system MUST provide a newly created Connection Object to the
@@ -1155,8 +1135,10 @@ If this is the only Connection object that is assigned to the SCTP association, 
 
 # IANA Considerations
 
-This document requests the definition of a new SCTP Adaptation Code Point value
-called "Stream Mapping". The SCTP Adaptation Coide Point is defined in RFC 5061.
+RFC-EDITOR: Please remove this section before publication.
+
+This document has no actions for IANA.
+
 
 # Security Considerations
 
