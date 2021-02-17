@@ -876,35 +876,10 @@ Setting a Transport Property to a value overrides the previous value of this Tra
 TransportProperties.Set(property, value)
 ~~~
 
-Transport Properties may also be restored to implementation defaults:
-
-~~~
-TransportProperties.Unset(property)
-~~~
-
 To aid readability, implementations MAY provide additional convenience functions to simplify use of Selection Properties: see {{preference-conv}} for examples.
 In addition, implementations MAY provide a mechanism to create TransportProperties objects that are preconfigured for common use cases as outlined in {{property-profiles}}.
 
-For an existing Connection, the Transport Properties can be queried any time
-by using the following call on the Connection Object:
-
-~~~
-TransportProperties := Connection.GetTransportProperties()
-~~~
-
-An individual property is then queried via the following call on the
-`TransportProperties` object:
-
-~~~
-value := TransportProperties.Get(property)
-~~~
-
-If the given Transport Property is of type Boolean, `Has` may be provided as an
-alias for `Get`, useful for readability in such constructions as the following:
-
-~~~
-if TransportProperties.Has(boolean_property) then ...
-~~~
+Transport Properties for an established connection can be queried via the Connection object, as outlined in {{introspection}}.
 
 A Connection gets its Transport Properties either by being explicitly configured
 via a Preconnection, by configuration after establishment, or by inheriting them
@@ -1734,6 +1709,8 @@ At any point, the application can query Connection Properties.
 
 ~~~
 ConnectionProperties := Connection.GetProperties()
+value := ConnectionProperties.Get(property)
+if ConnectionProperties.Has(boolean_or_preference_property) then ...
 ~~~
 
 Depending on the status of the connection, the queried Connection
@@ -1745,17 +1722,19 @@ Properties will include different information:
 * Whether the connection can be used to send data. A connection can not be used
   for sending if the connection was created with the Selection Property
   `Direction of Communication` set to `unidirectional receive` or if a Message
-  marked as `Final` was sent over this connection, see {{msg-final}}.
+  marked as `Final` was sent over this connection. See {{msg-final}}.
 
 * Whether the connection can be used to receive data. A connection cannot be
   used for reading if the connection was created with the Selection Property
   `Direction of Communication` set to `unidirectional send` or if a Message
-  marked as `Final` was received, see {{receiving-final-messages}}. The latter
+  marked as `Final` was received. See {{receiving-final-messages}}. The latter
   is only supported by certain transport protocols, e.g., by TCP as half-closed
   connection.
 
-* For Connections that are Establishing: Transport Properties that the
-  application specified on the Preconnection, see {{selection-props}}.
+* For Connections that are Established or Closing: Transport Properties that the
+  application specified on the Preconnection. See {{selection-props}}.
+  Selection properties of type `Preference` will be exposed as boolean values
+  indicating whether or not the property applies to the selected transport.
 
 * For Connections that are Established, Closing, or Closed: Selection
   ({{selection-props}}) and Connection Properties ({{connection-props}}) of the
@@ -1831,7 +1810,7 @@ Type:
 Default:
 : Disabled
 
-This property specifies how many seconds to wait before deciding that an active Connection has
+This property specifies how long to wait before deciding that an active Connection has
 failed when trying to reliably deliver data to the Remote Endpoint. Adjusting this Property
 will only take effect when the underlying stack supports reliability. The special value
 `Disabled` means that no timeout is scheduled.
@@ -1839,22 +1818,22 @@ will only take effect when the underlying stack supports reliability. The specia
 ### Timeout for keep alive packets {#keep-alive-timeout}
 
 Name:
-: keepaliveTimeout
+: keepAliveTimeout
 
 Type:
-: Numeric
+: Numeric, with special value `Disabled`
 
 Default:
 : Implementation-defined
 
 A Transport Services system can request a protocol that supports sending keep alive packets {{keep-alive}}.
-This property specifies the maximum number of seconds an idle connection (one for which no transport
+This property specifies the maximum length of time an idle connection (one for which no transport
 packets have been sent) should wait before 
 the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting this Property
 will only take effect when the underlying stack supports sending keep-alive packets. 
 Guidance on setting this value for datagram transports is 
 provided in {{!RFC8085}}.
-A value greater than the connection timeout ({{conn-timeout}}) will disable the sending of keep-alive packets.
+A value greater than the connection timeout ({{conn-timeout}}), or the special value `Disabled`, will disable the sending of keep-alive packets.
 
 ### Connection Group Transmission Scheduler {#conn-scheduler}
 
@@ -3156,6 +3135,11 @@ platform, where they can be immediately detected, such as by throwing an
 exception when attempting to initiate a connection with inconsistent
 Transport Properties. An error can provide an optional reason to the
 application with further details about why the error occurred.
+
+## Time Duration
+
+Time duration types are implementation-specific.
+For instance, it could be a number of seconds, number of milliseconds, or a `struct timeval` in C or a user-defined `Duration` class in C++.
 
 # Convenience Functions
 
