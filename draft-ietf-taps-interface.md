@@ -108,7 +108,7 @@ informative:
     title: "ctrlTCP: Reducing Latency through Coupled, Heterogeneous Multi-Flow TCP Congestion Control"
     seriesinfo:
         IEEE INFOCOM Global Internet Symposium (GI) workshop (GI 2018)
-    authors:
+    author:
       -
         ins: S. Islam
         name: Safiqul Islam
@@ -127,7 +127,7 @@ informative:
       -
         ins: S. Gjessing
         name: Stein Gjessing
-    date: 2018-04-15
+    date: 2018
 
 
 --- abstract
