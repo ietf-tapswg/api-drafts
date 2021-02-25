@@ -593,7 +593,8 @@ of the potential Connection (see {{endpointspec}}), the Selection Properties
    Preconnection := NewPreconnection([]LocalEndpoint,
                                      []RemoteEndpoint,
                                      TransportProperties,
-                                     SecurityParameters)
+                                     SecurityParameters?,
+                                     ConnectionContext?)
 ~~~
 
 At least one Local Endpoint MUST be specified if the Preconnection is used to Listen()
@@ -627,8 +628,7 @@ specified by name, and a later call to  Initiate() on the Preconnection
 endpoints. Specifying multiple Remote Endpoints on a Preconnection allows
 applications to override this for more detailed control.
 
-
-Transport Properties MUST always be specified while security parameters are OPTIONAL.
+Transport Properties MUST always be specified while security parameters and connection context are OPTIONAL.
 
 If Message Framers are used (see {{framing}}), they MUST be added to the
 Preconnection during pre-establishment.
@@ -1384,6 +1384,13 @@ ChallengeCallback := NewCallback({
 SecurityParameters.SetIdentityChallengeCallback(challengeCallback)
 ~~~
 
+## Specifying Connextion Context {#contextspec}
+
+By default, stored properties of the implementation, such as cached protocol state, cached path state, and heuristics, may be shared.
+If this is not desired, a specific context for a connection can be specified when creating the Preconnection.
+As these properties and the isolation guarantees provided are implementation specific, managing contexts is out of scope for this API.
+
+
 # Establishing Connections {#establishment}
 
 Before a Connection can be used for data transfer, it needs to be established.
@@ -1475,7 +1482,7 @@ Preconnection can be disposed of or reused, e.g., to create another Listener.
 Listener.Stop()
 ~~~
 
-Listening continues until the global context shuts down, or until the Stop
+Listening continues until the connection context shuts down, or until the Stop
 action is performed on the Listener object.
 
 ~~~
