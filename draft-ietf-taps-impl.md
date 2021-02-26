@@ -468,7 +468,7 @@ If a leaf node has successfully completed its connection, all other attempts sho
 
 ### Determining Successful Establishment
 
-Implementations may select the criteria by which a leaf node is considered to be successfully connected differently on a per-protocol basis. If the only protocol being used is a transport protocol with a clear handshake, like TCP, then the obvious choice is to declare that node "connected" when the last packet of the three-way handshake has been received. If the only protocol being used is an "unconnected" protocol, like UDP, the implementation may consider the node fully "connected" the moment it determines a route is present, before sending any packets on the network, see further {{unconnected-racing}}.
+Implementations may select the criteria by which a leaf node is considered to be successfully connected differently on a per-protocol basis. If the only protocol being used is a transport protocol with a clear handshake, like TCP, then the obvious choice is to declare that node "connected" when the last packet of the three-way handshake has been received. If the only protocol being used is an connectionless protocol, like UDP, the implementation may consider the node fully "connected" the moment it determines a route is present, before sending any packets on the network, see further {{connectionless-racing}}.
 
 For protocol stacks with multiple handshakes, the decision becomes more nuanced. If the protocol stack involves both TLS and TCP, an implementation could determine that a leaf node is connected after the TCP handshake is complete, or it can wait for the TLS handshake to complete as well. The benefit of declaring completion when the TCP handshake finishes, and thus stopping the race for other branches of the tree, is reduced burden on the network and remote endpoints from further connection attempts that are likely to be abandoned. On the other hand, by waiting until the TLS handshake is complete, an implementation avoids the scenario in which a TCP handshake completes quickly, but TLS negotiation is either very slow or fails altogether in particular network conditions or to a particular endpoint. To avoid the issue of TLS possibly failing, the implementation should not generate a Ready event for the Connection until TLS is established.
 
@@ -487,11 +487,11 @@ handed over, it cannot be guaranteed that the other endpoint will have any way t
 a passive endpoint's ConnectionReceived event may not be called upon an active endpoint's Inititate.
 Instead, calling the ConnectionReceived event may be delayed until the first Message arrives.
 
-## Handling "unconnected" protocols {#unconnected-racing}
+## Handling connectionless protocols {#connectionless-racing}
 
-While protocols that use an explicit handshake to validate a Connection to a peer can be used for racing multiple establishment attempts in parallel, "unconnected" protocols such as raw UDP do not offer a way to validate the presence of a peer or the usability of a Connection without application feedback. An implementation should consider such a protocol stack to be established as soon as the Transport Services system has selected a path on which to send data.
+While protocols that use an explicit handshake to validate a Connection to a peer can be used for racing multiple establishment attempts in parallel, connectionless protocols such as raw UDP do not offer a way to validate the presence of a peer or the usability of a Connection without application feedback. An implementation should consider such a protocol stack to be established as soon as the Transport Services system has selected a path on which to send data.
 
-However, if a peer is not reachable over the network using the unconnected protocol, or data cannot be exchanged for any other reason, the application may want to attempt using another candidate Protocol Stack. The implementation should maintain the list of other candidate Protocol Stacks that were eligible to use.
+However, if a peer is not reachable over the network using the connectionless protocol, or data cannot be exchanged for any other reason, the application may want to attempt using another candidate Protocol Stack. The implementation should maintain the list of other candidate Protocol Stacks that were eligible to use.
 
 ## Implementing listeners {#listen}
 
@@ -505,9 +505,9 @@ If the Selection Properties allow multiple protocols to be used for listening, a
 
 Connected protocols such as TCP and TLS-over-TCP have a strong mapping between the Local and Remote Endpoints (four-tuple) and their protocol connection state. These map into Connection objects. Whenever a new inbound handshake is being started, the Listener should generate a new Connection object and pass it to the application.
 
-### Implementing listeners for Unconnected Protocols
+### Implementing listeners for Connectionless Protocols
 
-Unconnected protocols such as UDP and UDP-lite generally do not provide the same mechanisms that connected protocols do to offer Connection objects. Implementations should wait for incoming packets for unconnected protocols on a listening port and should perform four-tuple matching of packets to either existing Connection objects or the creation of new Connection objects. On platforms with facilities to create a "virtual connection" for unconnected protocols implementations should use these mechanisms to minimise the handling of datagrams intended for already created Connection objects.
+Connectionless protocols such as UDP and UDP-lite generally do not provide the same mechanisms that connected protocols do to offer Connection objects. Implementations should wait for incoming packets for connectionless protocols on a listening port and should perform four-tuple matching of packets to either existing Connection objects or the creation of new Connection objects. On platforms with facilities to create a "virtual connection" for connectionless protocols implementations should use these mechanisms to minimise the handling of datagrams intended for already created Connection objects.
 
 ### Implementing listeners for Multiplexed Protocols
 
@@ -861,7 +861,7 @@ For example, the mapping of the `Send` function for TCP applies to Connections i
 
 Each protocol has a notion of Connectedness. Possible values for Connectedness are:
 
-- Unconnected. Unconnected protocols do not establish explicit state between endpoints, and do not perform a handshake during Connection establishment.
+- Connectionless. Connectionless protocols do not establish explicit state between endpoints, and do not perform a handshake during Connection establishment.
 - Connected. Connected protocols establish state between endpoints, and perform a handshake during Connection establishment. The handshake may be 0-RTT to send data or resume a session, but bidirectional traffic is required to confirm connectedness.
 - Multiplexing Connected. Multiplexing Connected protocols share properties with Connected protocols, but also explictly support opening multiple application-level flows. This means that they can support cloning new Connection objects without a new explicit handshake.
 
@@ -933,7 +933,7 @@ such as "Multipath Transport" and "Policy for using Multipath Transports".
 
 ## UDP
 
-Connectedness: Unconnected
+Connectedness: Connectionless
 
 Data Unit: Datagram
 
@@ -980,7 +980,7 @@ Abort:
 
 ## UDP-Lite
 
-Connectedness: Unconnected
+Connectedness: Connectionless
 
 Data Unit: Datagram
 
@@ -990,7 +990,7 @@ by UDP-Lite, such as "Corruption Protection Length", "Full Checksum Coverage on 
 
 ## UDP Multicast Receive
 
-Connectedness: Unconnected
+Connectedness: Connectionless
 
 Data Unit: Datagram
 
@@ -1154,7 +1154,7 @@ Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for 
 
 Any protocol mapping for the Transport Services API should follow a common template.
 
-Connectedness: (Unconnected/Connected/Multiplexing Connected)
+Connectedness: (Connectionless/Connected/Multiplexing Connected)
 
 Data Unit: (Byte-stream/Datagram/Message)
 
