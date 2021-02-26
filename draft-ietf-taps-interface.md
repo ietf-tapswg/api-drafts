@@ -68,9 +68,9 @@ author:
   -
     ins: P. Tiesel
     name: Philipp S. Tiesel
-    org: TU Berlin
-    street: Einsteinufer 25
-    city: 10587 Berlin
+    org: SAP SE
+    street: Konrad-Zuse-Ring 10
+    city: 14469 Potsdam
     country: Germany
     email: philipp@tiesel.net
   -
