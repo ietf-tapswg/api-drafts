@@ -501,8 +501,6 @@ There are several reasons, however, that an application might want to explicitly
 
 The Transport Services API can allow applications to explicitly define Connection Contexts that force separation of Cached State and Protocol Stacks. For example, a web browser application might use Connection Contexts with separate caches for different tabs in the browser to decrease linkability.
 
-The interface to specify a Connection Context can expose fine-grained tuning for which properties and cached state is allowed to be shared with other Connections. For example, an application might want to allow sharing TCP Fast Open cookies across contexts, but not TLS session state.
-
 # IANA Considerations
 
 RFC-EDITOR: Please remove this section before publication.
