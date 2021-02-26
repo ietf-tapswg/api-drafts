@@ -1173,7 +1173,7 @@ temporary local addresses might involve trading off privacy for performance.
 For instance, temporary addresses can interfere with resumption mechanisms
 that some protocols rely on to reduce initial latency.
 
-### Multi-Paths Transport {#multipath-mode}
+### Multipath Transport {#multipath-mode}
 
 Name:
 : multipath
@@ -1922,7 +1922,7 @@ The Capacity Profile for a selected protocol stack may be modified on a
 per-Message basis using the Transmission Profile Message Property; see
 {{send-profile}}.
 
-### Policy for using Multi-Path Transports {#multipath-policy}
+### Policy for using Multipath Transports {#multipath-policy}
 
 Name:
 : multipath-policy
