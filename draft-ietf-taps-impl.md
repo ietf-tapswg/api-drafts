@@ -436,7 +436,7 @@ Staggered racing can be used whenever a single node of the tree has multiple chi
 
 Staggered racing attempts can proceed in parallel. Implementations should not terminate an earlier child connection attempt upon starting a secondary child.
 
-If a child node fails to connect before the delay time has expired for the next child, the next child should be started immediately.
+If a child node fails to establish connectivity (as in {{determining-successful-establishment}}) before the delay time has expired for the next child, the next child should be started immediately.
 
 Staggered racing between IP addresses for a generic Connection should follow the Happy Eyeballs algorithm described in {{!RFC8305}}. {{!RFC8421}} provides guidance for racing when performing Interactive Connectivity Establishment (ICE).
 
