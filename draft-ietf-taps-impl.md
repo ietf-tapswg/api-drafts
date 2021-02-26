@@ -929,7 +929,7 @@ Connectedness: Connected
 Data Unit: Byte-stream
 
 API mappings for MPTCP are identical to TCP. MPTCP adds support for multipath properties,
-such as "Multi-Path Transport" and "Policy for using Multi-Path Transports".
+such as "Multipath Transport" and "Policy for using Multipath Transports".
 
 ## UDP
 
