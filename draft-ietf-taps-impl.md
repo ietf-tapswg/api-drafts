@@ -126,8 +126,8 @@ informative:
 
 --- abstract
 
-The Transport Services (TAPS) system enables applications to use transport protocols flexibly for network communication
-and defines a protocol-independent TAPS Application Programming Interface (API) that is based on an asynchronous, 
+The Transport Services system enables applications to use transport protocols flexibly for network communication
+and defines a protocol-independent Transport Services Application Programming Interface (API) that is based on an asynchronous, 
 event-driven interaction pattern. This document serves as a guide to implementation on how to build such a system.
 
 --- middle
@@ -1118,7 +1118,7 @@ This document has no actions for IANA.
 
 # Security Considerations
 
-{{I-D.ietf-taps-arch}} outlines general security consideration and requirements for any system that implements the TAPS archtecture. {{I-D.ietf-taps-interface}} provides further discussion on security and privacy implications of the TAPS API. This document provides additional guidance on implementation specifics for the TAPS API and as such the security considerations in both of these documents apply. The next two subsections discuss further considerations that are specific to mechanisms specified in this document.
+{{I-D.ietf-taps-arch}} outlines general security consideration and requirements for any system that implements the Transport Services archtecture. {{I-D.ietf-taps-interface}} provides further discussion on security and privacy implications of the Transport Services API. This document provides additional guidance on implementation specifics for the Transport Services API and as such the security considerations in both of these documents apply. The next two subsections discuss further considerations that are specific to mechanisms specified in this document.
 
 ## Considerations for Candidate Gathering
 
@@ -1214,7 +1214,7 @@ The configuration is valid, but none of the available transport protocols can sa
 The remote or local specifier provided by the application can not be resolved.
 
 * EstablishmentFailed:
-The TAPS system was unable to establish a transport-layer connection to the remote endpoint specified by the application.
+The Transport Services system was unable to establish a transport-layer connection to the remote endpoint specified by the application.
 
 * PolicyProhibited:
 The system policy prevents the transport system from performing the action requested by the application. 
