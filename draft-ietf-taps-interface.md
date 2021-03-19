@@ -2928,17 +2928,25 @@ signaled.
 Connection -> Closed<>
 ~~~
 
-Abort terminates a Connection without delivering any remaining data. This action does
+Abort terminates a Connection without delivering any remaining Messages. This action does
 not affect any other Connection that is entangled with this one in a Connection Group.
 
 ~~~
 Connection.Abort()
 ~~~
 
-AbortGroup terminates a Connection and also terminates any other Connections that are
+CloseGroup gracefully terminates a Connection and any other Connections that are
 entangled with this one in a Connection Group. For example, all of the Connections in a
-group might be streams of a single session for a multistreaming protocol; aborting the entire
-group would close the underlying session. See also {{groups}}.
+group might be streams of a single session for a multistreaming protocol; closing the entire
+group will close the underlying session. See also {{groups}}. As with Close, any Messages
+remaining to be processed on a Connection will be handled prior to closing.
+
+~~~
+Connection.CloseGroup()
+~~~
+
+AbortGroup terminates a Connection and any other Connections that are
+entangled with this one in a Connection Group without delivering any remaining Messages.
 
 ~~~
 Connection.AbortGroup()
