@@ -2515,7 +2515,7 @@ will result in a `SendError`.
 #### No Segmentation {#no-transport-fragmentation}
 
 Name:
-: noTransportFragmentation
+: noSegmentation
 
 Type:
 : Boolean
