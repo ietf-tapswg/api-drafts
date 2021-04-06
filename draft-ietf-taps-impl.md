@@ -148,7 +148,7 @@ The connection objects that are exposed to applications for Transport Services a
 
 Preconnection objects should be implemented as bundles of properties that an application can both read and write. Once a Preconnection has been used to create an outbound Connection or a Listener, the implementation should ensure that the copy of the properties held by the Connection or Listener is immutable. This may involve performing a deep-copy if the application is still able to modify properties on the original Preconnection object.
 
-Connection objects represent the interface between the application and the implementation to manage transport state, and conduct data transfer. During the process of establishment ({{conn-establish}}), the Connection will be unbound to a specific transport flow, since there may be multiple candidate Protocol Stacks being raced. Once the Connection is established, its interface maps actions and events to the details of the chosen Protocol Stack. For example, the same Connection object may ultimately represent the interface into a TCP connection, a TLS session over TCP, a UDP flow with fully-specified local and remote endpoints, a DTLS session, a SCTP stream, a QUIC stream, or an HTTP/2 stream.
+Connection objects represent the interface between the application and the implementation to manage transport state, and conduct data transfer. During the process of establishment ({{conn-establish}}), the Connection will not be bound to a specific transport flow, since there may be multiple candidate Protocol Stacks being raced. Once the Connection is established, its interface maps actions and events to the details of the chosen Protocol Stack. For example, the same Connection object may ultimately represent the interface into a TCP connection, a TLS session over TCP, a UDP flow with fully-specified local and remote endpoints, a DTLS session, a SCTP stream, a QUIC stream, or an HTTP/2 stream.
 
 Listener objects are created with a Preconnection, at which point their configuration should be considered immutable by the implementation. The process of listening is described in {{listen}}.
 
@@ -212,7 +212,7 @@ The step of gathering candidates involves identifying which paths, protocols, an
 
 ### Gathering Endpoint Candidates
 
-Both Local and Remote Endpoint Candidates must be discovered during connection establishment.  To support Interactive Connectivity Establishment (ICE) {{?RFC8445}}, or similar protocols, that involve out-of-band indirect signalling to exchange candidates with the Remote Endpoint, it’s important to be able to query the set of candidate Local Endpoints, and give the protocol stack a set of candidate Remote Endpoints, before it attempts to establish connections.
+Both Local and Remote Endpoint Candidates must be discovered during connection establishment.  To support Interactive Connectivity Establishment (ICE) {{?RFC8445}}, or similar protocols that involve out-of-band indirect signalling to exchange candidates with the Remote Endpoint, it’s important to be able to query the set of candidate Local Endpoints, and give the protocol stack a set of candidate Remote Endpoints, before it attempts to establish connections.
 
 #### Local Endpoint candidates
 
@@ -228,7 +228,7 @@ The Remote Endpoint is typically a name that needs to be resolved into a set of 
 
 How this is done will depend on the type of the Remote Endpoint, and can also be specific to each Local Endpoint.  A common case is when the Remote Endpoint is a DNS name, in which case it is resolved to give a set of IPv4 and IPv6 addresses representing that name.  Some types of remote might require more complex resolution.  Resolving the Remote Endpoint for a peer-to-peer connection might involve communication with a rendezvous server, which in turn contacts the peer to gain consent to communicate and retrieve its set of candidate locals, which are returned and form the candidate remote addresses for contacting that peer.
 
-Resolving the remote is not a local operation.  It will involve a directory service, and can require communication with the remote to rendezvous and exchange peer addresses.  This can expose some or all of the candidate locals to the remote.
+Resolving the Remote Endpoint is not a local operation.  It will involve a directory service, and can require communication with the remote to rendezvous and exchange peer addresses.  This can expose some or all of the candidate locals to the remote.
 
 ### Structuring Options as a Tree
 
@@ -497,7 +497,7 @@ However, if a peer is not reachable over the network using the connectionless pr
 
 When an implementation is asked to Listen, it registers with the system to wait for incoming traffic to the Local Endpoint. If no Local Endpoint is specified, the implementation should use an ephemeral port.
 
-If the Selection Properties do not require a single network interface or path, but allow the use of multiple paths, the Listener object should register for incoming traffic on all of the network interfaces or paths that conform to the Properties. The set of available paths can change over time, so the implementation should monitor network path changes and register and de-register the Listener across all usable paths. When using multiple paths, the Listener is generally expected to use the same port for listening on each.
+If the Selection Properties do not require a single network interface or path, but allow the use of multiple paths, the Listener object should register for incoming traffic on all of the network interfaces or paths that conform to the Properties. The set of available paths can change over time, so the implementation should monitor network path changes, and change the registration of the Listener across all usable paths as appropriate. When using multiple paths, the Listener is generally expected to use the same port for listening on each.
 
 If the Selection Properties allow multiple protocols to be used for listening, and the implementation supports it, the Listener object should support receiving inbound connections for each eligible protocol on each eligible path.
 
@@ -519,7 +519,7 @@ The most basic mapping for sending a Message is an abstraction of datagrams, in 
 
 For protocols that expose byte-streams, the only delineation provided by the protocol is the end of the stream in a given direction. Each Message in this case corresponds to the entire stream of bytes in a direction. These Messages may be quite long, in which case they can be sent in multiple parts.
 
-Protocols that provide the framing (such as length-value protocols, or protocols that use delimiters) provide data boundaries that may be longer than a traditional packet datagram. Each Message for framing protocols corresponds to a single frame, which may be sent either as a complete Message, or in multiple parts.
+Protocols that provide the framing (such as length-value protocols, or protocols that use delimiters) provide data boundaries that may be longer than a traditional packet. Each Message for framing protocols corresponds to a single frame, which may be sent either as a complete Message, or in multiple parts.
 
 ## Sending Messages
 
@@ -563,11 +563,11 @@ Since sending a Message may involve a context switch between the application and
 
 Similar to sending, Receiving a Message is determined by the top-level protocol in the established Protocol Stack. The main difference with Receiving is that the size and boundaries of the Message are not known beforehand. The application can communicate in its Receive action the parameters for the Message, which can help the implementation know how much data to deliver and when. For example, if the application only wants to receive a complete Message, the implementation should wait until an entire Message (datagram, stream, or frame) is read before delivering any Message content to the application. This requires the implementation to understand where messages end, either via a supplied deframer or because the top-level protocol in the established Protocol Stack preserves message boundaries. If the top-level protocol only supports a byte-stream and no framers were supported, the application can control the flow of received data by specifying the minimum number of bytes of Message content it wants to receive at one time.
 
-If a Connection becomes finished before a requested Receive action can be satisfied, the implementation should deliver any partial Message content outstanding, or if none is available, an indication that there will be no more received Messages.
+If a Connection finishes before a requested Receive action can be satisfied, the implementation should deliver any partial Message content outstanding, or if none is available, an indication that there will be no more received Messages.
 
 ## Handling of data for fast-open protocols {#fastopen}
 
-Several protocols allow sending higher-level protocol or application data during their protocol establishment, such as TCP Fast Open {{!RFC7413}} and TLS 1.3 {{!RFC8446}}. This approach is referred to as sending Zero-RTT (0-RTT) data. This is a desirable property, but poses challenges to an implementation that uses racing during connection establishment.
+Several protocols allow sending higher-level protocol or application data during their protocol establishment, such as TCP Fast Open {{!RFC7413}} and TLS 1.3 {{!RFC8446}}. This approach is referred to as sending Zero-RTT (0-RTT) data. This is a desirable feature, but poses challenges to an implementation that uses racing during connection establishment.
 
 The amount of data that can be sent as 0-RTT data varies by protocol and can be queried by the application using the `Maximum Message Size Concurrent with Connection Establishment` Connection Property. An implementation can set this property according to the protocols that it will race based on the given Selection Properties when the application requests to establish a connection.
 
@@ -581,17 +581,17 @@ It is also possible that protocol stacks within a particular leaf node use 0-RTT
 
 # Implementing Message Framers
 
-Message Framers are pieces of code that define simple transformations
-between application Message data and raw transport protocol data. A Framer
-can encapsulate or encode outbound Messages, and decapsulate or decode
-inbound data into Messages.
+Message Framers are functions that define 
+simple transformations between application Message data and raw transport 
+protocol data. A Framer can encapsulate or encode outbound Messages, and
+decapsulate or decode inbound data into Messages.
 
 While many protocols can be represented as Message Framers, for the
 purposes of the Transport Services interface these are ways for applications
 or application frameworks to define their own Message parsing to be
-included within a Connection's Protocol Stack. As an example, TLS can
-serve the purpose of framing data over TCP, but is exposed as a protocol
-natively supported by the Transport Services interface.
+included within a Connection's Protocol Stack. As an example, TLS 
+is exposed as a protocol natively supported by the Transport Services
+interface, even though it could also serve the purpose of framing data over TCP.
 
 Most Message Framers fall into one of two categories:
 
@@ -606,12 +606,12 @@ possible interface for defining Message Framers as an example.
 
 ## Defining Message Framers
 
-A Message Framer is primarily defined by the set of code that handles events
+A Message Framer is primarily defined by the code that handles events
 for a framer implementation, specifically how it handles inbound and outbound data
-parsing. The piece of code that implements custom framing logic will be referred to
+parsing. The function that implements custom framing logic will be referred to
 as the "framer implementation", which may be provided by the Transport Services
 implementation or the application itself. The Message Framer refers to the object
-or piece of code within the main Connection implementation that delivers events
+or function within the main Connection implementation that delivers events
 to the custom framer implementation whenever data is ready to be parsed or framed.
 
 When a Connection establishment attempt begins, an event can be delivered to
@@ -739,7 +739,7 @@ Connection Properties. A Connection can also generate events in the form of Soft
 
 The set of Connection Properties that are supported for setting and getting on a Connection are described in {{I-D.ietf-taps-interface}}. For
 any properties that are generic, and thus could apply to all protocols being used by a Connection, the Transport System should store the properties
-in a generic storage, and notify all protocol instances in the Protocol Stack whenever the properties have been modified by the application.
+in an object common to all protocols, and notify all protocol instances in the Protocol Stack whenever the properties have been modified by the application.
 For protocol-specfic properties, such as the User Timeout that applies to TCP, the Transport System only needs to update the relevant protocol instance.
 
 If an error is encountered in setting a property (for example, if the application tries to set a TCP-specific property on a Connection that is
@@ -759,9 +759,7 @@ This enables implementations to realize transparent connection coalescing, conne
 
 When a path change occurs, e.g., when the IP address of an interface changes or a new interface becomes available, the Transport Services implementation is responsible for notifying the application of the change. The path change may interrupt connectivity on a path for an active connection or provide an opportunity for a transport that supports multipath or migration to adapt to the new paths.
 
-For protocols that do not support multipath or migration, the Protocol Instances should be informed of the path change, but should not be forcibly disconnected if the previously used path becomes unavailable.
-
-There are many common user scenarios that can lead to a path becoming temporarily unavailable, and then recovering before the transport protocol reaches a timeout error. These are particularly common using mobile devices. Examples include: an Ethernet cable becoming unplugged and then plugged back in; a device losing a Wi-Fi signal while a user is in an elevator, and reattaching when the user leaves the elevator; and a user losing the radio signal while riding a train through a tunnel. If the device is able to rejoin a network with the same IP address, a stateful transport connection can generally resume. Thus, while it is useful for a Protocol Instance to be aware of a temporary loss of connectivity, the Transport Services implementation should not aggressively close connections in these scenarios.
+For protocols that do not support multipath or migration, the Protocol Instances should be informed of the path change, but should not be forcibly disconnected if the previously used path becomes unavailable. There are many common user scenarios that can lead to a path becoming temporarily unavailable, and then recovering before the transport protocol reaches a timeout error. These are particularly common using mobile devices. Examples include: an Ethernet cable becoming unplugged and then plugged back in; a device losing a Wi-Fi signal while a user is in an elevator, and reattaching when the user leaves the elevator; and a user losing the radio signal while riding a train through a tunnel. If the device is able to rejoin a network with the same IP address, a stateful transport connection can generally resume. Thus, while it is useful for a Protocol Instance to be aware of a temporary loss of connectivity, the Transport Services implementation should not aggressively close connections in these scenarios.
 
 If the Protocol Stack includes a transport protocol that also supports multipath connectivity with migration support, the Transport Services implementation should also inform the Protocol Instance of potentially new paths that become permissible based on the Selection Properties passed by the application. A protocol can then establish new subflows over new paths while an active path is still available or, if migration is supported, also after a break has been detected, and should attempt to tear down subflows over paths that are no longer used. The Transport Services API provides an interface to set a multipath policy that indicates when and how different paths should be used. However, detailed handling of these policies is still implementation-specific. The decision about when to create a new path or to announce a new path or set of paths to the remote endpoint, e.g., in the form of additional IP addresses, is implementation-specific or could be be supported by future API extensions. If the Protocol Stack includes a transport protocol that does not support multipath, but does support migrating between paths, the update to the set of available paths can trigger the connection to be migrated. 
 
@@ -908,7 +906,7 @@ ConnectionReceived:
 : TCP Listeners will deliver new connections once they have replied to an inbound SYN with a SYN-ACK.
 
 Clone:
-: Calling `Clone` on a TCP Connection creates a new Connection with equivalent parameters. These Connections, and Connections generated via later calls to `Clone` on one of them, form a Connection Group. To realize `entanglement` for these Connections, with the exception of `Connection Priority`, changing a Connection Property on one of them must affect the Connection Properties of the others too. No guarantees of honoring the Connection Property `Connection Priority` are given, and thus it is safe for an implementation of a transport system to ignore this property. When it is reasonable to assume that Connections traverse the same path (e.g., when they share the same encapsulation), support for it can also experimentally be implemented using a congestion control coupling mechanism (see for example {{TCP-COUPLING}} or {{?RFC3124}}).
+: Calling `Clone` on a TCP Connection creates a new Connection with equivalent parameters. These Connections, and Connections generated via later calls to `Clone` on one of them, form a Connection Group. To realize entanglement for these Connections, with the exception of `Connection Priority`, changing a Connection Property on one of them must affect the Connection Properties of the others too. No guarantees of honoring the Connection Property `Connection Priority` are given, and thus it is safe for an implementation of a transport system to ignore this property. When it is reasonable to assume that Connections traverse the same path (e.g., when they share the same encapsulation), support for it can also experimentally be implemented using a congestion control coupling mechanism (see for example {{TCP-COUPLING}} or {{?RFC3124}}).
 
 Send:
 : SEND.TCP. TCP does not on its own preserve Message boundaries. Calling `Send` on a TCP connection lays out the bytes on the TCP send stream without any other delineation. Any Message marked as Final will cause TCP to send a FIN once the Message has been completely written, by calling CLOSE.TCP immediately upon successful termination of SEND.TCP. Note that transmitting a Message marked as Final should not cause the `Closed` event to be delivered to the application, as it will still be possible to receive data until the peer closes or aborts the TCP connection.
