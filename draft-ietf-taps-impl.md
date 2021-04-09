@@ -519,7 +519,7 @@ The most basic mapping for sending a Message is an abstraction of datagrams, in 
 
 For protocols that expose byte-streams, the only delineation provided by the protocol is the end of the stream in a given direction. Each Message in this case corresponds to the entire stream of bytes in a direction. These Messages may be quite long, in which case they can be sent in multiple parts.
 
-Protocols that provide the framing (such as length-value protocols, or protocols that use delimiters) provide data boundaries that may be longer than a traditional packet. Each Message for framing protocols corresponds to a single frame, which may be sent either as a complete Message, or in multiple parts.
+Protocols that provide the framing (such as length-value protocols, or protocols that use delimiters) provide data boundaries that may be longer than the typical datagram. Each Message for framing protocols corresponds to a single frame, which may be sent either as a complete Message, or in multiple parts.
 
 ## Sending Messages
 
