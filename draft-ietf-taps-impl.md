@@ -553,7 +553,7 @@ transport protocol session or DCCP connection).
 
 ### Send Completion
 
-The application should be notified whenever a Message or partial Message has been consumed by the Protocol Stack, or has failed to send. The meaning of the Message being consumed by the stack may vary depending on the protocol. For a basic datagram protocol like UDP, this may correspond to the time when the packet is sent into the interface driver. For a protocol that buffers data in queues, like TCP, this may correspond to when the data has entered the send buffer.
+The application should be notified whenever a Message or partial Message has been consumed by the Protocol Stack, or has failed to send. The time at which a Message is considered to have been consumed by the Protocol Stack may vary depending on the protocol. For example, for a basic datagram protocol like UDP, this may correspond to the time when the packet is sent into the interface driver. For a protocol that buffers data in queues, like TCP, this may correspond to when the data has entered the send buffer. The time at which a message has failed to send is after the Protocol Stack or the Transport Services implementation itself has not successfully sent the entire Message content or partial Message content on any open candidate connection; this may depend on protocol-specific timeouts.
 
 ### Batching Sends
 
