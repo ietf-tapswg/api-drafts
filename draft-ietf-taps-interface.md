@@ -1933,7 +1933,7 @@ Type:
 Default:
 : Handover
 
-This property specifies the local policy for transferring data across multiple paths between the same end hosts if Parallel Use of Multiple Paths is not set to Disabled (see {{multipath-mode}}). Possible values are:
+This property specifies the local policy for transferring data across multiple paths between the same end hosts if Multipath Transport is not set to Disabled (see {{multipath-mode}}). Possible values are:
 
 Handover:
 : The connection ought only to attempt to migrate between different paths when the original path is lost or becomes unusable. The thresholds used to declare a path unusable are implementation specific.
