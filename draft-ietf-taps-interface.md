@@ -2992,11 +2992,11 @@ events that occur upon a transition from one state to another.
 
 ~~~~~~~~~~
 
-              (*)                (**)
-Establishing -----> Established -----> Closed
-     |                                   ^
-     |                                   |
-     +-----------------------------------+
+              (*)                               (**)
+Establishing -----> Established -----> Closing ------> Closed
+     |                                                   ^
+     |                                                   |
+     +---------------------------------------------------+
                   InitiateError<>
 
 (*) Ready<>, ConnectionReceived<>, RendezvousDone<>
