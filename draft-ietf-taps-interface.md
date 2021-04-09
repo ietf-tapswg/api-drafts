@@ -3236,7 +3236,7 @@ This list is a subset of the transport features in Appendix A of {{?RFC8923}}, w
 `timeout` parameter of `Initiate` ({{initiate}}) or `InitiateWithSend` Action ({{initiate-and-send}}).
 
 * Disable MPTCP:
-`Parallel Use of Multiple Paths` Property ({{multipath-mode}}).
+`Multipath Transport` Property ({{multipath-mode}}).
 
 * Hand over a message to reliably transfer (possibly multiple times) before connection establishment:
 `InitiateWithSend` Action ({{initiate-and-send}}).
@@ -3248,7 +3248,7 @@ This list is a subset of the transport features in Appendix A of {{?RFC8923}}, w
 `ConnectionError` Event ({{termination}}).
 
 * Suggest timeout to the peer:
-`TCP-specific Property: User Timeout` ({{tcp-uto}}).
+`TCP-specific Properties: User Timeout Option (UTO)` ({{tcp-uto}}).
 
 * Notification of ICMP error message arrival:
 `Notification of ICMP soft error message arrival` property ({{prop-soft-error}}).
@@ -3260,7 +3260,7 @@ This list is a subset of the transport features in Appendix A of {{?RFC8923}}, w
 `Connection Priority` property ({{conn-priority}}).
 
 * "Specify checksum coverage used by the sender" and "Disable checksum when sending":
-`Corruption Protection Length` property ({{msg-checksum}}) and `Full Checksum Coverage on Sending` property ({{prop-checksum-control-send}}).
+`Sending Corruption Protection Length` property ({{msg-checksum}}) and `Full Checksum Coverage on Sending` property ({{prop-checksum-control-send}}).
 
 * "Specify minimum checksum coverage required by receiver" and "Disable checksum requirement when receiving":
 `Required Minimum Corruption Protection Coverage for Receiving` property ({{conn-recv-checksum}}) and `Full Checksum Coverage on Receiving` property ({{prop-checksum-control-receive}}).
@@ -3269,7 +3269,7 @@ This list is a subset of the transport features in Appendix A of {{?RFC8923}}, w
 `No Network-Layer Fragmentation` property ({{send-singular}}).
 
 * "Request not to bundle messages":
-`No Transport-Layer Fragmentation` property ({{no-transport-fragmentation}}).
+`No Segmentation` property ({{no-transport-fragmentation}}).
 
 * Get max. transport-message size that may be sent using a non-fragmented IP packet from the configured interface:
 `Maximum Message Size Before Fragmentation or Segmentation` property ({{conn-max-msg-notfrag}}).
@@ -3278,7 +3278,7 @@ This list is a subset of the transport features in Appendix A of {{?RFC8923}}, w
 `Maximum Message Size on Receive` property ({{conn-max-msg-recv}}).
 
 * Obtain ECN field:
-`ECN` is a defined UDP(-Lite)-specific read-only Message Property of the MessageContext object ({{receive-ecn}}).
+`UDP(-Lite)-specific Property: ECN` is a read-only Message Property of the MessageContext object ({{receive-ecn}}).
 
 * "Specify DSCP field", "Disable Nagle algorithm", "Enable and configure a `Low Extra Delay Background Transfer`":
 as suggested in Section 5.5 of {{?RFC8923}}, these transport features are collectively offered via the `Capacity Profile` property ({{prop-cap-profile}}). Per-Message control is offered via the `Message Capacity Profile Override` property ({{send-profile}}).
