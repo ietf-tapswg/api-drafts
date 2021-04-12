@@ -2921,11 +2921,9 @@ that is entangled with this one in a Connection Group.
 Connection.Close()
 ~~~
 
-The Closed Event informs the application that the Close Action has successfully
-completed. In case of an underlying connection-oriented transport protocol
-such as TCP, this means that the Remote Endpoint has closed the
-Connection. There is no guarantee that a remote Close will indeed be
-signaled.
+The Closed Event informs the application that a Close Action has successfully
+completed, or that the Remote Endpoint has closed the Connection.
+There is no guarantee that a remote Close will indeed be signaled.
 
 
 ~~~
