@@ -2911,7 +2911,8 @@ Any calls to Receive once the Final Message has been delivered will result in er
 
 Close terminates a Connection after satisfying all the requirements that were
 specified regarding the delivery of Messages that the application has already
-given to the Transport Services system. For example, if reliable delivery was requested
+given to the Transport Services system. Upon successfully satisfying all these
+requirements, the Connection will send the Closed Event. For example, if reliable delivery was requested
 for a Message handed over before calling Close, the Closed Event will signify
 that this Message has indeed been delivered. This action does not affect any other Connection
 that is entangled with this one in a Connection Group.
@@ -2920,9 +2921,12 @@ that is entangled with this one in a Connection Group.
 Connection.Close()
 ~~~
 
-The Closed Event informs the application that the Remote Endpoint has closed the
+The Closed Event informs the application that the Close Action has successfully
+completed. In case of an underlying connection-oriented transport protocol
+such as TCP, this means that the Remote Endpoint has closed the
 Connection. There is no guarantee that a remote Close will indeed be
 signaled.
+
 
 ~~~
 Connection -> Closed<>
@@ -2930,6 +2934,8 @@ Connection -> Closed<>
 
 Abort terminates a Connection without delivering any remaining Messages. This action does
 not affect any other Connection that is entangled with this one in a Connection Group.
+When the Abort Action has finished, the Connection will send a ConnectionError Event,
+indicating local Abort as a reason.
 
 ~~~
 Connection.Abort()
@@ -2938,7 +2944,9 @@ Connection.Abort()
 CloseGroup gracefully terminates a Connection and any other Connections that are
 entangled with this one in a Connection Group. For example, all of the Connections in a
 group might be streams of a single session for a multistreaming protocol; closing the entire
-group will close the underlying session. See also {{groups}}. As with Close, any Messages
+group will close the underlying session. See also {{groups}}. All Connections in the group
+will send a Closed Event when the CloseGroup Action was successful.
+As with Close, any Messages
 remaining to be processed on a Connection will be handled prior to closing.
 
 ~~~
@@ -2947,6 +2955,8 @@ Connection.CloseGroup()
 
 AbortGroup terminates a Connection and any other Connections that are
 entangled with this one in a Connection Group without delivering any remaining Messages.
+When the AbortGroup Action has finished, all Connections in the group will send a ConnectionError Event,
+indicating local Abort as a reason.
 
 ~~~
 Connection.AbortGroup()
@@ -2955,7 +2965,7 @@ Connection.AbortGroup()
 A ConnectionError informs the application that: 1) data could not be delivered to the
 peer after a timeout, 
 or 2) the Connection has been aborted (e.g., because the peer has called Abort).
-There is no guarantee that an Abort will indeed be signaled.
+There is no guarantee that an Abort from the peer will indeed be signaled.
 
 ~~~
 Connection -> ConnectionError<reason?>
