@@ -153,7 +153,7 @@ asynchronous, atomic transmission of messages over transport protocols and
 network paths dynamically selected at runtime, in environments where an endpoint
 selects from multiple interfaces and potential transport protocols.
 
-Applications adopt this interface will benefit from a wide set of
+Applications that adopt this interface will benefit from a wide set of
 transport features that can evolve over time. This protocol-independent API ensures that the system
 providing the interface can optimize its behavior based on the application
 requirements and network conditions, without requiring changes to the
