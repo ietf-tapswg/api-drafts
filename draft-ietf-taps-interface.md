@@ -1904,8 +1904,8 @@ The following values are valid for the Capacity Profile:
   Constant-Rate Streaming:
   : The application expects to send/receive data at a
   constant rate after Connection establishment. Delay and delay variation should
-  be minimized at the expense of efficient use of the available capacity. This implies that the
-  Connection might fail if the desired rate cannot be maintained across the Path.
+  be minimized at the expense of efficient use of the available capacity. 
+  This implies that the Connection might fail if the Path is unable to maintain the desired rate.
   A transport can interpret this capacity profile as preferring a circuit
   breaker {{?RFC8084}} to a rate-adaptive congestion controller. Transport
   system implementations that map the requested capacity profile onto
