@@ -169,8 +169,9 @@ underneath the interface to dynamically choose a transport protocol depending on
 application's choices rather than statically binding applications to a protocol at 
 compile time. The Transport Services system implementations should provide
 applications with a way to override transport selection and instantiate a specific stack,
-e.g., to support servers wishing to listen to a specific protocol. This specific
-transport stack choice is discouraged for general use, because it can reduce the portability.
+e.g., to support servers wishing to listen to a specific protocol. Such a choice to 
+only permit using a specific transport stack is discouraged for general use,
+because it can reduce the portability.
 
 ## Terminology and Notation {#notation}
 
@@ -289,7 +290,8 @@ Architecture {{I-D.ietf-taps-arch}}.
 An application primarily interacts with this API through two Objects:
 Preconnections and Connections. A Preconnection represents a set of properties
 and constraints on the selection and configuration of paths and protocols to
-establish a Connection with a Remote Endpoint. A Connection represents a
+establish a Connection with a Remote Endpoint. A Connection represents an
+instance of a
 transport Protocol Stack on which data can be sent to and/or received from a
 Remote Endpoint (i.e., depending on the kind of transport, connections can be
 bi-directional or unidirectional). Connections can be created from
@@ -301,7 +303,7 @@ peer to peer establishment).
 Once a Connection is established, data can be sent and received on it in the form of
 Messages. The interface supports the preservation of message boundaries both
 via explicit Protocol Stack support, and via application support through a
-Message Framer which finds message boundaries in a stream. Messages are
+Message Framer that finds message boundaries in a stream. Messages are
 received asynchronously through event handlers registered by the application.
 Errors and other notifications also happen asynchronously on the Connection.
 It is not necessary for an application to handle all Events; some Events may
@@ -2031,7 +2033,7 @@ Type:
 This property, if applicable, represents the maximum Message size that can be
 sent without incurring network-layer fragmentation or transport layer
 segmentation at the sender. It exposes the Maximum Packet Size (MPS)
-as described in Datagram PLPMTUD {{?I-D.ietf-tsvwg-datagram-plpmtud}}.
+as described in Datagram PLPMTUD {{?RFC8899}}.
 
 #### Maximum Message Size on Send {#conn-max-msg-send}
 
