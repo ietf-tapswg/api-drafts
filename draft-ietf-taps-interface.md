@@ -259,6 +259,9 @@ provides:
   transport-independent way to the degree possible, enabling applications written to a single API
   to make use of transport protocols in terms of the features they provide;
 
+- Unified interface to datagram and connection-oriented transports, allowing
+  use of a common API for connection-establishment and closing;
+
 - Message-orientation, as opposed to stream-orientation, using
   application-assisted framing and deframing where the underlying transport
   does not provide these;
@@ -269,7 +272,7 @@ provides:
   in modern platforms and programming languages;
 
 - Explicit support for transport-specific features to be applied should that
-  particular transport be part of a chosen Protocol Stack.
+  particular transport be part of a chosen Protocol Stack;
 
 - Explicit support for security properties as first-order transport features,
   and for configuration of cryptographic identities and transport security parameters persistent across multiple Connections; and
