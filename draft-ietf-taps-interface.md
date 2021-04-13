@@ -260,7 +260,7 @@ provides:
   transport-independent way to the degree possible, enabling applications written to a single API
   to make use of transport protocols in terms of the features they provide;
 
-- Unified interface to datagram and connection-oriented transports, allowing
+- A unified interface to datagram and connection-oriented transports, allowing
   use of a common API for connection-establishment and closing;
 
 - Message-orientation, as opposed to stream-orientation, using
