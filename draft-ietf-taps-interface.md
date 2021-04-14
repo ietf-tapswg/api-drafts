@@ -3270,9 +3270,6 @@ This list is a subset of the transport features in Appendix A of {{?RFC8923}}, w
 * "Specify DF field":
 `No Network-Layer Fragmentation` property ({{send-singular}}).
 
-* "Request not to bundle messages":
-`No Segmentation` property ({{no-transport-fragmentation}}).
-
 * Get max. transport-message size that may be sent using a non-fragmented IP packet from the configured interface:
 `Maximum Message Size Before Fragmentation or Segmentation` property ({{conn-max-msg-notfrag}}).
 
@@ -3283,7 +3280,7 @@ This list is a subset of the transport features in Appendix A of {{?RFC8923}}, w
 `UDP(-Lite)-specific Property: ECN` is a read-only Message Property of the MessageContext object ({{receive-ecn}}).
 
 * "Specify DSCP field", "Disable Nagle algorithm", "Enable and configure a `Low Extra Delay Background Transfer`":
-as suggested in Section 5.5 of {{?RFC8923}}, these transport features are collectively offered via the `Capacity Profile` property ({{prop-cap-profile}}). Per-Message control is offered via the `Message Capacity Profile Override` property ({{send-profile}}).
+as suggested in Section 5.5 of {{?RFC8923}}, these transport features are collectively offered via the `Capacity Profile` property ({{prop-cap-profile}}). Per-Message control ("Request not to bundle messages") is offered via the `Message Capacity Profile Override` property ({{send-profile}}).
 
 * Close after reliably delivering all remaining data, causing an event informing the application on the other side:
 this is offered by the `Close` Action with slightly changed semantics in line with the discussion in Section 5.2 of {{?RFC8923}} ({{termination}}).
