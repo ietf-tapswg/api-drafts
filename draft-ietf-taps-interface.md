@@ -135,9 +135,9 @@ informative:
 This document describes an abstract application programming interface, API, to the transport
 layer that enables the selection of transport protocols and
 network paths dynamically at runtime. This API supports faster deployment
-of new protocol and protocol feature without requiring changes to the
+of new protocols and protocol features without requiring changes to the
 applications. The specified API follows the Transport Services Architecture
-by provising asynchronous, atomic transmission of messages. It is intended to replace the
+by providing asynchronous, atomic transmission of messages. It is intended to replace the
 traditional BSD sockets API as the common interface to the
 transport layer, in an environment where endpoints could select from 
 multiple interfaces and potential transport protocols.
@@ -158,7 +158,7 @@ transport features that can evolve over time. This protocol-independent API ensu
 providing the interface can optimize its behavior based on the application
 requirements and network conditions, without requiring changes to the
 applications.  This flexibility enables faster deployment of new features and
-protocols. Especially, it can support applications by offering racing and fallback
+protocols. It can support applications by offering racing and fallback
 mechanisms, which otherwise need to be separately implemented in each application.
 
 It derives specific path and protocol selection
