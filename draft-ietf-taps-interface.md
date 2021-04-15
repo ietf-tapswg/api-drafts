@@ -1613,8 +1613,9 @@ Connection := Connection.Clone()
 ~~~
 
 Calling Clone on a Connection yields a group of Connections: the parent
-Connection on which Clone was called, and a resulting cloned Connection. The
-connections within a group are "entangled" with each other, and become part of a Connection
+Connection on which Clone was called, and a resulting cloned Connection.
+The new Connection is actively openend, and it will send a Ready Event or an EstablishmentError Event.
+The Connections within a group are "entangled" with each other, and become part of a Connection
 Group. Calling Clone on any of these Connections adds another Connection to
 the Connection Group, and so on. "Entangled" Connections share all
 Connection Properties except `Connection Priority` (see {{conn-priority}}) .
