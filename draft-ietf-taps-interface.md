@@ -1606,26 +1606,37 @@ Preconnection -> EstablishmentError<reason?>
 
 ## Connection Groups {#groups}
 
-Entangled Connections can be created using the Clone Action:
+Connection Groups can be created using the Clone Action:
 
 ~~~
-Connection := Connection.Clone()
+Connection := Connection.Clone(framer?)
 ~~~
 
-Calling Clone on a Connection yields a group of Connections: the parent
+Calling Clone on a Connection yields a Connection Group containing two Connections: the parent
 Connection on which Clone was called, and a resulting cloned Connection.
 The new Connection is actively openend, and it will send a Ready Event or an EstablishmentError Event.
-The Connections within a group are "entangled" with each other, and become part of a Connection
-Group. Calling Clone on any of these Connections adds another Connection to
-the Connection Group, and so on. "Entangled" Connections share all
-Connection Properties except `Connection Priority` (see {{conn-priority}}) .
-Like all other Properties, Connection Priority is copied 
-to the new Connection when calling Clone(), but it is not entangled: Changing 
-Connection Priority on one Connection does not change it on the other Connections 
-in the same Connection Group. 
+Calling Clone on any of these Connections adds another Connection to
+the Connection Group, and so on. Connections in a Connection Group share all
+Connection Properties except `Connection Priority` (see {{conn-priority}}),
+and these Connection Properties are entangled: Changing one of the
+Connection Properties on one Connection in the Connection Group
+automatically changes it for all others. For example, changing
+`Timeout for aborting Connection` (see
+{{conn-timeout}}) on one Connection in a Connection Group will automatically
+change this Connection Property for all other Connections in the Connection Group in the same way.
+Like all other Properties, `Connection Priority` is copied 
+to the new Connection when calling Clone(), but changing 
+`Connection Priority` on one Connection does not change it on the
+other Connections in the same Connection Group.
 
-The stack of Message Framers associated with a Connection are also copied to 
-the cloned Connection when calling Clone. In other words, a cloned Connection 
+Message Properties are also not entangled.  For example,
+changing `Lifetime` (see {{msg-lifetime}}) of a Message will only affect a
+single Message on a single Connection.
+
+A new Connection created by Clone can get a framer assigned via the optional
+`framer` parameter of the Clone Action. If this parameter is not supplied, the
+stack of Message Framers associated with a Connection is copied to 
+the cloned Connection when calling Clone. Then, a cloned Connection 
 has the same stack of Message Framers as the Connection from which they
 are Cloned, but these Framers may internally maintain per-Connection state.
 
@@ -1642,22 +1653,14 @@ Passive Connections can also be added to the same group -- e.g., when a Listener
 receives a new Connection that is just a new stream of an already active multi-streaming
 protocol instance.
 
-Changing one of the Connection Properties on one Connection in the group
-changes it for all others. Message Properties, however, are not
-entangled. For example, changing `Timeout for aborting Connection` (see
-{{conn-timeout}}) on one Connection in a group will automatically change this
-Connection Property for all Connections in the group in the same way. However,
-changing `Lifetime` (see {{msg-lifetime}}) of a Message will only affect a
-single Message on a single Connection, entangled or not.
-
 If the underlying protocol supports multi-streaming, it is natural to use this
-functionality to implement Clone. In that case, entangled Connections are
+functionality to implement Clone. In that case, Connections in a Connection Group are
 multiplexed together, giving them similar treatment not only inside endpoints,
 but also across the end-to-end Internet path.
 
 Note that calling Clone() can result in on-the-wire signaling, e.g., to open a new
-connection, depending on the underlying Protocol Stack. When Clone() leads to
-multiple connections being opened instead of multi-streaming,
+transport connection, depending on the underlying Protocol Stack. When Clone() leads to
+multiple such connections being opened instead of multi-streaming,
 the Transport Services system will ensure consistency of
 Connection Properties by uniformly applying them to all underlying connections
 in a group. Even in such a case, there are possibilities for a Transport Services system
@@ -1669,7 +1672,7 @@ Attempts to clone a Connection can result in a CloneError:
 Connection -> CloneError<reason?>
 ~~~
 
-The Connection Priority Connection Property operates on entangled Connections 
+The `Connection Priority` Connection Property operates on Connections in a Connection Group
 using the same approach as in {{msg-priority}}: when allocating available network
 capacity among Connections in a Connection Group, sends on Connections with
 lower Priority values will be prioritized over sends on Connections with
@@ -1998,8 +2001,8 @@ Default:
 
 When set to true, this property will initiate new Connections using as little
 cached information (such as session tickets or cookies) as possible from
-previous connections that are not entangled with it. Any state generated by this
-Connection will only be shared with entangled connections. Cloned Connections
+previous connections that are not in the same Connection Group. Any state generated by this
+Connection will only be shared with Connections in the same Connection Group. Cloned Connections
 will use saved state from within the Connection Group.
 This is used for separating Connection Contexts as specified in {{I-D.ietf-taps-arch}}.
 
@@ -2370,7 +2373,7 @@ yield to a Message with Priority 2, and so on. Priorities may be used as a
 sender-side scheduling construct only, or be used to specify priorities on the
 wire for Protocol Stacks supporting prioritization.
 
-Note that this property is not a per-message override of the connection Priority
+Note that this property is not a per-message override of the Connection Priority
 - see {{conn-priority}}. The Priority properties may interact, but can be used
 independently and be realized by different mechanisms; see {{priority-in-taps}}.
 
@@ -2917,7 +2920,7 @@ specified regarding the delivery of Messages that the application has already
 given to the Transport Services system. For example, if reliable delivery was requested
 for a Message handed over before calling Close, the Closed Event will signify
 that this Message has indeed been delivered. This action does not affect any other Connection
-that is entangled with this one in a Connection Group.
+in the same Connection Group.
 
 ~~~
 Connection.Close()
@@ -2932,14 +2935,14 @@ Connection -> Closed<>
 ~~~
 
 Abort terminates a Connection without delivering any remaining Messages. This action does
-not affect any other Connection that is entangled with this one in a Connection Group.
+not affect any other Connection that in the same Connection Group.
 
 ~~~
 Connection.Abort()
 ~~~
 
-CloseGroup gracefully terminates a Connection and any other Connections that are
-entangled with this one in a Connection Group. For example, all of the Connections in a
+CloseGroup gracefully terminates a Connection and any other Connections in the
+same Connection Group. For example, all of the Connections in a
 group might be streams of a single session for a multistreaming protocol; closing the entire
 group will close the underlying session. See also {{groups}}. As with Close, any Messages
 remaining to be processed on a Connection will be handled prior to closing.
@@ -2948,8 +2951,8 @@ remaining to be processed on a Connection will be handled prior to closing.
 Connection.CloseGroup()
 ~~~
 
-AbortGroup terminates a Connection and any other Connections that are
-entangled with this one in a Connection Group without delivering any remaining Messages.
+AbortGroup terminates a Connection and any other Connections in the same
+Connection Group without delivering any remaining Messages.
 
 ~~~
 Connection.AbortGroup()
