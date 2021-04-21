@@ -2854,18 +2854,26 @@ large Message of indeterminate length.
 #### ReceiveError {#receive-error}
 
 ~~~
-Connection -> ReceiveError<messageContext, reason?>
+Connection -> ReceiveError<messageContext?, reason?>
 ~~~
 
 A ReceiveError occurs when data is received by the underlying Protocol Stack
-that cannot be fully retrieved or parsed, or when some other indication is
-received that reception has failed. In contrast, conditions that irrevocably lead to
-the termination of the Connection are instead signaled using ConnectionError
-(see {{termination}}).
+that cannot be fully retrieved or parsed, and when it is useful for the application
+to be notified of such errors can be useful. For example, a ReceiveError can
+indicate that a Message (identified via the optionally passed MessageContext)
+that was being partially received previously, but had not
+completed, encountered an error and will not be completed. This can be useful
+for the application, which may want to use this error as a hint to remove the
+previously received Message part(s) from its memory. As another example,
+if an incoming Message does not fulfill the Required Minimum Corruption
+Protection Coverage for Receiving property (see {{conn-recv-checksum}}),
+an application can use this error as a hint to inform the peer application
+to adjust the Sending Corruption Protection Length property (see {{msg-checksum}}).
 
-The ReceiveError event passes an optional associated MessageContext. This can
-indicate that a Message that was being partially received previously, but had not
-completed, encountered an error and will not be completed.
+In contrast, internal protocol reception errors (e.g., loss causing retransmissions
+in TCP) are not signalled by this Event. Conditions that irrevocably lead to
+the termination of the Connection are signaled using ConnectionError
+(see {{termination}}).
 
 
 ### Receive Message Properties {#recv-meta}
