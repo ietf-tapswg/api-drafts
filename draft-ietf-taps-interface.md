@@ -2863,8 +2863,8 @@ to be notified of such errors can be useful. For example, a ReceiveError can
 indicate that a Message (identified via the optionally passed MessageContext)
 that was being partially received previously, but had not
 completed, encountered an error and will not be completed. This can be useful
-for the application, which may want to use this error as a hint to remove the
-previously received Message part(s) from its memory. As another example,
+for an application, which may want to use this error as a hint to remove
+previously received Message parts from memory. As another example,
 if an incoming Message does not fulfill the Required Minimum Corruption
 Protection Coverage for Receiving property (see {{conn-recv-checksum}}),
 an application can use this error as a hint to inform the peer application
