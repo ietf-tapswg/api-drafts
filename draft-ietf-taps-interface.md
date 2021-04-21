@@ -2728,9 +2728,7 @@ the wire (affecting only sender-side transmission scheduling) as well as those
 that do (e.g. {{?I-D.ietf-httpbis-priority}}.
 
 A Transport Services system gives no guarantees about how its expression of
-relative priorities will be realized; for example, if a transport stack that
-only provides a single in-order reliable stream is selected, prioritization
-information can only be ignored. However, the Transport Services system will
+relative priorities will be realized. However, the Transport Services system will
 seek to ensure that performance of relatively-prioritized connections and
 messages is not worse with respect to those connections and messages than
 an equivalent configuration in which all prioritization properties are left 
