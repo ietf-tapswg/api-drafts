@@ -2361,8 +2361,7 @@ Type:
 Default:
 : 100
 
-This property represents a hierarchy of priorities.
-It can specify the priority of a Message, relative to other Messages sent over the
+This property specifies the priority of a Message, relative to other Messages sent over the
 same Connection.
 
 A Message with Priority 0 will yield to a Message with Priority 1, which will
