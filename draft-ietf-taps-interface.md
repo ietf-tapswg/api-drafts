@@ -134,7 +134,7 @@ informative:
 
 This document describes an abstract application programming interface, API, to the transport
 layer that enables the selection of transport protocols and
-network paths dynamically at runtime. This API supports faster deployment
+network paths dynamically at runtime. This API enables faster deployment
 of new protocols and protocol features without requiring changes to the
 applications. The specified API follows the Transport Services Architecture
 by providing asynchronous, atomic transmission of messages. It is intended to replace the
