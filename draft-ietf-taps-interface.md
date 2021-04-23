@@ -1616,16 +1616,16 @@ Calling Clone on a Connection yields a Connection Group containing two Connectio
 Connection on which Clone was called, and a resulting cloned Connection.
 The new Connection is actively openend, and it will send a Ready Event or an EstablishmentError Event.
 Calling Clone on any of these Connections adds another Connection to
-the Connection Group, and so on. Connections in a Connection Group share all
+the Connection Group. Connections in a Connection Group share all
 Connection Properties except `Connection Priority` (see {{conn-priority}}),
 and these Connection Properties are entangled: Changing one of the
 Connection Properties on one Connection in the Connection Group
-automatically changes it for all others. For example, changing
+automatically changes the Connection Property for all others. For example, changing
 `Timeout for aborting Connection` (see
 {{conn-timeout}}) on one Connection in a Connection Group will automatically
-change this Connection Property for all other Connections in the Connection Group in the same way.
+make the same change to this Connection Property for all other Connections in the Connection Group.
 Like all other Properties, `Connection Priority` is copied 
-to the new Connection when calling Clone(), but changing 
+to the new Connection when calling Clone(), but in this case, a later change to the 
 `Connection Priority` on one Connection does not change it on the
 other Connections in the same Connection Group.
 
@@ -1633,7 +1633,7 @@ Message Properties are also not entangled.  For example,
 changing `Lifetime` (see {{msg-lifetime}}) of a Message will only affect a
 single Message on a single Connection.
 
-A new Connection created by Clone can get a framer assigned via the optional
+A new Connection created by Clone can have a Message Framer assigned via the optional
 `framer` parameter of the Clone Action. If this parameter is not supplied, the
 stack of Message Framers associated with a Connection is copied to 
 the cloned Connection when calling Clone. Then, a cloned Connection 
@@ -1660,7 +1660,7 @@ but also across the end-to-end Internet path.
 
 Note that calling Clone() can result in on-the-wire signaling, e.g., to open a new
 transport connection, depending on the underlying Protocol Stack. When Clone() leads to
-multiple such connections being opened instead of multi-streaming,
+the opening of multiple such connections,
 the Transport Services system will ensure consistency of
 Connection Properties by uniformly applying them to all underlying connections
 in a group. Even in such a case, there are possibilities for a Transport Services system
