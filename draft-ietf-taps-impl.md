@@ -91,7 +91,7 @@ informative:
     I-D.ietf-tcpm-2140bis:
     NEAT-flow-mapping:
       title: Transparent Flow Mapping for NEAT
-      seriesinfo: Workshop on Future of Internet Transport (FIT 2017)
+      seriesinfo: IFIP NETWORKING 2017 Workshop on Future of Internet Transport (FIT 2017)
       authors:
         -
           ins: F. Weinrank
@@ -1042,39 +1042,32 @@ Data Unit: Message
 API mappings for SCTP are as follows:
 
 Connection Object:
-: Connection objects represent a flow of SCTP messages between a client and a server, which may be an SCTP association or a stream in a SCTP association. How to map Connection objects to streams is described in {{NEAT-flow-mapping}}; in the following, a similar method is described.
-To map Connection objects to SCTP streams without head-of-line blocking on the sender
-side, both the sending and receiving SCTP implementation must support message interleaving {{!RFC8260}}.
-Both SCTP implementations must also support stream reconfiguration. Finally, both communicating endpoints
-must be aware of this intended multiplexing; {{NEAT-flow-mapping}} describes a
-way for a Transport System to negotiate the stream mapping capability using SCTP's adaptation layer indication,
-such that this functionality would only take effect if both ends sides are aware of it.
-The first flow, for which the SCTP association has been created, will always use stream id zero.
-All additional flows are assigned to unused stream ids in growing order. To avoid a conflict
-when both endpoints map new flows simultaneously, the peer which initiated the transport connection
-will use even stream numbers whereas the remote side will map its flows to odd stream numbers.
-Both sides maintain a status map of the assigned stream numbers. Generally, new streams
-must consume the lowest available (even or odd, depending on the side) stream number; this
-rule is relevant when lower numbers become available because Connection objects associated
-to the streams are closed.
+: Connection objects can be mapped to an SCTP association or a stream in an SCTP association. Mapping Connection objects to SCTP streams is called "stream mapping" and has additional requirements as follows. The following explanation assumes a client-server communication model.
+
+Stream mapping requires an association to already be in place between the client and the server, and it requires the server to understand that a new incoming stream should be represented as a new Connection Object by the Transport Services system. A new SCTP stream is created by sending an SCTP message with a new stream id. Thus, to implement stream mapping, the Transport Services system MUST provide a newly created Connection Object to the application upon the reception of such a message. The necessary semantics to implement a Transport Services system's Close and Abort primitives are provided by the stream reconfiguration (reset) procedure described in {{?RFC6525}}. This also allows to re-use a stream id after resetting ("closing") the stream. To implement this functionality, SCTP stream reconfiguration {{?RFC6525}} MUST be supported by both the client and the server side.
+
+To avoid head-of-line blocking, stream mapping SHOULD only be implemented when both sides support message interleaving {{?RFC8260}}. This allows a sender to schedule transmissions between multiple streams without risking that transmission of a large message on one stream might block transmissions on other streams for a long time.
+
+To avoid conflicts between stream ids, the following procedure is recommended: the first Connection, for which the SCTP association has been created, MUST always use stream id zero. All additional Connections are assigned to unused stream ids in growing order. To avoid a conflict when both endpoints map new Connections simultaneously, the peer which initiated association MUST use even stream ids whereas the remote side MUST map its Connections to odd stream ids. Both sides maintain a status map of the assigned stream ids. Generally, new streams SHOULD consume the lowest available (even or odd, depending on the side) stream id; this rule is relevant when lower ids become available because Connection objects associated with the streams are closed.
+
+SCTP stream mapping as described here has been implemented in a research prototype; a desription of this implementation is given in {{NEAT-flow-mapping}}.
 
 Initiate:
-: If this is the only Connection object that is assigned to the SCTP association or stream mapping has
-not been negotiated, CONNECT.SCTP is called. Else, unless the Selection Property `activeReadBeforeSend`
+: If this is the only Connection object that is assigned to the SCTP association or stream mapping is
+not used, CONNECT.SCTP is called. Else, unless the Selection Property `activeReadBeforeSend`
 is Preferred or Required, a new stream is used: if there are enough streams
-available, `Initiate` is just a local operation that assigns a new stream number to the Connection object.
+available, `Initiate` is just a local operation that assigns a new stream id to the Connection object.
 The number of streams is negotiated as a parameter of the prior CONNECT.SCTP call, and it represents a
 trade-off between local resource usage and the number of Connection objects that can be mapped
 without requiring a reconfiguration signal. When running out of streams, ADD_STREAM.SCTP must be called.
 
 InitiateWithSend:
-: If this is the only Connection object that is assigned to the SCTP association or stream mapping has
-not been negotiated, CONNECT.SCTP is called with the "user message" parameter. Else, a new stream
+: If this is the only Connection object that is assigned to the SCTP association or stream mapping is not used, CONNECT.SCTP is called with the "user message" parameter. Else, a new stream
 is used (see `Initiate` for how to handle running out of streams), and this just sends the first message
 on a new stream.
 
 Ready:
-: `Initiate` or `InitiateWithSend` returns without an error, i.e. SCTP's four-way handshake has completed. If an association with the peer already exists, and stream mapping has been negotiated and enough streams are available, a Connection Object instantly becomes Ready after calling `Initiate` or `InitiateWithSend`.
+: `Initiate` or `InitiateWithSend` returns without an error, i.e. SCTP's four-way handshake has completed. If an association with the peer already exists, stream mapping is used and enough streams are available, a Connection Object instantly becomes Ready after calling `Initiate` or `InitiateWithSend`.
 
 InitiateError:
 : Failure of CONNECT.SCTP.
@@ -1083,13 +1076,13 @@ ConnectionError:
 : TIMEOUT.SCTP or ABORT-EVENT.SCTP.
 
 Listen:
-: LISTEN.SCTP. If an association with the peer already exists and stream mapping has been negotiated, `Listen` just expects to receive a new message on a new stream id (chosen in accordance with the stream number assignment procedure described above).
+: LISTEN.SCTP. If an association with the peer already exists and stream mapping is used, `Listen` just expects to receive a new message with a new stream id (chosen in accordance with the stream id assignment procedure described above).
 
 ConnectionReceived:
 : LISTEN.SCTP returns without an error (a result of successful CONNECT.SCTP from the peer), or, in case of stream mapping, the first message has arrived on a new stream (in this case, `Receive` is also invoked).
 
 Clone:
-: Calling `Clone` on an SCTP association creates a new Connection object and assigns it a new stream number in accordance with the stream number assignment procedure described above. If there are not enough streams available, ADD_STREAM.SCTP must be called.
+: Calling `Clone` on an SCTP association creates a new Connection object and assigns it a new stream id in accordance with the stream id assignment procedure described above. If there are not enough streams available, ADD_STREAM.SCTP must be called.
 
 Priority (Connection):
 : When this value is changed, or a Message with Message Property `Priority` is sent, and there are multiple
@@ -1103,7 +1096,7 @@ Receive:
 : RECEIVE.SCTP. The "partial flag" of RECEIVE.SCTP invokes a `ReceivedPartial` event.
 
 Close:
-If this is the only Connection object that is assigned to the SCTP association, CLOSE.SCTP is called, and the `Closed` event will be delivered to the application upon the ensuing CLOSE-EVENT.SCTP. Else, the Connection object is one out of several Connection objects that are assigned to the same SCTP assocation, and RESET_STREAM.SCTP must be called, which informs the peer that the stream will no longer be used for mapping and can be used by future `Initiate`, `InitiateWithSend` or `Listen` calls. At the peer, the event RESET_STREAM-EVENT.SCTP will fire, which the peer must answer by issuing RESET_STREAM.SCTP too. The resulting local RESET_STREAM-EVENT.SCTP informs the transport system that the stream number can now be re-used by the next `Initiate`, `InitiateWithSend` or `Listen` calls, and invokes a `Closed` event towards the application.
+If this is the only Connection object that is assigned to the SCTP association, CLOSE.SCTP is called, and the `Closed` event will be delivered to the application upon the ensuing CLOSE-EVENT.SCTP. Else, the Connection object is one out of several Connection objects that are assigned to the same SCTP assocation, and RESET_STREAM.SCTP must be called, which informs the peer that the stream will no longer be used for mapping and can be used by future `Initiate`, `InitiateWithSend` or `Listen` calls. At the peer, the event RESET_STREAM-EVENT.SCTP will fire, which the peer must answer by issuing RESET_STREAM.SCTP too. The resulting local RESET_STREAM-EVENT.SCTP informs the Transport Services system that the stream id can now be re-used by the next `Initiate`, `InitiateWithSend` or `Listen` calls, and invokes a `Closed` event towards the application.
 
 Abort:
 If this is the only Connection object that is assigned to the SCTP association, ABORT.SCTP is called. Else, the Connection object is one out of several Connection objects that are assigned to the same SCTP assocation, and shutdown proceeds as described under `Close`.

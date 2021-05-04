@@ -169,8 +169,8 @@ underneath the interface to dynamically choose a transport protocol depending on
 application's choices rather than statically binding applications to a protocol at 
 compile time. Nevertheless, the Transport Services API also provides
 applications with a way to override transport selection and instantiate a specific stack,
-e.g., to support servers wishing to listen to a specific protocol. However, use of one specific
-transport stack choice is discouraged for general use, because it can reduce portability.
+e.g., to support servers wishing to listen to a specific protocol. However, forcing a
+specific transport stack choice is discouraged for general use, because it can reduce portability.
 
 ## Terminology and Notation {#notation}
 
@@ -259,6 +259,9 @@ provides:
   transport-independent way to the degree possible, enabling applications written to a single API
   to make use of transport protocols in terms of the features they provide;
 
+- A unified interface to datagram and connection-oriented transports, allowing
+  use of a common API for connection-establishment and closing;
+
 - Message-orientation, as opposed to stream-orientation, using
   application-assisted framing and deframing where the underlying transport
   does not provide these;
@@ -269,7 +272,7 @@ provides:
   in modern platforms and programming languages;
 
 - Explicit support for transport-specific features to be applied should that
-  particular transport be part of a chosen Protocol Stack.
+  particular transport be part of a chosen Protocol Stack;
 
 - Explicit support for security properties as first-order transport features,
   and for configuration of cryptographic identities and transport security parameters persistent across multiple Connections; and
@@ -289,7 +292,8 @@ Architecture {{I-D.ietf-taps-arch}}.
 An application primarily interacts with this API through two Objects:
 Preconnections and Connections. A Preconnection represents a set of properties
 and constraints on the selection and configuration of paths and protocols to
-establish a Connection with a Remote Endpoint. A Connection represents a
+establish a Connection with a Remote Endpoint. A Connection represents an
+instance of a
 transport Protocol Stack on which data can be sent to and/or received from a
 Remote Endpoint (i.e., depending on the kind of transport, connections can be
 bi-directional or unidirectional). Connections can be created from
@@ -301,7 +305,7 @@ peer to peer establishment).
 Once a Connection is established, data can be sent and received on it in the form of
 Messages. The interface supports the preservation of message boundaries both
 via explicit Protocol Stack support, and via application support through a
-Message Framer which finds message boundaries in a stream. Messages are
+Message Framer that finds message boundaries in a stream. Messages are
 received asynchronously through event handlers registered by the application.
 Errors and other notifications also happen asynchronously on the Connection.
 It is not necessary for an application to handle all Events; some Events may
@@ -1611,8 +1615,9 @@ Connection := Connection.Clone()
 ~~~
 
 Calling Clone on a Connection yields a group of Connections: the parent
-Connection on which Clone was called, and a resulting cloned Connection. The
-connections within a group are "entangled" with each other, and become part of a Connection
+Connection on which Clone was called, and a resulting cloned Connection.
+The new Connection is actively openend, and it will send a Ready Event or an EstablishmentError Event.
+The Connections within a group are "entangled" with each other, and become part of a Connection
 Group. Calling Clone on any of these Connections adds another Connection to
 the Connection Group, and so on. "Entangled" Connections share all
 Connection Properties except `Connection Priority` (see {{conn-priority}}) .
@@ -1902,8 +1907,8 @@ The following values are valid for the Capacity Profile:
   Constant-Rate Streaming:
   : The application expects to send/receive data at a
   constant rate after Connection establishment. Delay and delay variation should
-  be minimized at the expense of efficient use of the available capacity. This implies that the
-  Connection might fail if the desired rate cannot be maintained across the Path.
+  be minimized at the expense of efficient use of the available capacity. 
+  This implies that the Connection might fail if the Path is unable to maintain the desired rate.
   A transport can interpret this capacity profile as preferring a circuit
   breaker {{?RFC8084}} to a rate-adaptive congestion controller. Transport
   system implementations that map the requested capacity profile onto
@@ -2031,7 +2036,7 @@ Type:
 This property, if applicable, represents the maximum Message size that can be
 sent without incurring network-layer fragmentation or transport layer
 segmentation at the sender. It exposes the Maximum Packet Size (MPS)
-as described in Datagram PLPMTUD {{?I-D.ietf-tsvwg-datagram-plpmtud}}.
+as described in Datagram PLPMTUD {{?RFC8899}}.
 
 #### Maximum Message Size on Send {#conn-max-msg-send}
 
