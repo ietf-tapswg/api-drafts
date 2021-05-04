@@ -133,9 +133,11 @@ informative:
 --- abstract
 
 This document describes an abstract application programming interface, API, to the transport
-layer, following the Transport Services Architecture. It supports the
-asynchronous, atomic transmission of messages over transport protocols and
-network paths dynamically selected at runtime. It is intended to replace the
+layer that enables the selection of transport protocols and
+network paths dynamically at runtime. This API enables faster deployment
+of new protocols and protocol features without requiring changes to the
+applications. The specified API follows the Transport Services Architecture
+by providing asynchronous, atomic transmission of messages. It is intended to replace the
 traditional BSD sockets API as the common interface to the
 transport layer, in an environment where endpoints could select from 
 multiple interfaces and potential transport protocols.
@@ -146,19 +148,17 @@ multiple interfaces and potential transport protocols.
 
 This document specifies a modern abstract application programming interface (API) atop the
 high-level architecture for transport services defined in
-{{I-D.ietf-taps-arch}}. It supports the
+{{I-D.ietf-taps-arch}}. The Transport Services Architecture supports
 asynchronous, atomic transmission of messages over transport protocols and
-network paths dynamically selected at runtime. It is intended to replace the
-traditional BSD sockets API as the common interface to the
-transport layer, in environments where an endpoint selects from multiple interfaces
-and potential transport protocols.
+network paths dynamically selected at runtime, in environments where an endpoint
+selects from multiple interfaces and potential transport protocols.
 
-As applications adopt this interface, they will benefit from a wide set of
-transport features that can evolve over time, and ensure that the system
+Applications that adopt this interface will benefit from a wide set of
+transport features that can evolve over time. This protocol-independent API ensures that the system
 providing the interface can optimize its behavior based on the application
 requirements and network conditions, without requiring changes to the
 applications.  This flexibility enables faster deployment of new features and
-protocols.  It can also support applications by offering racing and fallback
+protocols. It can support applications by offering racing and fallback
 mechanisms, which otherwise need to be separately implemented in each application.
 
 It derives specific path and protocol selection
@@ -167,11 +167,10 @@ properties and supported transport features from the analysis provided in
 {{?RFC8922}}. The design encourages implementations 
 underneath the interface to dynamically choose a transport protocol depending on an 
 application's choices rather than statically binding applications to a protocol at 
-compile time. The Transport Services system implementations should provide
+compile time. Nevertheless, the Transport Services API also provides
 applications with a way to override transport selection and instantiate a specific stack,
-e.g., to support servers wishing to listen to a specific protocol. Such a choice to 
-only permit using a specific transport stack is discouraged for general use,
-because it can reduce the portability.
+e.g., to support servers wishing to listen to a specific protocol. However, forcing a
+specific transport stack choice is discouraged for general use, because it can reduce portability.
 
 ## Terminology and Notation {#notation}
 
