@@ -3304,8 +3304,7 @@ these two transport features are controlled via the Message Property `Ordered` (
 should the protocol support it, this is one of the transport features the Transport Services system can apply when an application uses the `Capacity Profile` Property ({{prop-cap-profile}}) or the `Message Capacity Profile Override` Message Property ({{send-profile}}) with value `Low Latency/Interactive`.
 
 * Receive data (with no message delimiting):
-`Received` Event ({{receive-complete}}). See {{framing}} for handling Message framing in situations where the Protocol
-Stack only provides a byte-stream transport.
+`Received` Event ({{receive-complete}}).
 
 * Receive a message:
 `Received` Event ({{receive-complete}}), using Message Framers ({{framing}}).
