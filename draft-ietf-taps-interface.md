@@ -1365,7 +1365,7 @@ Representation of Security Parameters in implementations should parallel that ch
 Security decisions, especially pertaining to trust, are not static. Once configured,
 parameters may also be supplied during connection establishment. These are best
 handled as client-provided callbacks. 
-Callbacks block the progress of a connection, which distinguishes them from other Events in the transport system, while implementations may choose to realize them analogous.
+Callbacks block the progress of a connection, which distinguishes them from other Events in the transport system. How callbacks and events are implemented is specific to each implementation.
 Security handshake callbacks that may be invoked during connection establishment include:
 
 - Trust verification callback: Invoked when a Remote Endpoint's trust must be validated before the
