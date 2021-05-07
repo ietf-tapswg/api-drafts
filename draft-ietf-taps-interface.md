@@ -547,7 +547,7 @@ Transport Properties each have a type, which can be:
   values: Prohibit, Avoid, Ignore, Prefer, or Require. Each of these
   denotes a level of preference of a given property during protocol
   selection.
-  (See {{selection-props}}.) The Preference type is used only on Preconnections, and only for Selection Properties.
+  (See also {{selection-props}}.) The Preference type is used only on Preconnections, and only for Selection Properties.
 
 ## Scope of the Interface Definition {#scope-of-interface-defn}
 
@@ -798,7 +798,7 @@ LocalSpecifier := NewLocalEndpoint()
 LocalSpecifier.WithStunServer(address, port, credentials)
 ~~~
 
-Specify a Local Endpoint using a Any-Source Multicast group to join on a named local interface:
+Specify a Local Endpoint using an Any-Source Multicast group to join on a named local interface:
 
 ~~~
 LocalSpecifier := NewLocalEndpoint()
@@ -1729,7 +1729,7 @@ Properties will include different information:
 * Whether the connection can be used to send data. A connection can not be used
   for sending if the connection was created with the Selection Property
   `Direction of Communication` set to `unidirectional receive` or if a Message
-  marked as `Final` was sent over this connection. See {{msg-final}}.
+  marked as `Final` was sent over this connection. See also {{msg-final}}.
 
 * Whether the connection can be used to receive data. A connection cannot be
   used for reading if the connection was created with the Selection Property
@@ -2616,7 +2616,7 @@ this interface. The exact disposition of the Message (i.e.,
 whether it has actually been transmitted, moved into a buffer on the network
 interface, moved into a kernel buffer, and so on) when the Sent Event occurs
 is implementation-specific. The Sent Event contains a reference to the Message
-to which it applies.
+Context of the Message to which it applies.
 
 Sent Events allow an application to obtain an understanding of the amount
 of buffering it creates. That is, if an application calls the Send Action multiple
@@ -2634,7 +2634,7 @@ The Expired Event occurs when a previous Send Action expired before completion;
 i.e. when the Message was not sent before its Lifetime (see {{msg-lifetime}})
 expired. This is separate from SendError, as it is an expected behavior for
 partially reliable transports. The Expired Event contains a reference to the
-Message to which it applies.
+Message Context of the Message to which it applies.
 
 #### SendError {#send-error}
 
@@ -2646,7 +2646,8 @@ A SendError occurs when a Message was not sent due to an error condition:
 an attempt to send a Message which is too large for the system and
 Protocol Stack to handle, some failure of the underlying Protocol Stack, or a
 set of Message Properties not consistent with the Connection's transport
-properties. The SendError contains a reference to the Message to which it applies.
+properties. The SendError contains a reference to the Message Context of the
+Message to which it applies.
 
 ### Partial Sends {#send-partial}
 
@@ -2873,7 +2874,7 @@ completed, encountered an error and will not be completed.
 ### Receive Message Properties {#recv-meta}
 
 Each Message Context may contain metadata from protocols in the Protocol Stack;
-which metadata is available is Protocol Stack dependent. These are exposed though additional read-only Message Properties that can be queried from the MessageContext object (see {{msg-ctx}}) passed by the receive event.
+which metadata is available is Protocol Stack dependent. These are exposed through additional read-only Message Properties that can be queried from the MessageContext object (see {{msg-ctx}}) passed by the receive event.
 The following metadata values are supported:
 
 #### UDP(-Lite)-specific Property: ECN {#receive-ecn}
