@@ -3304,13 +3304,13 @@ these two transport features are controlled via the Message Property `Ordered` (
 should the protocol support it, this is one of the transport features the Transport Services system can apply when an application uses the `Capacity Profile` Property ({{prop-cap-profile}}) or the `Message Capacity Profile Override` Message Property ({{send-profile}}) with value `Low Latency/Interactive`.
 
 * Receive data (with no message delimiting):
-`Received` Event ({{receive-complete}}).
+`Receive` Action ({{receiving}}) and `Received` Event ({{receive-complete}}).
 
 * Receive a message:
-`Received` Event ({{receive-complete}}), using Message Framers ({{framing}}).
+`Receive` Action ({{receiving}}) and `Received` Event ({{receive-complete}}), using Message Framers ({{framing}}).
 
 * Information about partial message arrival:
-`ReceivedPartial` Event ({{receive-partial}}).
+`Receive` Action ({{receiving}}) and `ReceivedPartial` Event ({{receive-partial}}).
 
 * Notification of send failures:
 `Expired` Event ({{expired}}) and `SendError` Event ({{send-error}}).
