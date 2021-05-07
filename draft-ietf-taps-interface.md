@@ -938,7 +938,7 @@ Type:
 : Preference
 
 Default:
-: Prefer
+: Ignore
 
 This property specifies whether the application needs or prefers to use a transport
 protocol that preserves message boundaries.
