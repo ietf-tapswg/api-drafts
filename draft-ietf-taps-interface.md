@@ -133,9 +133,11 @@ informative:
 --- abstract
 
 This document describes an abstract application programming interface, API, to the transport
-layer, following the Transport Services Architecture. It supports the
-asynchronous, atomic transmission of messages over transport protocols and
-network paths dynamically selected at runtime. It is intended to replace the
+layer that enables the selection of transport protocols and
+network paths dynamically at runtime. This API enables faster deployment
+of new protocols and protocol features without requiring changes to the
+applications. The specified API follows the Transport Services Architecture
+by providing asynchronous, atomic transmission of messages. It is intended to replace the
 traditional BSD sockets API as the common interface to the
 transport layer, in an environment where endpoints could select from 
 multiple interfaces and potential transport protocols.
@@ -146,19 +148,17 @@ multiple interfaces and potential transport protocols.
 
 This document specifies a modern abstract application programming interface (API) atop the
 high-level architecture for transport services defined in
-{{I-D.ietf-taps-arch}}. It supports the
+{{I-D.ietf-taps-arch}}. The Transport Services Architecture supports
 asynchronous, atomic transmission of messages over transport protocols and
-network paths dynamically selected at runtime. It is intended to replace the
-traditional BSD sockets API as the common interface to the
-transport layer, in environments where an endpoint selects from multiple interfaces
-and potential transport protocols.
+network paths dynamically selected at runtime, in environments where an endpoint
+selects from multiple interfaces and potential transport protocols.
 
-As applications adopt this interface, they will benefit from a wide set of
-transport features that can evolve over time, and ensure that the system
+Applications that adopt this interface will benefit from a wide set of
+transport features that can evolve over time. This protocol-independent API ensures that the system
 providing the interface can optimize its behavior based on the application
 requirements and network conditions, without requiring changes to the
 applications.  This flexibility enables faster deployment of new features and
-protocols.  It can also support applications by offering racing and fallback
+protocols. It can support applications by offering racing and fallback
 mechanisms, which otherwise need to be separately implemented in each application.
 
 It derives specific path and protocol selection
@@ -167,10 +167,10 @@ properties and supported transport features from the analysis provided in
 {{?RFC8922}}. The design encourages implementations 
 underneath the interface to dynamically choose a transport protocol depending on an 
 application's choices rather than statically binding applications to a protocol at 
-compile time. The Transport Services system implementations should provide
+compile time. Nevertheless, the Transport Services API also provides
 applications with a way to override transport selection and instantiate a specific stack,
-e.g., to support servers wishing to listen to a specific protocol. This specific
-transport stack choice is discouraged for general use, because it can reduce the portability.
+e.g., to support servers wishing to listen to a specific protocol. However, forcing a
+specific transport stack choice is discouraged for general use, because it can reduce portability.
 
 ## Terminology and Notation {#notation}
 
@@ -259,6 +259,9 @@ provides:
   transport-independent way to the degree possible, enabling applications written to a single API
   to make use of transport protocols in terms of the features they provide;
 
+- A unified interface to datagram and connection-oriented transports, allowing
+  use of a common API for connection-establishment and closing;
+
 - Message-orientation, as opposed to stream-orientation, using
   application-assisted framing and deframing where the underlying transport
   does not provide these;
@@ -269,7 +272,7 @@ provides:
   in modern platforms and programming languages;
 
 - Explicit support for transport-specific features to be applied should that
-  particular transport be part of a chosen Protocol Stack.
+  particular transport be part of a chosen Protocol Stack;
 
 - Explicit support for security properties as first-order transport features,
   and for configuration of cryptographic identities and transport security parameters persistent across multiple Connections; and
@@ -289,7 +292,8 @@ Architecture {{I-D.ietf-taps-arch}}.
 An application primarily interacts with this API through two Objects:
 Preconnections and Connections. A Preconnection represents a set of properties
 and constraints on the selection and configuration of paths and protocols to
-establish a Connection with a Remote Endpoint. A Connection represents a
+establish a Connection with a Remote Endpoint. A Connection represents an
+instance of a
 transport Protocol Stack on which data can be sent to and/or received from a
 Remote Endpoint (i.e., depending on the kind of transport, connections can be
 bi-directional or unidirectional). Connections can be created from
@@ -301,7 +305,7 @@ peer to peer establishment).
 Once a Connection is established, data can be sent and received on it in the form of
 Messages. The interface supports the preservation of message boundaries both
 via explicit Protocol Stack support, and via application support through a
-Message Framer which finds message boundaries in a stream. Messages are
+Message Framer that finds message boundaries in a stream. Messages are
 received asynchronously through event handlers registered by the application.
 Errors and other notifications also happen asynchronously on the Connection.
 It is not necessary for an application to handle all Events; some Events may
@@ -543,7 +547,7 @@ Transport Properties each have a type, which can be:
   values: Prohibit, Avoid, Ignore, Prefer, or Require. Each of these
   denotes a level of preference of a given property during protocol
   selection.
-  (See {{selection-props}}.) The Preference type is used only on Preconnections, and only for Selection Properties.
+  (See also {{selection-props}}.) The Preference type is used only on Preconnections, and only for Selection Properties.
 
 ## Scope of the Interface Definition {#scope-of-interface-defn}
 
@@ -794,7 +798,7 @@ LocalSpecifier := NewLocalEndpoint()
 LocalSpecifier.WithStunServer(address, port, credentials)
 ~~~
 
-Specify a Local Endpoint using a Any-Source Multicast group to join on a named local interface:
+Specify a Local Endpoint using an Any-Source Multicast group to join on a named local interface:
 
 ~~~
 LocalSpecifier := NewLocalEndpoint()
@@ -1604,25 +1608,37 @@ Preconnection -> EstablishmentError<reason?>
 
 ## Connection Groups {#groups}
 
-Entangled Connections can be created using the Clone Action:
+Connection Groups can be created using the Clone Action:
 
 ~~~
-Connection := Connection.Clone()
+Connection := Connection.Clone(framer?)
 ~~~
 
-Calling Clone on a Connection yields a group of Connections: the parent
-Connection on which Clone was called, and a resulting cloned Connection. The
-connections within a group are "entangled" with each other, and become part of a Connection
-Group. Calling Clone on any of these Connections adds another Connection to
-the Connection Group, and so on. "Entangled" Connections share all
-Connection Properties except `Connection Priority` (see {{conn-priority}}) .
-Like all other Properties, Connection Priority is copied 
-to the new Connection when calling Clone(), but it is not entangled: Changing 
-Connection Priority on one Connection does not change it on the other Connections 
-in the same Connection Group. 
+Calling Clone on a Connection yields a Connection Group containing two Connections: the parent
+Connection on which Clone was called, and a resulting cloned Connection.
+The new Connection is actively openend, and it will send a Ready Event or an EstablishmentError Event.
+Calling Clone on any of these Connections adds another Connection to
+the Connection Group. Connections in a Connection Group share all
+Connection Properties except `Connection Priority` (see {{conn-priority}}),
+and these Connection Properties are entangled: Changing one of the
+Connection Properties on one Connection in the Connection Group
+automatically changes the Connection Property for all others. For example, changing
+`Timeout for aborting Connection` (see
+{{conn-timeout}}) on one Connection in a Connection Group will automatically
+make the same change to this Connection Property for all other Connections in the Connection Group.
+Like all other Properties, `Connection Priority` is copied 
+to the new Connection when calling Clone(), but in this case, a later change to the 
+`Connection Priority` on one Connection does not change it on the
+other Connections in the same Connection Group.
 
-The stack of Message Framers associated with a Connection are also copied to 
-the cloned Connection when calling Clone. In other words, a cloned Connection 
+Message Properties are also not entangled.  For example,
+changing `Lifetime` (see {{msg-lifetime}}) of a Message will only affect a
+single Message on a single Connection.
+
+A new Connection created by Clone can have a Message Framer assigned via the optional
+`framer` parameter of the Clone Action. If this parameter is not supplied, the
+stack of Message Framers associated with a Connection is copied to 
+the cloned Connection when calling Clone. Then, a cloned Connection 
 has the same stack of Message Framers as the Connection from which they
 are Cloned, but these Framers may internally maintain per-Connection state.
 
@@ -1639,22 +1655,14 @@ Passive Connections can also be added to the same group -- e.g., when a Listener
 receives a new Connection that is just a new stream of an already active multi-streaming
 protocol instance.
 
-Changing one of the Connection Properties on one Connection in the group
-changes it for all others. Message Properties, however, are not
-entangled. For example, changing `Timeout for aborting Connection` (see
-{{conn-timeout}}) on one Connection in a group will automatically change this
-Connection Property for all Connections in the group in the same way. However,
-changing `Lifetime` (see {{msg-lifetime}}) of a Message will only affect a
-single Message on a single Connection, entangled or not.
-
 If the underlying protocol supports multi-streaming, it is natural to use this
-functionality to implement Clone. In that case, entangled Connections are
+functionality to implement Clone. In that case, Connections in a Connection Group are
 multiplexed together, giving them similar treatment not only inside endpoints,
 but also across the end-to-end Internet path.
 
 Note that calling Clone() can result in on-the-wire signaling, e.g., to open a new
-connection, depending on the underlying Protocol Stack. When Clone() leads to
-multiple connections being opened instead of multi-streaming,
+transport connection, depending on the underlying Protocol Stack. When Clone() leads to
+the opening of multiple such connections,
 the Transport Services system will ensure consistency of
 Connection Properties by uniformly applying them to all underlying connections
 in a group. Even in such a case, there are possibilities for a Transport Services system
@@ -1666,7 +1674,7 @@ Attempts to clone a Connection can result in a CloneError:
 Connection -> CloneError<reason?>
 ~~~
 
-The Connection Priority Connection Property operates on entangled Connections 
+The `Connection Priority` Connection Property operates on Connections in a Connection Group
 using the same approach as in {{msg-priority}}: when allocating available network
 capacity among Connections in a Connection Group, sends on Connections with
 lower Priority values will be prioritized over sends on Connections with
@@ -1721,7 +1729,7 @@ Properties will include different information:
 * Whether the connection can be used to send data. A connection can not be used
   for sending if the connection was created with the Selection Property
   `Direction of Communication` set to `unidirectional receive` or if a Message
-  marked as `Final` was sent over this connection. See {{msg-final}}.
+  marked as `Final` was sent over this connection. See also {{msg-final}}.
 
 * Whether the connection can be used to receive data. A connection cannot be
   used for reading if the connection was created with the Selection Property
@@ -1902,8 +1910,8 @@ The following values are valid for the Capacity Profile:
   Constant-Rate Streaming:
   : The application expects to send/receive data at a
   constant rate after Connection establishment. Delay and delay variation should
-  be minimized at the expense of efficient use of the available capacity. This implies that the
-  Connection might fail if the desired rate cannot be maintained across the Path.
+  be minimized at the expense of efficient use of the available capacity. 
+  This implies that the Connection might fail if the Path is unable to maintain the desired rate.
   A transport can interpret this capacity profile as preferring a circuit
   breaker {{?RFC8084}} to a rate-adaptive congestion controller. Transport
   system implementations that map the requested capacity profile onto
@@ -1995,8 +2003,8 @@ Default:
 
 When set to true, this property will initiate new Connections using as little
 cached information (such as session tickets or cookies) as possible from
-previous connections that are not entangled with it. Any state generated by this
-Connection will only be shared with entangled connections. Cloned Connections
+previous connections that are not in the same Connection Group. Any state generated by this
+Connection will only be shared with Connections in the same Connection Group. Cloned Connections
 will use saved state from within the Connection Group.
 This is used for separating Connection Contexts as specified in {{I-D.ietf-taps-arch}}.
 
@@ -2031,7 +2039,7 @@ Type:
 This property, if applicable, represents the maximum Message size that can be
 sent without incurring network-layer fragmentation or transport layer
 segmentation at the sender. It exposes the Maximum Packet Size (MPS)
-as described in Datagram PLPMTUD {{?I-D.ietf-tsvwg-datagram-plpmtud}}.
+as described in Datagram PLPMTUD {{?RFC8899}}.
 
 #### Maximum Message Size on Send {#conn-max-msg-send}
 
@@ -2358,8 +2366,7 @@ Type:
 Default:
 : 100
 
-This property represents a hierarchy of priorities.
-It can specify the priority of a Message, relative to other Messages sent over the
+This property specifies the priority of a Message, relative to other Messages sent over the
 same Connection.
 
 A Message with Priority 0 will yield to a Message with Priority 1, which will
@@ -2367,7 +2374,7 @@ yield to a Message with Priority 2, and so on. Priorities may be used as a
 sender-side scheduling construct only, or be used to specify priorities on the
 wire for Protocol Stacks supporting prioritization.
 
-Note that this property is not a per-message override of the connection Priority
+Note that this property is not a per-message override of the Connection Priority
 - see {{conn-priority}}. The Priority properties may interact, but can be used
 independently and be realized by different mechanisms; see {{priority-in-taps}}.
 
@@ -2609,7 +2616,7 @@ this interface. The exact disposition of the Message (i.e.,
 whether it has actually been transmitted, moved into a buffer on the network
 interface, moved into a kernel buffer, and so on) when the Sent Event occurs
 is implementation-specific. The Sent Event contains a reference to the Message
-to which it applies.
+Context of the Message to which it applies.
 
 Sent Events allow an application to obtain an understanding of the amount
 of buffering it creates. That is, if an application calls the Send Action multiple
@@ -2627,7 +2634,7 @@ The Expired Event occurs when a previous Send Action expired before completion;
 i.e. when the Message was not sent before its Lifetime (see {{msg-lifetime}})
 expired. This is separate from SendError, as it is an expected behavior for
 partially reliable transports. The Expired Event contains a reference to the
-Message to which it applies.
+Message Context of the Message to which it applies.
 
 #### SendError {#send-error}
 
@@ -2639,7 +2646,8 @@ A SendError occurs when a Message was not sent due to an error condition:
 an attempt to send a Message which is too large for the system and
 Protocol Stack to handle, some failure of the underlying Protocol Stack, or a
 set of Message Properties not consistent with the Connection's transport
-properties. The SendError contains a reference to the Message to which it applies.
+properties. The SendError contains a reference to the Message Context of the
+Message to which it applies.
 
 ### Partial Sends {#send-partial}
 
@@ -2725,9 +2733,7 @@ the wire (affecting only sender-side transmission scheduling) as well as those
 that do (e.g. {{?I-D.ietf-httpbis-priority}}.
 
 A Transport Services system gives no guarantees about how its expression of
-relative priorities will be realized; for example, if a transport stack that
-only provides a single in-order reliable stream is selected, prioritization
-information can only be ignored. However, the Transport Services system will
+relative priorities will be realized. However, the Transport Services system will
 seek to ensure that performance of relatively-prioritized connections and
 messages is not worse with respect to those connections and messages than
 an equivalent configuration in which all prioritization properties are left 
@@ -2868,7 +2874,7 @@ completed, encountered an error and will not be completed.
 ### Receive Message Properties {#recv-meta}
 
 Each Message Context may contain metadata from protocols in the Protocol Stack;
-which metadata is available is Protocol Stack dependent. These are exposed though additional read-only Message Properties that can be queried from the MessageContext object (see {{msg-ctx}}) passed by the receive event.
+which metadata is available is Protocol Stack dependent. These are exposed through additional read-only Message Properties that can be queried from the MessageContext object (see {{msg-ctx}}) passed by the receive event.
 The following metadata values are supported:
 
 #### UDP(-Lite)-specific Property: ECN {#receive-ecn}
@@ -2915,7 +2921,7 @@ given to the Transport Services system. Upon successfully satisfying all these
 requirements, the Connection will send the Closed Event. For example, if reliable delivery was requested
 for a Message handed over before calling Close, the Closed Event will signify
 that this Message has indeed been delivered. This action does not affect any other Connection
-that is entangled with this one in a Connection Group.
+in the same Connection Group.
 
 ~~~
 Connection.Close()
@@ -2939,8 +2945,8 @@ indicating local Abort as a reason.
 Connection.Abort()
 ~~~
 
-CloseGroup gracefully terminates a Connection and any other Connections that are
-entangled with this one in a Connection Group. For example, all of the Connections in a
+CloseGroup gracefully terminates a Connection and any other Connections in the
+same Connection Group. For example, all of the Connections in a
 group might be streams of a single session for a multistreaming protocol; closing the entire
 group will close the underlying session. See also {{groups}}. All Connections in the group
 will send a Closed Event when the CloseGroup Action was successful.
@@ -2952,9 +2958,9 @@ Connection.CloseGroup()
 ~~~
 
 AbortGroup terminates a Connection and any other Connections that are
-entangled with this one in a Connection Group without delivering any remaining Messages.
-When the AbortGroup Action has finished, all Connections in the group will send a ConnectionError Event,
-indicating local Abort as a reason.
+in the same Connection Group without delivering any remaining Messages.
+When the AbortGroup Action has finished, all Connections in the group will 
+send a ConnectionError Event, indicating local Abort as a reason.
 
 ~~~
 Connection.AbortGroup()
@@ -3276,9 +3282,6 @@ This list is a subset of the transport features in Appendix A of {{?RFC8923}}, w
 * "Specify DF field":
 `No Network-Layer Fragmentation` property ({{send-singular}}).
 
-* "Request not to bundle messages":
-`No Segmentation` property ({{no-transport-fragmentation}}).
-
 * Get max. transport-message size that may be sent using a non-fragmented IP packet from the configured interface:
 `Maximum Message Size Before Fragmentation or Segmentation` property ({{conn-max-msg-notfrag}}).
 
@@ -3289,7 +3292,7 @@ This list is a subset of the transport features in Appendix A of {{?RFC8923}}, w
 `UDP(-Lite)-specific Property: ECN` is a read-only Message Property of the MessageContext object ({{receive-ecn}}).
 
 * "Specify DSCP field", "Disable Nagle algorithm", "Enable and configure a `Low Extra Delay Background Transfer`":
-as suggested in Section 5.5 of {{?RFC8923}}, these transport features are collectively offered via the `Capacity Profile` property ({{prop-cap-profile}}). Per-Message control is offered via the `Message Capacity Profile Override` property ({{send-profile}}).
+as suggested in Section 5.5 of {{?RFC8923}}, these transport features are collectively offered via the `Capacity Profile` property ({{prop-cap-profile}}). Per-Message control ("Request not to bundle messages") is offered via the `Message Capacity Profile Override` property ({{send-profile}}).
 
 * Close after reliably delivering all remaining data, causing an event informing the application on the other side:
 this is offered by the `Close` Action with slightly changed semantics in line with the discussion in Section 5.2 of {{?RFC8923}} ({{termination}}).
@@ -3310,14 +3313,13 @@ these two transport features are controlled via the Message Property `Ordered` (
 should the protocol support it, this is one of the transport features the Transport Services system can apply when an application uses the `Capacity Profile` Property ({{prop-cap-profile}}) or the `Message Capacity Profile Override` Message Property ({{send-profile}}) with value `Low Latency/Interactive`.
 
 * Receive data (with no message delimiting):
-`Received` Event ({{receive-complete}}). See {{framing}} for handling Message framing in situations where the Protocol
-Stack only provides a byte-stream transport.
+`Receive` Action ({{receiving}}) and `Received` Event ({{receive-complete}}).
 
 * Receive a message:
-`Received` Event ({{receive-complete}}), using Message Framers ({{framing}}).
+`Receive` Action ({{receiving}}) and `Received` Event ({{receive-complete}}), using Message Framers ({{framing}}).
 
 * Information about partial message arrival:
-`ReceivedPartial` Event ({{receive-partial}}).
+`Receive` Action ({{receiving}}) and `ReceivedPartial` Event ({{receive-partial}}).
 
 * Notification of send failures:
 `Expired` Event ({{expired}}) and `SendError` Event ({{send-error}}).
