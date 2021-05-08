@@ -2854,7 +2854,7 @@ large Message of indeterminate length.
 #### ReceiveError {#receive-error}
 
 ~~~
-Connection -> ReceiveError<messageContext?, reason?>
+Connection -> ReceiveError<messageContext, reason?>
 ~~~
 
 A ReceiveError occurs when data is received by the underlying Protocol Stack
