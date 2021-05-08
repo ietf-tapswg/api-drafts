@@ -857,10 +857,14 @@ Note that application preferences can conflict with each other. For
 example, if an application indicates a preference for a specific path by
 specifying an interface, but also a preference for a protocol, a situation
 might occur in which the preferred protocol is not available on the preferred
-path. In such cases, implementations SHOULD prioritize Selection Properties
-that select paths over those that select protocols. Therefore, the transport
-system SHOULD race the path first, ignoring the protocol preference if a specific
-protocol does not work on the path.
+path. In such cases, applications can expect properties that determine path
+selection to be prioritized over properties that determine protocol selection.
+The transport system SHOULD determine the preferred path first, regardless of
+protocol preferences. This ordering is chosen to provide consistency across
+implementations, based on the fact that it is more common for the use of a
+given network path to determine cost to the user (i.e., an interface type
+preference might be based on a user's preference to avoid being charged
+more for a cellular data plan).
 
 Selection and Connection Properties, as well as defaults for Message
 Properties, can be added to a Preconnection to configure the selection process
