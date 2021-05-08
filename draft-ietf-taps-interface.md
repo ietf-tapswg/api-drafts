@@ -2860,7 +2860,7 @@ Connection -> ReceiveError<messageContext, reason?>
 A ReceiveError occurs when data is received by the underlying Protocol Stack
 that cannot be fully retrieved or parsed, and when it is useful for the application
 to be notified of such errors. For example, a ReceiveError can
-indicate that a Message (identified via the optionally passed MessageContext)
+indicate that a Message (identified via the MessageContext)
 that was being partially received previously, but had not
 completed, encountered an error and will not be completed. This can be useful
 for an application, which may want to use this error as a hint to remove
