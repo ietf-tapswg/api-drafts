@@ -2512,14 +2512,21 @@ Type:
 Default:
 : false
 
-This property specifies that a message should be sent and received as a single
-packet without network-layer fragmentation, if possible.
+This property specifies that a message should be sent and received 
+without network-layer fragmentation, if possible. It can be used
+to avoid network layer fragmentation when transport segmentation is prefered.
+
 This only takes effect when the transport uses a network layer that supports this functionality.
 When it does take effect, setting this property to
-true will cause the Don't Fragment bit to be set in the IP header, and
-attempts to send a message with this property set to a size greater than the
+true will cause the sender to avoid network-layer source frgementation.
+When using IPv4, this will result in the Don't Fragment bit being set in the IP header.
+
+Attempts to send a message with this property that result in a size greater than the
 transport's current estimate of its maximum packet size (`singularTransmissionMsgMaxLen`)
-will result in a `SendError`.
+can result in transport segmentation when permitted, or in a `SendError`.
+
+Note: noSegmentation should be used when it is desired to only send a message within
+a single network packet.
 
 #### No Segmentation {#no-transport-fragmentation}
 
