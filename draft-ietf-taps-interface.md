@@ -273,6 +273,8 @@ provides:
 
 - Explicit support for transport-specific features to be applied should that
   particular transport be part of a chosen Protocol Stack;
+  
+- Support for using additional information about the networks over which an endpoint can operate (e.g. Provisioning Domain (PvD) information {{RFC7556}}), to inform the selection between alternate network paths;  
 
 - Explicit support for security properties as first-order transport features,
   and for configuration of cryptographic identities and transport security parameters persistent across multiple Connections; and
@@ -511,7 +513,6 @@ process. Protocol Specific Properties, which enable configuration of specialized
 features of a specific protocol, see Section 3.2 of {{I-D.ietf-taps-arch}}, are not
 used as an input to the selection process but only support configuration if
 the respective protocol has been selected.
-
 
 ### Transport Property Names {#property-names}
 
@@ -831,6 +832,14 @@ that support only specific network addresses or transports, transport protocol
 selection is necessarily tied to path selection. This may involve choosing
 between multiple local interfaces that are connected to different access
 networks.
+
+When additional information (such as Provisioning Domain (PvD) information 
+{{RFC7556}}) is provided about the networks over which an endpoint can operate,
+this can inform the selection between alternate network paths.  
+Path information can include network segment PMTU, set of supported DSCPs, 
+expected usage, cost, etc. The usage of this information by the Transport 
+Services API is generally independent of the specific mechanism/protocol 
+used to receive the information (e.g. zero-conf, DHCP, or IPv6 RA).
 
 Most Selection Properties are represented as Preferences, which can
 take one of five values:
