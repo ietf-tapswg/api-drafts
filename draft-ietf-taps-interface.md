@@ -2334,7 +2334,17 @@ a Protocol Stack must be able to provide ordering if the msgOrdered
 property of a Message is enabled. Sending a Message with Message Properties
 inconsistent with the Selection Properties of the Connection yields an error.
 
-Connection Properties describe the default behavior for all Messages on a Connection. If a Message Property contradicts a Connection Property, and if this per-Message behavior can be supported, it overrides the Connection Property for the specific Message. For example, if `Reliable Data Transfer (Connection)` is set to `Require` and a protocol with configurable per-Message reliability is used, setting `Reliable Data Transfer (Message)` to `false` for a particular Message will allow this Message to be unreliably delivered. Changing the Reliable Data Transfer property on Messages is only possible for Connections that were established enabling the Selection Property `Configure Per-Message Reliability`.
+Connection Properties describe the default behavior for all Messages on a 
+Connection. If a Message Property contradicts a Connection Property, and 
+if this per-Message behavior can be supported, it overrides the Connection 
+Property for the specific Message. For example, if 
+`Reliable Data Transfer (Connection)` is set to `Require` and a protocol 
+with configurable per-Message reliability is used, setting 
+`Reliable Data Transfer (Message)` to `false` for a particular Message will 
+allow this Message to be sent without any reliability guarantees. Changing 
+the Reliable Data Transfer property on Messages is only possible for 
+Connections that were established enabling the Selection Property 
+`Configure Per-Message Reliability`.
 
 The following Message Properties are supported:
 
@@ -3162,7 +3172,7 @@ This specification treats Events and Errors similarly. Errors, just as any
 other Events, may occur asynchronously in network applications. However,
 implementations of this interface may report Errors synchronously,
 according to the error handling idioms of the implementation
-platform, where they can be immediately detected, such as by throwing an
+platform, where they can be immediately detected, such as by generating an
 exception when attempting to initiate a connection with inconsistent
 Transport Properties. An error can provide an optional reason to the
 application with further details about why the error occurred.
@@ -3222,7 +3232,8 @@ It should consist of the following properties:
 
 ### unreliable-datagram
 
-This profile provides unreliable datagram transport service.
+This profile provides a datagram transport service without any
+reliability guarentees.
 An example of a protocol that provides this service is UDP.
 It consists of the following properties:
 
@@ -3305,7 +3316,7 @@ this is offered by the `Close` Action with slightly changed semantics in line wi
 * "Abort without delivering remaining data, causing an event informing the application on the other side" and "Abort without delivering remaining data, not causing an event informing the application on the other side":
 this is offered by the `Abort` action without promising that this is signaled to the other side. If it is, a `ConnectionError` Event will fire at the peer ({{termination}}).
 
-* "Reliably transfer data, with congestion control", "Reliably transfer a message, with congestion control" and "Unreliably transfer a message":
+* "Reliably transfer data, with congestion control", "Reliably transfer a message, with congestion control" and "Transfer a message without reliability":
 data is transferred via the `Send` action ({{sending}}). Reliability is controlled via the `Reliable Data Transfer (Connection)` ({{prop-reliable}}) property and the `Reliable Data Transfer (Message)` Message Property ({{msg-reliable-message}}). Transmitting data as a message or without delimiters is controlled via Message Framers ({{framing}}). The choice of congestion control is provided via the `Congestion control` property ({{prop-cc}}).
 
 * Configurable Message Reliability:
