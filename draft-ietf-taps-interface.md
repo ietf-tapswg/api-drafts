@@ -1013,7 +1013,7 @@ transport connection where possible.
 ### Full Checksum Coverage on Sending {#prop-checksum-control-send}
 
 Name:
-: perMsgChecksumLenSend
+: perMsgChecksumSend
 
 Type:
 : Preference
@@ -1028,7 +1028,7 @@ later control of the sender checksum coverage (see {{msg-checksum}}).
 ### Full Checksum Coverage on Receiving {#prop-checksum-control-receive}
 
 Name:
-: perMsgChecksumLenRecv
+: perMsgChecksumRecv
 
 Type:
 : Preference
@@ -1776,14 +1776,15 @@ Name:
 : recvChecksumLen
 
 Type:
-: Integer, with special value `Full Coverage`
+: Integer (non-negative with special value `Full Coverage`)
 
 Default:
 : Full Coverage
 
 This property specifies the minimum number of bytes in a received
 message that need to be covered by a checksum. A special value of 0 means
-that no checksum is permitted. A receiving Endpoint will not forward messages to the application
+that a received packet does not need to have a non-zero checksum field. 
+A receiving Endpoint will not forward messages to the application
 that have less coverage. The application is responsible for handling
 any corruption within the non-protected part of the message {{!RFC8085}}.
 
@@ -2462,7 +2463,7 @@ This property specifies the minimum length of the section of a sent Message,
 starting from byte 0, that the application requires to be delivered without
 corruption due to lower layer errors. It is used to specify options for simple
 integrity protection via checksums. A value of 0 means that no checksum
-is required, and `Full Coverage` means
+needs to be calculated, and `Full Coverage` means
 that the entire Message needs to be protected by a checksum. Only `Full Coverage` is
 guaranteed, any other requests are advisory, which may result in `Full Coverage` being applied.
 
