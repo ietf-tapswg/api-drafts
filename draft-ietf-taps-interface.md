@@ -3234,7 +3234,7 @@ It should consist of the following properties:
 ### unreliable-datagram
 
 This profile provides a datagram transport service without any
-reliability guarentees.
+reliability guarantee.
 An example of a protocol that provides this service is UDP.
 It consists of the following properties:
 
