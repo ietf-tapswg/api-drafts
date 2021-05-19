@@ -148,7 +148,7 @@ The connection objects that are exposed to applications for Transport Services a
 
 Preconnection objects should be implemented as bundles of properties that an application can both read and write. Once a Preconnection has been used to create an outbound Connection or a Listener, the implementation should ensure that the copy of the properties held by the Connection or Listener is immutable. This may involve performing a deep-copy, copying the object with all the objects it references, if the application is still able to modify properties on the original Preconnection object.
 
-Connection objects represent the interface between the application and the implementation to manage transport state, and conduct data transfer. During the process of establishment ({{conn-establish}}), the Connection will not be bound to a specific transport flow, since there may be multiple candidate Protocol Stacks being raced. Once the Connection is established, its interface maps actions and events to the details of the chosen Protocol Stack. For example, the same Connection object may ultimately represent the interface into a TCP connection, a TLS session over TCP, a UDP flow with fully-specified local and remote endpoints, a DTLS session, a SCTP stream, a QUIC stream, or an HTTP/2 stream.
+Connection objects represent the interface between the application and the implementation to manage transport state, and conduct data transfer. During the process of establishment ({{conn-establish}}), the Connection will not be bound to a specific transport flow, since there may be multiple candidate Protocol Stacks being raced. Once the Connection is established, its interface maps actions and events to the details of the chosen Protocol Stack. For example, the same Connection object may ultimately represent the interface into a TCP connection, a TLS session over TCP, a UDP flow with fully-specified Local and Remote Endpoints, a DTLS session, a SCTP stream, a QUIC stream, or an HTTP/2 stream.
 
 Listener objects are created with a Preconnection, at which point their configuration should be considered immutable by the implementation. The process of listening is described in {{listen}}.
 
@@ -183,7 +183,7 @@ It is expected that the database of system policies and the method of looking up
 
 # Implementing Connection Establishment {#conn-establish}
 
-The process of establishing a network connection begins when an application expresses intent to communicate with a remote endpoint by calling Initiate. (At this point, any constraints or requirements the application may have on the connection are available from pre-establishment.) The process can be considered complete once there is at least one Protocol Stack that has completed any required setup to the point that it can transmit and receive the application's data.
+The process of establishing a network connection begins when an application expresses intent to communicate with a Remote Endpoint by calling Initiate. (At this point, any constraints or requirements the application may have on the connection are available from pre-establishment.) The process can be considered complete once there is at least one Protocol Stack that has completed any required setup to the point that it can transmit and receive the application's data.
 
 Connection establishment is divided into two top-level steps: Candidate Gathering, to identify the paths, protocols, and endpoints to use, and Candidate Racing (see Section 4.2.2 of {{I-D.ietf-taps-arch}}), in which the necessary protocol handshakes are conducted so that the transport system can select which set to use.
 
@@ -212,7 +212,7 @@ properties, Avoided properties, and possibly other criteria.
 
 As noted above, the considereration of multiple candidates in a gathering and racing process can be conceptually structured as a tree; this terminological convention is used throughout this document.
 
-Each leaf node of the tree represents a single, coherent connection attempt, with an Endpoint, a Path, and a set of protocols that can directly negotiate and send data on the network. Each node in the tree that is not a leaf represents a connection attempt that is either underspecified, or else includes multiple distinct options. For example, when connecting on an IP network, a connection attempt to a hostname and port is underspecified, because the connection attempt requires a resolved IP address as its remote endpoint. In this case, the node represented by the connection attempt to the hostname is a parent node, with child nodes for each IP address. Similarly, an implementation that is allowed to connect using multiple interfaces will have a parent node of the tree for the decision between the paths, with a branch for each interface.
+Each leaf node of the tree represents a single, coherent connection attempt, with an Endpoint, a Path, and a set of protocols that can directly negotiate and send data on the network. Each node in the tree that is not a leaf represents a connection attempt that is either underspecified, or else includes multiple distinct options. For example, when connecting on an IP network, a connection attempt to a hostname and port is underspecified, because the connection attempt requires a resolved IP address as its Remote Endpoint. In this case, the node represented by the connection attempt to the hostname is a parent node, with child nodes for each IP address. Similarly, an implementation that is allowed to connect using multiple interfaces will have a parent node of the tree for the decision between the paths, with a branch for each interface.
 
 The example aggregate connection attempt above can be drawn as a tree by grouping the addresses resolved on the same interface into branches:
 
@@ -265,7 +265,7 @@ There are three types of branching from a parent node into one or more child nod
 
 If a connection originally targets a single endpoint, there may be multiple endpoints of different types that can be derived from the original. The connection library creates an ordered list of the derived endpoints according to application preference, system policy and expected performance.
 
-DNS hostname-to-address resolution is the most common method of endpoint derivation. When trying to connect to a hostname endpoint on a traditional IP network, the implementation should send DNS queries for both A (IPv4) and AAAA (IPv6) records if both are supported on the local link. The algorithm for ordering and racing these addresses should follow the recommendations in Happy Eyeballs {{!RFC8305}}.
+DNS hostname-to-address resolution is the most common method of endpoint derivation. When trying to connect to a hostname endpoint on a traditional IP network, the implementation should send DNS queries for both A (IPv4) and AAAA (IPv6) records if both are supported on the local interface. The algorithm for ordering and racing these addresses should follow the recommendations in Happy Eyeballs {{!RFC8305}}.
 
 ~~~~~~~~~~
 1 [www.example.com:80, Wi-Fi, TCP]
@@ -401,13 +401,13 @@ Both Local and Remote Endpoint Candidates must be discovered during connection e
 
 The set of possible Local Endpoints is gathered.  In the simple case, this merely enumerates the local interfaces and protocols, and allocates ephemeral source ports.  For example, a system that has WiFi and Ethernet and supports IPv4 and IPv6 might gather four candidate Local Endpoints (IPv4 on Ethernet, IPv6 on Ethernet, IPv4 on WiFi, and IPv6 on WiFi) that can form the source for a transient.
 
-If NAT traversal is required, the process of gathering Local Endpoints becomes broadly equivalent to the ICE candidate gathering phase (see Section 5.1.1. of {{RFC8445}}).  The endpoint determines its server reflexive Local Endpoints (i.e., the translated address of a local, on the other side of a NAT, e.g via a STUN sever {{?RFC5389}}) and relayed locals (e.g., via a TURN server {{?RFC5766}} or other relay), for each interface and network protocol.  These are added to the set of candidate Local Endpoints for this connection.
+If NAT traversal is required, the process of gathering Local Endpoints becomes broadly equivalent to the ICE candidate gathering phase (see Section 5.1.1. of {{RFC8445}}).  The endpoint determines its server reflexive Local Endpoints (i.e., the translated address of a Local Endpoint, on the other side of a NAT, e.g via a STUN sever {{?RFC5389}}) and relayed Local Endpoints (e.g., via a TURN server {{?RFC5766}} or other relay), for each interface and network protocol.  These are added to the set of candidate Local Endpoints for this connection.
 
-Gathering Local Endpoints is primarily a local operation, although it might involve exchanges with a STUN server to derive server reflexive locals, or with a TURN server or other relay to derive relayed locals.  However, it does not involve communication with the Remote Endpoint.
+Gathering Local Endpoints is primarily a local operation, although it might involve exchanges with a STUN server to derive server reflexive Local Endpoints, or with a TURN server or other relay to derive relayed Local Endpoints.  However, it does not involve communication with the Remote Endpoint.
 
 #### Remote Endpoint Candidates
 
-The Remote Endpoint is typically a name that needs to be resolved into a set of possible addresses that can be used for communication.  Resolving the Remote Endpoint is the process of recursively performing such name lookups, until fully resolved, to return the set of candidates for the remote of this connection.
+The Remote Endpoint is typically a name that needs to be resolved into a set of possible addresses that can be used for communication.  Resolving the Remote Endpoint is the process of recursively performing such name lookups, until fully resolved, to return the set of candidates for the Remote Endpoint of this connection.
 
 How this resolution is done will depend on the type of the Remote Endpoint, and can also be specific to each Local Endpoint.  A common case is when the Remote Endpoint is a DNS name, in which case it is resolved to give a set of IPv4 and IPv6 addresses representing that name.  Some types of Remote Endpoint might require more complex resolution.  Resolving the Remote Endpoint for a peer-to-peer connection might involve communication with a rendezvous server, which in turn contacts the peer to gain consent to communicate and retrieve its set of candidate Local Endpoints, which are returned and form the candidate remote addresses for contacting that peer.
 
@@ -455,7 +455,7 @@ An example in which failover is recommended is a race between a protocol stack t
 
 ## Completing Establishment
 
-The process of connection establishment completes when one leaf node of the tree has completed negotiation with the remote endpoint successfully, or else all nodes of the tree have failed to connect. The first leaf node to complete its connection is then used by the application to send and receive data.
+The process of connection establishment completes when one leaf node of the tree has successfully completed negotiation with the Remote Endpoint , or else all nodes of the tree have failed to connect. The first leaf node to complete its connection is then used by the application to send and receive data.
 
 Successes and failures of a given attempt should be reported up to parent nodes (towards the trunk of the tree). For example, in the following case, if 1.1.1 fails to connect, it reports the failure to 1.1. Since 1.1 has no other child nodes, it also has failed and reports that failure to 1. Because 1.2 has not yet failed, 1 is not considered to have failed. Since 1.2 has not yet started, it is started and the process continues. Similarly, if 1.1.1 successfully connects, then it marks 1.1 as connected, which propagates to the trunk node 1. At this point, the connection as a whole is considered to be successfully connected and ready to process application data.
 
@@ -473,7 +473,7 @@ If a leaf node has successfully completed its connection, all other attempts sho
 
 Implementations may select the criteria by which a leaf node is considered to be successfully connected differently on a per-protocol basis. If the only protocol being used is a transport protocol with a clear handshake, like TCP, then the obvious choice is to declare that node "connected" when the last packet of the three-way handshake has been received. If the only protocol being used is an connectionless protocol, like UDP, the implementation may consider the node fully "connected" the moment it determines a route is present, before sending any packets on the network, see further {{connectionless-racing}}.
 
-For protocol stacks with multiple handshakes, the decision becomes more nuanced. If the protocol stack involves both TLS and TCP, an implementation could determine that a leaf node is connected after the TCP handshake is complete, or it can wait for the TLS handshake to complete as well. The benefit of declaring completion when the TCP handshake finishes, and thus stopping the race for other branches of the tree, is reduced burden on the network and remote endpoints from further connection attempts that are likely to be abandoned. On the other hand, by waiting until the TLS handshake is complete, an implementation avoids the scenario in which a TCP handshake completes quickly, but TLS negotiation is either very slow or fails altogether in particular network conditions or to a particular endpoint. To avoid the issue of TLS possibly failing, the implementation should not generate a Ready event for the Connection until TLS is established.
+For protocol stacks with multiple handshakes, the decision becomes more nuanced. If the protocol stack involves both TLS and TCP, an implementation could determine that a leaf node is connected after the TCP handshake is complete, or it can wait for the TLS handshake to complete as well. The benefit of declaring completion when the TCP handshake finishes, and thus stopping the race for other branches of the tree, is reduced burden on the network and Remote Endpoints from further connection attempts that are likely to be abandoned. On the other hand, by waiting until the TLS handshake is complete, an implementation avoids the scenario in which a TCP handshake completes quickly, but TLS negotiation is either very slow or fails altogether in particular network conditions or to a particular endpoint. To avoid the issue of TLS possibly failing, the implementation should not generate a Ready event for the Connection until TLS is established.
 
 If all of the leaf nodes fail to connect during racing, i.e. none of the configurations that satisfy all requirements given in the Transport Properties actually work over the available paths, then the transport system should notify the application with an InitiateError event. An InitiateError event should also be generated in case the transport system finds no usable candidates to race.
 
@@ -632,7 +632,7 @@ MessageFramer -> Stop(Connection)
 When a Message Framer generates a `Start` event, the framer implementation
 has the opportunity to start writing some data prior to the Connection delivering
 its `Ready` event. This allows the implementation to communicate control data to the
-remote endpoint that can be used to parse Messages.
+Remote Endpoint that can be used to parse Messages.
 
 ~~~
 MessageFramer.MakeConnectionReady(Connection)
@@ -764,7 +764,7 @@ When a path change occurs, e.g., when the IP address of an interface changes or 
 
 For protocols that do not support multipath or migration, the Protocol Instances should be informed of the path change, but should not be forcibly disconnected if the previously used path becomes unavailable. There are many common user scenarios that can lead to a path becoming temporarily unavailable, and then recovering before the transport protocol reaches a timeout error. These are particularly common using mobile devices. Examples include: an Ethernet cable becoming unplugged and then plugged back in; a device losing a Wi-Fi signal while a user is in an elevator, and reattaching when the user leaves the elevator; and a user losing the radio signal while riding a train through a tunnel. If the device is able to rejoin a network with the same IP address, a stateful transport connection can generally resume. Thus, while it is useful for a Protocol Instance to be aware of a temporary loss of connectivity, the Transport Services implementation should not aggressively close connections in these scenarios.
 
-If the Protocol Stack includes a transport protocol that supports multipath connectivity, the Transport Services implementation should also inform the Protocol Instance of potentially new paths that become permissible based on the `multipath` Selection Property and the `multipath-policy` Connection Property choices made by the application. A protocol can then establish new subflows over new paths while an active path is still available or, if migration is supported, also after a break has been detected, and should attempt to tear down subflows over paths that are no longer used. The Transport Services API's Connection Property `multipath-policy` allows an application to indicate when and how different paths should be used. However, detailed handling of these policies is still implementation-specific. For example, if the `multipath` Selection Property is set to `active`, the decision about when to create a new path or to announce a new path or set of paths to the remote endpoint, e.g., in the form of additional IP addresses, is implementation-specific. If the Protocol Stack includes a transport protocol that does not support multipath, but does support migrating between paths, the update to the set of available paths can trigger the connection to be migrated. 
+If the Protocol Stack includes a transport protocol that supports multipath connectivity, the Transport Services implementation should also inform the Protocol Instance of potentially new paths that become permissible based on the `multipath` Selection Property and the `multipath-policy` Connection Property choices made by the application. A protocol can then establish new subflows over new paths while an active path is still available or, if migration is supported, also after a break has been detected, and should attempt to tear down subflows over paths that are no longer used. The Transport Services API's Connection Property `multipath-policy` allows an application to indicate when and how different paths should be used. However, detailed handling of these policies is still implementation-specific. For example, if the `multipath` Selection Property is set to `active`, the decision about when to create a new path or to announce a new path or set of paths to the Remote Endpoint, e.g., in the form of additional IP addresses, is implementation-specific. If the Protocol Stack includes a transport protocol that does not support multipath, but does support migrating between paths, the update to the set of available paths can trigger the connection to be migrated. 
 
 In case of Pooled Connections {{pooled-connections}}, the Transport Services implementation may add connections over new paths to the pool if permissible based on the multipath policy and Selection Properties. In case a previously used path becomes unavailable, the transport system may disconnect all connections that require this path, but should not disconnect the pooled connection object exposed to the application. The strategy to do so is implementation-specific, but should be consistent with the behavior of multipath transports. 
 
@@ -998,7 +998,7 @@ Data Unit: Datagram
 API mappings for Receiving Multicast UDP are as follows:
 
 Connection Object:
-: Established UDP Multicast Receive connections represent a pair of specific IP addresses and ports.  The "unidirectional receive" transport property is required, and the local endpoint must be configured with a group IP address and a port.
+: Established UDP Multicast Receive connections represent a pair of specific IP addresses and ports.  The "unidirectional receive" transport property is required, and the Local Endpoint must be configured with a group IP address and a port.
 
 Initiate:
 : Calling `Initiate` on a UDP Multicast Receive Connection causes an immediate InitiateError.  This is an unsupported operation.
@@ -1016,7 +1016,7 @@ ConnectionError:
 : Once in use, UDP throws "soft errors" (ERROR.UDP(-Lite)) upon receiving ICMP notifications indicating failures in the network.
 
 Listen:
-: LISTEN.UDP. Calling `Listen` for UDP Multicast Receive binds a local port, prepares it to receive inbound UDP datagrams from peers, and issues a multicast host join.  If a remote endpoint with an address is supplied, the join is Source-specific Multicast, and the path selection is based on the route to the remote endpoint.  If a remote endpoint is not supplied, the join is Any-source Multicast, and the path selection is based on the outbound route to the group supplied in the local endpoint.
+: LISTEN.UDP. Calling `Listen` for UDP Multicast Receive binds a local port, prepares it to receive inbound UDP datagrams from peers, and issues a multicast host join.  If a Remote Endpoint with an address is supplied, the join is Source-specific Multicast, and the path selection is based on the route to the Remote Endpoint.  If a Remote Endpoint is not supplied, the join is Any-source Multicast, and the path selection is based on the outbound route to the group supplied in the Local Endpoint.
 
 ConnectionReceived:
 : UDP Multicast Receive Listeners will deliver new connections once they have received traffic from a new Remote Endpoint.
@@ -1059,7 +1059,7 @@ Initiate:
 : If this is the only Connection object that is assigned to the SCTP association or stream mapping is
 not used, CONNECT.SCTP is called. Else, unless the Selection Property `activeReadBeforeSend`
 is Preferred or Required, a new stream is used: if there are enough streams
-available, `Initiate` is just a local operation that assigns a new stream id to the Connection object.
+available, `Initiate` is a local operation that assigns a new stream id to the Connection object.
 The number of streams is negotiated as a parameter of the prior CONNECT.SCTP call, and it represents a
 trade-off between local resource usage and the number of Connection objects that can be mapped
 without requiring a reconfiguration signal. When running out of streams, ADD_STREAM.SCTP must be called.
@@ -1199,7 +1199,7 @@ If the application indicates a preference to avoid expensive paths, and some pat
 The Transport Services API {{I-D.ietf-taps-interface}} allows for the several generic error types to specify a more detailed reason as to why an error occurred. This appendix lists some of the possible reasons.
 
 * InvalidConfiguration:
-The transport properties and endpoints provided by the application are either contradictory or incomplete. Examples include the lack of a remote endpoint on an active open or using a multicast group address while not requesting a unidirectional receive.
+The transport properties and endpoints provided by the application are either contradictory or incomplete. Examples include the lack of a Remote Endpoint on an active open or using a multicast group address while not requesting a unidirectional receive.
 
 * NoCandidates:
 The configuration is valid, but none of the available transport protocols can satisfy the transport properties provided by the application.
