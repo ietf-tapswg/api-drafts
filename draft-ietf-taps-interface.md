@@ -292,7 +292,8 @@ Architecture {{I-D.ietf-taps-arch}}.
 An application primarily interacts with this API through two Objects:
 Preconnections and Connections. A Preconnection represents a set of properties
 and constraints on the selection and configuration of paths and protocols to
-establish a Connection with a Remote Endpoint. A Connection represents an
+establish a Connection with a 
+Endpoint. A Connection represents an
 instance of a
 transport Protocol Stack on which data can be sent to and/or received from a
 Remote Endpoint (i.e., depending on the kind of transport, connections can be
@@ -361,7 +362,7 @@ SecurityParameters := NewSecurityParameters()
 SecurityParameters.Set(identity, myIdentity)
 SecurityParameters.Set(key-pair, myPrivateKey, myPublicKey)
 
-// Specifying a remote endpoint is optional when using Listen()
+// Specifying a Remote Endpoint is optional when using Listen()
 Preconnection := NewPreconnection(LocalSpecifier,
                                   TransportProperties,
                                   SecurityParameters)
@@ -403,7 +404,7 @@ TransportProperties.Require(preserve-msg-boundaries)
 
 SecurityParameters := NewSecurityParameters()
 TrustCallback := NewCallback({
-  // Verify identity of the remote endpoint, return the result
+  // Verify identity of the Remote Endpoint, return the result
 })
 SecurityParameters.SetTrustVerificationCallback(TrustCallback)
 
@@ -439,7 +440,7 @@ This is an example of how an application might establish a connection with a
 peer using Rendezvous(), send a Message, and receive a Message.
 
 ~~~
-// Configure local candidates: a port on the local host and via a STUN server
+// Configure local candidates: a port on the Local Endpoint and via a STUN server
 HostCandidate := NewLocalEndpoint()
 HostCandidate.WithPort(9876)
 
@@ -1203,7 +1204,7 @@ Active:
 : The connection will negotiate the use of multiple paths if the chosen transport supports this. 
 
 Passive:
-: The connection will support the use of multiple paths if the remote endpoint requests it. 
+: The connection will support the use of multiple paths if the Remote Endpoint requests it. 
 
 The policy for using multiple paths is specified using the separate ```multipath-policy``` property, see {{multipath-policy}} below.
 To enable the peer endpoint to initiate additional paths towards a local address other than the one initially used, it is necessary to set the Alternative Addresses property (see {{altaddr}} below).
@@ -1380,7 +1381,7 @@ SecurityParameters.SetTrustVerificationCallback(trustCallback)
 ~~~
 
 - Identity challenge callback: Invoked when a private key operation is required, e.g., when
-local authentication is requested by a remote.
+local authentication is requested by a Remote Endpoint.
 
 ~~~
 ChallengeCallback := NewCallback({
@@ -1424,8 +1425,8 @@ Connection. However, the Preconnection can be reused, e.g., to Initiate
 another Connection.
 
 Once Initiate is called, the candidate Protocol Stack(s) may cause one or more
-candidate transport-layer connections to be created to the specified remote
-endpoint. The caller may immediately begin sending Messages on the Connection
+candidate transport-layer connections to be created to the specified Remote 
+Endpoint. The caller may immediately begin sending Messages on the Connection
 (see {{sending}}) after calling Initiate(); note that any data marked `Safely Replayable` that is sent
 while the Connection is being established may be sent multiple times or on
 multiple candidates.
@@ -2178,7 +2179,7 @@ PropertyValue := MessageContext.get(scope?, property)
 
 To get or set Message Properties, the optional scope parameter is left empty. To get or set meta-data for a Framer, the application has to pass a reference to this Framer as the scope parameter.
 
-For MessageContexts returned by send Events (see {{send-events}}) and receive Events (see {{receive-events}}), the application can query information about the local and Remote Endpoint:
+For MessageContexts returned by send Events (see {{send-events}}) and receive Events (see {{receive-events}}), the application can query information about the Local and Remote Endpoint:
 
 ~~~
 RemoteEndpoint := MessageContext.GetRemoteEndpoint()
