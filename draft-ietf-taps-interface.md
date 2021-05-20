@@ -1784,8 +1784,8 @@ Default:
 This property specifies the minimum number of bytes in a received
 message that need to be covered by a checksum. A special value of 0 means
 that a received packet does not need to have a non-zero checksum field. 
-A receiving Endpoint will not forward messages to the application
-that have less coverage. The application is responsible for handling
+A receiving endpoint will not forward messages that have less coverage 
+to the application. The application is responsible for handling
 any corruption within the non-protected part of the message {{!RFC8085}}.
 
 ### Connection Priority {#conn-priority}
