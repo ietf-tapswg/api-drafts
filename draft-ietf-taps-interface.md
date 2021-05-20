@@ -2915,12 +2915,26 @@ Any calls to Receive once the Final Message has been delivered will result in er
 
 # Connection Termination {#termination}
 
+A Connection can be terminated i) by the Local Endpoint (i.e., the application calls the Close, CloseGroup, Abort or AbortGroup Action), ii) by the Remote Endpoint (i.e., the remote application calls the Close, CloseGroup, Abort or AbortGroup Action), or iii) because of an error (e.g., a timeout). A local call of the Close Action will
+cause the Connection to send the Closed Event or the ConnectionError Event, and a local call of
+the CloseGroup Action will cause all of the Connections in the group to send the Closed Event
+or the ConnectionError Event. A local call of the Abort Action will cause the Connection to send
+a ConnectionError Event, indicating local Abort as a reason, and a local call of the AbortGroup Action
+will cause all of the Connections in the group to send a ConnectionError Event, indicating local Abort
+as a reason.
+
+Remote Action calls map to Events similar to local calls (e.g., a remote Close causes the
+Connection to send a Closed Event or a ConnectionError Event), but, different from local Action calls,
+it is not guaranteed that such Events will indeed be invoked. When an application needs to free resources
+associated with a Connection, it should therefore not rely on the invocation of such Events due to
+termination calls from the Remote Endpoint, but instead use the local termination Actions.
+
 Close terminates a Connection after satisfying all the requirements that were
 specified regarding the delivery of Messages that the application has already
 given to the Transport Services system. Upon successfully satisfying all these
 requirements, the Connection will send the Closed Event. For example, if reliable delivery was requested
 for a Message handed over before calling Close, the Closed Event will signify
-that this Message has indeed been delivered. This action does not affect any other Connection
+that this Message has indeed been delivered. This Action does not affect any other Connection
 in the same Connection Group.
 
 ~~~
