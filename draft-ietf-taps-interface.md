@@ -835,7 +835,7 @@ between multiple local interfaces that are connected to different access
 networks.
 
 When additional information (such as Provisioning Domain (PvD) information 
-{{RFC7556}}) is provided about the networks over which an endpoint can operate,
+{{RFC7556}}) is available about the networks over which an endpoint can operate,
 this can inform the selection between alternate network paths.  
 Path information can include network segment PMTU, set of supported DSCPs, 
 expected usage, cost, etc. The usage of this information by the Transport 
