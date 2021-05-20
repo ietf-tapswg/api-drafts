@@ -2916,15 +2916,15 @@ Any calls to Receive once the Final Message has been delivered will result in er
 # Connection Termination {#termination}
 
 A Connection can be terminated i) by the Local Endpoint (i.e., the application calls the Close, CloseGroup, Abort or AbortGroup Action), ii) by the Remote Endpoint (i.e., the remote application calls the Close, CloseGroup, Abort or AbortGroup Action), or iii) because of an error (e.g., a timeout). A local call of the Close Action will
-cause the Connection to send the Closed Event or the ConnectionError Event, and a local call of
-the CloseGroup Action will cause all of the Connections in the group to send the Closed Event
-or the ConnectionError Event. A local call of the Abort Action will cause the Connection to send
+cause the Connection to either send a Closed Event or a ConnectionError Event, and a local call of
+the CloseGroup Action will cause all of the Connections in the group to either send a Closed Event
+or a ConnectionError Event. A local call of the Abort Action will cause the Connection to send
 a ConnectionError Event, indicating local Abort as a reason, and a local call of the AbortGroup Action
 will cause all of the Connections in the group to send a ConnectionError Event, indicating local Abort
 as a reason.
 
 Remote Action calls map to Events similar to local calls (e.g., a remote Close causes the
-Connection to send a Closed Event or a ConnectionError Event), but, different from local Action calls,
+Connection to either send a Closed Event or a ConnectionError Event), but, different from local Action calls,
 it is not guaranteed that such Events will indeed be invoked. When an application needs to free resources
 associated with a Connection, it should therefore not rely on the invocation of such Events due to
 termination calls from the Remote Endpoint, but instead use the local termination Actions.
@@ -2943,7 +2943,7 @@ Connection.Close()
 
 The Closed Event informs the application that a Close Action has successfully
 completed, or that the Remote Endpoint has closed the Connection.
-There is no guarantee that a remote Close will indeed be signaled.
+There is no guarantee that a remote Close will be signaled.
 
 
 ~~~
@@ -2983,7 +2983,7 @@ Connection.AbortGroup()
 A ConnectionError informs the application that: 1) data could not be delivered to the
 peer after a timeout, 
 or 2) the Connection has been aborted (e.g., because the peer has called Abort).
-There is no guarantee that an Abort from the peer will indeed be signaled.
+There is no guarantee that an Abort from the peer will be signaled.
 
 ~~~
 Connection -> ConnectionError<reason?>
