@@ -455,7 +455,7 @@ An example in which failover is recommended is a race between a protocol stack t
 
 ## Completing Establishment
 
-The process of connection establishment completes when one leaf node of the tree has successfully completed negotiation with the Remote Endpoint , or else all nodes of the tree have failed to connect. The first leaf node to complete its connection is then used by the application to send and receive data.
+The process of connection establishment completes when one leaf node of the tree has successfully completed negotiation with the Remote Endpoint, or else all nodes of the tree have failed to connect. The first leaf node to complete its connection is then used by the application to send and receive data.
 
 Successes and failures of a given attempt should be reported up to parent nodes (towards the trunk of the tree). For example, in the following case, if 1.1.1 fails to connect, it reports the failure to 1.1. Since 1.1 has no other child nodes, it also has failed and reports that failure to 1. Because 1.2 has not yet failed, 1 is not considered to have failed. Since 1.2 has not yet started, it is started and the process continues. Similarly, if 1.1.1 successfully connects, then it marks 1.1 as connected, which propagates to the trunk node 1. At this point, the connection as a whole is considered to be successfully connected and ready to process application data.
 
