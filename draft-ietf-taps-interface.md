@@ -292,7 +292,7 @@ Architecture {{I-D.ietf-taps-arch}}.
 An application primarily interacts with this API through two Objects:
 Preconnections and Connections. A Preconnection represents a set of properties
 and constraints on the selection and configuration of paths and protocols to
-establish a Connection with a 
+establish a Connection with an 
 Endpoint. A Connection represents an
 instance of a
 transport Protocol Stack on which data can be sent to and/or received from a
