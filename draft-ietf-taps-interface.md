@@ -270,11 +270,11 @@ provides:
   concurrent operations during establishment and supporting event-driven
   application interactions with the transport layer, in line with developments
   in modern platforms and programming languages;
+  
+- Selection between alternate network paths that can be informed by additional information about the networks over which an endpoint can operate (e.g. Provisioning Domain (PvD) information {{RFC7556}});  
 
 - Explicit support for transport-specific features to be applied should that
   particular transport be part of a chosen Protocol Stack;
-  
-- Support for using additional information about the networks over which an endpoint can operate (e.g. Provisioning Domain (PvD) information {{RFC7556}}), to inform the selection between alternate network paths;  
 
 - Explicit support for security properties as first-order transport features,
   and for configuration of cryptographic identities and transport security parameters persistent across multiple Connections; and
