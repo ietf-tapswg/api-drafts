@@ -839,7 +839,7 @@ When additional information (such as Provisioning Domain (PvD) information
 this can inform the selection between alternate network paths.  
 Path information can include network segment PMTU, set of supported DSCPs, 
 expected usage, cost, etc. The usage of this information by the Transport 
-Services API is generally independent of the specific mechanism/protocol 
+Services System is generally independent of the specific mechanism/protocol 
 used to receive the information (e.g. zero-conf, DHCP, or IPv6 RA).
 
 Most Selection Properties are represented as Preferences, which can
