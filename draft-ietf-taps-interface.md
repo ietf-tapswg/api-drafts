@@ -3317,7 +3317,7 @@ this is offered by the `Close` Action with slightly changed semantics in line wi
 * "Abort without delivering remaining data, causing an event informing the application on the other side" and "Abort without delivering remaining data, not causing an event informing the application on the other side":
 this is offered by the `Abort` action without promising that this is signaled to the other side. If it is, a `ConnectionError` Event will fire at the peer ({{termination}}).
 
-* "Reliably transfer data, with congestion control", "Reliably transfer a message, with congestion control" and "Transfer a message without reliability guarantees":
+* "Reliably transfer data, with congestion control", "Reliably transfer a message, with congestion control" and "Unreliably transfer a message":
 data is transferred via the `Send` action ({{sending}}). Reliability is controlled via the `Reliable Data Transfer (Connection)` ({{prop-reliable}}) property and the `Reliable Data Transfer (Message)` Message Property ({{msg-reliable-message}}). Transmitting data as a message or without delimiters is controlled via Message Framers ({{framing}}). The choice of congestion control is provided via the `Congestion control` property ({{prop-cc}}).
 
 * Configurable Message Reliability:
