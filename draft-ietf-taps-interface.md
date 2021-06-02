@@ -598,7 +598,7 @@ of the potential Connection (see {{endpointspec}}), the Selection Properties
    Preconnection := NewPreconnection([]LocalEndpoint,
                                      []RemoteEndpoint,
                                      TransportProperties,
-                                     SecurityParameters?)
+                                     SecurityParameters)
 ~~~
 
 At least one Local Endpoint MUST be specified if the Preconnection is used to Listen()
@@ -631,8 +631,6 @@ specified by name, and a later call to  Initiate() on the Preconnection
 (see {{initiate}}) will internally resolve that name to a list of concrete
 endpoints. Specifying multiple Remote Endpoints on a Preconnection allows
 applications to override this for more detailed control.
-
-Transport Properties MUST always be specified while security parameters are OPTIONAL.
 
 If Message Framers are used (see {{framing}}), they MUST be added to the
 Preconnection during pre-establishment.
@@ -1359,6 +1357,21 @@ other policies.
 ~~~
 SecurityParameters.Set(max-cached-sessions, 16)
 SecurityParameters.Set(cached-session-lifetime-seconds, 3600)
+~~~
+
+Connections that use Transport Services SHOULD use security in general. However, for
+compatibility with endpoints that do not support transport security protocols (such
+as a TCP endpoint that does not support TLS), applications can initialize their
+security parameters to indicate that security can be disabled, or can be opportunistic.
+If security is disabled, the Transport Services system will not attempt to add
+transport security automatically. If security is opportunistic, it will allow
+Connections without transport security, but will still attempt to use security if
+available.
+
+~~~
+SecurityParameters := NewDisabledSecurityParameters()
+
+SecurityParameters := NewOpportunisticSecurityParameters()
 ~~~
 
 Representation of Security Parameters in implementations should parallel that chosen for Transport Property names as recommended in {{scope-of-interface-defn}}.
