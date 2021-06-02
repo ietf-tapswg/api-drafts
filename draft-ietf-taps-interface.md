@@ -3180,6 +3180,16 @@ implementation-specific limitations. For example:
 - A Collection may be represented as a `std::set` in C++ or as a `set` in
   Python. In C, it may be represented as an array or as a higher-level data
   structure with appropriate accessors defined.
+  
+The objects described in {{notation}} can similarly be represented in
+different ways depending on which programming language is used. Objects
+like Preconnections, Connections, and Listeners can be long-lived, and
+benefit from using object-oriented constructs. Note that in C, these
+objects may need to provide a way to release or free their underlying
+memory when the application is done using them. For example, since a
+Preconnection can be used to initiate multiple Connections, it is the
+responsibility of the application to clean up the Preconnection memory
+if necessary.
 
 ## Events and Errors
 
