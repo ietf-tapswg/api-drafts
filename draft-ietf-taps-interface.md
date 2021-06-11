@@ -1,6 +1,6 @@
 ---
 title: An Abstract Application Layer Interface to Transport Services
-abbrev: TAPS Interface
+abbrev: Transport Services Interface
 docname: draft-ietf-taps-interface-latest
 date:
 category: std
@@ -132,14 +132,14 @@ informative:
 
 --- abstract
 
-This document describes an abstract application programming interface, API, to the transport
+This document describes an abstract application programming interface (API) to the transport
 layer that enables the selection of transport protocols and
 network paths dynamically at runtime. This API enables faster deployment
 of new protocols and protocol features without requiring changes to the
 applications. The specified API follows the Transport Services Architecture
 by providing asynchronous, atomic transmission of messages. It is intended to replace the
 traditional BSD sockets API as the common interface to the
-transport layer, in an environment where endpoints could select from 
+transport layer, in an environment in which endpoints could select from 
 multiple interfaces and potential transport protocols.
 
 --- middle
@@ -147,7 +147,7 @@ multiple interfaces and potential transport protocols.
 # Introduction
 
 This document specifies a modern abstract application programming interface (API) atop the
-high-level architecture for transport services defined in
+high-level architecture for Transport Services defined in
 {{I-D.ietf-taps-arch}}. The Transport Services Architecture supports
 asynchronous, atomic transmission of messages over transport protocols and
 network paths dynamically selected at runtime, in environments where an endpoint
@@ -225,9 +225,9 @@ We also make use of the following basic types:
 - Enumeration: A family of types in which each instance takes one of a fixed,
   predefined set of values specific to a given enumerated type.
 - Tuple: An ordered grouping of multiple value types, represented as a
-  comma-separated list in parentheses, e.g., ```(Enumeration, Preference)```.
+  comma-separated list in parentheses, e.g., (Enumeration, Preference).
   Instances take a sequence of values each valid for the corresponding value
-  type. The composition of types and their order depends on the property and is
+  type, e.g., `(1, true)` for a tuple with type (Integer, Boolean). The composition of types and their order depends on the property and is
   fixed for the property.
 - Array: Denoted []Type, an instance takes a value for each of zero or more
   elements in a sequence of the given Type. An array may be of fixed or
@@ -286,7 +286,7 @@ provides:
 # API Summary
 
 The Transport Services API is the basic common abstract application
-programming interface to the Transport Services Architecture defined in the TAPS
+programming interface to the Transport Services Architecture defined in the Transport Services
 Architecture {{I-D.ietf-taps-arch}}.
 
 An application primarily interacts with this API through two Objects:
@@ -355,7 +355,7 @@ LocalSpecifier.WithInterface("any")
 LocalSpecifier.WithService("https")
 
 TransportProperties := NewTransportProperties()
-TransportProperties.Require(preserve-msg-boundaries)
+TransportProperties.Require(preserveMsgBoundaries)
 // Reliable Data Transfer and Preserve Order are Required by default
 
 SecurityParameters := NewSecurityParameters()
@@ -399,7 +399,7 @@ RemoteSpecifier.WithHostname("example.com")
 RemoteSpecifier.WithService("https")
 
 TransportProperties := NewTransportProperties()
-TransportProperties.Require(preserve-msg-boundaries)
+TransportProperties.Require(preserveMsgBoundaries)
 // Reliable Data Transfer and Preserve Order are Required by default
 
 SecurityParameters := NewSecurityParameters()
@@ -519,10 +519,10 @@ Transport Properties are referred to by property names. For the purposes of this
 alphanumeric strings in which words may be separated by hyphens.
 These names serve two purposes:
 
-- Allowing different components of a TAPS implementation to pass Transport
+- Allowing different components of a Transport Services implementation to pass Transport
   Properties, e.g., between a language frontend and a policy manager,
   or as a representation of properties retrieved from a file or other storage.
-- Making the code of different TAPS implementations look similar. While individual programming languages may preclude strict adherence to the aforementioned naming convention (for instance, by prohibiting the use of hyphens in symbols), users interacting with multiple implementations will still benefit from the consistency resulting from the use of visually similar symbols.
+- Making the code of different Transport Services implementations look similar. While individual programming languages may preclude strict adherence to the aforementioned naming convention (for instance, by prohibiting the use of hyphens in symbols), users interacting with multiple implementations will still benefit from the consistency resulting from the use of visually similar symbols.
 
 Transport Property Names are hierarchically organized in the
 form \[\<Namespace>.\]\<PropertyName\>.
@@ -561,7 +561,7 @@ necessarily abstract.
 There is no interoperability benefit in tightly defining how the interface is
 presented to application programmers across diverse platforms. However,
 maintaining the "shape" of the abstract interface across different platforms reduces
-the effort for programmers who learn the transport services interface to then
+the effort for programmers who learn the Transport Services interface to then
 apply their knowledge to another platform.
 
 We therefore make the following recommendations:
@@ -575,7 +575,7 @@ We therefore make the following recommendations:
   Connection Property, and Message Context Property specified in this document. Each interface SHOULD be implemented even when in a specific implementation/platform it
   will always result in no operation, e.g. there is no action when the API
   specifies a Property that is not available in a transport protocol implemented
-  on a specific platform. For example, if TCP is the only underlying transport protocol, the Message Property `msgOrdered` can be implemented (trivially, as a no-op) as disabling the requirement for ordering will not have any effect on delivery order for Connections over TCP. Similarly, the `msg-lifetime` Message Property can be implemented but ignored, as the description of this Property states that "it is not guaranteed that a Message will not be sent when its Lifetime has expired".
+  on a specific platform. For example, if TCP is the only underlying transport protocol, the Message Property `msgOrdered` can be implemented (trivially, as a no-op) as disabling the requirement for ordering will not have any effect on delivery order for Connections over TCP. Similarly, the `msgLifetime` Message Property can be implemented but ignored, as the description of this Property states that "it is not guaranteed that a Message will not be sent when its Lifetime has expired".
 - Implementations may use other representations for Transport Property Names,
   e.g., by providing constants, but should provide a straight-forward mapping
   between their representation and the property names specified here.
@@ -637,7 +637,7 @@ Preconnection during pre-establishment.
 
 ## Specifying Endpoints {#endpointspec}
 
-The transport services API uses the Local Endpoint and Remote Endpoint Objects
+The Transport Services API uses the Local Endpoint and Remote Endpoint Objects
 to refer to the endpoints of a transport connection. Endpoints can be created
 as either Remote or Local:
 
@@ -1039,7 +1039,7 @@ This property specifies the application's need for protection against
 corruption for all data received on this Connection. Disabling this property could enable
 later control of the required minimum receiver checksum coverage (see {{conn-recv-checksum}}).
 
-### Congestion control {#prop-cc}
+### Congestion Control {#prop-cc}
 
 Name:
 : congestionControl
@@ -1060,7 +1060,7 @@ rendering "reliable but not congestion controlled" a request that is unlikely to
 succeed. If the Connection is congestion controlled, performing additional congestion control
 in the application can have negative performance implications.
 
-### Keep alive {#keep-alive}
+### Keep Alive {#keepAlive}
 
 Name:
 : keepAlive
@@ -1075,7 +1075,7 @@ This property specifies whether the application would like the Connection to sen
 keep-alive packets or not. Note that if a Connection determines that keep-alive
 packets are being sent, the applicaton should itself avoid generating additional keep alive
 messages. Note that when supported, the system will use the default period
-for generation of the keep alive-packets. (See also {{keep-alive-timeout}}).
+for generation of the keep alive-packets. (See also {{keepAliveTimeout}}).
 
 ### Interface Instance or Type {#prop-interface}
 
@@ -1204,18 +1204,18 @@ Active:
 Passive:
 : The connection will support the use of multiple paths if the Remote Endpoint requests it. 
 
-The policy for using multiple paths is specified using the separate ```multipath-policy``` property, see {{multipath-policy}} below.
+The policy for using multiple paths is specified using the separate multipathPolicy property, see {{multipathPolicy}} below.
 To enable the peer endpoint to initiate additional paths towards a local address other than the one initially used, it is necessary to set the Alternative Addresses property (see {{altaddr}} below).
 
 Setting this property to "Active", can have privacy implications: It enables the transport to establish connectivity using alternate paths that might result in users being linkable across the multiple paths, even if the Advertisement of Alternative Addresses property (see {{altaddr}} below) is set to false.
 
 Enumeration values other than "Disabled" are interpreted as a preference for choosing protocols that can make use of multiple paths.
-The "Disabled" value implies a requirement not to use multiple paths in parallel but does not prevent choosing a protocol that is capable of using multiple paths, e.g., it does not prevent choosing TCP, but prevents sending the ```MP_CAPABLE``` option in the TCP handshake.
+The "Disabled" value implies a requirement not to use multiple paths in parallel but does not prevent choosing a protocol that is capable of using multiple paths, e.g., it does not prevent choosing TCP, but prevents sending the `MP_CAPABLE` option in the TCP handshake.
 
 ### Advertisement of Alternative Addresses {#altaddr}
 
 Name:
-: advertises-altaddr
+: advertisesAltaddr
 
 Type:
 : Boolean
@@ -1276,7 +1276,7 @@ not all ICMP errors will necessarily be delivered, so applications cannot rely
 upon receiving them {{!RFC8085}}.
 
 
-### Initiating side is not the first to write {#active-read-before-send}
+### Initiating side is not the first to write {#activeReadBeforeSend}
 
 Name:
 : activeReadBeforeSend
@@ -1640,7 +1640,7 @@ and these Connection Properties are entangled: Changing one of the
 Connection Properties on one Connection in the Connection Group
 automatically changes the Connection Property for all others. For example, changing
 `Timeout for aborting Connection` (see
-{{conn-timeout}}) on one Connection in a Connection Group will automatically
+{{connTimeout}}) on one Connection in a Connection Group will automatically
 make the same change to this Connection Property for all other Connections in the Connection Group.
 Like all other Properties, `Connection Priority` is copied 
 to the new Connection when calling Clone(), but in this case, a later change to the 
@@ -1648,7 +1648,7 @@ to the new Connection when calling Clone(), but in this case, a later change to 
 other Connections in the same Connection Group.
 
 Message Properties are also not entangled.  For example,
-changing `Lifetime` (see {{msg-lifetime}}) of a Message will only affect a
+changing `Lifetime` (see {{msgLifetime}}) of a Message will only affect a
 single Message on a single Connection.
 
 A new Connection created by Clone can have a Message Framer assigned via the optional
@@ -1695,7 +1695,7 @@ using the same approach as in {{msg-priority}}: when allocating available networ
 capacity among Connections in a Connection Group, sends on Connections with
 lower Priority values will be prioritized over sends on Connections with
 higher Priority values. Capacity will be shared among these Connections according to
-the Connection Group Transmission Scheduler property ({{conn-scheduler}}). 
+the Connection Group Transmission Scheduler property ({{connScheduler}}). 
 See {{priority-in-taps}} for more.
 
 # Managing Connections {#introspection}
@@ -1714,7 +1714,7 @@ NOT be assumed to apply across different protocols. Attempts to set Specific
 Protocol Properties on a protocol stack not containing that specific protocol
 are simply ignored, and do not raise an error; however, too much reliance by an
 application on Specific Protocol Properties can significantly reduce the
-flexibility of a transport services implementation.
+flexibility of a Transport Services implementation.
 
 The application can set and query Connection Properties on a per-Connection
 basis. Connection Properties that are not read-only can be set during
@@ -1823,7 +1823,7 @@ does not change it on the other Connections in the same Connection Group.
 No guarantees of a specific behavior regarding Connection Priority are given;
 a Transport Services system may ignore this property. See {{priority-in-taps}} for more details.
 
-### Timeout for Aborting Connection {#conn-timeout}
+### Timeout for Aborting Connection {#connTimeout}
 
 Name:
 : connTimeout
@@ -1839,7 +1839,7 @@ failed when trying to reliably deliver data to the Remote Endpoint. Adjusting th
 will only take effect when the underlying stack supports reliability. The special value
 `Disabled` means that no timeout is scheduled.
 
-### Timeout for keep alive packets {#keep-alive-timeout}
+### Timeout for keep alive packets {#keepAliveTimeout}
 
 Name:
 : keepAliveTimeout
@@ -1850,16 +1850,16 @@ Type:
 Default:
 : Implementation-defined
 
-A Transport Services system can request a protocol that supports sending keep alive packets {{keep-alive}}.
+A Transport Services system can request a protocol that supports sending keep alive packets {{keepAlive}}.
 This property specifies the maximum length of time an idle connection (one for which no transport
 packets have been sent) should wait before 
 the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting this Property
 will only take effect when the underlying stack supports sending keep-alive packets. 
 Guidance on setting this value for datagram transports is 
 provided in {{!RFC8085}}.
-A value greater than the connection timeout ({{conn-timeout}}), or the special value `Disabled`, will disable the sending of keep-alive packets.
+A value greater than the connection timeout ({{connTimeout}}), or the special value `Disabled`, will disable the sending of keep-alive packets.
 
-### Connection Group Transmission Scheduler {#conn-scheduler}
+### Connection Group Transmission Scheduler {#connScheduler}
 
 Name:
 : connScheduler
@@ -1947,10 +1947,10 @@ The Capacity Profile for a selected protocol stack may be modified on a
 per-Message basis using the Transmission Profile Message Property; see
 {{send-profile}}.
 
-### Policy for using Multipath Transports {#multipath-policy}
+### Policy for using Multipath Transports {#multipathPolicy}
 
 Name:
-: multipath-policy
+: multipathPolicy
 
 Type:
 : Enumeration
@@ -2008,7 +2008,7 @@ this limits the number of ConnectionReceived Events that will occur, but constra
 to the group of the Connection associated with this property. For a multi-streaming transport,
 this limits the number of allowed streams.
 
-### Isolate Session {#isolate-session}
+### Isolate Session {#isolateSession}
 Name:
 : isolateSession
 
@@ -2088,7 +2088,7 @@ in the case that TCP becomes the chosen transport protocol.
 Implementation is optional and useful only if TCP is implemented in the Transport Services system.
 
 These TCP-specific properties are included here because the feature `Suggest
-timeout to the peer` is part of the minimal set of transport services
+timeout to the peer` is part of the minimal set of Transport Services
 {{?RFC8923}}, where this feature was categorized as "functional".
 This means that when an implementation offers this feature, it has to expose an
 interface to it to the application. Otherwise, the implementation might
@@ -2111,7 +2111,7 @@ Default:
 : the TCP default
 
 This time value is advertised via the TCP User Timeout Option (UTO) {{?RFC5482}} at the Remote Endpoint
-to adapt its own `Timeout for aborting Connection` (see {{conn-timeout}}) value.
+to adapt its own `Timeout for aborting Connection` (see {{connTimeout}}) value.
 
 ### User Timeout Enabled 
 
@@ -2138,10 +2138,10 @@ Type:
 Default:
 : true
 
-This property controls whether the `Timeout for aborting Connection` (see {{conn-timeout}})
+This property controls whether the `Timeout for aborting Connection` (see {{connTimeout}})
 may be changed
 based on a UTO option received from the remote peer. This boolean becomes false when
-`Timeout for aborting Connection` (see {{conn-timeout}}) is used.
+`Timeout for aborting Connection` (see {{connTimeout}}) is used.
 
 
 ## Connection Lifecycle Events
@@ -2345,7 +2345,7 @@ invalid to modify any of its properties.
 
 The Message Properties could be inconsistent with the properties of the Protocol Stacks
 underlying the Connection on which a given Message is sent. For example,
-a Protocol Stack must be able to provide ordering if the msgOrdered
+a Protocol Stack must be able to provide ordering if the `msgOrdered`
 property of a Message is enabled. Sending a Message with Message Properties
 inconsistent with the Selection Properties of the Connection yields an error.
 
@@ -2363,7 +2363,7 @@ Connections that were established enabling the Selection Property
 
 The following Message Properties are supported:
 
-#### Lifetime {#msg-lifetime}
+#### Lifetime {#msgLifetime}
 
 Name:
 : msgLifetime
@@ -2407,7 +2407,7 @@ Note that this property is not a per-message override of the Connection Priority
 - see {{conn-priority}}. The Priority properties may interact, but can be used
 independently and be realized by different mechanisms; see {{priority-in-taps}}.
 
-#### Ordered {#msg-ordered}
+#### Ordered {#msgOrdered}
 
 Name:
 : msgOrdered
@@ -2552,7 +2552,7 @@ Attempts to send a message with this property that result in a size greater than
 transport's current estimate of its maximum packet size (`singularTransmissionMsgMaxLen`)
 can result in transport segmentation when permitted, or in a `SendError`.
 
-Note: noSegmentation should be used when it is desired to only send a message within
+Note: `noSegmentation` should be used when it is desired to only send a message within
 a single network packet.
 
 #### No Segmentation {#no-transport-fragmentation}
@@ -2575,7 +2575,7 @@ true can result in a sending endpount setting the
 Don't Fragment bit in the IPv4 header of packets generated by the
 transport layer.  An
 attempt to send a message that results in a size greater than the
-transport's current estimate of its maximum packet size (singularTransmissionMsgMaxLen)
+transport's current estimate of its maximum packet size (`singularTransmissionMsgMaxLen`)
 will result in a SendError.
 This only takes effect when the transport and network layer
 support this functionality.
@@ -2669,7 +2669,7 @@ Connection -> Expired<messageContext>
 ~~~
 
 The Expired Event occurs when a previous Send Action expired before completion;
-i.e. when the Message was not sent before its Lifetime (see {{msg-lifetime}})
+i.e. when the Message was not sent before its Lifetime (see {{msgLifetime}})
 expired. This is separate from SendError, as it is an expected behavior for
 partially reliable transports. The Expired Event contains a reference to the
 Message Context of the Message to which it applies.
@@ -2759,7 +2759,7 @@ the Connection could not be established will not result in a
 SendError separate from the InitiateError signaling the failure of Connection
 establishment.
 
-### Priority in TAPS {#priority-in-taps}
+### Priority in Transport Services {#priority-in-taps}
 
 The Transport Services interface provides two properties to allow a sender 
 to signal the relative priority of data transmission: the Priority Message 
@@ -3049,6 +3049,8 @@ Establishing -----> Established -----> Closing ------> Closed
 ~~~~~~~~~~
 {: #fig-connstates title="Connection State Diagram"}
 
+<!-- vimsyntaxhlfix* -->
+
 The interface provides the following guarantees about the ordering of
  operations:
 
@@ -3076,10 +3078,10 @@ Later versions of this document may create IANA registries for generic transport
 
 # Privacy and Security Considerations {#privacy-security}
 
-This document describes a generic API for interacting with a transport services (TAPS) system.
+This document describes a generic API for interacting with a Transport Services system.
 Part of this API includes configuration details for transport security protocols, as discussed
 in {{security-parameters}}. It does not recommend use (or disuse) of specific
-algorithms or protocols. Any API-compatible transport security protocol ought to work in a TAPS system.
+algorithms or protocols. Any API-compatible transport security protocol ought to work in a Transport Services system.
 Security considerations for these protocols are discussed in the respective specifications.
 
 The described API is used to exchange information between an application and the Transport Services system. While
@@ -3125,9 +3127,9 @@ These communication activities are not different from what is used today. Howeve
 the goal of a Transport Services system is to support
 such mechanisms as a generic service within the transport layer. This enables applications to more dynamically
 benefit from innovations and new protocols in the transport, although it reduces transparency of the 
-underlying communication actions to the application itself. The TAPS API is designed such that protocol and path selection
+underlying communication actions to the application itself. The Transport Services API is designed such that protocol and path selection
 can be limited to a small and controlled set if required by the application for functional or security purposes. Further,
-TAPS implementations should provide an interface to poll information about which protocol and path is currently in use as
+Transport Services implementations should provide an interface to poll information about which protocol and path is currently in use as
 well as provide logging about the communication events of each connection.
 
 # Acknowledgements
@@ -3227,7 +3229,7 @@ To ease the use of the interface specified by this document, implementations
 should provide a mechanism to create Transport Property objects (see {{selection-props}}) that are pre-configured with frequently used sets of properties.
 Implementations should at least offer short-hands to specify the following property profiles:
 
-### reliable-inorder-stream
+### reliableInorderStream
 
 This profile provides reliable, in-order transport service with
 congestion control.
@@ -3241,7 +3243,7 @@ It should consist of the following properties:
  | congestionControl       | require   |
  | preserveMsgBoundaries  | ignore    |
 
-### reliable-message
+### reliableMessage
 
 This profile provides message-preserving, reliable, in-order
 transport service with congestion control.
@@ -3255,7 +3257,7 @@ It should consist of the following properties:
  | congestionControl       | require   |
  | preserveMsgBoundaries  | require   |
 
-### unreliable-datagram
+### unreliableDatagram
 
 This profile provides a datagram transport service without any
 reliability guarantee.
@@ -3278,7 +3280,7 @@ coverage, see {{prop-checksum-control-send}} and {{prop-checksum-control-receive
 
 # Relationship to the Minimal Set of Transport Services for End Systems
 
-{{?RFC8923}} identifies a minimal set of transport services that end systems should offer. These services make all non-security-related transport features of TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT available that 1) require interaction with the application, and 2) do not get in the way of a possible implementation over TCP (or, with limitations, UDP). The following text explains how this minimal set is reflected in the present API. For brevity, it is based on the list in Section 4.1 of {{?RFC8923}}, updated according to the discussion in Section 5 of {{?RFC8923}}. The present API covers all elements of this section except `Notification of Excessive Retransmissions (early warning below abortion threshold)`.
+{{?RFC8923}} identifies a minimal set of Transport Services that end systems should offer. These services make all non-security-related transport features of TCP, MPTCP, UDP, UDP-Lite, SCTP, and LEDBAT available that (1) require interaction with the application, and (2) do not get in the way of a possible implementation over TCP (or, with limitations, UDP). The following text explains how this minimal set is reflected in the present API. For brevity, it is based on the list in Section 4.1 of {{?RFC8923}}, updated according to the discussion in Section 5 of {{?RFC8923}}. The present API covers all elements of this section except `Notification of Excessive Retransmissions (early warning below abortion threshold)`.
 This list is a subset of the transport features in Appendix A of {{?RFC8923}}, which refers to the primitives in "pass 2" (Section 4) of {{!RFC8303}} for further details on the implementation with TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT.
 
 * Connect:
@@ -3297,7 +3299,7 @@ This list is a subset of the transport features in Appendix A of {{?RFC8923}}, w
 `InitiateWithSend` Action ({{initiate-and-send}}).
 
 * Change timeout for aborting connection (using retransmit limit or time value):
-`Timeout for Aborting Connection` property, using a time value ({{conn-timeout}}).
+`Timeout for Aborting Connection` property, using a time value ({{connTimeout}}).
 
 * Timeout event when data could not be delivered for too long:
 `ConnectionError` Event ({{termination}}).
@@ -3309,7 +3311,7 @@ This list is a subset of the transport features in Appendix A of {{?RFC8923}}, w
 `Notification of ICMP soft error message arrival` property ({{prop-soft-error}}).
 
 * Choose a scheduler to operate between streams of an association:
-`Connection Group Transmission Scheduler` property ({{conn-scheduler}}).
+`Connection Group Transmission Scheduler` property ({{connScheduler}}).
 
 * Configure priority or weight for a scheduler:
 `Connection Priority` property ({{conn-priority}}).
@@ -3345,10 +3347,10 @@ this is offered by the `Abort` action without promising that this is signaled to
 data is transferred via the `Send` action ({{sending}}). Reliability is controlled via the `Reliable Data Transfer (Connection)` ({{prop-reliable}}) property and the `Reliable Data Transfer (Message)` Message Property ({{msg-reliable-message}}). Transmitting data as a message or without delimiters is controlled via Message Framers ({{framing}}). The choice of congestion control is provided via the `Congestion control` property ({{prop-cc}}).
 
 * Configurable Message Reliability:
-the `Lifetime` Message Property implements a time-based way to configure message reliability ({{msg-lifetime}}).
+the `Lifetime` Message Property implements a time-based way to configure message reliability ({{msgLifetime}}).
 
 * "Ordered message delivery (potentially slower than unordered)" and "Unordered message delivery (potentially faster than ordered)":
-these two transport features are controlled via the Message Property `Ordered` ({{msg-ordered}}).
+these two transport features are controlled via the Message Property `Ordered` ({{msgOrdered}}).
 
 * Request not to delay the acknowledgement (SACK) of a message:
 should the protocol support it, this is one of the transport features the Transport Services system can apply when an application uses the `Capacity Profile` Property ({{prop-cap-profile}}) or the `Message Capacity Profile Override` Message Property ({{send-profile}}) with value `Low Latency/Interactive`.
