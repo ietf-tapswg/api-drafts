@@ -271,7 +271,7 @@ provides:
   application interactions with the transport layer, in line with developments
   in modern platforms and programming languages;
   
-- Selection between alternate network paths that can be informed by additional information that is available about the networks over which an endpoint can operate (e.g. Provisioning Domain (PvD) information {{RFC7556}});  
+- Selection between alternate network paths that can be informed when additional information is available about the networks over which an endpoint can operate (e.g. Provisioning Domain (PvD) information {{RFC7556}});  
 
 - Explicit support for transport-specific features to be applied should that
   particular transport be part of a chosen Protocol Stack;
