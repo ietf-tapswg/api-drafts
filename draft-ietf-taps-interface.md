@@ -1211,6 +1211,7 @@ Setting this property to "Active", can have privacy implications: It enables the
 
 Enumeration values other than "Disabled" are interpreted as a preference for choosing protocols that can make use of multiple paths.
 The "Disabled" value implies a requirement not to use multiple paths in parallel but does not prevent choosing a protocol that is capable of using multiple paths, e.g., it does not prevent choosing TCP, but prevents sending the ```MP_CAPABLE``` option in the TCP handshake.
+Note that Multipath Transport has no corresponding Selection Property of type Preference because there is no way to require the use of multi-path transport as the availability of multi-path can only be verified after successful connection establishment and depends on the availability of paths.
 
 ### Advertisement of Alternative Addresses {#altaddr}
 
