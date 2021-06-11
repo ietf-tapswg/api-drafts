@@ -1012,7 +1012,7 @@ transport connection where possible.
 ### Full Checksum Coverage on Sending {#prop-checksum-control-send}
 
 Name:
-: perMsgChecksumSend
+: FullChecksumSend
 
 Type:
 : Preference
@@ -1027,7 +1027,7 @@ later control of the sender checksum coverage (see {{msg-checksum}}).
 ### Full Checksum Coverage on Receiving {#prop-checksum-control-receive}
 
 Name:
-: perMsgChecksumRecv
+: FullChecksumRecv
 
 Type:
 : Preference
