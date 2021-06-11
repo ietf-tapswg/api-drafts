@@ -1709,13 +1709,12 @@ Connection Properties represent the configuration and state of the selected
 Protocol Stack(s) backing a Connection. These Connection Properties may be
 Generic, applying regardless of transport protocol, or Specific, applicable to a
 single implementation of a single transport protocol stack. Generic Connection
-Properties are defined in {{connection-props}} below. Specific Protocol
-Properties are defined in a transport- and implementation-specific way, and MUST
-NOT be assumed to apply across different protocols. Attempts to set Specific
-Protocol Properties on a protocol stack not containing that specific protocol
-are simply ignored, and do not raise an error; however, too much reliance by an
-application on Specific Protocol Properties can significantly reduce the
-flexibility of a transport services implementation.
+Properties are defined in {{connection-props}} below. 
+
+Protocol Specific Properties are defined in a transport- and 
+implementation-specific way, and MUST NOT apply across different protocols. 
+Too much reliance by an application on Protocol Specific Properties can significantly 
+reduce the flexibility of a transport services implementation.
 
 The application can set and query Connection Properties on a per-Connection
 basis. Connection Properties that are not read-only can be set during
