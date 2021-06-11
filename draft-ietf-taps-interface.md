@@ -290,18 +290,18 @@ programming interface to the Transport Services Architecture defined in the TAPS
 Architecture {{I-D.ietf-taps-arch}}.
 
 An application primarily interacts with this API through two Objects:
-Preconnections and Connections. A Preconnection represents a set of properties
+Preconnections and Connections. A Preconnection object ({{pre-establishment}}) represents a set of properties
 and constraints on the selection and configuration of paths and protocols to
 establish a Connection with an 
-Endpoint. A Connection represents an
+Endpoint. A Connection object represents an
 instance of a
 transport Protocol Stack on which data can be sent to and/or received from a
-Remote Endpoint (i.e., depending on the kind of transport, connections can be
-bi-directional or unidirectional). Connections can be created from
+Remote Endpoint (i.e., a logical connection that, depending on the kind of transport, can be
+bi-directional or unidirectional, and that can use a stream protocol or a datagram protocol). Connections can be created from
 Preconnections in three ways: by initiating the Preconnection (i.e., actively
-opening, as in a client), through listening on the Preconnection (i.e.,
-passively opening, as in a server), or rendezvousing on the Preconnection (i.e.
-peer to peer establishment).
+opening, as in a client; {{initiate}}), through listening on the Preconnection (i.e.,
+passively opening, as in a server {{listen}}), or rendezvousing on the Preconnection (i.e.
+peer to peer establishment; {{rendezvous}}).
 
 Once a Connection is established, data can be sent and received on it in the form of
 Messages. The interface supports the preservation of message boundaries both
