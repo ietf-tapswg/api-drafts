@@ -158,10 +158,10 @@ transport features that can evolve over time. This protocol-independent API ensu
 providing the interface can optimize its behavior based on the application
 requirements and network conditions, without requiring changes to the
 applications.  This flexibility enables faster deployment of new features and
-protocols. It can support applications by offering racing and fallback
+protocols, and can support applications by offering racing and fallback
 mechanisms, which otherwise need to be separately implemented in each application.
 
-It derives specific path and protocol selection
+This API derives specific path and protocol selection
 properties and supported transport features from the analysis provided in
 {{?RFC8095}}, {{?RFC8923}}, and
 {{?RFC8922}}. The design encourages implementations 
@@ -181,35 +181,35 @@ with these Actions and Events.
 
 The following notations, which can be combined, are used in this document:
 
-- An Action creates an Object:
+- An Action that creates an Object:
 
 ~~~
-Object := Action()
+      Object := Action()
 ~~~
 
-- An Action creates an array of Objects:
+- An Action that creates an array of Objects:
 
 ~~~
-[]Object := Action()
+      []Object := Action()
 ~~~
 
-- An Action is performed on an Object:
+- An Action that is performed on an Object:
 
 ~~~
-Object.Action()
+      Object.Action()
 ~~~
 
 - An Object sends an Event:
 
 ~~~
-Object -> Event<>
+      Object -> Event<>
 ~~~
 
 - An Action takes a set of Parameters; an Event contains a set of Parameters.
   Action and Event parameters whose names are suffixed with a question mark are optional.
 
 ~~~
-Action(param0, param1?, ...) / Event<param0, param1, ...>
+      Action(param0, param1?, ...) / Event<param0, param1, ...>
 ~~~
 
 Actions associated with no Object are Actions on the abstract interface
@@ -252,7 +252,7 @@ principles, themselves an elaboration on the architectural design principles
 defined in {{I-D.ietf-taps-arch}}. The interface defined in this document
 provides:
 
-- Access to a variety of transport protocols, independent of the
+- Access to a variety of transport protocols, independent of
   the Protocol Stacks that will be used at
   runtime, such that all common features of these protocol
   stacks are made available to the application in a
@@ -300,7 +300,7 @@ Remote Endpoint (i.e., depending on the kind of transport, connections can be
 bi-directional or unidirectional). Connections can be created from
 Preconnections in three ways: by initiating the Preconnection (i.e., actively
 opening, as in a client), through listening on the Preconnection (i.e.,
-passively opening, as in a server), or rendezvousing on the Preconnection (i.e.
+passively opening, as in a server), or rendezvousing on the Preconnection (i.e.,
 peer to peer establishment).
 
 Once a Connection is established, data can be sent and received on it in the form of
