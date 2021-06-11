@@ -1694,7 +1694,7 @@ Generic, applying regardless of transport protocol, or Specific, applicable to a
 single implementation of a single transport protocol stack. Generic Connection
 Properties are defined in {{connection-props}} below. 
 
-Specific Protocol Properties are defined in a transport- and 
+Protocol Specific Properties are defined in a transport- and 
 implementation-specific way, and MUST NOT apply across different protocols. 
 Too much reliance by an application on Specific Protocol Properties can significantly 
 reduce the flexibility of a transport services implementation.
