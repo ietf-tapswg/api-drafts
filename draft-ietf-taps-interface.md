@@ -1696,7 +1696,7 @@ Properties are defined in {{connection-props}} below.
 
 Protocol Specific Properties are defined in a transport- and 
 implementation-specific way, and MUST NOT apply across different protocols. 
-Too much reliance by an application on Specific Protocol Properties can significantly 
+Too much reliance by an application on Protocol Specific Properties can significantly 
 reduce the flexibility of a transport services implementation.
 
 The application can set and query Connection Properties on a per-Connection
