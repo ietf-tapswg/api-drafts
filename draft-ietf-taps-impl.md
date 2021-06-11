@@ -379,8 +379,12 @@ An implementation can use the Capacity Profile to prefer paths that match an app
      Prefer paths with the highest expected available capacity, based on the observed maximum throughput;
    * Low Latency/Interactive:
      Prefer paths with the lowest expected Round Trip Time, based on observed round trip time estimates;
+   * Low Latency/Non-Interactive:
+     Prefer paths with XXX.
    * Constant-Rate Streaming:
      Prefer paths that can are expected to satisy the requested Stream Send or Stream Receive Bitrate, based on the observed maximum throughput.
+   * Capacity-Seeking: 
+     Prefer paths with XXX.
 
 Implementations process the Properties in the following order: Prohibit, Require, Prefer, Avoid.
 If Selection Properties contain any prohibited properties, the implementation should first purge branches containing nodes with these properties. For required properties, it should only keep branches that satisfy these requirements. Finally, it should order the branches according to the preferred properties, and finally use any avoided properties as a tiebreaker.
