@@ -376,15 +376,15 @@ If the application specifies an interface type to be required or prohibited, an 
 * "Capacity Profile":
 An implementation can use the Capacity Profile to prefer paths that match an application's expected traffic pattern. This match will use cached performance estimates, see {{performance-caches}}:
    * Scavenger:
-     Prefer paths with the highest expected available capacity, based on the observed maximum throughput;
+     Prefer paths with the highest expected available capacity, but minimising impact on other traffic, based on the observed maximum throughput;
    * Low Latency/Interactive:
      Prefer paths with the lowest expected Round Trip Time, based on observed round trip time estimates;
    * Low Latency/Non-Interactive:
-     Prefer paths with XXX.
+     Prefer paths with a low expected Round Trip Time, but can tolerate delay variation;
    * Constant-Rate Streaming:
-     Prefer paths that can are expected to satisy the requested Stream Send or Stream Receive Bitrate, based on the observed maximum throughput.
+     Prefer paths that are expected to satisy the requested Stream Send or Stream Receive Bitrate, based on the observed maximum throughput;
    * Capacity-Seeking: 
-     Prefer paths with XXX.
+     Prefer adpating to paths to determine the highest available capacity, based on the observed maximum throughput.
 
 Implementations process the Properties in the following order: Prohibit, Require, Prefer, Avoid.
 If Selection Properties contain any prohibited properties, the implementation should first purge branches containing nodes with these properties. For required properties, it should only keep branches that satisfy these requirements. Finally, it should order the branches according to the preferred properties, and finally use any avoided properties as a tiebreaker.
