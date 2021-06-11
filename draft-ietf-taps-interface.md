@@ -821,8 +821,8 @@ RemoteSpecifier.WithIPv4Address(192.0.2.22)
 A Preconnection Object holds properties reflecting the application's
 requirements and preferences for the transport. These include Selection
 Properties for selecting protocol stacks and paths, as well as Connection
-Properties for configuration of the detailed operation of the selected Protocol
-Stacks.
+Properties and Message Properties for configuration of the detailed operation
+of the selected Protocol Stacks on a per connection and message level.
 
 The protocol(s) and path(s) selected as candidates during establishment are
 determined and configured using these properties. Since there could be paths
@@ -1624,7 +1624,7 @@ Preconnection -> EstablishmentError<reason?>
 
 ## Connection Groups {#groups}
 
-Connection Groups can be created using the Clone Action:
+Connection Groups represent sets of entagled connections, e.g., streams in a multi-streaming protocol, and can be created using the Clone Action:
 
 ~~~
 Connection := Connection.Clone(framer?)
@@ -1647,7 +1647,9 @@ to the new Connection when calling Clone(), but in this case, a later change to 
 `Connection Priority` on one Connection does not change it on the
 other Connections in the same Connection Group.
 
-Message Properties are also not entangled.  For example,
+Message Properties set on a Connection are also not entangled. Chaning these on an individual Connection
+which is part of a Connections Group SHOULD have the same effect as setting the Message property on each
+Message sent though that Connection. For example,
 changing `Lifetime` (see {{msg-lifetime}}) of a Message will only affect a
 single Message on a single Connection.
 
@@ -2349,8 +2351,7 @@ a Protocol Stack must be able to provide ordering if the msgOrdered
 property of a Message is enabled. Sending a Message with Message Properties
 inconsistent with the Selection Properties of the Connection yields an error.
 
-Connection Properties describe the default behavior for all Messages on a 
-Connection. If a Message Property contradicts a Connection Property, and 
+If a Message Property contradicts a Connection Property, and 
 if this per-Message behavior can be supported, it overrides the Connection 
 Property for the specific Message. For example, if 
 `Reliable Data Transfer (Connection)` is set to `Require` and a protocol 
