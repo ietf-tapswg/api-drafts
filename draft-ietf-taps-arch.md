@@ -112,7 +112,8 @@ This document describes the Transport Services architecture in three sections:
 
 - {{requirements}} explains the fundamental requirements for a Transport Services API. These principles are intended to make sure that transport protocols can continue to be enhanced and evolve without requiring significant changes by application developers.
 
-- {{concepts}} presents the Transport Services architecture diagram and defines the concepts that are used by both the API and implementation documents. The Preconnection allows applications to configure Connection Properties, and the Connection represents an object that can be used to send and receive Messages. A connection is a local operation that serves to simplify the local send/receive functions and to filter the traffic for the endpoint. This might (as in TCP) or might not (as in UDP) represent an end-to-end protocol connection across the network path.
+- {{concepts}} presents the Transport Services architecture diagram and defines the concepts that are used by both the API and implementation documents. The Preconnection allows applications to configure Connection Properties, and the Connection represents an object that can be used to send and receive Messages. 
+- A Connection is an abstraction that represents the communication. If the transport services interface selects a protocol such as TCP for the communication, a Connection will correspond to an underlying protocol connection. If however a protocol such as UDP is selected, the Connection remains an abstraction at the end points.
 
 ## Specification of Requirements
 
