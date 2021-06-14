@@ -152,7 +152,7 @@ Connection objects represent the interface between the application and the imple
 
 Once the Connection is established, its interface maps actions and events to the details of the chosen Protocol Stack. For example, the same Connection object may ultimately interface to a single instance of one transport protocol (e.g., a TCP connection, a TLS session over TCP, a UDP flow with fully-specified Local and Remote Endpoints, a DTLS session, a SCTP stream, a QUIC stream, or an HTTP/2 stream).
 
-The implementation should ensure that the copy of the Selection and Connection Properties held by a Connection or Listener is immutable. This may involve performing a deep-copy, copying the object with all the objects it references (e.g., when needed to prevent an application modifying properties on the original Preconnection object).
+The implementation should ensure that the copy of all Properties held by a Connection or Listener is independent of other connections. This may involve performing a deep-copy, copying the object with all the objects it references. The Selection Properties and Endpoint information are immutable (i.e, an application is not able to later modify Selection Properties on the original Preconnection object).
 Listener objects are created with a Preconnection, at which point their configuration should be considered immutable by the implementation. The process of listening is described in {{listen}}.
 
 # Implementing Pre-Establishment
