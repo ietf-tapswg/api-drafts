@@ -3303,15 +3303,19 @@ It consists of the following properties:
 
  | Property                 | Value     |
  |:-------------------------|:----------|
- | reliability              | ignore    |
- | preserveOrder           | ignore    |
+ | reliability              | avoid    |
+ | preserveOrder           | avoid    |
  | congestionControl       | ignore    |
  | preserveMsgBoundaries  | require   |
  | safely replayable        | true      |
 
-Applications that choose this Transport Property Profile for latency reasons
+Applications that choose this Transport Property Profile would
+avoid the additional latency that could be introduced
+by retransmission or reordering in a transport protocol.
+
+Applications that choose this Transport Property Profile to reduce latency
 should also consider setting an appropriate Capacity Profile Property,
-see {{prop-cap-profile}} and could benefit from controlling checksum
+see {{prop-cap-profile}} and might benefit from controlling checksum
 coverage, see {{prop-checksum-control-send}} and {{prop-checksum-control-receive}}.
 
 
