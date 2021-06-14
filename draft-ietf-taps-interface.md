@@ -494,7 +494,8 @@ the lifetime of a connection using Transport Properties, as defined in
 
 Transport Properties are divided into Selection, Connection, and Message
 Properties. Selection Properties (see {{selection-props}}) can only be set during pre-establishment. They are only used to specify which paths and protocol stacks can be used and are preferred by the application. 
-Although Connection Properties (see {{connection-props}}) can be set during pre-establishment, they may be changed later. They are used to inform decisions made during establishment and to fine-tune the established connection.  
+Although Connection Properties (see {{connection-props}}) can be set during pre-establishment, they may be changed later. They are used to inform decisions made during establishment and to fine-tune the established connection. Calling Initiate on a Preconnection creates an outbound Connection or a Listener, the Selection and Connection properties held by the Connection or Listener then become immutable (e.g., by a 'deep copy' of the properties and endpoints). 
+
 The behavior of the selected protocol stack(s) when
 sending Messages is controlled by Message Properties (see {{message-props}}).
 
@@ -511,7 +512,7 @@ Preconnections is preferred over setting them later. Early specification of
 Connection Properties allows their use as additional input to the selection
 process. Protocol Specific Properties, which enable configuration of specialized
 features of a specific protocol, see Section 3.2 of {{I-D.ietf-taps-arch}}, are not
-used as an input to the selection process but only support configuration if
+used as an input to the selection process, but only support configuration if
 the respective protocol has been selected.
 
 ### Transport Property Names {#property-names}
