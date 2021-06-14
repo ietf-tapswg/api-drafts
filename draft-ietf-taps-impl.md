@@ -146,10 +146,13 @@ The connection objects that are exposed to applications for Transport Services a
 - the Connection, the basic object that represents a flow of data as Messages in either direction between the Local and Remote Endpoints;
 - and the Listener, a passive waiting object that delivers new Connections.
 
-Preconnection objects should be implemented as bundles of properties that an application can both read and write. Once a Preconnection has been used to create an outbound Connection or a Listener, the implementation should ensure that the copy of the properties held by the Connection or Listener is immutable. This may involve performing a deep-copy, copying the object with all the objects it references, if the application is still able to modify properties on the original Preconnection object.
+Preconnection objects should be implemented as bundles of properties that an application can both read and write. An implementation could allow properties of a precponnection to be updated, but changes to the Preconnection Selection and Connection may be language dependent and is to be avoided in code that could be used across different implementations.
 
-Connection objects represent the interface between the application and the implementation to manage transport state, and conduct data transfer. During the process of establishment ({{conn-establish}}), the Connection will not be bound to a specific transport flow, since there may be multiple candidate Protocol Stacks being raced. Once the Connection is established, its interface maps actions and events to the details of the chosen Protocol Stack. For example, the same Connection object may ultimately represent the interface into a TCP connection, a TLS session over TCP, a UDP flow with fully-specified Local and Remote Endpoints, a DTLS session, a SCTP stream, a QUIC stream, or an HTTP/2 stream.
+Connection objects represent the interface between the application and the implementation to manage transport state, and conduct data transfer. During the process of establishment ({{conn-establish}}), the Connection will not be bound to a specific transport flow, since multiple candidate Protocol Stacks might be raced. 
 
+Once the Connection is established, its interface maps actions and events to the details of the chosen Protocol Stack. For example, the same Connection object may ultimately interface to a single instance of one transport protocol (e.g., a TCP connection, a TLS session over TCP, a UDP flow with fully-specified Local and Remote Endpoints, a DTLS session, a SCTP stream, a QUIC stream, or an HTTP/2 stream).
+
+The implementation should ensure that the copy of the Selection and Connection Properties held by a Connection or Listener is immutable. This may involve performing a deep-copy, copying the object with all the objects it references (e.g., when needed to prevent an application modifying properties on the original Preconnection object).
 Listener objects are created with a Preconnection, at which point their configuration should be considered immutable by the implementation. The process of listening is described in {{listen}}.
 
 # Implementing Pre-Establishment
