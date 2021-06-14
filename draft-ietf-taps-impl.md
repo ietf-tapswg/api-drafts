@@ -146,13 +146,12 @@ The connection objects that are exposed to applications for Transport Services a
 - the Connection, the basic object that represents a flow of data as Messages in either direction between the Local and Remote Endpoints;
 - and the Listener, a passive waiting object that delivers new Connections.
 
-Preconnection objects should be implemented as bundles of properties that an application can both read and write. An implementation could allow applications to update the properties or endpoints of a preconnection after it is initiated. However, an application should avoid changes to the Preconnection properties and endpoints to improve consistent operation across different implementations.
+Preconnection objects should be implemented as bundles of properties that an application can both read and write. An implementation could allow applications to update the properties or endpoints of a preconnection. However, an application should avoid changes to the Preconnection properties and endpoints to improve consistent operation across different implementations.
 
 Connection objects represent the interface between the application and the implementation to manage transport state, and conduct data transfer. During the process of establishment ({{conn-establish}}), the Connection will not be bound to a specific transport flow, since multiple candidate Protocol Stacks might be raced. 
 
 Once the Connection is established, its interface maps actions and events to the details of the chosen Protocol Stack. For example, the same Connection object may ultimately interface to a single instance of one transport protocol (e.g., a TCP connection, a TLS session over TCP, a UDP flow with fully-specified Local and Remote Endpoints, a DTLS session, a SCTP stream, a QUIC stream, or an HTTP/2 stream).
-
-The implementation should ensure that the copy of all Properties held by a Connection or Listener is independent of other connections. This may involve performing a deep-copy, copying the object with all the objects it references. The Selection Properties and Endpoint information are immutable (i.e, an application is not able to later modify Selection Properties on the original Preconnection object).
+The implementation should ensure that the copy of all Properties held by a Connection or Listener is independent of other connections. This may involve performing a deep-copy, copying the object with all the objects it references. Once Initate has been called, the Selection Properties and Endpoint information are immutable (i.e, an application is not able to later modify Selection Properties on the original Preconnection object).
 Listener objects are created with a Preconnection, at which point their configuration should be considered immutable by the implementation. The process of listening is described in {{listen}}.
 
 # Implementing Pre-Establishment
