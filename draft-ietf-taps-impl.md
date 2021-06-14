@@ -146,7 +146,7 @@ The connection objects that are exposed to applications for Transport Services a
 - the Connection, the basic object that represents a flow of data as Messages in either direction between the Local and Remote Endpoints;
 - and the Listener, a passive waiting object that delivers new Connections.
 
-Preconnection objects should be implemented as bundles of properties that an application can both read and write. An implementation could allow properties of a precponnection to be updated, but changes to the Preconnection Selection and Connection may be language dependent and is to be avoided in code that could be used across different implementations.
+Preconnection objects should be implemented as bundles of properties that an application can both read and write. An implementation could allow properties of a preconnection to be updated, but changes to the Preconnection Selection and Connection may be language dependent and is to be avoided in code that could be used across different implementations.
 
 Connection objects represent the interface between the application and the implementation to manage transport state, and conduct data transfer. During the process of establishment ({{conn-establish}}), the Connection will not be bound to a specific transport flow, since multiple candidate Protocol Stacks might be raced. 
 
