@@ -384,7 +384,7 @@ An implementation can use the Capacity Profile to prefer paths that match an app
    * Constant-Rate Streaming:
      Prefer paths that are expected to satisy the requested Stream Send or Stream Receive Bitrate, based on the observed maximum throughput;
    * Capacity-Seeking: 
-     Prefer adpating to paths to determine the highest available capacity, based on the observed maximum throughput.
+     Prefer adapting to paths to determine the highest available capacity, based on the observed maximum throughput.
 
 Implementations process the Properties in the following order: Prohibit, Require, Prefer, Avoid.
 If Selection Properties contain any prohibited properties, the implementation should first purge branches containing nodes with these properties. For required properties, it should only keep branches that satisfy these requirements. Finally, it should order the branches according to the preferred properties, and finally use any avoided properties as a tiebreaker.
