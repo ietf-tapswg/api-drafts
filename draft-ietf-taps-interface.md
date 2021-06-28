@@ -1764,21 +1764,22 @@ Properties will include different information:
   is only supported by certain transport protocols, e.g., by TCP as half-closed
   connection.
 
+* For Connections that are Established, Closing, or Closed: 
+  Connection Properties ({{connection-props}}) of the
+  actual protocols that were selected and instantiated. 
+  
 * For Connections that are Established or Closing: Transport Properties that the
-  application specified on the Preconnection. See {{selection-props}}.
-  Selection properties of type `Preference` will be exposed as boolean values
-  indicating whether or not the property applies to the selected transport.
-
-* For Connections that are Established, Closing, or Closed: Selection
-  ({{selection-props}}) and Connection Properties ({{connection-props}}) of the
-  actual protocols that were selected and instantiated. Selection Properties
-  indicate whether or not the Connection has or offers a certain Selection
-  Property. The actually instantiated protocol stack might not match all
+  application specified on the Preconnection. 
+  Selection Properties indicate whether or not the Connection has or offers 
+  a certain Selection Property, see {{selection-props}}   
+  The actually instantiated protocol stack might not match all
   Protocol Selection Properties that the application specified on the
   Preconnection. For example, a certain Protocol Selection Property that an
   application specified as Preferred might not actually be present in the chosen
   protocol stack because none of the currently available transport protocols had
   this feature.
+  Selection properties of type `Preference` will be exposed as boolean values
+  indicating whether or not the property applies to the selected transport.
 
 * For Connections that are Established, additional properties of the path(s) in
   use. These properties can be derived from the local provisioning domain
