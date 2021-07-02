@@ -1771,7 +1771,7 @@ Properties will include different information:
 * For Connections that are Established or Closing: Transport Properties that the
   application specified on the Preconnection. 
   Selection Properties indicate whether or not the Connection has or offers 
-  a certain Selection Property, see {{selection-props}}   
+  a certain Selection Property, see {{selection-props}}.   
   The actually instantiated protocol stack might not match all
   Protocol Selection Properties that the application specified on the
   Preconnection. For example, a certain Protocol Selection Property that an
