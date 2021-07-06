@@ -436,7 +436,7 @@ Connection.Close()
 Connection2.Close()
 ~~~
 
-Preconnections are reusable. Hence, for example, after the Connections were closed,
+Preconnections are reusable after being used to initiate a Connection. Hence, for example, after the Connections were closed,
 the following would be correct:
 ~~~
 //.. carry out adjustments to the Preconnection, if desire
