@@ -158,10 +158,10 @@ transport features that can evolve over time. This protocol-independent API ensu
 providing the interface can optimize its behavior based on the application
 requirements and network conditions, without requiring changes to the
 applications.  This flexibility enables faster deployment of new features and
-protocols. It can support applications by offering racing and fallback
+protocols, and can support applications by offering racing and fallback
 mechanisms, which otherwise need to be separately implemented in each application.
 
-It derives specific path and protocol selection
+This API derives specific path and protocol selection
 properties and supported transport features from the analysis provided in
 {{?RFC8095}}, {{?RFC8923}}, and
 {{?RFC8922}}. The design encourages implementations 
@@ -183,35 +183,35 @@ This API is described in terms of
 
 The following notations, which can be combined, are used in this document:
 
-- An Action creates an Object:
+- An Action that creates an Object:
 
 ~~~
-Object := Action()
+      Object := Action()
 ~~~
 
-- An Action creates an array of Objects:
+- An Action that creates an array of Objects:
 
 ~~~
-[]Object := Action()
+      []Object := Action()
 ~~~
 
-- An Action is performed on an Object:
+- An Action that is performed on an Object:
 
 ~~~
-Object.Action()
+      Object.Action()
 ~~~
 
 - An Object sends an Event:
 
 ~~~
-Object -> Event<>
+      Object -> Event<>
 ~~~
 
 - An Action takes a set of Parameters; an Event contains a set of Parameters.
   Action and Event parameters whose names are suffixed with a question mark are optional.
 
 ~~~
-Action(param0, param1?, ...) / Event<param0, param1, ...>
+      Action(param0, param1?, ...) / Event<param0, param1, ...>
 ~~~
 
 Actions associated with no Object are Actions on the abstract interface
@@ -256,6 +256,7 @@ The design of the interface specified in this document is based on a set of
 principles, themselves an elaboration on the architectural design principles
 defined in {{I-D.ietf-taps-arch}}. The interface defined in this document
 provides:
+
 
 - Access to a variety of transport protocols, independent
   of the Protocol Stacks that will be used at
@@ -313,7 +314,7 @@ Remote Endpoint (i.e., a logical connection that, depending on the kind of trans
 bi-directional or unidirectional, and that can use a stream protocol or a datagram protocol). Connections can be created from
 Preconnections in three ways: by initiating the Preconnection (i.e., actively
 opening, as in a client; {{initiate}}), through listening on the Preconnection (i.e.,
-passively opening, as in a server {{listen}}), or rendezvousing on the Preconnection (i.e.
+passively opening, as in a server {{listen}}), or rendezvousing on the Preconnection (i.e.,
 peer to peer establishment; {{rendezvous}}).
 
 Once a Connection is established, data can be sent and received on it in the form of
@@ -334,7 +335,7 @@ described in Section 4.1 of {{I-D.ietf-taps-arch}}.
 
 ## Usage Examples
 
-The following usage examples illustrate how an application might use a
+The following usage examples illustrate how an application might use the
 Transport Services Interface to:
 
 - Act as a server, by listening for incoming connections, receiving requests,
@@ -630,7 +631,7 @@ At least one Remote Endpoint MUST be specified if the Preconnection is used
 to Initiate() Connections, but the list of Remote Endpoints MAY be empty if 
 the Preconnection is used to Listen() for incoming Connections.
 At least one Local Endpoint and one Remote Endpoint MUST be specified if a
-peer-to-peer Rendezvous is to occur based on the Preconnection.
+peer-to-peer Rendezvous() is to occur based on the Preconnection.
 
 If more than one Local Endpoint is specified on a Preconnection, then all
 the Local Endpoints on the Preconnection MUST represent the same host. For
@@ -673,13 +674,13 @@ to several different IP addresses on different hosts.
 
 An Endpoint Object can be configured with the following identifiers:
 
-- Hostname (string)
+- Hostname (string):
 
 ~~~
 RemoteSpecifier.WithHostname("example.com")
 ~~~
 
-- Port (a 16-bit integer) or a Service (string) that maps to a port
+- Port (a 16-bit integer) or a Service (string) that maps to a port:
 
 ~~~
 RemoteSpecifier.WithPort(443)
@@ -689,7 +690,7 @@ RemoteSpecifier.WithPort(443)
 RemoteSpecifier.WithService("https")
 ~~~
 
-- IP address (IPv4 or IPv6 address)
+- IP address (IPv4 or IPv6 address):
 
 ~~~
 RemoteSpecifier.WithIPv4Address(192.0.2.21)
@@ -699,7 +700,7 @@ RemoteSpecifier.WithIPv4Address(192.0.2.21)
 RemoteSpecifier.WithIPv6Address(2001:db8:4920:e29d:a420:7461:7073:0a)
 ~~~
 
-- Interface (string name)
+- Interface name (string):
 
 ~~~
 LocalSpecifier.WithInterface("en0")
@@ -1338,9 +1339,9 @@ Security parameters and callbacks are partitioned based on their place in the li
 of connection establishment. Similar to Transport Properties, both parameters and callbacks
 are inherited during cloning (see {{groups}}).
 
-### Pre-Connection Parameters
+### Specifying Security Parameters on a Pre-Connection
 
-Common parameters such as TLS ciphersuites are known to implementations. Clients should
+Common security parameters such as TLS ciphersuites are known to implementations. Clients should
 use common safe defaults for these values whenever possible. However, as discussed in
 {{?RFC8922}}, many transport security protocols require specific
 security parameters and constraints from the client at the time of configuration and
@@ -2288,7 +2289,7 @@ into individual transport datagrams.
 The API to implement a Message Framer can vary depending on the implementation;
 guidance on implementing Message Framers can be found in {{I-D.ietf-taps-impl}}.
 
-#### Adding Message Framers to Connections
+#### Adding Message Framers to Pre-Connections
 
 The Message Framer object can be added to one or more Preconnections
 to run on top of transport protocols. Multiple Framers may be added to a Preconnection;
