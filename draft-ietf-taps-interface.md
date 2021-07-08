@@ -274,7 +274,7 @@ provides:
   
 - Selection between alternate network paths, also allowing applications to be
   notified additional information is available about the networks over which 
-  an connetcion can operate (e.g. Provisioning Domain (PvD) information {{RFC7556}}).  
+  a connection can operate (e.g. Provisioning Domain (PvD) information {{RFC7556}}).  
 
 - Explicit support for transport-specific features to be applied, should that
   particular transport be part of a chosen Protocol Stack.
@@ -548,7 +548,7 @@ for Protocol Specific Properties and MUST NOT be used for vendor or implementati
 
 ### Transport Property Types {#property-types}
 
-Each Transport Property has a one ot the basic types described in {{notation}}.
+Each Transport Property has a one of the basic types described in {{notation}}.
 
 Most Selection Properties (see {{selection-props}}) are of the Enumeration type, 
 and use the Preference Enumeration, which takes one of five possible values
@@ -919,7 +919,7 @@ and, as requested, the Connection is not congestion controlled, querying
 the `congestionControl` property also yields the value `false`.
 
 An implementation of this interface must provide sensible defaults for Selection
-Properties. The suggested default values for each property below represent a
+Properties. The default values for each property below represent a
 configuration that can be implemented over TCP. If these default values are used
 and TCP is not supported by a Transport Services implementation, then an application using the
 default set of Properties might not succeed in establishing a connection. Using
