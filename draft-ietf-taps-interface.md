@@ -174,10 +174,12 @@ specific transport stack choice is discouraged for general use, because it can r
 
 ## Terminology and Notation {#notation}
 
-This API is described in terms of Objects with which an application can interact; 
-Actions the application can perform on these Objects; Events, which an
-Object can send to an application asynchronously; and Parameters associated
-with these Actions and Events.
+This API is described in terms of 
+
+- Objects with which an application can interact; 
+- Actions the application can perform on these Objects;
+- Events, which an Object can send to an application to be processed aynchronously; and 
+- Parameters associated with these Actions and Events.
 
 The following notations, which can be combined, are used in this document:
 
@@ -215,6 +217,10 @@ The following notations, which can be combined, are used in this document:
 Actions associated with no Object are Actions on the abstract interface
 itself; they are equivalent to Actions on a per-application global context.
 
+Events are sent to the application or application-supplied code (e.g. framers, 
+see {{framing}}) for processing; the details of event processing 
+are platform- and implementation-specific.
+
 We also make use of the following basic types:
 
 - Boolean: Instances take the value `true` or `false`.
@@ -227,8 +233,7 @@ We also make use of the following basic types:
 - Tuple: An ordered grouping of multiple value types, represented as a
   comma-separated list in parentheses, e.g., ```(Enumeration, Preference)```.
   Instances take a sequence of values each valid for the corresponding value
-  type. The composition of types and their order depends on the property and is
-  fixed for the property.
+  type. 
 - Array: Denoted []Type, an instance takes a value for each of zero or more
   elements in a sequence of the given Type. An array may be of fixed or
   variable length.
@@ -252,34 +257,43 @@ principles, themselves an elaboration on the architectural design principles
 defined in {{I-D.ietf-taps-arch}}. The interface defined in this document
 provides:
 
-- Access to a variety of transport protocols, independent of
-  the Protocol Stacks that will be used at
-  runtime, such that all common features of these protocol
+
+- Access to a variety of transport protocols, independent
+  of the Protocol Stacks that will be used at
+  runtime. All common features of these protocol
   stacks are made available to the application in a
-  transport-independent way to the degree possible, enabling applications written to a single API
-  to make use of transport protocols in terms of the features they provide;
+  transport-independent way to the degree possible.
+  This enables applications written to a single API
+  to make use of transport protocols in terms of the features 
+  they provide.
 
 - A unified interface to datagram and connection-oriented transports, allowing
-  use of a common API for connection-establishment and closing;
+  use of a common API for connection-establishment and closing.
 
 - Message-orientation, as opposed to stream-orientation, using
   application-assisted framing and deframing where the underlying transport
-  does not provide these;
+  does not provide these.
 
-- Asynchronous Connection establishment, transmission, and reception, allowing
-  concurrent operations during establishment and supporting event-driven
+- Asynchronous Connection establishment, transmission, and reception. 
+  This allows concurrent operations during establishment and event-driven
   application interactions with the transport layer, in line with developments
   in modern platforms and programming languages;
+  
+- Selection between alternate network paths, using additional information about the 
+  networks over which a connection can operate (e.g. Provisioning Domain (PvD) 
+  information {{RFC7556}}) where available.  
 
-- Explicit support for transport-specific features to be applied should that
-  particular transport be part of a chosen Protocol Stack;
+- Explicit support for transport-specific features to be applied, should that
+  particular transport be part of a chosen Protocol Stack.
 
-- Explicit support for security properties as first-order transport features,
-  and for configuration of cryptographic identities and transport security parameters persistent across multiple Connections; and
+- Explicit support for security properties as first-order transport features.
+
+- Explicit support for configuration of cryptographic identities and transport 
+  security parameters persistent across multiple Connections.
 
 - Explicit support for multistreaming and multipath transport protocols, and
   the grouping of related Connections into Connection Groups through cloning
-  of Connections, to allow applications to take full advantage of new
+  of Connections. This allows applications to take full advantage of new
   transport protocols supporting these features.
 
 
@@ -290,18 +304,18 @@ programming interface to the Transport Services Architecture defined in the TAPS
 Architecture {{I-D.ietf-taps-arch}}.
 
 An application primarily interacts with this API through two Objects:
-Preconnections and Connections. A Preconnection represents a set of properties
+Preconnections and Connections. A Preconnection object ({{pre-establishment}}) represents a set of properties
 and constraints on the selection and configuration of paths and protocols to
 establish a Connection with an 
-Endpoint. A Connection represents an
+Endpoint. A Connection object represents an
 instance of a
 transport Protocol Stack on which data can be sent to and/or received from a
-Remote Endpoint (i.e., depending on the kind of transport, connections can be
-bi-directional or unidirectional). Connections can be created from
+Remote Endpoint (i.e., a logical connection that, depending on the kind of transport, can be
+bi-directional or unidirectional, and that can use a stream protocol or a datagram protocol). Connections can be created from
 Preconnections in three ways: by initiating the Preconnection (i.e., actively
-opening, as in a client), through listening on the Preconnection (i.e.,
-passively opening, as in a server), or rendezvousing on the Preconnection (i.e.,
-peer to peer establishment).
+opening, as in a client; {{initiate}}), through listening on the Preconnection (i.e.,
+passively opening, as in a server {{listen}}), or rendezvousing on the Preconnection (i.e.,
+peer to peer establishment; {{rendezvous}}).
 
 Once a Connection is established, data can be sent and received on it in the form of
 Messages. The interface supports the preservation of message boundaries both
@@ -434,6 +448,14 @@ Connection.Close()
 Connection2.Close()
 ~~~
 
+Preconnections are reusable after being used to initiate a Connection. Hence, for example, after the Connections were closed,
+the following would be correct:
+~~~
+//.. carry out adjustments to the Preconnection, if desire
+Connection := Preconnection.Initiate()
+~~~
+
+
 ### Peer Example
 
 This is an example of how an application might establish a connection with a
@@ -492,26 +514,26 @@ the lifetime of a connection using Transport Properties, as defined in
 
 Transport Properties are divided into Selection, Connection, and Message
 Properties. Selection Properties (see {{selection-props}}) can only be set during pre-establishment. They are only used to specify which paths and protocol stacks can be used and are preferred by the application. 
-Although Connection Properties (see {{connection-props}}) can be set during pre-establishment, they may be changed later. They are used to inform decisions made during establishment and to fine-tune the established connection.  
+Although Connection Properties (see {{connection-props}}) can be set during pre-establishment, they may be changed later. They are used to inform decisions made during establishment and to fine-tune the established connection. Calling Initiate on a Preconnection creates an outbound Connection or a Listener, and the Selection Properties remain readable from the Connection or Listener, but become immutable. 
+
 The behavior of the selected protocol stack(s) when
 sending Messages is controlled by Message Properties (see {{message-props}}).
 
-All Transport Properties, regardless of the phase in which they are used, are
-organized within a single namespace. This enables setting them as defaults at
-earlier stages and querying them in later stages:
-
-- Connection Properties can be set on Preconnections and Connections
-- Message Properties can be set on Preconnections, Connections and Messages
-- The effect of Selection Properties can be queried on Connections and Messages
+Selection Properties can be set on Preconnections, and the effect of 
+Selection Properties can be queried on Connections and Messages. 
+Connection Properties can be set on Connections and Preconnections; 
+when set on Preconnections, they act as an initial default for the
+resulting Connections. Message Properties can be set on Messages, 
+Connections, and Preconnections; when set on the latter two, they act as 
+an initial default for the Messages sent over those Connections,
 
 Note that configuring Connection Properties and Message Properties on
 Preconnections is preferred over setting them later. Early specification of
 Connection Properties allows their use as additional input to the selection
 process. Protocol Specific Properties, which enable configuration of specialized
 features of a specific protocol, see Section 3.2 of {{I-D.ietf-taps-arch}}, are not
-used as an input to the selection process but only support configuration if
+used as an input to the selection process, but only support configuration if
 the respective protocol has been selected.
-
 
 ### Transport Property Names {#property-names}
 
@@ -541,14 +563,12 @@ for Protocol Specific Properties and MUST NOT be used for vendor or implementati
 
 ### Transport Property Types {#property-types}
 
-Transport Properties each have a type, which can be:
+Each Transport Property has a one of the basic types described in {{notation}}.
 
-- One of the basic types described in {{notation}}; or
-- Preference, which is an Enumeration with five possible
-  values: Prohibit, Avoid, Ignore, Prefer, or Require. Each of these
-  denotes a level of preference of a given property during protocol
-  selection.
-  (See also {{selection-props}}.) The Preference type is used only on Preconnections, and only for Selection Properties.
+Most Selection Properties (see {{selection-props}}) are of the Enumeration type, 
+and use the Preference Enumeration, which takes one of five possible values
+(Prohibit, Avoid, Ignore,  Prefer, or Require) denoting the level of preference
+for a given property during protocol selection.
 
 ## Scope of the Interface Definition {#scope-of-interface-defn}
 
@@ -586,7 +606,8 @@ The Pre-Establishment phase allows applications to specify properties for
 the Connections that they are about to make, or to query the API about potential
 Connections they could make.
 
-A Preconnection Object represents a potential Connection. It has state that
+A Preconnection Object represents a potential Connection. It is a passive Object
+(a data structure) that merely maintains the state that
 describes the properties of a Connection that might exist in the future.  This state
 comprises Local Endpoint and Remote Endpoint Objects that denote the endpoints
 of the potential Connection (see {{endpointspec}}), the Selection Properties
@@ -726,7 +747,7 @@ RemoteSpecifier.AddAlias(AlternateRemoteSpecifier)
 ~~~
 
 In order to scope an alias to a specific transport protocol, an Endpoint can
-specify a protocol identifier. These identifiers MUST only be set for aliases.
+specify a protocol identifier.
 
 ~~~
 RemoteSpecifier.WithProtocol(QUIC)
@@ -832,6 +853,14 @@ selection is necessarily tied to path selection. This may involve choosing
 between multiple local interfaces that are connected to different access
 networks.
 
+When additional information (such as Provisioning Domain (PvD) information 
+{{RFC7556}}) is available about the networks over which an endpoint can operate,
+this can inform the selection between alternate network paths.  
+Path information can include network segment PMTU, set of supported DSCPs, 
+expected usage, cost, etc. The usage of this information by the Transport 
+Services System is generally independent of the specific mechanism/protocol 
+used to receive the information (e.g. zero-conf, DHCP, or IPv6 RA).
+
 Most Selection Properties are represented as Preferences, which can
 take one of five values:
 
@@ -906,14 +935,15 @@ and, as requested, the Connection is not congestion controlled, querying
 the `congestionControl` property also yields the value `false`.
 
 An implementation of this interface must provide sensible defaults for Selection
-Properties. The recommended default values for each property below represent a
+Properties. The default values for each property below represent a
 configuration that can be implemented over TCP. If these default values are used
 and TCP is not supported by a Transport Services implementation, then an application using the
 default set of Properties might not succeed in establishing a connection. Using
 the same default values for independent Transport Services implementations can be beneficial
 when applications are ported between different implementations/platforms, even if this
 default could lead to a connection failure when TCP is not available. If default
-values other than those recommended below are used, it is recommended to clearly document any differences.
+values other than those suggested below are used, it is RECOMMENDED to clearly
+document any differences.
 
 
 ### Reliable Data Transfer (Connection) {#prop-reliable}
@@ -957,9 +987,8 @@ Type:
 Default:
 : Ignore
 
-This property specifies whether an application considers it useful to indicate
-its reliability requirements on a per-Message basis. This property applies to
-Connections and Connection Groups.
+This property specifies whether an application considers it useful to specify different
+reliability requirements for individual Messages in a Connection.
 
 ### Preservation of Data Ordering {#prop-ordering}
 
@@ -1012,7 +1041,7 @@ transport connection where possible.
 ### Full Checksum Coverage on Sending {#prop-checksum-control-send}
 
 Name:
-: perMsgChecksumSend
+: FullChecksumSend
 
 Type:
 : Preference
@@ -1027,7 +1056,7 @@ later control of the sender checksum coverage (see {{msg-checksum}}).
 ### Full Checksum Coverage on Receiving {#prop-checksum-control-receive}
 
 Name:
-: perMsgChecksumRecv
+: FullChecksumRecv
 
 Type:
 : Preference
@@ -1103,7 +1132,7 @@ The set of valid interface types is implementation- and system-specific. For
 example, on a mobile device, there may be `Wi-Fi` and `Cellular` interface types
 available; whereas on a desktop computer,  `Wi-Fi` and `Wired
 Ethernet` interface types might be available. An implementation should provide all types
-that are supported on the local system to all remote systems, to allow
+that are supported on the local system, to allow
 applications to be written generically. For example, if a single implementation
 is used on both mobile devices and desktop devices, it should define the
 `Cellular` interface type for both systems, since an application might wish to
@@ -1209,6 +1238,7 @@ To enable the peer endpoint to initiate additional paths towards a local address
 
 Setting this property to "Active", can have privacy implications: It enables the transport to establish connectivity using alternate paths that might result in users being linkable across the multiple paths, even if the Advertisement of Alternative Addresses property (see {{altaddr}} below) is set to false.
 
+Note that Multipath Transport has no corresponding Selection Property of type Preference.
 Enumeration values other than "Disabled" are interpreted as a preference for choosing protocols that can make use of multiple paths.
 The "Disabled" value implies a requirement not to use multiple paths in parallel but does not prevent choosing a protocol that is capable of using multiple paths, e.g., it does not prevent choosing TCP, but prevents sending the ```MP_CAPABLE``` option in the TCP handshake.
 
@@ -1374,14 +1404,16 @@ SecurityParameters := NewDisabledSecurityParameters()
 SecurityParameters := NewOpportunisticSecurityParameters()
 ~~~
 
-Representation of Security Parameters in implementations should parallel that chosen for Transport Property names as recommended in {{scope-of-interface-defn}}.
+Representation of Security Parameters in implementations should parallel 
+that chosen for Transport Property names as sugggested in {{scope-of-interface-defn}}.
 
 ### Connection Establishment Callbacks
 
 Security decisions, especially pertaining to trust, are not static. Once configured,
 parameters may also be supplied during connection establishment. These are best
-handled as client-provided callbacks. Security handshake callbacks that may be
-invoked during connection establishment include:
+handled as client-provided callbacks. 
+Callbacks block the progress of the connection establishment, which distinguishes them from other Events in the transport system. How callbacks and events are implemented is specific to each implementation.
+Security handshake callbacks that may be invoked during connection establishment include:
 
 - Trust verification callback: Invoked when a Remote Endpoint's trust must be validated before the
 handshake protocol can continue.
@@ -1708,13 +1740,12 @@ Connection Properties represent the configuration and state of the selected
 Protocol Stack(s) backing a Connection. These Connection Properties may be
 Generic, applying regardless of transport protocol, or Specific, applicable to a
 single implementation of a single transport protocol stack. Generic Connection
-Properties are defined in {{connection-props}} below. Specific Protocol
-Properties are defined in a transport- and implementation-specific way, and MUST
-NOT be assumed to apply across different protocols. Attempts to set Specific
-Protocol Properties on a protocol stack not containing that specific protocol
-are simply ignored, and do not raise an error; however, too much reliance by an
-application on Specific Protocol Properties can significantly reduce the
-flexibility of a transport services implementation.
+Properties are defined in {{connection-props}} below. 
+
+Protocol Specific Properties are defined in a transport- and 
+implementation-specific way, and MUST NOT apply across different protocols. 
+Too much reliance by an application on Protocol Specific Properties can significantly 
+reduce the flexibility of a transport services implementation.
 
 The application can set and query Connection Properties on a per-Connection
 basis. Connection Properties that are not read-only can be set during
@@ -1754,21 +1785,16 @@ Properties will include different information:
   is only supported by certain transport protocols, e.g., by TCP as half-closed
   connection.
 
-* For Connections that are Established or Closing: Transport Properties that the
-  application specified on the Preconnection. See {{selection-props}}.
-  Selection properties of type `Preference` will be exposed as boolean values
-  indicating whether or not the property applies to the selected transport.
-
-* For Connections that are Established, Closing, or Closed: Selection
-  ({{selection-props}}) and Connection Properties ({{connection-props}}) of the
-  actual protocols that were selected and instantiated. Selection Properties
-  indicate whether or not the Connection has or offers a certain Selection
-  Property. The actually instantiated protocol stack might not match all
+* For Connections that are Established, Closing, or Closed: 
+  Connection Properties ({{connection-props}}) of the
+  actual protocols that were selected and instantiated, and Selection
+  Properties that the application specified on the Preconnection. 
+  Selection Properties of type `Preference` will be exposed as boolean values 
+  indicating whether or not the property applies to the selected transport. 
+  Note that the instantiated protocol stack might not match all
   Protocol Selection Properties that the application specified on the
-  Preconnection. For example, a certain Protocol Selection Property that an
-  application specified as Preferred might not actually be present in the chosen
-  protocol stack because none of the currently available transport protocols had
-  this feature.
+  Preconnection. 
+
 
 * For Connections that are Established, additional properties of the path(s) in
   use. These properties can be derived from the local provisioning domain
@@ -2416,7 +2442,7 @@ Type:
 : Boolean
 
 Default:
-: the queried Boolean value of the Selection Property `reliability` ({{prop-reliable}})
+: the queried Boolean value of the Selection Property `preserveOrder` ({{prop-ordering}})
 
 The order in which Messages were submitted for transmission via the Send Action will be preserved on delivery via Receive<> events for all Messages on a Connection that have this Message Property set to true.
 
@@ -2756,7 +2782,7 @@ The Events that may be sent after InitiateWithSend() are equivalent to those
 that would be sent by an invocation of Initiate() followed immediately by an
 invocation of Send(), with the caveat that a send failure that occurs because
 the Connection could not be established will not result in a
-SendError separate from the InitiateError signaling the failure of Connection
+SendError separate from the EstablishmentError signaling the failure of Connection
 establishment.
 
 ### Priority in TAPS {#priority-in-taps}
@@ -2870,10 +2896,10 @@ passing the same MessageContext, until the endOfMessage flag is delivered or a
 ReceiveError occurs. All partial blocks of a single Message are delivered in
 order without gaps. This event does not support delivering discontiguous partial
 Messages. If, for example, Message A is divided into three pieces (A1, A2, A3) and
-Message B is divided into three pieces (B1, B2, B3), the ReceivedPartial may deliver
-them in a sequence like this: A1, B1, B2, A2, A3, B3, because the messageContext
-allows the application to identify the pieces as belonging to Message A and B, respectively.
-However, a sequence like: A1, A3 will never occur.
+Message B is divided into three pieces (B1, B2, B3), and preserveOrder is not Required, 
+the ReceivedPartial may deliver them in a sequence like this: A1, B1, B2, A2, A3, B3, 
+because the messageContext allows the application to identify the pieces as belonging 
+to Message A and B, respectively. However, a sequence like: A1, A3 will never occur.
 
 If the minIncompleteLength in the Receive request was set to be infinite (indicating
 a request to receive only complete Messages), the ReceivedPartial event may still be
@@ -2899,14 +2925,22 @@ Connection -> ReceiveError<messageContext, reason?>
 ~~~
 
 A ReceiveError occurs when data is received by the underlying Protocol Stack
-that cannot be fully retrieved or parsed, or when some other indication is
-received that reception has failed. In contrast, conditions that irrevocably lead to
-the termination of the Connection are instead signaled using ConnectionError
-(see {{termination}}).
+that cannot be fully retrieved or parsed, and when it is useful for the application
+to be notified of such errors. For example, a ReceiveError can
+indicate that a Message (identified via the MessageContext)
+that was being partially received previously, but had not
+completed, encountered an error and will not be completed. This can be useful
+for an application, which may want to use this error as a hint to remove
+previously received Message parts from memory. As another example,
+if an incoming Message does not fulfill the Required Minimum Corruption
+Protection Coverage for Receiving property (see {{conn-recv-checksum}}),
+an application can use this error as a hint to inform the peer application
+to adjust the Sending Corruption Protection Length property (see {{msg-checksum}}).
 
-The ReceiveError event passes an optional associated MessageContext. This can
-indicate that a Message that was being partially received previously, but had not
-completed, encountered an error and will not be completed.
+In contrast, internal protocol reception errors (e.g., loss causing retransmissions
+in TCP) are not signalled by this Event. Conditions that irrevocably lead to
+the termination of the Connection are signaled using ConnectionError
+(see {{termination}}).
 
 
 ### Receive Message Properties {#recv-meta}
@@ -2922,7 +2956,8 @@ Notification (ECN) field. This information can be used for logging and debugging
 and for building applications that need access to information about
 the transport internals for their own operation. This property is specific to UDP
 and UDP-Lite because these protocols do not implement congestion control,
-and hence expose this functionality to the application.
+and hence expose this functionality to the application (see {{?RFC8293}}, 
+following the guidance in {{?RFC8085}})
 
 #### Early Data {#receive-early}
 
@@ -2953,27 +2988,45 @@ Any calls to Receive once the Final Message has been delivered will result in er
 
 # Connection Termination {#termination}
 
+A Connection can be terminated i) by the Local Endpoint (i.e., the application calls the Close, CloseGroup, Abort or AbortGroup Action), ii) by the Remote Endpoint (i.e., the remote application calls the Close, CloseGroup, Abort or AbortGroup Action), or iii) because of an error (e.g., a timeout). A local call of the Close Action will
+cause the Connection to either send a Closed Event or a ConnectionError Event, and a local call of
+the CloseGroup Action will cause all of the Connections in the group to either send a Closed Event
+or a ConnectionError Event. A local call of the Abort Action will cause the Connection to send
+a ConnectionError Event, indicating local Abort as a reason, and a local call of the AbortGroup Action
+will cause all of the Connections in the group to send a ConnectionError Event, indicating local Abort
+as a reason.
+
+Remote Action calls map to Events similar to local calls (e.g., a remote Close causes the
+Connection to either send a Closed Event or a ConnectionError Event), but, different from local Action calls,
+it is not guaranteed that such Events will indeed be invoked. When an application needs to free resources
+associated with a Connection, it should therefore not rely on the invocation of such Events due to
+termination calls from the Remote Endpoint, but instead use the local termination Actions.
+
 Close terminates a Connection after satisfying all the requirements that were
 specified regarding the delivery of Messages that the application has already
-given to the Transport Services system. For example, if reliable delivery was requested
+given to the Transport Services system. Upon successfully satisfying all these
+requirements, the Connection will send the Closed Event. For example, if reliable delivery was requested
 for a Message handed over before calling Close, the Closed Event will signify
-that this Message has indeed been delivered. This action does not affect any other Connection
+that this Message has indeed been delivered. This Action does not affect any other Connection
 in the same Connection Group.
 
 ~~~
 Connection.Close()
 ~~~
 
-The Closed Event informs the application that the Remote Endpoint has closed the
-Connection. There is no guarantee that a remote Close will indeed be
-signaled.
+The Closed Event informs the application that a Close Action has successfully
+completed, or that the Remote Endpoint has closed the Connection.
+There is no guarantee that a remote Close will be signaled.
+
 
 ~~~
 Connection -> Closed<>
 ~~~
 
 Abort terminates a Connection without delivering any remaining Messages. This action does
-not affect any other Connection that in the same Connection Group.
+not affect any other Connection that is entangled with this one in a Connection Group.
+When the Abort Action has finished, the Connection will send a ConnectionError Event,
+indicating local Abort as a reason.
 
 ~~~
 Connection.Abort()
@@ -2982,15 +3035,19 @@ Connection.Abort()
 CloseGroup gracefully terminates a Connection and any other Connections in the
 same Connection Group. For example, all of the Connections in a
 group might be streams of a single session for a multistreaming protocol; closing the entire
-group will close the underlying session. See also {{groups}}. As with Close, any Messages
+group will close the underlying session. See also {{groups}}. All Connections in the group
+will send a Closed Event when the CloseGroup Action was successful.
+As with Close, any Messages
 remaining to be processed on a Connection will be handled prior to closing.
 
 ~~~
 Connection.CloseGroup()
 ~~~
 
-AbortGroup terminates a Connection and any other Connections in the same
-Connection Group without delivering any remaining Messages.
+AbortGroup terminates a Connection and any other Connections that are
+in the same Connection Group without delivering any remaining Messages.
+When the AbortGroup Action has finished, all Connections in the group will 
+send a ConnectionError Event, indicating local Abort as a reason.
 
 ~~~
 Connection.AbortGroup()
@@ -2999,7 +3056,7 @@ Connection.AbortGroup()
 A ConnectionError informs the application that: 1) data could not be delivered to the
 peer after a timeout, 
 or 2) the Connection has been aborted (e.g., because the peer has called Abort).
-There is no guarantee that an Abort will indeed be signaled.
+There is no guarantee that an Abort from the peer will be signaled.
 
 ~~~
 Connection -> ConnectionError<reason?>
@@ -3025,7 +3082,7 @@ Each transition of connection state is associated with one of more events:
 
 - Closed<> occurs when a Connection transitions to Closed state without error.
 
-- InitiateError<> occurs when a Connection created with Initiate() transitions
+- EstablishmentError<> occurs when a Connection created with Initiate() transitions
   from Establishing state to Closed state due to an error.
 
 - ConnectionError<> occurs when a Connection transitions to Closed state due to
@@ -3041,7 +3098,7 @@ Establishing -----> Established -----> Closing ------> Closed
      |                                                   ^
      |                                                   |
      +---------------------------------------------------+
-                  InitiateError<>
+                  EstablishmentError<>
 
 (*) Ready<>, ConnectionReceived<>, RendezvousDone<>
 (**) Closed<>, ConnectionError<>
@@ -3061,7 +3118,7 @@ The interface provides the following guarantees about the ordering of
   RendezvousDone<> containing that Connection.
 
 - No events will occur on a Connection after it is Closed; i.e., after a
-  Closed<> event, an InitiateError<> or ConnectionError<> will not occur on that connection. To
+  Closed<> event, an EstablishmentError<> or ConnectionError<> will not occur on that connection. To
   ensure this ordering, Closed<> will not occur on a Connection while other
   events on the Connection are still locally outstanding (i.e., known to the
   interface and waiting to be dealt with by the application).
@@ -3211,7 +3268,10 @@ For instance, it could be a number of seconds, number of milliseconds, or a `str
 
 ## Adding Preference Properties {#preference-conv}
 
-As Selection Properties of type `Preference` will be set on a TransportProperties object quite frequently, implementations should provide special actions for adding each preference level i.e, `TransportProperties.Set(some_property, avoid)` is equivalent to `TransportProperties.Avoid(some_property)`:
+As Selection Properties of type `Preference` will be set on a TransportProperties 
+object quite frequently, implementations can provide special actions 
+for adding each preference level i.e, `TransportProperties.Set(some_property, avoid)` 
+is equivalent to `TransportProperties.Avoid(some_property)`:
 
 ~~~
 TransportProperties.Require(property)
@@ -3224,8 +3284,9 @@ TransportProperties.Prohibit(property)
 ## Transport Property Profiles {#property-profiles}
 
 To ease the use of the interface specified by this document, implementations
-should provide a mechanism to create Transport Property objects (see {{selection-props}}) that are pre-configured with frequently used sets of properties.
-Implementations should at least offer short-hands to specify the following property profiles:
+can provide a mechanism to create Transport Property objects (see {{selection-props}}) 
+that are pre-configured with frequently used sets of properties; the following are 
+in common use in current applications:
 
 ### reliable-inorder-stream
 
@@ -3237,9 +3298,10 @@ It should consist of the following properties:
  | Property                 | Value     |
  |:-------------------------|:----------|
  | reliability              | require   |
- | preserveOrder           | require   |
- | congestionControl       | require   |
- | preserveMsgBoundaries  | ignore    |
+ | preserveOrder            | require   |
+ | congestionControl        | require   |
+ | preserveMsgBoundaries    | ignore    |
+{: #tabrio title="reliable-inorder-stream preferences"}
 
 ### reliable-message
 
@@ -3251,9 +3313,10 @@ It should consist of the following properties:
  | Property                 | Value     |
  |:-------------------------|:----------|
  | reliability              | require   |
- | preserveOrder           | require   |
- | congestionControl       | require   |
- | preserveMsgBoundaries  | require   |
+ | preserveOrder            | require   |
+ | congestionControl        | require   |
+ | preserveMsgBoundaries    | require   |
+{: #tabrm title="reliable-message preferences"}
 
 ### unreliable-datagram
 
@@ -3264,15 +3327,20 @@ It consists of the following properties:
 
  | Property                 | Value     |
  |:-------------------------|:----------|
- | reliability              | ignore    |
- | preserveOrder           | ignore    |
- | congestionControl       | ignore    |
- | preserveMsgBoundaries  | require   |
+ | reliability              | avoid     |
+ | preserveOrder            | avoid     |
+ | congestionControl        | ignore    |
+ | preserveMsgBoundaries    | require   |
  | safely replayable        | true      |
+{: #tabud title="unreliable-datagram preferences"}
 
-Applications that choose this Transport Property Profile for latency reasons
+Applications that choose this Transport Property Profile would
+avoid the additional latency that could be introduced
+by retransmission or reordering in a transport protocol.
+
+Applications that choose this Transport Property Profile to reduce latency
 should also consider setting an appropriate Capacity Profile Property,
-see {{prop-cap-profile}} and could benefit from controlling checksum
+see {{prop-cap-profile}} and might benefit from controlling checksum
 coverage, see {{prop-checksum-control-send}} and {{prop-checksum-control-receive}}.
 
 

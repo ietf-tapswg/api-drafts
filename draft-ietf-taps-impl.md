@@ -146,10 +146,12 @@ The connection objects that are exposed to applications for Transport Services a
 - the Connection, the basic object that represents a flow of data as Messages in either direction between the Local and Remote Endpoints;
 - and the Listener, a passive waiting object that delivers new Connections.
 
-Preconnection objects should be implemented as bundles of properties that an application can both read and write. Once a Preconnection has been used to create an outbound Connection or a Listener, the implementation should ensure that the copy of the properties held by the Connection or Listener is immutable. This may involve performing a deep-copy, copying the object with all the objects it references, if the application is still able to modify properties on the original Preconnection object.
+Preconnection objects should be implemented as bundles of properties that an application can both read and write. A Preconnection object influences a Connection only at one point in time: when the Connection is created. Connection objects represent the interface between the application and the implementation to manage transport state, and conduct data transfer. During the process of establishment ({{conn-establish}}), the Connection will not be bound to a specific transport protocol instance, since multiple candidate Protocol Stacks might be raced. 
 
-Connection objects represent the interface between the application and the implementation to manage transport state, and conduct data transfer. During the process of establishment ({{conn-establish}}), the Connection will not be bound to a specific transport flow, since there may be multiple candidate Protocol Stacks being raced. Once the Connection is established, its interface maps actions and events to the details of the chosen Protocol Stack. For example, the same Connection object may ultimately represent the interface into a TCP connection, a TLS session over TCP, a UDP flow with fully-specified Local and Remote Endpoints, a DTLS session, a SCTP stream, a QUIC stream, or an HTTP/2 stream.
+Once a Preconnection has been used to create an outbound Connection or a Listener, the implementation should ensure that the copy of the properties held by the Connection or Listener is not affected when the application makes changes to a Preconnection object. This may involve the implementation performing a deep-copy, copying the object with all the objects that it references.
 
+Once the Connection is established, its interface maps actions and events to the details of the chosen Protocol Stack. For example, the same Connection object may ultimately represent a single instance of one transport protocol (e.g., a TCP connection, a TLS session over TCP, a UDP flow with fully-specified Local and Remote Endpoints, a DTLS session, a SCTP stream, a QUIC stream, or an HTTP/2 stream).
+The properties held by a Connection or Listener is independent of other connections that are not part of the same Connection Group. Once Initate has been called, the Selection Properties and Endpoint information are immutable (i.e, an application is not able to later modify Selection Properties on the original Preconnection object).
 Listener objects are created with a Preconnection, at which point their configuration should be considered immutable by the implementation. The process of listening is described in {{listen}}.
 
 # Implementing Pre-Establishment
@@ -164,10 +166,10 @@ The Transport Services system should have a list of supported protocols availabl
 
 In the following cases, failure should be detected during pre-establishment:
 
-- A request by an application for Protocol Properties that include requirements or prohibitions that cannot be satisfied by any of the available protocols. For example, if an application requires "Configure Reliability per Message", but no such protocol is available on the host running the transport system this should result in an error, e.g., when SCTP is not supported by the operating system.
+- A request by an application for Protocol Properties that include requirements or prohibitions that cannot be satisfied by any of the available protocols. For example, if an application requires "Configure Reliability per Message", but no such feature is available in any protocol the host running the transport system on the host running the transport system this should result in an error, e.g., when SCTP is not supported by the operating system.
 - A request by an application for Protocol Properties that are in conflict with each other, i.e., the required and prohibited properties cannot be satisfied by the same protocol. For example, if an application prohibits "Reliable Data Transfer" but then requires "Configure Reliability per Message", this mismatch should result in an error.
 
-To avoid allocating resources, it is important that such cases fail as early as possible, e.g., prior to endpoint resolution, only to find out later that there is no protocol that satisfies the requirements.
+To avoid allocating resources that are not finally needed, it is important that configuration-time errors fail as early as possible.
 
 ## Role of system policy
 
@@ -376,11 +378,15 @@ If the application specifies an interface type to be required or prohibited, an 
 * "Capacity Profile":
 An implementation can use the Capacity Profile to prefer paths that match an application's expected traffic pattern. This match will use cached performance estimates, see {{performance-caches}}:
    * Scavenger:
-     Prefer paths with the highest expected available capacity, based on the observed maximum throughput;
+     Prefer paths with the highest expected available capacity, but minimising impact on other traffic, based on the observed maximum throughput;
    * Low Latency/Interactive:
      Prefer paths with the lowest expected Round Trip Time, based on observed round trip time estimates;
+   * Low Latency/Non-Interactive:
+     Prefer paths with a low expected Round Trip Time, but can tolerate delay variation;
    * Constant-Rate Streaming:
-     Prefer paths that can are expected to satisy the requested Stream Send or Stream Receive Bitrate, based on the observed maximum throughput.
+     Prefer paths that are expected to satisy the requested Stream Send or Stream Receive Bitrate, based on the observed maximum throughput;
+   * Capacity-Seeking: 
+     Prefer adapting to paths to determine the highest available capacity, based on the observed maximum throughput.
 
 Implementations process the Properties in the following order: Prohibit, Require, Prefer, Avoid.
 If Selection Properties contain any prohibited properties, the implementation should first purge branches containing nodes with these properties. For required properties, it should only keep branches that satisfy these requirements. Finally, it should order the branches according to the preferred properties, and finally use any avoided properties as a tiebreaker.
