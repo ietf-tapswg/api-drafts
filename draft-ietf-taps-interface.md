@@ -436,6 +436,14 @@ Connection.Close()
 Connection2.Close()
 ~~~
 
+Preconnections are reusable after being used to initiate a Connection. Hence, for example, after the Connections were closed,
+the following would be correct:
+~~~
+//.. carry out adjustments to the Preconnection, if desire
+Connection := Preconnection.Initiate()
+~~~
+
+
 ### Peer Example
 
 This is an example of how an application might establish a connection with a
@@ -588,7 +596,8 @@ The Pre-Establishment phase allows applications to specify properties for
 the Connections that they are about to make, or to query the API about potential
 Connections they could make.
 
-A Preconnection Object represents a potential Connection. It has state that
+A Preconnection Object represents a potential Connection. It is a passive Object
+(a data structure) that merely maintains the state that
 describes the properties of a Connection that might exist in the future.  This state
 comprises Local Endpoint and Remote Endpoint Objects that denote the endpoints
 of the potential Connection (see {{endpointspec}}), the Selection Properties
