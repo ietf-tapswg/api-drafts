@@ -272,9 +272,9 @@ provides:
   application interactions with the transport layer, in line with developments
   in modern platforms and programming languages;
   
-- Selection between alternate network paths, also allowing applications to be
-  notified additional information is available about the networks over which 
-  a connection can operate (e.g. Provisioning Domain (PvD) information {{RFC7556}}).  
+- Selection between alternate network paths, using additional information about the 
+  networks over which a connection can operate (e.g. Provisioning Domain (PvD) 
+  information {{RFC7556}}) where available.  
 
 - Explicit support for transport-specific features to be applied, should that
   particular transport be part of a chosen Protocol Stack.
