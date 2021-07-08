@@ -504,7 +504,7 @@ Connection -> Received<messageDataResponse, messageContext>
 Connection.Close()
 ~~~
 
-## Transport Properties {#transport-properties}
+# Transport Properties {#transport-properties}
 
 Each application using the Transport Services Interface declares its preferences
 for how the transport service should operate using properties at each stage of
@@ -534,7 +534,7 @@ features of a specific protocol, see Section 3.2 of {{I-D.ietf-taps-arch}}, are 
 used as an input to the selection process, but only support configuration if
 the respective protocol has been selected.
 
-### Transport Property Names {#property-names}
+## Transport Property Names {#property-names}
 
 Transport Properties are referred to by property names. For the purposes of this document, these names are
 alphanumeric strings in which words may be separated by hyphens.
@@ -560,7 +560,7 @@ Namespaces for each of the keywords provided in the IANA protocol numbers regist
 (see https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml), reformatted where necessary to conform to an implementation's naming conventions, are reserved
 for Protocol Specific Properties and MUST NOT be used for vendor or implementation-specific properties. 
 
-### Transport Property Types {#property-types}
+## Transport Property Types {#property-types}
 
 Each Transport Property has a one of the basic types described in {{notation}}.
 
@@ -569,7 +569,7 @@ and use the Preference Enumeration, which takes one of five possible values
 (Prohibit, Avoid, Ignore,  Prefer, or Require) denoting the level of preference
 for a given property during protocol selection.
 
-## Scope of the Interface Definition {#scope-of-interface-defn}
+# Scope of the Interface Definition {#scope-of-interface-defn}
 
 This document defines a language- and platform-independent interface to a
 Transport Services system. Given the wide variety of languages and language
@@ -591,10 +591,16 @@ We therefore make the following recommendations:
   implementation, unless the implementation itself uses different names for
   substantially equivalent objects for networking by convention.
 - Implementations of this interface SHOULD implement each Selection Property,
-  Connection Property, and Message Context Property specified in this document. Each interface SHOULD be implemented even when in a specific implementation/platform it
+  Connection Property, and Message Context Property specified in this document. 
+  Each interface SHOULD be implemented even when in a specific implementation/platform it
   will always result in no operation, e.g. there is no action when the API
   specifies a Property that is not available in a transport protocol implemented
-  on a specific platform. For example, if TCP is the only underlying transport protocol, the Message Property `msgOrdered` can be implemented (trivially, as a no-op) as disabling the requirement for ordering will not have any effect on delivery order for Connections over TCP. Similarly, the `msg-lifetime` Message Property can be implemented but ignored, as the description of this Property states that "it is not guaranteed that a Message will not be sent when its Lifetime has expired".
+  on a specific platform. For example, if TCP is the only underlying transport protocol, 
+  the Message Property `msgOrdered` can be implemented (trivially, as a no-op) as 
+  disabling the requirement for ordering will not have any effect on delivery order 
+  for Connections over TCP. Similarly, the `msg-lifetime` Message Property can be 
+  implemented but ignored, as the description of this Property states that "it is not 
+  guaranteed that a Message will not be sent when its Lifetime has expired".
 - Implementations may use other representations for Transport Property Names,
   e.g., by providing constants, but should provide a straight-forward mapping
   between their representation and the property names specified here.
