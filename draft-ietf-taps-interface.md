@@ -267,8 +267,8 @@ provides:
   to make use of transport protocols in terms of the features 
   they provide.
 
-- A unified interface to datagram and connection-oriented transports, allowing
-  use of a common API for connection-establishment and closing.
+- A unified interface to datagram and stream-oriented transports, allowing
+  use of a common API for connection establishment and closing.
 
 - Message-orientation, as opposed to stream-orientation, using
   application-assisted framing and deframing where the underlying transport
@@ -304,18 +304,19 @@ programming interface to the Transport Services Architecture defined in the TAPS
 Architecture {{I-D.ietf-taps-arch}}.
 
 An application primarily interacts with this API through two Objects:
-Preconnections and Connections. A Preconnection object ({{pre-establishment}}) represents a set of properties
-and constraints on the selection and configuration of paths and protocols to
-establish a Connection with an 
-Endpoint. A Connection object represents an
-instance of a
-transport Protocol Stack on which data can be sent to and/or received from a
-Remote Endpoint (i.e., a logical connection that, depending on the kind of transport, can be
-bi-directional or unidirectional, and that can use a stream protocol or a datagram protocol). Connections can be created from
-Preconnections in three ways: by initiating the Preconnection (i.e., actively
-opening, as in a client; {{initiate}}), through listening on the Preconnection (i.e.,
-passively opening, as in a server {{listen}}), or rendezvousing on the Preconnection (i.e.,
-peer to peer establishment; {{rendezvous}}).
+Preconnections and Connections. A Preconnection object ({{pre-establishment}}) 
+represents a set of properties and constraints on the selection and configuration of
+paths and protocols to establish a Connection with an Endpoint. A Connection object 
+represents an instance of a transport Protocol Stack on which data can be sent to and/or
+received from a Remote Endpoint (i.e., a logical connection that, depending on the 
+kind of transport, can be bi-directional or unidirectional, and that can use a stream 
+protocol or a datagram protocol). Connections are presented consistently to the 
+application, irrespective of whether the underlying transport is connection-less or 
+connection-oriented. Connections can be created from Preconnections in three ways:
+
+- by initiating the Preconnection (i.e., actively opening, as in a client; {{initiate}}), 
+- through listening on the Preconnection (i.e., passively opening, as in a server {{listen}}), 
+- or rendezvousing on the Preconnection (i.e., peer to peer establishment; {{rendezvous}}).
 
 Once a Connection is established, data can be sent and received on it in the form of
 Messages. The interface supports the preservation of message boundaries both
@@ -494,10 +495,10 @@ Preconnection.Rendezvous()
 
 Preconnection -> RendezvousDone<Connection>
 
-//---- Ready event handler begin ----
+//---- RendezvousDone event handler begin ----
 Connection.Send(messageDataRequest)
 Connection.Receive()
-//---- Ready event handler end ----
+//---- RendezvousDone event handler end ----
 
 Connection -> Received<messageDataResponse, messageContext>
 
