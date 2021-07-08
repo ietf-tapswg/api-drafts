@@ -174,10 +174,12 @@ specific transport stack choice is discouraged for general use, because it can r
 
 ## Terminology and Notation {#notation}
 
-This API is described in terms of Objects with which an application can interact; 
-Actions the application can perform on these Objects; Events, which an
-Object can send to an application asynchronously; and Parameters associated
-with these Actions and Events.
+This API is described in terms of 
+
+- Objects with which an application can interact; 
+- Actions the application can perform on these Objects;
+- Events, which an Object can send to an application to be processed aynchronously; and 
+- Parameters associated with these Actions and Events.
 
 The following notations, which can be combined, are used in this document:
 
@@ -214,6 +216,10 @@ Action(param0, param1?, ...) / Event<param0, param1, ...>
 
 Actions associated with no Object are Actions on the abstract interface
 itself; they are equivalent to Actions on a per-application global context.
+
+Events are sent to the application or application-supplied code (e.g. framers, 
+see {{framing}}) for processing; the details of event processing 
+are platform- and implementation-specific.
 
 We also make use of the following basic types:
 
@@ -740,7 +746,7 @@ RemoteSpecifier.AddAlias(AlternateRemoteSpecifier)
 ~~~
 
 In order to scope an alias to a specific transport protocol, an Endpoint can
-specify a protocol identifier. These identifiers MUST only be set for aliases.
+specify a protocol identifier.
 
 ~~~
 RemoteSpecifier.WithProtocol(QUIC)
@@ -2775,7 +2781,7 @@ The Events that may be sent after InitiateWithSend() are equivalent to those
 that would be sent by an invocation of Initiate() followed immediately by an
 invocation of Send(), with the caveat that a send failure that occurs because
 the Connection could not be established will not result in a
-SendError separate from the InitiateError signaling the failure of Connection
+SendError separate from the EstablishmentError signaling the failure of Connection
 establishment.
 
 ### Priority in TAPS {#priority-in-taps}
@@ -3075,7 +3081,7 @@ Each transition of connection state is associated with one of more events:
 
 - Closed<> occurs when a Connection transitions to Closed state without error.
 
-- InitiateError<> occurs when a Connection created with Initiate() transitions
+- EstablishmentError<> occurs when a Connection created with Initiate() transitions
   from Establishing state to Closed state due to an error.
 
 - ConnectionError<> occurs when a Connection transitions to Closed state due to
@@ -3091,7 +3097,7 @@ Establishing -----> Established -----> Closing ------> Closed
      |                                                   ^
      |                                                   |
      +---------------------------------------------------+
-                  InitiateError<>
+                  EstablishmentError<>
 
 (*) Ready<>, ConnectionReceived<>, RendezvousDone<>
 (**) Closed<>, ConnectionError<>
@@ -3111,7 +3117,7 @@ The interface provides the following guarantees about the ordering of
   RendezvousDone<> containing that Connection.
 
 - No events will occur on a Connection after it is Closed; i.e., after a
-  Closed<> event, an InitiateError<> or ConnectionError<> will not occur on that connection. To
+  Closed<> event, an EstablishmentError<> or ConnectionError<> will not occur on that connection. To
   ensure this ordering, Closed<> will not occur on a Connection while other
   events on the Connection are still locally outstanding (i.e., known to the
   interface and waiting to be dealt with by the application).
@@ -3261,7 +3267,10 @@ For instance, it could be a number of seconds, number of milliseconds, or a `str
 
 ## Adding Preference Properties {#preference-conv}
 
-As Selection Properties of type `Preference` will be set on a TransportProperties object quite frequently, implementations should provide special actions for adding each preference level i.e, `TransportProperties.Set(some_property, avoid)` is equivalent to `TransportProperties.Avoid(some_property)`:
+As Selection Properties of type `Preference` will be set on a TransportProperties 
+object quite frequently, implementations can provide special actions 
+for adding each preference level i.e, `TransportProperties.Set(some_property, avoid)` 
+is equivalent to `TransportProperties.Avoid(some_property)`:
 
 ~~~
 TransportProperties.Require(property)
@@ -3274,8 +3283,9 @@ TransportProperties.Prohibit(property)
 ## Transport Property Profiles {#property-profiles}
 
 To ease the use of the interface specified by this document, implementations
-should provide a mechanism to create Transport Property objects (see {{selection-props}}) that are pre-configured with frequently used sets of properties.
-Implementations should at least offer short-hands to specify the following property profiles:
+can provide a mechanism to create Transport Property objects (see {{selection-props}}) 
+that are pre-configured with frequently used sets of properties; the following are 
+in common use in current applications:
 
 ### reliable-inorder-stream
 
@@ -3287,9 +3297,10 @@ It should consist of the following properties:
  | Property                 | Value     |
  |:-------------------------|:----------|
  | reliability              | require   |
- | preserveOrder           | require   |
- | congestionControl       | require   |
- | preserveMsgBoundaries  | ignore    |
+ | preserveOrder            | require   |
+ | congestionControl        | require   |
+ | preserveMsgBoundaries    | ignore    |
+{: #tabrio title="reliable-inorder-stream preferences"}
 
 ### reliable-message
 
@@ -3301,9 +3312,10 @@ It should consist of the following properties:
  | Property                 | Value     |
  |:-------------------------|:----------|
  | reliability              | require   |
- | preserveOrder           | require   |
- | congestionControl       | require   |
- | preserveMsgBoundaries  | require   |
+ | preserveOrder            | require   |
+ | congestionControl        | require   |
+ | preserveMsgBoundaries    | require   |
+{: #tabrm title="reliable-message preferences"}
 
 ### unreliable-datagram
 
@@ -3314,11 +3326,12 @@ It consists of the following properties:
 
  | Property                 | Value     |
  |:-------------------------|:----------|
- | reliability              | avoid    |
- | preserveOrder           | avoid    |
- | congestionControl       | ignore    |
- | preserveMsgBoundaries  | require   |
+ | reliability              | avoid     |
+ | preserveOrder            | avoid     |
+ | congestionControl        | ignore    |
+ | preserveMsgBoundaries    | require   |
  | safely replayable        | true      |
+{: #tabud title="unreliable-datagram preferences"}
 
 Applications that choose this Transport Property Profile would
 avoid the additional latency that could be introduced
