@@ -3306,7 +3306,7 @@ It should consist of the following properties:
  | preserveOrder            | require   |
  | congestionControl        | require   |
  | preserveMsgBoundaries    | require   |
-{: #tabrio title="reliable-message preferences"}
+{: #tabrm title="reliable-message preferences"}
 
 ### unreliable-datagram
 
@@ -3322,7 +3322,7 @@ It consists of the following properties:
  | congestionControl        | ignore    |
  | preserveMsgBoundaries    | require   |
  | safely replayable        | true      |
-{: #tabrio title="unreliable-datagram preferences"}
+{: #tabud title="unreliable-datagram preferences"}
 
 Applications that choose this Transport Property Profile would
 avoid the additional latency that could be introduced
