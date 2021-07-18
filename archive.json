@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-07-13T00:17:36.527485+00:00",
+  "timestamp": "2021-07-18T00:19:07.392732+00:00",
   "repo": "ietf-tapswg/api-drafts",
   "labels": [
     {
@@ -71335,7 +71335,7 @@
       "labels": [],
       "body": "",
       "createdAt": "2021-07-08T20:58:23Z",
-      "updatedAt": "2021-07-08T21:54:41Z",
+      "updatedAt": "2021-07-16T08:11:00Z",
       "baseRepository": "ietf-tapswg/api-drafts",
       "baseRefName": "master",
       "baseRefOid": "a0061a7d0eb2979fed595b5be2d7b2a5eecc349e",
@@ -71347,7 +71347,21 @@
       "mergedBy": null,
       "mergeCommit": null,
       "comments": [],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NzA4MTE2NjU1",
+          "commit": {
+            "abbreviatedOid": "3fcb27b"
+          },
+          "author": "mwelzl",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "This works for me; thanks a lot for doing it!",
+          "createdAt": "2021-07-16T08:11:00Z",
+          "updatedAt": "2021-07-16T08:11:00Z",
+          "comments": []
+        }
+      ]
     }
   ]
 }
