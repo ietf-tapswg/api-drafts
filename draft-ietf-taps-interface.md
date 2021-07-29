@@ -1624,7 +1624,7 @@ Preconnection -> EstablishmentError<reason?>
 
 ## Connection Groups {#groups}
 
-Connection Groups represent sets of entagled connections, e.g., streams in a multi-streaming protocol, and can be created using the Clone Action:
+Connection Groups can be created using the Clone Action:
 
 ~~~
 Connection := Connection.Clone(framer?)
