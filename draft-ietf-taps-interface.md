@@ -822,7 +822,7 @@ A Preconnection Object holds properties reflecting the application's
 requirements and preferences for the transport. These include Selection
 Properties for selecting protocol stacks and paths, as well as Connection
 Properties and Message Properties for configuration of the detailed operation
-of the selected Protocol Stacks on a per connection and message level.
+of the selected Protocol Stacks on a per-Connection and Message level.
 
 The protocol(s) and path(s) selected as candidates during establishment are
 determined and configured using these properties. Since there could be paths
