@@ -1647,9 +1647,7 @@ to the new Connection when calling Clone(), but in this case, a later change to 
 `Connection Priority` on one Connection does not change it on the
 other Connections in the same Connection Group.
 
-Message Properties set on a Connection also apply only to that Connection. For example,
-changing `Lifetime` (see {{msg-lifetime}}) of a Message will only affect a
-single Message on a single Connection.
+Message Properties set on a Connection also apply only to that Connection.
 
 A new Connection created by Clone can have a Message Framer assigned via the optional
 `framer` parameter of the Clone Action. If this parameter is not supplied, the
