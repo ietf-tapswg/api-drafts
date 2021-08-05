@@ -741,9 +741,7 @@ Similarly, specifying a multicast group address on the Remote Endpoint will indi
 resulting connection will be used to send multicast messages, and that the Preconnection will
 support Initiate() but not Listen(). The Connection created this way is send-only.
 
-No semantics for creating bidirectional connections for multicast group members or the use of
-Rendezvous() with Preconnections that have endpoints containing group addresses are defined in
-this document.
+A Rendezvous() call on Preconnections containing group addresses results in an EstablishmentError as described in {{rendezvous}}.
 
 ### Endpoint Aliases
 
