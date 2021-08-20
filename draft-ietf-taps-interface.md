@@ -738,7 +738,10 @@ a Preconnection will only support calling Listen(), not Initiate(). The accepted
 are receive-only.
 
 Similarly, specifying a multicast group address on the Remote Endpoint will indicate that the
-resulting connection will be used to send multicast messages.
+resulting connection will be used to send multicast messages, and that the Preconnection will
+support Initiate() but not Listen(). The Connection created this way is send-only.
+
+A Rendezvous() call on Preconnections containing group addresses results in an EstablishmentError as described in {{rendezvous}}.
 
 ### Endpoint Aliases
 
