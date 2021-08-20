@@ -2883,7 +2883,7 @@ A Received event indicates the delivery of a complete Message.
 It contains two objects, the received bytes as messageData, and the metadata and properties of the received Message as messageContext.
 
 The messageData object provides access to the bytes that were received for this Message, along with the length of the byte array.
-The messageContext is provided to enable retrieving metadata about the message and referring to the message, e.g., to send replies and map responses to their requests. See {{msg-ctx}} for details.
+The messageContext is provided to enable retrieving metadata about the message and referring to the message. The messageContext object ist described in {{msg-ctx}}.
 
 See {{framing}} for handling Message framing in situations where the Protocol
 Stack only provides a byte-stream transport.
