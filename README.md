@@ -2,8 +2,6 @@
 
 This is the working area for the IETF TAPS working group Internet-Drafts for the TAPS Architecture, Abstract Interface, and Interface Implementation documents.
 
-**NOTE** This repository will be moving to https://github.com/ietf-tapswg/api-drafts soon. An announcement will be made on the taps@ietf.org mailing list shortly.
-
 **Contributions to this repository (commits and pull requests, as well as issues and comments) are covered under the IETF Note Well.** See [CONTRIBUTING.md](CONTRIBUTING.md) for more.
 
 ## Architecture
