@@ -2925,6 +2925,22 @@ Note that in the absence of message boundary preservation or
 a Message Framer, all bytes received on the Connection will be represented as one
 large Message of indeterminate length.
 
+In the following example, an application only wants to receive up to 1000 bytes
+at a time from a Connection. If a 1500-byte message arrives, it would receive
+the message in two separate ReceivedPartial events.
+
+~~~
+Connection.Receive(1, 1000)
+
+// Receive first 1000 bytes, message is incomplete
+Connection -> ReceivedPartial<messageData(1000 bytes), messageContext, false>
+
+Connection.Receive(1, 1000)
+
+// Receive last 500 bytes, message is now complete
+Connection -> ReceivedPartial<messageData(500 bytes), messageContext, true>
+~~~
+
 #### ReceiveError {#receive-error}
 
 ~~~
