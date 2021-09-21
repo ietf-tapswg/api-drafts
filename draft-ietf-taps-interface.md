@@ -736,7 +736,7 @@ system that the resulting connection will be used to receive multicast messages.
 Remote Endpoint can be used to filter incoming multicast from specific senders. Such
 a Preconnection will only support calling Listen(), not Initiate(). Calling Listen()
 will cause the Transport Services system to register for receiving multicast, such
-as issuing an IGMP join {{?RFC3376}}. Any Connections that are accepted from this
+as issuing an IGMP join {{?RFC3376}} or using MLDv2 for IPV6 {{?RFC4604}}. Any Connections that are accepted from this
 Listener are receive-only.
 
 Similarly, specifying a multicast group address on the Remote Endpoint will indicate that the
