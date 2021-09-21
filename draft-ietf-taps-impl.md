@@ -41,14 +41,6 @@ author:
     country: United States of America
     email: ietf@tenghardt.net
   -
-    ins: K-J. Grinnemo
-    name: Karl-Johan Grinnemo
-    org: Karlstad University
-    street: Universitetsgatan 2
-    city: 651 88 Karlstad
-    country: Sweden
-    email: karl-johan.grinnemo@kau.se
-  -
     ins: T. Jones
     name: Tom Jones
     org: University of Aberdeen
