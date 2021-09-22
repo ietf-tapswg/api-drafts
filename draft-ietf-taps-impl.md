@@ -1025,7 +1025,7 @@ Listen:
 : LISTEN.UDP. Calling `Listen` for UDP Multicast Receive binds a local port, prepares it to receive inbound UDP datagrams from peers, and issues a multicast host join.  If a Remote Endpoint with an address is supplied, the join is Source-specific Multicast, and the path selection is based on the route to the Remote Endpoint.  If a Remote Endpoint is not supplied, the join is Any-source Multicast, and the path selection is based on the outbound route to the group supplied in the Local Endpoint.
 
 There are cases where it is required to open multiple connections for the same address(es). 
-For example, one connection might be opened to listen to a multicast group, and later a separate one to send to the same group; 
+For example, one Connection might be opened to listen to a multicast group, and later a separate one to send to the same group; 
 two applications might independently listen to the same address(es) to send signals to and/or receive signals from a 
 common multicast control bus. 
 In such cases, the interface needs to explicitly enable re-use of the same set of addresses (equivalent to setting SO_REUSEADDR 
@@ -1048,7 +1048,6 @@ Close:
 
 Abort:
 : Calling `Abort` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) is identical to calling `Close`.
-
 
 ## SCTP
 
