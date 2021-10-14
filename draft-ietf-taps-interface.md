@@ -650,7 +650,7 @@ make a peer-to-peer Rendezvous().
 
 If more than one Remote Endpoint is specified on the Preconnection, then
 all the Remote Endpoints on the Preconnection SHOULD represent the same
-host. For example, the Remote Endpoints might represent various network
+service. For example, the Remote Endpoints might represent various network
 interfaces of a host, or a server reflexive address that can be used to
 reach a host, or a set of hosts that provide equivalent local balanced
 service. 
