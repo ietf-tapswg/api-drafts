@@ -292,7 +292,7 @@ provides:
   security parameters persistent across multiple Connections.
 
 - Explicit support for multistreaming and multipath transport protocols, and
-  the grouping of related Connections into Connection Groups through `cloning`
+  the grouping of related Connections into Connection Groups through "cloning"
   of Connections (see {{groups}}). This function allows applications to take full advantage of new
   transport protocols supporting these features.
 
