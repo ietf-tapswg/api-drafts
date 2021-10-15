@@ -453,7 +453,7 @@ The following categories of events can be delivered to an application:
 
 ### Connection Groups
 
-A Connection Group is a set of Connections that shares properties and caches. For multiplexing transport protocols, only Connections within the same Connection Group are allowed to be multiplexed together.
+A Connection Group is a set of Connections at the sender that shares properties and caches. For multiplexing transport protocols, only Connections within the same Connection Group are allowed to be multiplexed together.
 While Connection Groups are managed by the transport system, an application can define Connection Contexts to control caching boundaries, as discussed in {{conn-context}}.
 
 ## Transport Services Implementation Concepts
