@@ -224,10 +224,8 @@ are platform- and implementation-specific.
 We also make use of the following basic types:
 
 - Boolean: Instances take the value `true` or `false`.
-- Integer: Instances take positive or negative numeric integer values, or sometimes
-  special non-numeric (symbolic) values.
-- Numeric: Instances take positive or negative numeric values, or sometimes special
-  non-numeric (symbolic) values.
+- Integer: Instances take positive or negative numeric integer values.
+- Numeric: Instances take positive or negative numbers as values.
 - Enumeration: A family of types in which each instance takes one of a fixed,
   predefined set of values specific to a given enumerated type.
 - Tuple: An ordered grouping of multiple value types, represented as a
@@ -1824,17 +1822,19 @@ Name:
 : recvChecksumLen
 
 Type:
-: Integer (non-negative with special value `Full Coverage`)
+: (Integer, Boolean)
 
 Default:
 : Full Coverage
 
-This property specifies the minimum number of bytes in a received
+The Integer value of this Tuple specifies the minimum number of bytes in a received
 message that need to be covered by a checksum. A special value of 0 means
 that a received packet does not need to have a non-zero checksum field. 
 A receiving endpoint will not forward messages that have less coverage 
 to the application. The application is responsible for handling
 any corruption within the non-protected part of the message {{!RFC8085}}.
+If the Boolean value in this Tuple is `false`, the Integer value will be ignored, and
+the meaning is `Full Coverage`.
 
 ### Connection Priority {#conn-priority}
 
@@ -1863,15 +1863,16 @@ Name:
 : connTimeout
 
 Type:
-: Numeric, with special value `Disabled`
+: (Numeric, Boolean)
 
 Default:
 : Disabled
 
-This property specifies how long to wait before deciding that an active Connection has
+The Numeric value of this Tuple specifies how long to wait before deciding that an active Connection has
 failed when trying to reliably deliver data to the Remote Endpoint. Adjusting this Property
-will only take effect when the underlying stack supports reliability. The special value
-`Disabled` means that no timeout is scheduled.
+will only take effect when the underlying stack supports reliability.
+If the Boolean value in this Tuple is `false`, the Numeric value will be ignored, and
+the meaning is `Disabled`, i.e., no timeout is scheduled.
 
 ### Timeout for keep alive packets {#keep-alive-timeout}
 
@@ -1879,19 +1880,22 @@ Name:
 : keepAliveTimeout
 
 Type:
-: Numeric, with special value `Disabled`
+: (Numeric, Boolean)
 
 Default:
 : Implementation-defined
 
 A Transport Services system can request a protocol that supports sending keep alive packets {{keep-alive}}.
-This property specifies the maximum length of time an idle connection (one for which no transport
+The Numeric value of this Tuple specifies the maximum length of time an idle connection (one for which no transport
 packets have been sent) should wait before 
 the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting this Property
 will only take effect when the underlying stack supports sending keep-alive packets. 
 Guidance on setting this value for datagram transports is 
 provided in {{!RFC8085}}.
-A value greater than the connection timeout ({{conn-timeout}}), or the special value `Disabled`, will disable the sending of keep-alive packets.
+If the Boolean value in this Tuple is `false`, the Numeric value will be ignored, and
+the meaning is `Disabled`. In this case, or when the Numeric value is greater than the connection timeout ({{conn-timeout}}),
+the sending of keep-alive packets will be disabled.
+
 
 ### Connection Group Transmission Scheduler {#conn-scheduler}
 
@@ -2014,16 +2018,17 @@ Name:
 : minSendRate / minRecvRate / maxSendRate / maxRecvRate
 
 Type:
-: Numeric (with special value `Unlimited`) / Numeric (with special value `Unlimited`) / Numeric (with special value `Unlimited`) / Numeric (with special value `Unlimited`)
+: (Numeric, Boolean) / (Numeric, Boolean) / (Numeric, Boolean) / (Numeric, Boolean)
 
 Default:
 : Unlimited / Unlimited / Unlimited / Unlimited
 
-This property specifies an upper-bound rate that a transfer is not expected to
+The Numeric values of this property's Tuples specify an upper-bound rate that a transfer is not expected to
 exceed (even if flow control and congestion control allow higher rates), and/or a
 lower-bound rate below which the application does not deem
 it will be useful. These are specified in bits per second. 
-The special value `Unlimited` indicates that no bound is specified.
+If the Boolean value in this Tuple is `false`, the Numeric value will be ignored, and
+the meaning is `Unlimited`. This indicates that no bound is specified.
 
 ### Group Connection Limit
 
@@ -2031,16 +2036,18 @@ Name:
 : groupConnLimit
 
 Type:
-: Numeric (with special value `Unlimited`)
+: (Numeric, Boolean)
 
 Default:
 : Unlimited
 
-This property controls the number of Connections that can be accepted from
+The Numeric value of this Tuple controls the number of Connections that can be accepted from
 a peer as new members of the Connection's group. Similar to SetNewConnectionLimit(),
 this limits the number of ConnectionReceived Events that will occur, but constrained
 to the group of the Connection associated with this property. For a multi-streaming transport,
-this limits the number of allowed streams.
+this limits the number of allowed streams. If the Boolean value in this Tuple is `false`, the Numeric value will be ignored, and
+the meaning is `Unlimited`. This indicates that no limit of the number of allowed streams is specified.
+
 
 ### Isolate Session {#isolate-session}
 Name:
@@ -2511,16 +2518,18 @@ Name:
 : msgChecksumLen
 
 Type:
-: Integer (non-negative with special value `Full Coverage`)
+: (Integer, Boolean)
 
 Default:
 : Full Coverage
 
-This property specifies the minimum length of the section of a sent Message,
+This Integer value of this Tuple specifies the minimum length of the section of a sent Message,
 starting from byte 0, that the application requires to be delivered without
 corruption due to lower layer errors. It is used to specify options for simple
 integrity protection via checksums. A value of 0 means that no checksum
-needs to be calculated, and `Full Coverage` means
+needs to be calculated.
+If the Boolean value in this Tuple is `false`, the Numeric value will be ignored, and
+the meaning is `Full Coverage`. This means
 that the entire Message needs to be protected by a checksum. Only `Full Coverage` is
 guaranteed, any other requests are advisory, which may result in `Full Coverage` being applied.
 
@@ -3249,10 +3258,7 @@ correspondences in practical programming languages, perhaps constrained by
 implementation-specific limitations. For example:
 
 - An Integer can typically be represented in C by an `int` or `long`, subject
-  to the underlying platform's ranges for each. To accommodate special values,
-  a C function that returns a non-negative `int` on success may return -1 on
-  failure. In Python, such a function might return `None` or raise an
-  exception.
+  to the underlying platform's ranges for each.
 - In C, a Tuple may be represented as a `struct` with one member for each of
   the value types in the ordered grouping. In Python, by contrast, a Tuple may
   be represented natively as a `tuple`, a sequence of dynamically-typed
