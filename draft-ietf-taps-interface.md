@@ -389,6 +389,7 @@ Listener -> ConnectionReceived<Connection>
 // Only receive complete messages in a Conn.Received handler
 Connection.Receive()
 
+messageContext := NewMessageContext()
 Connection -> Received<messageDataRequest, messageContext>
 
 //---- Receive event handler begin ----
@@ -440,6 +441,7 @@ C.Send(messageDataRequest)
 // Only receive complete messages
 C.Receive()
 //---- Ready event handler for any Connection C end ----
+messageContext := NewMessageContext()
 
 Connection -> Received<messageDataResponse, messageContext>
 Connection2 -> Received<messageDataResponse, messageContext>
