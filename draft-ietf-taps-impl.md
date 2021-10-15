@@ -91,29 +91,14 @@ informative:
           ins: M. Tuexen
       date: 2017
     TCP-COUPLING:
-      title: "ctrlTCP: Reducing Latency through Coupled, Heterogeneous Multi-Flow TCP Congestion Control"
+      title: "Lightweight and Flexible Single-Path Congestion Control Coupling"
       seriesinfo:
-          IEEE INFOCOM Global Internet Symposium (GI) workshop (GI 2018)
+          Ph.D. thesis, University of Oslo. Available from http://urn.nb.no/URN:NBN:no-59695
       authors:
       -
         ins: S. Islam
         name: Safiqul Islam
-      -
-        ins: M. Welzl
-        name: Michael Welzl
-      -
-        ins: K. Hiorth
-        name: Kristian Hiorth
-      -
-        ins: D. Hayes
-        name: David Hayes
-      -
-        ins: G. Armitage
-        name: Grenville Armitage
-      -
-        ins: S. Gjessing
-        name: Stein Gjessing
-    date: 2018-04-15
+    date: 2017
 
 
 --- abstract

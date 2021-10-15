@@ -105,29 +105,14 @@ informative:
   I-D.ietf-taps-impl:
   RFC7556:
   TCP-COUPLING:
-    title: "ctrlTCP: Reducing Latency through Coupled, Heterogeneous Multi-Flow TCP Congestion Control"
+    title: "Lightweight and Flexible Single-Path Congestion Control Coupling"
     seriesinfo:
-        IEEE INFOCOM Global Internet Symposium (GI) workshop (GI 2018)
+        Ph.D. thesis, University of Oslo. Available from http://urn.nb.no/URN:NBN:no-59695
     author:
       -
         ins: S. Islam
         name: Safiqul Islam
-      -
-        ins: M. Welzl
-        name: Michael Welzl
-      -
-        ins: K. Hiorth
-        name: Kristian Hiorth
-      -
-        ins: D. Hayes
-        name: David Hayes
-      -
-        ins: G. Armitage
-        name: Grenville Armitage
-      -
-        ins: S. Gjessing
-        name: Stein Gjessing
-    date: 2018
+    date: 2017
 
 
 --- abstract
@@ -1707,9 +1692,18 @@ in the same group.
 ~~~
 
 Connections will belong to the same group if the application previously called Clone.
-Passive Connections can also be added to the same group -- e.g., when a Listener
-receives a new Connection that is just a new stream of an already active multi-streaming
-protocol instance.
+Connections resulting from a passive open can also be grouped.
+This can automatically be done by the Transport Services system, e.g., when a Listener
+receives a new Connection that is a new stream of an already active multi-streaming
+protocol instance. An application can also add a Connection to a group at any time by giving it as
+a parameter to the AddToGroup Action of any Connection that is already in the group:
+
+~~~
+Connection.AddToGroup(Connection)
+~~~
+
+If the Connection whose AddToGroup Action is being called is not yet in a group,
+calling this Action will form a new group containing the two Connections.
 
 If the underlying protocol supports multi-streaming, it is natural to use this
 functionality to implement Clone. In that case, Connections in a Connection Group are
@@ -1724,7 +1718,8 @@ Connection Properties by uniformly applying them to all underlying connections
 in a group. Even in such a case, there are possibilities for a Transport Services system
 to implement prioritization within a Connection Group {{TCP-COUPLING}} {{?RFC8699}}.
 
-Attempts to clone a Connection can result in a CloneError:
+Attempts to clone a Connection can result in a CloneError, e.g. when attempting to
+group a Connection that already belongs to a group:
 
 ~~~
 Connection -> CloneError<reason?>
