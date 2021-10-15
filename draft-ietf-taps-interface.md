@@ -146,7 +146,7 @@ multiple interfaces and potential transport protocols.
 
 # Introduction
 
-This document specifies an abstract application programming interface (API) that follows
+This document specifies an abstract application programming interface (API) that specifies the interface component of
 the high-level architecture for transport services defined in
 {{I-D.ietf-taps-arch}}. The Transport Services Architecture supports
 asynchronous, atomic transmission of messages over transport protocols and
