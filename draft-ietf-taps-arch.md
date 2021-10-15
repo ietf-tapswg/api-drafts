@@ -224,7 +224,7 @@ A goal of the Transport Services architecture is to redefine the interface betwe
 
 There are several degrees in which a Transport Services system is intended to offer flexibility to an application: it can provide access to multiple sets of protocols and protocol features; it can use these protocols across multiple paths that could have different performance and functional characteristics; and it can communicate with different remote systems to optimize performance, robustness to failure, or some other metric. Beyond these, if the API for the system remains the same over time, new protocols and features can be added to the system's implementation without requiring changes in applications for adoption. Similarly this can provide a common basis for utilising information about a a network path or interface, enabling evolution below the transport layer.
 
-The normative requirements described here allow Transport Services APIs and Implementations to provide this functionality without causing incompatibility or introducing security vulnerabilities. 
+The normative requirements described in this section allow Transport Services APIs and Implementations to provide this functionality without causing incompatibility or introducing security vulnerabilities. 
 
 ## Provide Common APIs for Common Features
 
@@ -271,7 +271,7 @@ The Transport Services system makes decisions that select protocols and interfac
 
 # Transport Services Architecture and Concepts {#concepts}
 
-The remainder of this document describes the architecture non-normatively. The concepts defined in this document are intended primarily for use in the documents and specifications that describe the Transport Services architecture and API. While the specific terminology can be used in some implementations, it is expected that there will remain a variety of terms used by running code. 
+This ection and the remainder of this document describe the architecture non-normatively. The concepts defined in this document are intended primarily for use in the documents and specifications that describe the Transport Services architecture and API. While the specific terminology can be used in some implementations, it is expected that there will remain a variety of terms used by running code. 
 
 The architecture divides the concepts for Transport Services into two categories:
 
