@@ -271,7 +271,7 @@ The Transport Services system makes decisions that select protocols and interfac
 
 # Transport Services Architecture and Concepts {#concepts}
 
-This ection and the remainder of this document describe the architecture non-normatively. The concepts defined in this document are intended primarily for use in the documents and specifications that describe the Transport Services architecture and API. While the specific terminology can be used in some implementations, it is expected that there will remain a variety of terms used by running code. 
+This Section and the remainder of this document describe the architecture non-normatively. The concepts defined in this document are intended primarily for use in the documents and specifications that describe the Transport Services architecture and API. While the specific terminology can be used in some implementations, it is expected that there will remain a variety of terms used by running code. 
 
 The architecture divides the concepts for Transport Services into two categories:
 
