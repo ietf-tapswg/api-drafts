@@ -112,8 +112,9 @@ This document describes the Transport Services architecture in three sections:
 
 - {{requirements}} explains the fundamental requirements for a Transport Services API. These principles are intended to make sure that transport protocols can continue to be enhanced and evolve without requiring significant changes by application developers.
 
-- {{concepts}} presents the Transport Services architecture diagram and defines the concepts that are used by both the API and implementation documents. The Preconnection allows applications to configure Connection Properties, and the Connection represents an object that can be used to send and receive Messages. 
-- A Connection is an abstraction that represents the communication. If the transport services interface selects a protocol such as TCP for the communication, a Connection will correspond to an underlying protocol connection. If however a protocol such as UDP is selected, the Connection remains an abstraction at the end points.
+- {{concepts}} presents the Transport Services architecture diagram and defines the concepts that are used by both the API and implementation documents. The Preconnection allows applications to configure Connection Properties. 
+
+- {{concepts}} also presents how an abstract Connection is used to select a transport protocol instance such as TCP, UDP, or another transport. The Connection represents an object that can be used to send and receive Messages.
 
 ## Specification of Requirements
 
@@ -379,7 +380,7 @@ The diagram below provides a high-level view of the actions and events during th
 
   * Message Properties ({{datatransfer}}) that can be specified as defaults on a Preconnection or a Connection, and can also be specified during data transfer to affect specific Messages.
 
-* Connection: A Connection object represents one or more active transport protocol instances that can send and/or receive Messages between local and remote systems. It holds state pertaining to the underlying transport protocol instances and any ongoing data transfers. This represents, for example, an active Connection in a connection-oriented protocol such as TCP, or a fully-specified 5-tuple for a connectionless protocol such as UDP. It can also represent a pool of transport protocol instances, e.g., a set of TCP and QUIC connections to equivalent endpoints, or a stream of a multi-streaming transport protocol instance. Connections can be created from a Preconnection or by a Listener.
+* Connection: A Connection object represents one or more active transport protocol instances that can send and/or receive Messages between local and remote systems. It is an abstraction that represents the communication. The Connection object holds state pertaining to the underlying transport protocol instances and any ongoing data transfers. For example, an active Connection can represent a connection-oriented protocol such as TCP, or can represent a fully-specified 5-tuple for a connectionless protocol such as UDP, where the Connection remains an abstraction at the end points. It can also represent a pool of transport protocol instances, e.g., a set of TCP and QUIC connections to equivalent endpoints, or a stream of a multi-streaming transport protocol instance. Connections can be created from a Preconnection or by a Listener. 
 
 * Listener: A Listener object accepts incoming transport protocol connections from remote systems and generates corresponding Connection objects. It is created from a Preconnection object that specifies the type of incoming Connections it will accept.
 
