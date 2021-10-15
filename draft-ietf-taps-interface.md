@@ -1733,7 +1733,7 @@ Connection -> CloneError<reason?>
 The `Connection Priority` Connection Property operates on Connections in a Connection Group
 using the same approach as in {{msg-priority}}: when allocating available network
 capacity among Connections in a Connection Group, sends on Connections with
-higher Priority values will be prioritized over sends on Connections with
+higher Priority values will be prioritized over sends on Connections that have
 lower Priority values. Capacity will be shared among these Connections according to
 the Connection Group Transmission Scheduler property ({{conn-scheduler}}). 
 See {{priority-in-taps}} for more.
