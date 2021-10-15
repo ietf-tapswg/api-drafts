@@ -1719,7 +1719,8 @@ in a group. Even in such a case, there are possibilities for a Transport Service
 to implement prioritization within a Connection Group {{TCP-COUPLING}} {{?RFC8699}}.
 
 Attempts to clone a Connection can result in a CloneError, e.g. when attempting to
-group a Connection that already belongs to a group:
+add a Connection to a group with mismatching Transport Properties or when
+the newly added Connection already belongs to a group:
 
 ~~~
 Connection -> CloneError<reason?>
