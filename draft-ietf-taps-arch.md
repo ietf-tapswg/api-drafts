@@ -453,7 +453,7 @@ The following categories of events can be delivered to an application:
 
 ### Connection Groups
 
-The API allows an existing Connection to be cloned. This adds another new Connection to the Connection Group. All Connections in a Connection Group share the set of Connection Properties except for the “Connection Priority”. A change to one of the Connection Properties on any Connection in the Connection Group automatically changes the Connection Property for all others. These Connection Properties are said to be entangled. 
+The API allows an existing Connection to be cloned. This adds another new Connection to the Connection Group. All Connections in a Connection Group share the same set of Connection Properties except for the “Connection Priority”. A change to one of the Connection Properties on any Connection in the Connection Group automatically changes the Connection Property for all others. These Connection Properties are said to be entangled. 
 
 For multiplexing transport protocols, only Connections within the same Connection Group are allowed to be multiplexed together. Passive Connections can also be added to a Connection Group - e.g., when a Listener receives a new Connection that is just a new stream of an already active multi-streaming protocol
 instance.
