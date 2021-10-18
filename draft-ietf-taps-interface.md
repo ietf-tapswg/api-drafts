@@ -734,14 +734,19 @@ early binding when required, for example with some Network Address Translator
 Specifying a multicast group address on a Local Endpoint will indicate to the transport
 system that the resulting connection will be used to receive multicast messages. The
 Remote Endpoint can be used to filter incoming multicast from specific senders. Such
-a Preconnection will only support calling Listen(), not Initiate(). The accepted Connections
-are receive-only.
+a Preconnection will only support calling Listen(), not Initiate(). Calling Listen()
+will cause the Transport Services system to register for receiving multicast, such
+as issuing an IGMP join {{?RFC3376}} or using MLDv2 for IPV6 {{?RFC4604}}. Any Connections that are accepted from this
+Listener are receive-only.
 
 Similarly, specifying a multicast group address on the Remote Endpoint will indicate that the
 resulting connection will be used to send multicast messages, and that the Preconnection will
-support Initiate() but not Listen(). The Connection created this way is send-only.
+support Initiate() but not Listen(). Any Connections created this way are send-only.
 
-A Rendezvous() call on Preconnections containing group addresses results in an EstablishmentError as described in {{rendezvous}}.
+A Rendezvous() call on Preconnections containing group addresses results in an
+EstablishmentError as described in {{rendezvous}}.
+
+See {{multicast-examples}} for more examples.
 
 ### Endpoint Aliases
 
@@ -828,6 +833,8 @@ LocalSpecifier := NewLocalEndpoint()
 LocalSpecifier.WithStunServer(address, port, credentials)
 ~~~
 
+### Multicast Examples {#multicast-examples}
+
 Specify a Local Endpoint using an Any-Source Multicast group to join on a named local interface:
 
 ~~~
@@ -845,6 +852,53 @@ LocalSpecifier.WithInterface("en0")
 
 RemoteSpecifier := NewRemoteEndpoint()
 RemoteSpecifier.WithIPv4Address(192.0.2.22)
+~~~
+
+One common pattern for multicast is to both send and receive multicast. For such
+cases, an application can set up both a Listener and a Connection. The Listener
+is only used to accept Connections that receive inbound multicast. The initiated
+Connection is only used to send multicast.
+
+~~~
+// Prepare multicast Listener
+LocalMulticastSpecifier := NewLocalEndpoint()
+LocalMulticastSpecifier.WithIPv4Address(233.252.0.0)
+LocalMulticastSpecifier.WithPort(5353)
+LocalMulticastSpecifier.WithInterface("en0")
+
+TransportProperties := NewTransportProperties()
+TransportProperties.Require(preserve-msg-boundaries)
+// Reliable Data Transfer and Preserve Order are Required by default
+                                  
+// Specifying a Remote Endpoint is optional when using Listen()
+Preconnection := NewPreconnection(LocalMulticastSpecifier,
+                                  TransportProperties,
+                                  SecurityParameters)
+
+MulticastListener := Preconnection.Listen()
+
+// Handle inbound messages sent to the multicast group
+MulticastListener -> ConnectionReceived<MulticastReceiverConnection>
+MulticastReceiverConnection.Receive()
+MulticastReceiverConnection -> Received<messageDataRequest, messageContext>
+
+// Prepare Connection to send multicast
+LocalSpecifier := NewLocalEndpoint()
+LocalSpecifier.WithPort(5353)
+LocalSpecifier.WithInterface("en0")
+RemoteMulticastSpecifier := NewRemoteEndpoint()
+RemoteMulticastSpecifier.WithIPv4Address(233.252.0.0)
+RemoteMulticastSpecifier.WithPort(5353)
+RemoteMulticastSpecifier.WithInterface("en0")
+
+Preconnection2 := NewPreconnection(LocalSpecifier,
+                                   RemoteMulticastSpecifier,
+                                   TransportProperties,
+                                   SecurityParameters)
+                                   
+// Send outbound messages to the multicast group
+MulticastSenderConnection := Preconnection.Initiate()
+MulticastSenderConnection.Send(messageData)
 ~~~
 
 ## Specifying Transport Properties {#selection-props}
