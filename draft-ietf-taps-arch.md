@@ -189,8 +189,7 @@ There are key differences between the architecture of the Transport Services sys
 ## Event-Driven API
 
 Originally, sockets presented a blocking interface for establishing connections and transferring data. However, most modern applications interact with the network asynchronously. Emulation of an asynchronous interface using sockets generally uses a try-and-fail model. If the application wants to read, but data has not yet been received from the peer, the call to read will fail. The application then waits and can try again later.
- 
-In contrast to sockets, all interaction using the Transport Services API is expected to be asynchronous, and use an event-driven model (see {{events}}). For example, an application first completes a call to receive new data from the connection. When delivered data becomes available, this data is delivered to the application using asynchronous events that contain the data. Error handling is also asynchronous; a failure to send results in an asynchronous send error as an event. 
+In contrast to sockets, all interaction using the Transport Services API is expected to be asynchronous and use an event-driven model (see {{events}}). For example, an application first issues a call to receive new data from the connection. When delivered data becomes available, this data is delivered to the application using asynchronous events that contain the data. Error handling is also asynchronous; a failure to send data results in an asynchronous error event. 
 
 The Transport Services API also delivers events regarding the lifetime of a connection and changes in the available network links, which were not previously made explicit in sockets.
 
