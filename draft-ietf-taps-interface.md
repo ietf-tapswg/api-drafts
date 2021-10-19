@@ -393,7 +393,9 @@ messageContext := NewMessageContext()
 Connection -> Received<messageDataRequest, messageContext>
 
 //---- Receive event handler begin ----
-Connection.Send(messageDataResponse)
+messageContext.add(msgPrio, 200)
+messageContext.add(final, true)
+Connection.Send(messageDataResponse, messageContext)
 Connection.Close()
 
 // Stop listening for incoming Connections
