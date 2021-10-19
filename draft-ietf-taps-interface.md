@@ -1835,8 +1835,7 @@ message that need to be covered by a checksum.
 A receiving endpoint will not forward messages that have less coverage 
 to the application. The application is responsible for handling
 any corruption within the non-protected part of the message {{!RFC8085}}.
-A special value of 0 means
-that a received packet may also have a zero checksum field.
+A special value of 0 means that a received packet may also have a zero checksum field.
 
 
 ### Connection Priority {#conn-priority}
