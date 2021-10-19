@@ -532,7 +532,7 @@ the respective protocol has been selected.
 ## Transport Property Names {#property-names}
 
 Transport Properties are referred to by property names. For the purposes of this document, these names are
-alphanumeric strings in which words may be separated by hyphens.
+alphanumeric strings in which words may be separated by hyphens. Specifically, the following characters are allowed: lowercase letters `a-z`, uppercase letters `A-Z`, digits `0-9`, the hyphen `-`, and the underscore `_`.
 These names serve two purposes:
 
 - Allowing different components of a TAPS implementation to pass Transport
