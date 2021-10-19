@@ -299,10 +299,6 @@ provides:
 
 # API Summary
 
-The Transport Services API is the basic common abstract application
-programming interface to the Transport Services Architecture defined in the TAPS
-Architecture {{I-D.ietf-taps-arch}}.
-
 An application primarily interacts with this API through two Objects:
 Preconnections and Connections. A Preconnection object ({{pre-establishment}}) 
 represents a set of properties and constraints on the selection and configuration of
@@ -451,6 +447,7 @@ Connection2.Close()
 
 Preconnections are reusable after being used to initiate a Connection. Hence, for example, after the Connections were closed,
 the following would be correct:
+
 ~~~
 //.. carry out adjustments to the Preconnection, if desire
 Connection := Preconnection.Initiate()
@@ -463,7 +460,8 @@ This is an example of how an application might establish a connection with a
 peer using Rendezvous(), send a Message, and receive a Message.
 
 ~~~
-// Configure local candidates: a port on the Local Endpoint and via a STUN server
+// Configure local candidates: a port on the Local Endpoint
+// and via a STUN server
 HostCandidate := NewLocalEndpoint()
 HostCandidate.WithPort(9876)
 
@@ -488,7 +486,8 @@ Preconnection := NewPreconnection(LocalCandidates,
 ResolvedLocal, ResolvedRemote = Preconnection.Resolve()
 
 // ...Send the ResolvedLocal list to peer via signalling channel
-// ...Receive a list of RemoteCandidates from peer via signalling channel
+// ...Receive a list of RemoteCandidates from peer via
+//    signalling channel
 
 Preconnection.AddRemote(RemoteCandidates)
 Preconnection.Rendezvous()
@@ -509,9 +508,8 @@ Connection.Close()
 # Transport Properties {#transport-properties}
 
 Each application using the Transport Services Interface declares its preferences
-for how the transport service should operate using properties at each stage of
-the lifetime of a connection using Transport Properties, as defined in
-{{I-D.ietf-taps-arch}}. 
+for how the transport service should operate. This is done by using Transport Properties, as defined in
+{{I-D.ietf-taps-arch}}, at each stage of the lifetime of a connection. 
 
 Transport Properties are divided into Selection, Connection, and Message
 Properties. Selection Properties (see {{selection-props}}) can only be set during pre-establishment. They are only used to specify which paths and protocol stacks can be used and are preferred by the application. 
@@ -559,8 +557,11 @@ form \[\<Namespace>.\]\<PropertyName\>.
   the vendor or implementation as the Namespace.
   
 Namespaces for each of the keywords provided in the IANA protocol numbers registry 
-(see https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml), reformatted where necessary to conform to an implementation's naming conventions, are reserved
+(see https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml) are reserved
 for Protocol Specific Properties and MUST NOT be used for vendor or implementation-specific properties. 
+Avoid using any of the terms listed as keywords in the protocol numbers registry as any part of a vendor- or
+implementation-specific property name.
+
 
 ## Transport Property Types {#property-types}
 
@@ -649,7 +650,7 @@ make a peer-to-peer Rendezvous().
 
 If more than one Remote Endpoint is specified on the Preconnection, then
 all the Remote Endpoints on the Preconnection SHOULD represent the same
-host. For example, the Remote Endpoints might represent various network
+service. For example, the Remote Endpoints might represent various network
 interfaces of a host, or a server reflexive address that can be used to
 reach a host, or a set of hosts that provide equivalent local balanced
 service. 
@@ -1884,11 +1885,12 @@ Default:
 : Full Coverage
 
 This property specifies the minimum number of bytes in a received
-message that need to be covered by a checksum. A special value of 0 means
-that a received packet does not need to have a non-zero checksum field. 
+message that need to be covered by a checksum. 
 A receiving endpoint will not forward messages that have less coverage 
 to the application. The application is responsible for handling
 any corruption within the non-protected part of the message {{!RFC8085}}.
+A special value of 0 means that a received packet may also have a zero checksum field.
+
 
 ### Connection Priority {#conn-priority}
 
