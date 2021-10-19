@@ -454,6 +454,12 @@ The following categories of events can be delivered to an application:
 ### Connection Groups
 
 A Connection Group is a set of Connections at the sender that shares properties and caches. For multiplexing transport protocols, only Connections within the same Connection Group are allowed to be multiplexed together.
+
+When the API clones an existing Connection, this adds a new Connection to the Connection Group. A change to one of the Connection Properties on any Connection in the Connection Group automatically changes the Connection Property for all others. All Connections in a Connection Group share the same set of Connection Properties except for the Connection Priority. These Connection Properties are said to be entangled. 
+
+For multiplexing transport protocols, only Connections within the same Connection Group are allowed to be multiplexed together. Passive Connections can also be added to a Connection Group, e.g., when a Listener receives a new Connection that is just a new stream of an already active multi-streaming protocol
+instance.
+
 While Connection Groups are managed by the transport system, an application can define Connection Contexts to control caching boundaries, as discussed in {{conn-context}}.
 
 ## Transport Services Implementation Concepts
