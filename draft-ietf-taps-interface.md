@@ -324,11 +324,6 @@ It is not necessary for an application to handle all Events; some Events may
 have implementation-specific default handlers. The application should not
 assume that ignoring Events (e.g., Errors) is always safe.
 
-{{pre-establishment}}, {{establishment}}, {{sending}}, {{receiving}}, and
-{{termination}} describe the details of application interaction with Objects
-through Actions and Events in each phase of a Connection, following the phases
-(Pre-Establishment, Establishment, Data Transfer, and Termination)
-described in Section 4.1 of {{I-D.ietf-taps-arch}}.
 
 ## Usage Examples
 
