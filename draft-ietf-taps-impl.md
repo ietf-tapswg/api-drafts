@@ -137,7 +137,6 @@ event-driven interaction pattern. This document serves as a guide to implementat
 The Transport Services architecture {{I-D.ietf-taps-arch}} defines a system that allows applications to use transport networking protocols flexibly. The interface such a system exposes to applications is defined as the Transport Services API {{I-D.ietf-taps-interface}}. This API is designed to be generic across multiple transport protocols and sets of protocols features.
 
 This document serves as a guide to implementation on how to build a system that provides a Transport Services API. It is the job of an implementation of a Transport Services system to turn the requests of an application into decisions on how to establish connections, and how to transfer data over those connections once established. 
-Note that many operating systems also allow a UDP(-Lite) socket to be connected, i.e., to bind a UDP socket to a specific pair of addresses and ports. This is similar to the corresponding TCP sockets API functionality. However, for UDP(-Lite), this is only a local operation that serves to simplify the local send/receive functions and to filter the traffic for the specified addresses and ports {{?RFC8085}}.
 
 The terminology used in this document is based on the Architecture {{I-D.ietf-taps-arch}}.
 
@@ -154,7 +153,11 @@ Preconnection objects should be implemented as bundles of properties that an app
 Once a Preconnection has been used to create an outbound Connection or a Listener, the implementation should ensure that the copy of the properties held by the Connection or Listener is not affected when the application makes changes to a Preconnection object. This may involve the implementation performing a deep-copy, copying the object with all the objects that it references.
 
 Once the Connection is established, its interface maps actions and events to the details of the chosen Protocol Stack. For example, the same Connection object may ultimately represent a single instance of one transport protocol (e.g., a TCP connection, a TLS session over TCP, a UDP flow with fully-specified Local and Remote Endpoints, a DTLS session, a SCTP stream, a QUIC stream, or an HTTP/2 stream).
-The properties held by a Connection or Listener is independent of other connections that are not part of the same Connection Group. Once Initate has been called, the Selection Properties and Endpoint information are immutable (i.e, an application is not able to later modify Selection Properties on the original Preconnection object).
+The properties held by a Connection or Listener is independent of other connections that are not part of the same Connection Group. 
+
+For a Datagram transport (e.g. UDP(-Lite)) the establishment of a Connection is only a local operation, which serves to simplify the local send/receive functions and to filter the traffic for the specified addresses and ports {{?RFC8085}}.
+
+Once Initiate has been called, the Selection Properties and Endpoint information are immutable (i.e, an application is not able to later modify Selection Properties on the original Preconnection object).
 Listener objects are created with a Preconnection, at which point their configuration should be considered immutable by the implementation. The process of listening is described in {{listen}}.
 
 # Implementing Pre-Establishment
@@ -953,7 +956,7 @@ Connection Object:
 : UDP connections represent a pair of specific IP addresses and ports on two hosts.
 
 Initiate:
-: CONNECT.UDP. Calling `Initiate` on a UDP Connection causes it to reserve a local port, but does not generate any traffic.
+: CONNECT.UDP. Calling `Initiate` on a UDP Connection causes it to reserve a local port, but does not generate any traffic. 
 
 InitiateWithSend:
 : Early data on a UDP Connection does not have any special meaning. The data is sent whenever the Connection is Ready.
