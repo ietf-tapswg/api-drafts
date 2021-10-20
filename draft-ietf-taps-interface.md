@@ -138,7 +138,7 @@ network paths dynamically at runtime. This API enables faster deployment
 of new protocols and protocol features without requiring changes to the
 applications. The specified API follows the Transport Services Architecture
 by providing asynchronous, atomic transmission of messages. It is intended to replace the
-traditional BSD sockets API as the common interface to the
+BSD sockets API as the common interface to the
 transport layer, in an environment where endpoints could select from 
 multiple interfaces and potential transport protocols.
 
@@ -146,8 +146,8 @@ multiple interfaces and potential transport protocols.
 
 # Introduction
 
-This document specifies a modern abstract application programming interface (API) atop the
-high-level architecture for transport services defined in
+This document specifies an abstract application programming interface (API) that specifies the interface component of
+the high-level architecture for transport services defined in
 {{I-D.ietf-taps-arch}}. The Transport Services Architecture supports
 asynchronous, atomic transmission of messages over transport protocols and
 network paths dynamically selected at runtime, in environments where an endpoint
@@ -164,9 +164,9 @@ mechanisms, which otherwise need to be separately implemented in each applicatio
 This API derives specific path and protocol selection
 properties and supported transport features from the analysis provided in
 {{?RFC8095}}, {{?RFC8923}}, and
-{{?RFC8922}}. The design encourages implementations 
-underneath the interface to dynamically choose a transport protocol depending on an 
-application's choices rather than statically binding applications to a protocol at 
+{{?RFC8922}}. The design encourages implementations that provide the
+interface to dynamically choose a transport protocol rather
+than statically binding applications to a protocol at 
 compile time. Nevertheless, the Transport Services API also provides
 applications with a way to override transport selection and instantiate a specific stack,
 e.g., to support servers wishing to listen to a specific protocol. However, forcing a
@@ -276,8 +276,7 @@ provides:
 
 - Asynchronous Connection establishment, transmission, and reception. 
   This allows concurrent operations during establishment and event-driven
-  application interactions with the transport layer, in line with developments
-  in modern platforms and programming languages;
+  application interactions with the transport layer;
   
 - Selection between alternate network paths, using additional information about the 
   networks over which a connection can operate (e.g. Provisioning Domain (PvD) 
