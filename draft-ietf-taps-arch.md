@@ -453,7 +453,7 @@ The following categories of events can be delivered to an application:
 
 ### Connection Groups
 
-A Connection Group is a set of Connections that shares properties and caches. For multiplexing transport protocols, only Connections within the same Connection Group are allowed to be multiplexed together.
+A Connection Group is a set of Connections that shares properties and caches. A Group represents state for managing Connections within a single application, and does not require end-to-end protocol signaling. For multiplexing transport protocols, only Connections within the same Connection Group are allowed to be multiplexed together.
 
 When the API clones an existing Connection, this adds a new Connection to the Connection Group. A change to one of the Connection Properties on any Connection in the Connection Group automatically changes the Connection Property for all others. All Connections in a Connection Group share the same set of Connection Properties except for the Connection Priority. These Connection Properties are said to be entangled. 
 
