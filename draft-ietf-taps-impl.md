@@ -1020,6 +1020,12 @@ ConnectionError:
 Listen:
 : LISTEN.UDP. Calling `Listen` for UDP Multicast Receive binds a local port, prepares it to receive inbound UDP datagrams from peers, and issues a multicast host join.  If a Remote Endpoint with an address is supplied, the join is Source-specific Multicast, and the path selection is based on the route to the Remote Endpoint.  If a Remote Endpoint is not supplied, the join is Any-source Multicast, and the path selection is based on the outbound route to the group supplied in the Local Endpoint.
 
+There are cases where it is required to open multiple connections for the same address(es). 
+For example, one Connection might be opened for a multicast group to for a multicast control bus, 
+and another application later opens a separate Connection to the same group to send signals to and/or receive signals from the common bus. 
+In such cases, the interface needs to explicitly enable re-use of the same set of addresses (equivalent to setting SO_REUSEADDR 
+in the socket API).
+
 ConnectionReceived:
 : UDP Multicast Receive Listeners will deliver new connections once they have received traffic from a new Remote Endpoint.
 
