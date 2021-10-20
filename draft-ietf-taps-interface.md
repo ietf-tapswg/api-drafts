@@ -164,7 +164,7 @@ mechanisms, which otherwise need to be separately implemented in each applicatio
 This API derives specific path and protocol selection
 properties and supported transport features from the analysis provided in
 {{?RFC8095}}, {{?RFC8923}}, and
-{{?RFC8922}}. The design encourages implementations of the
+{{?RFC8922}}. The design encourages implementations that provide the
 interface to dynamically choose a transport protocol rather
 than statically binding applications to a protocol at 
 compile time. Nevertheless, the Transport Services API also provides
