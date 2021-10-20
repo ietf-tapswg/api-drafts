@@ -153,7 +153,7 @@ Once a Preconnection has been used to create an outbound Connection or a Listene
 Once the Connection is established, its interface maps actions and events to the details of the chosen Protocol Stack. For example, the same Connection object may ultimately represent a single instance of one transport protocol (e.g., a TCP connection, a TLS session over TCP, a UDP flow with fully-specified Local and Remote Endpoints, a DTLS session, a SCTP stream, a QUIC stream, or an HTTP/2 stream).
 The properties held by a Connection or Listener is independent of other connections that are not part of the same Connection Group. 
 
-For a Datagram transport (e.g. UDP(-Lite)) the establishment of a Connection is only a local operation, which serves to simplify the local send/receive functions and to filter the traffic for the specified addresses and ports {{?RFC8085}}.
+Connection establishment is only a local operation for a Datagram transport (e.g., UDP(-Lite)), which serves to simplify the local send/receive functions and to filter the traffic for the specified addresses and ports {{?RFC8085}}.
 
 Once Initiate has been called, the Selection Properties and Endpoint information are immutable (i.e, an application is not able to later modify Selection Properties on the original Preconnection object).
 Listener objects are created with a Preconnection, at which point their configuration should be considered immutable by the implementation. The process of listening is described in {{listen}}.
