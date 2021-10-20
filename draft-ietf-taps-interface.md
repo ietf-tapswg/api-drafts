@@ -709,6 +709,9 @@ RemoteSpecifier.WithIPv6Address(2001:db8:4920:e29d:a420:7461:7073:0a)
 LocalSpecifier.WithInterface("en0")
 ~~~
 
+Note that an IPv6 address specified with a scope (e.g. `2001:db8:4920:e29d:a420:7461:7073:0a%en0`) 
+is equivalent to `WithIPv6Address` with an unscoped address and `WithInterface ` together.
+
 An Endpoint cannot have multiple identifiers of a same type set. That is,
 an endpoint cannot have two IP addresses specified. Two separate IP addresses
 are represented as two Endpoint Objects. If a Preconnection specifies a Remote
