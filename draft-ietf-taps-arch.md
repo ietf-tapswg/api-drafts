@@ -212,11 +212,16 @@ Allowing applications to interact with messages is backwards-compatible with exi
 
 ## Flexibile Implementation
 
-Sockets, for protocols like TCP, are generally limited to connecting to a single address over a single interface. They also present a single stream to the application. Software layers built upon sockets often propagate this limitation of a single-address single-stream model. The Transport Services architecture is designed to handle multiple candidate endpoints, protocols, and paths; to support multipath and multistreaming protocols; and to provide state caching and application control over it.
+Sockets, for protocols like TCP, are generally limited to connecting to a single address over a single interface. They also present a single stream to the application. Software layers built upon sockets often propagate this limitation of a single-address single-stream model. The Transport Services architecture is designed:
 
-Transport Services implementations are meant to be flexible at connection establishment time, considering many different options and trying to select the most optimal combinations ({{gathering}} and {{racing}}). This requires applications to provide higher-level endpoints than IP addresses, such as hostnames and URLs, which are used by a Transport Services implementation for resolution, path selection, and racing. Transport services implementations can further implement fallback mechanisms if connection establishment of one protocol fails or performance is detected to be unsatisfactory.
+- to handle multiple candidate endpoints, protocols, and paths;
+- to support candidate protocol racing to select the most optimal stack in each situation;
+- to support multipath and multistreaming protocols;  
+- to provide state caching and application control over it.
 
-Information used in connection establishment (e.g. cryptographic resumption tokens, path information) are cached in the transport services implementation; applications have control over whether this information is used for a specific establishment, in order to allow tradeoffs between efficiency and linkability.
+Transport Services implementations are meant to be flexible at connection establishment time, considering many different options and trying to select the most optimal combinations by racing them and measuring the results (see {{gathering}} and {{racing}}). This requires applications to provide higher-level endpoints than IP addresses, such as hostnames and URLs, which are used by a Transport Services implementation for resolution, path selection, and racing. Transport services implementations can further implement fallback mechanisms if connection establishment of one protocol fails or performance is detected to be unsatisfactory.
+
+Information used in connection establishment (e.g. cryptographic resumption tokens, information about usability of certain protocols on the path, results of racing in previous connections) are cached in the transport services implementation. Applications have control over whether this information is used for a specific establishment, in order to allow tradeoffs between efficiency and linkability.
 
 Flexibility after connection establishment is also important. Transport protocols that can migrate between multiple network-layer interfaces need to be able to process and react to interface changes. Protocols that support multiple application-layer streams need to support initiating and receiving new streams using existing connections.
 
@@ -517,7 +522,7 @@ RFC-EDITOR: Please remove this section before publication.
 
 This document has no actions for IANA.
 
-# Security Considerations
+# Security and Privacy Considerations
 
 The Transport Services architecture does not recommend use of specific security
 protocols or algorithms. Its goal is to offer ease of use for existing protocols
@@ -532,6 +537,13 @@ between two different Protocol Stacks, both need to use the same security protoc
 and options. However, a Transport Services system can race different security
 protocols, e.g., if the application explicitly specifies that it considers them
 equivalent.
+
+Whether information from previous racing attempts, or other information cached by
+the Transport Services implementation about past communications, is used during 
+establishment is under application control. This allows applications to make
+tradeoffs between efficiency (through racing) and privacy (via information that
+might leak from the cache toward an on-path observer). Some applications have
+native concepts (e.g. "incognito mode") that align with this functionality.
 
 Applications need to ensure that they use security APIs appropriately. In cases
 where applications use an interface to provide sensitive keying material, e.g.,
