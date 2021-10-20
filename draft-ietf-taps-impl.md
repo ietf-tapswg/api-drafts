@@ -954,7 +954,7 @@ Connection Object:
 : UDP connections represent a pair of specific IP addresses and ports on two hosts.
 
 Initiate:
-: CONNECT.UDP. Calling `Initiate` on a UDP Connection causes it to reserve a local port, but does not generate any traffic. 
+: CONNECT.UDP. Calling `Initiate` on a UDP Connection causes it to reserve a local port, but does not generate any traffic.
 
 InitiateWithSend:
 : Early data on a UDP Connection does not have any special meaning. The data is sent whenever the Connection is Ready.
