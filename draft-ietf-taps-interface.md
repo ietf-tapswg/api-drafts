@@ -1786,8 +1786,8 @@ Connection -> CloneError<reason?>
 The `Connection Priority` Connection Property operates on Connections in a Connection Group
 using the same approach as in {{msg-priority}}: when allocating available network
 capacity among Connections in a Connection Group, sends on Connections with
-lower Priority values will be prioritized over sends on Connections with
-higher Priority values. Capacity will be shared among these Connections according to
+higher Priority values will be prioritized over sends on Connections that have
+lower Priority values. Capacity will be shared among these Connections according to
 the Connection Group Transmission Scheduler property ({{conn-scheduler}}). 
 See {{priority-in-taps}} for more.
 
@@ -1901,10 +1901,11 @@ Type:
 Default:
 : 100
 
-This Property is a non-negative integer representing the relative inverse
-priority (i.e., a lower value reflects a higher priority) of this Connection 
+This Property is a non-negative integer representing the
+priority of this Connection 
 relative to other Connections in the same
-Connection Group. It has no effect on Connections not part of a Connection
+Connection Group. A higher value reflects a higher priority. It has no effect
+on Connections not part of a Connection
 Group. As noted in {{groups}}, this property is not entangled when Connections
 are cloned, i.e., changing the Priority on one Connection in a Connection Group 
 does not change it on the other Connections in the same Connection Group. 
