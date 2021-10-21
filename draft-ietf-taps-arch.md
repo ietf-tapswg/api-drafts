@@ -473,7 +473,7 @@ While Connection Groups are managed by the Transport System, an application can 
 
 ## Transport System Implementation
 
-This section defines the key concepts of the Transport System of the Transport Services Architecture.
+This section defines the key concepts of the Transport Services Architecture.
 
 * Transport System: This consists of all objects and protocol instances used internally to a system or library to implement the functionality needed to provide a transport service across a network, as required by the abstract interface.  
 
