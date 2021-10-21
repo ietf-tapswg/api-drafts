@@ -229,7 +229,7 @@ Flexibility after connection establishment is also important. Transport protocol
 
 A goal of the Transport Services architecture is to redefine the interface between applications and transports in a way that allows the transport layer to evolve and improve without fundamentally changing the contract with the application. This requires a careful consideration of how to expose the capabilities of protocols. This architecture also encompasses System Policies that can influence and inform how transport protocols use a network path or interface.
 
-There are several ways the Transport Services Architecture can offer flexibility to an application: it can provide access to multiple sets of protocols and protocol features; it can use these protocols across multiple paths that could have different performance and functional characteristics; and it can communicate with different remote endpoints to optimize performance, robustness to failure, or some other metric. Beyond these, if the API for the Transport Services Architecture remains the same over time, new protocols and features can be added to the Transport System implementation without requiring changes in applications for adoption. Similarly, this can provide a common basis for utilizing information about a network path or interface, enabling evolution below the transport layer.
+There are several ways the Transport Services Architecture can offer flexibility to an application: it can provide access to multiple sets of protocols and protocol features; it can use these protocols across multiple paths that could have different performance and functional characteristics; and it can communicate with different Remote Endpoints to optimize performance, robustness to failure, or some other metric. Beyond these, if the API for the Transport Services Architecture remains the same over time, new protocols and features can be added to the Transport System implementation without requiring changes in applications for adoption. Similarly, this can provide a common basis for utilizing information about a network path or interface, enabling evolution below the transport layer.
 
 The normative requirements described in this section allow Transport Services APIs and Implementations to provide this functionality without causing incompatibility or introducing security vulnerabilities. 
 
@@ -260,7 +260,7 @@ A Transport System implementation can select Protocol Stacks based on the Select
 
 The following two examples show non-equivalent Protocol Stacks:
 
- - If the application requires preservation of message boundaries, a Protocol Stack that runs UDP as the top-level interface to the application is not equivalent to a Protocol Stack that runs TCP as the top-level interface. A UDP stack would allow an application to read out message boundaries based on datagrams sent from the remote endpoint, whereas TCP does not preserve message boundaries on its own, but needs a framing protocol on top to determine message boundaries.
+ - If the application requires preservation of message boundaries, a Protocol Stack that runs UDP as the top-level interface to the application is not equivalent to a Protocol Stack that runs TCP as the top-level interface. A UDP stack would allow an application to read out message boundaries based on datagrams sent from the Remote Endpoint, whereas TCP does not preserve message boundaries on its own, but needs a framing protocol on top to determine message boundaries.
 
 - If the application specifies that it requires reliable transmission of data, then a Protocol Stack using UDP without any reliability layer on top would not be allowed to replace a Protocol Stack using TCP.
 
@@ -268,7 +268,7 @@ The following example shows equivalent Protocol Stacks:
 
 - If the application does not require reliable transmission of data, then a Protocol Stack that adds reliability could be regarded as an equivalent Protocol Stack as long as providing this would not conflict with any other application-requested properties.
 
-To ensure that security protocols are not incorrectly swapped, a Transport System implementation MUST only select Protocol Stacks that meet application requirements ({{?RFC8922}}). Transport System implementations SHOULD only race Protocol Stacks where the transport security protocols within the stacks are identical. A Transport System implementation MUST NOT automatically fall back from secure protocols to insecure protocols, or to weaker versions of secure protocols. A Transport System implementation MAY allow applications to explicitly specify that fallback to a specific other version of a protocol is allowed, e.g., to allow fallback to TLS 1.2 if TLS 1.3 is not available.
+To ensure that security protocols are not incorrectly swapped, a Transport System implementation MUST only select Protocol Stacks that meet application requirements ({{?RFC8922}}). Transport System implementations SHOULD only race Protocol Stacks where the transport security protocols within the stacks are identical. A Transport System implementation MUST NOT automatically fall back from secure protocols to insecure protocols, or to weaker versions of secure protocols. A Transport System implementation MAY allow applications to explicitly specify that fallback to a specific other version of a protocol \, e.g., to allow fallback to TLS 1.2 if TLS 1.3 is not available.
 
 ## Maintain Interoperability
 
@@ -389,13 +389,13 @@ The diagram below provides a high-level view of the actions and events during th
 
   * Message Properties ({{datatransfer}}): Message Properties can be specified as defaults on a Preconnection or a Connection, and can also be specified during data transfer to affect specific Messages.
 
-* Connection: A Connection object represents one or more active transport protocol instances that can send and/or receive Messages between local and remote endpoints. It is an abstraction that represents the communication. The Connection object holds state pertaining to the underlying transport protocol instances and any ongoing data transfers. For example, an active Connection can represent a connection-oriented protocol such as TCP, or can represent a fully-specified 5-tuple for a connectionless protocol such as UDP, where the Connection remains an abstraction at the end points. It can also represent a pool of transport protocol instances, e.g., a set of TCP and QUIC connections to equivalent endpoints, or a stream of a multi-streaming transport protocol instance. Connections can be created from a Preconnection or by a Listener. 
+* Connection: A Connection object represents one or more active transport protocol instances that can send and/or receive Messages between Local and Remote Endpoints. It is an abstraction that represents the communication. The Connection object holds state pertaining to the underlying transport protocol instances and any ongoing data transfers. For example, an active Connection can represent a connection-oriented protocol such as TCP, or can represent a fully-specified 5-tuple for a connectionless protocol such as UDP, where the Connection remains an abstraction at the end points. It can also represent a pool of transport protocol instances, e.g., a set of TCP and QUIC connections to equivalent endpoints, or a stream of a multi-streaming transport protocol instance. Connections can be created from a Preconnection or by a Listener. 
 
-* Listener: A Listener object accepts incoming transport protocol connections from remote endpoints and generates corresponding Connection objects. It is created from a Preconnection object that specifies the type of incoming Connections it will accept.
+* Listener: A Listener object accepts incoming transport protocol connections from Remote Endpoints and generates corresponding Connection objects. It is created from a Preconnection object that specifies the type of incoming Connections it will accept.
 
 ### Pre-Establishment {#preestablishment}
 
-* Selection Properties: The Selection Properties consist of the properties that an application can set to influence the selection of paths between the local and remote endpoints, to influence the selection of transport protocols, or to configure the behavior of generic transport protocol features. These properties can take the form of requirements, prohibitions, or preferences. Examples of properties that influence path selection include the interface type (such as a Wi-Fi connection, or a Cellular LTE connection), requirements around the largest Message that can be sent, or preferences for throughput and latency. Examples of properties that influence protocol selection and configuration of transport protocol features include reliability, multipath support, and fast open support.
+* Selection Properties: The Selection Properties consist of the properties that an application can set to influence the selection of paths between the Local and Remote Endpoints, to influence the selection of transport protocols, or to configure the behavior of generic transport protocol features. These properties can take the form of requirements, prohibitions, or preferences. Examples of properties that influence path selection include the interface type (such as a Wi-Fi connection, or a Cellular LTE connection), requirements around the largest Message that can be sent, or preferences for throughput and latency. Examples of properties that influence protocol selection and configuration of transport protocol features include reliability, multipath support, and fast open support.
 
 * Connection Properties: The Connection Properties are used to configure protocol-specific options and control per-connection behavior of the Transport System; for example, a protocol-specific Connection Property can express that if TCP is used, the implementation ought to use the User Timeout Option. Note that the presence of such a property does not require that a specific protocol will be used. In general, these properties do not explicitly determine the selection of paths or protocols, but can be used by an implementation during connection establishment. Connection Properties are specified on a Preconnection prior to Connection establishment, and can be modified on the Connection later. Changes made to Connection Properties after Connection establishment take effect on a best-effort basis.
 
@@ -454,7 +454,7 @@ The following categories of events can be delivered to an application:
 
 ### Termination Actions {#termination}
 
-* Close: The action an application takes on a Connection to indicate that it no longer intends to send data, is no longer willing to receive data, and that the protocol should signal this state to the remote endpoint if the transport protocol allows this. (Note that this is distinct from the concept of "half-closing" a bidirectional connection, such as when a FIN is sent in one direction of a TCP connection. The end of a stream can also be indicated using Message Properties when sending.)
+* Close: The action an application takes on a Connection to indicate that it no longer intends to send data, is no longer willing to receive data, and that the protocol should signal this state to the Remote Endpoint if the transport protocol allows this. (Note that this is distinct from the concept of "half-closing" a bidirectional connection, such as when a FIN is sent in one direction of a TCP connection. The end of a stream can also be indicated using Message Properties when sending.)
 
 * Abort: The action the application takes on a Connection to indicate a Close and also indicate that the Transport System should not attempt to deliver any outstanding data, and immediately drop the connection. This is intended for immediate, usually abnormal, termination of a connection.
 
@@ -475,7 +475,7 @@ This section defines the key concepts of the Transport System component of the T
 
 * Transport System: A component consisting of all objects and protocol instances used internally to a system or library to implement the functionality needed to provide a transport service across a network, as required by the abstract interface.  
 
-* Path: Represents an available set of properties that a local endpoint can use to communicate with a remote endpoint, such as routes, addresses, and physical and virtual network interfaces.
+* Path: Represents an available set of properties that a local endpoint can use to communicate with a Remote Endpoint, such as routes, addresses, and physical and virtual network interfaces.
 
 * Protocol Instance: A single instance of one protocol, including any state necessary to establish connectivity or send and receive Messages.
 
@@ -563,7 +563,7 @@ but the desired version of TLS is not available, its connection will fail.
 Applications are thus responsible for implementing security protocol fallback
 or version fallback by creating multiple Connections, if so
 desired. Alternatively, the Transport Services API MAY allow applications to
-specify that the Transport System is allowed to fallback to a specific other version of a protocol.
+specify that fallback to a specific other version of a protocol is allowed by the Transport System.
 
 # Acknowledgements
 
