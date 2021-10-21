@@ -112,7 +112,7 @@ This document describes the Transport Services architecture in three sections:
 
 - {{requirements}} explains the fundamental requirements for a Transport Services API. These principles are intended to make sure that transport protocols can continue to be enhanced and evolve without requiring significant changes by application developers.
 
-- {{concepts}} presents the Transport Services architecture diagram and defines the concepts that are used by both the API and Implementation Guidelines. The Preconnection allows applications to configure Connection Properties. 
+- {{concepts}} presents the Transport Services architecture diagram and defines the concepts that are used by both the API {{!I-D.ietf-taps-interface}} and implementation guidelines {{?I-D.ietf-taps-impl}}. The Preconnection allows applications to configure Connection Properties. 
 
 - {{concepts}} also presents how an abstract Connection is used to select a transport protocol instance such as TCP, UDP, or another transport. The Connection represents an object that can be used to send and receive Messages.
 
