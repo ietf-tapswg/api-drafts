@@ -268,7 +268,7 @@ The following example shows equivalent Protocol Stacks:
 
 - If the application does not require reliable transmission of data, then a Protocol Stack that adds reliability could be regarded as an equivalent Protocol Stack as long as providing this would not conflict with any other application-requested properties.
 
-To ensure that security protocols are not incorrectly swapped, a Transport System implemenation MUST only select Protocol Stacks that meet application requirements ({{?RFC8922}}). Transport System implemenation SHOULD only race Protocol Stacks where the transport security protocols within the stacks are identical. A Transport System implemenation MUST NOT automatically fall back from secure protocols to insecure protocols, or to weaker versions of secure protocols. A Transport System implementation MAY allow applications to explicitly specify that fallback to a specific other version of a protocol is allowed, e.g., to allow fallback to TLS 1.2 if TLS 1.3 is not available.
+To ensure that security protocols are not incorrectly swapped, a Transport System implementation MUST only select Protocol Stacks that meet application requirements ({{?RFC8922}}). Transport System implementations SHOULD only race Protocol Stacks where the transport security protocols within the stacks are identical. A Transport System implementation MUST NOT automatically fall back from secure protocols to insecure protocols, or to weaker versions of secure protocols. A Transport System implementation MAY allow applications to explicitly specify that fallback to a specific other version of a protocol is allowed, e.g., to allow fallback to TLS 1.2 if TLS 1.3 is not available.
 
 ## Maintain Interoperability
 
