@@ -1103,7 +1103,7 @@ transport connection where possible.
 ### Full Checksum Coverage on Sending {#prop-checksum-control-send}
 
 Name:
-: FullChecksumSend
+: fullChecksumSend
 
 Type:
 : Preference
@@ -1118,7 +1118,7 @@ later control of the sender checksum coverage (see {{msg-checksum}}).
 ### Full Checksum Coverage on Receiving {#prop-checksum-control-receive}
 
 Name:
-: FullChecksumRecv
+: fullChecksumRecv
 
 Type:
 : Preference
@@ -2236,7 +2236,7 @@ based on a UTO option received from the remote peer. This boolean becomes false 
 
 During the lifetime of a connection there are events that can occur when configured.
 
-### Soft Errors
+### Soft Errors {#soft-errors}
 
 Asynchronous introspection is also possible, via the SoftError Event. This event
 informs the application about the receipt and contents of an ICMP error message related to the Connection. This will only happen if the underlying protocol stack supports access to soft errors; however, even if the underlying stack supports it, there
@@ -3423,7 +3423,7 @@ coverage, see {{prop-checksum-control-send}} and {{prop-checksum-control-receive
 
 # Relationship to the Minimal Set of Transport Services for End Systems
 
-{{?RFC8923}} identifies a minimal set of transport services that end systems should offer. These services make all non-security-related transport features of TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT available that 1) require interaction with the application, and 2) do not get in the way of a possible implementation over TCP (or, with limitations, UDP). The following text explains how this minimal set is reflected in the present API. For brevity, it is based on the list in Section 4.1 of {{?RFC8923}}, updated according to the discussion in Section 5 of {{?RFC8923}}. The present API covers all elements of this section except `Notification of Excessive Retransmissions (early warning below abortion threshold)`.
+{{?RFC8923}} identifies a minimal set of transport services that end systems should offer. These services make all non-security-related transport features of TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT available that 1) require interaction with the application, and 2) do not get in the way of a possible implementation over TCP (or, with limitations, UDP). The following text explains how this minimal set is reflected in the present API. For brevity, it is based on the list in Section 4.1 of {{?RFC8923}}, updated according to the discussion in Section 5 of {{?RFC8923}}. The present API covers all elements of this section.
 This list is a subset of the transport features in Appendix A of {{?RFC8923}}, which refers to the primitives in "pass 2" (Section 4) of {{!RFC8303}} for further details on the implementation with TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT.
 
 * Connect:
@@ -3436,67 +3436,67 @@ This list is a subset of the transport features in Appendix A of {{?RFC8923}}, w
 `timeout` parameter of `Initiate` ({{initiate}}) or `InitiateWithSend` Action ({{initiate-and-send}}).
 
 * Disable MPTCP:
-`Multipath Transport` Property ({{multipath-mode}}).
+`multipath` Property ({{multipath-mode}}).
 
 * Hand over a message to reliably transfer (possibly multiple times) before connection establishment:
 `InitiateWithSend` Action ({{initiate-and-send}}).
 
 * Change timeout for aborting connection (using retransmit limit or time value):
-`Timeout for Aborting Connection` property, using a time value ({{conn-timeout}}).
+`connTimeout` property, using a time value ({{conn-timeout}}).
 
 * Timeout event when data could not be delivered for too long:
 `ConnectionError` Event ({{termination}}).
 
 * Suggest timeout to the peer:
-`TCP-specific Properties: User Timeout Option (UTO)` ({{tcp-uto}}).
+See "TCP-specific Properties: User Timeout Option (UTO)" ({{tcp-uto}}).
 
 * Notification of ICMP error message arrival:
-`Notification of ICMP soft error message arrival` property ({{prop-soft-error}}).
+`softErrorNotify` ({{prop-soft-error}}) and `SoftError` Event ({{soft-errors}}).
 
 * Choose a scheduler to operate between streams of an association:
-`Connection Group Transmission Scheduler` property ({{conn-scheduler}}).
+`connScheduler` property ({{conn-scheduler}}).
 
 * Configure priority or weight for a scheduler:
-`Connection Priority` property ({{conn-priority}}).
+`connPrio` property ({{conn-priority}}).
 
 * "Specify checksum coverage used by the sender" and "Disable checksum when sending":
-`Sending Corruption Protection Length` property ({{msg-checksum}}) and `Full Checksum Coverage on Sending` property ({{prop-checksum-control-send}}).
+`msgChecksumLen` property ({{msg-checksum}}) and `fullChecksumSend` property ({{prop-checksum-control-send}}).
 
 * "Specify minimum checksum coverage required by receiver" and "Disable checksum requirement when receiving":
-`Required Minimum Corruption Protection Coverage for Receiving` property ({{conn-recv-checksum}}) and `Full Checksum Coverage on Receiving` property ({{prop-checksum-control-receive}}).
+`recvChecksumLen` property ({{conn-recv-checksum}}) and `fullChecksumRecv` property ({{prop-checksum-control-receive}}).
 
 * "Specify DF field":
-`No Network-Layer Fragmentation` property ({{send-singular}}).
+`noFragmentation` property ({{send-singular}}).
 
 * Get max. transport-message size that may be sent using a non-fragmented IP packet from the configured interface:
-`Maximum Message Size Before Fragmentation or Segmentation` property ({{conn-max-msg-notfrag}}).
+`singularTransmissionMsgMaxLen` property ({{conn-max-msg-notfrag}}).
 
 * Get max. transport-message size that may be received from the configured interface:
-`Maximum Message Size on Receive` property ({{conn-max-msg-recv}}).
+`recvMsgMaxLen` property ({{conn-max-msg-recv}}).
 
 * Obtain ECN field:
-`UDP(-Lite)-specific Property: ECN` is a read-only Message Property of the MessageContext object ({{receive-ecn}}).
+This is a read-only Message Property of the MessageContext object (see "UDP(-Lite)-specific Property: ECN" {{receive-ecn}}).
 
 * "Specify DSCP field", "Disable Nagle algorithm", "Enable and configure a `Low Extra Delay Background Transfer`":
-as suggested in Section 5.5 of {{?RFC8923}}, these transport features are collectively offered via the `Capacity Profile` property ({{prop-cap-profile}}). Per-Message control ("Request not to bundle messages") is offered via the `Message Capacity Profile Override` property ({{send-profile}}).
+as suggested in Section 5.5 of {{?RFC8923}}, these transport features are collectively offered via the `connCapacityProfile` property ({{prop-cap-profile}}). Per-Message control ("Request not to bundle messages") is offered via the `msgCapacityProfile` property ({{send-profile}}).
 
 * Close after reliably delivering all remaining data, causing an event informing the application on the other side:
 this is offered by the `Close` Action with slightly changed semantics in line with the discussion in Section 5.2 of {{?RFC8923}} ({{termination}}).
 
 * "Abort without delivering remaining data, causing an event informing the application on the other side" and "Abort without delivering remaining data, not causing an event informing the application on the other side":
-this is offered by the `Abort` action without promising that this is signaled to the other side. If it is, a `ConnectionError` Event will fire at the peer ({{termination}}).
+this is offered by the `Abort` action without promising that this is signaled to the other side. If it is, a `ConnectionError` Event will be invoked at the peer ({{termination}}).
 
 * "Reliably transfer data, with congestion control", "Reliably transfer a message, with congestion control" and "Unreliably transfer a message":
-data is transferred via the `Send` action ({{sending}}). Reliability is controlled via the `Reliable Data Transfer (Connection)` ({{prop-reliable}}) property and the `Reliable Data Transfer (Message)` Message Property ({{msg-reliable-message}}). Transmitting data as a message or without delimiters is controlled via Message Framers ({{framing}}). The choice of congestion control is provided via the `Congestion control` property ({{prop-cc}}).
+data is transferred via the `Send` action ({{sending}}). Reliability is controlled via the `reliability` ({{prop-reliable}}) property and the `msgReliable` Message Property ({{msg-reliable-message}}). Transmitting data as a message or without delimiters is controlled via Message Framers ({{framing}}). The choice of congestion control is provided via the `congestionControl` property ({{prop-cc}}).
 
 * Configurable Message Reliability:
-the `Lifetime` Message Property implements a time-based way to configure message reliability ({{msg-lifetime}}).
+the `msgLifetime` Message Property implements a time-based way to configure message reliability ({{msg-lifetime}}).
 
 * "Ordered message delivery (potentially slower than unordered)" and "Unordered message delivery (potentially faster than ordered)":
-these two transport features are controlled via the Message Property `Ordered` ({{msg-ordered}}).
+these two transport features are controlled via the Message Property `msgOrdered` ({{msg-ordered}}).
 
 * Request not to delay the acknowledgement (SACK) of a message:
-should the protocol support it, this is one of the transport features the Transport Services system can apply when an application uses the `Capacity Profile` Property ({{prop-cap-profile}}) or the `Message Capacity Profile Override` Message Property ({{send-profile}}) with value `Low Latency/Interactive`.
+should the protocol support it, this is one of the transport features the Transport Services system can apply when an application uses the `connCapacityProfile` Property ({{prop-cap-profile}}) or the `msgCapacityProfile` Message Property ({{send-profile}}) with value `Low Latency/Interactive`.
 
 * Receive data (with no message delimiting):
 `Receive` Action ({{receiving}}) and `Received` Event ({{receive-complete}}).
@@ -3515,3 +3515,6 @@ applications can obtain this information via the `Sent` Event ({{sent}}).
 
 * Notification to a receiver that a partial message delivery has been aborted:
 `ReceiveError` Event ({{receive-error}}).
+
+* Notification of Excessive Retransmissions (early warning below abortion threshold):
+ `SoftError` Event ({{soft-errors}}).
