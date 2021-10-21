@@ -214,7 +214,7 @@ Allowing applications to interact with messages is backwards-compatible with exi
 
 ## Flexible Implementation
 
-The Socket API for protocols like TCP is generally limited to connecting to a single address over a single interface. They also present a single stream to the application. Software layers built upon this API often propagate this limitation of a single-address single-stream model. The Transport Services architecture is designed:
+The Socket API for protocols like TCP is generally limited to connecting to a single address over a single interface. It also presents a single stream to the application. Software layers built upon this API often propagate this limitation of a single-address single-stream model. The Transport Services architecture is designed:
 
 - to handle multiple candidate endpoints, protocols, and paths;
 - to support candidate protocol racing to select the most optimal stack in each situation;
