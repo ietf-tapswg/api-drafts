@@ -212,7 +212,7 @@ Allowing applications to interact with messages is backwards-compatible with exi
 
 ## Flexible Implementation
 
-The Socket API for protocols like TCP us generally limited to connecting to a single address over a single interface. They also present a single stream to the application. Software layers built upon this API often propagate this limitation of a single-address single-stream model. The Transport Services architecture is designed:
+The Socket API for protocols like TCP is generally limited to connecting to a single address over a single interface. They also present a single stream to the application. Software layers built upon this API often propagate this limitation of a single-address single-stream model. The Transport Services architecture is designed:
 
 - to handle multiple candidate endpoints, protocols, and paths;
 - to support candidate protocol racing to select the most optimal stack in each situation;
@@ -389,7 +389,7 @@ The diagram below provides a high-level view of the actions and events during th
 
   * Message Properties ({{datatransfer}}): Message Properties can be specified as defaults on a Preconnection or a Connection, and can also be specified during data transfer to affect specific Messages.
 
-* Connection: A Connection object represents one or more active transport protocol instances that can send and/or receive Messages between local and remote systems. It is an abstraction that represents the communication. The Connection object holds state pertaining to the underlying transport protocol instances and any ongoing data transfers. For example, an active Connection can represent a connection-oriented protocol such as TCP, or can represent a fully-specified 5-tuple for a connectionless protocol such as UDP, where the Connection remains an abstraction at the end points. It can also represent a pool of transport protocol instances, e.g., a set of TCP and QUIC connections to equivalent endpoints, or a stream of a multi-streaming transport protocol instance. Connections can be created from a Preconnection or by a Listener. 
+* Connection: A Connection object represents one or more active transport protocol instances that can send and/or receive Messages between local and remote systems. It is an abstraction that represents the communication. The Connection object holds state pertaining to the underlying transport protocol instances and any ongoing data transfers. For example, an active Connection can represent a connection-oriented protocol such as TCP, or can represent a fully-specified 5-tuple for a connectionless protocol such as UDP, where the Connection remains an abstraction at the end points. It can also represent a pool of transport protocol instances, e.g., a set of TCP and QUIC connections to equivalent Endpoints, or a stream of a multi-streaming transport protocol instance. Connections can be created from a Preconnection or by a Listener. 
 
 * Listener: A Listener object accepts incoming transport protocol connections from remote systems and generates corresponding Connection objects. It is created from a Preconnection object that specifies the type of incoming Connections it will accept.
 
@@ -405,7 +405,7 @@ The diagram below provides a high-level view of the actions and events during th
 
 * Initiate: The primary action that an application can take to create a Connection to a Remote Endpoint, and prepare any required local or remote state to enable the transmission of Messages. For some protocols, this will initiate a client-to-server style handshake; for other protocols, this will just establish local state (e.g., with connectionless protocols such as UDP). The process of identifying options for connecting, such as resolution of the Remote Endpoint, occurs in response to the Initiate call.
 
-* Listen: Enables a listener to accept incoming Connections. The Listener will then create Connection objects as incoming connections are accepted ({{events}}). Listeners by default register with multiple paths, protocols, and Local Endpoints, unless constrained by Selection Properties and/or the specified Local Endpoint(s). Connections can be accepted on any of the available paths or endpoints.
+* Listen: Enables a listener to accept incoming Connections. The Listener will then create Connection objects as incoming connections are accepted ({{events}}). Listeners by default register with multiple paths, protocols, and Local Endpoints, unless constrained by Selection Properties and/or the specified Local Endpoint(s). Connections can be accepted on any of the available paths or Endpoints.
 
 * Rendezvous: The action of establishing a peer-to-peer connection with a
   Remote Endpoint. It simultaneously attempts to initiate a connection to
@@ -428,9 +428,9 @@ The diagram below provides a high-level view of the actions and events during th
 
 * Message: A Message object is a unit of data that can be represented as bytes that can be transferred between two systems over a transport connection. The bytes within a Message are assumed to be ordered. If an application does not care about the order in which a peer receives two distinct spans of bytes, those spans of bytes are considered independent Messages. 
 
-* Message Properties: Message Properties are used to specify details about Message transmission. They can be specified directly on individual Messages, or can be set on a Preconnection or Connection as defaults. These properties might only apply to how a Message is sent (such as how the transport will treat prioritization and reliability), but can also include properties that specific protocols encode and communicate to the Remote Endpoint. When receiving Messages, Message Properties can contain information about the received Message, such as metadata generated at the receiver and information signalled by the remote endpoint. For example, a Message can be marked with a Message Property indicating that it is the final message on a connection if the peer sent a TCP FIN.
+* Message Properties: Message Properties are used to specify details about Message transmission. They can be specified directly on individual Messages, or can be set on a Preconnection or Connection as defaults. These properties might only apply to how a Message is sent (such as how the transport will treat prioritization and reliability), but can also include properties that specific protocols encode and communicate to the Remote Endpoint. When receiving Messages, Message Properties can contain information about the received Message, such as metadata generated at the receiver and information signalled by the Remote Endpoint. For example, a Message can be marked with a Message Property indicating that it is the final message on a connection if the peer sent a TCP FIN.
 
-* Send: The action to transmit a Message over a Connection to the remote endpoint. The interface to Send can accept Message Properties specific to how the Message content is to be sent. The status of the Send operation is delivered back to the sending application in an Event ({{events}}).
+* Send: The action to transmit a Message over a Connection to the Remote Endpoint. The interface to Send can accept Message Properties specific to how the Message content is to be sent. The status of the Send operation is delivered back to the sending application in an Event ({{events}}).
 
 * Receive: An action that indicates that the application is ready to asynchronously accept a Message over a Connection from a remote system, while the Message content itself will be delivered in an Event ({{events}}). The interface to Receive can include Message Properties specific to the Message that is to be delivered to the application.
 
