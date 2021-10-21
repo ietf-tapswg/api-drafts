@@ -83,7 +83,7 @@ informative:
 
 --- abstract
 
-This document describes an architecture for exposing transport protocol features to applications for network communication, the Transport Services architecture. The Transport Services Application Programming Interface (API) is based on an asynchronous, event-driven interaction pattern. This API uses messages for representing data transfer to applications, and describes how implementations can use multiple IP addresses, multiple protocols, and multiple paths, and provide multiple application streams. This document further defines common terminology and concepts to be used in definitions of Transport Services APIs and implementations.
+This document describes an architecture for exposing transport protocol features to applications for network communication, the Transport Services architecture. The Transport Services Application Programming Interface (API) is based on an asynchronous, event-driven interaction pattern. This API uses messages for representing data transfer to applications, and describes how implementations can use multiple IP addresses, multiple protocols, and multiple paths, and provide multiple application streams. This document further defines common terminology and concepts to be used in definitions of Transport Services APIs and Transport System implementations.
 
 --- middle
 
@@ -108,7 +108,7 @@ One of the key insights to come from identifying the minimal set of features pro
 
 This document describes the Transport Services architecture in three sections:
 
-- {{model}} describes how the API model of Transport Services differs from traditional socket-based APIs. Specifically, it offers asynchronous event-driven interaction, the use of messages for data transfer, and the flexibility to use different transport protocols and paths without requiring major changes to the application.
+- {{model}} describes how the API model of Transport Services Architecture differs from traditional socket-based APIs. Specifically, it offers asynchronous event-driven interaction, the use of messages for data transfer, and the flexibility to use different transport protocols and paths without requiring major changes to the application.
 
 - {{requirements}} explains the fundamental requirements for a Transport Services API. These principles are intended to make sure that transport protocols can continue to be enhanced and evolve without requiring significant changes by application developers.
 
@@ -186,7 +186,7 @@ The Transport Services API {{!I-D.ietf-taps-interface}} defines the interface fo
 
 The Transport System {{?I-D.ietf-taps-impl}} implements the transport layer protocols and other functions needed to send and receive data. It is is responsible for mapping the API to a specific available transport protocol stack and managing the available network interfaces and paths.  
 
-There are key differences between the Transport Services architecture and the architecture of the Socket API: the API of the Transport Services architecture is asynchronous and event-driven; it uses messages for representing data transfer to applications; and it describes how implementations can use multiple IP addresses, multiple protocols, multiple paths, and provide multiple application streams.
+There are key differences between the Transport Services architecture and the architecture of the Socket API: the API of the Transport Services Architecture is asynchronous and event-driven; it uses messages for representing data transfer to applications; and it describes how implementations can use multiple IP addresses, multiple protocols, multiple paths, and provide multiple application streams.
 
 ## Event-Driven API
 
@@ -197,7 +197,7 @@ The Transport Services API also delivers events regarding the lifetime of a conn
 
 Using asynchronous events allows for a more natural interaction model when establishing connections and transferring data. Events in time more closely reflect the nature of interactions over networks, as opposed to how the Socket API represent network resources as file system objects that may be temporarily unavailable.
 
-Separate from events, callbacks are also provided for asynchronous interactions with the API not directly related to events on the network or network interfaces.
+Separate from events, callbacks are also provided for asynchronous interactions with the Transport Services API not directly related to events on the network or network interfaces.
 
 ## Data Transfer Using Messages
 
@@ -231,13 +231,13 @@ Flexibility after connection establishment is also important. Transport protocol
 
 A goal of the Transport Services architecture is to redefine the interface between applications and transports in a way that allows the transport layer to evolve and improve without fundamentally changing the contract with the application. This requires a careful consideration of how to expose the capabilities of protocols. This architecture also encompasses System Policies that can influence and inform how transport protocols use a network path or interface.
 
-There are several ways the Transport Services Architecture can offer flexibility to an application: it can provide access to multiple sets of protocols and protocol features; it can use these protocols across multiple paths that could have different performance and functional characteristics; and it can communicate with different Remote Endpoints to optimize performance, robustness to failure, or some other metric. Beyond these, if the API for the Transport Services Architecture remains the same over time, new protocols and features can be added to the Transport System implementation without requiring changes in applications for adoption. Similarly, this can provide a common basis for utilizing information about a network path or interface, enabling evolution below the transport layer.
+There are several ways the Transport Services Architecture can offer flexibility to an application: it can provide access to multiple sets of protocols and protocol features; it can use these protocols across multiple paths that could have different performance and functional characteristics; and it can communicate with different Remote Endpoints to optimize performance, robustness to failure, or some other metric. Beyond these, if the Transport Services API remains the same over time, new protocols and features can be added to the Transport System implementation without requiring changes in applications for adoption. Similarly, this can provide a common basis for utilizing information about a network path or interface, enabling evolution below the transport layer.
 
-The normative requirements described in this section allow Transport Services APIs and Implementations to provide this functionality without causing incompatibility or introducing security vulnerabilities. 
+The normative requirements described in this section allow Transport Services APIs and Transpor System Implementations to provide this functionality without causing incompatibility or introducing security vulnerabilities. 
 
 ## Provide Common APIs for Common Features
 
-Any functionality that is common across multiple transport protocols SHOULD be made accessible through a unified set of Transport Services API calls. As a baseline, any Transport Services API MUST allow access to the minimal set of features offered by transport protocols {{?RFC8923}}.
+Any functionality that is common across multiple transport protocols SHOULD be made accessible through a unified set of call using the Transport Services API. As a baseline, any Transport Services API MUST allow access to the minimal set of features offered by transport protocols {{?RFC8923}}.
 
 An application can specify constraints and preferences for the protocols, features, and network interfaces it will use via Properties. Properties are used by an application to declare its preferences for how the transport service should operate at each stage in the lifetime of a connection. Transport Properties are subdivided into Selection Properties, which specify which paths and protocol stacks can be used and are preferred by the application; Connection Properties, which inform decisions made during connection establishment and fine-tune the established connection; and Message Properties, set on individual Messages.
 
@@ -280,12 +280,12 @@ The Transport System makes decisions that select protocols and interfaces. In no
 
 # Transport Services Architecture and Concepts {#concepts}
 
-This section and the remainder of this document describe the architecture non-normatively. The concepts defined in this document are intended primarily for use in the documents and specifications that describe the Transport Services architecture and API. While the specific terminology can be used in some implementations, it is expected that there will remain a variety of terms used by running code.
+This section and the remainder of this document describe the architecture non-normatively. The concepts defined in this document are intended primarily for use in the documents and specifications that describe the Transport Services Architecture, the Transport Services API and the associated Transport System. While the specific terminology can be used in some implementations, it is expected that there will remain a variety of terms used by running code.
 
 The architecture divides the concepts for Transport Services into two categories:
 
 1. API concepts, which are intended to be exposed to applications; and
-2. Implementation concepts that are intended to be internally used when building Transport System that implements the Transport Services Architecture.
+2. Implementation concepts that are intended to be internally used when building Transport System.
 
 The following diagram summarizes the top-level concepts in the architecture and how they relate to one another.
 
