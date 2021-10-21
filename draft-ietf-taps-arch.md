@@ -432,7 +432,7 @@ The diagram below provides a high-level view of the actions and events during th
 
 * Send: The action to transmit a Message over a Connection to the Remote Endpoint. The interface to Send can accept Message Properties specific to how the Message content is to be sent. The status of the Send operation is delivered back to the sending application in an Event ({{events}}).
 
-* Receive: An action that indicates that the application is ready to asynchronously accept a Message over a Connection from a remote endpoint, while the Message content itself will be delivered in an Event ({{events}}). The interface to Receive can include Message Properties specific to the Message that is to be delivered to the application.
+* Receive: An action that indicates that the application is ready to asynchronously accept a Message over a Connection from a Remote Endpoint, while the Message content itself will be delivered in an Event ({{events}}). The interface to Receive can include Message Properties specific to the Message that is to be delivered to the application.
 
 * Framer: A Framer is a data translation layer that can be added to a Connection to define how application-layer Messages are transmitted over a transport stack. This is particularly relevant when using a protocol that otherwise presents unstructured streams, such as TCP.
 
