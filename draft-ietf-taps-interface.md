@@ -1855,7 +1855,7 @@ Properties will include different information:
   Protocol Selection Properties that the application specified on the
   Preconnection. 
 
-* For Connections that are Established: Information concerning the 
+* For Connections that are Established: information concerning the 
   path(s) used by the Protocol Stack. This can be derived from local PVD information, 
   measurements by the Protocol Stack, or other sources.
   For example, a TAPS system that is configured to receive and process PVD information 
