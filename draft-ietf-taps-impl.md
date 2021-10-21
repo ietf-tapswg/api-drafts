@@ -126,7 +126,7 @@ event-driven interaction pattern. This document serves as a guide to implementat
 
 # Introduction
 
-The Transport Services architecture {{I-D.ietf-taps-arch}} defines a system that allows applications to flexiblyuse transport networking protocols. The API that such a system exposes to applications is defined as the Transport Services API {{I-D.ietf-taps-interface}}. This API is designed to be generic across multiple transport protocols and sets of protocols features.
+The Transport Services architecture {{I-D.ietf-taps-arch}} defines a system that allows applications to flexibly use transport networking protocols. The API that such a system exposes to applications is defined as the Transport Services API {{I-D.ietf-taps-interface}}. This API is designed to be generic across multiple transport protocols and sets of protocols features.
 
 This document serves as a guide to implementation on how to build a system that provides a Transport Services API. It is the job of an implementation of a Transport Services system to turn the requests of an application into decisions on how to establish connections, and how to transfer data over those connections once established. The terminology used in this document is based on the Architecture {{I-D.ietf-taps-arch}}.
 
@@ -487,7 +487,7 @@ the Transport Services implementation can establish a new Connection by simply b
 a new stream of an already established transport Connection and there is no need for a connection establishment
 procedure. This, then, also means that there may not
 be any "establishment" message (like a TCP SYN), but the application can simply start sending
-or receiving. Therefore, when the Initiate action of a Transport Service API is called without Messages being
+or receiving. Therefore, when the Initiate action of a Transport Services API is called without Messages being
 handed over, it cannot be guaranteed that the Remote Endpoint will have any way to know about this, and hence
 a passive endpoint's ConnectionReceived event might not be called upon an active Initate endpoint's Inititate.
 Instead, calling the ConnectionReceived event could be delayed until the first Message arrives.
@@ -562,7 +562,7 @@ The application should be notified whenever a Message or partial Message has bee
 
 ### Batching Sends
 
-Since sending a Message may involve a context switch between the application and the Transport Service ssystem, sending patterns that involve multiple small Messages can incur high overhead if each needs to be enqueued separately. To avoid this, the application can indicate a batch of Send actions through the API. When this is used, the implementation can defer the processing of Messages until the batch is complete.
+Since sending a Message may involve a context switch between the application and the Transport Services system, sending patterns that involve multiple small Messages can incur high overhead if each needs to be enqueued separately. To avoid this, the application can indicate a batch of Send actions through the API. When this is used, the implementation can defer the processing of Messages until the batch is complete.
 
 ## Receiving Messages
 
@@ -860,7 +860,7 @@ The reasonable lifetime for cached performance values will vary depending on the
 # Specific Transport Protocol Considerations
 
 Each protocol that form a part of a Transport Services implementation should have a well-defined API mapping.
-API mappings for a protocol are importanty for  Connections in which a given protocol is the "top" of the Protocol Stack.
+API mappings for a protocol are important for  Connections in which a given protocol is the "top" of the Protocol Stack.
 For example, the mapping of the `Send` function for TCP applies to Connections in which the application directly sends over TCP.
 
 Each protocol has a notion of Connectedness. Possible values for Connectedness are:
@@ -912,7 +912,7 @@ ConnectionReceived:
 : TCP Listeners will deliver new connections once they have replied to an inbound SYN with a SYN-ACK.
 
 Clone:
-: Calling `Clone` on a TCP Connection creates a new Connection with equivalent parameters. These Connections, and Connections generated via later calls to `Clone` on an establied Conenction, form a Connection Group. To realize entanglement for these Connections, with the exception of `Connection Priority`, changing a Connection Property on one of them must affect the Connection Properties of the others too. No guarantees of honoring the Connection Property `Connection Priority` are given, and thus it is safe for an implementation of a transport system to ignore this property. When it is reasonable to assume that Connections traverse the same path (e.g., when they share the same encapsulation), support for it can also experimentally be implemented using a congestion control coupling mechanism (see for example {{TCP-COUPLING}} or {{?RFC3124}}).
+: Calling `Clone` on a TCP Connection creates a new Connection with equivalent parameters. These Connections, and Connections generated via later calls to `Clone` on an Establied Connection, form a Connection Group. To realize entanglement for these Connections, with the exception of `Connection Priority`, changing a Connection Property on one of them must affect the Connection Properties of the others too. No guarantees of honoring the Connection Property `Connection Priority` are given, and thus it is safe for an implementation of a transport system to ignore this property. When it is reasonable to assume that Connections traverse the same path (e.g., when they share the same encapsulation), support for it can also experimentally be implemented using a congestion control coupling mechanism (see for example {{TCP-COUPLING}} or {{?RFC3124}}).
 
 Send:
 : SEND.TCP. TCP does not on its own preserve Message boundaries. Calling `Send` on a TCP connection lays out the bytes on the TCP send stream without any other delineation. Any Message marked as Final will cause TCP to send a FIN once the Message has been completely written, by calling CLOSE.TCP immediately upon successful termination of SEND.TCP. Note that transmitting a Message marked as Final should not cause the `Closed` event to be delivered to the application, as it will still be possible to receive data until the peer closes or aborts the TCP connection.
@@ -1024,7 +1024,7 @@ Listen:
 There are cases where it is required to open multiple connections for the same address(es). 
 For example, one Connection might be opened for a multicast group to for a multicast control bus, 
 and another application later opens a separate Connection to the same group to send signals to and/or receive signals from the common bus. 
-In such cases, the Transport Service system needs to explicitly enable re-use of the same set of addresses (equivalent to setting SO_REUSEADDR 
+In such cases, the Transport Services system needs to explicitly enable re-use of the same set of addresses (equivalent to setting SO_REUSEADDR 
 in the socket API).
 
 ConnectionReceived:
