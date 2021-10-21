@@ -244,7 +244,7 @@ is expected to have a default value.
 
 It is RECOMMENDED that the default values for Properties are selected to ensure correctness for the widest set of applications, while providing the widest set of options for selection. For example, since both applications that require reliability and those that do not require reliability can function correctly when a protocol provides reliability, reliability ought to be enabled by default. As another example, the default value for a Property regarding the selection of network interfaces ought to permit as many interfaces as possible.
 
-Applications using the Transport Services API interface are REQUIRED to be robust to the automated selection provided by the Transport System. This automated selection is constrained by the properties and preferences expressed by the application and requires applications to explictly set properties that define any necssary constraints on protocol, path, and interface selection.
+Applications using the Transport Services API are REQUIRED to be robust to the automated selection provided by the Transport System. This automated selection is constrained by the properties and preferences expressed by the application and requires applications to explictly set properties that define any necssary constraints on protocol, path, and interface selection.
 
 ## Allow Access to Specialized Features
 
