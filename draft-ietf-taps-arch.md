@@ -171,7 +171,7 @@ The Transport Services architecture evolves this general model of interaction, t
 +-----------------------------------------------------+
                           |
 +-----------------------------------------------------+
-|         Transport  Services Implementation          |
+|          Transport Services Implementation          |
 |  (Using: DNS, UDP, TCP, SCTP, DCCP, TLS, QUIC, etc) |
 +-----------------------------------------------------+
                           |
