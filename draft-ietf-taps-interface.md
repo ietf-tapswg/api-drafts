@@ -1808,7 +1808,7 @@ permit more specialized protocol features to be used.
 Too much reliance by an application on Protocol Specific Properties can significantly reduce the flexibility 
 of a transport services implementation to make appropriate
 selection and configuration choices. Therefore, it is RECOMMENDED that
-Protocol Properties are normnally used for properties common across different protocols and that
+Protocol Properties are used for properties common across different protocols and that
 Protocol Specific Properties are only used where specific protocols or properties are necessary.
 
 The application can set and query Connection Properties on a per-Connection
