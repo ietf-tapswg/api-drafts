@@ -1859,11 +1859,11 @@ Properties will include different information:
   Protocol Selection Properties that the application specified on the
   Preconnection. 
 
-
-* For Connections that are Established, additional properties of the path(s) in
-  use. These properties can be derived from the local provisioning domain
-  {{RFC7556}}, measurements by the Protocol Stack, or other sources.
-
+* For Connections that are Established: Information concerning the 
+  path(s) used by the Protocol Stack. This can be derived from local PVD information, 
+  measurements by the Protocol Stack, or other sources.
+  For example, a TAPS system that is configured to receive and process PVD information 
+  {{RFC7556}} could also provide network configuration information for the chosen path(s). 
 
 ## Generic Connection Properties {#connection-props}
 
