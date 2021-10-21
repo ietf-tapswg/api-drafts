@@ -589,7 +589,7 @@ We therefore make the following recommendations:
   substantially equivalent objects for networking by convention.
 - Transport Services systems SHOULD implement each Selection Property,
   Connection Property, and Message Context Property specified in this document. 
-  The interface SHOULD be implemented even when in a specific implementation/platform it
+  The Transport Services API SHOULD be implemented even when in a specific implementation/platform it
   will always result in no operation, e.g. there is no action when the API
   specifies a Property that is not available in a transport protocol implemented
   on a specific platform. For example, if TCP is the only underlying transport protocol, 
