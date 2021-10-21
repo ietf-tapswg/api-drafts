@@ -233,7 +233,7 @@ A goal of the Transport Services architecture is to redefine the interface betwe
 
 There are several ways the Transport Services Architecture can offer flexibility to an application: it can provide access to multiple sets of protocols and protocol features; it can use these protocols across multiple paths that could have different performance and functional characteristics; and it can communicate with different Remote Endpoints to optimize performance, robustness to failure, or some other metric. Beyond these, if the Transport Services API remains the same over time, new protocols and features can be added to the Transport System implementation without requiring changes in applications for adoption. Similarly, this can provide a common basis for utilizing information about a network path or interface, enabling evolution below the transport layer.
 
-The normative requirements described in this section allow Transport Services APIs and Transpor System Implementations to provide this functionality without causing incompatibility or introducing security vulnerabilities. 
+The normative requirements described in this section allow Transport Services APIs and Transport System implementations to provide this functionality without causing incompatibility or introducing security vulnerabilities. 
 
 ## Provide Common APIs for Common Features
 
