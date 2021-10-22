@@ -164,7 +164,7 @@ mechanisms, which otherwise need to be separately implemented in each applicatio
 The Transport Services system derives specific path and protocol selection
 properties and supported transport features from the analysis provided in
 {{?RFC8095}}, {{?RFC8923}}, and
-{{?RFC8922}}. The Transpor Services API enables a Transport Services implementation
+{{?RFC8922}}. The Transport Services API enables an implementation
 to dynamically choose a transport protocol rather
 than statically binding applications to a protocol at 
 compile time. The Transport Services API also provides
