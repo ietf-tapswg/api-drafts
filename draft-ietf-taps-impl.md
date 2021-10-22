@@ -489,7 +489,7 @@ procedure. This, then, also means that there may not
 be any "establishment" message (like a TCP SYN), but the application can simply start sending
 or receiving. Therefore, when the Initiate action of a Transport Services API is called without Messages being
 handed over, it cannot be guaranteed that the Remote Endpoint will have any way to know about this, and hence
-a passive endpoint's ConnectionReceived event might not be called upon an active Initate endpoint's Inititate.
+a passive endpoint's ConnectionReceived event might not be called until data is received.
 Instead, calling the ConnectionReceived event could be delayed until the first Message arrives.
 
 ## Handling connectionless protocols {#connectionless-racing}
@@ -762,7 +762,7 @@ This enables implementations to realize transparent connection coalescing, conne
 
 ## Handling Path Changes
 
-When a path change occurs, e.g., when the IP address of an interface changes or a new interface becomes available, the Transport Services implementation is responsible for notifying the Protocol Instance of the change. The path change may interrupt connectivity on a path for an active connection or provide an opportunity for a transport that supports multipath or migration to adapt to the new paths. Note that, from the view of the Transport Services API, migration is considered a part of multipath connectivity; it is just a limiting policy on multipath usage. If the `multipath` Selection Property is set to `Disabled`, migration is disallowed.
+When a path change occurs, e.g., when the IP address of an interface changes or a new interface becomes available, the Transport Services implementation is responsible for notifying the Protocol Instance of the change. The path change may interrupt connectivity on a path for an active connection or provide an opportunity for a transport that supports multipath or migration to adapt to the new paths. Note that, in the model of the Transport Services API, migration is considered a part of multipath connectivity; it is just a limiting policy on multipath usage. If the `multipath` Selection Property is set to `Disabled`, migration is disallowed.
 
 For protocols that do not support multipath or migration, the Protocol Instances should be informed of the path change, but should not be forcibly disconnected if the previously used path becomes unavailable. There are many common user scenarios that can lead to a path becoming temporarily unavailable, and then recovering before the transport protocol reaches a timeout error. These are particularly common using mobile devices. Examples include: an Ethernet cable becoming unplugged and then plugged back in; a device losing a Wi-Fi signal while a user is in an elevator, and reattaching when the user leaves the elevator; and a user losing the radio signal while riding a train through a tunnel. If the device is able to rejoin a network with the same IP address, a stateful transport connection can generally resume. Thus, while it is useful for a Protocol Instance to be aware of a temporary loss of connectivity, the Transport Services implementation should not aggressively close connections in these scenarios.
 
@@ -859,8 +859,8 @@ The reasonable lifetime for cached performance values will vary depending on the
 
 # Specific Transport Protocol Considerations
 
-Each protocol that form a part of a Transport Services implementation should have a well-defined API mapping.
-API mappings for a protocol are important for  Connections in which a given protocol is the "top" of the Protocol Stack.
+Each protocol that is supported by a Transport Services implementation should have a well-defined API mapping.
+API mappings for a protocol are important for Connections in which a given protocol is the "top" of the Protocol Stack.
 For example, the mapping of the `Send` function for TCP applies to Connections in which the application directly sends over TCP.
 
 Each protocol has a notion of Connectedness. Possible values for Connectedness are:
