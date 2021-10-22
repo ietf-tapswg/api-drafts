@@ -136,7 +136,7 @@ This document describes an abstract application programming interface, API, to t
 layer that enables the selection of transport protocols and
 network paths dynamically at runtime. This API enables faster deployment
 of new protocols and protocol features without requiring changes to the
-applications. The specified API follows the Transport Services Architecture
+applications. The specified API follows the Transport Services architecture
 by providing asynchronous, atomic transmission of messages. It is intended to replace the
 BSD sockets API as the common interface to the
 transport layer, in an environment where endpoints could select from 
@@ -147,34 +147,34 @@ multiple interfaces and potential transport protocols.
 # Introduction
 
 This document specifies an abstract application programming interface (API) that specifies the interface component of
-the high-level architecture for transport services defined in
-{{I-D.ietf-taps-arch}}. The Transport Services Architecture supports
+the high-level Transport Services architecture defined in
+{{I-D.ietf-taps-arch}}. A Transport Services system supports
 asynchronous, atomic transmission of messages over transport protocols and
 network paths dynamically selected at runtime, in environments where an endpoint
 selects from multiple interfaces and potential transport protocols.
 
-Applications that adopt this interface will benefit from a wide set of
+Applications that adopt this API will benefit from a wide set of
 transport features that can evolve over time. This protocol-independent API ensures that the system
-providing the interface can optimize its behavior based on the application
+providing the API can optimize its behavior based on the application
 requirements and network conditions, without requiring changes to the
 applications.  This flexibility enables faster deployment of new features and
 protocols, and can support applications by offering racing and fallback
 mechanisms, which otherwise need to be separately implemented in each application.
 
-This API derives specific path and protocol selection
+The Transport Services system derives specific path and protocol selection
 properties and supported transport features from the analysis provided in
 {{?RFC8095}}, {{?RFC8923}}, and
-{{?RFC8922}}. The design encourages implementations that provide the
-interface to dynamically choose a transport protocol rather
+{{?RFC8922}}. The Transport Services API enables an implementation
+to dynamically choose a transport protocol rather
 than statically binding applications to a protocol at 
-compile time. Nevertheless, the Transport Services API also provides
+compile time. The Transport Services API also provides
 applications with a way to override transport selection and instantiate a specific stack,
 e.g., to support servers wishing to listen to a specific protocol. However, forcing a
-specific transport stack choice is discouraged for general use, because it can reduce portability.
+choice to use a specific transport stack is discouraged for general use, because it can reduce portability.
 
 ## Terminology and Notation {#notation}
 
-This API is described in terms of 
+The Transport Services API is described in terms of 
 
 - Objects with which an application can interact; 
 - Actions the application can perform on these Objects;
@@ -214,8 +214,7 @@ The following notations, which can be combined, are used in this document:
       Action(param0, param1?, ...) / Event<param0, param1, ...>
 ~~~
 
-Actions associated with no Object are Actions on the abstract interface
-itself; they are equivalent to Actions on a per-application global context.
+Actions associated with no Object are Actions on the API; they are equivalent to Actions on a per-application global context.
 
 Events are sent to the application or application-supplied code (e.g. framers, 
 see {{framing}}) for processing; the details of event processing 
@@ -250,15 +249,16 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 document are to be interpreted as described in BCP 14 {{!RFC2119}} {{!RFC8174}}
 when, and only when, they appear in all capitals, as shown here.
 
-# Overview of Interface Design {#principles}
+# Overview of the API Design {#principles}
 
-The design of the interface specified in this document is based on a set of
+The design of the API specified in this document is based on a set of
 principles, themselves an elaboration on the architectural design principles
-defined in {{I-D.ietf-taps-arch}}. The interface defined in this document
+defined in {{I-D.ietf-taps-arch}}. The API defined in this document
 provides:
 
 
-- Access to a variety of transport protocols, independent
+- A Transport Services system
+  can offer a variety of transport protocols, independent
   of the Protocol Stacks that will be used at
   runtime. All common features of these protocol
   stacks are made available to the application in a
@@ -267,7 +267,7 @@ provides:
   to make use of transport protocols in terms of the features 
   they provide.
 
-- A unified interface to datagram and stream-oriented transports, allowing
+- A unified API to datagram and stream-oriented transports, allowing
   use of a common API for connection establishment and closing.
 
 - Message-orientation, as opposed to stream-orientation, using
@@ -314,7 +314,7 @@ connection-oriented. Connections can be created from Preconnections in three way
 - or rendezvousing on the Preconnection (i.e., peer to peer establishment; {{rendezvous}}).
 
 Once a Connection is established, data can be sent and received on it in the form of
-Messages. The interface supports the preservation of message boundaries both
+Messages. The API supports the preservation of message boundaries both
 via explicit Protocol Stack support, and via application support through a
 Message Framer that finds message boundaries in a stream. Messages are
 received asynchronously through event handlers registered by the application.
@@ -327,7 +327,7 @@ assume that ignoring Events (e.g., Errors) is always safe.
 ## Usage Examples
 
 The following usage examples illustrate how an application might use the
-Transport Services Interface to:
+Transport Services API to:
 
 - Act as a server, by listening for incoming connections, receiving requests,
   and sending responses, see {{server-example}}.
@@ -339,7 +339,7 @@ Transport Services Interface to:
 
 The examples in this section presume that a transport protocol is available
 between the Local and Remote Endpoints that provides Reliable Data Transfer, Preservation of
-data ordering, and Preservation of Message Boundaries. In this case, the
+Data Ordering, and Preservation of Message Boundaries. In this case, the
 application can choose to receive only complete messages.
 
 If none of the available transport protocols provides Preservation of Message
@@ -352,7 +352,7 @@ sequence of Messages into a byte stream and vice versa ({{framing}}).
 ### Server Example
 
 This is an example of how an application might listen for incoming Connections
-using the Transport Services Interface, and receive a request, and send a response.
+using the Transport Services API, and receive a request, and send a response.
 
 ~~~
 LocalSpecifier := NewLocalEndpoint()
@@ -396,7 +396,7 @@ Listener.Stop()
 ### Client Example
 
 This is an example of how an application might open two Connections to a remote application
-using the Transport Services Interface, and send a request as well as receive a response on each of them.
+using the Transport Services API, and send a request as well as receive a response on each of them.
 
 ~~~
 RemoteSpecifier := NewRemoteEndpoint()
@@ -501,8 +501,8 @@ Connection.Close()
 
 # Transport Properties {#transport-properties}
 
-Each application using the Transport Services Interface declares its preferences
-for how the transport service should operate. This is done by using Transport Properties, as defined in
+Each application using the Transport Services API declares its preferences
+for how the Transport Services system should operate. This is done by using Transport Properties, as defined in
 {{I-D.ietf-taps-arch}}, at each stage of the lifetime of a connection. 
 
 Transport Properties are divided into Selection, Connection, and Message
@@ -534,10 +534,10 @@ Transport Properties are referred to by property names. For the purposes of this
 alphanumeric strings in which words may be separated by hyphens. Specifically, the following characters are allowed: lowercase letters `a-z`, uppercase letters `A-Z`, digits `0-9`, the hyphen `-`, and the underscore `_`.
 These names serve two purposes:
 
-- Allowing different components of a TAPS implementation to pass Transport
+- Allowing different components of a Transport Services implementation to pass Transport
   Properties, e.g., between a language frontend and a policy manager,
   or as a representation of properties retrieved from a file or other storage.
-- Making the code of different TAPS implementations look similar. While individual programming languages may preclude strict adherence to the aforementioned naming convention (for instance, by prohibiting the use of hyphens in symbols), users interacting with multiple implementations will still benefit from the consistency resulting from the use of visually similar symbols.
+- Making the code of different Transport Services implementations look similar. While individual programming languages may preclude strict adherence to the aforementioned naming convention (for instance, by prohibiting the use of hyphens in symbols), users interacting with multiple implementations will still benefit from the consistency resulting from the use of visually similar symbols.
 
 Transport Property Names are hierarchically organized in the
 form \[\<Namespace>.\]\<PropertyName\>.
@@ -566,30 +566,30 @@ and use the Preference Enumeration, which takes one of five possible values
 (Prohibit, Avoid, Ignore,  Prefer, or Require) denoting the level of preference
 for a given property during protocol selection.
 
-# Scope of the Interface Definition {#scope-of-interface-defn}
+# Scope of the API Definition {#scope-of-interface-defn}
 
-This document defines a language- and platform-independent interface to a
+This document defines a language- and platform-independent API of a
 Transport Services system. Given the wide variety of languages and language
 conventions used to write applications that use the transport layer to connect
-to other applications over the Internet, this independence makes this interface
+to other applications over the Internet, this independence makes this API
 necessarily abstract. 
 
-There is no interoperability benefit in tightly defining how the interface is
+There is no interoperability benefit in tightly defining how the API is
 presented to application programmers across diverse platforms. However,
-maintaining the "shape" of the abstract interface across different platforms reduces
-the effort for programmers who learn the transport services interface to then
+maintaining the "shape" of the abstract API across different platforms reduces
+the effort for programmers who learn to use the Transport Services API to then
 apply their knowledge to another platform.
 
 We therefore make the following recommendations:
 
-- Actions, Events, and Errors in implementations of this interface SHOULD use
+- Actions, Events, and Errors in implementations of the Transport Services API SHOULD use
   the names given for them in the document, subject to capitalization,
   punctuation, and other typographic conventions in the language of the
   implementation, unless the implementation itself uses different names for
   substantially equivalent objects for networking by convention.
-- Implementations of this interface SHOULD implement each Selection Property,
+- Transport Services systems SHOULD implement each Selection Property,
   Connection Property, and Message Context Property specified in this document. 
-  Each interface SHOULD be implemented even when in a specific implementation/platform it
+  The Transport Services API SHOULD be implemented even when in a specific implementation/platform it
   will always result in no operation, e.g. there is no action when the API
   specifies a Property that is not available in a transport protocol implemented
   on a specific platform. For example, if TCP is the only underlying transport protocol, 
@@ -719,7 +719,7 @@ that IP address. If, on the other hand, the Remote Endpoint specifies a hostname
 but no addresses, the Connection can perform name resolution and attempt
 using any address derived from the original hostname of the Remote Endpoint.
 
-The Transport Services API resolves names internally, when the Initiate(),
+The Transport Services system resolves names internally, when the Initiate(),
 Listen(), or Rendezvous() method is called to establish a Connection. Privacy
 considerations for the timing of this resolution are given in {{privacy-security}}.
 
@@ -729,8 +729,8 @@ early binding when required, for example with some Network Address Translator
 
 ### Using Multicast Endpoints
 
-Specifying a multicast group address on a Local Endpoint will indicate to the transport
-system that the resulting connection will be used to receive multicast messages. The
+Specifying a multicast group address on a Local Endpoint will indicate to the Transport
+Services system that the resulting connection will be used to receive multicast messages. The
 Remote Endpoint can be used to filter incoming multicast from specific senders. Such
 a Preconnection will only support calling Listen(), not Initiate(). Calling Listen()
 will cause the Transport Services system to register for receiving multicast, such
@@ -996,10 +996,10 @@ value `false`. If the preference level `Avoid` was used for `Congestion control`
 and, as requested, the Connection is not congestion controlled, querying
 the `congestionControl` property also yields the value `false`.
 
-An implementation of this interface must provide sensible defaults for Selection
+An implementation of the Transport Services API must provide sensible defaults for Selection
 Properties. The default values for each property below represent a
 configuration that can be implemented over TCP. If these default values are used
-and TCP is not supported by a Transport Services implementation, then an application using the
+and TCP is not supported by a Transport Services system, then an application using the
 default set of Properties might not succeed in establishing a connection. Using
 the same default values for independent Transport Services implementations can be beneficial
 when applications are ported between different implementations/platforms, even if this
@@ -1512,7 +1512,7 @@ the Rendezvous() Action. These Actions are described in the subsections below.
 
 Active open is the Action of establishing a Connection to a Remote Endpoint presumed
 to be listening for incoming Connection requests. Active open is used by clients in
-client-server interactions. Active open is supported by this interface through the
+client-server interactions. Active open is supported by the Transport Services API through the
 Initiate Action:
 
 ~~~
@@ -1569,7 +1569,7 @@ and transmission of the first message can be combined in a single action {{initi
 
 Passive open is the Action of waiting for Connections from Remote Endpoints,
 commonly used by servers in client-server interactions. Passive open is
-supported by this interface through the Listen Action and returns a Listener object:
+supported by the Transport Services API through the Listen Action and returns a Listener object:
 
 ~~~
 Listener := Preconnection.Listen()
@@ -1942,7 +1942,7 @@ Type:
 Default:
 : Implementation-defined
 
-A Transport Services system can request a protocol that supports sending keep alive packets {{keep-alive}}.
+A Transport Services API can request a protocol that supports sending keep alive packets {{keep-alive}}.
 This property specifies the maximum length of time an idle connection (one for which no transport
 packets have been sent) should wait before 
 the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting this Property
@@ -1974,7 +1974,7 @@ Name:
 This property specifies the desired network treatment for traffic sent by the
 application and the tradeoffs the application is prepared to make in path and
 protocol selection to receive that desired treatment. When the capacity profile
-is set to a value other than Default, the Transport Services system SHOULD select paths
+is set to a value other than Default, z Transport Services system SHOULD select paths
 and configure protocols to optimize the tradeoff between delay, delay variation, and
 efficient use of the available capacity based on the capacity profile specified. How this is realized
 is implementation-specific. The Capacity Profile MAY also be used
@@ -1986,7 +1986,7 @@ The following values are valid for the Capacity Profile:
 
   Default:
   : The application provides no information about its expected capacity
-  profile. Transport Services system implementations that
+  profile. Transport Services implementations that
   map the requested capacity profile onto per-connection DSCP signaling 
   SHOULD assign the DSCP Default Forwarding {{?RFC2474}} Per Hop Behaviour (PHB).
 
@@ -1994,7 +1994,7 @@ The following values are valid for the Capacity Profile:
   : The application is not interactive. It expects to send
   and/or receive data without any urgency. This can, for example, be used to
   select protocol stacks with scavenger transmission control and/or to assign
-  the traffic to a lower-effort service. Transport Services system implementations that
+  the traffic to a lower-effort service. Transport Services implementations that
   map the requested capacity profile onto per-connection DSCP signaling
   SHOULD assign the DSCP Less than Best Effort
   {{?RFC8622}} PHB.
@@ -2006,7 +2006,7 @@ The following values are valid for the Capacity Profile:
   used by the system to disable the coalescing of multiple small Messages into
   larger packets (Nagle's algorithm); to prefer immediate acknowledgment from
   the peer endpoint when supported by the underlying transport; and so on.
-  Transport Services system implementations that map the requested capacity profile onto per-connection DSCP signaling without multiplexing SHOULD assign a DSCP Assured Forwarding (AF41,AF42,AF43,AF44) {{?RFC2597}} PHB. Inelastic traffic that is expected to conform to the configured network service rate could be mapped to the DSCP Expedited Forwarding {{?RFC3246}} or {{?RFC5865}} PHBs.
+  Transport Services implementations that map the requested capacity profile onto per-connection DSCP signaling without multiplexing SHOULD assign a DSCP Assured Forwarding (AF41,AF42,AF43,AF44) {{?RFC2597}} PHB. Inelastic traffic that is expected to conform to the configured network service rate could be mapped to the DSCP Expedited Forwarding {{?RFC3246}} or {{?RFC5865}} PHBs.
   
   Low Latency/Non-Interactive:
   : The application prefers loss to latency, but is
@@ -2030,7 +2030,7 @@ The following values are valid for the Capacity Profile:
   Capacity-Seeking:
   : The application expects to send/receive data at the
   maximum rate allowed by its congestion controller over a relatively long
-  period of time. Transport Services system implementations that map the requested
+  period of time. Transport Services implementations that map the requested
   capacity profile onto per-connection DSCP signaling without multiplexing
   SHOULD assign a DSCP Assured Forwarding (AF11,AF12,AF13,AF14) {{?RFC2597}} PHB
   per Section 4.8 of {{?RFC4594}}. 
@@ -2182,8 +2182,8 @@ Implementation is optional and useful only if TCP is implemented in the Transpor
 These TCP-specific properties are included here because the feature `Suggest
 timeout to the peer` is part of the minimal set of transport services
 {{?RFC8923}}, where this feature was categorized as "functional".
-This means that when an implementation offers this feature, it has to expose an
-interface to it to the application. Otherwise, the implementation might
+This means that when an Transport Services implementation offers this feature, 
+the Transport Services API has to expose an interface to the application. Otherwise, the implementation might
 violate assumptions by the application, which could cause the application to
 fail.
 
@@ -2467,7 +2467,7 @@ Default:
 
 The Lifetime specifies how long a particular Message can wait to be sent to the
 Remote Endpoint before it is irrelevant and no longer needs to be
-(re-)transmitted. This is a hint to the Transport Services system -- it is not guaranteed
+(re-)transmitted. This is a hint to the Transport Services implementation -- it is not guaranteed
 that a Message will not be sent when its Lifetime has expired.
 
 Setting a Message's Lifetime to infinite indicates that the application does
@@ -2718,7 +2718,7 @@ the available datagram sending size.
 
 ### Send Events {#send-events}
 
-Like all Actions in this interface, the Send Action is asynchronous. There are
+Like all Actions in Transport Services API, the Send Action is asynchronous. There are
 several Events that can be delivered in response to Sending a Message.
 Exactly one Event (Sent, Expired, or SendError) will be delivered in response
 to each call to Send.
@@ -2728,7 +2728,7 @@ one Send Event delivered for each call to Send. For example, if a Message
 expired while two requests to Send data for that Message are outstanding,
 there will be two Expired events delivered.
 
-The interface should allow the application to correlate which Send Action resulted
+The Transport Services API should allow the application to correlate which Send Action resulted
 in a particular Send Event. The manner in which this correlation is indicated
 is implementation-specific.
 
@@ -2741,7 +2741,7 @@ Connection -> Sent<messageContext>
 The Sent Event occurs when a previous Send Action has completed, i.e., when
 the data derived from the Message has been passed down or through the
 underlying Protocol Stack and is no longer the responsibility of
-this interface. The exact disposition of the Message (i.e.,
+the Transport Services API. The exact disposition of the Message (i.e.,
 whether it has actually been transmitted, moved into a buffer on the network
 interface, moved into a kernel buffer, and so on) when the Sent Event occurs
 is implementation-specific. The Sent Event contains a reference to the Message
@@ -2850,9 +2850,9 @@ the Connection could not be established will not result in a
 SendError separate from the EstablishmentError signaling the failure of Connection
 establishment.
 
-### Priority in TAPS {#priority-in-taps}
+### Priority and the Transport Services API  {#priority-in-taps}
 
-The Transport Services interface provides two properties to allow a sender 
+The Transport Services API provides two properties to allow a sender 
 to signal the relative priority of data transmission: the Priority Message 
 Property {{msg-priority}}, and the Connection Priority Connection Property 
 {{conn-priority}}. These properties are designed to allow the expression 
@@ -2868,7 +2868,7 @@ messages is not worse with respect to those connections and messages than
 an equivalent configuration in which all prioritization properties are left 
 at their defaults.
 
-The Transport Services interface does order Connection Priority over 
+The Transport Services API does order Connection Priority over 
 the Priority Message Property. In the absense of other externalities
 (e.g., transport-layer flow control), a priority 1 Message on a priority 0
 Connection will be sent before a priority 0 Message on a priority 1 
@@ -2916,7 +2916,7 @@ the Connection's Protocol Stack, it will be delivered via ReceivedPartial
 events ({{receive-partial}}).
 
 Note that maxLength does not guarantee that the application will receive that many
-bytes if they are available; the interface could return ReceivedPartial events with less
+bytes if they are available; the Transport Services API could return ReceivedPartial events with less
 data than maxLength according to implementation constraints. Note also that maxLength
 and minIncompleteLength are intended only to manage buffering, and are not interpreted
 as a receiver preference for message reordering.
@@ -2927,7 +2927,7 @@ Each call to Receive will be paired with a single Receive Event, which can be a 
 or an error. This allows an application to provide backpressure to the transport stack
 when it is temporarily not ready to receive messages.
 
-The interface should allow the application to correlate which call to Receive resulted
+The Transport Services API should allow the application to correlate which call to Receive resulted
 in a particular Receive Event. The manner in which this correlation is indicated
 is implementation-specific.
 
@@ -3146,7 +3146,7 @@ Connection -> ConnectionError<reason?>
 
 # Connection State and Ordering of Operations and Events
 
-This interface is designed to be independent of an implementation's
+This Transport Services API is designed to be independent of an implementation's
 concurrency model.  The details of how exactly actions are handled, and how
 events are dispatched, are implementation dependent.
 
@@ -3187,7 +3187,7 @@ Establishing -----> Established -----> Closing ------> Closed
 ~~~~~~~~~~
 {: #fig-connstates title="Connection State Diagram"}
 
-The interface provides the following guarantees about the ordering of
+The Transport Services API  provides the following guarantees about the ordering of
  operations:
 
 - Sent<> events will occur on a Connection in the order in which the Messages
@@ -3202,7 +3202,7 @@ The interface provides the following guarantees about the ordering of
   Closed<> event, an EstablishmentError<> or ConnectionError<> will not occur on that connection. To
   ensure this ordering, Closed<> will not occur on a Connection while other
   events on the Connection are still locally outstanding (i.e., known to the
-  interface and waiting to be dealt with by the application).
+  Transport Services API and waiting to be dealt with by the application).
 
 
 # IANA Considerations
@@ -3214,10 +3214,10 @@ Later versions of this document may create IANA registries for generic transport
 
 # Privacy and Security Considerations {#privacy-security}
 
-This document describes a generic API for interacting with a transport services (TAPS) system.
+This document describes a generic API for interacting with a Transport Services system.
 Part of this API includes configuration details for transport security protocols, as discussed
 in {{security-parameters}}. It does not recommend use (or disuse) of specific
-algorithms or protocols. Any API-compatible transport security protocol ought to work in a TAPS system.
+algorithms or protocols. Any API-compatible transport security protocol ought to work in a Transport Services system.
 Security considerations for these protocols are discussed in the respective specifications.
 
 The described API is used to exchange information between an application and the Transport Services system. While
@@ -3251,7 +3251,7 @@ Applications should also take care to not assume that all data received using th
 complete or well-formed. Specifically, messages that are received partially {{receive-partial}} could be a source
 of truncation attacks if applications do not distinguish between partial messages and complete messages.
 
-The interface explicitly does not require the application to resolve names, though there is
+The Transport Services API explicitly does not require the application to resolve names, though there is
 a tradeoff between early and late binding of addresses to names. Early binding
 allows the API implementation to reduce connection setup latency, at the cost
 of potentially limited scope for alternate path discovery during Connection
@@ -3263,9 +3263,9 @@ These communication activities are not different from what is used today. Howeve
 the goal of a Transport Services system is to support
 such mechanisms as a generic service within the transport layer. This enables applications to more dynamically
 benefit from innovations and new protocols in the transport, although it reduces transparency of the 
-underlying communication actions to the application itself. The TAPS API is designed such that protocol and path selection
+underlying communication actions to the application itself. The Transport Services API is designed such that protocol and path selection
 can be limited to a small and controlled set if required by the application for functional or security purposes. Further,
-TAPS implementations should provide an interface to poll information about which protocol and path is currently in use as
+A Transport Services system should provide an interface to poll information about which protocol and path is currently in use as
 well as provide logging about the communication events of each connection.
 
 # Acknowledgements
@@ -3293,7 +3293,7 @@ and for contributing text, e.g., on multicast.
 
 # Implementation Mapping {#implmapping}
 
-The way the concepts from this abstract interface map into concrete APIs in a
+The way the concepts from this abstract API map into concrete APIs in a
 given language on a given platform largely depends on the features and norms of
 the language and the platform. Actions could be implemented as functions or
 method calls, for instance, and Events could be implemented via event queues,
@@ -3333,7 +3333,7 @@ if necessary.
 
 This specification treats Events and Errors similarly. Errors, just as any
 other Events, may occur asynchronously in network applications. However,
-implementations of this interface may report Errors synchronously,
+implementations of this API may report Errors synchronously,
 according to the error handling idioms of the implementation
 platform, where they can be immediately detected, such as by generating an
 exception when attempting to initiate a connection with inconsistent
@@ -3364,7 +3364,7 @@ TransportProperties.Prohibit(property)
 
 ## Transport Property Profiles {#property-profiles}
 
-To ease the use of the interface specified by this document, implementations
+To ease the use of the Transport Services API specified by this document, implementations
 can provide a mechanism to create Transport Property objects (see {{selection-props}}) 
 that are pre-configured with frequently used sets of properties; the following are 
 in common use in current applications:
