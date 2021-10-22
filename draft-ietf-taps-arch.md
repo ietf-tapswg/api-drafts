@@ -94,7 +94,7 @@ This document describes the Transport Services architecture in three sections:
 
 - {{model}} describes how the API model of Transport Services architecture differs from traditional socket-based APIs. Specifically, it offers asynchronous event-driven interaction, the use of messages for data transfer, and the flexibility to use different transport protocols and paths without requiring major changes to the application.
 
-- {{requirements}} explains the fundamental requirements for a Transport Services implementation. These principles are intended to make sure that transport protocols can continue to be enhanced and evolve without requiring significant changes by application developers.
+- {{requirements}} explains the fundamental requirements for a Transport Services system. These principles are intended to make sure that transport protocols can continue to be enhanced and evolve without requiring significant changes by application developers.
 
 - {{concepts}} presents a diagram showing the Transport Services architecture and defines the concepts that are used by both the API {{!I-D.ietf-taps-interface}} and implementation guidelines {{?I-D.ietf-taps-impl}}. The Preconnection allows applications to configure Connection Properties. 
 
