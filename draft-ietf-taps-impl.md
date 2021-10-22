@@ -41,15 +41,6 @@ author:
     country: United States of America
     email: ietf@tenghardt.net
   -
-    ins: T. Jones
-    name: Tom Jones
-    org: University of Aberdeen
-    street: School of Engineering
-    street: Fraser Noble Building
-    city: Aberdeen, AB24 3UE
-    country: UK
-    email: tom@erg.abdn.ac.uk
-  -
     ins: P. Tiesel
     name: Philipp S. Tiesel
     org: SAP SE
@@ -57,14 +48,6 @@ author:
     city: 14469 Potsdam
     country: Germany
     email: philipp@tiesel.net
-  -
-    ins: C. Perkins
-    name: Colin Perkins
-    org: University of Glasgow
-    street: School of Computing Science
-    city: Glasgow G12 8QQ
-    country: United Kingdom
-    email: csp@csperkins.org
   -
     ins: M. Welzl
     name: Michael Welzl
@@ -1148,7 +1131,8 @@ Research Council under grant EP/R04144X/1.
 This work has been supported by the Research Council of Norway under its "Toppforsk"
 programme through the "OCARINA" project.
 
-Thanks to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work.
+
+Thanks to Colin Perkins, Tom Jones, Karl-Johan Grinnemo, Gorry Fairhurst, for their contributions to the design of this specification. Thanks also to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work.
 
 --- back
 
