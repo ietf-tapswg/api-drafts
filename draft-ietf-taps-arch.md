@@ -58,22 +58,6 @@ author:
     city: Glasgow  G12 8QQ
     country: United Kingdom
     email: csp@csperkins.org
-  -
-    ins: P. Tiesel
-    name: Philipp S. Tiesel
-    org: SAP SE
-    street: Konrad-Zuse-Ring 10
-    city: 14469 Potsdam
-    country: Germany
-    email: philipp@tiesel.net
-  -
-    ins: C. A. Wood
-    name: Christopher A. Wood
-    org: Cloudflare
-    street: 101 Townsend St
-    city: San Francisco
-    country: United States of America
-    email: caw@heapingbits.net
 
 informative:
     POSIX:
@@ -582,6 +566,11 @@ Research Council under grant EP/R04144X/1.
 
 Thanks to Theresa Enghardt, Max Franke, Mirja Kuehlewind, Jonathan Lennox, and 
 Michael Welzl for the discussions and feedback that helped shape the architecture 
-described here. Thanks as well to Stuart Cheshire, Josh Graessley, David Schinazi, 
+described here. 
+Particular thanks is also due to Philipp S. Tiesel and  Christopher A. Wood, 
+who were both co-authors of this architecture specification as it progressed 
+through the TAPS working group.
+Thanks as well to Stuart Cheshire, Josh Graessley, David Schinazi, 
 and Eric Kinnear for their implementation and design efforts, including Happy
 Eyeballs, that heavily influenced this work. 
+
