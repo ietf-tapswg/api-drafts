@@ -495,13 +495,11 @@ Connection establishment attempts for a set of candidates may be performed simul
 
 By default, stored properties of the implementation, such as cached protocol state, cached path state, and heuristics, may be shared (e.g. across multiple connections in an application). This provides efficiency and convenience for the application, since the Transport Services system can automatically optimize behavior.
 
-There are several reasons, however, that an application might want to explicitly isolate some Connections. These reasons include:
+The Transport Services API can allow applications to explicitly define Connection Contexts that force separation of Cached State and Protocol Stacks. 
+For example, privacy concerns could motivate an application to explicitly isolate some Connections:
 
-- Privacy concerns about re-using cached protocol state that can lead to linkability. Sensitive state may include TLS session state {{?RFC8446}} and HTTP cookies {{?RFC6265}}.
-- Privacy concerns about allowing Connections to multiplex together, which can tell a Remote Endpoint that all of the Connections are coming from the same application (for example, when Connections are multiplexed HTTP/2 or QUIC streams).
-- Performance concerns about Connections introducing head-of-line blocking due to multiplexing or needing to share state on a single thread.
-
-The Transport Services API can allow applications to explicitly define Connection Contexts that force separation of Cached State and Protocol Stacks. For example, a web browser application might use Connection Contexts with separate caches for different tabs in the browser to decrease linkability.
+- Concerns about re-using cached protocol state that can lead to linkability. Sensitive state could include TLS session state {{?RFC8446}} and HTTP cookies {{?RFC6265}}. To mitigate this concern, a web browser application could use Connection Contexts with separate caches for different tabs. 
+- Concerns about allowing Connections to multiplex together, which can tell a Remote Endpoint that all of the Connections are coming from the same application. This happens when Connections are multiplexed in a HTTP/2 or QUIC stream.
 
 # IANA Considerations
 
