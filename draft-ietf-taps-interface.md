@@ -217,7 +217,7 @@ The following notations, which can be combined, are used in this document:
 When an Object is used as a Parameter of an Action, the Action will not change this Object, and later changes
 to the Object will not have any automatic effect on the Transport Services system. Irrespective of the actual implementation,
 this behavior is as if the Transport Services system makes a complete copy
-of the Object and any other the Objects that it may reference when an Action is called.
+of the Object and any other Objects that it may reference when an Action is called.
 Actions associated with no Object are Actions on the API; they are equivalent to Actions on a per-application global context.
 
 Events are sent to the application or application-supplied code (e.g. framers, 
