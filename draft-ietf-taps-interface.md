@@ -214,6 +214,10 @@ The following notations, which can be combined, are used in this document:
       Action(param0, param1?, ...) / Event<param0, param1, ...>
 ~~~
 
+When an Object is used as a Parameter of an Action, the Action will not change this Object, and later changes
+to the Object will not have any automatic effect on the Transport Services system. Irrespective of the actual implementation,
+this behavior is as if the Transport Services system makes a complete copy
+of the Object and any other the Objects that it may reference when an Action is called.
 Actions associated with no Object are Actions on the API; they are equivalent to Actions on a per-application global context.
 
 Events are sent to the application or application-supplied code (e.g. framers, 
@@ -2432,8 +2436,8 @@ Properties to that Object. It can then reuse the same messageContext Object
 for sending multiple Messages with the same properties.
 
 Properties can be added to a MessageContext object only before the context is used
-for sending. Once a messageContext has been used with a Send call, it is
-invalid to modify any of its properties.
+for sending. Once a messageContext has been used with a Send call, it has no effect
+to modify any of its properties.
 
 The Message Properties could be inconsistent with the properties of the Protocol Stacks
 underlying the Connection on which a given Message is sent. For example,
