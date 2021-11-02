@@ -496,7 +496,7 @@ Connection establishment attempts for a set of candidates may be performed simul
 By default, stored properties of the implementation, such as cached protocol state, cached path state, and heuristics, may be shared (e.g. across multiple connections in an application). This provides efficiency and convenience for the application, since the Transport Services system can automatically optimize behavior.
 
 The Transport Services API can allow applications to explicitly define Connection Contexts that force separation of Cached State and Protocol Stacks. 
-For example, a web browser a web browser application could use Connection Contexts with separate caches when implementing different tabs. Possible reasons to isolate Connections using separate Connection Contexts include:
+For example, a web browser application could use Connection Contexts with separate caches when implementing different tabs. Possible reasons to isolate Connections using separate Connection Contexts include:
 
 - Privacy concerns about re-using cached protocol state that can lead to linkability. Sensitive state could include TLS session state {{?RFC8446}} and HTTP cookies {{?RFC6265}}. This could use Connection Contexts with separate caches when implementing different browser tabs. 
 - Privacy concerns about allowing Connections to multiplex together, which can tell a Remote Endpoint that all of the Connections are coming from the same application. Using Connection Contexts avoids the Connections being multiplexed in a HTTP/2 or QUIC stream.
