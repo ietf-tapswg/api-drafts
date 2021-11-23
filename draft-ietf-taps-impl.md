@@ -1121,7 +1121,7 @@ Since results from the network can determine how a connection attempt tree is bu
 # Acknowledgements
 
 This work has received funding from the European Union's Horizon 2020 research and
-innovation programme under grant agreement No. 644334 (NEAT).
+innovation programme under grant agreement No. 644334 (NEAT) and No. 815178 (5GENESIS).
 
 This work has been supported by Leibniz Prize project funds of DFG - German
 Research Foundation: Gottfried Wilhelm Leibniz-Preis 2011 (FKZ FE 570/4-1).
@@ -1237,7 +1237,7 @@ This appendix gives an overview of existing implementations, at the time of writ
   * Documentation: <https://developer.apple.com/documentation/network>
 
 * NEAT and NEATPy:
-  * NEAT is the output of the European H2020 research project "NEAT"; it is a user-space library for protocol-independent communication on top of TCP, UDP and SCTP, with many more features such as a policy manager.
+  * NEAT is the output of the European H2020 research project "NEAT"; it is a user-space library for protocol-independent communication on top of TCP, UDP and SCTP, with many more features such as a policy manager. 
   * Code: <https://github.com/NEAT-project/neat>
   * NEAT project: <https://www.neat-project.org>
   * NEATPy is a Python shim over NEAT which updates the NEAT API to be in line with version 6 of the Transport Services API draft.
