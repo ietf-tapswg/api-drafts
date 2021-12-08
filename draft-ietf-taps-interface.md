@@ -223,8 +223,8 @@ are platform- and implementation-specific.
 We also make use of the following basic types:
 
 - Boolean: Instances take the value `true` or `false`.
-- Integer: Instances take positive or negative numeric integer values.
-- Numeric: Instances take positive or negative numbers as values.
+- Integer: Instances take positive or negative integer values.
+- Numeric: Instances take positive or negative real number values.
 - Enumeration: A family of types in which each instance takes one of a fixed,
   predefined set of values specific to a given enumerated type.
 - Tuple: An ordered grouping of multiple value types, represented as a
@@ -2070,7 +2070,7 @@ Name:
 : minSendRate / minRecvRate / maxSendRate / maxRecvRate
 
 Type:
-: Numeric or `Unlimited` / Numeric or  `Unlimited` / Numeric or `Unlimited` / Numeric or `Unlimited`
+: Numeric or `Unlimited` / Numeric or `Unlimited` / Numeric or `Unlimited` / Numeric or `Unlimited`
 
 Default:
 : `Unlimited` / `Unlimited` / `Unlimited` / `Unlimited`
