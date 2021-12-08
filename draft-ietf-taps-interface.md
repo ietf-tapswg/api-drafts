@@ -700,11 +700,13 @@ An Endpoint Object can be configured with the following identifiers:
 RemoteSpecifier.WithHostname("example.com")
 ~~~
 
-- Port (a 16-bit integer) or a Service (string) that maps to a port:
+- Port (a 16-bit integer):
 
 ~~~
 RemoteSpecifier.WithPort(443)
 ~~~
+
+- Service (an identifier that maps to a port; either a the name of a well-known service, or a DNS SRV service name to be resolved):
 
 ~~~
 RemoteSpecifier.WithService("https")
