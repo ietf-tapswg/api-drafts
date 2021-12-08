@@ -1681,6 +1681,11 @@ that represent the concrete addresses, local and server reflexive, on which
 a Rendezvous() for the Preconnection will listen for incoming Connections,
 and to which it will attempt to establish connections.
 
+Note that the set of LocalEndpoints returned by Resolve() might or might not 
+contain information about all possible local interfaces; it is valid only
+for a Rendezvous happening at the same time as the resolution. Care should
+be taken in using these values in any other context.
+
 An application that uses Rendezvous() to establish a peer-to-peer connection
 in the presence of NATs will configure the Preconnection object with at least
 one a Local Endpoint that supports NAT binding discovery. It will then Resolve()
