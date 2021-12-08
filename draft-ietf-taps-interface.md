@@ -495,6 +495,25 @@ Connection.Receive()
 
 Connection -> Received<messageDataResponse, messageContext>
 
+// If new remote endpoint candidates are received from the peer over
+// the signalling channel, for example if using Trickle ICE, then add
+// them to the Connection:
+Connection.AddRemote(NewRemoteCandidates)
+
+// On a PathChange<> events, resolve the local endpoints to see if a
+// new local endpoint has become available and, if so, send to the peer
+// as a new candidate and add to the connection:
+Connection -> PathChange<>
+
+//---- PathChange event handler begin ----
+ResolvedLocal, ResolvedRemote = Preconnection.Resolve()
+if ResolvedLocal has changed:
+  // ...Send the ResolvedLocal list to peer via signalling channel
+  // Add the new local endpoints to the connection:
+  Connection.AddLocal(ResolvedLocal)
+//---- PathChange event handler end ----
+
+
 // Close the Connection in a Receive event handler
 Connection.Close()
 ~~~
@@ -1807,6 +1826,48 @@ lower Priority values. Capacity will be shared among these Connections according
 the Connection Group Transmission Scheduler property ({{conn-scheduler}}). 
 See {{priority-in-taps}} for more.
 
+
+## Adding and Removing Endpoints on a Connection
+
+Transport protocols that are explicitly multipath aware are expected to automatically
+manage the set of Remote Endpoints that they are communicating with, and the paths to
+those endpoints. A `PathChange<>` event, described in {{conn-path-change}}, will be
+generated when the path changes.
+
+In some cases, however, it is necessary to explicitly indicate to a Connection that
+a new remote endpoint has become available for use, or to indicate that some remote
+endpoint is no longer available. This is most common in the case of peer to peer
+connections using Trickle ICE {{?RFC8838}}.
+
+The `AddRemote()` action can be used to add one or more new remote endpoints
+to a Connection:
+
+~~~
+Connection.AddRemote([]RemoteEndpoint)
+~~~
+
+Endpoints that are already known to the Connection are ignored. A call to
+`AddRemote()` makes the new remote endpoints available to the connection,
+but whether the Connection makes use of those endpoints will depend on the
+underlying transport protocol.
+
+Similarly, the `RemoveRemote()` action can be used to tell a connection to
+stop using one or more remote endpoints:
+
+~~~
+Connection.RemoveRemote([]RemoteEndpoint)
+~~~
+
+Removing all known remote endpoints can have the effect of aborting the
+connection. The effect of removing the active remote endpoint(s) depends
+on the underlying transport: multipath aware transports might be able to
+switch to a new path if other reachable remote endpoints exist, or the
+connection might abort.
+
+Similarly, the `AddLocal()` and `RemoveLocal()` actions can be used to add
+and remove local endpoints to/from a Connection.
+
+
 # Managing Connections {#introspection}
 
 During pre-establishment and after establishment, connections can be configured and queried using Connection
@@ -2272,7 +2333,7 @@ Connection -> SoftError<>
 
 This event notifies the application when at least one of the paths underlying a Connection has changed. Changes occur
 on a single path when the PMTU changes as well as when multiple paths are used
-and paths are added or removed, or a handover has been performed.
+and paths are added or removed, the set of local endpoints changes, or a handover has been performed.
 
 ~~~
 Connection -> PathChange<>
