@@ -214,6 +214,7 @@ The following notations, which can be combined, are used in this document:
       Action(param0, param1?, ...) / Event<param0, param1, ...>
 ~~~
 
+Objects that are passed as parameters to Actions use call-by-value behavior.
 Actions associated with no Object are Actions on the API; they are equivalent to Actions on a per-application global context.
 
 Events are sent to the application or application-supplied code (e.g. framers, 
@@ -2508,8 +2509,8 @@ Properties to that Object. It can then reuse the same messageContext Object
 for sending multiple Messages with the same properties.
 
 Properties can be added to a MessageContext object only before the context is used
-for sending. Once a messageContext has been used with a Send call, it is
-invalid to modify any of its properties.
+for sending. Once a MessageContext has been used with a Send call, further modifications
+to the MessageContext object do not have any effect on this Send call.
 
 The Message Properties could be inconsistent with the properties of the Protocol Stacks
 underlying the Connection on which a given Message is sent. For example,
