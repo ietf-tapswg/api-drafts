@@ -1841,7 +1841,7 @@ stop using one or more remote endpoints:
 Connection.RemoveRemote([]RemoteEndpoint)
 ~~~
 
-Removing all known remote endpoints will have the effect of aborting the
+Removing all known remote endpoints can have the effect of aborting the
 connection. The effect of removing the active remote endpoint(s) depends
 on the underlying transport: multipath aware transports might be able to
 switch to a new path if other reachable remote endpoints exist, or the
