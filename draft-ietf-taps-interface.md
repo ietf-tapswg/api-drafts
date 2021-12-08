@@ -2360,11 +2360,11 @@ Therefore, a MessageContext object can be passed to the Send action and is retur
 Message Properties can be set and queried using the Message Context:
 
 ~~~
-MessageContext.add(scope?, parameter, value)
-PropertyValue := MessageContext.get(scope?, property)
+MessageContext.add(property, value)
+PropertyValue := MessageContext.get(property)
 ~~~
 
-To get or set Message Properties, the optional scope parameter is left empty. To get or set meta-data for a Framer, the application has to pass a reference to this Framer as the scope parameter.
+These Message Properties may be generic properties or Protocol Specific Properties.
 
 For MessageContexts returned by send Events (see {{send-events}}) and receive Events (see {{receive-events}}), the application can query information about the Local and Remote Endpoint:
 
@@ -2456,7 +2456,15 @@ Framers must happen before any operation that may result in the creation of a Co
 #### Framing Meta-Data {#framing-meta}
 
 When sending Messages, applications can add Framer-specific
-key/value pairs to a MessageContext ({{msg-ctx}}).
+properties to a MessageContext ({{msg-ctx}}).
+In order to set these properties, the `add` and `get` actions
+on the MessageContext take an additional framer parameter.
+
+~~~
+MessageContext.add(framer, property, value)
+PropertyValue := MessageContext.get(framer, property)
+~~~
+
 This mechanism can be used, for example, to set the type of a Message for a TLV format.
 The namespace of values is custom for each unique Message Framer.
 
