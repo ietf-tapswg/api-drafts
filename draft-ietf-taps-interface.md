@@ -738,6 +738,8 @@ Endpoint with a specific IP address set, it will only establish Connections to
 that IP address. If, on the other hand, the Remote Endpoint specifies a hostname
 but no addresses, the Connection can perform name resolution and attempt
 using any address derived from the original hostname of the Remote Endpoint.
+Note that multiple Remote Endpoints can be added to a Preconnection, as discussed
+in {{add-endpoints}}.
 
 The Transport Services system resolves names internally, when the Initiate(),
 Listen(), or Rendezvous() method is called to establish a Connection. Privacy
@@ -1828,7 +1830,7 @@ the Connection Group Transmission Scheduler property ({{conn-scheduler}}).
 See {{priority-in-taps}} for more.
 
 
-## Adding and Removing Endpoints on a Connection
+## Adding and Removing Endpoints on a Connection {#add-endpoints}
 
 Transport protocols that are explicitly multipath aware are expected to automatically
 manage the set of Remote Endpoints that they are communicating with, and the paths to
