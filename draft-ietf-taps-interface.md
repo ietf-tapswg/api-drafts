@@ -747,11 +747,11 @@ A Rendezvous() call on Preconnections containing group addresses results in an E
 
 Note that this API has multiple ways to constrain and prioritize endpoint candidates based on the network interface:
 
- - Specifying an interface on a RemoteEndpoint qualifies the scope of the remote endpoint, e.g., for link-local addresses. Specifying unnecessary qualifiers, e.g., on global unicast addresses, should result in an error.
+ - Specifying an interface on a RemoteEndpoint qualifies the scope of the remote endpoint, e.g., for link-local addresses.
  - Specifying an interface on a LocalEndpoint explicitly binds all candidates derived from this endpoint to use the specified interface.
- - Specifying an interface using the Selection Properties _Interface Instance or Type_ ({{prop-interface}}) or indirectly via the _Provisioning Domain Instance or Type_ ({{prop-pvd}}) influences the selection among the candidates available.
+ - Specifying an interface using the `interface` Selection Property ({{prop-interface}}) or indirectly via the `pvd` Selection Property ({{prop-pvd}}) influences the selection among the available candidates.
 
-While the first two qualify or bind the candidates available for connection establishment in the Pre-Establishment Phase, the Selection Properties prioritize and constrain the connection establishment. 
+While specifying an interface on an endpoint restricts the candidates available for connection establishment in the Pre-Establishment Phase, the Selection Properties prioritize and constrain the connection establishment. 
 
 ### Endpoint Aliases
 
@@ -1167,7 +1167,7 @@ such as metered or unmetered network access. If an application needs to prohibit
 metered interfaces, this should be specified via Provisioning Domain attributes
 (see {{prop-pvd}}) or another specific property.
 
-This property must not be used to qualify endpoint candidates, e.g., for link-local or multicast addresses – see {{ifspec}} for details how qualify endpoint candidates on a per-interface basis.
+Note that this property is not used to specify an interface scope for a particular endpoint. {{ifspec}} provides details about how to qualify endpoint candidates on a per-interface basis.
 
 ### Provisioning Domain Instance or Type {#prop-pvd}
 
