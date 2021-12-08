@@ -702,7 +702,7 @@ RemoteSpecifier.WithIPv4Address(192.0.2.21)
 RemoteSpecifier.WithIPv6Address(2001:db8:4920:e29d:a420:7461:7073:0a)
 ~~~
 
-- Interface name (string):
+- Interface name (string), e.g., to qualify link-local or multicast addresses (see {{ifspec}} for details):
 
 ~~~
 LocalSpecifier.WithInterface("en0")
@@ -745,6 +745,16 @@ A Rendezvous() call on Preconnections containing group addresses results in an
 EstablishmentError as described in {{rendezvous}}.
 
 See {{multicast-examples}} for more examples.
+
+### Constraining Interfaces for Endpoints {#ifspec}
+
+Note that this API has multiple ways to constrain and prioritize endpoint candidates based on the network interface:
+
+ - Specifying an interface on a RemoteEndpoint qualifies the scope of the remote endpoint, e.g., for link-local addresses.
+ - Specifying an interface on a LocalEndpoint explicitly binds all candidates derived from this endpoint to use the specified interface.
+ - Specifying an interface using the `interface` Selection Property ({{prop-interface}}) or indirectly via the `pvd` Selection Property ({{prop-pvd}}) influences the selection among the available candidates.
+
+While specifying an interface on an endpoint restricts the candidates available for connection establishment in the Pre-Establishment Phase, the Selection Properties prioritize and constrain the connection establishment. 
 
 ### Endpoint Aliases
 
@@ -1208,6 +1218,8 @@ Interface types should not be treated as a proxy for properties of interfaces
 such as metered or unmetered network access. If an application needs to prohibit
 metered interfaces, this should be specified via Provisioning Domain attributes
 (see {{prop-pvd}}) or another specific property.
+
+Note that this property is not used to specify an interface scope for a particular endpoint. {{ifspec}} provides details about how to qualify endpoint candidates on a per-interface basis.
 
 ### Provisioning Domain Instance or Type {#prop-pvd}
 
