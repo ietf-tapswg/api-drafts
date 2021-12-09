@@ -2289,7 +2289,7 @@ to adapt its own `Timeout for aborting Connection` (see {{conn-timeout}}) value.
 ### User Timeout Enabled 
 
 Name: 
-: tcp.userTimeout
+: tcp.userTimeoutEnabled
 
 Type:
 : Boolean
