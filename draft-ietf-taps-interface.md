@@ -2303,7 +2303,7 @@ connection. This applies to both sending and receiving.
 ### Timeout Changeable
 
 Name:
-: tcp.userTimeoutRecv
+: tcp.userTimeoutChangeable
 
 Type:
 : Boolean
