@@ -2559,7 +2559,7 @@ property (see {{msg-reliable-message}}). The type and units of Lifetime are impl
 #### Priority {#msg-priority}
 
 Name:
-: msgPrio
+: msgPriority
 
 Type:
 : Integer (non-negative)
