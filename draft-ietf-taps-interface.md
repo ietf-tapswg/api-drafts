@@ -1977,7 +1977,7 @@ A special value of 0 means that a received packet may also have a zero checksum 
 ### Connection Priority {#conn-priority}
 
 Name:
-: connPrio
+: connPriority
 
 Type:
 : Integer
@@ -3539,7 +3539,7 @@ See "TCP-specific Properties: User Timeout Option (UTO)" ({{tcp-uto}}).
 `connScheduler` property ({{conn-scheduler}}).
 
 * Configure priority or weight for a scheduler:
-`connPrio` property ({{conn-priority}}).
+`connPriority` property ({{conn-priority}}).
 
 * "Specify checksum coverage used by the sender" and "Disable checksum when sending":
 `msgChecksumLen` property ({{msg-checksum}}) and `fullChecksumSend` property ({{prop-checksum-control-send}}).
