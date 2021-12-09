@@ -1980,7 +1980,7 @@ Name:
 : connPriority
 
 Type:
-: Integer
+: Integer (non-negative)
 
 Default:
 : 100
