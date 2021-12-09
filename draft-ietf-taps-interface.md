@@ -642,12 +642,12 @@ of the potential Connection (see {{endpointspec}}), the Selection Properties
                                      SecurityParameters)
 ~~~
 
-At least one Local Endpoint MUST be specified if the Preconnection is used to Listen()
+At least one Local Endpoint SHUOLD be specified if the Preconnection is used to Listen()
 for incoming Connections, but the list of Local Endpoints MAY be empty if
 the Preconnection is used to Initiate()
 connections. If no Local Endpoint is specified, the Transport Services system will
 assign an ephemeral local port to the Connection on the appropriate interface(s).
-At least one Remote Endpoint MUST be specified if the Preconnection is used
+At least one Remote Endpoint SHOULD be specified if the Preconnection is used
 to Initiate() Connections, but the list of Remote Endpoints MAY be empty if 
 the Preconnection is used to Listen() for incoming Connections.
 At least one Local Endpoint and one Remote Endpoint MUST be specified if a
