@@ -1464,9 +1464,9 @@ When not specified, these algorithms should use known and safe defaults for the 
 ciphersuites, supported groups, and signature algorithms. These parameters take a collection of supported algorithms as parameter.
 
 ~~~
-SecurityParameters.Set(supported-group, "secp256k1")
-SecurityParameters.Set(ciphersuite, "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256")
-SecurityParameters.Set(signature-algorithm, "ed25519")
+SecurityParameters.Set(supported-group, "secp256r1")
+SecurityParameters.Set(ciphersuite, "TLS_AES_128_GCM_SHA256")
+SecurityParameters.Set(signature-algorithm, "ecdsa_secp256r1_sha256")
 ~~~
 
 - Pre-Shared Key import: Used to install pre-shared keying material established
