@@ -2056,7 +2056,7 @@ Type:
 : Enumeration
 
 Default:
-: Default
+: Default Profile (Best Effort)
 
 This property specifies the desired network treatment for traffic sent by the
 application and the tradeoffs the application is prepared to make in path and
