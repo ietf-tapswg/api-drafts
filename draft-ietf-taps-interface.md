@@ -74,14 +74,6 @@ author:
     country: Germany
     email: philipp@tiesel.net
   -
-    ins: C. A. Wood
-    name: Christopher A. Wood
-    org: Cloudflare
-    street: 101 Townsend St
-    city: San Francisco
-    country: United States of America
-    email: caw@heapingbits.net
-  -
     ins: T. Pauly
     name: Tommy Pauly
     org: Apple Inc.
@@ -89,14 +81,6 @@ author:
     city: Cupertino, California 95014
     country: United States of America
     email: tpauly@apple.com
-  -
-    ins: K. Rose
-    name: Kyle Rose
-    org: Akamai Technologies, Inc.
-    street: 145 Broadway
-    city: Cambridge, MA
-    country: United States of America
-    email: krose@krose.org
 
 normative:
   I-D.ietf-taps-arch:
