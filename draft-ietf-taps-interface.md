@@ -2206,7 +2206,7 @@ Type:
 
 This property represents the maximum Message size that can be sent
 before or during Connection establishment, see also {{msg-safelyreplayable}}.
-It is given in Bytes.
+It is specified as the number of bytes.
 
 #### Maximum Message Size Before Fragmentation or Segmentation {#conn-max-msg-notfrag}
 
@@ -2218,7 +2218,7 @@ Type:
 
 This property, if applicable, represents the maximum Message size that can be
 sent without incurring network-layer fragmentation at the sender. 
-It exposes a value to the application
+It is specified as the number of bytes. It exposes a value to the application
 based on the Maximum Packet Size (MPS) as described in Datagram PLPMTUD {{?RFC8899}}.
 This can allow a sending stack to avoid unwanted fragmentation at the 
 network-layer or segmentation by the transport layer. 
@@ -2232,6 +2232,7 @@ Type:
 : Integer
 
 This property represents the maximum Message size that an application can send.
+It is specified as the nummber of bytes.
 
 #### Maximum Message Size on Receive {#conn-max-msg-recv}
 
@@ -2242,7 +2243,7 @@ Type:
 : Integer
 
 This numeric property represents the maximum Message size that an application can receive.
-
+It specified as the number of bytes.
 
 ## TCP-specific Properties: User Timeout Option (UTO) {#tcp-uto}
 
