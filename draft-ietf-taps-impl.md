@@ -264,6 +264,8 @@ DNS-Based Service Discovery {{?RFC6763}} can also provide an endpoint derivation
     1.1.1 [31.133.160.18.631, Wi-Fi, TCP]
 ~~~~~~~~~~
 
+Applications can influence which derived endpoints are allowed and preferred via Selection Properties set on the Preconnection. For example, setting a preference for `useTemporaryLocalAddress` would prefer the use of IPv6 over IPv4, and requiring `useTemporaryLocalAddress` would eliminate IPv4 options, since IPv4 does not support temporary addresses.
+
 #### Alternate Paths
 
 If a client has multiple network interfaces available to it, e.g., a mobile client with both Wi-Fi and Cellular connectivity, it can attempt a connection over any of the interfaces. This represents a branch point in the connection establishment. Similar to a derived endpoint, the interfaces should be ranked based on preference, system policy, and performance. Attempts should be started on one interface, and then on other interfaces successively after delays based on expected round-trip-time or other available metrics.
