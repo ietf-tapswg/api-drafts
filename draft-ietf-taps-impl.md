@@ -603,6 +603,13 @@ implementation or the application itself. The Message Framer refers to the objec
 or function within the main Connection implementation that delivers events
 to the custom framer implementation whenever data is ready to be parsed or framed.
 
+The Transport Services implementation needs to ensure that all of the
+events and actions taken on a Message Framer are synchronized to ensure
+consistent behavior. For example, some of the actions defined below (such as
+PrependFramer and StartPassthrough) modify how data flows in a protocol
+stack, and require synchronization with sending and parsing data in the
+Message Framer.
+
 When a Connection establishment attempt begins, an event can be delivered to
 notify the framer implementation that a new Connection is being created.
 Similarly, a stop event can be delivered when a Connection is being torn down.
