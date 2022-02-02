@@ -1277,7 +1277,7 @@ Default:
 : Avoid for Listeners and Rendezvous Connections. Prefer for other Connections.
 
 This property allows the application to express a preference for the use of
-temporary local addresses, sometimes called "privacy" addresses {{!RFC4941}}.
+temporary local addresses, sometimes called "privacy" addresses {{!RFC8981}}.
 Temporary addresses are generally used to prevent linking connections over time
 when a stable address, sometimes called "permanent" address, is not needed.
 There are some caveats to note when specifying this property. First, if an
@@ -1668,12 +1668,12 @@ Endpoint candidates to the Remote Endpoint candidates.
 If there are multiple Local Endpoints or Remote Endpoints configured, then
 initiating a Rendezvous() action will systematically probe the reachability
 of those endpoint candidates following an approach such as that used in
-Interactive Connectivity Establishment (ICE) {{?RFC5245}}.
+Interactive Connectivity Establishment (ICE) {{?RFC8445}}.
 
 If the endpoints are suspected to be behind a NAT, Rendezvous() can be
 initiated using Local Endpoints that support a method of discovering NAT
 bindings such as Session Traversal Utilities for NAT (STUN) {{?RFC8489}} or
-Traversal Using Relays around NAT (TURN) {{?RFC5766}}.  In this case, the
+Traversal Using Relays around NAT (TURN) {{?RFC8656}}.  In this case, the
 Local Endpoint will resolve to a mixture of local and server reflexive
 addresses. The Resolve() action on the Preconnection can be used to
 discover these bindings:
