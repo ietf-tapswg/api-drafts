@@ -2458,12 +2458,10 @@ Framers must happen before any operation that may result in the creation of a Co
 When sending Messages, applications can add Framer-specific
 properties to a MessageContext ({{msg-ctx}}).
 In order to set these properties, the `add` and `get` actions
-on the MessageContext take an additional framer parameter.
-
-~~~
-MessageContext.add(framer, property, value)
-PropertyValue := MessageContext.get(framer, property)
-~~~
+on the MessageContext. To avoid naming conflicts, the property
+names SHOULD be prefixed with a namespace referencing the
+framer implementation or the protocol it implements as described
+in {{property-names}}. 
 
 This mechanism can be used, for example, to set the type of a Message for a TLV format.
 The namespace of values is custom for each unique Message Framer.
