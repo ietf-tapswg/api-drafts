@@ -2678,8 +2678,6 @@ that the transport protocol ensures all data is received on the other side
 without corruption. Changing the `Reliable Data Transfer` property on Messages
 is only possible for Connections that were established enabling the Selection Property `Configure Per-Message Reliability`.
 When this is not the case, changing `msgReliable` will generate an error.
-If it is not configured by the application before sending, this property's default value
-will be based on the Connection Property of the Connection associated with the Send Action.
 
 Disabling this property indicates that the Transport Services system may disable retransmissions
 or other reliability mechanisms for this particular Message, but such disabling is not guaranteed.
