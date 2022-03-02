@@ -2511,7 +2511,11 @@ for sending multiple Messages with the same properties.
 
 Properties can be added to a MessageContext object only before the context is used
 for sending. Once a MessageContext has been used with a Send call, further modifications
-to the MessageContext object do not have any effect on this Send call.
+to the MessageContext object do not have any effect on this Send call. Message Properties
+that are not added to a MessageContext object before using the context for sending will either
+take a specific default value or be configured based on Selection or Connection Properties
+of the Connection that is associated with the Send call.
+This initialization behavior is defined per Message Property below.
 
 The Message Properties could be inconsistent with the properties of the Protocol Stacks
 underlying the Connection on which a given Message is sent. For example,
@@ -2593,6 +2597,10 @@ If false, the Message is delivered to the receiving application without preservi
 This property is used for protocols that support preservation of data ordering,
 see {{prop-ordering}}, but allow out-of-order delivery for certain messages, e.g., by multiplexing independent messages onto
 different streams.
+
+If it is not configured by the application before sending, this property's default value
+will be based on the Selection Property `preserveOrder` of the Connection
+associated with the Send Action.
 
 #### Safely Replayable {#msg-safelyreplayable}
 
@@ -2680,6 +2688,10 @@ When this is not the case, changing `msgReliable` will generate an error.
 Disabling this property indicates that the Transport Services system may disable retransmissions
 or other reliability mechanisms for this particular Message, but such disabling is not guaranteed.
 
+If it is not configured by the application before sending, this property's default value
+will be based on the Selection Property `reliability` of the Connection
+associated with the Send Action.
+
 #### Message Capacity Profile Override {#send-profile}
 
 Name:
@@ -2691,11 +2703,12 @@ Type:
 Default:
 : inherited from the Connection Property `connCapacityProfile` ({{prop-cap-profile}})
 
-
 This enumerated property specifies the application's preferred tradeoffs for
 sending this Message; it is a per-Message override of the Capacity Profile
 connection property (see {{prop-cap-profile}}).
-
+If it is not configured by the application before sending, this property's default value
+will be based on the Connection Property `connCapacityProfile` of the Connection
+associated with the Send Action.
 
 #### No Network-Layer Fragmentation {#send-singular}
 
