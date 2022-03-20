@@ -921,10 +921,12 @@ Abort:
 : Calling `Abort` on a TCP Connection indicates that the Connection should be immediately closed by sending a RST to the peer (ABORT.TCP).
 
 CloseGroup:
-: Calling `CloseGroup` on a TCP Connection (CLOSE.TCP) is identical to calling `Close`.
+: Calling `CloseGroup` on a TCP Connection (CLOSE.TCP) is identical to calling `Close` on all TCP Connections
+within a group.
 
 AbortGroup:
-: Calling `AbortGroup` on a TCP Connection (ABORT.TCP) is identical to calling `Abort`.
+: Calling `AbortGroup` on a TCP Connection (ABORT.TCP) is identical to calling `Abort` on all TCP Connections
+within a group.
 
 ## MPTCP
 
@@ -983,10 +985,12 @@ Abort:
 : Calling `Abort` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close`.
 
 CloseGroup:
-: Calling `CloseGroup` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close`.
+: Calling `CloseGroup` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close` on all
+UDP Connections within a group.
 
 AbortGroup:
-: Calling `AbortGroup` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close`.
+: Calling `AbortGroup` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close` on all
+UDP Connections within a group.
 
 ## UDP-Lite
 
@@ -1052,10 +1056,11 @@ Abort:
 : Calling `Abort` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) is identical to calling `Close`.
 
 CloseGroup:
-: Calling `CloseGroup` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) is identical to calling `Close`.
+: Calling `CloseGroup` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) is identical to calling `Close` on all UDP Multicast Receive  Connections within a group.
 
 AbortGroup:
-: Calling `AbortGroup` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) is identical to calling `Close`.
+: Calling `AbortGroup` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) is identical to calling `Close`
+on all UDP Multicast Receive  Connections within a group.
 
 ## SCTP
 
