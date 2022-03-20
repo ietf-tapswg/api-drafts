@@ -920,6 +920,12 @@ Close:
 Abort:
 : Calling `Abort` on a TCP Connection indicates that the Connection should be immediately closed by sending a RST to the peer (ABORT.TCP).
 
+CloseGroup:
+: Calling `CloseGroup` on a TCP Connection (CLOSE.TCP) is identical to calling `Close` on this Connection and on all Connections in the same ConnectionGroup.
+
+AbortGroup:
+: Calling `AbortGroup` on a TCP Connection (ABORT.TCP) is identical to calling `Abort` on this Connection and on all Connections in the same ConnectionGroup.
+
 ## MPTCP
 
 Connectedness: Connected
@@ -976,6 +982,11 @@ Close:
 Abort:
 : Calling `Abort` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close`.
 
+CloseGroup:
+: Calling `CloseGroup` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close` on this Connection and on all Connections in the same ConnectionGroup.
+
+AbortGroup:
+: Calling `AbortGroup` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close` on this Connection and on all Connections in the same ConnectionGroup.
 ## UDP-Lite
 
 Connectedness: Connectionless
@@ -1038,6 +1049,13 @@ Close:
 
 Abort:
 : Calling `Abort` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) is identical to calling `Close`.
+
+CloseGroup:
+: Calling `CloseGroup` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) is identical to calling `Close` on this Connection and on all Connections in the same ConnectionGroup.
+
+AbortGroup:
+: Calling `AbortGroup` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) is identical to calling `Close`
+on this Connection and on all Connections in the same ConnectionGroup.
 
 ## SCTP
 
@@ -1106,6 +1124,12 @@ If this is the only Connection object that is assigned to the SCTP association, 
 
 Abort:
 If this is the only Connection object that is assigned to the SCTP association, ABORT.SCTP is called. Else, the Connection object is one out of several Connection objects that are assigned to the same SCTP assocation, and shutdown proceeds as described under `Close`.
+
+CloseGroup:
+Calling `CloseGroup` calls CLOSE.SCTP, closing all Connections in the SCTP association.
+
+AbortGroup:
+Calling `AbortGroup` calls ABORT.SCTP, immediately closing all Connections in the SCTP association.
 
 # IANA Considerations
 
@@ -1181,6 +1205,10 @@ Receive:
 Close:
 
 Abort:
+
+CloseGroup:
+
+AbortGroup:
 
 
 # Additional Properties {#appendix-non-consensus}
