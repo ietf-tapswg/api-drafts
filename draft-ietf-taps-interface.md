@@ -202,8 +202,10 @@ Objects that are passed as parameters to Actions use call-by-value behavior.
 Actions associated with no Object are Actions on the API; they are equivalent to Actions on a per-application global context.
 
 Events are sent to the application or application-supplied code (e.g. framers, 
-see {{framing}}) for processing; the details of event processing 
-are platform- and implementation-specific.
+see {{framing}}) for processing; the details of event interfaces are platform-
+and implementation-specific, and may be implemented using
+other forms of asynchronous processing, as idiomatic for the 
+implementing platform.
 
 We also make use of the following basic types:
 
