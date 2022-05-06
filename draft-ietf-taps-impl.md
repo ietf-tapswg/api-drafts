@@ -166,14 +166,11 @@ It is expected that the database of system policies and the method of looking up
 
 The process of establishing a network connection begins when an application expresses intent to communicate with a Remote Endpoint by calling Initiate. (At this point, any constraints or requirements the application may have on the connection are available from pre-establishment.) The process can be considered complete once there is at least one Protocol Stack that has completed any required setup to the point that it can transmit and receive the application's data.
 
-Connection establishment is divided into two top-level steps: Candidate Gathering, to identify the paths, protocols, and endpoints to use, and Candidate Racing (see Section 4.2.2 of {{I-D.ietf-taps-arch}}), in which the necessary protocol handshakes are conducted so that the transport system can select which set to use.
+Connection establishment is divided into two top-level steps: Candidate Gathering, to identify the potential paths, protocols, and endpoints to use, and Candidate Racing (see Section 4.2.2 of {{I-D.ietf-taps-arch}}), in which the necessary protocol handshakes are conducted so that the transport system can select which set to use.
 
-This document structures the candidates for racing as a tree as terminological convention. While a 
-a tree structure is not the only way in which racing can be implemented, it does ease the illustration of how racing works. 
+In its most basic form, the connection-establishment process might just involve identifying a single IP address (and port) to which the application wishes to connect, and starting a TCP handshake to establish a stream to that IP address, using the system's current default path (i.e., by using the current default network interface). However, each step may also differ depending on the requirements for the connection: if, instead of a known IP address, the endpoint is identified by a hostname, then there may be a choice between multiple resolved addresses; some protocols may not need any transport handshake to establish communication (such as UDP), while others may require several layers of handshakes, such as TLS over TCP; finally, there may also be multiple paths available (i.e., via additional network interfaces besides the system default);
 
-The most simple example of this process might involve identifying the single IP address to which the implementation wishes to connect, using the system's current default path (i.e., using the default interface), and starting a TCP handshake to establish a stream to the specified IP address. However, each step may also differ depending on the requirements of the connection: if the endpoint is defined as a hostname and port, then there may be multiple resolved addresses that are available; there may also be multiple paths available, (in this case using an interface other than the default system interface); and some protocols may not need any transport handshake to be considered "established" (such as UDP), while other connections may utilize layered protocol handshakes, such as TLS over TCP.
-
-Whenever an implementation has multiple options for connection establishment, it can view the set of all individual connection establishment options as a single, aggregate connection establishment. The aggregate set conceptually includes every valid combination of endpoints, paths, and protocols. As an example, consider an implementation that initiates a TCP connection to a hostname + port endpoint, and has two valid interfaces available (Wi-Fi and LTE). The hostname resolves to a single IPv4 address on the Wi-Fi network, and resolves to the same IPv4 address on the LTE network, as well as a single IPv6 address. The aggregate set of connection establishment options can be viewed as follows:
+Whenever an implementation has multiple options for connection establishment, it can view the set of all individual connection establishment options in terms of a single aggregate. This aggregate set conceptually includes every valid combination of endpoints, paths, and protocols. As an example, consider an implementation that initiates a TCP connection to a hostname + port endpoint, and has two valid interfaces available (Wi-Fi and LTE). The hostname resolves to a single IPv4 address on the Wi-Fi network, and resolves to the same IPv4 address on the LTE network, as well as a single IPv6 address. The aggregate set of connection establishment options can be viewed as follows:
 
 ~~~~~~~~~~
 Aggregate [Endpoint: www.example.com:80] [Interface: Any]   [Protocol: TCP]
@@ -182,16 +179,14 @@ Aggregate [Endpoint: www.example.com:80] [Interface: Any]   [Protocol: TCP]
 |-> [Endpoint: 2001:DB8::1.80]     [Interface: LTE]   [Protocol: TCP]
 ~~~~~~~~~~
 
-Any one of these sub-entries on the aggregate connection attempt would satisfy the original application intent. The concern of this section is the algorithm defining which of these options to try, when, and in what order.
+Any one of these sub-entries on the aggregate connection attempt would satisfy the original application intent. The concern of this section is the algorithm defining which of these "Candidate" options to try, when, and in what order.
 
-During Candidate Gathering, an implementation first excludes all protocols and
-paths that match a Prohibit or do not match all Require properties.
-Then, the implementation will sort branches according to Preferred
-properties, Avoided properties, and possibly other criteria.
+During Candidate Gathering, an implementation first excludes all protocols and paths with Prohibited features as well as those which do not satisfy a Required property.
+Then, the remaining candidates will be ranked according to Preferred properties, Avoided properties, and possibly other criteria.
 
 ## Structuring Candidates as a Tree
 
-As noted above, the considereration of multiple candidates in a gathering and racing process can be conceptually structured as a tree; this terminological convention is used throughout this document.
+The considereration of multiple candidates in a gathering and racing process can be conceptually structured as a tree; this terminological convention is used throughout this document. While a tree structure is not the only way in which racing can be implemented, it does ease the illustration of how racing works. 
 
 Each leaf node of the tree represents a single, coherent connection attempt, with an endpoint, a network path, and a set of protocols that can directly negotiate and send data on the network. Each node in the tree that is not a leaf represents a connection attempt that is either underspecified, or else includes multiple distinct options. For example, when connecting on an IP network, a connection attempt to a hostname and port is underspecified, because the connection attempt requires a resolved IP address as its Remote Endpoint. In this case, the node represented by the connection attempt to the hostname is a parent node, with child nodes for each IP address. Similarly, an implementation that is allowed to connect using multiple interfaces will have a parent node of the tree for the decision between the network paths, with a branch for each interface.
 
