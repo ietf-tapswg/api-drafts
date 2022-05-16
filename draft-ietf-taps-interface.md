@@ -1747,7 +1747,7 @@ Preconnection -> EstablishmentError<reason?>
 Connection Groups can be created using the Clone Action:
 
 ~~~
-Connection := Connection.Clone(framer?)
+Connection := Connection.Clone(framer?, streamid?)
 ~~~
 
 Calling Clone on a Connection yields a Connection Group containing two Connections: the parent
@@ -1792,7 +1792,9 @@ protocol instance.
 If the underlying protocol supports multi-streaming, it is natural to use this
 functionality to implement Clone. In that case, Connections in a Connection Group are
 multiplexed together, giving them similar treatment not only inside endpoints,
-but also across the end-to-end Internet path.
+but also across the end-to-end Internet path. Then, if possible, and if this optional
+parameter was provided, the parameter `streamid` can be used to assign a stream number
+to the stream in the underlying protocol.
 
 Note that calling Clone() can result in on-the-wire signaling, e.g., to open a new
 transport connection, depending on the underlying Protocol Stack. When Clone() leads to
@@ -2247,6 +2249,16 @@ Type:
 
 This numeric property represents the maximum Message size that an application can receive.
 It specified as the number of bytes.
+
+#### Stream ID {#conn-streamid}
+
+Name:
+: streamID
+
+Type:
+: Integer (non-negative) or `Not applicable`
+
+If the Connection is a stream of a multistreaming transport protocol, then this property represents the associated stream number. Otherwise, the value will be `Not applicable`.
 
 ## TCP-specific Properties: User Timeout Option (UTO) {#tcp-uto}
 
