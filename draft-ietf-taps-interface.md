@@ -1948,7 +1948,7 @@ Name:
 : recvChecksumLen
 
 Type:
-: Integer or `Full Coverage`
+: Integer (non-negative) or `Full Coverage`
 
 Default:
 : `Full Coverage`
@@ -1989,7 +1989,7 @@ Name:
 : connTimeout
 
 Type:
-: Numeric or `Disabled`
+: Numeric (non-negative) or `Disabled`
 
 Default:
 : `Disabled`
@@ -2005,13 +2005,13 @@ Name:
 : keepAliveTimeout
 
 Type:
-: Numeric or `Disabled`
+: Numeric (non-negative) or `Disabled`
 
 Default:
 : Implementation-defined
 
 A Transport Services API can request a protocol that supports sending keep alive packets {{keep-alive}}.
-If this property is an Integer, it specifies the maximum length of time an idle connection (one for which no transport
+If this property is Numeric, it specifies the maximum length of time an idle connection (one for which no transport
 packets have been sent) should wait before 
 the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting this Property
 will only take effect when the underlying stack supports sending keep-alive packets. 
@@ -2146,12 +2146,12 @@ Name:
 : minSendRate / minRecvRate / maxSendRate / maxRecvRate
 
 Type:
-: Numeric or `Unlimited` / Numeric or `Unlimited` / Numeric or `Unlimited` / Numeric or `Unlimited`
+: Numeric (non-negative) or `Unlimited` / Numeric (non-negative) or `Unlimited` / Numeric (non-negative) or `Unlimited` / Numeric (non-negative) or `Unlimited`
 
 Default:
 : `Unlimited` / `Unlimited` / `Unlimited` / `Unlimited`
 
-Integer values of this property specify an upper-bound rate that a transfer is not expected to
+Numeric values of this property specify an upper-bound rate that a transfer is not expected to
 exceed (even if flow control and congestion control allow higher rates), and/or a
 lower-bound rate below which the application does not deem
 it will be useful. These are specified in bits per second. 
@@ -2163,12 +2163,12 @@ Name:
 : groupConnLimit
 
 Type:
-: Numeric or `Unlimited`
+: Numeric (non-negative) or `Unlimited`
 
 Default:
 : `Unlimited`
 
-If this property is an Integer, it controls the number of Connections that can be accepted from
+If this property is Numeric, it controls the number of Connections that can be accepted from
 a peer as new members of the Connection's group. Similar to SetNewConnectionLimit(),
 this limits the number of ConnectionReceived Events that will occur, but constrained
 to the group of the Connection associated with this property. For a multi-streaming transport,
@@ -2205,7 +2205,7 @@ Name:
 : zeroRttMsgMaxLen
 
 Type:
-: Integer
+: Integer (non-negative)
 
 This property represents the maximum Message size that can be sent
 before or during Connection establishment, see also {{msg-safelyreplayable}}.
@@ -2217,7 +2217,7 @@ Name:
 : singularTransmissionMsgMaxLen
 
 Type:
-: Integer
+: Integer (non-negative) or `Not applicable`
 
 This property, if applicable, represents the maximum Message size that can be
 sent without incurring network-layer fragmentation at the sender. 
@@ -2232,10 +2232,10 @@ Name:
 : sendMsgMaxLen
 
 Type:
-: Integer
+: Integer (non-negative)
 
 This property represents the maximum Message size that an application can send.
-It is specified as the nummber of bytes.
+It is specified as the number of bytes.
 
 #### Maximum Message Size on Receive {#conn-max-msg-recv}
 
@@ -2243,9 +2243,9 @@ Name:
 : recvMsgMaxLen
 
 Type:
-: Integer
+: Integer (non-negative)
 
-This numeric property represents the maximum Message size that an application can receive.
+This property represents the maximum Message size that an application can receive.
 It specified as the number of bytes.
 
 ## TCP-specific Properties: User Timeout Option (UTO) {#tcp-uto}
@@ -2272,7 +2272,7 @@ Name:
 : tcp.userTimeoutValue
 
 Type: 
-: Integer
+: Integer (non-negative)
 
 Default:
 : the TCP default
@@ -2545,7 +2545,7 @@ Name:
 : msgLifetime
 
 Type:
-: Numeric
+: Numeric (non-negative)
 
 Default:
 : infinite
@@ -2658,7 +2658,7 @@ Name:
 : msgChecksumLen
 
 Type:
-: Integer or `Full Coverage`
+: Integer (non-negative) or `Full Coverage`
 
 Default:
 : `Full Coverage`
