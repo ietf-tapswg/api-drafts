@@ -223,7 +223,7 @@ The rest of this section will use a notation scheme to represent this tree. The 
     1.2.2 [2001:DB8::1.80, LTE, TCP]
 ~~~~~~~~~~
 
-When an implementation is asked to establish a single connection, only one of the leaf nodes in the candidate set is needed to transfer data. Thus, when a single leaf node becomes ready to use, then the entire connection attempt has been successful. One way to implement this is by having every leaf node update the state of its parent node when it becomes ready, until the trunk node of the tree is ready, which then notifies the application that the connection as a whole is ready to use.
+When an implementation is asked to establish a single connection, only one of the leaf nodes in the candidate set is needed to transfer data. Thus, once a single leaf node becomes ready to use, then the connection establishment tree is considered ready. One way to implement this is by having every leaf node update the state of its parent node when it becomes ready, until the trunk node of the tree is ready, which then notifies the application that the connection as a whole is ready to use.
 
 A connection establishment tree may be degenerate, and only have a single leaf node, such as a connection attempt to an IP address over a single interface with a single protocol.
 
