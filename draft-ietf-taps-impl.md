@@ -266,7 +266,7 @@ DNS-Based Service Discovery {{?RFC6763}} can also provide an endpoint derivation
 
 Applications can influence which derived endpoints are allowed and preferred via Selection Properties set on the Preconnection. For example, setting a preference for `useTemporaryLocalAddress` would prefer the use of IPv6 over IPv4, and requiring `useTemporaryLocalAddress` would eliminate IPv4 options, since IPv4 does not support temporary addresses.
 
-#### Alternate Paths
+#### Network Paths
 
 If a client has multiple network paths available to it, e.g., a mobile client with intefaces for both Wi-Fi and Cellular connectivity, it can attempt a connection over any of the paths. This represents a branch point in the connection establishment. Similar to a derived endpoint, the paths should be ranked based on preference, system policy, and performance. Attempts should be started on one path (e.g., a specific interface), and then successively on other paths (or interfaces) after delays based on expected path round-trip-time or other available metrics.
 
@@ -319,11 +319,11 @@ Implementations that support racing protocols and protocol options should mainta
 
 ### Branching Order-of-Operations
 
-Branch types must occur in a specific order relative to one another to avoid creating leaf nodes with invalid or incompatible settings. In the example above, it would be invalid to branch for derived endpoints (the DNS results for www.example.com) before branching between interface paths, since there are situations when the results will be different across networks due to private names or different supported IP versions. Implementations must be careful to branch in an order that results in usable leaf nodes whenever there are multiple branch types that could be used from a single node.
+Branch types should occur in a specific order relative to one another to avoid creating leaf nodes with invalid or incompatible settings. In the example above, it would be invalid to branch for derived endpoints (the DNS results for www.example.com) before branching between interface paths, since there are situations when the results will be different across networks due to private names or different supported IP versions. Implementations need to be careful to branch in a consistentorder that results in usable leaf nodes whenever there are multiple branch types that could be used from a single node.
 
-The order of operations for branching should be:
+This document recommends the following order of operations for branching:
 
-1. Alternate Paths
+1. Network Paths
 2. Protocol Options
 3. Derived Endpoints
 
