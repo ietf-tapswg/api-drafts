@@ -319,7 +319,7 @@ Implementations that support racing protocols and protocol options should mainta
 
 ### Branching Order-of-Operations
 
-Branch types should occur in a specific order relative to one another to avoid creating leaf nodes with invalid or incompatible settings. In the example above, it would be invalid to branch for derived endpoints (the DNS results for www.example.com) before branching between interface paths, since there are situations when the results will be different across networks due to private names or different supported IP versions. Implementations need to be careful to branch in a consistentorder that results in usable leaf nodes whenever there are multiple branch types that could be used from a single node.
+Branch types ought to occur in a specific order relative to one another to avoid creating leaf nodes with invalid or incompatible settings. In the example above, it would be invalid to branch for derived endpoints (the DNS results for www.example.com) before branching between interface paths, since there are situations when the results will be different across networks due to private names or different supported IP versions. Implementations need to be careful to branch in a consistent order that results in usable leaf nodes whenever there are multiple branch types that could be used from a single node.
 
 This document recommends the following order of operations for branching:
 
