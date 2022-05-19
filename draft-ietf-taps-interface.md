@@ -1768,7 +1768,7 @@ to the new Connection when calling Clone(), but in this case, a later change to 
 other Connections in the same Connection Group.
 
 The optional `protocolSpecificProperties` parameter represents protocol-specific
-properties that are not defined in the present document, but left open for definition
+Transport Properties that are not defined in the present document, but left open for definition
 in future documents.
 
 Message Properties set on a Connection also apply only to that Connection.
