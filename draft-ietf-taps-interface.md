@@ -1004,7 +1004,7 @@ from an antecedent via cloning; see {{groups}} for more.
 Properties are listed in the subsections below. Selection Properties are
 only considered during establishment, and can not be changed after a Connection
 is established; however, they can still be read. Upon reading, the Preference type
-of a Selection Property changes into Boolean, where where `true` means that the
+of a Selection Property changes into Boolean, where `true` means that the
 Preference was honored and `false` means that it has not been honored (implementations
 of Transport Services systems may alternatively use the two Preference values `Require`
 and `Prohibit` to represent `true` and `false`, respectively).
