@@ -1767,9 +1767,8 @@ to the new Connection when calling Clone(), but in this case, a later change to 
 `Connection Priority` on one Connection does not change it on the
 other Connections in the same Connection Group.
 
-The optional `protocolSpecificProperties` parameter represents protocol-specific
-Transport Properties that are not defined in the present document, but left open for definition
-in future documents.
+The optional `connectionProperties` parameter allows passing
+Transport Properties that control the behaviour of the stream/underlaying connection to be created, e.g., protocol specific properties to request specific stream IDs for SCTP or QUIC.
 
 Message Properties set on a Connection also apply only to that Connection.
 
