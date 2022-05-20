@@ -3359,7 +3359,7 @@ such mechanisms as a generic service within the transport layer. This enables ap
 benefit from innovations and new protocols in the transport, although it reduces transparency of the 
 underlying communication actions to the application itself. The Transport Services API is designed such that protocol and path selection
 can be limited to a small and controlled set if required by the application for functional or security purposes. Further,
-A Transport Services system should provide an interface to poll information about which protocol and path is currently in use as
+a Transport Services system should provide an interface to poll information about which protocol and path is currently in use as
 well as provide logging about the communication events of each connection.
 
 # Acknowledgements
