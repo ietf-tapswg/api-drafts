@@ -1747,7 +1747,7 @@ Preconnection -> EstablishmentError<reason?>
 Connection Groups can be created using the Clone Action:
 
 ~~~
-Connection := Connection.Clone(framer?, protocolSpecificProperties?)
+Connection := Connection.Clone(framer?, connectionProperties?)
 ~~~
 
 Calling Clone on a Connection yields a Connection Group containing two Connections: the parent
