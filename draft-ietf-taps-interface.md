@@ -3441,9 +3441,9 @@ For instance, it could be a number of seconds, number of milliseconds, or a `str
 
 ## Adding Preference Properties {#preference-conv}
 
-As Selection Properties of type `Preference` will be set on a TransportProperties 
-object quite frequently, implementations can provide special actions 
-for adding each preference level i.e, `TransportProperties.Set(some_property, avoid)` 
+TransportProperties will frequently need to set 
+Selection Properties of type `Preference, therefore implementations can provide special actions
+for adding each preference level i.e, `TransportProperties.Set(some_property, avoid)
 is equivalent to `TransportProperties.Avoid(some_property)`:
 
 ~~~
@@ -3456,7 +3456,7 @@ TransportProperties.Prohibit(property)
 
 ## Transport Property Profiles {#property-profiles}
 
-To ease the use of the Transport Services API specified by this document, implementations
+To ease the use of the Transport Services API, implementations
 can provide a mechanism to create Transport Property objects (see {{selection-props}})
 that are pre-configured with frequently used sets of properties; the following are
 in common use in current applications:
