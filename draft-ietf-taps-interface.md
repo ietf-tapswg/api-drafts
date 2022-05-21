@@ -2014,8 +2014,8 @@ A Transport Services API can request a protocol that supports sending keep alive
 If this property is Numeric, it specifies the maximum length of time an idle connection (one for which no transport
 packets have been sent) should wait before 
 the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting this Property
-will only take effect when the underlying stack supports sending keep-alive packets. 
-Guidance on setting this value for connection-less transports is 
+will only take effect when the underlying stack supports sending keep-alive packets.
+Guidance on setting this value for connection-less transports is
 provided in {{!RFC8085}}.
 A value greater than the connection timeout ({{conn-timeout}}) or the enumerated value `Disabled` will disable the sending of keep-alive packets.
 
