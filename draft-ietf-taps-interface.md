@@ -3326,7 +3326,7 @@ However, as the Transport Services system is responsible for network communicati
 potentially share any information provided by the application with the network or another communication peer. 
 Most of the information provided over the Transport Services API are useful to configure and select protocols and paths
 and are not necessarily privacy sensitive. Still, some information could be privacy sensitive because
-it might reveal usage characteristics and habits of the user of an application. 
+it might reveal usage characteristics and habits of the user of an application.
 
 Of course any communication over a network reveals usage characteristics, because all
 packets, as well as their timing and size, are part of the network-visible wire image {{?RFC8546}}. However,
