@@ -992,7 +992,8 @@ TransportProperties.Set(property, value)
 ~~~
 
 To aid readability, implementations MAY provide additional convenience functions to simplify use of Selection Properties: see {{preference-conv}} for examples.
-In addition, implementations MAY provide a mechanism to create TransportProperties objects that are preconfigured for common use cases as outlined in {{property-profiles}}.
+In addition, implementations MAY provide a mechanism to create TransportProperties objects that
+are preconfigured for common use cases, as outlined in {{property-profiles}}.
 
 Transport Properties for an established connection can be queried via the Connection object, as outlined in {{introspection}}.
 
@@ -2014,8 +2015,8 @@ A Transport Services API can request a protocol that supports sending keep alive
 If this property is Numeric, it specifies the maximum length of time an idle connection (one for which no transport
 packets have been sent) should wait before 
 the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting this Property
-will only take effect when the underlying stack supports sending keep-alive packets. 
-Guidance on setting this value for datagram transports is 
+will only take effect when the underlying stack supports sending keep-alive packets.
+Guidance on setting this value for connection-less transports is
 provided in {{!RFC8085}}.
 A value greater than the connection timeout ({{conn-timeout}}) or the enumerated value `Disabled` will disable the sending of keep-alive packets.
 
@@ -3322,23 +3323,23 @@ other tasks.
 
 In either case, the Transport Services API is an internal interface that is used to change information locally between two systems.
 However, as the Transport Services system is responsible for network communication, it is in the position to
-potentially share any information provided by the application with the network or another communication peer. 
+potentially share any information provided by the application with the network or another communication peer.
 Most of the information provided over the Transport Services API are useful to configure and select protocols and paths
 and are not necessarily privacy sensitive. Still, some information could be privacy sensitive because
-it might reveal usage characteristics and habits of the user of an application. 
+it might reveal usage characteristics and habits of the user of an application.
 
-Of course any communication over a network reveals usage characteristics, as all
+Of course any communication over a network reveals usage characteristics, because all
 packets, as well as their timing and size, are part of the network-visible wire image {{?RFC8546}}. However,
 the selection of a protocol and its configuration also impacts which information is visible, potentially in
 clear text, and which other entities can access it. In most cases, information provided for protocol and path selection
-should not directly translate to information that can be observed by network devices on the path. 
+should not directly translate to information that can be observed by network devices on the path.
 However, there might be specific configuration
 information that is intended for path exposure, e.g., a DiffServ codepoint setting, that is either provided
-directly by the application or indirectly configured for a traffic profile. 
+directly by the application or indirectly configured for a traffic profile.
 
 Applications should be aware that communication attempts can lead to more than one connection establishment.
 This is the case, for example, when the Transport Services system also executes name resolution, when support mechanisms such as
-TURN or ICE are used to establish connectivity, if protocols or paths are raised, or if a path fails and 
+TURN or ICE are used to establish connectivity, if protocols or paths are raised, or if a path fails and
 fallback or re-establishment is supported in the Transport Services system.
 
 Applications should also take care to not assume that all data received using the Transport Services API is always
@@ -3353,10 +3354,10 @@ establishment, as well as potential additional information leakage about
 application interest when used with a resolution method (such as DNS without
 TLS) which does not protect query confidentiality.
 
-These communication activities are not different from what is used today. However, 
+These communication activities are not different from what is used today. However,
 the goal of a Transport Services system is to support
 such mechanisms as a generic service within the transport layer. This enables applications to more dynamically
-benefit from innovations and new protocols in the transport, although it reduces transparency of the 
+benefit from innovations and new protocols in the transport, although it reduces transparency of the
 underlying communication actions to the application itself. The Transport Services API is designed such that protocol and path selection
 can be limited to a small and controlled set if required by the application for functional or security purposes. Further,
 a Transport Services system should provide an interface to poll information about which protocol and path is currently in use as
@@ -3440,9 +3441,9 @@ For instance, it could be a number of seconds, number of milliseconds, or a `str
 
 ## Adding Preference Properties {#preference-conv}
 
-As Selection Properties of type `Preference` will be set on a TransportProperties 
-object quite frequently, implementations can provide special actions 
-for adding each preference level i.e, `TransportProperties.Set(some_property, avoid)` 
+TransportProperties will frequently need to set
+Selection Properties of type `Preference`, therefore implementations can provide special actions
+for adding each preference level i.e, `TransportProperties.Set(some_property, avoid)
 is equivalent to `TransportProperties.Avoid(some_property)`:
 
 ~~~
@@ -3455,9 +3456,9 @@ TransportProperties.Prohibit(property)
 
 ## Transport Property Profiles {#property-profiles}
 
-To ease the use of the Transport Services API specified by this document, implementations
-can provide a mechanism to create Transport Property objects (see {{selection-props}}) 
-that are pre-configured with frequently used sets of properties; the following are 
+To ease the use of the Transport Services API, implementations
+can provide a mechanism to create Transport Property objects (see {{selection-props}})
+that are pre-configured with frequently used sets of properties; the following are
 in common use in current applications:
 
 ### reliable-inorder-stream
