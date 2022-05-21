@@ -3328,11 +3328,11 @@ Most of the information provided over the Transport Services API are useful to c
 and are not necessarily privacy sensitive. Still, some information could be privacy sensitive because
 it might reveal usage characteristics and habits of the user of an application. 
 
-Of course any communication over a network reveals usage characteristics, as all
+Of course any communication over a network reveals usage characteristics, because all
 packets, as well as their timing and size, are part of the network-visible wire image {{?RFC8546}}. However,
 the selection of a protocol and its configuration also impacts which information is visible, potentially in
 clear text, and which other entities can access it. In most cases, information provided for protocol and path selection
-should not directly translate to information that can be observed by network devices on the path. 
+should not directly translate to information that can be observed by network devices on the path.
 However, there might be specific configuration
 information that is intended for path exposure, e.g., a DiffServ codepoint setting, that is either provided
 directly by the application or indirectly configured for a traffic profile.
