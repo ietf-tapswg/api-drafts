@@ -3323,7 +3323,7 @@ other tasks.
 
 In either case, the Transport Services API is an internal interface that is used to change information locally between two systems.
 However, as the Transport Services system is responsible for network communication, it is in the position to
-potentially share any information provided by the application with the network or another communication peer. 
+potentially share any information provided by the application with the network or another communication peer.
 Most of the information provided over the Transport Services API are useful to configure and select protocols and paths
 and are not necessarily privacy sensitive. Still, some information could be privacy sensitive because
 it might reveal usage characteristics and habits of the user of an application.
