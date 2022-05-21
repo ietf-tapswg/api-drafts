@@ -3335,7 +3335,7 @@ clear text, and which other entities can access it. In most cases, information p
 should not directly translate to information that can be observed by network devices on the path. 
 However, there might be specific configuration
 information that is intended for path exposure, e.g., a DiffServ codepoint setting, that is either provided
-directly by the application or indirectly configured for a traffic profile. 
+directly by the application or indirectly configured for a traffic profile.
 
 Applications should be aware that communication attempts can lead to more than one connection establishment.
 This is the case, for example, when the Transport Services system also executes name resolution, when support mechanisms such as
