@@ -3441,7 +3441,7 @@ For instance, it could be a number of seconds, number of milliseconds, or a `str
 
 ## Adding Preference Properties {#preference-conv}
 
-TransportProperties will frequently need to set 
+TransportProperties will frequently need to set
 Selection Properties of type `Preference, therefore implementations can provide special actions
 for adding each preference level i.e, `TransportProperties.Set(some_property, avoid)
 is equivalent to `TransportProperties.Avoid(some_property)`:
