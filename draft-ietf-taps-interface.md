@@ -3457,7 +3457,7 @@ TransportProperties.Prohibit(property)
 
 To ease the use of the Transport Services API specified by this document, implementations
 can provide a mechanism to create Transport Property objects (see {{selection-props}}) 
-that are pre-configured with frequently used sets of properties; the following are 
+that are pre-configured with frequently used sets of properties; the following are
 in common use in current applications:
 
 ### reliable-inorder-stream
