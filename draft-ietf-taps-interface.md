@@ -3354,10 +3354,10 @@ establishment, as well as potential additional information leakage about
 application interest when used with a resolution method (such as DNS without
 TLS) which does not protect query confidentiality.
 
-These communication activities are not different from what is used today. However, 
+These communication activities are not different from what is used today. However,
 the goal of a Transport Services system is to support
 such mechanisms as a generic service within the transport layer. This enables applications to more dynamically
-benefit from innovations and new protocols in the transport, although it reduces transparency of the 
+benefit from innovations and new protocols in the transport, although it reduces transparency of the
 underlying communication actions to the application itself. The Transport Services API is designed such that protocol and path selection
 can be limited to a small and controlled set if required by the application for functional or security purposes. Further,
 a Transport Services system should provide an interface to poll information about which protocol and path is currently in use as
