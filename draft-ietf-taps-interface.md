@@ -992,7 +992,8 @@ TransportProperties.Set(property, value)
 ~~~
 
 To aid readability, implementations MAY provide additional convenience functions to simplify use of Selection Properties: see {{preference-conv}} for examples.
-In addition, implementations MAY provide a mechanism to create TransportProperties objects that are preconfigured for common use cases as outlined in {{property-profiles}}.
+In addition, implementations MAY provide a mechanism to create TransportProperties objects that
+are preconfigured for common use cases, as outlined in {{property-profiles}}.
 
 Transport Properties for an established connection can be queried via the Connection object, as outlined in {{introspection}}.
 
