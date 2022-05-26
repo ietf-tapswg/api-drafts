@@ -1184,9 +1184,9 @@ Connection Object:
 
 Initiate:
 
-InitiateWithSend: 
+InitiateWithSend:
 
-Ready: 
+Ready:
 
 InitiateError:
 
@@ -1243,22 +1243,22 @@ The remote or local specifier provided by the application can not be resolved.
 The Transport Services system was unable to establish a transport-layer connection to the Remote Endpoint specified by the application.
 
 * PolicyProhibited:
-The system policy prevents the transport system from performing the action requested by the application. 
+The system policy prevents the transport system from performing the action requested by the application.
 
 * NotCloneable:
-The Protocol Stack is not capable of being cloned. 
+The Protocol Stack is not capable of being cloned.
 
 * MessageTooLarge:
 The message size is too big for the transport system to handle.
 
 * ProtocolFailed:
-The underlying Protocol Stack failed. 
+The underlying Protocol Stack failed.
 
 * InvalidMessageProperties:
-The message properties are either contradictory to the transport properties or they can not be satisfied by the transport system. 
+The message properties either contradict with the transport properties or they can not be satisfied by the transport system.
 
 * DeframingFailed:
-The data that was received by the underlying Protocol Stack could not be deframed. 
+The data that was received by the underlying Protocol Stack could not be processed by the deframer. 
 
 * ConnectionAborted:
 The connection was aborted by the peer.
@@ -1276,7 +1276,7 @@ This appendix gives an overview of existing implementations, at the time of writ
   * Documentation: <https://developer.apple.com/documentation/network>
 
 * NEAT and NEATPy:
-  * NEAT is the output of the European H2020 research project "NEAT"; it is a user-space library for protocol-independent communication on top of TCP, UDP and SCTP, with many more features such as a policy manager. 
+  * NEAT is the output of the European H2020 research project "NEAT"; it is a user-space library for protocol-independent communication on top of TCP, UDP and SCTP, with many more features, such as a policy manager.
   * Code: <https://github.com/NEAT-project/neat>
   * NEAT project: <https://www.neat-project.org>
   * NEATPy is a Python shim over NEAT which updates the NEAT API to be in line with version 6 of the Transport Services API draft.
