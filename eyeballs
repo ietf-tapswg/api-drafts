@@ -102,7 +102,7 @@ informative:
 --- abstract
 
 The Transport Services system enables applications to use transport protocols flexibly for network communication
-and defines a protocol-independent Transport Services Application Programming Interface (API) that is based on an asynchronous, 
+and defines a protocol-independent Transport Services Application Programming Interface (API) that is based on an asynchronous,
 event-driven interaction pattern. This document serves as a guide to implementation on how to build such a system.
 
 --- middle
@@ -168,7 +168,7 @@ The process of establishing a network connection begins when an application expr
 
 Connection establishment is divided into two top-level steps: Candidate Gathering, to identify the paths, protocols, and endpoints to use, and Candidate Racing (see Section 4.2.2 of {{I-D.ietf-taps-arch}}), in which the necessary protocol handshakes are conducted so that the transport system can select which set to use.
 
-As terminological convention, this document structures the candidates for racing as a tree. While a 
+As a terminological convention, this document structures the candidates for racing as a tree. While a
 a tree structure is not the only way in which racing can be implemented, it does ease the illustration of how racing works.
 
 The most simple example of this process might involve identifying the single IP address to which the implementation wishes to connect, using the system's current default path (i.e., using the default interface), and starting a TCP handshake to establish a stream to the specified IP address. However, each step may also differ depending on the requirements of the connection: if the endpoint is defined as a hostname and port, then there may be multiple resolved addresses that are available; there may also be multiple paths available, (in this case using an interface other than the default system interface); and some protocols may not need any transport handshake to be considered "established" (such as UDP), while other connections may utilize layered protocol handshakes, such as TLS over TCP.
@@ -771,7 +771,9 @@ allows an application to indicate when and how different paths should be used. H
 For example, if the `multipath` Selection Property is set to `active`, the decision about when to create a new path or to announce a new path or set of paths to the Remote Endpoint, e.g., in the form of additional IP addresses, is implementation-specific.
 If the Protocol Stack includes a transport protocol that does not support multipath, but does support migrating between paths, the update to the set of available paths can trigger the connection to be migrated.
 
-In case of Pooled Connections {{pooled-connections}}, the Transport Services implementation may add connections over new paths to the pool if permissible based on the multipath policy and Selection Properties. In case a previously used path becomes unavailable, the transport system may disconnect all connections that require this path, but should not disconnect the pooled connection object exposed to the application. The strategy to do so is implementation-specific, but should be consistent with the behavior of multipath transports. 
+In the case of a Pooled Connection {{pooled-connections}}, the Transport Services implementation may add connections over new paths to the pool if permissible based on the multipath policy and Selection Properties.
+In the case that a previously used path becomes unavailable, the transport system may disconnect all connections that require this path, but should not disconnect the pooled connection object exposed to the application.
+The strategy to do so is implementation-specific, but should be consistent with the behavior of multipath transports.
 
 
 # Implementing Connection Termination
@@ -1176,7 +1178,8 @@ This work has been supported by the Research Council of Norway under its "Toppfo
 programme through the "OCARINA" project.
 
 
-Thanks to Colin Perkins, Tom Jones, Karl-Johan Grinnemo, Gorry Fairhurst, for their contributions to the design of this specification. Thanks also to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work.
+Thanks to Colin Perkins, Tom Jones, Karl-Johan Grinnemo, Gorry Fairhurst, for their contributions to the design of this specification.
+Thanks also to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear for their implementation and design efforts, including Happy Eyeballs, that heavily influenced this work.
 
 --- back
 
