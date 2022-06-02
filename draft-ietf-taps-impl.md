@@ -125,10 +125,12 @@ Preconnection objects should be implemented as bundles of properties that an app
 
 Once a Preconnection has been used to create an outbound Connection or a Listener, the implementation should ensure that the copy of the properties held by the Connection or Listener cannot be mutated by the application making changes to the original Preconnection object. This may involve the implementation performing a deep-copy, copying the object with all the objects that it references.
 
-Once the Connection is established, Transport Services implementation maps actions and events to the details of the chosen Protocol Stack. For example, the same Connection object may ultimately represent a single transport protocol instance (e.g., a TCP connection, a TLS session over TCP, a UDP flow with fully-specified Local and Remote Endpoints, a DTLS session, a SCTP stream, a QUIC stream, or an HTTP/2 stream).
-The properties held by a Connection or Listener is independent of other connections that are not part of the same Connection Group.
+Once the Connection is established, the Transport Services implementation maps actions and events to the details of the chosen Protocol Stack. For example, the same Connection object may ultimately represent a single transport protocol instance (e.g., a TCP connection, a TLS session over TCP, a UDP flow with fully-specified Local and Remote Endpoints, a DTLS session, a SCTP stream, a QUIC stream, or an HTTP/2 stream).
+The properties held by a Connection or Listener are independent of other connections that are not part of the same Connection Group.
 
-Connection establishment is only a local operation for a Datagram transport (e.g., UDP(-Lite)), which serves to simplify the local send/receive functions and to filter the traffic for the specified addresses and ports {{?RFC8085}}.
+For a Datagram transport (e.g. UDP(-Lite)), connection establishment is only a
+local operation, where it serves to simplify the local send/receive functions
+and to filter the traffic for the specified addresses and ports {{?RFC8085}}.
 
 Once Initiate has been called, the Selection Properties and Endpoint information are immutable (i.e, an application is not able to later modify Selection Properties on the original Preconnection object).
 Listener objects are created with a Preconnection, at which point their configuration should be considered immutable by the implementation. The process of listening is described in {{listen}}.
@@ -145,8 +147,8 @@ The Transport Services system should have a list of supported protocols availabl
 
 In the following cases, failure should be detected during pre-establishment:
 
-- A request by an application for Protocol Properties that cannot be satisfied by any of the available protocols. For example, if an application requires "Configure Reliability per Message", but no such feature is available in any protocol on the host running the transport system this should result in an error, e.g., when SCTP is not supported by the operating system.
-- A request by an application for Protocol Properties that are in conflict with each other, i.e., the required and prohibited properties cannot be satisfied by the same protocol. For example, if an application prohibits "Reliable Data Transfer" but then requires "Configure Reliability per Message", this mismatch should result in an error.
+- A request by an application for Protocol Properties that cannot be satisfied by any of the available protocols. For example, if an application requires `perMsgReliability`, but no such feature is available in any protocol on the host running the transport system this should result in an error, e.g., when SCTP is not supported by the operating system.
+- A request by an application for Protocol Properties that are in conflict with each other, i.e., the required and prohibited properties cannot be satisfied by the same protocol. For example, if an application prohibits `reliability` but then requires `perMsgReliability`, this mismatch should result in an error.
 
 To avoid allocating resources that are not finally needed, it is important that configuration-time errors fail as early as possible.
 
@@ -168,8 +170,7 @@ The process of establishing a network connection begins when an application expr
 
 Connection establishment is divided into two top-level steps: Candidate Gathering, to identify the paths, protocols, and endpoints to use, and Candidate Racing (see Section 4.2.2 of {{I-D.ietf-taps-arch}}), in which the necessary protocol handshakes are conducted so that the transport system can select which set to use.
 
-This document structures the candidates for racing as a tree as terminological convention. While a
-a tree structure is not the only way in which racing can be implemented, it does ease the illustration of how racing works.
+For ease of illustration, this document structures the candidates for racing as a tree, however a tree structure is not the only way in which racing can be implemented.
 
 The most simple example of this process might involve identifying the single IP address to which the implementation wishes to connect, using the system's current default path (i.e., using the default interface), and starting a TCP handshake to establish a stream to the specified IP address. However, each step may also differ depending on the requirements of the connection: if the endpoint is defined as a hostname and port, then there may be multiple resolved addresses that are available; there may also be multiple paths available, (in this case using an interface other than the default system interface); and some protocols may not need any transport handshake to be considered "established" (such as UDP), while other connections may utilize layered protocol handshakes, such as TLS over TCP.
 
@@ -185,7 +186,7 @@ Aggregate [Endpoint: www.example.com:80] [Interface: Any]   [Protocol: TCP]
 Any one of these sub-entries on the aggregate connection attempt would satisfy the original application intent. The concern of this section is the algorithm defining which of these options to try, when, and in what order.
 
 During Candidate Gathering, an implementation first excludes all protocols and
-paths that match a Prohibit or do not match all Require properties.
+paths that match a Prohibit or do not match all Required properties.
 Then, the implementation will sort branches according to Preferred
 properties, Avoided properties, and possibly other criteria.
 
@@ -355,7 +356,7 @@ Two examples of how Selection and Connection Properties may be used to sort bran
 
 * "Interface Instance or Type":
 If the application specifies an interface type to be preferred or avoided, implementations should accordingly rank the paths.
-If the application specifies an interface type to be required or prohibited, an implementation is expeceted to not include the non-conforming paths.
+If the application specifies an interface type to be required or prohibited, an implementation is expected to not include the non-conforming paths.
 
 * "Capacity Profile":
 An implementation can use the Capacity Profile to prefer paths that match an application's expected traffic pattern. This match will use cached performance estimates, see {{performance-caches}}:
@@ -415,7 +416,7 @@ There are three different approaches to racing the attempts for different nodes 
 
 Each approach is appropriate in different use-cases and branch types. However, to avoid consuming unnecessary network resources, implementations should not use simultaneous racing as a default approach.
 
-The timing algorithms for racing should remain independent across branches of the tree. Any timers or racing logic is isolated to a given parent node, and is not ordered precisely with regards to other children of other nodes.
+The timing algorithms for racing should remain independent across branches of the tree. Any timer or racing logic is isolated to a given parent node, and is not ordered precisely with regards to other children of other nodes.
 
 ### Simultaneous
 
@@ -498,7 +499,8 @@ Connected protocols such as TCP and TLS-over-TCP have a strong mapping between t
 
 ### Implementing listeners for Connectionless Protocols
 
-Connectionless protocols such as UDP and UDP-lite generally do not provide the same mechanisms that connected protocols do to offer Connection objects. Implementations should wait for incoming packets for connectionless protocols on a listening port and should perform four-tuple matching of packets to either existing Connection objects or the creation of new Connection objects. On platforms with facilities to create a "virtual connection" for connectionless protocols implementations should use these mechanisms to minimise the handling of datagrams intended for already created Connection objects.
+Connectionless protocols such as UDP and UDP-lite generally do not provide the same mechanisms that connected protocols do to offer Connection objects.  Implementations should wait for incoming packets for connectionless protocols on a listening port and should perform four-tuple matching of packets to existing Connection objects if possible. If a matching Connection object does not exist, an incoming packet from a connectionless protocol should cause a new Connection object to be created.
+
 
 ### Implementing listeners for Multiplexed Protocols
 
@@ -518,29 +520,31 @@ The effect of the application sending a Message is determined by the top-level p
 
 ### Message Properties {#msg-properties}
 
-- Lifetime: this should be implemented by removing the Message from the queue of pending Messages after the Lifetime has expired. A queue of pending Messages within the transport system implementation that have yet to be handed to the Protocol Stack can always support this property, but once a Message has been sent into the send buffer of a protocol, only certain protocols may support removing a message. For example, an implementation cannot remove bytes from a TCP send buffer, while it can remove data from a SCTP send buffer using the partial reliability extension {{?RFC8303}}. When there is no standing queue of Messages within the system, and the Protocol Stack does not support the removal of a Message from the stack's send buffer, this property may be ignored.
+- `msgLifetime`: this should be implemented by removing the Message from the queue of pending Messages after the Lifetime has expired. A queue of pending Messages within the transport system implementation that have yet to be handed to the Protocol Stack can always support this property, but once a Message has been sent into the send buffer of a protocol, only certain protocols may support removing a message. For example, an implementation cannot remove bytes from a TCP send buffer, while it can remove data from a SCTP send buffer using the partial reliability extension {{?RFC8303}}. When there is no standing queue of Messages within the system, and the Protocol Stack does not support the removal of a Message from the stack's send buffer, this property may be ignored.
 
-- Priority: this represents the ability to prioritize a Message over other Messages. This can be implemented by the system re-ordering Messages that have yet to be handed to the Protocol Stack, or by giving relative priority hints to protocols that support priorities per Message. For example, an implementation of HTTP/2 could choose to send Messages of different Priority on streams of different priority.
+- `msgPriority`: this represents the ability to prioritize a Message over other Messages. This can be implemented by the system re-ordering Messages that have yet to be handed to the Protocol Stack, or by giving relative priority hints to protocols that support priorities per Message. For example, an implementation of HTTP/2 could choose to send Messages of different Priority on streams of different priority.
 
-- Ordered: when this is false, this disables the requirement of in-order-delivery for protocols that support configurable ordering. When the Protocol Stack does not support configurable ordering, this property may be ignored.
+- `msgOrdered`: when this is false, this disables the requirement of in-order-delivery for protocols that support configurable ordering. When the Protocol Stack does not support configurable ordering, this property may be ignored.
 
-- Safely Replayable: when this is true, this means that the Message can be used by a transport mechanism that might transfer it multiple times -- e.g., as a result of racing multiple transports or as part of TCP Fast Open. Also, protocols that do not protect against duplicated messages, such as UDP (when used directly, without a protocol layered atop), can only be used with Messages that are Safely Replayable. When a transport system is permitted to replay messages, replay protection could be provided by the application.
+- `safelyReplayable`: when this is true, this means that the Message can be used by a transport mechanism that might transfer it multiple times -- e.g., as a result of racing multiple transports or as part of TCP Fast Open. Also, protocols that do not protect against duplicated messages, such as UDP (when used directly, without a protocol layered atop), can only be used with Messages that are Safely Replayable. When a transport system is permitted to replay messages, replay protection could be provided by the application.
 
-- Final: when this is true, this means that the sender will not send any further messages. The Connection need not be closed (in case the Protocol Stack supports half-close operation, like TCP). Any messages sent after a Final message will result in a SendError.
+- `final`: when this is true, this means that the sender will not send any further messages. The Connection need not be closed (in case the Protocol Stack supports half-close operation, like TCP). Any messages sent after a Final message will result in a SendError.
 
-- Corruption Protection Length: when this is set to any value other than `Full Coverage`, it sets the minimum protection in protocols that allow limiting the checksum length (e.g. UDP-Lite). If the Protocol Stack does not support checksum length limitation, this property may be ignored.
+- `msgChecksumLen`: when this is set to any value other than `Full Coverage`, it sets the minimum protection in protocols that allow limiting the checksum length (e.g. UDP-Lite). If the Protocol Stack does not support checksum length limitation, this property may be ignored.
 
-- Reliable Data Transfer (Message): When true, the property specifies that the Message must be reliably transmitted. When false, and if unreliable transmission is supported by the underlying protocol, then the Message should be unreliably transmitted. If the underlying
+- `msgReliable`: When true, the property specifies that the Message must be reliably transmitted. When false, and if unreliable transmission is supported by the underlying protocol, then the Message should be unreliably transmitted. If the underlying
 protocol does not support unreliable transmission, the Message should be reliably transmitted.
 
-- Message Capacity Profile Override: When true, this expresses a wish to override the
+- `msgCapacityProfile`: When true, this expresses a wish to override the
 Generic Connection Property `Capacity Profile` for this Message. Depending on the
 value, this can, for example, be implemented by changing the DSCP value of the
 associated packet (note that the guidelines in Section 6 of {{?RFC7657}} apply; e.g.,
 the DSCP value should not be changed for different packets within a reliable
 transport protocol session or DCCP connection).
 
-- No Fragmentation: When set, this property limits the message size to the Maximum Message Size Before Fragmentation or Segmentation (see Section 10.1.7 of {{I-D.ietf-taps-interface}}).  Messages larger than this size generate an error.  Setting this avoids transport-layer segmentation or network-layer fragmentation. When used with transports running over IP version 4 the Don't Fragment bit will be set to avoid on-path IP fragmentation ({{!RFC8304}}).
+- `noFragmentation`: Setting this avoids network-layer fragmentation. Messages exceeding the transport’s current estimate of its maximum packet size (the singularTransmissionMsgMaxLen Connection Property) can result in transport segmentation when permitted, or generate an error. When used with transports running over IP version 4 the Don't Fragment bit will be set to avoid on-path IP fragmentation ({{!RFC8304}}).
+
+- `noSegmentation`: When set, this property limits the message size to the transport’s current estimate of its maximum packet size (the singularTransmissionMsgMaxLen Connection Property). Messages larger than this size generate an error. Setting this avoids transport-layer segmentation and network-layer fragmentation. When used with transports running over IP version 4 the Don't Fragment bit will be set to avoid on-path IP fragmentation ({{!RFC8304}}).
 
 ### Send Completion
 
@@ -560,7 +564,7 @@ If a Connection finishes before a requested Receive action can be satisfied, the
 
 Several protocols allow sending higher-level protocol or application data during their protocol establishment, such as TCP Fast Open {{!RFC7413}} and TLS 1.3 {{!RFC8446}}. This approach is referred to as sending Zero-RTT (0-RTT) data. This is a desirable feature, but poses challenges to an implementation that uses racing during connection establishment.
 
-The amount of data that can be sent as 0-RTT data varies by protocol and can be queried by the application using the `Maximum Message Size Concurrent with Connection Establishment` Connection Property. An implementation can set this property according to the protocols that it will race based on the given Selection Properties when the application requests to establish a connection.
+The amount of data that can be sent as 0-RTT data varies by protocol and can be queried by the application using the `zeroRttMsgMaxLen` Connection Property. An implementation can set this property according to the protocols that it will race based on the given Selection Properties when the application requests to establish a connection.
 
 If the application has 0-RTT data to send during handshake(s), it needs to provide this data before the handshakes have begun. When racing, this means that the data should be provided before the process of connection establishment has begun. If the application wants to send 0-RTT data, it must indicate this to the implementation by setting the `Safely Replayable` send parameter to true when sending the data. In general, 0-RTT data may be replayed (for example, if a TCP SYN contains data, and the SYN is retransmitted, the data will be retransmitted as well but may be considered as a new connection instead of a retransmission). Also, when racing connections, different leaf nodes have the opportunity to send the same data independently. If data is truly safely replayable, this should be permissible.
 
@@ -906,7 +910,7 @@ ConnectionReceived:
 : TCP Listeners will deliver new connections once they have replied to an inbound SYN with a SYN-ACK.
 
 Clone:
-: Calling `Clone` on a TCP Connection creates a new Connection with equivalent parameters. These Connections, and Connections generated via later calls to `Clone` on an Establied Connection, form a Connection Group. To realize entanglement for these Connections, with the exception of `Connection Priority`, changing a Connection Property on one of them must affect the Connection Properties of the others too. No guarantees of honoring the Connection Property `Connection Priority` are given, and thus it is safe for an implementation of a transport system to ignore this property. When it is reasonable to assume that Connections traverse the same path (e.g., when they share the same encapsulation), support for it can also experimentally be implemented using a congestion control coupling mechanism (see for example {{TCP-COUPLING}} or {{?RFC3124}}).
+: Calling `Clone` on a TCP Connection creates a new Connection with equivalent parameters. These Connections, and Connections generated via later calls to `Clone` on an Establied Connection, form a Connection Group. To realize entanglement for these Connections, with the exception of `connPriority`, changing a Connection Property on one of them must affect the Connection Properties of the others too. No guarantees of honoring the Connection Property `connPriority` are given, and thus it is safe for an implementation of a transport system to ignore this property. When it is reasonable to assume that Connections traverse the same path (e.g., when they share the same encapsulation), support for it can also experimentally be implemented using a congestion control coupling mechanism (see for example {{TCP-COUPLING}} or {{?RFC3124}}).
 
 Send:
 : SEND.TCP. TCP does not on its own preserve Message boundaries. Calling `Send` on a TCP connection lays out the bytes on the TCP send stream without any other delineation. Any Message marked as Final will cause TCP to send a FIN once the Message has been completely written, by calling CLOSE.TCP immediately upon successful termination of SEND.TCP. Note that transmitting a Message marked as Final should not cause the `Closed` event to be delivered to the application, as it will still be possible to receive data until the peer closes or aborts the TCP connection.
@@ -933,7 +937,7 @@ Connectedness: Connected
 Data Unit: Byte-stream
 
 the Transport Services API mappings for MPTCP are identical to TCP. MPTCP adds support for multipath properties,
-such as "Multipath Transport" and "Policy for using Multipath Transports".
+such as `multipath` and `multipath-policy`.
 
 ## UDP
 
@@ -994,8 +998,8 @@ Connectedness: Connectionless
 Data Unit: Datagram
 
 The Transport Services API mappings for UDP-Lite are identical to UDP. Properties that require checksum coverage are not supported
-by UDP-Lite, such as "Corruption Protection Length", "Full Checksum Coverage on Sending",
-"Required Minimum Corruption Protection Coverage for Receiving", and "Full Checksum Coverage on Receiving".
+by UDP-Lite, such as `msgChecksumLen`, `fullChecksumSend`,
+`recvChecksumLen`, and `fullChecksumRecv`.
 
 ## UDP Multicast Receive
 
@@ -1006,7 +1010,7 @@ Data Unit: Datagram
 API mappings for Receiving Multicast UDP are as follows:
 
 Connection Object:
-: Established UDP Multicast Receive connections represent a pair of specific IP addresses and ports.  The "unidirectional receive" transport property is required, and the Local Endpoint must be configured with a group IP address and a port.
+: Established UDP Multicast Receive connections represent a pair of specific IP addresses and ports.  The `direction` Selection Property must be set to `unidirectional receive`, and the Local Endpoint must be configured with a group IP address and a port.
 
 Initiate:
 : Calling `Initiate` on a UDP Multicast Receive Connection causes an immediate InitiateError.  This is an unsupported operation.
@@ -1109,12 +1113,12 @@ Clone:
 : Calling `Clone` on an SCTP association creates a new Connection object and assigns it a new stream id in accordance with the stream id assignment procedure described above. If there are not enough streams available, ADD_STREAM.SCTP must be called.
 
 Priority (Connection):
-: When this value is changed, or a Message with Message Property `Priority` is sent, and there are multiple
+: When this value is changed, or a Message with Message Property `msgPriority` is sent, and there are multiple
 Connection objects assigned to the same SCTP association,
 CONFIGURE_STREAM_SCHEDULER.SCTP is called to adjust the priorities of streams in the SCTP association.
 
 Send:
-: SEND.SCTP. Message Properties such as `Lifetime` and `Ordered` map to parameters of this primitive.
+: SEND.SCTP. Message Properties such as `msgLifetime` and `msgOrdered` map to parameters of this primitive.
 
 Receive:
 : RECEIVE.SCTP. The "partial flag" of RECEIVE.SCTP invokes a `ReceivedPartial` event.
@@ -1220,7 +1224,7 @@ These are not part of the interface, and may be removed from the final document,
 
 In addition to the Protocol and Path Selection Properties discussed in {{branch-sorting}}, the following properties under discussion can influence branch sorting:
 
-* Bounds on Send or Receive Rate:
+* Bounds on Send or Receive Rate (Selection Properties `minSendRate` / `minRecvRate` / `maxSendRate` / `maxRecvRate`):
 If the application indicates a bound on the expected Send or Receive bitrate, an implementation may prefer a path that can likely provide the desired bandwidth, based on cached maximum throughput, see {{performance-caches}}. The application may know the Send or Receive Bitrate from metadata in adaptive HTTP streaming, such as MPEG-DASH.
 
 * Cost Preferences:
