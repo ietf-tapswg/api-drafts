@@ -1748,7 +1748,7 @@ Preconnection -> EstablishmentError<reason?>
 Connection Groups can be created using the Clone Action:
 
 ~~~
-Connection := Connection.Clone(framer?)
+Connection := Connection.Clone(framer?, connectionProperties?)
 ~~~
 
 Calling Clone on a Connection yields a Connection Group containing two Connections: the parent
@@ -1767,6 +1767,9 @@ Like all other Properties, `Connection Priority` is copied
 to the new Connection when calling Clone(), but in this case, a later change to the
 `Connection Priority` on one Connection does not change it on the
 other Connections in the same Connection Group.
+
+The optional `connectionProperties` parameter allows passing
+Transport Properties that control the behavior of the underlying stream or connection to be created, e.g., protocol-specific properties to request specific stream IDs for SCTP or QUIC.
 
 Message Properties set on a Connection also apply only to that Connection.
 
