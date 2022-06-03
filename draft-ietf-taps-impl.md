@@ -1266,10 +1266,10 @@ The message size is too big for the transport system to handle.
 The underlying Protocol Stack failed.
 
 * InvalidMessageProperties:
-The message properties either contradict with the transport properties or they can not be satisfied by the transport system.
+The message properties either contradict the transport properties or they can not be satisfied by the transport system.
 
 * DeframingFailed:
-The data that was received by the underlying Protocol Stack could not be processed by the deframer.
+The data that was received by the underlying Protocol Stack could not be processed by the Message Framer.
 
 * ConnectionAborted:
 The connection was aborted by the peer.
