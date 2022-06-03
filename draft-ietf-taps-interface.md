@@ -1768,7 +1768,7 @@ to the new Connection when calling Clone(), but in this case, a later change to 
 other Connections in the same Connection Group.
 
 The optional `connectionProperties` parameter allows passing
-Transport Properties that control the behavior of the underlying stream or connection to be created, e.g., protocol specific properties to request specific stream IDs for SCTP or QUIC.
+Transport Properties that control the behavior of the underlying stream or connection to be created, e.g., protocol-specific properties to request specific stream IDs for SCTP or QUIC.
 
 Message Properties set on a Connection also apply only to that Connection.
 
