@@ -540,9 +540,9 @@ where applications use an interface to provide sensitive keying material, e.g.,
 access to private keys or copies of pre-shared keys (PSKs), key use needs to be
 validated and scoped to the intended protocols and roles. For example, if an
 application provides a certificate to only be used as client authentication for
-outbound QUIC connections, the Transport Services system MUST NOT use this
+outbound TLS and QUIC connections, the Transport Services system MUST NOT use this
 automatically in other contexts (such as server authentication for inbound
-connections, or in other another security protocol handshake).
+connections, or in other another security protocol handshake that is not equivalent to TLS).
 
 A Transport Services system must not automatically fall back from
 secure protocols to insecure protocols, or to weaker versions of secure
