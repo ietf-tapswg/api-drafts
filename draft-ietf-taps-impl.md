@@ -141,7 +141,7 @@ The implementation stores these properties as a part of the Preconnection object
 
 ## Configuration-time errors
 
-The Transport Services system should have a list of supported protocols available, which each have transport features reflecting the capabilities of the protocol. Once an application specifies its Transport Properties, the transport system matches the required and prohibited properties against the transport features of the available protocols.
+The Transport Services system should have a list of supported protocols available, which each have transport features reflecting the capabilities of the protocol. Once an application specifies its Transport Properties, the transport system matches the required and prohibited properties against the transport features of the available protocols (see Section 6.2 of {{I-D.ietf-taps-interface}} for the definition of property preferences).
 
 In the following cases, failure should be detected during pre-establishment:
 
@@ -184,9 +184,10 @@ Aggregate [Endpoint: www.example.com:80] [Interface: Any]   [Protocol: TCP]
 
 Any one of these sub-entries on the aggregate connection attempt would satisfy the original application intent. The concern of this section is the algorithm defining which of these options to try, when, and in what order.
 
-During Candidate Gathering, an implementation first excludes all protocols and
-paths that match a Prohibit or do not match all Require properties.
-Then, the implementation will sort branches according to Preferred
+During Candidate Gathering, an implementation prunes and sorts branches according 
+to the Selection Property preferences (Section 6.2 of {{I-D.ietf-taps-interface}}.
+It first excludes all protocols and paths that match a Prohibit property or do not
+match all Require properties. Then it will sort branches according to Preferred
 properties, Avoided properties, and possibly other criteria.
 
 ## Structuring Candidates as a Tree
@@ -370,7 +371,7 @@ An implementation can use the Capacity Profile to prefer paths that match an app
    * Capacity-Seeking:
      Prefer adapting to paths to determine the highest available capacity, based on the observed maximum throughput.
 
-Implementations process the Properties in the following order: Prohibit, Require, Prefer, Avoid.
+Implementations process the Properties (Section 6.2 of {{I-D.ietf-taps-interface}}) in the following order: Prohibit, Require, Prefer, Avoid.
 If Selection Properties contain any prohibited properties, the implementation should first purge branches containing nodes with these properties. For required properties, it should only keep branches that satisfy these requirements. Finally, it should order the branches according to the preferred properties, and finally use any avoided properties as a tiebreaker.
 When ordering branches, an implementation can give more weight to properties that the application has explicitly set, than to the properties that are default.
 
