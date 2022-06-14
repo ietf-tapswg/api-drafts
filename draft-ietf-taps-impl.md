@@ -184,7 +184,7 @@ Aggregate [Endpoint: www.example.com:80] [Interface: Any]   [Protocol: TCP]
 
 Any one of these sub-entries on the aggregate connection attempt would satisfy the original application intent. The concern of this section is the algorithm defining which of these options to try, when, and in what order.
 
-During Candidate Gathering, an implementation prunes and sorts branches according 
+During Candidate Gathering, an implementation prunes and sorts branches according
 to the Selection Property preferences (Section 6.2 of {{I-D.ietf-taps-interface}}.
 It first excludes all protocols and paths that match a Prohibit property or do not
 match all Require properties. Then it will sort branches according to Preferred
