@@ -574,8 +574,10 @@ It is also possible that protocol stacks within a particular leaf node use 0-RTT
 
 Message Framers are functions that define 
 simple transformations between application Message data and raw transport 
-protocol data. A Framer can encapsulate or encode outbound Messages, and
-decapsulate or decode inbound data into Messages.
+protocol data. A Framer can encapsulate or encode outbound Messages,
+decapsulate or decode inbound data into Messages, and implement parts of
+protocols that do not directly map to application Messages (such as
+protocol handshakes or preludes before Message exchange).
 
 While many protocols can be represented as Message Framers, for the
 purposes of the Transport Services API, these are ways for applications
