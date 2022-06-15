@@ -484,7 +484,7 @@ Instead, calling the ConnectionReceived event could be delayed until the first M
 
 While protocols that use an explicit handshake to validate a Connection to a peer can be used for racing multiple establishment attempts in parallel, connectionless protocols such as raw UDP do not offer a way to validate the presence of a peer or the usability of a Connection without application feedback. An implementation should consider such a Protocol Stack to be established as soon as the Transport Services system has selected a path on which to send data.
 
-However, if a peer is not reachable over the network using the connectionless protocol, or data cannot be exchanged for any other reason, the application may want to attempt using another candidate Protocol Stack. The implementation should maintain the list of other candidate Protocol Stacks that were eligible to use.
+However, this can cause a problem if a specific peer is not reachable over the network using the connectionless protocol, or data cannot be exchanged with the peer for any other reason. To mitigate this, an application can use a Message Framer {{message-framers}} on top of a connectionless protocol to only mark a specific connection attempt as ready when some data has been received, or after some application-level handshake has been performed.
 
 ## Implementing listeners {#listen}
 
@@ -575,12 +575,14 @@ It is also possible for Protocol Stacks within a particular leaf node to use 0-R
 
 0-RTT handshakes often rely on previous state, such as TCP Fast Open cookies, previously established TLS tickets, or out-of-band distributed pre-shared keys (PSKs). Implementations should be aware of security concerns around using these tokens across multiple addresses or paths when racing. In the case of TLS, any given ticket or PSK should only be used on one leaf node, since servers will likely reject duplicate tickets in order to prevent replays (see section-8.1 {{?RFC8446}}). If implementations have multiple tickets available from a previous connection, each leaf node attempt can use a different ticket. In effect, each leaf node will send the same early application data, yet encoded (encrypted) differently on the wire.
 
-# Implementing Message Framers
+# Implementing Message Framers {#message-framers}
 
 Message Framers are functions that define
 simple transformations between application Message data and raw transport
-protocol data. A Framer can encapsulate or encode outbound Messages, and
-decapsulate or decode inbound data into Messages.
+protocol data. A Framer can encapsulate or encode outbound Messages,
+decapsulate or decode inbound data into Messages, and implement parts of
+protocols that do not directly map to application Messages (such as
+protocol handshakes or preludes before Message exchange).
 
 While many protocols can be represented as Message Framers, for the
 purposes of the Transport Services API, these are ways for applications
