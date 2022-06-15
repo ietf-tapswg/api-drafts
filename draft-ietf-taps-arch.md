@@ -255,7 +255,7 @@ The following example shows equivalent Protocol Stacks:
 
 - If the application does not require reliable transmission of data, then a Protocol Stack that adds reliability could be regarded as an equivalent Protocol Stack as long as providing this would not conflict with any other application-requested properties.
 
-To ensure that security protocols are not incorrectly swapped, a Transport Services implementation MUST only select Protocol Stacks that meet application requirements ({{?RFC8922}}). A Transport Services implementation SHOULD only race Protocol Stacks where the transport security protocols within the stacks are identical. A Transport Services implementation MUST NOT automatically fall back from secure protocols to insecure protocols, or to weaker versions of secure protocols. A Transport Services implementation MAY allow applications to explicitly specify that fallback to a specific other version of a protocol \, e.g., to allow fallback to TLS 1.2 if TLS 1.3 is not available.
+To ensure that security protocols are not incorrectly swapped, a Transport Services implementation MUST only select Protocol Stacks that meet application requirements ({{?RFC8922}}). A Transport Services implementation SHOULD only race Protocol Stacks where the transport security protocols within the stacks are identical. A Transport Services implementation MUST NOT automatically fall back from secure protocols to insecure protocols, or to weaker versions of secure protocols. A Transport Services implementation MAY allow applications to explicitly specify which versions of a protocol ought to be permitted, e.g., to allow a minimum version of TLS 1.2 in case TLS 1.3 is not available.
 
 ## Maintain Interoperability
 
@@ -538,19 +538,18 @@ native concepts (e.g. "incognito mode") that align with this functionality.
 Applications need to ensure that they use security APIs appropriately. In cases
 where applications use an interface to provide sensitive keying material, e.g.,
 access to private keys or copies of pre-shared keys (PSKs), key use needs to be
-validated. For example, applications ought not to use PSK material created for
-the Encapsulating Security Protocol (ESP, part of IPsec) {{?RFC4303}} with QUIC,
-and applications ought not to use private keys intended for server
-authentication as keys for client authentication.
+validated and scoped to the intended protocols and roles. For example, if an
+application provides a certificate to only be used as client authentication for
+outbound TLS and QUIC connections, the Transport Services system MUST NOT use this
+automatically in other contexts (such as server authentication for inbound
+connections, or in other another security protocol handshake that is not equivalent to TLS).
 
 A Transport Services system must not automatically fall back from
 secure protocols to insecure protocols, or to weaker versions of secure
 protocols (see {{equivalence}}). For example, if an application requests a specific version of TLS,
 but the desired version of TLS is not available, its connection will fail.
-Applications are thus responsible for implementing security protocol fallback
-or version fallback by creating multiple Connections, if so
-desired. Alternatively, the Transport Services API MAY allow applications to
-specify that fallback to a specific other version of a protocol is allowed by the Transport Services system.
+The Transport Services API MAY allow applications to specify minimum versions
+that are allowed to be used by the Transport Services system.
 
 # Acknowledgements
 
