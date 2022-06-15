@@ -1002,18 +1002,14 @@ via a Preconnection, by configuration after establishment, or by inheriting them
 from an antecedent via cloning; see {{groups}} for more.
 
 {{connection-props}} provides a list of Connection Properties, while Selection
-Properties are listed in the subsections below. Many properties are
+Properties are listed in the subsections below. Selection Properties are
 only considered during establishment, and can not be changed after a Connection
-is established; however, they can still be queried. The return type of a queried
-Selection Property is Boolean, where `true` means that the Selection Property
-has been applied and `false` means that the Selection Property has not
-been applied. Note that `true` does not mean that a request has been honored.
-For example, if `Congestion control` was
-requested with preference level `Prefer`, but congestion control could not
-be supported, querying the `congestionControl` property yields the
-value `false`. If the preference level `Avoid` was used for `Congestion control`,
-and, as requested, the Connection is not congestion controlled, querying
-the `congestionControl` property also yields the value `false`.
+is established. After a Connection is established, Selection Properties can only
+be read to check the properties used by the Connection. Upon reading, the
+Preference type of a Selection Property changes into Boolean, where `true` means
+that the selected Protocol Stack supports the feature or uses the path associated with the Selection Property, and `false` means that the Protocol Stack does not support the feature or use the path. Implementations
+of Transport Services systems may alternatively use the two Preference values `Require`
+and `Prohibit` to represent `true` and `false`, respectively.
 
 An implementation of the Transport Services API must provide sensible defaults for Selection
 Properties. The default values for each property below represent a
