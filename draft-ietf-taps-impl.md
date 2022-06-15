@@ -358,7 +358,7 @@ If the application specifies an interface type to be preferred or avoided, imple
 If the application specifies an interface type to be required or prohibited, an implementation is expeceted to not include the non-conforming paths.
 
 * "Capacity Profile":
-An implementation can use the Capacity Profile to prefer paths that match an application's expected traffic pattern. This match will use cached performance estimates, see {{performance-caches}}:
+An implementation can use the Capacity Profile to prefer paths that match an application's expected traffic pattern. This match will use cached performance estimates, see {{performance-caches}}. Some examples of path preferences based on Capacity Profiles include:
    * Low Latency/Interactive:
      Prefer paths with the lowest expected Round Trip Time, based on observed round trip time estimates;
    * Low Latency/Non-Interactive:
