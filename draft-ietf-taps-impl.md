@@ -364,7 +364,7 @@ An implementation can use the Capacity Profile to prefer paths that match an app
    * Low Latency/Non-Interactive:
      Prefer paths with a low expected Round Trip Time, but can tolerate delay variation;
    * Constant-Rate Streaming:
-     Prefer paths that are expected to satisy the requested Stream Send or Stream Receive Bitrate, based on the observed maximum throughput;
+     Prefer paths that are expected to satisfy the requested Stream Send or Stream Receive Bitrate, based on the observed maximum throughput;
    * Capacity-Seeking:
      Prefer adapting to paths to determine the highest available capacity, based on the observed maximum throughput.
 
