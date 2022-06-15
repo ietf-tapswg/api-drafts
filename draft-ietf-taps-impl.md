@@ -164,7 +164,7 @@ It is expected that the database of system policies and the method of looking up
 
 # Implementing Connection Establishment {#conn-establish}
 
-The process of establishing a network connection begins when an application expresses intent to communicate with a Remote Endpoint by calling Initiate. (At this point, any constraints or requirements the application may have on the connection are available from pre-establishment.) The process can be considered complete once there is at least one Protocol Stack that has completed any required setup to the point that it can transmit and receive the application's data.
+The process of establishing a network connection begins when an application expresses intent to communicate with a Remote Endpoint by calling Initiate,  at which point the Preconnection object contains all constraints or requirements the application has configured for the connection. The establishment process can be considered complete once there is at least one Protocol Stack that has completed any required setup to the point that it can transmit and receive the application's data.
 
 Connection establishment is divided into two top-level steps: Candidate Gathering, to identify the paths, protocols, and endpoints to use, and Candidate Racing (see Section 4.2.2 of {{I-D.ietf-taps-arch}}), in which the necessary protocol handshakes are conducted so that the transport system can select which set to use.
 
@@ -212,7 +212,7 @@ The example aggregate connection attempt above can be drawn as a tree by groupin
   +====================+  +====================+  +======================+
 ~~~~~~~~~~
 
-The rest of this section will use a notation scheme to represent this tree. The parent (or trunk) node of the tree will be represented by a single integer, such as "1". Each child of that node will have an integer that identifies it, from 1 to the number of children. That child node will be uniquely identified by concatenating its integer to it's parents identifier with a dot in between, such as "1.1" and "1.2". Each node will be summarized by a tuple of three elements: endpoint, path (labeled here by interface), and protocol. The above example can now be written more succinctly as:
+The rest of this section will use a notation scheme to represent this tree. The parent (or trunk) node of the tree will be represented by a single integer, such as "1". ("1" is used assuming that this is the first connection made by the system; future connections created by the application would allocate numbers in an increasing manner.) Each child of that node will have an integer that identifies it, from 1 to the number of children. That child node will be uniquely identified by concatenating its integer to it's parents identifier with a dot in between, such as "1.1" and "1.2". Each node will be summarized by a tuple of three elements: endpoint, path (labeled here by interface), and protocol. The above example can now be written more succinctly as:
 
 ~~~~~~~~~~
 1 [www.example.com:80, Any, TCP]
@@ -358,15 +358,13 @@ If the application specifies an interface type to be preferred or avoided, imple
 If the application specifies an interface type to be required or prohibited, an implementation is expeceted to not include the non-conforming paths.
 
 * "Capacity Profile":
-An implementation can use the Capacity Profile to prefer paths that match an application's expected traffic pattern. This match will use cached performance estimates, see {{performance-caches}}:
-   * Scavenger:
-     Prefer paths with the highest expected available capacity, but minimising impact on other traffic, based on the observed maximum throughput;
+An implementation can use the Capacity Profile to prefer paths that match an application's expected traffic pattern. This match will use cached performance estimates, see {{performance-caches}}. Some examples of path preferences based on Capacity Profiles include:
    * Low Latency/Interactive:
      Prefer paths with the lowest expected Round Trip Time, based on observed round trip time estimates;
    * Low Latency/Non-Interactive:
      Prefer paths with a low expected Round Trip Time, but can tolerate delay variation;
    * Constant-Rate Streaming:
-     Prefer paths that are expected to satisy the requested Stream Send or Stream Receive Bitrate, based on the observed maximum throughput;
+     Prefer paths that are expected to satisfy the requested Stream Send or Stream Receive Bitrate, based on the observed maximum throughput;
    * Capacity-Seeking:
      Prefer adapting to paths to determine the highest available capacity, based on the observed maximum throughput.
 
@@ -570,7 +568,7 @@ If the application has 0-RTT data to send during handshake(s), it needs to provi
 
 Once the application has provided its 0-RTT data, a Transport Services implementation should keep a copy of this data and provide it to each new leaf node that is started and for which a protocol instance supporting 0-RTT is being used.
 
-It is also possible that Protocol Stacks within a particular leaf node use 0-RTT handshakes without any safely replayable application data. For example, TCP Fast Open could use a Client Hello from TLS as its 0-RTT data, shortening the cumulative handshake time.
+It is also possible for Protocol Stacks within a particular leaf node to use 0-RTT handshakes without any safely replayable application data if a protocol in the stack has idempotent handshake data to send. For example, TCP Fast Open could use a Client Hello from TLS as its 0-RTT data, shortening the cumulative handshake time.
 
 0-RTT handshakes often rely on previous state, such as TCP Fast Open cookies, previously established TLS tickets, or out-of-band distributed pre-shared keys (PSKs). Implementations should be aware of security concerns around using these tokens across multiple addresses or paths when racing. In the case of TLS, any given ticket or PSK should only be used on one leaf node, since servers will likely reject duplicate tickets in order to prevent replays (see section-8.1 {{?RFC8446}}). If implementations have multiple tickets available from a previous connection, each leaf node attempt can use a different ticket. In effect, each leaf node will send the same early application data, yet encoded (encrypted) differently on the wire.
 
@@ -624,8 +622,8 @@ properties of the Connection or the network being used that may influence how
 to frame Messages.
 
 ~~~
-MessageFramer -> Start(Connection)
-MessageFramer -> Stop(Connection)
+MessageFramer -> Start<Connection>
+MessageFramer -> Stop<Connection>
 ~~~
 
 When a Message Framer generates a `Start` event, the framer implementation
@@ -872,7 +870,7 @@ Each protocol has a notion of Connectedness. Possible values for Connectedness a
 - Connected. Connected protocols establish state between endpoints, and perform a handshake during Connection establishment. The handshake may be 0-RTT to send data or resume a session, but bidirectional traffic is required to confirm connectedness.
 - Multiplexing Connected. Multiplexing Connected protocols share properties with Connected protocols, but also explictly support opening multiple application-level flows. This means that they can support cloning new Connection objects without a new explicit handshake.
 
-Protocols also define a notion of Data Unit. Possible values for Data Unit are:
+Protocols also have a notion of Data Unit. Possible values for Data Unit are:
 
 - Byte-stream. Byte-stream protocols do not define any Message boundaries of their own apart from the end of a stream in each direction.
 - Datagram. Datagram protocols define Message boundaries at the same level of transmission, such that only complete (not partial) Messages are supported.
@@ -953,7 +951,7 @@ Data Unit: Datagram
 API mappings for UDP are as follows:
 
 Connection Object:
-: UDP connections represent a pair of specific IP addresses and ports on two hosts.
+: UDP Connections represent a pair of specific IP addresses and ports on two hosts.
 
 Initiate:
 : CONNECT.UDP. Calling `Initiate` on a UDP Connection causes it to reserve a local port, but does not generate any traffic.
