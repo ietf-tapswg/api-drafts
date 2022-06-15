@@ -484,7 +484,7 @@ Instead, calling the ConnectionReceived event could be delayed until the first M
 
 While protocols that use an explicit handshake to validate a Connection to a peer can be used for racing multiple establishment attempts in parallel, connectionless protocols such as raw UDP do not offer a way to validate the presence of a peer or the usability of a Connection without application feedback. An implementation should consider such a Protocol Stack to be established as soon as the Transport Services system has selected a path on which to send data.
 
-However, this can cause a problem if a specific peer is not reachable over the network using the connectionless protocol, or data cannot be exchanged with the peer for any other reason. To mitigate this, an application can use a Message Framer {{message-framers}} on top of a connectionless protocol to only mark a specific connection attempt as ready when some data has been received, or after some application-level handshake has been performed. 
+However, this can cause a problem if a specific peer is not reachable over the network using the connectionless protocol, or data cannot be exchanged with the peer for any other reason. To mitigate this, an application can use a Message Framer {{message-framers}} on top of a connectionless protocol to only mark a specific connection attempt as ready when some data has been received, or after some application-level handshake has been performed.
 
 ## Implementing listeners {#listen}
 
