@@ -355,7 +355,7 @@ Two examples of how Selection and Connection Properties may be used to sort bran
 
 * "Interface Instance or Type":
 If the application specifies an interface type to be preferred or avoided, implementations should accordingly rank the paths.
-If the application specifies an interface type to be required or prohibited, an implementation is expected to not include the non-conforming paths.
+If the application specifies an interface type to be required or prohibited, an implementation is expected to exclude the non-conforming paths.
 
 * "Capacity Profile":
 An implementation can use the Capacity Profile to prefer paths that match an application's expected traffic pattern. This match will use cached performance estimates, see {{performance-caches}}:
