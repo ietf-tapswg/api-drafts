@@ -137,7 +137,7 @@ Listener objects are created with a Preconnection, at which point their configur
 
 During pre-establishment the application specifies one or more Endpoints to be used for communication as well as protocol preferences and constraints via Selection Properties and, if desired, also Connection Properties. Generally, Connection Properties should be configured as early as possible, because they can serve as input to decisions that are made by the implementation (e.g., the Capacity Profile can guide usage of a protocol offering scavenger-type congestion control).
 
-The implementation stores these properties as a part of the Preconnection object for use during connection establishment. For Selection Properties that are not provided by the application, the implementation must use the default values specified in the Transport Services API ({{I-D.ietf-taps-interface}}).
+The implementation stores these properties as a part of the Preconnection object for use during connection establishment. For Selection Properties that are not provided by the application, the implementation uses the default values specified in the Transport Services API ({{I-D.ietf-taps-interface}}).
 
 ## Configuration-time errors
 
@@ -683,7 +683,7 @@ MessageFramer -> NewSentMessage<Connection, MessageData, MessageContext, IsEndOf
 
 Upon receiving this event, a framer implementation is responsible for
 performing any necessary transformations and sending the resulting data back to the Message Framer, which will in turn send it to the next protocol.
-To improve performance, implementations SHOULD ensure that there is a way to pass the original data
+To improve performance, implementations should ensure that there is a way to pass the original data
 through without copying.
 
 ~~~
@@ -1080,11 +1080,11 @@ API mappings for SCTP are as follows:
 Connection Object:
 : Connection objects can be mapped to an SCTP association or a stream in an SCTP association. Mapping Connection objects to SCTP streams is called "stream mapping" and has additional requirements as follows. The following explanation assumes a client-server communication model.
 
-Stream mapping requires an association to already be in place between the client and the server, and it requires the server to understand that a new incoming stream should be represented as a new Connection Object by the Transport Services system. A new SCTP stream is created by sending an SCTP message with a new stream id. Thus, to implement stream mapping, the Transport Services API MUST provide a newly created Connection Object to the application upon the reception of such a message. The necessary semantics to implement a Transport Services system Close and Abort primitives are provided by the stream reconfiguration (reset) procedure described in {{?RFC6525}}. This also allows to re-use a stream id after resetting ("closing") the stream. To implement this functionality, SCTP stream reconfiguration {{?RFC6525}} MUST be supported by both the client and the server side.
+Stream mapping requires an association to already be in place between the client and the server, and it requires the server to understand that a new incoming stream should be represented as a new Connection Object by the Transport Services system. A new SCTP stream is created by sending an SCTP message with a new stream id. Thus, to implement stream mapping, the Transport Services API must provide a newly created Connection Object to the application upon the reception of such a message. The necessary semantics to implement a Transport Services system Close and Abort primitives are provided by the stream reconfiguration (reset) procedure described in {{?RFC6525}}. This also allows to re-use a stream id after resetting ("closing") the stream. To implement this functionality, SCTP stream reconfiguration {{?RFC6525}} must be supported by both the client and the server side.
 
-To avoid head-of-line blocking, stream mapping SHOULD only be implemented when both sides support message interleaving {{?RFC8260}}. This allows a sender to schedule transmissions between multiple streams without risking that transmission of a large message on one stream might block transmissions on other streams for a long time.
+To avoid head-of-line blocking, stream mapping should only be implemented when both sides support message interleaving {{?RFC8260}}. This allows a sender to schedule transmissions between multiple streams without risking that transmission of a large message on one stream might block transmissions on other streams for a long time.
 
-To avoid conflicts between stream ids, the following procedure is recommended: the first Connection, for which the SCTP association has been created, MUST always use stream id zero. All additional Connections are assigned to unused stream ids in growing order. To avoid a conflict when both endpoints map new Connections simultaneously, the peer which initiated association MUST use even stream ids whereas the remote side MUST map its Connections to odd stream ids. Both sides maintain a status map of the assigned stream ids. Generally, new streams SHOULD consume the lowest available (even or odd, depending on the side) stream id; this rule is relevant when lower ids become available because Connection objects associated with the streams are closed.
+To avoid conflicts between stream ids, the following procedure is recommended: the first Connection, for which the SCTP association has been created, must always use stream id zero. All additional Connections are assigned to unused stream ids in growing order. To avoid a conflict when both endpoints map new Connections simultaneously, the peer which initiated association must use even stream ids whereas the remote side must map its Connections to odd stream ids. Both sides maintain a status map of the assigned stream ids. Generally, new streams should consume the lowest available (even or odd, depending on the side) stream id; this rule is relevant when lower ids become available because Connection objects associated with the streams are closed.
 
 SCTP stream mapping as described here has been implemented in a research prototype; a desription of this implementation is given in {{NEAT-flow-mapping}}.
 
