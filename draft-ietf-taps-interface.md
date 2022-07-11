@@ -737,40 +737,34 @@ early binding when required, for example with some Network Address Translator
 
 ### Using Multicast Endpoints
 
-When using multicast, the Remote Endpoint will indicate the multicast group
-and destination port number. The Local Endpoint, if specified, will indicate
-the local interface address and port.
+To use multicast, a Preconnection is first created with the Remote Endpoint
+specifying the multicast group and destination port number. 
 
-Calling Initiate() with a multicast Remote Endpoint will indicate that the
-resulting connection will be used to send multicast messages, and that the
-Preconnection will support Initiate() but not Listen(). Any Connections
-created this way are send-only, and do not join the multicast group. The
-resulting Connection will have a Local Endpoint indicating the local
-interface to which the connection is bound and a Remote Endpoint indicating
-the multicast group.
+Calling Initiate() on that Preconnection creates a Connection that can be
+used to send messages to the multicast group. The Connection object that is
+created will support Send() but not Receive(). Any Connections created this
+way are send-only, and do not join the multicast group. The resulting
+Connection will have a Local Endpoint indicating the local interface to
+which the connection is bound and a Remote Endpoint indicating the
+multicast group.
 
-Calling Listen() with a multicast Remote Endpoint will cause the Transport
-Services system to register for receiving multicast, such as issuing an
-IGMP join {{?RFC3376}} or using MLD for IPV6 {{?RFC4604}}. Any Connections
-that are accepted from this Listener are receive-only.
-The result will be a Connection Group, where each Connection in the group
-has a Local Endpoint indicating the multicast group, and a Remote Endpoint
-denoting the sender of the packet.
+Calling Listen() on a Preconnection with a multicast group as the Remote
+Endpoint will join the multicast group to receive messages. This Listener
+will create one Connection for each Remote Endpoint sending to the group,
+with the Local Endpoint set to the group address. The set of Connection
+objects created forms a Connection Group.
 
-Calling Rendezvous() with an any-source multicast group address as the
-Remote Endpoint will cause the Transport Services system to register for
-receiving multicast, such as issuing an IGMP join {{?RFC3376}} or using MLD
-for IPV6 {{?RFC4604}}, and will also indicate that the resulting connection
-can be used to send multicast messages. 
-The result will be a Connection Group, where first connection in the group
-will have a Local Endpoint indicating the local interface to which the
-connection is bound and a Remote Endpoint indicating the multicast group,
-and each subsequent Connection in the group will have a Local Endpoint
-indicating the multicast group, and a Remote Endpoint denoting the sender
-of the packet.
+Calling Rendezvous() on a Preconnection with an any-source multicast group
+address as the Remote Endpoint will join the multicast group, and also
+indicates that the resulting connection can be used to send messages to the
+multicast group. The Rendezvous() call will return both a Connection that
+can be used to send to the group, that acts the same as a connection
+returned by calling Initiate() with a multicast Remote Endpoint, and a
+Listener that acts as if Listen() had been called with a multicast Remote
+Endpoint.
 
-Calling Rendezvous() with a source-specific multicast group address as the
-remote endpoint results in an EstablishmentError.
+Calling Rendezvous() on a Preconnection with a source-specific multicast
+group address as the Remote Endpoint results in an EstablishmentError.
 
 
 See {{multicast-examples}} for more examples.
