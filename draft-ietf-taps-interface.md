@@ -737,7 +737,7 @@ early binding when required, for example with some Network Address Translator
 
 ### Using Multicast Endpoints
 
-When using multicast the Remote Endpoint will indicate the multicast group
+When using multicast, the Remote Endpoint will indicate the multicast group
 and destination port number. The Local Endpoint, if specified, will indicate
 the local interface address and port.
 
