@@ -740,6 +740,12 @@ early binding when required, for example with some Network Address Translator
 To use multicast, a Preconnection is first created with the Remote Endpoint
 specifying the multicast group and destination port number.
 
+```
+RemoteSpecifier.WithIPv4MulticastGroup(233.252.0.0)
+RemoteSpecifier.WithIPv6MulticastGroup(FF0X::DB8:0:0)
+LocalSpecifier.WithPort(5353)
+```
+
 Calling Initiate() on that Preconnection creates a Connection that can be
 used to send messages to the multicast group. The Connection object that is
 created will support Send() but not Receive(). Any Connections created this
@@ -890,11 +896,34 @@ port on a named local interface:
    Listener := Preconnection.Listen()
 ~~~
 
+Join an Source-Specific Multicast group in receive-only mode, bound to a known
+port on a named local interface:
+
+~~~
+   RemoteSpecifier := NewRemoteEndpoint()
+   RemoteSpecifier.WithIPv4MulticastGroup(233.252.0.0)
+   RemoteSpecifier.WithIPv4Address(198.51.100.10)
+
+   LocalSpecifier := NewLocalEndpoint()
+   LocalSpecifier.WithPort(5353)
+   LocalSpecifier.WithInterface("en0")
+
+   TransportProperties := ...
+   SecurityParameters  := ...
+
+   Preconnection := newPreconnection(LocalSpecifier,
+                                     RemoteSpecifier,
+                                     TransportProperties,
+                                     SecurityProperties)
+   Listener := Preconnection.Listen()
+~~~
+
 Create a Source-Specific Multicast group as a sender:
 
 ~~~
    RemoteSpecifier := NewRemoteEndpoint()
    RemoteSpecifier.WithIPv4MulticastGroup(232.1.1.1)
+   RemoteSpecifier.WithPort(5353)
 
    LocalSpecifier := NewLocalEndpoint()
    LocalSpecifier.WithIPv4Address(192.0.2.22)
