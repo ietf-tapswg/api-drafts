@@ -748,7 +748,7 @@ Connection will have a Local Endpoint indicating the local interface to
 which the connection is bound and a Remote Endpoint indicating the
 multicast group.
 
-Calling Listen() on a Preconnection with a multicast group as the Remote
+Calling Listen() on a Preconnection with a multicast group specified on the Remote
 Endpoint will join the multicast group to receive messages. This Listener
 will create one Connection for each Remote Endpoint sending to the group,
 with the Local Endpoint set to the group address. The set of Connection
@@ -874,7 +874,7 @@ port on a named local interface:
 
 ~~~
    RemoteSpecifier := NewRemoteEndpoint()
-   RemoteSpecifier.WithIPv4Address(233.252.0.0)
+   RemoteSpecifier.WithIPv4MulticastGroup(233.252.0.0)
 
    LocalSpecifier := NewLocalEndpoint()
    LocalSpecifier.WithPort(5353)
@@ -894,7 +894,7 @@ Create a Source-Specific Multicast group as a sender:
 
 ~~~
    RemoteSpecifier := NewRemoteEndpoint()
-   RemoteSpecifier.WithIPv4Address(232.1.1.1)
+   RemoteSpecifier.WithIPv4MulticastGroup(232.1.1.1)
 
    LocalSpecifier := NewLocalEndpoint()
    LocalSpecifier.WithIPv4Address(192.0.2.22)
@@ -914,7 +914,7 @@ Join an any-source multicast group as both a sender and a receiver:
 
 ~~~
    RemoteSpecifier := NewRemoteEndpoint()
-   RemoteSpecifier.WithIPv4Address(233.252.0.0)
+   RemoteSpecifier.WithIPv4MulticastGroup(233.252.0.0)
    RemoteSpecifier.WithPort(5353)
    RemoteSpecifier.WithInterface("en0")
 
