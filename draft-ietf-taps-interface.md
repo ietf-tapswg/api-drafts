@@ -737,14 +737,8 @@ early binding when required, for example with some Network Address Translator
 
 ### Using Multicast Endpoints
 
-To use multicast, a Preconnection is first created with the Remote Endpoint
-specifying the multicast group and destination port number.
-
-```
-RemoteSpecifier.WithIPv4MulticastGroup(233.252.0.0)
-RemoteSpecifier.WithIPv6MulticastGroup(FF0X::DB8:0:0)
-LocalSpecifier.WithPort(5353)
-```
+To use multicast, a Preconnection is first created with the Local/Remote Endpoint
+specifying the multicast group and destination port number and whether ASN/SSN is intended.
 
 Calling Initiate() on that Preconnection creates a Connection that can be
 used to send messages to the multicast group. The Connection object that is
@@ -754,11 +748,23 @@ Connection will have a Local Endpoint indicating the local interface to
 which the connection is bound and a Remote Endpoint indicating the
 multicast group.
 
+```
+RemoteSpecifier.WithIPv4MulticastGroup(233.252.0.0)
+RemoteSpecifier.WithIPv6MulticastGroup(FF0X::DB8:0:0)
+RemoteSpecifier.WithPort(5353)
+```
+
 Calling Listen() on a Preconnection with a multicast group specified on the Remote
 Endpoint will join the multicast group to receive messages. This Listener
 will create one Connection for each Remote Endpoint sending to the group,
 with the Local Endpoint set to the group address. The set of Connection
 objects created forms a Connection Group.
+
+```
+LocalSpecifier.WithIPv4MulticastGroup(233.252.0.0, (ASN|SSN))
+LocalSpecifier.WithIPv6MulticastGroup(FF0X::DB8:0:0, (ASN|SSN))
+LocalSpecifier.WithPort(5353)
+```
 
 Calling Rendezvous() on a Preconnection with an any-source multicast group
 address as the Remote Endpoint will join the multicast group, and also
@@ -768,10 +774,17 @@ can be used to send to the group, that acts the same as a connection
 returned by calling Initiate() with a multicast Remote Endpoint, and a
 Listener that acts as if Listen() had been called with a multicast Remote
 Endpoint.
-
 Calling Rendezvous() on a Preconnection with a source-specific multicast
-group address as the Remote Endpoint results in an EstablishmentError.
+group address as the Local Endpoint results in an EstablishmentError.
 
+```
+RemoteSpecifier.WithIPv4MulticastGroup(233.252.0.0)
+RemoteSpecifier.WithIPv6MulticastGroup(FF0X::DB8:0:0)
+RemoteSpecifier.WithPort(5353)
+LocalSpecifier.WithIPv4MulticastGroup(233.252.0.0, ASN)
+LocalSpecifier.WithIPv6MulticastGroup(FF0X::DB8:0:0, ASN)
+LocalSpecifier.WithPort(5353)
+```
 
 See {{multicast-examples}} for more examples.
 
@@ -880,9 +893,9 @@ port on a named local interface:
 
 ~~~
    RemoteSpecifier := NewRemoteEndpoint()
-   RemoteSpecifier.WithIPv4MulticastGroup(233.252.0.0)
 
    LocalSpecifier := NewLocalEndpoint()
+   LocalSpecifier.WithIPv4MulticastGroup(233.252.0.0, ASN)
    LocalSpecifier.WithPort(5353)
    LocalSpecifier.WithInterface("en0")
 
@@ -901,10 +914,10 @@ port on a named local interface:
 
 ~~~
    RemoteSpecifier := NewRemoteEndpoint()
-   RemoteSpecifier.WithIPv4MulticastGroup(233.252.0.0)
    RemoteSpecifier.WithIPv4Address(198.51.100.10)
 
    LocalSpecifier := NewLocalEndpoint()
+   LocalSpecifier.WithIPv4MulticastGroup(233.252.0.0, SSN)
    LocalSpecifier.WithPort(5353)
    LocalSpecifier.WithInterface("en0")
 
@@ -927,7 +940,7 @@ Create a Source-Specific Multicast group as a sender:
 
    LocalSpecifier := NewLocalEndpoint()
    LocalSpecifier.WithIPv4Address(192.0.2.22)
-   RemoteSpecifier.WithInterface("en0")
+   LocalSpecifier.WithInterface("en0")
 
    TransportProperties := ...
    SecurityParameters  := ...
@@ -948,6 +961,7 @@ Join an any-source multicast group as both a sender and a receiver:
    RemoteSpecifier.WithInterface("en0")
 
    LocalSpecifier := NewLocalEndpoint()
+   LocalSpecifier.WithIPv4MulticastGroup(233.252.0.0, ASN)
    LocalSpecifier.WithIPv4Address(192.0.2.22)
    LocalSpecifier.WithPort(5353)
 
