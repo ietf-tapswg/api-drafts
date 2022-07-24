@@ -738,7 +738,7 @@ early binding when required, for example with some Network Address Translator
 ### Using Multicast Endpoints
 
 To use multicast, a Preconnection is first created with the Local/Remote Endpoint
-specifying the multicast group and destination port number and whether ASN/SSN is intended.
+specifying the ASN/SSN multicast group and destination port number.
 
 Calling Initiate() on that Preconnection creates a Connection that can be
 used to send messages to the multicast group. The Connection object that is
@@ -749,9 +749,9 @@ which the connection is bound and a Remote Endpoint indicating the
 multicast group.
 
 ```
-RemoteSpecifier.WithIPv4MulticastGroup(233.252.0.0)
-RemoteSpecifier.WithIPv6MulticastGroup(FF0X::DB8:0:0)
-RemoteSpecifier.WithPort(5353)
+RemoteSpecifier.WithMulticastGroupIPv4(GroupAddress)
+RemoteSpecifier.WithMulticastGroupIPv6(GroupAddress)
+RemoteSpecifier.WithPort(PortNumber)
 ```
 
 Calling Listen() on a Preconnection with a multicast group specified on the Remote
@@ -761,9 +761,11 @@ with the Local Endpoint set to the group address. The set of Connection
 objects created forms a Connection Group.
 
 ```
-LocalSpecifier.WithIPv4MulticastGroup(233.252.0.0, (ASN|SSN))
-LocalSpecifier.WithIPv6MulticastGroup(FF0X::DB8:0:0, (ASN|SSN))
-LocalSpecifier.WithPort(5353)
+LocalSpecifier.WithSingleSourceMulticastGroupIPv4(GroupAddress, SourceAddress)
+LocalSpecifier.WithSingleSourceMulticastGroupIPv6(GroupAddress, SourceAddress)
+LocalSpecifier.WithAnySourceMulticastGroupIPv4(GroupAddress)
+LocalSpecifier.WithAnySourceMulticastGroupIPv6(GroupAddress)
+LocalSpecifier.WithPort(PortNumber)
 ```
 
 Calling Rendezvous() on a Preconnection with an any-source multicast group
@@ -778,12 +780,12 @@ Calling Rendezvous() on a Preconnection with a source-specific multicast
 group address as the Local Endpoint results in an EstablishmentError.
 
 ```
-RemoteSpecifier.WithIPv4MulticastGroup(233.252.0.0)
-RemoteSpecifier.WithIPv6MulticastGroup(FF0X::DB8:0:0)
-RemoteSpecifier.WithPort(5353)
-LocalSpecifier.WithIPv4MulticastGroup(233.252.0.0, ASN)
-LocalSpecifier.WithIPv6MulticastGroup(FF0X::DB8:0:0, ASN)
-LocalSpecifier.WithPort(5353)
+RemoteSpecifier.WithMulticastGroupIPv4(GroupAddress)
+RemoteSpecifier.WithMulticastGroupIPv6(GroupAddress)
+RemoteSpecifier.WithPort(PortNumber)
+LocalSpecifier.WithAnySourceMulticastGroupIPv4(GroupAddress)
+LocalSpecifier.WithAnySourceMulticastGroupIPv6(GroupAddress)
+LocalSpecifier.WithPort(PortNumber)
 ```
 
 See {{multicast-examples}} for more examples.
@@ -895,7 +897,7 @@ port on a named local interface:
    RemoteSpecifier := NewRemoteEndpoint()
 
    LocalSpecifier := NewLocalEndpoint()
-   LocalSpecifier.WithIPv4MulticastGroup(233.252.0.0, ASN)
+   LocalSpecifier.WithAnySourceMulticastGroupIPv4(233.252.0.0)
    LocalSpecifier.WithPort(5353)
    LocalSpecifier.WithInterface("en0")
 
@@ -914,10 +916,9 @@ port on a named local interface:
 
 ~~~
    RemoteSpecifier := NewRemoteEndpoint()
-   RemoteSpecifier.WithIPv4Address(198.51.100.10)
 
    LocalSpecifier := NewLocalEndpoint()
-   LocalSpecifier.WithIPv4MulticastGroup(233.252.0.0, SSN)
+   LocalSpecifier.WithSingleSourceMulticastGroupIPv4(233.252.0.0, 198.51.100.10)
    LocalSpecifier.WithPort(5353)
    LocalSpecifier.WithInterface("en0")
 
@@ -935,7 +936,7 @@ Create a Source-Specific Multicast group as a sender:
 
 ~~~
    RemoteSpecifier := NewRemoteEndpoint()
-   RemoteSpecifier.WithIPv4MulticastGroup(232.1.1.1)
+   RemoteSpecifier.WithMulticastGroupIPv4(232.1.1.1)
    RemoteSpecifier.WithPort(5353)
 
    LocalSpecifier := NewLocalEndpoint()
@@ -956,12 +957,12 @@ Join an any-source multicast group as both a sender and a receiver:
 
 ~~~
    RemoteSpecifier := NewRemoteEndpoint()
-   RemoteSpecifier.WithIPv4MulticastGroup(233.252.0.0)
+   RemoteSpecifier.WithMulticastGroupIPv4(233.252.0.0)
    RemoteSpecifier.WithPort(5353)
    RemoteSpecifier.WithInterface("en0")
 
    LocalSpecifier := NewLocalEndpoint()
-   LocalSpecifier.WithIPv4MulticastGroup(233.252.0.0, ASN)
+   LocalSpecifier.WithAnySourceMulticastGroupIPv4(233.252.0.0)
    LocalSpecifier.WithIPv4Address(192.0.2.22)
    LocalSpecifier.WithPort(5353)
 
