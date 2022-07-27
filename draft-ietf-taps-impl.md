@@ -1236,9 +1236,6 @@ In addition to the Protocol and Path Selection Properties discussed in {{branch-
 * Bounds on Send or Receive Rate (Selection Properties `minSendRate` / `minRecvRate` / `maxSendRate` / `maxRecvRate`):
 If the application indicates a bound on the expected Send or Receive bitrate, an implementation may prefer a path that can likely provide the desired bandwidth, based on cached maximum throughput, see {{performance-caches}}. The application may know the Send or Receive Bitrate from metadata in adaptive HTTP streaming, such as MPEG-DASH.
 
-* Cost Preferences:
-If the application indicates a preference to avoid expensive paths, and some paths are associated with a monetary cost, an implementation should decrease the ranking of such paths. If the application indicates that it prohibits using expensive paths, paths that are associated with a cost should be purged from the decision tree.
-
 # Reasons for errors {#appendix-reasons-errors}
 
 The Transport Services API {{I-D.ietf-taps-interface}} allows for the several generic error types to specify a more detailed reason about why an error occurred. This appendix lists some of the possible reasons.
