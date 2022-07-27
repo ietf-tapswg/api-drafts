@@ -369,11 +369,14 @@ An implementation can use the Capacity Profile to prefer paths that match an app
    * Capacity-Seeking:
      Prefer adapting to paths to determine the highest available capacity, based on the observed maximum throughput.
 
+As another example, branch sorting can also be influenced by bounds on the send or receive rate (Selection Properties `minSendRate` / `minRecvRate` / `maxSendRate` / `maxRecvRate`): if the application indicates a bound on the expected Send or Receive bitrate, an implementation may prefer a path that can likely provide the desired bandwidth, based on cached maximum throughput, see {{performance-caches}}. The application may know the Send or Receive Bitrate from metadata in adaptive HTTP streaming, such as MPEG-DASH.
+
 Implementations process the Properties (Section 6.2 of {{I-D.ietf-taps-interface}}) in the following order: Prohibit, Require, Prefer, Avoid.
 If Selection Properties contain any prohibited properties, the implementation should first purge branches containing nodes with these properties. For required properties, it should only keep branches that satisfy these requirements. Finally, it should order the branches according to the preferred properties, and finally use any avoided properties as a tiebreaker.
 When ordering branches, an implementation can give more weight to properties that the application has explicitly set, than to the properties that are default.
 
 The available protocols and paths on a specific system and in a specific context can change; therefore, the result of sorting and the outcome of racing may vary, even when using the same Selection and Connection Properties. However, an implementation ought to provide a consistent outcome to applications, e.g., by preferring protocols and paths that are already used by existing Connections that specified similar Properties.
+
 
 
 ## Candidate Gathering {#gathering}
@@ -1223,18 +1226,6 @@ CloseGroup:
 
 AbortGroup:
 
-
-# Additional Properties {#appendix-non-consensus}
-
-This appendix discusses implementation considerations for additional parameters and properties that could be used to enhance transport protocol and/or path selection, or the transmission of messages given a Protocol Stack that implements them.
-These are not part of the interface, and may be removed from the final document, but are presented here to support discussion within the TAPS working group as to whether they should be added to a future revision of the base specification.
-
-## Properties Affecting Sorting of Branches {#branch-sorting-non-consensus}
-
-In addition to the Protocol and Path Selection Properties discussed in {{branch-sorting}}, the following properties under discussion can influence branch sorting:
-
-* Bounds on Send or Receive Rate (Selection Properties `minSendRate` / `minRecvRate` / `maxSendRate` / `maxRecvRate`):
-If the application indicates a bound on the expected Send or Receive bitrate, an implementation may prefer a path that can likely provide the desired bandwidth, based on cached maximum throughput, see {{performance-caches}}. The application may know the Send or Receive Bitrate from metadata in adaptive HTTP streaming, such as MPEG-DASH.
 
 # Reasons for errors {#appendix-reasons-errors}
 
