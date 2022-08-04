@@ -19,7 +19,7 @@ author:
     name: Anna Brunstrom
     role: editor
     org: Karlstad University
-    street: Universit etsgatan 2
+    street: Universitetsgatan 2
     city: 651 88 Karlstad
     country: Sweden
     email: anna.brunstrom@kau.se
