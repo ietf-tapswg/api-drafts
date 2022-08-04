@@ -972,7 +972,7 @@ InitiateError:
 : UDP Connections can only generate errors on initiation due to port conflicts on the local system.
 
 ConnectionError:
-: Once in use, UDP throws "soft errors" (ERROR.UDP(-Lite)) upon receiving ICMP notifications indicating failures in the network. Additional information can also be passed, when this is available to the system (e.g. ICMP error code and quoted packet header).
+: Once in use, UDP throws "soft errors" (ERROR.UDP(-Lite)) upon receiving ICMP notifications indicating failures in the network. Additional information can also be provided when this is available to the system (e.g. ICMP error code and quoted packet header).
 
 Listen:
 : LISTEN.UDP. Calling `Listen` for UDP binds a local port and prepares it to receive inbound UDP datagrams from peers.
