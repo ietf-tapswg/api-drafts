@@ -117,7 +117,7 @@ This document serves as a guide to implementation on how to build a system that 
 
 The connection objects that are exposed to applications for Transport Services are:
 
-- the Preconnection, the bundle of Properties that describes the application constraints on, and preferences for, the transport;
+- the Preconnection, the bundle of properties that describes the application constraints on, and preferences for, the transport;
 - the Connection, the basic object that represents a flow of data as Messages in either direction between the Local and Remote Endpoints;
 - and the Listener, a passive waiting object that delivers new Connections.
 
@@ -543,9 +543,9 @@ associated packet (note that the guidelines in Section 6 of {{?RFC7657}} apply; 
 the DSCP value should not be changed for different packets within a reliable
 transport protocol session or DCCP connection).
 
-- `noFragmentation`: Setting this avoids network-layer fragmentation. Messages exceeding the transport’s current estimate of its maximum packet size (the singularTransmissionMsgMaxLen Connection Property) can result in transport segmentation when permitted, or generate an error. When used with transports running over IP version 4 the Don't Fragment bit will be set to avoid on-path IP fragmentation ({{!RFC8304}}).
+- `noFragmentation`: Setting this avoids network-layer fragmentation. Messages exceeding the transport’s current estimate of its maximum packet size (the `singularTransmissionMsgMaxLen` Connection Property) can result in transport segmentation when permitted, or generate an error. When used with transports running over IP version 4 the Don't Fragment bit will be set to avoid on-path IP fragmentation ({{!RFC8304}}).
 
-- `noSegmentation`: When set, this property limits the message size to the transport’s current estimate of its maximum packet size (the singularTransmissionMsgMaxLen Connection Property). Messages larger than this size generate an error. Setting this avoids transport-layer segmentation and network-layer fragmentation. When used with transports running over IP version 4 the Don't Fragment bit will be set to avoid on-path IP fragmentation ({{!RFC8304}}).
+- `noSegmentation`: When set, this property limits the message size to the transport’s current estimate of its maximum packet size (the `singularTransmissionMsgMaxLen` Connection Property). Messages larger than this size generate an error. Setting this avoids transport-layer segmentation and network-layer fragmentation. When used with transports running over IP version 4 the Don't Fragment bit will be set to avoid on-path IP fragmentation ({{!RFC8304}}).
 
 ### Send Completion
 
@@ -768,8 +768,8 @@ When a path change occurs, e.g., when the IP address of an interface changes or 
 
 For protocols that do not support multipath or migration, the Protocol Instances should be informed of the path change, but should not be forcibly disconnected if the previously used path becomes unavailable. There are many common user scenarios that can lead to a path becoming temporarily unavailable, and then recovering before the transport protocol reaches a timeout error. These are particularly common using mobile devices. Examples include: an Ethernet cable becoming unplugged and then plugged back in; a device losing a Wi-Fi signal while a user is in an elevator, and reattaching when the user leaves the elevator; and a user losing the radio signal while riding a train through a tunnel. If the device is able to rejoin a network with the same IP address, a stateful transport connection can generally resume. Thus, while it is useful for a Protocol Instance to be aware of a temporary loss of connectivity, the Transport Services implementation should not aggressively close connections in these scenarios.
 
-If the Protocol Stack includes a transport protocol that supports multipath connectivity, the Transport Services implementation should also inform the Protocol Instance about potentially new paths that become permissible based on the `multipath` Selection Property and the `multipath-policy` Connection Property choices made by the application.
-A protocol can then establish new subflows over new paths while an active path is still available or, if migration is supported, also after a break has been detected, and should attempt to tear down subflows over paths that are no longer used. The Connection Property `multipath-policy` of the Transport Services API
+If the Protocol Stack includes a transport protocol that supports multipath connectivity, the Transport Services implementation should also inform the Protocol Instance about potentially new paths that become permissible based on the `multipath` Selection Property and the `multipathPolicy` Connection Property choices made by the application.
+A protocol can then establish new subflows over new paths while an active path is still available or, if migration is supported, also after a break has been detected, and should attempt to tear down subflows over paths that are no longer used. The Connection Property `multipathPolicy` of the Transport Services API
 allows an application to indicate when and how different paths should be used. However, detailed handling of these policies is still implementation-specific.
 For example, if the `multipath` Selection Property is set to `active`, the decision about when to create a new path or to announce a new path or set of paths to the Remote Endpoint, e.g., in the form of additional IP addresses, is implementation-specific.
 If the Protocol Stack includes a transport protocol that does not support multipath, but does support migrating between paths, the update to the set of available paths can trigger the connection to be migrated.
@@ -945,7 +945,7 @@ Connectedness: Connected
 Data Unit: Byte-stream
 
 the Transport Services API mappings for MPTCP are identical to TCP. MPTCP adds support for multipath properties,
-such as `multipath` and `multipath-policy`.
+such as `multipath` and `multipathPolicy`.
 
 ## UDP
 
@@ -1268,7 +1268,7 @@ The message size is too big for the transport system to handle.
 The underlying Protocol Stack failed.
 
 * InvalidMessageProperties:
-The message properties either contradict the transport properties or they can not be satisfied by the transport system.
+The Message Properties either contradict the Transport Properties or they can not be satisfied by the transport system.
 
 * DeframingFailed:
 The data that was received by the underlying Protocol Stack could not be processed by the Message Framer.
