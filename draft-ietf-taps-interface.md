@@ -2616,7 +2616,7 @@ Type:
 Default:
 : false
 
-If true, safelyReplayable specifies that a Message is safe to send to the Remote Endpoint
+If true, `safelyReplayable` specifies that a Message is safe to send to the Remote Endpoint
 more than once for a single Send Action. It marks the data as safe for
 certain 0-RTT establishment techniques, where retransmission of the 0-RTT data
 may cause the remote application to receive the Message multiple times.
