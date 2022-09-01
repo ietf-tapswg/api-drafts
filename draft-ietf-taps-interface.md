@@ -599,7 +599,7 @@ We therefore make the following recommendations:
   on a specific platform. For example, if TCP is the only underlying transport protocol,
   the Message Property `msgOrdered` can be implemented (trivially, as a no-op) as
   disabling the requirement for ordering will not have any effect on delivery order
-  for Connections over TCP. Similarly, the `msg-lifetime` Message Property can be
+  for Connections over TCP. Similarly, the `msgLifetime` Message Property can be
   implemented but ignored, as the description of this Property states that "it is not
   guaranteed that a Message will not be sent when its Lifetime has expired".
 - Implementations may use other representations for Transport Property Names,
@@ -1237,7 +1237,7 @@ Type:
 Default:
 : Empty (not setting a preference for any PvD)
 
-Similar to interface instances and types (see {{prop-interface}}), this property
+Similar to `interface` (see {{prop-interface}}), this property
 allows the application to control path selection by selecting which specific
 Provisioning Domain (PvD) or categories of PVDs it wants to
 `Require`, `Prohibit`, `Prefer`, or `Avoid`. Provisioning Domains define
@@ -1312,10 +1312,10 @@ Active:
 Passive:
 : The connection will support the use of multiple paths if the Remote Endpoint requests it.
 
-The policy for using multiple paths is specified using the separate ```multipath-policy``` property, see {{multipath-policy}} below.
-To enable the peer endpoint to initiate additional paths towards a local address other than the one initially used, it is necessary to set the Alternative Addresses property (see {{altaddr}} below).
+The policy for using multiple paths is specified using the separate `multipathPolicy` property, see {{multipath-policy}} below.
+To enable the peer endpoint to initiate additional paths towards a local address other than the one initially used, it is necessary to set the `advertisesAltaddr` property (see {{altaddr}} below).
 
-Setting this property to "Active", can have privacy implications: It enables the transport to establish connectivity using alternate paths that might result in users being linkable across the multiple paths, even if the Advertisement of Alternative Addresses property (see {{altaddr}} below) is set to false.
+Setting this property to "Active", can have privacy implications: It enables the transport to establish connectivity using alternate paths that might result in users being linkable across the multiple paths, even if the `advertisesAltaddr` property (see {{altaddr}} below) is set to false.
 
 Note that Multipath Transport has no corresponding Selection Property of type Preference.
 Enumeration values other than "Disabled" are interpreted as a preference for choosing protocols that can make use of multiple paths.
@@ -1324,7 +1324,7 @@ The "Disabled" value implies a requirement not to use multiple paths in parallel
 ### Advertisement of Alternative Addresses {#altaddr}
 
 Name:
-: advertises-altaddr
+: advertisesAltaddr
 
 Type:
 : Boolean
@@ -1483,7 +1483,7 @@ SecurityParameters := NewDisabledSecurityParameters()
 SecurityParameters := NewOpportunisticSecurityParameters()
 ~~~
 
-Representation of Security Parameters in implementations should parallel
+Representation of security parameters in implementations should parallel
 that chosen for Transport Property names as sugggested in {{scope-of-interface-defn}}.
 
 ### Connection Establishment Callbacks
@@ -1552,7 +1552,7 @@ another Connection.
 Once Initiate is called, the candidate Protocol Stack(s) may cause one or more
 candidate transport-layer connections to be created to the specified Remote
 Endpoint. The caller may immediately begin sending Messages on the Connection
-(see {{sending}}) after calling Initiate(); note that any data marked `Safely Replayable` that is sent
+(see {{sending}}) after calling Initiate(); note that any data marked as "safely replayable" that is sent
 while the Connection is being established may be sent multiple times or on
 multiple candidates.
 
@@ -1637,7 +1637,7 @@ the value to Infinite at any point.
 Listener -> EstablishmentError<reason?>
 ~~~
 
-An EstablishmentError occurs either when the Properties and Security Parameters of the Preconnection cannot be fulfilled for listening or cannot be reconciled with the Local Endpoint (and/or Remote Endpoint, if specified), when the Local Endpoint (or Remote Endpoint, if specified) cannot
+An EstablishmentError occurs either when the Properties and security parameters of the Preconnection cannot be fulfilled for listening or cannot be reconciled with the Local Endpoint (and/or Remote Endpoint, if specified), when the Local Endpoint (or Remote Endpoint, if specified) cannot
 be resolved, or when the application is prohibited from listening by policy.
 
 ~~~
@@ -1657,7 +1657,7 @@ Preconnection.Rendezvous()
 
 A Preconnection Object used in a Rendezvous() MUST have both the
 Local Endpoint candidates and the Remote Endpoint candidates specified,
-along with the transport properties and security parameters needed for
+along with the Transport Properties and security parameters needed for
 Protocol Stack selection, before the Rendezvous() Action is initiated.
 
 The Rendezvous() Action listens on the Local Endpoint
@@ -1752,16 +1752,16 @@ Connection on which Clone was called, and a resulting cloned Connection.
 The new Connection is actively openend, and it will send a Ready Event or an EstablishmentError Event.
 Calling Clone on any of these Connections adds another Connection to
 the Connection Group. Connections in a Connection Group share all
-Connection Properties except `Connection Priority` (see {{conn-priority}}),
+Connection Properties except `connPriority` (see {{conn-priority}}),
 and these Connection Properties are entangled: Changing one of the
 Connection Properties on one Connection in the Connection Group
 automatically changes the Connection Property for all others. For example, changing
-`Timeout for aborting Connection` (see
+`connTimeout` (see
 {{conn-timeout}}) on one Connection in a Connection Group will automatically
 make the same change to this Connection Property for all other Connections in the Connection Group.
-Like all other Properties, `Connection Priority` is copied
+Like all other Properties, `connPriority` is copied
 to the new Connection when calling Clone(), but in this case, a later change to the
-`Connection Priority` on one Connection does not change it on the
+`connPriority` on one Connection does not change it on the
 other Connections in the same Connection Group.
 
 The optional `connectionProperties` parameter allows passing
@@ -1808,12 +1808,12 @@ Attempts to clone a Connection can result in a CloneError:
 Connection -> CloneError<reason?>
 ~~~
 
-The `Connection Priority` Connection Property operates on Connections in a Connection Group
+The `connPriority` Connection Property operates on Connections in a Connection Group
 using the same approach as in {{msg-priority}}: when allocating available network
 capacity among Connections in a Connection Group, sends on Connections with
 higher Priority values will be prioritized over sends on Connections that have
 lower Priority values. Capacity will be shared among these Connections according to
-the Connection Group Transmission Scheduler property ({{conn-scheduler}}).
+the `connScheduler` property ({{conn-scheduler}}).
 See {{priority-in-taps}} for more.
 
 
@@ -1907,12 +1907,12 @@ Properties will include different information:
 
 * Whether the connection can be used to send data. A connection can not be used
   for sending if the connection was created with the Selection Property
-  `Direction of Communication` set to `unidirectional receive` or if a Message
+  `direction` set to `unidirectional receive` or if a Message
   marked as `Final` was sent over this connection. See also {{msg-final}}.
 
 * Whether the connection can be used to receive data. A connection cannot be
   used for reading if the connection was created with the Selection Property
-  `Direction of Communication` set to `unidirectional send` or if a Message
+  `direction` set to `unidirectional send` or if a Message
   marked as `Final` was received. See {{receiving-final-messages}}. The latter
   is only supported by certain transport protocols, e.g., by TCP as half-closed
   connection.
@@ -1972,7 +1972,7 @@ Type:
 Default:
 : 100
 
-This Property is a non-negative integer representing the
+This property is a non-negative integer representing the
 priority of this Connection
 relative to other Connections in the same
 Connection Group. A higher value reflects a higher priority. It has no effect
@@ -1995,7 +1995,7 @@ Default:
 : `Disabled`
 
 If this property is Numeric, it specifies how long to wait before deciding that an active Connection has
-failed when trying to reliably deliver data to the Remote Endpoint. Adjusting this Property
+failed when trying to reliably deliver data to the Remote Endpoint. Adjusting this property
 will only take effect when the underlying stack supports reliability. If this property has the enumerated
 value `Disabled`, it means that no timeout is scheduled.
 
@@ -2013,7 +2013,7 @@ Default:
 A Transport Services API can request a protocol that supports sending keep alive packets {{keep-alive}}.
 If this property is Numeric, it specifies the maximum length of time an idle connection (one for which no transport
 packets have been sent) should wait before
-the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting this Property
+the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting this property
 will only take effect when the underlying stack supports sending keep-alive packets.
 Guidance on setting this value for connection-less transports is
 provided in {{!RFC8085}}.
@@ -2116,7 +2116,7 @@ per-Message basis using the Transmission Profile Message Property; see
 ### Policy for using Multipath Transports {#multipath-policy}
 
 Name:
-: multipath-policy
+: multipathPolicy
 
 Type:
 : Enumeration
@@ -2305,10 +2305,10 @@ Type:
 Default:
 : true
 
-This property controls whether the `Timeout for aborting Connection` (see {{conn-timeout}})
+This property controls whether the `connTimeout` (see {{conn-timeout}})
 may be changed
 based on a UTO option received from the remote peer. This boolean becomes false when
-`Timeout for aborting Connection` (see {{conn-timeout}}) is used.
+`connTimeout` (see {{conn-timeout}}) is used.
 
 
 ## Connection Lifecycle Events
@@ -2522,20 +2522,20 @@ This initialization behavior is defined per Message Property below.
 
 The Message Properties could be inconsistent with the properties of the Protocol Stacks
 underlying the Connection on which a given Message is sent. For example,
-a Protocol Stack must be able to provide ordering if the msgOrdered
+a Protocol Stack must be able to provide ordering if the `msgOrdered`
 property of a Message is enabled. Sending a Message with Message Properties
 inconsistent with the Selection Properties of the Connection yields an error.
 
 If a Message Property contradicts a Connection Property, and
 if this per-Message behavior can be supported, it overrides the Connection
 Property for the specific Message. For example, if
-`Reliable Data Transfer (Connection)` is set to `Require` and a protocol
+`reliability` is set to `Require` and a protocol
 with configurable per-Message reliability is used, setting
-`Reliable Data Transfer (Message)` to `false` for a particular Message will
+`msgReliable` to `false` for a particular Message will
 allow this Message to be sent without any reliability guarantees. Changing
-the Reliable Data Transfer property on Messages is only possible for
+the `msgReliable` Message Property is only possible for
 Connections that were established enabling the Selection Property
-`Configure Per-Message Reliability`.
+`perMsgReliability`.
 
 The following Message Properties are supported:
 
@@ -2557,7 +2557,7 @@ that a Message will not be sent when its Lifetime has expired.
 
 Setting a Message's Lifetime to infinite indicates that the application does
 not wish to apply a time constraint on the transmission of the Message, but it does not express a need for
-reliable delivery; reliability is adjustable per Message via the `Reliable Data Transfer (Message)`
+reliable delivery; reliability is adjustable per Message via the `perMsgReliability`
 property (see {{msg-reliable-message}}). The type and units of Lifetime are implementation-specific.
 
 #### Priority {#msg-priority}
@@ -2579,8 +2579,8 @@ yield to a Message with Priority 2, and so on. Priorities may be used as a
 sender-side scheduling construct only, or be used to specify priorities on the
 wire for Protocol Stacks supporting prioritization.
 
-Note that this property is not a per-message override of the Connection Priority
-- see {{conn-priority}}. The Priority properties may interact, but can be used
+Note that this property is not a per-message override of `connPriority`
+- see {{conn-priority}}. The priority properties may interact, but can be used
 independently and be realized by different mechanisms; see {{priority-in-taps}}.
 
 #### Ordered {#msg-ordered}
@@ -2616,16 +2616,16 @@ Type:
 Default:
 : false
 
-If true, Safely Replayable specifies that a Message is safe to send to the Remote Endpoint
+If true, `safelyReplayable` specifies that a Message is safe to send to the Remote Endpoint
 more than once for a single Send Action. It marks the data as safe for
 certain 0-RTT establishment techniques, where retransmission of the 0-RTT data
 may cause the remote application to receive the Message multiple times.
 
 For protocols that do not protect against duplicated messages,
-e.g., UDP, all messages need to be marked as `Safely Replayable`.
+e.g., UDP, all messages need to be marked as "safely replayable" by enabling this property.
 To enable protocol selection to choose such a protocol,
-`Safely Replayable` needs to be added to the TransportProperties passed to the
-Preconnection. If such a protocol was chosen, disabling `Safely Replayable` on
+`safelyReplayable` needs to be added to the TransportProperties passed to the
+Preconnection. If such a protocol was chosen, disabling `safelyReplayable` on
 individual messages MUST result in a SendError.
 
 #### Final {#msg-final}
@@ -2684,8 +2684,8 @@ Default:
 
 When true, this property specifies that a Message should be sent in such a way
 that the transport protocol ensures all data is received on the other side
-without corruption. Changing the `Reliable Data Transfer` property on Messages
-is only possible for Connections that were established enabling the Selection Property `Configure Per-Message Reliability`.
+without corruption. Changing the `msgReliable` property on Messages
+is only possible for Connections that were established enabling the Selection Property `perMsgReliability`.
 When this is not the case, changing `msgReliable` will generate an error.
 
 Disabling this property indicates that the Transport Services system may disable retransmissions
@@ -2707,8 +2707,8 @@ Default:
 : inherited from the Connection Property `connCapacityProfile` ({{prop-cap-profile}})
 
 This enumerated property specifies the application's preferred tradeoffs for
-sending this Message; it is a per-Message override of the Capacity Profile
-connection property (see {{prop-cap-profile}}).
+sending this Message; it is a per-Message override of the `connCapacityProfile`
+Connection Property (see {{prop-cap-profile}}).
 If it is not configured by the application before sending, this property's default value
 will be based on the Connection Property `connCapacityProfile` of the Connection
 associated with the Send Action.
@@ -2806,7 +2806,7 @@ Request for HTTP Connections.
 
 Some transport protocols can deliver arbitrarily sized Messages, but other
 protocols constrain the maximum Message size. Applications can query the
-Connection Property "Maximum Message size on send" ({{conn-max-msg-send}}) to determine the maximum size
+Connection Property `sendMsgMaxLen` ({{conn-max-msg-send}}) to determine the maximum size
 allowed for a single Message. If a Message is too large to fit in the Maximum Message
 Size for the Connection, the Send will fail with a SendError event ({{send-error}}). For
 example, it is invalid to send a Message over a UDP connection that is larger than
@@ -2933,7 +2933,7 @@ Connection := Preconnection.InitiateWithSend(messageData, messageContext?, timeo
 ~~~
 
 Whenever possible, a messageContext should be provided to declare the Message passed to InitiateWithSend
-as `Safely Replayable`. This allows the Transport Services system to make use of 0-RTT establishment in case this is supported
+as "safely replayable" using the `safelyReplayable` property. This allows the Transport Services system to make use of 0-RTT establishment in case this is supported
 by the available protocol stacks. When the selected stack(s) do not support transmitting data upon connection
 establishment, InitiateWithSend is identical to Initiate() followed by Send().
 
@@ -2949,9 +2949,9 @@ establishment.
 ### Priority and the Transport Services API  {#priority-in-taps}
 
 The Transport Services API provides two properties to allow a sender
-to signal the relative priority of data transmission: the Priority Message
-Property {{msg-priority}}, and the Connection Priority Connection Property
-{{conn-priority}}. These properties are designed to allow the expression
+to signal the relative priority of data transmission: `msgPriority`
+{{msg-priority}} and `connPriority` {{conn-priority}}.
+These properties are designed to allow the expression
 and implementation of a wide variety of approaches to transmission priority in
 the transport and application layer, including those which do not appear on
 the wire (affecting only sender-side transmission scheduling) as well as those
@@ -2964,8 +2964,8 @@ messages is not worse with respect to those connections and messages than
 an equivalent configuration in which all prioritization properties are left
 at their defaults.
 
-The Transport Services API does order Connection Priority over
-the Priority Message Property. In the absense of other externalities
+The Transport Services API does order `connPriority` over
+`msgPriority`. In the absense of other externalities
 (e.g., transport-layer flow control), a priority 1 Message on a priority 0
 Connection will be sent before a priority 0 Message on a priority 1
 Connection in the same group.
@@ -2973,7 +2973,7 @@ Connection in the same group.
 ## Receiving Data {#receiving}
 
 Once a Connection is established, it can be used for receiving data (unless the
-`Direction of Communication` property is set to `unidirectional send`). As with
+`direction` property is set to `unidirectional send`). As with
 sending, the data is received in Messages. Receiving is an asynchronous
 operation, in which each call to Receive enqueues a request to receive new
 data from the connection. Once data has been received, or an error is encountered,
@@ -3109,10 +3109,10 @@ that was being partially received previously, but had not
 completed, encountered an error and will not be completed. This can be useful
 for an application, which may want to use this error as a hint to remove
 previously received Message parts from memory. As another example,
-if an incoming Message does not fulfill the Required Minimum Corruption
-Protection Coverage for Receiving property (see {{conn-recv-checksum}}),
+if an incoming Message does not fulfill the `recvChecksumLen` property
+(see {{conn-recv-checksum}}),
 an application can use this error as a hint to inform the peer application
-to adjust the Sending Corruption Protection Length property (see {{msg-checksum}}).
+to adjust the `msgChecksumLen` property (see {{msg-checksum}}).
 
 In contrast, internal protocol reception errors (e.g., loss causing retransmissions
 in TCP) are not signalled by this Event. Conditions that irrevocably lead to
@@ -3155,9 +3155,9 @@ The Message Context can indicate whether or not this Message is
 the Final Message on a Connection. For any Message that is marked as Final,
 the application can assume that there will be no more Messages received on the
 Connection once the Message has been completely delivered. This corresponds
-to the Final property that may be marked on a sent Message, see {{msg-final}}.
+to the `final` property that may be marked on a sent Message, see {{msg-final}}.
 
-Some transport protocols and peers do not support signaling of the Final property.
+Some transport protocols and peers do not support signaling of the `final` property.
 Applications therefore should not rely on receiving a Message marked Final to know
 that the sending endpoint is done sending on a connection.
 
@@ -3505,7 +3505,7 @@ It consists of the following properties:
  | preserveOrder            | avoid     |
  | congestionControl        | ignore    |
  | preserveMsgBoundaries    | require   |
- | safely replayable        | true      |
+ | safelyReplayable         | true      |
 {: #tabud title="unreliable-datagram preferences"}
 
 Applications that choose this Transport Property Profile would
@@ -3533,7 +3533,7 @@ This list is a subset of the transport features in Appendix A of {{?RFC8923}}, w
 `timeout` parameter of `Initiate` ({{initiate}}) or `InitiateWithSend` Action ({{initiate-and-send}}).
 
 * Disable MPTCP:
-`multipath` Property ({{multipath-mode}}).
+`multipath` property ({{multipath-mode}}).
 
 * Hand over a message to reliably transfer (possibly multiple times) before connection establishment:
 `InitiateWithSend` Action ({{initiate-and-send}}).
