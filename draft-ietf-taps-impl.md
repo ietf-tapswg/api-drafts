@@ -629,8 +629,8 @@ properties of the Connection or the network being used that may influence how
 to frame Messages.
 
 ~~~
-MessageFramer -> Start<Connection>
-MessageFramer -> Stop<Connection>
+MessageFramer -> Start<connection>
+MessageFramer -> Stop<connection>
 ~~~
 
 When a Message Framer generates a `Start` event, the framer implementation
@@ -639,20 +639,20 @@ its `Ready` event. This allows the implementation to communicate control data to
 Remote Endpoint that can be used to parse Messages.
 
 ~~~
-MessageFramer.MakeConnectionReady(Connection)
+MessageFramer.MakeConnectionReady(connection)
 ~~~
 
 Similarly, when a Message Framer generates a `Stop` event, the framer implementation has the opportunity to write some final data or clear up its local state before the `Closed` event is delivered to the Application. The framer implementation can indicate that it has finished with this.
 
 ~~~
-MessageFramer.MakeConnectionClosed(Connection)
+MessageFramer.MakeConnectionClosed(connection)
 ~~~
 
 At any time if the implementation encounters a fatal error, it can also cause the Connection
 to fail and provide an error.
 
 ~~~
-MessageFramer.FailConnection(Connection, Error)
+MessageFramer.FailConnection(connection, error)
 ~~~
 
 Should the framer implementation deem the candidate selected during racing unsuitable, it can signal this to the Transport Services API by failing the Connection prior to marking it as ready.
@@ -664,7 +664,7 @@ like STARTTLS {{?RFC3207}}, to modify the Protocol Stack based on a handshake re
 
 ~~~
 otherFramer := NewMessageFramer()
-MessageFramer.PrependFramer(Connection, otherFramer)
+MessageFramer.PrependFramer(connection, otherFramer)
 ~~~
 
 A Message Framer might also choose to go into a passthrough mode once an initial exchange or handshake has been completed, such as the STARTTLS case mentioned above.
@@ -677,10 +677,11 @@ MessageFramer.StartPassthrough()
 
 ## Sender-side Message Framing {#send-framing}
 
-Message Framers generate an event whenever a Connection sends a new Message.
+Message Framers generate an event whenever a Connection sends a new Message. The parameters to the event
+align with the Send call in the API ({{Section 9.2 of I-D.ietf-taps-interface}}).
 
 ~~~
-MessageFramer -> NewSentMessage<Connection, MessageData, MessageContext, IsEndOfMessage>
+MessageFramer -> NewSentMessage<connection, messageData, messageContext, endOfMessage>
 ~~~
 
 Upon receiving this event, a framer implementation is responsible for
@@ -689,7 +690,7 @@ To improve performance, implementations should ensure that there is a way to pas
 through without copying.
 
 ~~~
-MessageFramer.Send(Connection, Data)
+MessageFramer.Send(connection, messageData)
 ~~~
 
 To provide an example, a simple protocol that adds a length as a header would receive
@@ -701,9 +702,11 @@ Message data.
 
 In order to parse a received flow of data into Messages, the Message Framer
 notifies the framer implementation whenever new data is available to parse.
+The parameters to the the events and calls for receiving data with a framer
+align with the Receive call in the API ({{Section 9.3 of I-D.ietf-taps-interface}}).
 
 ~~~
-MessageFramer -> HandleReceivedData<Connection>
+MessageFramer -> HandleReceivedData<connection>
 ~~~
 
 Upon receiving this event, the framer implementation can inspect the inbound data. The
@@ -712,7 +715,7 @@ application requests a specific amount of data it needs to have available in ord
 If the data is not available, the parse fails.
 
 ~~~
-MessageFramer.Parse(Connection, MinimumIncompleteLength, MaximumLength) -> (Data, MessageContext, IsEndOfMessage)
+MessageFramer.Parse(connection, minimumIncompleteLength, maximumLength) -> (messageData, messageContext, endOfMessage)
 ~~~
 
 The framer implementation can directly advance the receive cursor once it has
@@ -724,9 +727,9 @@ deliver data that it has allocated, or deliver a range of data directly from the
 transport and simultaneously advance the receive cursor.
 
 ~~~
-MessageFramer.AdvanceReceiveCursor(Connection, Length)
-MessageFramer.DeliverAndAdvanceReceiveCursor(Connection, MessageContext, Length, IsEndOfMessage)
-MessageFramer.Deliver(Connection, MessageContext, Data, IsEndOfMessage)
+MessageFramer.AdvanceReceiveCursor(connection, length)
+MessageFramer.DeliverAndAdvanceReceiveCursor(connection, messageContext, length, endOfMessage)
+MessageFramer.Deliver(connection, messageContext, messageData, endOfMessage)
 ~~~
 
 Note that `MessageFramer.DeliverAndAdvanceReceiveCursor` allows the framer implementation
