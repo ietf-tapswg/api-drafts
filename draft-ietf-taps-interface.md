@@ -3341,7 +3341,9 @@ directly by the application or indirectly configured for a traffic profile.
 Applications should be aware that communication attempts can lead to more than one connection establishment.
 This is the case, for example, when the Transport Services system also executes name resolution, when support mechanisms such as
 TURN or ICE are used to establish connectivity, if protocols or paths are raised, or if a path fails and
-fallback or re-establishment is supported in the Transport Services system.
+fallback or re-establishment is supported in the Transport Services system. Applications should take special
+care when using 0-RTT session resumption (see {{prop-0rtt}), as early data sent across multiple paths during
+connection establishment may reveal information that can be used to correlate endpoints on multiple paths.
 
 Applications should also take care to not assume that all data received using the Transport Services API is always
 complete or well-formed. Specifically, messages that are received partially {{receive-partial}} could be a source
