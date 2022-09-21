@@ -614,6 +614,9 @@ implementation or the application itself. The Message Framer refers to the objec
 or function within the main Connection implementation that delivers events
 to the custom framer implementation whenever data is ready to be parsed or framed.
 
+The API examples in this section use the notation conventions for the Transport
+Services API defined in {{Section 1.1 of I-D.ietf-taps-interface}}.
+
 The Transport Services implementation needs to ensure that all of the
 events and actions taken on a Message Framer are synchronized to ensure
 consistent behavior. For example, some of the actions defined below (such as
