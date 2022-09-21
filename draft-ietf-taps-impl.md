@@ -1001,6 +1001,7 @@ CloseGroup:
 
 AbortGroup:
 : Calling `AbortGroup` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close` on this Connection and on all Connections in the same ConnectionGroup.
+
 ## UDP-Lite
 
 Connectedness: Connectionless
@@ -1032,10 +1033,7 @@ Ready:
 : A UDP Multicast Receive Connection is ready once the system has received traffic for the appropriate group and port.
 
 InitiateError:
-: UDP Multicast Receive Connections generate an InitiateError if Initiate is called.
-
-ConnectionError:
-: Once in use, UDP throws "soft errors" (ERROR.UDP(-Lite)) upon receiving ICMP notifications indicating failures in the network.
+: UDP Multicast Receive Connections generate an InitiateError indicating that joining a multicast group failed if Initiate is called.
 
 Listen:
 : LISTEN.UDP. Calling `Listen` for UDP Multicast Receive binds a local port, prepares it to receive inbound UDP datagrams from peers, and issues a multicast host join.  If a Remote Endpoint with an address is supplied, the join is Source-specific Multicast, and the path selection is based on the route to the Remote Endpoint.  If a Remote Endpoint is not supplied, the join is Any-source Multicast, and the path selection is based on the outbound route to the group supplied in the Local Endpoint.
