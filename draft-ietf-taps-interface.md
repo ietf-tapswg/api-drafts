@@ -1284,7 +1284,9 @@ application Requires the use of temporary addresses, the resulting Connection
 cannot use IPv4, because temporary addresses do not exist in IPv4. Second,
 temporary local addresses might involve trading off privacy for performance.
 For instance, temporary addresses can interfere with resumption mechanisms
-that some protocols rely on to reduce initial latency.
+that some protocols rely on to reduce initial latency. See 
+{?I-D.gont-v6ops-ipv6-addressing-considerations} for more discussion on the
+trade-offs involved with this preference.
 
 ### Multipath Transport {#multipath-mode}
 
