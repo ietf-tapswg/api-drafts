@@ -638,11 +638,14 @@ has the opportunity to start writing some data prior to the Connection deliverin
 its `Ready` event. This allows the implementation to communicate control data to the
 Remote Endpoint that can be used to parse Messages.
 
+Once the framer implementation has completed its setup or handshake, it can indicate to
+the application that it is ready to handling data with this call.
+
 ~~~
 MessageFramer.MakeConnectionReady(connection)
 ~~~
 
-Similarly, when a Message Framer generates a `Stop` event, the framer implementation has the opportunity to write some final data or clear up its local state before the `Closed` event is delivered to the Application. The framer implementation can indicate that it has finished with this.
+Similarly, when a Message Framer generates a `Stop` event, the framer implementation has the opportunity to write some final data or clear up its local state before the `Closed` event is delivered to the Application. The framer implementation can indicate that it has finished with this call.
 
 ~~~
 MessageFramer.MakeConnectionClosed(connection)
