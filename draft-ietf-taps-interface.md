@@ -1613,7 +1613,7 @@ action is performed on the Listener object.
 Listener -> ConnectionReceived<Connection>
 ~~~
 
-The ConnectionReceived Event occurs when a Remote Endpoint has established or cloned ((see {{groups}}) a
+The ConnectionReceived Event occurs when a Remote Endpoint has established or cloned (e.g., by creating a new stream in a multi-stream transport; see {{groups}}) a
 transport-layer connection to this Listener (for Connection-oriented
 transport protocols), or when the first Message has been received from the
 Remote Endpoint (for Connectionless protocols or streams of a multi-streaming transport), causing a new Connection to be
