@@ -1613,10 +1613,10 @@ action is performed on the Listener object.
 Listener -> ConnectionReceived<Connection>
 ~~~
 
-The ConnectionReceived Event occurs when a Remote Endpoint has established a
+The ConnectionReceived Event occurs when a Remote Endpoint has established or cloned (e.g., by creating a new stream in a multi-stream transport; see {{groups}}) a
 transport-layer connection to this Listener (for Connection-oriented
 transport protocols), or when the first Message has been received from the
-Remote Endpoint (for Connectionless protocols), causing a new Connection to be
+Remote Endpoint (for Connectionless protocols or streams of a multi-streaming transport), causing a new Connection to be
 created. The resulting Connection is contained within the ConnectionReceived
 Event, and is ready to use as soon as it is passed to the application via the
 event.
@@ -1749,7 +1749,7 @@ Connection := Connection.Clone(framer?, connectionProperties?)
 
 Calling Clone on a Connection yields a Connection Group containing two Connections: the parent
 Connection on which Clone was called, and a resulting cloned Connection.
-The new Connection is actively openend, and it will send a Ready Event or an EstablishmentError Event.
+The new Connection is actively openend, and it will locally send a Ready Event or an EstablishmentError Event.
 Calling Clone on any of these Connections adds another Connection to
 the Connection Group. Connections in a Connection Group share all
 Connection Properties except `connPriority` (see {{conn-priority}}),
