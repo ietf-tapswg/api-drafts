@@ -242,12 +242,12 @@ defined in {{I-D.ietf-taps-arch}}. The API defined in this document
 provides:
 
 
-- A Transport Services system
+- A Transport Services system that
   can offer a variety of transport protocols, independent
   of the Protocol Stacks that will be used at
-  runtime. All common features of these protocol
+  runtime. To the degree possible, all common features of these protocol
   stacks are made available to the application in a
-  transport-independent way to the degree possible.
+  transport-independent way.
   This enables applications written to a single API
   to make use of transport protocols in terms of the features
   they provide.
@@ -261,7 +261,7 @@ provides:
 
 - Asynchronous Connection establishment, transmission, and reception.
   This allows concurrent operations during establishment and event-driven
-  application interactions with the transport layer;
+  application interactions with the transport layer.
 
 - Selection between alternate network paths, using additional information about the
   networks over which a connection can operate (e.g. Provisioning Domain (PvD)
@@ -314,7 +314,7 @@ assume that ignoring Events (e.g., Errors) is always safe.
 The following usage examples illustrate how an application might use the
 Transport Services API to:
 
-- Act as a server, by listening for incoming connections, receiving requests,
+- Act as a server, by listening for incoming Connections, receiving requests,
   and sending responses, see {{server-example}}.
 - Act as a client, by connecting to a Remote Endpoint using Initiate, sending
   requests, and receiving responses, see {{client-example}}.
@@ -325,7 +325,7 @@ Transport Services API to:
 The examples in this section presume that a transport protocol is available
 between the Local and Remote Endpoints that provides Reliable Data Transfer, Preservation of
 Data Ordering, and Preservation of Message Boundaries. In this case, the
-application can choose to receive only complete messages.
+application can choose to receive only complete Messages.
 
 If none of the available transport protocols provides Preservation of Message
 Boundaries, but there is a transport protocol that provides a reliable ordered
@@ -563,7 +563,7 @@ implementation-specific property name.
 
 ## Transport Property Types {#property-types}
 
-Each Transport Property has a one of the basic types described in {{notation}}.
+Each Transport Property has one of the basic types described in {{notation}}.
 
 Most Selection Properties (see {{selection-props}}) are of the Enumeration type,
 and use the Preference Enumeration, which takes one of five possible values
@@ -666,7 +666,7 @@ Preconnection during pre-establishment.
 
 The transport services API uses the Local Endpoint and Remote Endpoint Objects
 to refer to the endpoints of a transport connection. Endpoints can be created
-as either Remote or Local:
+as either remote or local:
 
 ~~~
 RemoteSpecifier := NewRemoteEndpoint()
@@ -805,7 +805,7 @@ Note that this API has multiple ways to constrain and prioritize endpoint candid
  - Specifying an interface on a LocalEndpoint explicitly binds all candidates derived from this endpoint to use the specified interface.
  - Specifying an interface using the `interface` Selection Property ({{prop-interface}}) or indirectly via the `pvd` Selection Property ({{prop-pvd}}) influences the selection among the available candidates.
 
-While specifying an interface on an endpoint restricts the candidates available for connection establishment in the Pre-Establishment Phase, the Selection Properties prioritize and constrain the connection establishment.
+While specifying an Interface on an Endpoint restricts the candidates available for connection establishment in the Pre-Establishment Phase, the Selection Properties prioritize and constrain the connection establishment.
 
 ### Endpoint Aliases
 
@@ -1004,7 +1004,7 @@ networks.
 When additional information (such as Provisioning Domain (PvD) information
 {{RFC7556}}) is available about the networks over which an endpoint can operate,
 this can inform the selection between alternate network paths.
-Path information can include network segment PMTU, set of supported DSCPs,
+Path information can include PMTU, set of supported DSCPs,
 expected usage, cost, etc. The usage of this information by the Transport
 Services System is generally independent of the specific mechanism/protocol
 used to receive the information (e.g. zero-conf, DHCP, or IPv6 RA).
@@ -1027,7 +1027,7 @@ expressed using Prefer and Avoid influence protocol and path selection as well,
 outcomes can vary given the same Selection Properties, because the available
 protocols and paths can differ across systems and contexts. However,
 implementations are RECOMMENDED to seek to provide a consistent outcome
-to an application, given the same set of Selection Properties.
+to an application, when provided with the same set of Selection Properties.
 
 Note that application preferences can conflict with each other. For
 example, if an application indicates a preference for a specific path by
@@ -1079,7 +1079,7 @@ that the selected Protocol Stack supports the feature or uses the path associate
 of Transport Services systems may alternatively use the two Preference values `Require`
 and `Prohibit` to represent `true` and `false`, respectively.
 
-An implementation of the Transport Services API must provide sensible defaults for Selection
+An implementation of the Transport Services API needs to provide sensible defaults for Selection
 Properties. The default values for each property below represent a
 configuration that can be implemented over TCP. If these default values are used
 and TCP is not supported by a Transport Services system, then an application using the
@@ -1147,8 +1147,7 @@ Default:
 : Require
 
 This property specifies whether the application wishes to use a transport
-protocol that can ensure that data is received by the application on the other
-end in the same order as it was sent.
+protocol that can ensure that data is received by the application at the Remote Endpoint in the same order as it was sent.
 
 ### Use 0-RTT Session Establishment with a Safely Replayable Message {#prop-0rtt}
 
@@ -1279,7 +1278,7 @@ available; whereas on a desktop computer,  `Wi-Fi` and `Wired
 Ethernet` interface types might be available. An implementation should provide all types
 that are supported on the local system, to allow
 applications to be written generically. For example, if a single implementation
-is used on both mobile devices and desktop devices, it should define the
+is used on both mobile devices and desktop devices, it ought to define the
 `Cellular` interface type for both systems, since an application might wish to
 always prohibit cellular.
 
@@ -1417,7 +1416,7 @@ Type:
 Default:
 : Bidirectional
 
-This property specifies whether an application wants to use the connection for sending and/or receiving data.  Possible values are:
+This property specifies whether an application wants to use the Connection for sending and/or receiving data.  Possible values are:
 
 Bidirectional:
 : The connection must support sending and receiving data
@@ -1465,7 +1464,7 @@ Default:
 : Ignore
 
 The most common client-server communication pattern involves the
-client actively opening a connection, then sending data to the server. The
+client actively opening a Connection, then sending data to the server. The
 server listens (passive open), reads, and then answers. This property
 specifies whether an application wants to diverge from this pattern -- either
 by actively opening with Initiate(), immediately followed by reading, or passively opening with Listen(),
@@ -1755,7 +1754,7 @@ that represent the concrete addresses, local and server reflexive, on which
 a Rendezvous() for the Preconnection will listen for incoming Connections,
 and to which it will attempt to establish connections.
 
-Note that the set of LocalEndpoints returned by Resolve() might or might not
+Note that the set of Local Endpoints returned by Resolve() might or might not
 contain information about all possible local interfaces; it is valid only
 for a Rendezvous happening at the same time as the resolution. Care should
 be taken in using these values in any other context.
@@ -1859,7 +1858,7 @@ protocol instance.
 
 If the underlying protocol supports multi-streaming, it is natural to use this
 functionality to implement Clone. In that case, Connections in a Connection Group are
-multiplexed together, giving them similar treatment not only inside endpoints,
+multiplexed together, giving them similar treatment not only inside Endpoints,
 but also across the end-to-end Internet path.
 
 Note that calling Clone() can result in on-the-wire signaling, e.g., to open a new
@@ -1897,7 +1896,7 @@ a new remote endpoint has become available for use, or to indicate that some rem
 endpoint is no longer available. This is most common in the case of peer to peer
 connections using Trickle ICE {{?RFC8838}}.
 
-The `AddRemote()` action can be used to add one or more new remote endpoints
+The `AddRemote()` action can be used to add one or more new Remote Endpoints
 to a Connection:
 
 ~~~
@@ -1905,21 +1904,21 @@ Connection.AddRemote([]RemoteEndpoint)
 ~~~
 
 Endpoints that are already known to the Connection are ignored. A call to
-`AddRemote()` makes the new remote endpoints available to the connection,
+`AddRemote()` makes the new Remote Endpoints available to the Connection,
 but whether the Connection makes use of those endpoints will depend on the
 underlying transport protocol.
 
 Similarly, the `RemoveRemote()` action can be used to tell a connection to
-stop using one or more remote endpoints:
+stop using one or more Remote Endpoints:
 
 ~~~
 Connection.RemoveRemote([]RemoteEndpoint)
 ~~~
 
 Removing all known remote endpoints can have the effect of aborting the
-connection. The effect of removing the active remote endpoint(s) depends
+connection. The effect of removing the active Remote Endpoint(s) depends
 on the underlying transport: multipath aware transports might be able to
-switch to a new path if other reachable remote endpoints exist, or the
+switch to a new path if other reachable Remote Endpoints exist, or the
 connection might abort.
 
 Similarly, the `AddLocal()` and `RemoveLocal()` actions can be used to add
@@ -1998,7 +1997,7 @@ Properties will include different information:
 * For Connections that are Established: information concerning the
   path(s) used by the Protocol Stack. This can be derived from local PVD information,
   measurements by the Protocol Stack, or other sources.
-  For example, a TAPS system that is configured to receive and process PVD information
+  For example, a Transport System that is configured to receive and process PVD information
   {{RFC7556}} could also provide network configuration information for the chosen path(s).
 
 ## Generic Connection Properties {#connection-props}
