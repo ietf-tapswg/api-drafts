@@ -184,7 +184,7 @@ This API also delivers events regarding the lifetime of a connection and changes
 
 Using asynchronous events allows for a more natural interaction model when establishing connections and transferring data. Events in time more closely reflect the nature of interactions over networks, as opposed to how the Socket API represent network resources as file system objects that may be temporarily unavailable.
 
-Separate from events, callbacks are also provided for asynchronous interactions with the API not directly related to events on the network or network interfaces.
+Separate from events, callbacks are also provided for asynchronous interactions with the Transport Services API, which are not directly related to events on the network or network interfaces.
 
 ## Data Transfer Using Messages
 
@@ -239,7 +239,7 @@ There are applications that will need to control fine-grained details of transpo
 
 A specialized feature could be needed by an application only when using a specific protocol, and not when using others. For example, if an application is using TCP, it could require control over the User Timeout Option for TCP; these options would not take effect for other transport protocols. In such cases, the API ought to expose the features in such a way that they take effect when a particular protocol is selected, but do not imply that only that protocol could be used. For example, if the API allows an application to specify a preference to use the User Timeout Option, communication would not fail when a protocol such as QUIC is selected.
 
-Other specialized features, however, can be strictly required by an application and thus constrain the set of protocols that can be used. For example, if an application requires support for automatic handover or failover for a connection, only protocol stacks that provide this feature are eligible to be used, e.g., protocol stacks that include a multipath protocol or a protocol that supports connection migration. A Transport Services API needs to allow applications to define such requirements and constrain the options available to a Transport Services implementation. Since such options are not part of the core/common features, it will generally be simple for an application to modify its set of constraints and change the set of allowable protocol features without changing the core implementation.
+Other specialized features, however, can also be strictly required by an application and thus furthr constrain the set of protocols that can be used. For example, if an application requires support for automatic handover or failover for a connection, only protocol stacks that provide this feature are eligible to be used, e.g., protocol stacks that include a multipath protocol or a protocol that supports connection migration. A Transport Services API needs to allow applications to define such requirements and constrain the options available to a Transport Services implementation. Since such options are not part of the core/common features, it will generally be simple for an application to modify its set of constraints and change the set of allowable protocol features without changing the core implementation.
 
 ## Select Equivalent Protocol Stacks {#equivalence}
 
@@ -323,7 +323,7 @@ Beyond the connection objects, there are several high-level groups of actions th
 
 * Data Transfer ({{datatransfer}}) consists of how an application represents the data to be sent and received, the functions required to send and receive that data, and how the application is notified of the status of its data transfer.
 
-* Event Handling ({{events}}) defines categories of notifications which an application can receive during the lifetime of transport objects. Events also provide opportunities for the application to interact with the underlying transport by querying state or updating maintenance options.
+* Event Handling ({{events}}) defines categories of notifications that an application can receive during the lifetime of transport objects. Events also provide opportunities for the application to interact with the underlying transport by querying state or updating maintenance options.
 
 * Termination ({{termination}}) focuses on the methods by which data transmission is stopped, and state is torn down in the transport.
 
@@ -331,6 +331,7 @@ The diagram below provides a high-level view of the actions and events during th
 
 
 ~~~~~~~~~~
+
      Pre-Establishment     :       Established             : Termination
      -----------------     :       -----------             : -----------
                            :                               :
@@ -376,7 +377,7 @@ The diagram below provides a high-level view of the actions and events during th
 
   * Message Properties ({{datatransfer}}): Message Properties can be specified as defaults on a Preconnection or a Connection, and can also be specified during data transfer to affect specific Messages.
 
-* Connection: A Connection object represents one or more active transport protocol instances that can send and/or receive Messages between Local and Remote Endpoints. It is an abstraction that represents the communication. The Connection object holds state pertaining to the underlying transport protocol instances and any ongoing data transfers. For example, an active Connection can represent a connection-oriented protocol such as TCP, or can represent a fully-specified 5-tuple for a connectionless protocol such as UDP, where the Connection remains an abstraction at the end points. It can also represent a pool of transport protocol instances, e.g., a set of TCP and QUIC connections to equivalent endpoints, or a stream of a multi-streaming transport protocol instance. Connections can be created from a Preconnection or by a Listener.
+* Connection: A Connection object represents one or more active transport protocol instances that can send and/or receive Messages between Local and Remote Endpoints. It is an abstraction that represents the communication. The Connection object holds state pertaining to the underlying transport protocol instances and any ongoing data transfers. For example, an active Connection can represent a connection-oriented protocol such as TCP, or can represent a fully-specified 5-tuple for a connectionless protocol such as UDP, where the Connection remains an abstraction at the endpoints. It can also represent a pool of transport protocol instances, e.g., a set of TCP and QUIC connections to equivalent endpoints, or a stream of a multi-streaming transport protocol instance. Connections can be created from a Preconnection or by a Listener.
 
 * Listener: A Listener object accepts incoming transport protocol connections from Remote Endpoints and generates corresponding Connection objects. It is created from a Preconnection object that specifies the type of incoming Connections it will accept.
 
@@ -460,11 +461,11 @@ While Connection Groups are managed by the Transport Services system, an applica
 
 This section defines the key concepts of the Transport Services architecture.
 
-* Transport Service implementaion: This consists of all objects and protocol instances used internally to a system or library to implement the functionality needed to provide a transport service across a network, as required by the abstract interface.
+* Transport Service implementation: This consists of all objects and protocol instances used internally to a system or library to implement the functionality needed to provide a transport service across a network, as required by the abstract interface.
 
-* Transport Service system: This consists of the Transport Service implementaion and the Transport Services API.
+* Transport Service system: This consists of the Transport Service implementation and the Transport Services API.
 
-* Path: Represents an available set of properties that a local endpoint can use to communicate with a Remote Endpoint, such as routes, addresses, and physical and virtual network interfaces.
+* Path: Represents an available set of properties that a Local Endpoint can use to communicate with a Remote Endpoint, such as routes, addresses, and physical and virtual network interfaces.
 
 * Protocol Instance: A single instance of one protocol, including any state necessary to establish connectivity or send and receive Messages.
 
@@ -496,7 +497,7 @@ Connection establishment attempts for a set of candidates may be performed simul
 
 ### Separating Connection Contexts {#conn-context}
 
-By default, stored properties of the implementation, such as cached protocol state, cached path state, and heuristics, may be shared (e.g. across multiple connections in an application). This provides efficiency and convenience for the application, since the Transport Services system can automatically optimize behavior.
+A TAPS system may be default share the stored properties of the implementation, such as cached protocol state, cached path state, and heuristics (e.g. sharing across multiple connections in an application). This provides efficiency and convenience for the application, since the Transport Services system can automatically optimize behavior.
 
 The Transport Services API can allow applications to explicitly define Connection Contexts that force separation of Cached State and Protocol Stacks.
 For example, a web browser application could use Connection Contexts with separate caches when implementing different tabs. Possible reasons to isolate Connections using separate Connection Contexts include:
