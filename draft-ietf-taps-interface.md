@@ -314,10 +314,10 @@ assume that ignoring Events (e.g., Errors) is always safe.
 The following usage examples illustrate how an application might use the
 Transport Services API to:
 
-- Act as a server, by listening for incoming Connections, receiving Requests,
-  and sending Responses, see {{server-example}}.
+- Act as a server, by listening for incoming Connections, receiving requests,
+  and sending responses, see {{server-example}}.
 - Act as a client, by connecting to a Remote Endpoint using Initiate, sending
-  Requests, and receiving Responses, see {{client-example}}.
+  requests, and receiving responses, see {{client-example}}.
 - Act as a peer, by connecting to a Remote Endpoint using Rendezvous while
   simultaneously waiting for incoming Connections, sending Messages, and
   receiving Messages, see {{peer-example}}.
@@ -1491,7 +1491,9 @@ Security decisions, especially pertaining to trust, are not static. Once configu
 parameters may also be supplied during connection establishment. These are best
 handled as client-provided callbacks.
 Callbacks block the progress of the connection establishment, which distinguishes them from other Events in the transport system. How callbacks and events are implemented is specific to each implementation.
-Security handshake callbacks that may be invoked during connection establishment include Trust verification callback. Invoked when a Remote Endpoint's trust must be verified before the
+Security handshake callbacks that may be invoked during connection establishment include:
+
+ - Trust verification callback. Invoked when a Remote Endpoint's trust must be verified before the
 handshake protocol can continue. For example, the application could verify an X.509 certificate
 as described in {{?RFC5280}}.
 
