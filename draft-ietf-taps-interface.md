@@ -748,6 +748,8 @@ Connection will have a Local Endpoint indicating the local interface to
 which the connection is bound and a Remote Endpoint indicating the
 multicast group.
 
+The following API calls can be used to configure a Preconnection before calling Initiate():
+
 ```
 RemoteSpecifier.WithMulticastGroupIPv4(GroupAddress)
 RemoteSpecifier.WithMulticastGroupIPv6(GroupAddress)
