@@ -166,9 +166,9 @@ It is expected that the database of system policies and the method of looking up
 
 The process of establishing a network connection begins when an application expresses intent to communicate with a Remote Endpoint by calling Initiate,  at which point the Preconnection object contains all constraints or requirements the application has configured for the connection. The establishment process can be considered complete once there is at least one Protocol Stack that has completed any required setup to the point that it can transmit and receive the application's data.
 
-Connection establishment is divided into two top-level steps: Candidate Gathering, to identify the paths, protocols, and endpoints to use, and Candidate Racing (see Section 4.2.2 of {{I-D.ietf-taps-arch}}), in which the necessary protocol handshakes are conducted so that the transport system can select which set to use.
+Connection establishment is divided into two top-level steps: Candidate Gathering (defined in Section 4.2.1 of {{I-D.ietf-taps-arch}}), to identify the paths, protocols, and endpoints to use (see {{gathering}}); and Candidate Racing (defined in Section 4.2.2 of {{I-D.ietf-taps-arch}}), in which the necessary protocol handshakes are conducted so that the transport system can select which set to use (see {{racing}}). Candidate Racing involves attempting multiple options for connection establishment, and choosing the first option to succeed as the Protocol Stack to use for the connection. These attempts are usually staggered, starting each next option after a delay, but they can also be performed in parallel or only after waiting for failures.
 
-For ease of illustration, this document structures the candidates for racing as a tree.
+For ease of illustration, this document structures the candidates for racing as a tree (see {{tree-structure}}).
 This is not meant to restrict implementations from structuring racing candidates differently.
 
 The most simple example of this process might involve identifying the single IP address to which the implementation wishes to connect, using the system's current default path (i.e., using the default interface), and starting a TCP handshake to establish a stream to the specified IP address. However, each step may also differ depending on the requirements of the connection: if the endpoint is defined as a hostname and port, then there may be multiple resolved addresses that are available; there may also be multiple paths available, (in this case using an interface other than the default system interface); and some protocols may not need any transport handshake to be considered "established" (such as UDP), while other connections may utilize layered protocol handshakes, such as TLS over TCP.
@@ -184,13 +184,13 @@ Aggregate [Endpoint: www.example.com:80] [Interface: Any]   [Protocol: TCP]
 
 Any one of these sub-entries on the aggregate connection attempt would satisfy the original application intent. The concern of this section is the algorithm defining which of these options to try, when, and in what order.
 
-During Candidate Gathering, an implementation prunes and sorts branches according
+During Candidate Gathering ({{gathering}}), an implementation prunes and sorts branches according
 to the Selection Property preferences (Section 6.2 of {{I-D.ietf-taps-interface}}.
 It first excludes all protocols and paths that match a Prohibit property or do not
 match all Require properties. Then it will sort branches according to Preferred
 properties, Avoided properties, and possibly other criteria.
 
-## Structuring Candidates as a Tree
+## Structuring Candidates as a Tree {#tree-structure}
 
 As noted above, the consideration of multiple candidates in a gathering and racing process can be conceptually structured as a tree; this terminological convention is used throughout this document.
 
@@ -402,7 +402,7 @@ How this resolution is done will depend on the type of the Remote Endpoint, and 
 
 Resolving the Remote Endpoint is not a local operation.  It will involve a directory service, and can require communication with the Remote Endpoint to rendezvous and exchange peer addresses.  This can expose some or all of the candidate Local Endpoints to the Remote Endpoint.
 
-## Candidate Racing
+## Candidate Racing {#racing}
 
 The primary goal of the Candidate Racing process is to successfully negotiate a Protocol Stack to an endpoint over an interface to connect a single leaf node of the tree with as little delay and as few unnecessary connections attempts as possible. Optimizing these two factors improves the user experience, while minimizing network load.
 
