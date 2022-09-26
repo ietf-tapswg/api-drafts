@@ -764,13 +764,13 @@ with the Local Endpoint set to the group address. The set of Connection
 objects created forms a Connection Group.
 The receiving interface can be restricted by passing it as part of the LocalSpecifier or queried through the MessagContext on the messages received (see {{msg-ctx}} for further details).
 
+The following API calls can be used to configure a Preconnection before calling Listen():
 ```
 LocalSpecifier.WithSingleSourceMulticastGroupIPv4(GroupAddress, SourceAddress)
 LocalSpecifier.WithSingleSourceMulticastGroupIPv6(GroupAddress, SourceAddress)
 LocalSpecifier.WithAnySourceMulticastGroupIPv4(GroupAddress)
 LocalSpecifier.WithAnySourceMulticastGroupIPv6(GroupAddress)
 LocalSpecifier.WithPort(PortNumber)
-LocalSpecifier.WithTTL(TTL)
 ```
 
 Calling Rendezvous() on a Preconnection with an any-source multicast group
@@ -784,6 +784,7 @@ Endpoint.
 Calling Rendezvous() on a Preconnection with a source-specific multicast
 group address as the Local Endpoint results in an EstablishmentError.
 
+The following API calls can be used to configure a Preconnection before calling Rendezvous():
 ```
 RemoteSpecifier.WithMulticastGroupIPv4(GroupAddress)
 RemoteSpecifier.WithMulticastGroupIPv6(GroupAddress)
