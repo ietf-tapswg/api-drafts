@@ -794,7 +794,6 @@ LocalSpecifier.WithTTL(TTL)
 
 See {{multicast-examples}} for more examples.
 
-
 ### Constraining Interfaces for Endpoints {#ifspec}
 
 Note that this API has multiple ways to constrain and prioritize endpoint candidates based on the network interface:
