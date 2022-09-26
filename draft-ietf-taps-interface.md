@@ -752,6 +752,7 @@ multicast group.
 RemoteSpecifier.WithMulticastGroupIPv4(GroupAddress)
 RemoteSpecifier.WithMulticastGroupIPv6(GroupAddress)
 RemoteSpecifier.WithPort(PortNumber)
+RemoteSpecifier.WithTTL(TTL)
 ```
 
 Calling Listen() on a Preconnection with a multicast group specified on the Remote
@@ -766,6 +767,7 @@ LocalSpecifier.WithSingleSourceMulticastGroupIPv6(GroupAddress, SourceAddress)
 LocalSpecifier.WithAnySourceMulticastGroupIPv4(GroupAddress)
 LocalSpecifier.WithAnySourceMulticastGroupIPv6(GroupAddress)
 LocalSpecifier.WithPort(PortNumber)
+LocalSpecifier.WithTTL(TTL)
 ```
 
 Calling Rendezvous() on a Preconnection with an any-source multicast group
@@ -783,9 +785,11 @@ group address as the Local Endpoint results in an EstablishmentError.
 RemoteSpecifier.WithMulticastGroupIPv4(GroupAddress)
 RemoteSpecifier.WithMulticastGroupIPv6(GroupAddress)
 RemoteSpecifier.WithPort(PortNumber)
+RemoteSpecifier.WithTTL(TTL)
 LocalSpecifier.WithAnySourceMulticastGroupIPv4(GroupAddress)
 LocalSpecifier.WithAnySourceMulticastGroupIPv6(GroupAddress)
 LocalSpecifier.WithPort(PortNumber)
+LocalSpecifier.WithTTL(TTL)
 ```
 
 See {{multicast-examples}} for more examples.
@@ -938,6 +942,7 @@ Create a Source-Specific Multicast group as a sender:
    RemoteSpecifier := NewRemoteEndpoint()
    RemoteSpecifier.WithMulticastGroupIPv4(232.1.1.1)
    RemoteSpecifier.WithPort(5353)
+   RemoteSpecifier.WithTTL(8)
 
    LocalSpecifier := NewLocalEndpoint()
    LocalSpecifier.WithIPv4Address(192.0.2.22)
@@ -959,12 +964,14 @@ Join an any-source multicast group as both a sender and a receiver:
    RemoteSpecifier := NewRemoteEndpoint()
    RemoteSpecifier.WithMulticastGroupIPv4(233.252.0.0)
    RemoteSpecifier.WithPort(5353)
-   RemoteSpecifier.WithInterface("en0")
+   RemoteSpecifier.WithTTL(8)
 
    LocalSpecifier := NewLocalEndpoint()
    LocalSpecifier.WithAnySourceMulticastGroupIPv4(233.252.0.0)
    LocalSpecifier.WithIPv4Address(192.0.2.22)
    LocalSpecifier.WithPort(5353)
+   LocalSpecifier.WithInterface("en0")
+
 
    TransportProperties := ...
    SecurityParameters  := ...
