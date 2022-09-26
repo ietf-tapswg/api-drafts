@@ -444,7 +444,7 @@ An example in which failover is recommended is a race between a Protocol Stack t
 
 ## Completing Establishment
 
-The process of connection establishment completes when one leaf node of the tree has successfully completed negotiation with the Remote Endpoint, or else all nodes of the tree have failed to connect. The first leaf node to complete its connection is then used by the application to send and receive data.
+The process of connection establishment completes when one leaf node of the tree has successfully completed negotiation with the Remote Endpoint, or else all nodes of the tree have failed to connect. The first leaf node to complete its connection is then used by the application to send and receive data. This is signalled to the application using the Ready event in the API ({{Section 7.1 of I-D.ietf-taps-interface}}).
 
 Successes and failures of a given attempt should be reported up to parent nodes (towards the trunk of the tree). For example, in the following case, if 1.1.1 fails to connect, it reports the failure to 1.1. Since 1.1 has no other child nodes, it also has failed and reports that failure to 1. Because 1.2 has not yet failed, 1 is not considered to have failed. Since 1.2 has not yet started, it is started and the process continues. Similarly, if 1.1.1 successfully connects, then it marks 1.1 as connected, which propagates to the trunk node 1. At this point, the connection as a whole is considered to be successfully connected and ready to process application data.
 
@@ -463,11 +463,11 @@ Keeping additional connections is generally not recommended, because those attem
 
 ### Determining Successful Establishment
 
-Implementations may select the criteria by which a leaf node is considered to be successfully connected differently on a per-protocol basis. If the only protocol being used is a transport protocol with a clear handshake, like TCP, then the obvious choice is to declare that node "connected" when the last packet of the three-way handshake has been received. If the only protocol being used is an connectionless protocol, like UDP, the implementation may consider the node fully "connected" the moment it determines a route is present, before sending any packets on the network, see further {{connectionless-racing}}.
+On a per-protocol basis, implementations may select different criteria by which a leaf node is considered to be successfully connected. If the only protocol being used is a transport protocol with a clear handshake, like TCP, then the obvious choice is to declare that node "connected" when the last packet of the three-way handshake has been received. If the only protocol being used is an connectionless protocol, like UDP, the implementation may consider the node fully "connected" the moment it determines a route is present, before sending any packets on the network, see further {{connectionless-racing}}.
 
-For Protocol Stacks with multiple handshakes, the decision becomes more nuanced. If the Protocol Stack involves both TLS and TCP, an implementation could determine that a leaf node is connected after the TCP handshake is complete, or it can wait for the TLS handshake to complete as well. The benefit of declaring completion when the TCP handshake finishes, and thus stopping the race for other branches of the tree, is reduced burden on the network and Remote Endpoints from further connection attempts that are likely to be abandoned. On the other hand, by waiting until the TLS handshake is complete, an implementation avoids the scenario in which a TCP handshake completes quickly, but TLS negotiation is either very slow or fails altogether in particular network conditions or to a particular endpoint. To avoid the issue of TLS possibly failing, the implementation should not generate a Ready event for the Connection until TLS is established.
+For Protocol Stacks with multiple handshakes, the decision becomes more nuanced. If the Protocol Stack involves both TLS and TCP, an implementation could determine that a leaf node is connected after the TCP handshake is complete, or it can wait for the TLS handshake to complete as well. The benefit of declaring completion when the TCP handshake finishes, and thus stopping the race for other branches of the tree, is reduced burden on the network and Remote Endpoints from further connection attempts that are likely to be abandoned. On the other hand, by waiting until the TLS handshake is complete, an implementation avoids the scenario in which a TCP handshake completes quickly, but TLS negotiation is either very slow or fails altogether in particular network conditions or to a particular endpoint. To avoid the issue of TLS possibly failing, the implementation should not generate a Ready event for the Connection until the TLS handshake is complete.
 
-If all of the leaf nodes fail to connect during racing, i.e. none of the configurations that satisfy all requirements given in the Transport Properties actually work over the available paths, then the transport system should notify the application with an InitiateError event. An InitiateError event should also be generated in case the transport system finds no usable candidates to race.
+If all of the leaf nodes fail to connect during racing, i.e. none of the configurations that satisfy all requirements given in the Transport Properties actually work over the available paths, then the transport system should report an InitiateError to the application. An InitiateError event should also be generated in case the transport system finds no usable candidates to race.
 
 ## Establishing multiplexed connections {#establish-mux}
 
@@ -479,14 +479,14 @@ procedure. This, then, also means that there may not
 be any "establishment" message (like a TCP SYN), but the application can simply start sending
 or receiving. Therefore, when the Initiate action of a Transport Services API is called without Messages being
 handed over, it cannot be guaranteed that the Remote Endpoint will have any way to know about this, and hence
-a passive endpoint's ConnectionReceived event might not be called until data is received.
-Instead, calling the ConnectionReceived event could be delayed until the first Message arrives.
+a passive endpoint's ConnectionReceived event might not be delivered until data is received.
+Instead, delivering the ConnectionReceived event could be delayed until the first Message arrives.
 
 ## Handling connectionless protocols {#connectionless-racing}
 
 While protocols that use an explicit handshake to validate a Connection to a peer can be used for racing multiple establishment attempts in parallel, connectionless protocols such as raw UDP do not offer a way to validate the presence of a peer or the usability of a Connection without application feedback. An implementation should consider such a Protocol Stack to be established as soon as the Transport Services system has selected a path on which to send data.
 
-However, this can cause a problem if a specific peer is not reachable over the network using the connectionless protocol, or data cannot be exchanged with the peer for any other reason. To mitigate this, an application can use a Message Framer {{message-framers}} on top of a connectionless protocol to only mark a specific connection attempt as ready when some data has been received, or after some application-level handshake has been performed.
+However, this can cause a problem if a specific peer is not reachable over the network using the connectionless protocol, or data cannot be exchanged with the peer for any other reason. To mitigate this, an application can use a Message Framer ({{message-framers}}) on top of a connectionless protocol to only mark a specific connection attempt as ready when some data has been received, or after some application-level handshake has been performed.
 
 ## Implementing listeners {#listen}
 
@@ -511,17 +511,19 @@ Protocols that provide multiplexing of streams into a single four-tuple can list
 
 # Implementing Sending and Receiving Data
 
-The most basic mapping for sending a Message is an abstraction of datagrams, in which the transport protocol naturally deals in discrete packets. Each Message here corresponds to a single datagram. Generally, these will be short enough that sending and receiving will always use a complete Message.
+The most basic mapping for sending a Message is an abstraction of datagrams, in which the transport protocol naturally deals in discrete packets (such as UDP). Each Message here corresponds to a single datagram. Generally, these will be short enough that sending and receiving will always use a complete Message.
 
-For protocols that expose byte-streams, the only delineation provided by the protocol is the end of the stream in a given direction. Each Message in this case corresponds to the entire stream of bytes in a direction. These Messages may be quite long, in which case they can be sent in multiple parts.
+For protocols that expose byte-streams (such as TCP), the only delineation provided by the protocol is the end of the stream in a given direction. Each Message in this case corresponds to the entire stream of bytes in a direction. These Messages may be quite long, in which case they can be sent in multiple parts.
 
-Protocols that provide the framing (such as length-value protocols, or protocols that use delimiters) may support Message sizes that do not fit within a single datagram. Each Message for framing protocols corresponds to a single frame, which may be sent either as a complete Message in the underlying protocol, or in multiple parts.
+Protocols that provide the framing (such as length-value protocols, or protocols that use delimiters like HTTP/1.1) may support Message sizes that do not fit within a single datagram. Each Message for framing protocols corresponds to a single frame, which may be sent either as a complete Message in the underlying protocol, or in multiple parts.
 
 ## Sending Messages
 
 The effect of the application sending a Message is determined by the top-level protocol in the established Protocol Stack. That is, if the top-level protocol provides an abstraction of framed messages over a connection, the receiving application will be able to obtain multiple Messages on that connection, even if the framing protocol is built on a byte-stream protocol like TCP.
 
 ### Message Properties {#msg-properties}
+
+The API allows various properties to be associated with each Message, which should be implemented as discussed below.
 
 - `msgLifetime`: this should be implemented by removing the Message from the queue of pending Messages after the Lifetime has expired. A queue of pending Messages within the transport system implementation that have yet to be handed to the Protocol Stack can always support this property, but once a Message has been sent into the send buffer of a protocol, only certain protocols may support removing a message. For example, an implementation cannot remove bytes from a TCP send buffer, while it can remove data from a SCTP send buffer using the partial reliability extension {{?RFC8303}}. When there is no standing queue of Messages within the system, and the Protocol Stack does not support the removal of a Message from the stack's send buffer, this property may be ignored.
 
@@ -559,7 +561,7 @@ Since sending a Message may involve a context switch between the application and
 
 ## Receiving Messages
 
-Similar to sending, receiving a Message is determined by the top-level protocol in the established Protocol Stack. The main difference with receiving is that the size and boundaries of the Message are not known beforehand. The application can communicate in its Receive action the parameters for the Message, which can help the Transport Services implementation know how much data to deliver and when. For example, if the application only wants to receive a complete Message, the implementation should wait until an entire Message (datagram, stream, or frame) is read before delivering any Message content to the application. This requires the implementation to understand where messages end, either via a supplied  or because the top-level protocol in the established Protocol Stack preserves message boundaries. If the top-level protocol only supports a byte-stream and no framers were supported, the application can control the flow of received data by specifying the minimum number of bytes of Message content it wants to receive at one time.
+Similar to sending, receiving a Message is determined by the top-level protocol in the established Protocol Stack. The main difference with receiving is that the size and boundaries of the Message are not known beforehand. The application can communicate in its Receive action the parameters for the Message, which can help the Transport Services implementation know how much data to deliver and when. For example, if the application only wants to receive a complete Message, the implementation should wait until an entire Message (datagram, stream, or frame) is read before delivering any Message content to the application. This requires the implementation to understand where messages end, either via a supplied Message Framer or because the top-level protocol in the established Protocol Stack preserves message boundaries. If the top-level protocol only supports a byte-stream and no framers were supported, the application can control the flow of received data by specifying the minimum number of bytes of Message content it wants to receive at one time.
 
 If a Connection finishes before a requested Receive action can be satisfied, the Transport Services API should deliver any partial Message content outstanding, or if none is available, an indication that there will be no more received Messages.
 
@@ -569,7 +571,7 @@ Several protocols allow sending higher-level protocol or application data during
 
 The amount of data that can be sent as 0-RTT data varies by protocol and can be queried by the application using the `zeroRttMsgMaxLen` Connection Property. An implementation can set this property according to the protocols that it will race based on the given Selection Properties when the application requests to establish a connection.
 
-If the application has 0-RTT data to send during handshake(s), it needs to provide this data before the handshakes have begun. When racing, this means that the data should be provided before the process of connection establishment has begun. If the application wants to send 0-RTT data, it must indicate this to the implementation by setting the `Safely Replayable` send parameter to true when sending the data. In general, 0-RTT data may be replayed (for example, if a TCP SYN contains data, and the SYN is retransmitted, the data will be retransmitted as well but may be considered as a new connection instead of a retransmission). Also, when racing connections, different leaf nodes have the opportunity to send the same data independently. If data is truly safely replayable, this should be permissible.
+If the application has 0-RTT data to send during handshake(s), it needs to provide this data before the handshakes have begun. If the application wants to send 0-RTT data, it must indicate this to the implementation by setting the `Safely Replayable` send parameter to true when sending the data. In general, 0-RTT data may be replayed (for example, if a TCP SYN contains data, and the SYN is retransmitted, the data will be retransmitted as well but may be considered as a new connection instead of a retransmission). When racing connections, different leaf nodes have the opportunity to send the same data independently. If data is truly safely replayable, this is permissible.
 
 Once the application has provided its 0-RTT data, a Transport Services implementation should keep a copy of this data and provide it to each new leaf node that is started and for which a protocol instance supporting 0-RTT is being used.
 
@@ -602,7 +604,7 @@ Most Message Framers fall into one of two categories:
 Common Message Framers can be provided by a Transport Services implementation,
 but an implementation ought to allow custom Message Framers to be defined by
 the application or some other piece of software. This section describes one
-possible API for defining Message Framers as an example.
+possible API for defining Message Framers, as an example.
 
 ## Defining Message Framers
 
