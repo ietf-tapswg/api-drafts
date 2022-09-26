@@ -737,20 +737,63 @@ early binding when required, for example with some Network Address Translator
 
 ### Using Multicast Endpoints
 
-Specifying a multicast group address on a Local Endpoint will indicate to the Transport
-Services system that the resulting connection will be used to receive multicast messages. The
-Remote Endpoint can be used to filter incoming multicast from specific senders. Such
-a Preconnection will only support calling Listen(), not Initiate(). Calling Listen()
-will cause the Transport Services system to register for receiving multicast, such
-as issuing an IGMP join {{?RFC3376}} or using MLD for IPV6 {{?RFC4604}}. Any Connections
-that are accepted from this Listener are receive-only.
+To use multicast, a Preconnection is first created with the Local/Remote Endpoint
+specifying the any-source multicast (ASM) or source-specific multicast (SSM) multicast group and destination port number.
 
-Similarly, specifying a multicast group address on the Remote Endpoint will indicate that the
-resulting connection will be used to send multicast messages, and that the Preconnection will
-support Initiate() but not Listen(). Any Connections created this way are send-only.
+Calling Initiate() on that Preconnection creates a Connection that can be
+used to send messages to the multicast group. The Connection object that is
+created will support Send() but not Receive(). Any Connections created this
+way are send-only, and do not join the multicast group. The resulting
+Connection will have a Local Endpoint indicating the local interface to
+which the connection is bound and a Remote Endpoint indicating the
+multicast group.
 
-A Rendezvous() call on Preconnections containing group addresses results in an
-EstablishmentError as described in {{rendezvous}}.
+The following API calls can be used to configure a Preconnection before calling Initiate():
+
+```
+RemoteSpecifier.WithMulticastGroupIPv4(GroupAddress)
+RemoteSpecifier.WithMulticastGroupIPv6(GroupAddress)
+RemoteSpecifier.WithPort(PortNumber)
+RemoteSpecifier.WithTTL(TTL)
+```
+
+Calling Listen() on a Preconnection with a multicast group specified on the Remote
+Endpoint will join the multicast group to receive messages. This Listener
+will create one Connection for each Remote Endpoint sending to the group,
+with the Local Endpoint set to the group address. The set of Connection
+objects created forms a Connection Group.
+The receiving interface can be restricted by passing it as part of the LocalSpecifier or queried through the MessagContext on the messages received (see {{msg-ctx}} for further details).
+
+```
+LocalSpecifier.WithSingleSourceMulticastGroupIPv4(GroupAddress, SourceAddress)
+LocalSpecifier.WithSingleSourceMulticastGroupIPv6(GroupAddress, SourceAddress)
+LocalSpecifier.WithAnySourceMulticastGroupIPv4(GroupAddress)
+LocalSpecifier.WithAnySourceMulticastGroupIPv6(GroupAddress)
+LocalSpecifier.WithPort(PortNumber)
+LocalSpecifier.WithTTL(TTL)
+```
+
+Calling Rendezvous() on a Preconnection with an any-source multicast group
+address as the Remote Endpoint will join the multicast group, and also
+indicates that the resulting connection can be used to send messages to the
+multicast group. The Rendezvous() call will return both a Connection that
+can be used to send to the group, that acts the same as a connection
+returned by calling Initiate() with a multicast Remote Endpoint, and a
+Listener that acts as if Listen() had been called with a multicast Remote
+Endpoint.
+Calling Rendezvous() on a Preconnection with a source-specific multicast
+group address as the Local Endpoint results in an EstablishmentError.
+
+```
+RemoteSpecifier.WithMulticastGroupIPv4(GroupAddress)
+RemoteSpecifier.WithMulticastGroupIPv6(GroupAddress)
+RemoteSpecifier.WithPort(PortNumber)
+RemoteSpecifier.WithTTL(TTL)
+LocalSpecifier.WithAnySourceMulticastGroupIPv4(GroupAddress)
+LocalSpecifier.WithAnySourceMulticastGroupIPv6(GroupAddress)
+LocalSpecifier.WithPort(PortNumber)
+LocalSpecifier.WithTTL(TTL)
+```
 
 See {{multicast-examples}} for more examples.
 
@@ -851,70 +894,95 @@ LocalSpecifier.WithStunServer(address, port, credentials)
 
 ### Multicast Examples {#multicast-examples}
 
-Specify a Local Endpoint using an Any-Source Multicast group to join on a named local interface:
+The following examples show how multicast groups can be used.
+
+Join an Any-Source Multicast group in receive-only mode, bound to a known
+port on a named local interface:
 
 ~~~
-LocalSpecifier := NewLocalEndpoint()
-LocalSpecifier.WithIPv4Address(233.252.0.0)
-LocalSpecifier.WithInterface("en0")
+   RemoteSpecifier := NewRemoteEndpoint()
+
+   LocalSpecifier := NewLocalEndpoint()
+   LocalSpecifier.WithAnySourceMulticastGroupIPv4(233.252.0.0)
+   LocalSpecifier.WithPort(5353)
+   LocalSpecifier.WithInterface("en0")
+
+   TransportProperties := ...
+   SecurityParameters  := ...
+
+   Preconnection := newPreconnection(LocalSpecifier,
+                                     RemoteSpecifier,
+                                     TransportProperties,
+                                     SecurityProperties)
+   Listener := Preconnection.Listen()
 ~~~
 
-Source-Specific Multicast requires setting both a Local and Remote Endpoint:
+Join an Source-Specific Multicast group in receive-only mode, bound to a known
+port on a named local interface:
 
 ~~~
-LocalSpecifier := NewLocalEndpoint()
-LocalSpecifier.WithIPv4Address(232.1.1.1)
-LocalSpecifier.WithInterface("en0")
+   RemoteSpecifier := NewRemoteEndpoint()
 
-RemoteSpecifier := NewRemoteEndpoint()
-RemoteSpecifier.WithIPv4Address(192.0.2.22)
+   LocalSpecifier := NewLocalEndpoint()
+   LocalSpecifier.WithSingleSourceMulticastGroupIPv4(233.252.0.0, 198.51.100.10)
+   LocalSpecifier.WithPort(5353)
+   LocalSpecifier.WithInterface("en0")
+
+   TransportProperties := ...
+   SecurityParameters  := ...
+
+   Preconnection := newPreconnection(LocalSpecifier,
+                                     RemoteSpecifier,
+                                     TransportProperties,
+                                     SecurityProperties)
+   Listener := Preconnection.Listen()
 ~~~
 
-One common pattern for multicast is to both send and receive multicast. For such
-cases, an application can set up both a Listener and a Connection. The Listener
-is only used to accept Connections that receive inbound multicast. The initiated
-Connection is only used to send multicast.
+Create a Source-Specific Multicast group as a sender:
 
 ~~~
-// Prepare multicast Listener
-LocalMulticastSpecifier := NewLocalEndpoint()
-LocalMulticastSpecifier.WithIPv4Address(233.252.0.0)
-LocalMulticastSpecifier.WithPort(5353)
-LocalMulticastSpecifier.WithInterface("en0")
+   RemoteSpecifier := NewRemoteEndpoint()
+   RemoteSpecifier.WithMulticastGroupIPv4(232.1.1.1)
+   RemoteSpecifier.WithPort(5353)
+   RemoteSpecifier.WithTTL(8)
 
-TransportProperties := NewTransportProperties()
-TransportProperties.Require(preserve-msg-boundaries)
-// Reliable Data Transfer and Preserve Order are Required by default
+   LocalSpecifier := NewLocalEndpoint()
+   LocalSpecifier.WithIPv4Address(192.0.2.22)
+   LocalSpecifier.WithInterface("en0")
 
-// Specifying a Remote Endpoint is optional when using Listen()
-Preconnection := NewPreconnection(LocalMulticastSpecifier,
-                                  TransportProperties,
-                                  SecurityParameters)
+   TransportProperties := ...
+   SecurityParameters  := ...
 
-MulticastListener := Preconnection.Listen()
+   Preconnection := newPreconnection(LocalSpecifier,
+                                     RemoteSpecifier,
+                                     TransportProperties,
+                                     SecurityProperties)
+   Connection := Preconnection.Initiate()
+~~~
 
-// Handle inbound messages sent to the multicast group
-MulticastListener -> ConnectionReceived<MulticastReceiverConnection>
-MulticastReceiverConnection.Receive()
-MulticastReceiverConnection -> Received<messageDataRequest, messageContext>
+Join an any-source multicast group as both a sender and a receiver:
 
-// Prepare Connection to send multicast
-LocalSpecifier := NewLocalEndpoint()
-LocalSpecifier.WithPort(5353)
-LocalSpecifier.WithInterface("en0")
-RemoteMulticastSpecifier := NewRemoteEndpoint()
-RemoteMulticastSpecifier.WithIPv4Address(233.252.0.0)
-RemoteMulticastSpecifier.WithPort(5353)
-RemoteMulticastSpecifier.WithInterface("en0")
+~~~
+   RemoteSpecifier := NewRemoteEndpoint()
+   RemoteSpecifier.WithMulticastGroupIPv4(233.252.0.0)
+   RemoteSpecifier.WithPort(5353)
+   RemoteSpecifier.WithTTL(8)
 
-Preconnection2 := NewPreconnection(LocalSpecifier,
-                                   RemoteMulticastSpecifier,
-                                   TransportProperties,
-                                   SecurityParameters)
+   LocalSpecifier := NewLocalEndpoint()
+   LocalSpecifier.WithAnySourceMulticastGroupIPv4(233.252.0.0)
+   LocalSpecifier.WithIPv4Address(192.0.2.22)
+   LocalSpecifier.WithPort(5353)
+   LocalSpecifier.WithInterface("en0")
 
-// Send outbound messages to the multicast group
-MulticastSenderConnection := Preconnection.Initiate()
-MulticastSenderConnection.Send(messageData)
+
+   TransportProperties := ...
+   SecurityParameters  := ...
+
+   Preconnection := newPreconnection(LocalSpecifier,
+                                     RemoteSpecifier,
+                                     TransportProperties,
+                                     SecurityProperties)
+   Connection, Listener := Preconnection.Rendezvous()
 ~~~
 
 ## Specifying Transport Properties {#selection-props}
