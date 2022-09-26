@@ -215,10 +215,10 @@ We also make use of the following basic types:
 - Enumeration: A family of types in which each instance takes one of a fixed,
   predefined set of values specific to a given enumerated type.
 - Tuple: An ordered grouping of multiple value types, represented as a
-  comma-separated list in parentheses, e.g., ```(Enumeration, Preference)```.
+  comma-separated list in parentheses, e.g., `(Enumeration, Preference)`.
   Instances take a sequence of values each valid for the corresponding value
   type.
-- Array: Denoted []Type, an instance takes a value for each of zero or more
+- Array: Denoted `[]Type`, an instance takes a value for each of zero or more
   elements in a sequence of the given Type. An array may be of fixed or
   variable length.
 - Collection: An unordered grouping of one or more values of the same type.
@@ -750,12 +750,12 @@ multicast group.
 
 The following API calls can be used to configure a Preconnection before calling Initiate():
 
-```
+~~~
 RemoteSpecifier.WithMulticastGroupIPv4(GroupAddress)
 RemoteSpecifier.WithMulticastGroupIPv6(GroupAddress)
 RemoteSpecifier.WithPort(PortNumber)
 RemoteSpecifier.WithTTL(TTL)
-```
+~~~
 
 Calling Listen() on a Preconnection with a multicast group specified on the Remote
 Endpoint will join the multicast group to receive messages. This Listener
@@ -765,13 +765,14 @@ objects created forms a Connection Group.
 The receiving interface can be restricted by passing it as part of the LocalSpecifier or queried through the MessagContext on the messages received (see {{msg-ctx}} for further details).
 
 The following API calls can be used to configure a Preconnection before calling Listen():
-```
+
+~~~
 LocalSpecifier.WithSingleSourceMulticastGroupIPv4(GroupAddress, SourceAddress)
 LocalSpecifier.WithSingleSourceMulticastGroupIPv6(GroupAddress, SourceAddress)
 LocalSpecifier.WithAnySourceMulticastGroupIPv4(GroupAddress)
 LocalSpecifier.WithAnySourceMulticastGroupIPv6(GroupAddress)
 LocalSpecifier.WithPort(PortNumber)
-```
+~~~
 
 Calling Rendezvous() on a Preconnection with an any-source multicast group
 address as the Remote Endpoint will join the multicast group, and also
@@ -785,7 +786,8 @@ Calling Rendezvous() on a Preconnection with a source-specific multicast
 group address as the Local Endpoint results in an EstablishmentError.
 
 The following API calls can be used to configure a Preconnection before calling Rendezvous():
-```
+
+~~~
 RemoteSpecifier.WithMulticastGroupIPv4(GroupAddress)
 RemoteSpecifier.WithMulticastGroupIPv6(GroupAddress)
 RemoteSpecifier.WithPort(PortNumber)
@@ -794,7 +796,7 @@ LocalSpecifier.WithAnySourceMulticastGroupIPv4(GroupAddress)
 LocalSpecifier.WithAnySourceMulticastGroupIPv6(GroupAddress)
 LocalSpecifier.WithPort(PortNumber)
 LocalSpecifier.WithTTL(TTL)
-```
+~~~
 
 See {{multicast-examples}} for more examples.
 
@@ -828,7 +830,7 @@ specify a protocol identifier.
 RemoteSpecifier.WithProtocol(QUIC)
 ~~~
 
-The following example shows a case where "example.com" has a server
+The following example shows a case where `example.com` has a server
 running on port 443, with an alternate port of 8443 for QUIC.
 
 ~~~
@@ -1076,7 +1078,9 @@ only considered during establishment, and can not be changed after a Connection
 is established. After a Connection is established, Selection Properties can only
 be read to check the properties used by the Connection. Upon reading, the
 Preference type of a Selection Property changes into Boolean, where `true` means
-that the selected Protocol Stack supports the feature or uses the path associated with the Selection Property, and `false` means that the Protocol Stack does not support the feature or use the path. Implementations
+that the selected Protocol Stack supports the feature or uses the path associated
+with the Selection Property, and `false` means that the Protocol Stack does not
+support the feature or use the path. Implementations
 of Transport Services systems may alternatively use the two Preference values `Require`
 and `Prohibit` to represent `true` and `false`, respectively.
 
@@ -1383,11 +1387,11 @@ Passive:
 The policy for using multiple paths is specified using the separate `multipathPolicy` property, see {{multipath-policy}} below.
 To enable the peer endpoint to initiate additional paths towards a local address other than the one initially used, it is necessary to set the `advertisesAltaddr` property (see {{altaddr}} below).
 
-Setting this property to "Active", can have privacy implications: It enables the transport to establish connectivity using alternate paths that might result in users being linkable across the multiple paths, even if the `advertisesAltaddr` property (see {{altaddr}} below) is set to false.
+Setting this property to `Active` can have privacy implications: It enables the transport to establish connectivity using alternate paths that might result in users being linkable across the multiple paths, even if the `advertisesAltaddr` property (see {{altaddr}} below) is set to false.
 
 Note that Multipath Transport has no corresponding Selection Property of type Preference.
-Enumeration values other than "Disabled" are interpreted as a preference for choosing protocols that can make use of multiple paths.
-The "Disabled" value implies a requirement not to use multiple paths in parallel but does not prevent choosing a protocol that is capable of using multiple paths, e.g., it does not prevent choosing TCP, but prevents sending the ```MP_CAPABLE``` option in the TCP handshake.
+Enumeration values other than `Disabled` are interpreted as a preference for choosing protocols that can make use of multiple paths.
+The `Disabled` value implies a requirement not to use multiple paths in parallel but does not prevent choosing a protocol that is capable of using multiple paths, e.g., it does not prevent choosing TCP, but prevents sending the `MP_CAPABLE` option in the TCP handshake.
 
 ### Advertisement of Alternative Addresses {#altaddr}
 
