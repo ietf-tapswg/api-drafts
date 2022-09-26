@@ -518,7 +518,8 @@ For protocols that expose byte-streams, the only delineation provided by the pro
 Protocols that provide the framing (such as length-value protocols, or protocols that use delimiters) may support Message sizes that do not fit within a single datagram. Each Message for framing protocols corresponds to a single frame, which may be sent either as a complete Message in the underlying protocol, or in multiple parts.
 
 Messages themselves generally consist of bytes passed in the messageData parameter intended to be processed at an application layer. However, Message objects presented through the API
-can carry associated Message Properties. When these are Protocol Specific Properties, they can include metadata that exists separately from a byte
+can carry associated Message Properties passed through the messageContext parameter.
+When these are Protocol Specific Properties, they can include metadata that exists separately from a byte
 encoding. For example, these Properties can include name-value pairs of information, like HTTP header fields. In such cases, Messages might be "empty",
 insofar as they contain zero bytes in the messageData parameter, but can still include data in the messageContext that is interpreted by the Protocol Stack.
 
