@@ -184,7 +184,7 @@ This API also delivers events regarding the lifetime of a connection and changes
 
 Using asynchronous events allows for a more natural interaction model when establishing connections and transferring data. Events in time more closely reflect the nature of interactions over networks, as opposed to how the Socket API represent network resources as file system objects that may be temporarily unavailable.
 
-Separate from events, callbacks are also provided for asynchronous interactions with the Transport Services API, which are not directly related to events on the network or network interfaces.
+Separate from events, callbacks are also provided for asynchronous interactions with the Transport Services API that are not directly related to events on the network or network interfaces.
 
 ## Data Transfer Using Messages
 
