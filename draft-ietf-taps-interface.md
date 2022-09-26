@@ -1493,7 +1493,7 @@ handled as client-provided callbacks.
 Callbacks block the progress of the connection establishment, which distinguishes them from other Events in the transport system. How callbacks and events are implemented is specific to each implementation.
 Security handshake callbacks that may be invoked during connection establishment include:
 
- - Trust verification callback. Invoked when a Remote Endpoint's trust must be verified before the
+- Trust verification callback: Invoked when a Remote Endpoint's trust must be verified before the
 handshake protocol can continue. For example, the application could verify an X.509 certificate
 as described in {{?RFC5280}}.
 
