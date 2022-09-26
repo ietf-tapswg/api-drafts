@@ -738,7 +738,7 @@ early binding when required, for example with some Network Address Translator
 ### Using Multicast Endpoints
 
 To use multicast, a Preconnection is first created with the Local/Remote Endpoint
-specifying the _any source multicast (ASM)_ / _source specific multicast (SSM)_ multicast group and destination port number.
+specifying the any-source multicast (ASM) or source-specific multicast (SSM) multicast group and destination port number.
 
 Calling Initiate() on that Preconnection creates a Connection that can be
 used to send messages to the multicast group. The Connection object that is
