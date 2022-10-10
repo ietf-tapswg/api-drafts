@@ -1140,11 +1140,6 @@ ConnectionReceived:
 Clone:
 : Calling `Clone` on an SCTP association creates a new Connection object and assigns it a new stream id in accordance with the stream id assignment procedure described above. If there are not enough streams available, ADD_STREAM.SCTP must be called.
 
-Priority (Connection):
-: When this value is changed, or a Message with Message Property `msgPriority` is sent, and there are multiple
-Connection objects assigned to the same SCTP association,
-CONFIGURE_STREAM_SCHEDULER.SCTP is called to adjust the priorities of streams in the SCTP association.
-
 Send:
 : SEND.SCTP. Message Properties such as `msgLifetime` and `msgOrdered` map to parameters of this primitive.
 
@@ -1162,6 +1157,9 @@ Calling `CloseGroup` calls CLOSE.SCTP, closing all Connections in the SCTP assoc
 
 AbortGroup:
 Calling `AbortGroup` calls ABORT.SCTP, immediately closing all Connections in the SCTP association.
+
+In addition to the API mappings described above, when there are multiple Connection objects assigned to the same SCTP association, SCTP can support Connection properties such as `connPriority`and `connScheduler` where CONFIGURE_STREAM_SCHEDULER.SCTP can be called to adjust the priorities of streams in the SCTP association.
+
 
 # IANA Considerations
 
