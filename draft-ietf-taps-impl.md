@@ -1011,7 +1011,7 @@ Close:
 : Calling `Close` on a UDP Connection (ABORT.UDP(-Lite)) releases the local port reservation.
 
 Abort:
-: Calling `Abort` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close`except that a ConnectionErrror Event rather than a Closed Event will be sent by the Connection.
+: Calling `Abort` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close`, except that the Connection will send a ConnectionError Event rather than a Closed Event.
 
 CloseGroup:
 : Calling `CloseGroup` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close` on this Connection and on all Connections in the same ConnectionGroup.
@@ -1159,7 +1159,6 @@ AbortGroup:
 Calling `AbortGroup` calls ABORT.SCTP, immediately closing all Connections in the SCTP association.
 
 In addition to the API mappings described above, when there are multiple Connection objects assigned to the same SCTP association, SCTP can support Connection properties such as `connPriority`and `connScheduler` where CONFIGURE_STREAM_SCHEDULER.SCTP can be called to adjust the priorities of streams in the SCTP association.
-
 
 # IANA Considerations
 
