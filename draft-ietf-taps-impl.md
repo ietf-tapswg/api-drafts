@@ -467,7 +467,7 @@ On a per-protocol basis, implementations may select different criteria by which 
 
 For Protocol Stacks with multiple handshakes, the decision becomes more nuanced. If the Protocol Stack involves both TLS and TCP, an implementation could determine that a leaf node is connected after the TCP handshake is complete, or it can wait for the TLS handshake to complete as well. The benefit of declaring completion when the TCP handshake finishes, and thus stopping the race for other branches of the tree, is reduced burden on the network and Remote Endpoints from further connection attempts that are likely to be abandoned. On the other hand, by waiting until the TLS handshake is complete, an implementation avoids the scenario in which a TCP handshake completes quickly, but TLS negotiation is either very slow or fails altogether in particular network conditions or to a particular endpoint. To avoid the issue of TLS possibly failing, the implementation should not generate a Ready event for the Connection until the TLS handshake is complete.
 
-If all of the leaf nodes fail to connect during racing, i.e. none of the configurations that satisfy all requirements given in the Transport Properties actually work over the available paths, then the transport system should report an InitiateError to the application. An InitiateError event should also be generated in case the transport system finds no usable candidates to race.
+If all of the leaf nodes fail to connect during racing, i.e. none of the configurations that satisfy all requirements given in the Transport Properties actually work over the available paths, then the transport system should report an EstablishmentError to the application. An EstablishmentError event should also be generated in case the transport system finds no usable candidates to race.
 
 ## Establishing multiplexed connections {#establish-mux}
 
@@ -924,7 +924,7 @@ InitiateWithSend:
 Ready:
 : A TCP Connection is ready once the three-way handshake is complete.
 
-InitiateError:
+EstablishmentError:
 : Failure of CONNECT.TCP. TCP can throw various errors during connection setup. Specifically, it is important to handle a RST being sent by the peer during the handshake.
 
 ConnectionError:
@@ -986,11 +986,11 @@ InitiateWithSend:
 Ready:
 : A UDP Connection is ready once the system has reserved a local port and has a path to send to the Remote Endpoint.
 
-InitiateError:
+EstablishmentError:
 : UDP Connections can only generate errors on initiation due to port conflicts on the local system.
 
 ConnectionError:
-: Once in use, UDP throws "soft errors" (ERROR.UDP(-Lite)) upon receiving ICMP notifications indicating failures in the network. Additional information can also be provided when this is available to the system (e.g. ICMP error code and quoted packet header).
+: UDP Connections can only generate connection errors in response to `Abort` calls. (Once in use, UDP Connections can also generate `SoftError` Events (ERROR.UDP(-Lite)) upon receiving ICMP notifications indicating failures in the network.)
 
 Listen:
 : LISTEN.UDP. Calling `Listen` for UDP binds a local port and prepares it to receive inbound UDP datagrams from peers.
@@ -1011,7 +1011,7 @@ Close:
 : Calling `Close` on a UDP Connection (ABORT.UDP(-Lite)) releases the local port reservation.
 
 Abort:
-: Calling `Abort` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close`.
+: Calling `Abort` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close`except that a ConnectionErrror Event rather than a Closed Event will be sent by the Connection.
 
 CloseGroup:
 : Calling `CloseGroup` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close` on this Connection and on all Connections in the same ConnectionGroup.
@@ -1041,16 +1041,19 @@ Connection Object:
 : Established UDP Multicast Receive connections represent a pair of specific IP addresses and ports.  The `direction` Selection Property must be set to `unidirectional receive`, and the Local Endpoint must be configured with a group IP address and a port.
 
 Initiate:
-: Calling `Initiate` on a UDP Multicast Receive Connection causes an immediate InitiateError.  This is an unsupported operation.
+: Calling `Initiate` on a UDP Multicast Receive Connection causes an immediate EstablishmentError.  This is an unsupported operation.
 
 InitiateWithSend:
-: Calling `InitiateWithSend` on a UDP Multicast Receive Connection causes an immediate InitiateError.  This is an unsupported operation.
+: Calling `InitiateWithSend` on a UDP Multicast Receive Connection causes an immediate EstablishmentError.  This is an unsupported operation.
 
 Ready:
 : A UDP Multicast Receive Connection is ready once the system has received traffic for the appropriate group and port.
 
-InitiateError:
-: UDP Multicast Receive Connections generate an InitiateError indicating that joining a multicast group failed if Initiate is called.
+EstablishmentError:
+: UDP Multicast Receive Connections generate an EstablishmentError indicating that joining a multicast group failed if `Initiate` is called.
+
+ConnectionError:
+: The only ConnectionError generated by a UDP Multicast Receive Connection is in response to an `Abort` call.
 
 Listen:
 : LISTEN.UDP. Calling `Listen` for UDP Multicast Receive binds a local port, prepares it to receive inbound UDP datagrams from peers, and issues a multicast host join.  If a Remote Endpoint with an address is supplied, the join is Source-specific Multicast, and the path selection is based on the route to the Remote Endpoint.  If a Remote Endpoint is not supplied, the join is Any-source Multicast, and the path selection is based on the outbound route to the group supplied in the Local Endpoint.
@@ -1122,7 +1125,7 @@ on a new stream.
 Ready:
 : `Initiate` or `InitiateWithSend` returns without an error, i.e. SCTP's four-way handshake has completed. If an association with the peer already exists, stream mapping is used and enough streams are available, a Connection Object instantly becomes Ready after calling `Initiate` or `InitiateWithSend`.
 
-InitiateError:
+EstablishmentError:
 : Failure of CONNECT.SCTP.
 
 ConnectionError:
@@ -1218,7 +1221,7 @@ InitiateWithSend:
 
 Ready:
 
-InitiateError:
+EstablishmentError:
 
 ConnectionError:
 
