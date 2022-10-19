@@ -964,7 +964,7 @@ Connectedness: Connected
 Data Unit: Byte-stream
 
 The Transport Services API mappings for MPTCP are identical to TCP. MPTCP adds support for multipath properties,
-such as `multipath` and `multipathPolicy`, and actions managing paths, such as `AddRemote` and `RemoveRemote`.
+such as `multipath` and `multipathPolicy`, and actions for managing paths, such as `AddRemote` and `RemoveRemote`.
 
 ## UDP
 
