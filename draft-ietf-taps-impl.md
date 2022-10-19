@@ -1025,7 +1025,10 @@ Connectedness: Connectionless
 
 Data Unit: Datagram
 
-The Transport Services API mappings for UDP-Lite are identical to UDP. In addition, UDP-Lite supports the `msgChecksumLen` and `recvChecksumLen` Properties that allow an  application to specify the minimum number of bytes in a message that need to be covered by a checksum.
+The Transport Services API mappings for UDP-Lite are identical to UDP. In addition,
+UDP-Lite supports the `msgChecksumLen` and `recvChecksumLen` Properties
+that allow an application to specify the minimum number of bytes in a message that
+need to be covered by a checksum.
 
 ## UDP Multicast Receive
 
