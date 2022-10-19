@@ -188,7 +188,7 @@ Separate from events, callbacks are also provided for asynchronous interactions 
 
 ## Data Transfer Using Messages
 
-The Socket API provides a message interface for datagram protocols like UDP, but provides an unstructured stream abstraction for TCP. While TCP has the ability to send and receive data as a byte-stream, most applications need to interpret structure within this byte-stream. For example, HTTP/1.1 uses character delimiters to segment messages over a byte-stream {{?RFC7230}}; TLS record headers carry a version, content type, and length {{?RFC8446}}; and HTTP/2 uses frames to segment its headers and bodies {{?RFC7540}}.
+The Socket API provides a message interface for datagram protocols like UDP, but provides an unstructured stream abstraction for TCP. While TCP has the ability to send and receive data as a byte-stream, most applications need to interpret structure within this byte-stream. For example, HTTP/1.1 uses character delimiters to segment messages over a byte-stream {{?RFC9112}}; TLS record headers carry a version, content type, and length {{?RFC8446}}; and HTTP/2 uses frames to segment its headers and bodies {{?RFC9113}}.
 
 The Transport Services API represents data as messages, so that it more closely matches the way applications use the network. Providing a message-based abstraction provides many benefits, such as:
 
@@ -406,7 +406,7 @@ The diagram below provides a high-level view of the actions and events during th
   The processes by which connections are initiated during a Rendezvous
   action will depend on the set of Local and Remote Endpoints configured on
   the Preconnection. For example, if the Local and Remote Endpoints are TCP
-  host candidates, then a TCP simultaneous open {{?RFC0793}} will be performed.
+  host candidates, then a TCP simultaneous open {{?RFC9293}} will be performed.
   However, if the set of Local Endpoints includes server reflexive
   candidates, such as those provided by STUN, a Rendezvous action will race
   candidates in the style of the ICE algorithm {{?RFC8445}} to perform NAT
