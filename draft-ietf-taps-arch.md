@@ -78,7 +78,7 @@ Similarly, terminology for the implementation of transport protocols varies base
 
 The goal of the Transport Services architecture is to provide a flexible and reusable architecture that provides a common interface for transport protocols. As applications adopt this interface, they will benefit from a wide set of transport features that can evolve over time, and ensure that the system providing the interface can optimize its behavior based on the application requirements and network conditions, without requiring changes to the applications. This flexibility enables faster deployment of new features and protocols. It can also support applications by offering racing mechanisms (attempting multiple IP addresses, protocols, or network paths in parallel), which otherwise need to be implemented in each application separately (see {{racing}}).
 
-This document was developed in parallel with the specification of the Transport Services API {{!I-D.ietf-taps-interface}} and implementation guidelines {{?I-D.ietf-taps-impl}}. Although following the Transport Services architecture does not require that all APIs and implementations are identical, a common minimal set of features represented in a consistent fashion will enable applications to be easily ported from one system to another.
+This document was developed in parallel with the specification of the Transport Services API {{?I-D.ietf-taps-interface}} and implementation guidelines {{?I-D.ietf-taps-impl}}. Although following the Transport Services architecture does not require that all APIs and implementations are identical, a common minimal set of features represented in a consistent fashion will enable applications to be easily ported from one system to another.
 
 ## Background
 
@@ -96,7 +96,7 @@ This document describes the Transport Services architecture in three sections:
 
 - {{requirements}} explains the fundamental requirements for a Transport Services system. These principles are intended to make sure that transport protocols can continue to be enhanced and evolve without requiring significant changes by application developers.
 
-- {{concepts}} presents a diagram showing the Transport Services architecture and defines the concepts that are used by both the API {{!I-D.ietf-taps-interface}} and implementation guidelines {{?I-D.ietf-taps-impl}}. The Preconnection allows applications to configure Connection Properties.
+- {{concepts}} presents a diagram showing the Transport Services architecture and defines the concepts that are used by both the API {{?I-D.ietf-taps-interface}} and implementation guidelines {{?I-D.ietf-taps-impl}}. The Preconnection allows applications to configure Connection Properties.
 
 - {{concepts}} also presents how an abstract Connection is used to select a transport protocol instance such as TCP, UDP, or another transport. The Connection represents an object that can be used to send and receive messages.
 
@@ -166,7 +166,7 @@ The Transport Services architecture evolves this general model of interaction, t
 ~~~~~~~~~~
 {: #fig-taps title="Transport Services API Model"}
 
-The Transport Services API {{!I-D.ietf-taps-interface}} defines the interface for an application to create Connections and transfer data. It combines interfaces for multiple interaction patterns into a unified whole. By combining name resolution with connection establishment and data transfer in a single API, it allows for more flexible implementations to provide path and transport protocol agility on the application's behalf.
+The Transport Services API {{?I-D.ietf-taps-interface}} defines the interface for an application to create Connections and transfer data. It combines interfaces for multiple interaction patterns into a unified whole. By combining name resolution with connection establishment and data transfer in a single API, it allows for more flexible implementations to provide path and transport protocol agility on the application's behalf.
 
 The Transport Services implementation {{?I-D.ietf-taps-impl}} implements the transport layer protocols and other functions needed to send and receive data. It is is responsible for mapping the API to a specific available transport protocol stack and managing the available network interfaces and paths.
 
@@ -188,7 +188,7 @@ Separate from events, callbacks are also provided for asynchronous interactions 
 
 ## Data Transfer Using Messages
 
-The Socket API provides a message interface for datagram protocols like UDP, but provides an unstructured stream abstraction for TCP. While TCP has the ability to send and receive data as a byte-stream, most applications need to interpret structure within this byte-stream. For example, HTTP/1.1 uses character delimiters to segment messages over a byte-stream {{?RFC7230}}; TLS record headers carry a version, content type, and length {{?RFC8446}}; and HTTP/2 uses frames to segment its headers and bodies {{?RFC7540}}.
+The Socket API provides a message interface for datagram protocols like UDP, but provides an unstructured stream abstraction for TCP. While TCP has the ability to send and receive data as a byte-stream, most applications need to interpret structure within this byte-stream. For example, HTTP/1.1 uses character delimiters to segment messages over a byte-stream {{?RFC9112}}; TLS record headers carry a version, content type, and length {{?RFC8446}}; and HTTP/2 uses frames to segment its headers and bodies {{?RFC9113}}.
 
 The Transport Services API represents data as messages, so that it more closely matches the way applications use the network. Providing a message-based abstraction provides many benefits, such as:
 
@@ -259,7 +259,7 @@ To ensure that security protocols are not incorrectly swapped, a Transport Servi
 
 ## Maintain Interoperability
 
-It is important to note that neither the Transport Services API {{!I-D.ietf-taps-interface}} nor the guidelines for the Transport Service implementation {{?I-D.ietf-taps-impl}} define new protocols or protocol capabilities that affect what is communicated across the network. A Transport Services system MUST NOT require that a peer on the other side of a connection uses the same API or implementation. A Transport Services implementation acting as a connection initiator is able to communicate with any existing endpoint that implements the transport protocol(s) and all the required properties selected. Similarly, a Transport Services implementation acting as a listener can receive connections for any protocol that is supported from an existing initiator that implements the protocol, independent of whether the initiator uses the Transport Services architecture or not.
+It is important to note that neither the Transport Services API {{?I-D.ietf-taps-interface}} nor the guidelines for the Transport Service implementation {{?I-D.ietf-taps-impl}} define new protocols or protocol capabilities that affect what is communicated across the network. A Transport Services system MUST NOT require that a peer on the other side of a connection uses the same API or implementation. A Transport Services implementation acting as a connection initiator is able to communicate with any existing endpoint that implements the transport protocol(s) and all the required properties selected. Similarly, a Transport Services implementation acting as a listener can receive connections for any protocol that is supported from an existing initiator that implements the protocol, independent of whether the initiator uses the Transport Services architecture or not.
 
 A Transport Services system makes decisions that select protocols and interfaces. In normal use, a given version of a Transport Services system SHOULD result in consistent protocol and interface selection decisions for the same network conditions given the same set of Properties. This is intended to provide predictable outcomes to the application using the API.
 
@@ -406,7 +406,7 @@ The diagram below provides a high-level view of the actions and events during th
   The processes by which connections are initiated during a Rendezvous
   action will depend on the set of Local and Remote Endpoints configured on
   the Preconnection. For example, if the Local and Remote Endpoints are TCP
-  host candidates, then a TCP simultaneous open {{?RFC0793}} will be performed.
+  host candidates, then a TCP simultaneous open {{?RFC9293}} will be performed.
   However, if the set of Local Endpoints includes server reflexive
   candidates, such as those provided by STUN, a Rendezvous action will race
   candidates in the style of the ICE algorithm {{?RFC8445}} to perform NAT
