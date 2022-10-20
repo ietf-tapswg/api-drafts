@@ -1008,10 +1008,10 @@ Receive:
 : RECEIVE.UDP(-Lite). UDP only delivers complete Messages to `Received`, each of which represents a single datagram received in a UDP packet. Upon receiving a UDP datagram, the ECN flag from the IP header can be obtained (GET_ECN.UDP(-Lite)).
 
 Close:
-: Calling `Close` on a UDP Connection (ABORT.UDP(-Lite)) releases the local port reservation.
+: Calling `Close` on a UDP Connection (ABORT.UDP(-Lite)) releases the local port reservation. The Connection then issues a `Closed` event.
 
 Abort:
-: Calling `Abort` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close`, except that the Connection will send a ConnectionError Event rather than a Closed Event.
+: Calling `Abort` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close`, except that the Connection will send a `ConnectionError` Event rather than a `Closed` Event.
 
 CloseGroup:
 : Calling `CloseGroup` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close` on this Connection and on all Connections in the same ConnectionGroup.
@@ -1078,10 +1078,10 @@ Receive:
 : RECEIVE.UDP(-Lite). The Receive operation in a UDP Multicast Receive connection only delivers complete Messages to `Received`, each of which represents a single datagram received in a UDP packet. Upon receiving a UDP datagram, the ECN flag from the IP header can be obtained (GET_ECN.UDP(-Lite)).
 
 Close:
-: Calling `Close` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) releases the local port reservation and leaves the group.
+: Calling `Close` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) releases the local port reservation and leaves the group. The Connection then issues a `Closed` Event.
 
 Abort:
-: Calling `Abort` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) is identical to calling `Close`.
+: Calling `Abort` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) is identical to calling `Close`, except that the Connection will send a `ConnectionError` Event rather than a `Closed` Event.
 
 CloseGroup:
 : Calling `CloseGroup` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) is identical to calling `Close` on this Connection and on all Connections in the same ConnectionGroup.
