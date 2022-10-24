@@ -1768,7 +1768,7 @@ An application that uses Rendezvous() to establish a peer-to-peer connection
 in the presence of NATs will configure the Preconnection object with at least
 one a Local Endpoint that supports NAT binding discovery. It will then Resolve()
 the Preconnection, and pass the resulting list of Local Endpoint candidates to
-the peer via a signalling protocol, for example as part of an ICE {{?RFC5245}}
+the peer via a signalling protocol, for example as part of an ICE {{?RFC8445}}
 exchange within SIP {{?RFC3261}} or WebRTC {{?RFC7478}}.  The peer will then,
 via the same signalling channel, return the Remote Endpoint candidates.
 The set of Remote Endpoint candidates are then configured onto the Preconnection:
@@ -3027,7 +3027,7 @@ These properties are designed to allow the expression
 and implementation of a wide variety of approaches to transmission priority in
 the transport and application layer, including those which do not appear on
 the wire (affecting only sender-side transmission scheduling) as well as those
-that do (e.g. {{?I-D.ietf-httpbis-priority}}.
+that do (e.g. {{?RFC9218}}.
 
 A Transport Services system gives no guarantees about how its expression of
 relative priorities will be realized. However, the Transport Services system will
@@ -3595,7 +3595,7 @@ coverage, see {{prop-checksum-control-send}} and {{prop-checksum-control-receive
 # Relationship to the Minimal Set of Transport Services for End Systems
 
 {{?RFC8923}} identifies a minimal set of transport services that end systems should offer. These services make all non-security-related transport features of TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT available that 1) require interaction with the application, and 2) do not get in the way of a possible implementation over TCP (or, with limitations, UDP). The following text explains how this minimal set is reflected in the present API. For brevity, it is based on the list in Section 4.1 of {{?RFC8923}}, updated according to the discussion in Section 5 of {{?RFC8923}}. The present API covers all elements of this section.
-This list is a subset of the transport features in Appendix A of {{?RFC8923}}, which refers to the primitives in "pass 2" (Section 4) of {{!RFC8303}} for further details on the implementation with TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT.
+This list is a subset of the transport features in Appendix A of {{?RFC8923}}, which refers to the primitives in "pass 2" (Section 4) of {{?RFC8303}} for further details on the implementation with TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT.
 
 * Connect:
 `Initiate` Action ({{initiate}}).
