@@ -2030,8 +2030,9 @@ message that need to be covered by a checksum.
 A receiving endpoint will not forward messages that have less coverage
 to the application. The application is responsible for handling
 any corruption within the non-protected part of the message {{!RFC8085}}.
-A special value of 0 means that a received packet may also have a zero checksum field.
-
+A special value of 0 means that a received packet may also have a zero checksum field,
+and the enumerated value `Full Coverage` means
+that the entire Message needs to be protected by a checksum.
 
 ### Connection Priority {#conn-priority}
 
@@ -2120,7 +2121,7 @@ Default:
 This property specifies the desired network treatment for traffic sent by the
 application and the tradeoffs the application is prepared to make in path and
 protocol selection to receive that desired treatment. When the capacity profile
-is set to a value other than Default, z Transport Services system SHOULD select paths
+is set to a value other than Default, the Transport Services system SHOULD select paths
 and configure protocols to optimize the tradeoff between delay, delay variation, and
 efficient use of the available capacity based on the capacity profile specified. How this is realized
 is implementation-specific. The Capacity Profile MAY also be used
@@ -2622,8 +2623,9 @@ Type:
 Default:
 : infinite
 
-The Lifetime specifies how long a particular Message can wait to be sent to the
-Remote Endpoint before it is irrelevant and no longer needs to be
+The Lifetime specifies how long a particular Message can wait in the Transport Services system
+before it is sent to the
+Remote Endpoint. After this time, it is irrelevant and no longer needs to be
 (re-)transmitted. This is a hint to the Transport Services implementation -- it is not guaranteed
 that a Message will not be sent when its Lifetime has expired.
 
