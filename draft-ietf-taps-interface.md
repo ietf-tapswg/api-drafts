@@ -548,8 +548,9 @@ form \[\<Namespace>.\]\<PropertyName\>.
 
 - The Namespace component MUST be empty for well-known, generic properties, i.e., for
   properties that are not specific to a protocol and are defined in an RFC.
-- Protocol-specific Properties MUST use the protocol acronym as the Namespace, e.g.,
-  `tcp` for TCP-specific Transport Properties as in {{tcp-uto}}.
+- Protocol-specific Properties MUST use the protocol acronym as the Namespace (e.g., a 
+  `tcp` Connection could support a TCP-specific Transport Property, such as the user timeout
+  value, in a protocol-specific property called `tcp.userTimeoutValue` (see {{tcp-uto}}).
 - Vendor or implementation specific properties MUST use a string identifying
   the vendor or implementation as the Namespace.
 
