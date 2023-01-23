@@ -765,7 +765,7 @@ Connection Properties. A Connection can also generate events in the form of Soft
 The set of Connection Properties that are supported for setting and getting on a Connection are described in {{I-D.ietf-taps-interface}}. For
 any properties that are generic, and thus could apply to all protocols being used by a Connection, the Transport Services implementation should store the properties
 in storage common to all protocols, and notify all protocol instances in the Protocol Stack whenever the properties have been modified by the application.
-For protocol-specific Properties, such as the User Timeout that applies to TCP, the Transport Services implementation only needs to update the relevant protocol instance.
+For Protocol-specific Properties, such as the User Timeout that applies to TCP, the Transport Services implementation only needs to update the relevant protocol instance.
 
 If an error is encountered in setting a property (for example, if the application tries to set a TCP-specific property on a Connection that is
 not using TCP), the action should fail gracefully. The application may be informed of the error, but the Connection itself should not be terminated.
