@@ -2081,7 +2081,7 @@ Type:
 : Numeric (non-negative) or `Disabled`
 
 Default:
-: Implementation-defined
+: `Disabled`
 
 A Transport Services API can request a protocol that supports sending keep alive packets {{keep-alive}}.
 If this property is Numeric, it specifies the maximum length of time an idle connection (one for which no transport
