@@ -145,8 +145,8 @@ The Transport Services system should have a list of supported protocols availabl
 
 In the following cases, failure should be detected during pre-establishment:
 
-- A request by an application for Protocol Properties that cannot be satisfied by any of the available protocols. For example, if an application requires `perMsgReliability`, but no such feature is available in any protocol on the host running the transport system this should result in an error, e.g., when SCTP is not supported by the operating system.
-- A request by an application for Protocol Properties that are in conflict with each other, i.e., the required and prohibited properties cannot be satisfied by the same protocol. For example, if an application prohibits `reliability` but then requires `perMsgReliability`, this mismatch should result in an error.
+- A request by an application for properties that cannot be satisfied by any of the available protocols. For example, if an application requires `perMsgReliability`, but no such feature is available in any protocol on the host running the transport system this should result in an error, e.g., when SCTP is not supported by the operating system.
+- A request by an application for properties that are in conflict with each other, i.e., the required and prohibited properties cannot be satisfied by the same protocol. For example, if an application prohibits `reliability` but then requires `perMsgReliability`, this mismatch should result in an error.
 
 To avoid allocating resources that are not finally needed, it is important that configuration-time errors fail as early as possible.
 

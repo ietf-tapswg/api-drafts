@@ -1949,8 +1949,8 @@ permit more specialized protocol features to be used.
 Too much reliance by an application on protocol-specific Properties can significantly reduce the flexibility
 of a transport services implementation to make appropriate
 selection and configuration choices. Therefore, it is RECOMMENDED that
-Protocol Properties are used for properties common across different protocols and that
-Protocol-specific Properties are only used where specific protocols or properties are necessary.
+protocol-specific properties are used for properties common across different protocols and that
+protocol-specific properties are only used where specific protocols or properties are necessary.
 
 The application can set and query Connection Properties on a per-Connection
 basis. Connection Properties that are not read-only can be set during
