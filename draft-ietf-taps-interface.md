@@ -550,14 +550,14 @@ form \[\<Namespace>.\]\<PropertyName\>.
   properties that are not specific to a protocol and are defined in an RFC.
 - Protocol-specific Properties MUST use the protocol acronym as the Namespace (e.g., a
   `tcp` Connection could support a TCP-specific Transport Property, such as the user timeout
-  value, in a protocol-specific property called `tcp.userTimeoutValue` (see {{tcp-uto}}).
+  value, in a Protocol-specific Property called `tcp.userTimeoutValue` (see {{tcp-uto}}).
 - Vendor or implementation specific properties MUST use a string identifying
   the vendor or implementation as the Namespace.
 - For IETF protocols, the name of a Protocol-specific Property SHOULD be specified in an IETF document published in the RFC Series.
 
 Namespaces for each of the keywords provided in the IANA protocol numbers registry
 (see https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml) are reserved
-for protocol-specific Properties and MUST NOT be used for vendor or implementation-specific properties.
+for Protocol-specific Properties and MUST NOT be used for vendor or implementation-specific properties.
 Avoid using any of the terms listed as keywords in the protocol numbers registry as any part of a vendor- or
 implementation-specific property name.
 
@@ -1838,7 +1838,7 @@ to the new Connection when calling Clone(), but in this case, a later change to 
 other Connections in the same Connection Group.
 
 The optional `connectionProperties` parameter allows passing
-Transport Properties that control the behavior of the underlying stream or connection to be created, e.g., protocol-specific properties to request specific stream IDs for SCTP or QUIC.
+Transport Properties that control the behavior of the underlying stream or connection to be created, e.g., Protocol-specific Properties to request specific stream IDs for SCTP or QUIC.
 
 Message Properties set on a Connection also apply only to that Connection.
 
@@ -1946,10 +1946,10 @@ Properties are defined in {{connection-props}} below.
 Protocol-specific Properties are defined in a transport- and
 implementation-specific way to
 permit more specialized protocol features to be used.
-Too much reliance by an application on protocol-specific Properties can significantly reduce the flexibility
+Too much reliance by an application on Protocol-specific Properties can significantly reduce the flexibility
 of a transport services implementation to make appropriate
 selection and configuration choices. Therefore, it is RECOMMENDED that
-Protocol Properties are used for properties common across different protocols and that
+Protocol-specific Properties are used for properties common across different protocols and that
 Protocol-specific Properties are only used where specific protocols or properties are necessary.
 
 The application can set and query Connection Properties on a per-Connection
@@ -2432,7 +2432,7 @@ MessageContext.add(property, value)
 PropertyValue := MessageContext.get(property)
 ~~~
 
-These Message Properties may be generic properties or protocol-specific Properties.
+These Message Properties may be generic properties or Protocol-specific Properties.
 
 For MessageContexts returned by send Events (see {{send-events}}) and receive Events (see {{receive-events}}), the application can query information about the Local and Remote Endpoint:
 

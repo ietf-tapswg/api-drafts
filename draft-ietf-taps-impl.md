@@ -145,8 +145,8 @@ The Transport Services system should have a list of supported protocols availabl
 
 In the following cases, failure should be detected during pre-establishment:
 
-- A request by an application for Protocol Properties that cannot be satisfied by any of the available protocols. For example, if an application requires `perMsgReliability`, but no such feature is available in any protocol on the host running the transport system this should result in an error, e.g., when SCTP is not supported by the operating system.
-- A request by an application for Protocol Properties that are in conflict with each other, i.e., the required and prohibited properties cannot be satisfied by the same protocol. For example, if an application prohibits `reliability` but then requires `perMsgReliability`, this mismatch should result in an error.
+- A request by an application for properties that cannot be satisfied by any of the available protocols. For example, if an application requires `perMsgReliability`, but no such feature is available in any protocol on the host running the transport system this should result in an error, e.g., when SCTP is not supported by the operating system.
+- A request by an application for properties that are in conflict with each other, i.e., the required and prohibited properties cannot be satisfied by the same protocol. For example, if an application prohibits `reliability` but then requires `perMsgReliability`, this mismatch should result in an error.
 
 To avoid allocating resources that are not finally needed, it is important that configuration-time errors fail as early as possible.
 
@@ -765,7 +765,7 @@ Connection Properties. A Connection can also generate events in the form of Soft
 The set of Connection Properties that are supported for setting and getting on a Connection are described in {{I-D.ietf-taps-interface}}. For
 any properties that are generic, and thus could apply to all protocols being used by a Connection, the Transport Services implementation should store the properties
 in storage common to all protocols, and notify all protocol instances in the Protocol Stack whenever the properties have been modified by the application.
-For protocol-specfic properties, such as the User Timeout that applies to TCP, the Transport Services implementation only needs to update the relevant protocol instance.
+For Protocol-specific Properties, such as the User Timeout that applies to TCP, the Transport Services implementation only needs to update the relevant protocol instance.
 
 If an error is encountered in setting a property (for example, if the application tries to set a TCP-specific property on a Connection that is
 not using TCP), the action should fail gracefully. The application may be informed of the error, but the Connection itself should not be terminated.
