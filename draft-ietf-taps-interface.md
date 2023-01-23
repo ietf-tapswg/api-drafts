@@ -550,10 +550,10 @@ form \[\<Namespace>.\]\<PropertyName\>.
   properties that are not specific to a protocol and are defined in an RFC.
 - Protocol-specific Properties MUST use the protocol acronym as the Namespace (e.g., a
   `tcp` Connection could support a TCP-specific Transport Property, such as the user timeout
-  value, in a protocol-specific property called `tcp.userTimeoutValue` (see {{tcp-uto}}).
+  value, in a protocol-specific Property called `tcp.userTimeoutValue` (see {{tcp-uto}}).
 - Vendor or implementation specific properties MUST use a string identifying
   the vendor or implementation as the Namespace.
-- For IETF protocols, the name of a Protocol-specific Property SHOULD be specified in an IETF document published in the RFC Series.
+- For IETF protocols, the name of a protocol-specific Property SHOULD be specified in an IETF document published in the RFC Series.
 
 Namespaces for each of the keywords provided in the IANA protocol numbers registry
 (see https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml) are reserved
@@ -1838,7 +1838,7 @@ to the new Connection when calling Clone(), but in this case, a later change to 
 other Connections in the same Connection Group.
 
 The optional `connectionProperties` parameter allows passing
-Transport Properties that control the behavior of the underlying stream or connection to be created, e.g., protocol-specific properties to request specific stream IDs for SCTP or QUIC.
+Transport Properties that control the behavior of the underlying stream or connection to be created, e.g., protocol-specific Properties to request specific stream IDs for SCTP or QUIC.
 
 Message Properties set on a Connection also apply only to that Connection.
 
@@ -1949,8 +1949,8 @@ permit more specialized protocol features to be used.
 Too much reliance by an application on protocol-specific Properties can significantly reduce the flexibility
 of a transport services implementation to make appropriate
 selection and configuration choices. Therefore, it is RECOMMENDED that
-protocol-specific properties are used for properties common across different protocols and that
-protocol-specific properties are only used where specific protocols or properties are necessary.
+protocol-specific Properties are used for properties common across different protocols and that
+protocol-specific Properties are only used where specific protocols or properties are necessary.
 
 The application can set and query Connection Properties on a per-Connection
 basis. Connection Properties that are not read-only can be set during
