@@ -243,9 +243,9 @@ Other specialized features, however, can also be strictly required by an applica
 
 To control these specialized features, the application can declare its preference – whether the presence of a specific feature is prohibited, should be avoided, can be ignored, is preferred, or is required in the Pre-Establishment phase. An implementation of a Transport Services API would honor this preference and allow the application to query the availability of each specialized feature after a successful establishment.
 
-## Select Equivalent Protocol Stacks {#equivalence}
+## Select Between Equivalent Protocol Stacks {#equivalence}
 
-A Transport Services implementation can select Protocol Stacks based on the Selection and Connection Properties communicated by the application, along with any security parameters. If two different Protocol Stacks can be safely swapped, or raced in parallel (see {{racing}}), then they are considered to be "equivalent". Equivalent Protocol Stacks are defined as stacks that can provide the same Transport Properties and interface expectations as requested by the application.
+A Transport Services implementation can attempt and select between multiple Protocol Stacks based on the Selection and Connection Properties communicated by the application, along with any security parameters. The implementation can only attempt to use multiple Protocol Stacks when they are "equivalent", which means that the stacks can provide the same Transport Properties and interface expectations as requested by the application. Equivalent Protocol Stacks can be safely swapped or raced in parallel (see {{racing}}) during connection establishment.
 
 The following two examples show non-equivalent Protocol Stacks:
 
