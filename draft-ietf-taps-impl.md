@@ -286,7 +286,7 @@ The list of available paths should be constrained by any requirements the applic
 
 Differences in possible protocol compositions and options can also provide a branching point in connection establishment. This allows clients to be resilient to situations in which a certain protocol is not functioning on a server or network.
 
-This approach is commonly used for connections with optional proxy server configurations. A single connection might have several options available: an HTTP-based proxy, a SOCKS-based proxy, or no proxy. These options should be ranked and attempted in succession.
+This approach is commonly used for connections with optional proxy server configurations. A single connection might have several options available: an HTTP-based proxy, a SOCKS-based proxy, or no proxy. As above, these options should be ranked based on preference, system policy, and performance and attempted in succession.
 
 ~~~~~~~~~~
 1 [www.example.com:80, Any, HTTP/TCP]
