@@ -112,29 +112,39 @@ they appear in all capitals, as shown here.
 
 This subsection provides a brief gloassary of key terms related to the architecture. These terms ar defined in the relevent sections of this document.
 
+- Application: An entity that uses the transport layer for end-to-end delivery data across the network {{?RFC8095}}.
 - Cached State: The state and history that the implementation keeps for each set of associated Endpoints that have been used previously.
+- Client: The peer responsible for initiating a session.
 - Clone: A copy of a Connection that forms a part of a Connection Group.
-- Connection: An object that can be used to send and receive messages.
+- Connection: Shared state of two or more endpoints that persists across messages that are transmitted and received between these endpoints {{?RFC8303}}.
 - Connection Group: A set of Connections that shares properties and caches.
 - Connection Property: A Transport Property that can be used to configure protocol-specific options and control per-connection behavior of a Transport Services implementation.
 - Endpoint: An identifier for one side of a transport connection.
 - Equivalent Protocol Stacks: Protocol stacks that can be safely swapped or raced in parallel during connection establishment.
+- Event: A primitive that is invoked by a transport endpoint {{?RFC8303}}.
 - Framer: A data translation layer that can be added to a Connection to define how application-layer Messages are transmitted over a transport stack.
 - Local Endpoint: A representation of the application's identifier for itself that it uses for transport connections.
 - Message:  A unit of data that can be transferred between two endpoints over a transport connection.
 - Message Property: A property than can be used to specify details about Message transmission.
+- Parameter: A value passed between an application and a transport protocol by a primitive {{?RFC8303}}.
 - Path: A representation of an available set of properties that a Local Endpoint can use to communicate with a Remote Endpoint.
+- Peer: An endpoint application party to a session.
 - Preconnection: an object that repeesents a Connection that has not yet been established.
 - Preference: A preference to prohibit, avoid, ignore prefer or require a specific feature.
+- Primitive: A function call that is used to locally communicate between an application and a transport endpoint.  A primitive is
+related to one or more transport features {{?RFC8303}}.
 - Protocol Instance: A single instance of one protocol, including any state necessary to establish connectivity or send and receive Messages.
 - Protocol Stack: A set of Protocol Instances that are used together to establish connectivity or send and receive Messages.
 - Racing: The attempt to select between multiple Protocol Stacks based on the Selection and Connection Properties communicated by the application, along with any security parameters.
 - Remote Endpoint: A representation of the application's identifier for a peer that can participate in a transport connection.
 - Rendezvous: The action of establishing a peer-to-peer connection with a Remote Endpoint.
 - Security Parameters: Parameters that define an application's requirements for authentication and encryption on a Connection.
+- Server: The peer responsible for responding to a session initiation.
+- Socket: The combination of a destination IP address and a destination port number {{?RFC8303}}..
 - System Policy: The input from an operating system or other global preferences that can constrain or influence how an implementation will gather candidate paths and Protocol Stacks and race the candidates during connection establishment.
 - Selection Property: A Transport Property that can set to influence the selection of paths between the Local and Remote Endpoints.
-- Transport Property: A property that expresses requirements, prohibitions, and preferences.
+- Transport Feature:  a specific end-to-end feature that the transport layer provides to an application.Transport Property: A property that expresses requirements, prohibitions, and preferences {{?RFC8095}}.
+- Transport Service:  A set of transport features, without an association to any given framing protocol, that provides a complete service to an application.
 - Transport Service System: The Transport Service implementation and the Transport Services API.
 
 # API Model {#model}
