@@ -219,14 +219,13 @@ The Socket API provides a message interface for datagram protocols like UDP, but
 
 The Transport Services API represents data as messages, so that it more closely matches the way applications use the network. Providing a message-based abstraction provides many benefits, such as:
 
+* backwards-compatibility with existing protocols and APIs because it allows applications to interact with messages, but does not change the wire format of any protocol.
+* providing protocol stack additional information to allow it to make better use of modern transport services, while simplifying the application's role in parsing data.
 * the ability to associate deadlines with messages, for applications that care about timing;
 * the ability to control reliability, which messages to retransmit when there is packet loss, and how best to make use of the data that arrived;
 * the ability to automatically assign messages and connections to underlying transport connections to utilize multi-streaming and pooled connections.
 
-This can have several benefits:
-* It is backwards-compatible with existing protocols and APIs because it allows applications to interact with messages, but does not change the wire format of any protocol.
-It gives the protocol stack additional information to allow it to make better use of modern transport services, while simplifying the application's role in parsing data.
-* For protocols which natively use a streaming abstraction, framers ({{datatransfer}}) bridge the gap between the two abstractions.
+For protocols which natively use a streaming abstraction, framers ({{datatransfer}}) bridge the gap between the two abstractions.
 
 ## Flexible Implementation
 
