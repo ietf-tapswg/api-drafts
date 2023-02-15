@@ -444,7 +444,7 @@ The following categories of events can be delivered to an application:
 
 ### Termination Actions {#termination}
 
-* Close: The action an application takes on a Connection to indicate that it no longer intends to send data, is no longer willing to receive data, and that the protocol should signal this state to the Remote Endpoint if the transport protocol allows this. (Note that this is distinct from the concept of "half-closing" a bidirectional connection, such as when a FIN is sent in one direction of a TCP connection {{?RFC9293}. The end of a stream can also be indicated using Message Properties when sending.)
+* Close: The action an application takes on a Connection to indicate that it no longer intends to send data, is no longer willing to receive data, and that the protocol should signal this state to the Remote Endpoint if the transport protocol allows this. (Note that this is distinct from the concept of "half-closing" a bidirectional connection, such as when a FIN is sent in one direction of a TCP connection {{?RFC9293}}. The end of a stream can also be indicated using Message Properties when sending.)
 
 * Abort: The action the application takes on a Connection to indicate a Close and also indicate that a Transport Services system should not attempt to deliver any outstanding data, and immediately drop the connection. This is intended for immediate, usually abnormal, termination of a connection.
 
