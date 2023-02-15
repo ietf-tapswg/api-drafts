@@ -479,7 +479,7 @@ This section defines the key concepts of the Transport Services architecture.
 
 * System Policy: Represents the input from an operating system or other global preferences that can constrain or influence how an implementation will gather candidate paths and Protocol Stacks ({{gathering}}) and race the candidates during establishment ({{racing}}). Specific aspects of the System Policy either apply to all Connections or only certain ones, depending on the runtime context and properties of the Connection.
 
-* Cached State: The state and history that the implementation keeps for each set of associated Endpoints that have been used previously. This can include DNS results, TLS session state, previous success and quality of transport protocols over certain paths, as well as other information.
+* Cached State: The state and history that the implementation keeps for each set of associated Endpoints that have been used previously. This can include DNS results, TLS session state, previous success and quality of transport protocols over certain paths, as well as other information.  This caching does not imply that the same decisions are necessarily made for subsequent connections, rather, it means that cached state is used by the Transport Services architecture to inform functions such as choosing the candidates to be raced, selecting appropriate transport parameters, etc. An application SHOULD NOT depend on specific caching behaviour, instead it ought to explicitly request any required properties via the the Transport Services API.
 
 ### Candidate Gathering {#gathering}
 
