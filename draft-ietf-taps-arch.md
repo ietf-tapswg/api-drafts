@@ -221,7 +221,7 @@ Separate from events, callbacks are also provided for asynchronous interactions 
 
 The Socket API provides a message interface for datagram protocols like UDP, but provides an unstructured stream abstraction for TCP. While TCP has the ability to send and receive data as a byte-stream, most applications need to interpret structure within this byte-stream. For example, HTTP/1.1 uses character delimiters to segment messages over a byte-stream {{?RFC9112}}; TLS record headers carry a version, content type, and length {{?RFC8446}}; and HTTP/2 uses frames to segment its headers and bodies {{?RFC9113}}.
 
-The Transport Services API represents data as messages, so that it more closely matches the way applications use the network. Providing a message-based abstraction provides many benefits, such as:
+The Transport Services API represents data as messages, so that it more closely matches the way applications use the network. A message-based abstraction provides many benefits, such as:
 
 * providing additional information to the protocol stack;
 * the ability to associate deadlines with messages, for applications that care about timing;
