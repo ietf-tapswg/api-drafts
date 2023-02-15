@@ -114,7 +114,7 @@ This subsection provides a brief gloassary of key terms related to the architect
 
 - Cached State: The state and history that the implementation keeps for each set of associated Endpoints that have been used previously.
 - Connection: An object that can be used to send and receive messages.
-- Connection Group: A set of Connections that shares properties and caches. 
+- Connection Group: A set of Connections that shares properties and caches.
 - Connection Property: A Transport Property that can be used to configure protocol-specific options and control per-connection behavior of a Transport Services implementation.
 - Endpoint: An identifier for one side of a transport connection.
 - Equivalent Protocol Stacks: Protocol stacks that can be safely swapped or raced in parallel during connection establishment.
@@ -128,11 +128,11 @@ This subsection provides a brief gloassary of key terms related to the architect
 - Protocol Stack: A set of Protocol Instances that are used together to establish connectivity or send and receive Messages.
 - Racing: The attempt to select between multiple Protocol Stacks based on the Selection and Connection Properties communicated by the application, along with any security parameters.
 - Remote Endpoint: A representation of the application's identifier for a peer that can participate in a transport connection.
-- Rendezvous: The action of establishing a peer-to-peer connection with a Remote Endpoint. It simultaneously attempts to initiate a connection to a Remote Endpoint while listening for an incoming connection from that endpoint.
+- Rendezvous: The action of establishing a peer-to-peer connection with a Remote Endpoint.
 - Security Parameters: Parameters that define an application's requirements for authentication and encryption on a Connection.
 - System Policy: The input from an operating system or other global preferences that can constrain or influence how an implementation will gather candidate paths and Protocol Stacks and race the candidates during connection establishment.
-- Selection Property: A Transport Property that can set to influence the selection of paths between the Local and Remote Endpoints;
-- Transport Property: A property that expresses requirements, prohibitions, and preferences. 
+- Selection Property: A Transport Property that can set to influence the selection of paths between the Local and Remote Endpoints.
+- Transport Property: A property that expresses requirements, prohibitions, and preferences.
 - Transport Service System: The Transport Service implementation and the Transport Services API.
 
 # API Model {#model}
