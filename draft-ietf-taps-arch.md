@@ -113,7 +113,7 @@ they appear in all capitals, as shown here.
 This subsection provides a brief gloassary of key terms related to the architecture. These terms ar defined in the relevent sections of this document.
 
 - Cached State: The state and history that the implementation keeps for each set of associated Endpoints that have been used previously.
-- Connection: An object that can be used to send and receive messages.
+- Connection: Shared state of two or more endpoints that persists across messages that are transmitted and received between these endpoints {{?RFC8303}}.
 - Connection Group: A set of Connections that shares properties and caches.
 - Connection Property: A Transport Property that can be used to configure protocol-specific options and control per-connection behavior of a Transport Services implementation.
 - Endpoint: An identifier for one side of a transport connection.
