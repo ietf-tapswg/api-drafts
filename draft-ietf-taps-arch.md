@@ -143,7 +143,8 @@ related to one or more transport features {{?RFC8303}}.
 - Socket: The combination of a destination IP address and a destination port number {{?RFC8303}}..
 - System Policy: The input from an operating system or other global preferences that can constrain or influence how an implementation will gather candidate paths and Protocol Stacks and race the candidates during connection establishment.
 - Selection Property: A Transport Property that can set to influence the selection of paths between the Local and Remote Endpoints.
-- Transport Feature:  a specific end-to-end feature that the transport layer provides to an application.Transport Property: A property that expresses requirements, prohibitions, and preferences {{?RFC8095}}.
+- Transport Feature:  a specific end-to-end feature that the transport layer provides to an application.
+- Transport Property: A property that expresses requirements, prohibitions, and preferences {{?RFC8095}}.
 - Transport Service:  A set of transport features, without an association to any given framing protocol, that provides a complete service to an application.
 - Transport Service System: The Transport Service implementation and the Transport Services API.
 
