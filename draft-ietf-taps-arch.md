@@ -114,6 +114,8 @@ This subsection provides a brief gloassary of key terms related to the architect
 
 - Cached State: The state and history that the implementation keeps for each set of associated Endpoints that have been used previously.
 - Connection: Shared state of two or more endpoints that persists across messages that are transmitted and received between these endpoints {{?RFC8303}}.
+- Client: The peer responsible for initiating a session.
+- Clone: A copy of a Connection that forms a part of a Connection Group.
 - Connection Group: A set of Connections that shares properties and caches.
 - Connection Property: A Transport Property that can be used to configure protocol-specific options and control per-connection behavior of a Transport Services implementation.
 - Endpoint: An identifier for one side of a transport connection.
