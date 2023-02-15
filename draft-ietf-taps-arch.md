@@ -114,7 +114,7 @@ This subsection provides a brief gloassary of key terms related to the architect
 
 - Cached State: The state and history that the implementation keeps for each set of associated Endpoints that have been used previously.
 - Connection: An object that can be used to send and receive messages.
-- Connection Group: A set of Connections that shares properties and caches. 
+- Connection Group: A set of Connections that shares properties and caches.
 - Connection Property: A Transport Property that can be used to configure protocol-specific options and control per-connection behavior of a Transport Services implementation.
 - Endpoint: An identifier for one side of a transport connection.
 - Equivalent Protocol Stacks: Protocol stacks that can be safely swapped or raced in parallel during connection establishment.
@@ -132,7 +132,7 @@ This subsection provides a brief gloassary of key terms related to the architect
 - Security Parameters: Parameters that define an application's requirements for authentication and encryption on a Connection.
 - System Policy: The input from an operating system or other global preferences that can constrain or influence how an implementation will gather candidate paths and Protocol Stacks and race the candidates during connection establishment.
 - Selection Property: A Transport Property that can set to influence the selection of paths between the Local and Remote Endpoints;
-- Transport Property: A property that expresses requirements, prohibitions, and preferences. 
+- Transport Property: A property that expresses requirements, prohibitions, and preferences.
 - Transport Service System: The Transport Service implementation and the Transport Services API.
 
 # API Model {#model}
@@ -224,8 +224,8 @@ The Transport Services API represents data as messages, so that it more closely 
 * the ability to automatically assign messages and connections to underlying transport connections to utilize multi-streaming and pooled connections.
 
 This can have several benefits:
-* It is backwards-compatible with existing protocols and APIs because it allows applications to interact with messages, but does not change the wire format of any protocol. 
-It gives the protocol stack additional information to allow it to make better use of modern transport services, while simplifying the application's role in parsing data. 
+* It is backwards-compatible with existing protocols and APIs because it allows applications to interact with messages, but does not change the wire format of any protocol.
+It gives the protocol stack additional information to allow it to make better use of modern transport services, while simplifying the application's role in parsing data.
 * For protocols which natively use a streaming abstraction, framers ({{datatransfer}}) bridge the gap between the two abstractions.
 
 ## Flexible Implementation
@@ -342,7 +342,7 @@ The following diagram summarizes the top-level concepts in the architecture and 
 ~~~~~~~~~~
 {: #fig-abstractions title="Concepts and Relationships in the Transport Services Architecture"}
 
-The Transport Services Implementation includes the Cached State and System Policy. The System Policy provides input from an operating system or other global preferences that can constrain or influence how an implementation will gather candidate paths and Protocol Stacks and race the candidates during connection establishment.  The Cached State is the state and history that the implementation keeps for each set of associated Endpoints that have been used previously.
+The Transport Services Implementation includes the Cached State and System Policy. The System Policy provides input from an operating system or other global preferences that can constrain or influence how an implementation will gather candidate paths and Protocol Stacks and race the candidates during connection establishment. The Cached State is the state and history that the implementation keeps for each set of associated Endpoints that have been used previously.
 
 ## Transport Services API Concepts
 
