@@ -123,6 +123,7 @@ This subsection provides a brief gloassary of key terms related to the architect
 - Message:  A unit of data that can be transferred between two endpoints over a transport connection.
 - Message Property: A property than can be used to specify details about Message transmission.
 - Path: A representation of an available set of properties that a Local Endpoint can use to communicate with a Remote Endpoint.
+- Preconnection: an object that repeesents a Connection that has not yet been established.
 - Preference: A preference to prohibit, avoid, ignore prefer or require a specific feature.
 - Protocol Instance: A single instance of one protocol, including any state necessary to establish connectivity or send and receive Messages.
 - Protocol Stack: A set of Protocol Instances that are used together to establish connectivity or send and receive Messages.
