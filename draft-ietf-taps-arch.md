@@ -327,7 +327,7 @@ Beyond the connection objects, there are several high-level groups of actions th
 
 * Event Handling ({{events}}) defines categories of notifications that an application can receive during the lifetime of transport objects. Events also provide opportunities for the application to interact with the underlying transport by querying state or updating maintenance options.
 
-* Termination ({{termination}}) focuses on the methods by which data transmission is stopped, and state is torn down in the transport.
+* Termination ({{termination}}) focuses on the methods by which data transmission is stopped, and connection state is torn down.
 
 The diagram below provides a high-level view of the actions and events during the lifetime of a Connection object. Note that some actions are alternatives (e.g., whether to initiate a connection or to listen for incoming connections), while others are optional (e.g., setting Connection and Message Properties in Pre-Establishment) or have been omitted for brevity and simplicity.
 
