@@ -108,37 +108,6 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 {{!RFC2119}} {{!RFC8174}} when, and only when,
 they appear in all capitals, as shown here.
 
-## Glossary of Key Terms
-
-This subsection provides a brief gloassary of key terms related to the architecture. These terms ar defined in the relevent sections of this document.
-
-- Cached State: The state and history that the implementation keeps for each set of associated Endpoints that have been used previously.
-- Client: The peer responsible for initiating a session.
-- Clone: A copy of a Connection that forms a part of a Connection Group.
-- Connection: Shared state of two or more Endpoints that persists across Messages that are transmitted and received between these Endpoints {{?RFC8303}}.
-- Connection Group: A set of Connections that shares properties and caches.
-- Connection Property: A Transport Property that can be used to configure protocol-specific options and control per-connection behavior of a Transport Services implementation.
-- Endpoint: An identifier for one side of a transport connection.
-- Equivalent Protocol Stacks: Protocol stacks that can be safely swapped or raced in parallel during connection establishment.
-- Framer: A data translation layer that can be added to a Connection to define how application-layer Messages are transmitted over a transport stack.
-- Local Endpoint: A representation of the application's identifier for itself that it uses for transport connections.
-- Message:  A unit of data that can be transferred between two endpoints over a transport connection.
-- Message Property: A property than can be used to specify details about Message transmission.
-- Path: A representation of an available set of properties that a Local Endpoint can use to communicate with a Remote Endpoint.
-- Preference: A preference to prohibit, avoid, ignore prefer or require a specific feature.
-- Protocol Instance: A single instance of one protocol, including any state necessary to establish connectivity or send and receive Messages.
-- Protocol Stack: A set of Protocol Instances that are used together to establish connectivity or send and receive Messages.
-- Racing: The attempt to select between multiple Protocol Stacks based on the Selection and Connection Properties communicated by the application, along with any security parameters.
-- Remote Endpoint: A representation of the application's identifier for a peer that can participate in a transport connection.
-- Rendezvous: The action of establishing a peer-to-peer connection with a Remote Endpoint. It simultaneously attempts to initiate a connection to a Remote Endpoint while listening for an incoming connection from that endpoint.
-- Security Parameters: Parameters that define an application's requirements for authentication and encryption on a Connection.
-- System Policy: The input from an operating system or other global preferences that can constrain or influence how an implementation will gather candidate paths and Protocol Stacks and race the candidates during connection establishment.
-- Selection Property: A Transport Property that can set to influence the selection of paths between the Local and Remote Endpoints.
-- Transport Feature:  A specific end-to-end feature that the transport layer provides to an application.
-- Transport Property: A property that expresses requirements, prohibitions, and preferences {{?RFC8095}}.
-- Transport Service:  A set of transport features, without an association to any given framing protocol, that provides a complete service to an application.
-- Transport Service System: The Transport Service implementation and the Transport Services API.
-
 # API Model {#model}
 
 The traditional model of using sockets for networking can be represented as follows:
