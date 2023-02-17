@@ -116,23 +116,23 @@ This subsection provides a glossary of key terms related to the Transport Servic
 - Cached State: The state and history that the implementation keeps for each set of associated Endpoints that have been used previously.
 - Client: The peer responsible for initiating a transport connection.
 - Clone: A Connection that was created from another Connection, and forms a part of a Connection Group.
-- Connection: Shared state of two or more Endpoints that persists across Messages that are transmitted and received between these Endpoints {{?RFC8303}}.
+- Connection: Shared state of two or more endpoints that persists across Messages that are transmitted and received between these Endpoints {{?RFC8303}}.
 - Connection Group: A set of Connections that shares properties and caches.
 - Connection Property: A Transport Property that controls per-Connection behavior of a Transport Services implementation.
-- Endpoint: An identifier for one side of a transport connection.
+- Endpoint: An identifier for one side of a transport connection (local or remote), such as a hostnames or URL.
 - Equivalent Protocol Stacks: Protocol stacks that can be safely swapped or raced in parallel during connection establishment.
-- Event: A primitive that is invoked by an Endpoint {{?RFC8303}}.
+- Event: A primitive that is invoked by an endpoint {{?RFC8303}}.
 - Framer: A data translation layer that can be added to a Connection to define how application-layer Messages are transmitted over a transport stack.
 - Local Endpoint: A representation of the application's identifier for itself that it uses for transport connections.
 - Message:  A unit of data that can be transferred between two Endpoints over a Connection.
 - Message Property: A property than can be used to specify details about Message transmission.
 - Parameter: A value passed between an application and a transport protocol by a primitive {{?RFC8303}}.
 - Path: A representation of an available set of properties that a Local Endpoint can use to communicate with a Remote Endpoint.
-- Peer: An Endpoint application party to a Connection.
+- Peer: An endpoint application party to a Connection.
 - Preconnection: an object that repeesents a Connection that has not yet been established.
 - Preference: A preference to prohibit, avoid, ignore prefer or require a specific transport feature.
-- Primitive: A function call that is used to locally communicate between an application and a transport endpoint.  A primitive is
-related to one or more transport features {{?RFC8303}}.
+- Primitive: A function call that is used to locally communicate between an application and an endpoint, which is
+related to one or more Transport Features {{?RFC8303}}.
 - Protocol Instance: A single instance of one protocol, including any state necessary to establish connectivity or send and receive Messages.
 - Protocol Stack: A set of Protocol Instances that are used together to establish connectivity or send and receive Messages.
 - Racing: The attempt to select between multiple Protocol Stacks based on the Selection and Connection Properties communicated by the application, along with any security parameters.
@@ -352,7 +352,7 @@ The following diagram summarizes the top-level concepts in the architecture and 
 ~~~~~~~~~~
 {: #fig-abstractions title="Concepts and Relationships in the Transport Services Architecture"}
 
-The Transport Services Implementation includes the Cached State and System Policy. The System Policy provides input from an operating system or other global preferences that can constrain or influence how an implementation will gather candidate paths and Protocol Stacks and race the candidates during connection establishment.  The Cached State is the state and history that the implementation keeps for each set of associated Endpoints that have been used previously.
+The Transport Services Implementation includes the Cached State and System Policy. The System Policy provides input from an operating system or other global preferences that can constrain or influence how an implementation will gather candidate paths and Protocol Stacks and race the candidates during connection establishment.  The Cached State is the state and history that the implementation keeps for each set of associated endpoints that have been used previously.
 
 ## Transport Services API Concepts
 
@@ -399,10 +399,10 @@ The diagram below provides a high-level view of the actions and events during th
 
 ### Endpoint Objects
 
-* Endpoint: An Endpoint represents an identifier for one side of a transport connection.
+* Endpoint: An endpoint represents an identifier for one side of a transport connection.
   Endpoints can be Local Endpoints or Remote Endpoints, and respectively represent an identity
   that the application uses for the source or destination of a connection.
-  An Endpoint can be specified at various levels of abstraction. An Endpoint at a higher level of abstraction (such as a hostname) can be resolved to more concrete identities (such as IP addresses). An endpoint may also represent a multicast group, in which case it selects a multicast transport for communication.
+  An endpoint can be specified at various levels of abstraction. An endpoint at a higher level of abstraction (such as a hostname) can be resolved to more concrete identities (such as IP addresses). An endpoint may also represent a multicast group, in which case it selects a multicast transport for communication.
 
 * Remote Endpoint: The Remote Endpoint represents the application's identifier for a peer that can participate in a transport connection; for example, the combination of a DNS name for the peer and a service name/port.
 
