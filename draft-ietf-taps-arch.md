@@ -114,6 +114,8 @@ This subsection provides a glossary of key terms related to the Transport Servic
 
 - Application: An entity that uses the transport layer for end-to-end delivery of data across the network {{?RFC8095}}.
 - Cached State: The state and history that the implementation keeps for each set of associated Endpoints that have been used previously.
+- Candidate Path: One path that is available to an application and conforms to the Selection Properties and System Policy during rsacing.
+- Candidate Protocol Stack: One Protocol Stack that can be used by an application for a Connection during racing.
 - Client: The peer responsible for initiating a Connection.
 - Clone: A Connection that was created from another Connection, and forms a part of a Connection Group.
 - Connection: Shared state of two or more endpoints that persists across Messages that are transmitted and received between these Endpoints {{?RFC8303}}.
@@ -125,7 +127,7 @@ This subsection provides a glossary of key terms related to the Transport Servic
 - Framer: A data translation layer that can be added to a Connection to define how application-layer Messages are transmitted over a transport stack.
 - Local Endpoint: A representation of the application's identifier for itself that it uses for a Connection.
 - Message:  A unit of data that can be transferred between two Endpoints over a Connection.
-- Message Property: A property than can be used to specify details about Message transmission.
+- Message Property: A property than can be used to specify details about Message transmission, or obtain details about the transmission after receiving a Message.
 - Parameter: A value passed between an application and a transport protocol by a primitive {{?RFC8303}}.
 - Path: A representation of an available set of properties that a Local Endpoint can use to communicate with a Remote Endpoint.
 - Peer: An endpoint application party to a Connection.
@@ -142,7 +144,7 @@ related to one or more Transport Features {{?RFC8303}}.
 - Server: The peer responsible for responding to a Connection initiation.
 - Socket: The combination of a destination IP address and a destination port number {{?RFC8303}}..
 - System Policy: The input from an operating system or other global preferences that can constrain or influence how an implementation will gather candidate paths and Protocol Stacks and race the candidates during establishment of a Connection.
-- Selection Property: A Transport Property that can set to influence the selection of paths between the Local and Remote Endpoints.
+- Selection Property: A Transport Property that can be set to influence the selection of paths between the Local and Remote Endpoints.
 - Transport Feature:  A specific end-to-end feature that the transport layer provides to an application.
 - Transport Property: A property that expresses requirements, prohibitions and preferences {{?RFC8095}}.
 - Transport Service:  A set of transport features, without an association to any given framing protocol, that provides a complete service to an application.
@@ -516,7 +518,7 @@ This section defines the key concepts of the Transport Services architecture.
 
 * Candidate Path: One path that is available to an application and conforms to the Selection Properties and System Policy, of which there can be several. Candidate Paths are identified during the gathering phase ({{gathering}}) and can be used during the racing phase ({{racing}}).
 
-* Candidate Protocol Stack: One Protocol Stack that can be used by an application for a Connection,  which there can be several candidates. Candidate Protocol Stacks are identified during the gathering phase ({{gathering}}) and are started during the racing phase ({{racing}}).
+* Candidate Protocol Stack: One Protocol Stack that can be used by an application for a Connection,  for which there can be several candidates. Candidate Protocol Stacks are identified during the gathering phase ({{gathering}}) and are started during the racing phase ({{racing}}).
 
 * System Policy: The input from an operating system or other global preferences that can constrain or influence how an implementation will gather candidate paths and Protocol Stacks ({{gathering}}) and race the candidates during establishment ({{racing}}). Specific aspects of the System Policy either apply to all Connections or only certain ones, depending on the runtime context and properties of the Connection.
 
