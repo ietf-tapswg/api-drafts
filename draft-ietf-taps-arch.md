@@ -142,7 +142,7 @@ related to one or more Transport Features {{?RFC8303}}.
 - Rendezvous: The action of establishing a peer-to-peer Connection with a Remote Endpoint.
 - Security Parameters: Parameters that define an application's requirements for authentication and encryption on a Connection.
 - Server: The peer responsible for responding to a Connection initiation.
-- Socket: The combination of a destination IP address and a destination port number {{?RFC8303}}..
+- Socket: The combination of a destination IP address and a destination port number {{?RFC8303}}.
 - System Policy: The input from an operating system or other global preferences that can constrain or influence how an implementation will gather candidate paths and Protocol Stacks and race the candidates during establishment of a Connection.
 - Selection Property: A Transport Property that can be set to influence the selection of paths between the Local and Remote Endpoints.
 - Transport Feature:  A specific end-to-end feature that the transport layer provides to an application.
