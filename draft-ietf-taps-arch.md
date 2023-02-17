@@ -118,7 +118,7 @@ This subsection provides a glossary of key terms related to the Transport Servic
 - Clone: A Connection that was created from another Connection, and forms a part of a Connection Group.
 - Connection: Shared state of two or more Endpoints that persists across Messages that are transmitted and received between these Endpoints {{?RFC8303}}.
 - Connection Group: A set of Connections that shares properties and caches.
-- Connection Property: A Transport Property that can be used to configure protocol-specific options and control per-connection behavior of a Transport Services implementation.
+- Connection Property: A Transport Property that controls per-Connection behavior of a Transport Services implementation.
 - Endpoint: An identifier for one side of a transport connection.
 - Equivalent Protocol Stacks: Protocol stacks that can be safely swapped or raced in parallel during connection establishment.
 - Event: A primitive that is invoked by an Endpoint {{?RFC8303}}.
