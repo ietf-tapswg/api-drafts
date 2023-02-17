@@ -112,7 +112,7 @@ they appear in all capitals, as shown here.
 
 This subsection provides a glossary of key terms related to the Transport Services architecture.
 
-- Application: An entity that uses the transport layer for end-to-end delivery data across the network {{?RFC8095}}.
+- Application: An entity that uses the transport layer for end-to-end delivery of data across the network {{?RFC8095}}.
 - Cached State: The state and history that the implementation keeps for each set of associated Endpoints that have been used previously.
 - Client: The peer responsible for initiating a transport connection.
 - Clone: A copy of a Connection that forms a part of a Connection Group.
