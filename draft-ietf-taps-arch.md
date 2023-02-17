@@ -115,7 +115,7 @@ This subsection provides a glossary of key terms related to the Transport Servic
 - Application: An entity that uses the transport layer for end-to-end delivery of data across the network {{?RFC8095}}.
 - Cached State: The state and history that the implementation keeps for each set of associated Endpoints that have been used previously.
 - Client: The peer responsible for initiating a transport connection.
-- Clone: A copy of a Connection that forms a part of a Connection Group.
+- Clone: A Connection that was created from another Connection, and forms a part of a Connection Group.
 - Connection: Shared state of two or more Endpoints that persists across Messages that are transmitted and received between these Endpoints {{?RFC8303}}.
 - Connection Group: A set of Connections that shares properties and caches.
 - Connection Property: A Transport Property that can be used to configure protocol-specific options and control per-connection behavior of a Transport Services implementation.
