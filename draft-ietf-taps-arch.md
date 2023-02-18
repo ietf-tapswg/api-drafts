@@ -313,8 +313,6 @@ The following diagram summarizes the top-level concepts in the architecture and 
 ~~~~~~~~~~
 {: #fig-abstractions title="Concepts and Relationships in the Transport Services Architecture"}
 
-The Transport Services Implementation includes the Cached State and System Policy. The System Policy provides input from an operating system or other global preferences that can constrain or influence how an implementation will gather candidate paths and Protocol Stacks and race the candidates during connection establishment. The Cached State is the state and history that the implementation keeps for each set of associated Endpoints that have been used previously.
-
 ## Transport Services API Concepts
 
 Fundamentally, a Transport Services API needs to provide connection objects ({{objects}}) that allow applications to establish communication, and then send and receive data. These could be exposed as handles or referenced objects, depending on the chosen programming language.
