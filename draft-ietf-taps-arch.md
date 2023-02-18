@@ -125,9 +125,9 @@ This subsection provides a glossary of key terms related to the Transport Servic
 - Equivalent Protocol Stacks: Protocol stacks that can be safely swapped or raced in parallel during establishment of a Connection.
 - Event: A primitive that is invoked by an endpoint {{?RFC8303}}.
 - Framer: A data translation layer that can be added to a Connection to define how application-layer Messages are transmitted over a Protocol Stack.
-- Local Endpoint: A representation of the application's identifier for itself that it uses for a Connection. 
-- Message: A unit of data that can be transferred between two Endpoints over a Connection. 
-- Message Property: A property than can be used to specify details about Message transmission, or obtain details about the transmission after receiving a Message. 
+- Local Endpoint: A representation of the application's identifier for itself that it uses for a Connection.
+- Message: A unit of data that can be transferred between two Endpoints over a Connection.
+- Message Property: A property than can be used to specify details about Message transmission, or obtain details about the transmission after receiving a Message.
 - Parameter: A value passed between an application and a transport protocol by a primitive {{?RFC8303}}.
 - Path: A representation of an available set of properties that a Local Endpoint can use to communicate with a Remote Endpoint.
 - Peer: An endpoint application party to a Connection.
