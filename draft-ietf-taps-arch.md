@@ -518,7 +518,7 @@ This section defines the key concepts of the Transport Services architecture.
 
 * Candidate Path: One path that is available to an application and conforms to the Selection Properties and System Policy, of which there can be several. Candidate Paths are identified during the gathering phase ({{gathering}}) and can be used during the racing phase ({{racing}}).
 
-* Candidate Protocol Stack: One Protocol Stack that can be used by an application for a Connection,  for which there can be several candidates. Candidate Protocol Stacks are identified during the gathering phase ({{gathering}}) and are started during the racing phase ({{racing}}).
+* Candidate Protocol Stack: One Protocol Stack that can be used by an application for a Connection, for which there can be several candidates. Candidate Protocol Stacks are identified during the gathering phase ({{gathering}}) and are started during the racing phase ({{racing}}).
 
 * System Policy: The input from an operating system or other global preferences that can constrain or influence how an implementation will gather candidate paths and Protocol Stacks ({{gathering}}) and race the candidates during establishment ({{racing}}). Specific aspects of the System Policy either apply to all Connections or only certain ones, depending on the runtime context and properties of the Connection.
 
