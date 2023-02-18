@@ -370,7 +370,7 @@ Beyond the connection objects, there are several high-level groups of actions th
 
 * Data Transfer ({{datatransfer}}) consists of how an application represents the data to be sent and received, the functions required to send and receive that data, and how the application is notified of the status of its data transfer.
 
-* Event Handling ({{events}}) defines categories of notifications that an application can receive during the lifetime of transport objects. Events also provide opportunities for the application to interact with the underlying transport by querying state or updating maintenance options.
+* Event Handling ({{events}}) defines categories of notifications that an application can receive during the lifetime of a Connection. Events also provide opportunities for the application to interact with the underlying transport by querying state or updating maintenance options.
 
 * Termination ({{termination}}) focuses on the methods by which data transmission is stopped, and connection state is torn down.
 
