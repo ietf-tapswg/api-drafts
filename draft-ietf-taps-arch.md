@@ -108,46 +108,46 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 {{!RFC2119}} {{!RFC8174}} when, and only when,
 they appear in all capitals, as shown here.
 
-## Glossary of Key Terms 
+## Glossary of Key Terms
 
-This subsection provides a glossary of key terms related to the Transport Services architecture. 
+This subsection provides a glossary of key terms related to the Transport Services architecture.
 
-- Application: An entity that uses the transport layer for end-to-end delivery of data across the network {{?RFC8095}}. 
-- Cached State: The state and history that the implementation keeps for each set of associated Endpoints that have been used previously. 
-- Candidate Path: One path that is available to an application and conforms to the Selection Properties and System Policy during rsacing. 
-- Candidate Protocol Stack: One Protocol Stack that can be used by an application for a Connection during racing. 
-- Client: The peer responsible for initiating a Connection. 
-- Clone: A Connection that was created from another Connection, and forms a part of a Connection Group. 
-- Connection: Shared state of two or more endpoints that persists across Messages that are transmitted and received between these Endpoints {{?RFC8303}}. 
-- Connection Group: A set of Connections that shares properties and caches. 
-- Connection Property: A Transport Property that controls per-Connection behavior of a Transport Services implementation. 
-- Endpoint: An identifier for one side of a Connection (local or remote), such as a hostnames or URL. 
-- Equivalent Protocol Stacks: Protocol stacks that can be safely swapped or raced in parallel during establishment of a Connection. 
-- Event: A primitive that is invoked by an endpoint {{?RFC8303}}. 
-- Framer: A data translation layer that can be added to a Connection to define how application-layer Messages are transmitted over a transport stack. 
+- Application: An entity that uses the transport layer for end-to-end delivery of data across the network {{?RFC8095}}.
+- Cached State: The state and history that the implementation keeps for each set of associated Endpoints that have been used previously.
+- Candidate Path: One path that is available to an application and conforms to the Selection Properties and System Policy during racing.
+- Candidate Protocol Stack: One Protocol Stack that can be used by an application for a Connection during racing.
+- Client: The peer responsible for initiating a Connection.
+- Clone: A Connection that was created from another Connection, and forms a part of a Connection Group.
+- Connection: Shared state of two or more endpoints that persists across Messages that are transmitted and received between these Endpoints {{?RFC8303}}.
+- Connection Group: A set of Connections that shares properties and caches.
+- Connection Property: A Transport Property that controls per-Connection behavior of a Transport Services implementation.
+- Endpoint: An identifier for one side of a Connection (local or remote), such as a hostnames or URL.
+- Equivalent Protocol Stacks: Protocol stacks that can be safely swapped or raced in parallel during establishment of a Connection.
+- Event: A primitive that is invoked by an endpoint {{?RFC8303}}.
+- Framer: A data translation layer that can be added to a Connection to define how application-layer Messages are transmitted over a Protocol Stack.
 - Local Endpoint: A representation of the application's identifier for itself that it uses for a Connection. 
 - Message: A unit of data that can be transferred between two Endpoints over a Connection. 
 - Message Property: A property than can be used to specify details about Message transmission, or obtain details about the transmission after receiving a Message. 
-- Parameter: A value passed between an application and a transport protocol by a primitive {{?RFC8303}}. 
-- Path: A representation of an available set of properties that a Local Endpoint can use to communicate with a Remote Endpoint. 
-- Peer: An endpoint application party to a Connection. 
-- Preconnection: an object that repesents a Connection that has not yet been established. 
-- Preference: A preference to prohibit, avoid, ignore prefer or require a specific transport feature. 
-- Primitive: A function call that is used to locally communicate between an application and an endpoint, which is related to one or more Transport Features {{?RFC8303}}. 
-- Protocol Instance: A single instance of one protocol, including any state necessary to establish connectivity or send and receive Messages. 
-- Protocol Stack: A set of Protocol Instances that are used together to establish connectivity or send and receive Messages. 
-- Racing: The attempt to select between multiple Protocol Stacks based on the Selection and Connection Properties communicated by the application, along with any security parameters. 
-- Remote Endpoint: A representation of the application's identifier for a peer that can participate in establishing a Connection. 
-- Rendezvous: The action of establishing a peer-to-peer Connection with a Remote Endpoint. 
-- Security Parameters: Parameters that define an application's requirements for authentication and encryption on a Connection. 
-- Server: The peer responsible for responding to a Connection initiation. 
-- Socket: The combination of a destination IP address and a destination port number {{?RFC8303}}. 
-- System Policy: The input from an operating system or other global preferences that can constrain or influence how an implementation will gather candidate paths and Protocol Stacks and race the candidates during establishment of a Connection. 
-- Selection Property: A Transport Property that can be set to influence the selection of paths between the Local and Remote Endpoints. 
-- Transport Feature: A specific end-to-end feature that the transport layer provides to an application. 
-- Transport Property: A property that expresses requirements, prohibitions and preferences {{?RFC8095}}. 
-- Transport Service: A set of transport features, without an association to any given framing protocol, that provides a complete service to an application. 
-- Transport Service System: The Transport Service implementation and the Transport Services API.
+- Parameter: A value passed between an application and a transport protocol by a primitive {{?RFC8303}}.
+- Path: A representation of an available set of properties that a Local Endpoint can use to communicate with a Remote Endpoint.
+- Peer: An endpoint application party to a Connection.
+- Preconnection: an object that repesents a Connection that has not yet been established.
+- Preference: A preference to prohibit, avoid, ignore prefer or require a specific Transport Feature.
+- Primitive: A function call that is used to locally communicate between an application and an endpoint, which is related to one or more Transport Features {{?RFC8303}}.
+- Protocol Instance: A single instance of one protocol, including any state necessary to establish connectivity or send and receive Messages.
+- Protocol Stack: A set of Protocol Instances that are used together to establish connectivity or send and receive Messages.
+- Racing: The attempt to select between multiple Protocol Stacks based on the Selection and Connection Properties communicated by the application, along with any security parameters.
+- Remote Endpoint: A representation of the application's identifier for a peer that can participate in establishing a Connection.
+- Rendezvous: The action of establishing a peer-to-peer Connection with a Remote Endpoint.
+- Security Parameters: Parameters that define an application's requirements for authentication and encryption on a Connection.
+- Server: The peer responsible for responding to a Connection initiation.
+- Socket: The combination of a destination IP address and a destination port number {{?RFC8303}}.
+- System Policy: The input from an operating system or other global preferences that can constrain or influence how an implementation will gather Candidate Paths and Protocol Stacks and race the candidates during establishment of a Connection.
+- Selection Property: A Transport Property that can be set to influence the selection of paths between the Local and Remote Endpoints.
+- Transport Feature: A specific end-to-end feature that the transport layer provides to an application.
+- Transport Property: A property that expresses requirements, prohibitions and preferences {{?RFC8095}}.
+- Transport Service: A set of transport features, without an association to any given framing protocol, that provides a complete service to an application.
+- Transport Service System: The Transport Service implementation and the Transport Services API
 
 # API Model {#model}
 
@@ -470,7 +470,7 @@ The diagram below provides a high-level view of the actions and events during th
 
 * Receive: An action that indicates that the application is ready to asynchronously accept a Message over a Connection from a Remote Endpoint, while the Message content itself will be delivered in an Event ({{events}}). The interface to Receive can include Message Properties specific to the Message that is to be delivered to the application.
 
-* Framer: A Framer is a data translation layer that can be added to a Connection to define how application-layer Messages are transmitted over a transport stack. This is particularly relevant when using a protocol that otherwise presents unstructured streams, such as TCP.
+* Framer: A Framer is a data translation layer that can be added to a Connection to define how application-layer Messages are transmitted over a Protocol Stack. This is particularly relevant when using a protocol that otherwise presents unstructured streams, such as TCP.
 
 ### Event Handling {#events}
 
@@ -496,7 +496,8 @@ The following categories of events can be delivered to an application:
 
 ### Connection Groups
 
-A Connection Group is a set of Connections that shares properties and caches. A Connection Group represents state for managing Connections within a single application, and does not require end-to-end protocol signaling. For multiplexing transport protocols, only Connections within the same Connection Group are allowed to be multiplexed together.
+A Connection Group is a set of Connections that shares properties and caches.
+A Connection Group represents state for managing Connections within a single application, and does not require end-to-end protocol signaling. For multiplexing transport protocols, only Connections within the same Connection Group are allowed to be multiplexed together.
 
 The API allows a Connection to be created from another Connection. This adds the new Connection to the Connection Group. A change to one of the Connection Properties on any Connection in the Connection Group automatically changes the Connection Property for all others. All Connections in a Connection Group share the same set of Connection Properties except for the Connection Priority. These Connection Properties are said to be entangled.
 
