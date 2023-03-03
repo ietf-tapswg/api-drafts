@@ -401,6 +401,23 @@ The diagram below provides a high-level view of the actions and events during th
 ~~~~~~~~~~
 {: #fig-lifetime title="The lifetime of a Connection object"}
 
+In this diagram, the lifetime of a Connection object is broken into three phases:
+Pre-Establishment, the Established state, and Termination.
+
+Pre-Establishment is based around a Preconnection object, that contains various
+sub-objects that describe the properties and parameters of desired Connections
+(Local and Remote Endpoints, Transport Properties, and Security Parameters).
+A Preconnection can be used to start listening for inbound connections,
+in which case a Listener object is created, or can be used to establish a new
+connection directly using Initiate() (for outbound connections) or Rendezvous()
+(for peer-to-peer connections).
+
+Once a Connection is in the Established state, an application can send and receive
+Message objects, and receive state updates.
+
+Closing or aborting a connection, either locally or from the peer, can terminate
+a connection.
+
 ### Endpoint Objects
 
 * Endpoint: An endpoint represents an identifier for one side of a transport connection.
