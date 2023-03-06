@@ -200,10 +200,10 @@ The example aggregate connection attempt above can be drawn as a tree by groupin
 
 ~~~~~~~~~~
                              ||
-                +==========================+
-                |  www.example.com:80/Any  |
-                +==========================+
-                  //                    \\
+              +=============================+
+              | www.example.com:80/any path |
+              +=============================+
+                 //                     \\
 +==========================+       +==========================+
 | www.example.com:80/Wi-Fi |       |  www.example.com:80/LTE  |
 +==========================+       +==========================+
@@ -213,10 +213,10 @@ The example aggregate connection attempt above can be drawn as a tree by groupin
   +====================+  +====================+  +======================+
 ~~~~~~~~~~
 
-The rest of this section will use a notation scheme to represent this tree. The parent (or trunk) node of the tree will be represented by a single integer, such as "1". ("1" is used assuming that this is the first connection made by the system; future connections created by the application would allocate numbers in an increasing manner.) Each child of that node will have an integer that identifies it, from 1 to the number of children. That child node will be uniquely identified by concatenating its integer to it's parents identifier with a dot in between, such as "1.1" and "1.2". Each node will be summarized by a tuple of three elements: endpoint, path (labeled here by interface), and protocol. The above example can now be written more succinctly as:
+The rest of this section will use a notation scheme to represent this tree. The parent (or trunk) node of the tree will be represented by a single integer, such as "1". ("1" is used assuming that this is the first connection made by the system; future connections created by the application would allocate numbers in an increasing manner.) Each child of that node will have an integer that identifies it, from 1 to the number of children. That child node will be uniquely identified by concatenating its integer to it's parents identifier with a dot in between, such as "1.1" and "1.2". Each node will be summarized by a tuple of three elements: endpoint, path (labeled here by interface), and protocol. In protocol stacks, the layers are separated by '/' and ordered top-down. The above example can now be written more succinctly as:
 
 ~~~~~~~~~~
-1 [www.example.com:80, Any, TCP]
+1 [www.example.com:80, any path, TCP]
   1.1 [www.example.com:80, Wi-Fi, TCP]
     1.1.1 [192.0.2.1:80, Wi-Fi, TCP]
   1.2 [www.example.com:80, LTE, TCP]
@@ -272,7 +272,7 @@ Applications can influence which derived endpoints are allowed and preferred via
 If a client has multiple network paths available to it, e.g., a mobile client with intefaces for both Wi-Fi and Cellular connectivity, it can attempt a connection over any of the paths. This represents a branch point in the connection establishment. Similar to a derived endpoint, the paths should be ranked based on preference, system policy, and performance. Attempts should be started on one path (e.g., a specific interface), and then successively on other paths (or interfaces) after delays based on expected path round-trip-time or other available metrics.
 
 ~~~~~~~~~~
-1 [192.0.2.1:80, Any, TCP]
+1 [192.0.2.1:80, any path, TCP]
   1.1 [192.0.2.1:80, Wi-Fi, TCP]
   1.2 [192.0.2.1:80, LTE, TCP]
 ~~~~~~~~~~
@@ -289,31 +289,31 @@ Differences in possible protocol compositions and options can also provide a bra
 This approach is commonly used for connections with optional proxy server configurations. A single connection might have several options available: an HTTP-based proxy, a SOCKS-based proxy, or no proxy. As above, these options should be ranked based on preference, system policy, and performance and attempted in succession.
 
 ~~~~~~~~~~
-1 [www.example.com:80, Any, HTTP/TCP]
-  1.1 [192.0.2.8:80, Any, HTTP/HTTP Proxy/TCP]
-  1.2 [192.0.2.7:10234, Any, HTTP/SOCKS/TCP]
-  1.3 [www.example.com:80, Any, HTTP/TCP]
-    1.3.1 [192.0.2.1:80, Any, HTTP/TCP]
+1 [www.example.com:80, any path, HTTP/TCP]
+  1.1 [192.0.2.8:80, any path, HTTP/HTTP Proxy/TCP]
+  1.2 [192.0.2.7:10234, any path, HTTP/SOCKS/TCP]
+  1.3 [www.example.com:80, any path, HTTP/TCP]
+    1.3.1 [192.0.2.1:80, any path, HTTP/TCP]
 ~~~~~~~~~~
 
 This approach also allows a client to attempt different sets of application and transport protocols that, when available, could provide preferable features. For example, the protocol options could involve QUIC {{I-D.ietf-quic-transport}} over UDP on one branch, and HTTP/2 {{!RFC7540}} over TLS over TCP on the other:
 
 ~~~~~~~~~~
-1 [www.example.com:443, Any, Any HTTP]
-  1.1 [www.example.com:443, Any, QUIC/UDP]
-    1.1.1 [192.0.2.1:443, Any, QUIC/UDP]
-  1.2 [www.example.com:443, Any, HTTP2/TLS/TCP]
-    1.2.1 [192.0.2.1:443, Any, HTTP2/TLS/TCP]
+1 [www.example.com:443, any path, HTTP]
+  1.1 [www.example.com:443, any path, HTTP3/QUIC/UDP]
+    1.1.1 [192.0.2.1:443, any path, HTTP3/QUIC/UDP]
+  1.2 [www.example.com:443, any path, HTTP2/TLS/TCP]
+    1.2.1 [192.0.2.1:443, any path, HTTP2/TLS/TCP]
 ~~~~~~~~~~
 
 Another example is racing SCTP with TCP:
 
 ~~~~~~~~~~
-1 [www.example.com:80, Any, Any Stream]
-  1.1 [www.example.com:80, Any, SCTP]
-    1.1.1 [192.0.2.1:80, Any, SCTP]
-  1.2 [www.example.com:80, Any, TCP]
-    1.2.1 [192.0.2.1:80, Any, TCP]
+1 [www.example.com:80, any path, reliable-inorder-stream]
+  1.1 [www.example.com:80, any path, SCTP]
+    1.1.1 [192.0.2.1:80, any path, SCTP]
+  1.2 [www.example.com:80, any path, TCP]
+    1.2.1 [192.0.2.1:80, any path, TCP]
 ~~~~~~~~~~
 
 Implementations that support racing protocols and protocol options should maintain a history of which protocols and protocol options successfully established, on a per-network and per-endpoint basis (see {{performance-caches}}). This information can influence future racing decisions to prioritize or prune branches.
@@ -337,10 +337,10 @@ Branching for derived endpoints is the final step, and may have multiple layers 
 For example, if the application has indicated both a preference for WiFi over LTE and for a feature only available in SCTP, branches will be first sorted accord to path selection, with WiFi at the top. Then, branches with SCTP will be sorted to the top within their subtree according to the properties influencing protocol selection. However, if the implementation has current cache information that SCTP is not available on the path over WiFi, there is no SCTP node in the WiFi subtree. Here, the path over WiFi will be tried first, and, if connection establishment succeeds, TCP will be used. So the Selection Property of preferring WiFi takes precedence over the Property that led to a preference for SCTP.
 
 ~~~~~~~~~~
-1. [www.example.com:80, Any, Any Stream]
-1.1 [192.0.2.1:80, Wi-Fi, Any Stream]
+1. [www.example.com:80, any path, reliable-inorder-stream]
+1.1 [192.0.2.1:80, Wi-Fi, reliable-inorder-stream]
 1.1.1 [192.0.2.1:80, Wi-Fi, TCP]
-1.2 [192.0.3.1:80, LTE, Any Stream]
+1.2 [192.0.3.1:80, LTE, reliable-inorder-stream]
 1.2.1 [192.0.3.1:80, LTE, SCTP]
 1.2.2 [192.0.3.1:80, LTE, TCP]
 ~~~~~~~~~~
