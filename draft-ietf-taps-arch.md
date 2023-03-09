@@ -615,8 +615,8 @@ A Transport Services system must not automatically fall back from
 secure protocols to insecure protocols, or to weaker versions of secure
 protocols (see {{equivalence}}). For example, if an application requests a specific version of TLS,
 but the desired version of TLS is not available, its connection will fail.
-The Transport Services API MAY allow applications to specify minimum versions
-that are allowed to be used by the Transport Services system.
+As described in {{equivalence}}, the Transport Services API can allow applications
+to specify minimum versions that are allowed to be used by the Transport Services system.
 
 # Acknowledgements
 
