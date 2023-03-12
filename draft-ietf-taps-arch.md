@@ -110,7 +110,7 @@ they appear in all capitals, as shown here.
 
 ## Glossary of Key Terms
 
-This subsection provides a glossary of key terms related to the Transport Services architecture. It provides a simple description of key terms that are later defined in this document.
+This subsection provides a glossary of key terms related to the Transport Services architecture. It provides a short description of key terms that are later defined in this document.
 
 - Application: An entity that uses the transport layer for end-to-end delivery of data across the network {{?RFC8095}}.
 - Cached State: The state and history that the implementation keeps for each set of associated Endpoints that have been used previously.
