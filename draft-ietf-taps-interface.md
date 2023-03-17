@@ -32,8 +32,8 @@ author:
     country: Norway
     email: michawe@ifi.uio.no
   -
-    ins: T. Enghardt
-    name: Theresa Enghardt
+    ins: R. Enghardt
+    name: Reese Enghardt
     org: Netflix
     street: 121 Albright Way
     city: Los Gatos, CA 95032

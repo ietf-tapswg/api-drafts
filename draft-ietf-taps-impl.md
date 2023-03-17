@@ -33,8 +33,8 @@ author:
     country: United States of America
     email: tpauly@apple.com
   -
-    ins: T. Enghardt
-    name: Theresa Enghardt
+    ins: R. Enghardt
+    name: Reese Enghardt
     org: Netflix
     street: 121 Albright Way
     city: Los Gatos, CA 95032
