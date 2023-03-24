@@ -127,11 +127,11 @@ This subsection provides a glossary of key terms related to the Transport Servic
 - Framer: A data translation layer that can be added to a Connection to define how application-layer Messages are transmitted over a Protocol Stack.
 - Local Endpoint: A representation of the application's identifier for itself that it uses for a Connection.
 - Message: A unit of data that can be transferred between two Endpoints over a Connection.
-- Message Property: A property than can be used to specify details about Message transmission, or obtain details about the transmission after receiving a Message.
+- Message Property: A property that can be used to specify details about Message transmission, or obtain details about the transmission after receiving a Message.
 - Parameter: A value passed between an application and a transport protocol by a primitive {{?RFC8303}}.
 - Path: A representation of an available set of properties that a Local Endpoint can use to communicate with a Remote Endpoint.
 - Peer: An endpoint application party to a Connection.
-- Preconnection: an object that repesents a Connection that has not yet been established.
+- Preconnection: an object that represents a Connection that has not yet been established.
 - Preference: A preference to prohibit, avoid, ignore prefer or require a specific Transport Feature.
 - Primitive: A function call that is used to locally communicate between an application and an endpoint, which is related to one or more Transport Features {{?RFC8303}}.
 - Protocol Instance: A single instance of one protocol, including any state necessary to establish connectivity or send and receive Messages.
@@ -209,7 +209,7 @@ The Transport Services architecture evolves this general model of interaction, t
 
 The Transport Services API {{?I-D.ietf-taps-interface}} defines the interface for an application to create Connections and transfer data. It combines interfaces for multiple interaction patterns into a unified whole. By combining name resolution with connection establishment and data transfer in a single API, it allows for more flexible implementations to provide path and transport protocol agility on the application's behalf.
 
-The Transport Services implementation {{?I-D.ietf-taps-impl}} implements the transport layer protocols and other functions needed to send and receive data. It is is responsible for mapping the API to a specific available transport protocol stack and managing the available network interfaces and paths.
+The Transport Services implementation {{?I-D.ietf-taps-impl}} implements the transport layer protocols and other functions needed to send and receive data. It is responsible for mapping the API to a specific available transport protocol stack and managing the available network interfaces and paths.
 
 There are key differences between the Transport Services architecture and the architecture of the Socket API: the API of the Transport Services architecture is asynchronous and event-driven; it uses messages for representing data transfer to applications; and it describes how implementations can use multiple IP addresses, multiple protocols, multiple paths, and provide multiple application streams.
 
@@ -223,7 +223,7 @@ For example, an application first issues a call to receive new data from the con
 
 This API also delivers events regarding the lifetime of a connection and changes in the available network links, which were not previously made explicit in the Socket API.
 
-Using asynchronous events allows for a more natural interaction model when establishing connections and transferring data. Events in time more closely reflect the nature of interactions over networks, as opposed to how the Socket API represent network resources as file system objects that may be temporarily unavailable.
+Using asynchronous events allows for a more natural interaction model when establishing connections and transferring data. Events in time more closely reflect the nature of interactions over networks, as opposed to how the Socket API represents network resources as file system objects that may be temporarily unavailable.
 
 Separate from events, callbacks are also provided for asynchronous interactions with the Transport Services API that are not directly related to events on the network or network interfaces.
 
@@ -273,7 +273,7 @@ It is RECOMMENDED that the Transport Services API offers properties that are com
 
 It is RECOMMENDED that the default values for Properties are selected to ensure correctness for the widest set of applications, while providing the widest set of options for selection. For example, since both applications that require reliability and those that do not require reliability can function correctly when a protocol provides reliability, reliability ought to be enabled by default. As another example, the default value for a Property regarding the selection of network interfaces ought to permit as many interfaces as possible.
 
-Applications using the Transport Services API are REQUIRED to be robust to the automated selection provided by the Transport Services implementation. This automated selection is constrained by the properties and preferences expressed by the application and requires applications to explictly set properties that define any necssary constraints on protocol, path, and interface selection.
+Applications using the Transport Services API are REQUIRED to be robust to the automated selection provided by the Transport Services implementation. This automated selection is constrained by the properties and preferences expressed by the application and requires applications to explicitly set properties that define any necessary constraints on protocol, path, and interface selection.
 
 ## Allow Access to Specialized Features
 
