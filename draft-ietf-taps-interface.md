@@ -428,7 +428,7 @@ Preconnections are reusable after being used to initiate a Connection. Hence, fo
 the following would be correct:
 
 ~~~
-//.. carry out adjustments to the Preconnection, if desire
+//.. carry out adjustments to the Preconnection, if desired
 Connection := Preconnection.Initiate()
 ~~~
 
@@ -763,7 +763,7 @@ Endpoint will join the multicast group to receive messages. This Listener
 will create one Connection for each Remote Endpoint sending to the group,
 with the Local Endpoint set to the group address. The set of Connection
 objects created forms a Connection Group.
-The receiving interface can be restricted by passing it as part of the LocalSpecifier or queried through the MessagContext on the messages received (see {{msg-ctx}} for further details).
+The receiving interface can be restricted by passing it as part of the LocalSpecifier or queried through the Message Context on the messages received (see {{msg-ctx}} for further details).
 
 The following API calls can be used to configure a Preconnection before calling Listen():
 
