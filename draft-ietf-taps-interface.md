@@ -3417,7 +3417,7 @@ Applications should be aware that communication attempts can lead to more than o
 This is the case, for example, when the Transport Services system also executes name resolution, when support mechanisms such as
 TURN or ICE are used to establish connectivity, if protocols or paths are raised, or if a path fails and
 fallback or re-establishment is supported in the Transport Services system. Applications should take special
-care when using 0-RTT session resumption (see {{prop-0rtt}), as early data sent across multiple paths during
+care when using 0-RTT session resumption (see {{prop-0rtt}}), as early data sent across multiple paths during
 connection establishment may reveal information that can be used to correlate endpoints on these paths.
 
 Applications should also take care to not assume that all data received using the Transport Services API is always
