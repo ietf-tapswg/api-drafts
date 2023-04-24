@@ -2225,7 +2225,7 @@ Type:
 Default:
 : `Unlimited` / `Unlimited` / `Unlimited` / `Unlimited`
 
-Numeric values of this property specify an upper-bound rate that a transfer is not expected to
+Numeric values of these properties specify an upper-bound rate that a transfer is not expected to
 exceed (even if flow control and congestion control allow higher rates), and/or a
 lower-bound rate below which the application does not deem
 it will be useful. These are specified in bits per second.
