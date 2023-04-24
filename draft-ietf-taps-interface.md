@@ -550,7 +550,7 @@ form \[\<Namespace>.\]\<PropertyName\>.
   properties that are not specific to a protocol and are defined in an RFC.
 - Protocol-specific Properties MUST use the protocol acronym as the Namespace (e.g., a
   `tcp` Connection could support a TCP-specific Transport Property, such as the user timeout
-  value, in a Protocol-specific Property called `tcp.userTimeoutValue` (see {{tcp-uto}}).
+  value, in a Protocol-specific Property called `tcp.userTimeoutValue` (see {{tcp-uto}})).
 - Vendor or implementation specific properties MUST use a string identifying
   the vendor or implementation as the Namespace.
 - For IETF protocols, the name of a Protocol-specific Property SHOULD be specified in an IETF document published in the RFC Series.
