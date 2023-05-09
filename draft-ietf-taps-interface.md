@@ -130,7 +130,7 @@ multiple interfaces and potential transport protocols.
 
 # Introduction
 
-This document specifies an abstract application programming interface (API) that specifies the interface component of
+This document specifies an abstract application programming interface (API) that describes the interface component of
 the high-level Transport Services architecture defined in
 {{I-D.ietf-taps-arch}}. A Transport Services system supports
 asynchronous, atomic transmission of messages over transport protocols and
@@ -162,7 +162,7 @@ The Transport Services API is described in terms of
 
 - Objects with which an application can interact;
 - Actions the application can perform on these Objects;
-- Events, which an Object can send to an application to be processed aynchronously; and
+- Events, which an Object can send to an application to be processed asynchronously; and
 - Parameters associated with these Actions and Events.
 
 The following notations, which can be combined, are used in this document:
@@ -337,7 +337,7 @@ sequence of Messages into a byte stream and vice versa ({{framing}}).
 ### Server Example
 
 This is an example of how an application might listen for incoming Connections
-using the Transport Services API, and receive a request, and send a response.
+using the Transport Services API, receive a request, and send a response.
 
 ~~~
 LocalSpecifier := NewLocalEndpoint()
@@ -428,7 +428,7 @@ Preconnections are reusable after being used to initiate a Connection. Hence, fo
 the following would be correct:
 
 ~~~
-//.. carry out adjustments to the Preconnection, if desire
+//.. carry out adjustments to the Preconnection, if desired
 Connection := Preconnection.Initiate()
 ~~~
 
@@ -522,7 +522,7 @@ Connection Properties can be set on Connections and Preconnections;
 when set on Preconnections, they act as an initial default for the
 resulting Connections. Message Properties can be set on Messages,
 Connections, and Preconnections; when set on the latter two, they act as
-an initial default for the Messages sent over those Connections,
+an initial default for the Messages sent over those Connections.
 
 Note that configuring Connection Properties and Message Properties on
 Preconnections is preferred over setting them later. Early specification of
@@ -693,7 +693,7 @@ RemoteSpecifier.WithHostname("example.com")
 RemoteSpecifier.WithPort(443)
 ~~~
 
-- Service (an identifier that maps to a port; either a the name of a well-known service, or a DNS SRV service name to be resolved):
+- Service (an identifier that maps to a port; either the name of a well-known service, or a DNS SRV service name to be resolved):
 
 ~~~
 RemoteSpecifier.WithService("https")
@@ -763,7 +763,7 @@ Endpoint will join the multicast group to receive messages. This Listener
 will create one Connection for each Remote Endpoint sending to the group,
 with the Local Endpoint set to the group address. The set of Connection
 objects created forms a Connection Group.
-The receiving interface can be restricted by passing it as part of the LocalSpecifier or queried through the MessagContext on the messages received (see {{msg-ctx}} for further details).
+The receiving interface can be restricted by passing it as part of the LocalSpecifier or queried through the Message Context on the messages received (see {{msg-ctx}} for further details).
 
 The following API calls can be used to configure a Preconnection before calling Listen():
 
@@ -1252,7 +1252,7 @@ Default:
 
 This property specifies whether the application would like the Connection to send
 keep-alive packets or not. Note that if a Connection determines that keep-alive
-packets are being sent, the applicaton should itself avoid generating additional keep alive
+packets are being sent, the application should itself avoid generating additional keep alive
 messages. Note that when supported, the system will use the default period
 for generation of the keep alive-packets. (See also {{keep-alive-timeout}}).
 
@@ -1557,7 +1557,7 @@ SecurityParameters := NewOpportunisticSecurityParameters()
 ~~~
 
 Representation of security parameters in implementations should parallel
-that chosen for Transport Property names as sugggested in {{scope-of-interface-defn}}.
+that chosen for Transport Property names as suggested in {{scope-of-interface-defn}}.
 
 ### Connection Establishment Callbacks
 
@@ -1822,7 +1822,7 @@ Connection := Connection.Clone(framer?, connectionProperties?)
 
 Calling Clone on a Connection yields a Connection Group containing two Connections: the parent
 Connection on which Clone was called, and a resulting cloned Connection.
-The new Connection is actively openend, and it will locally send a Ready Event or an EstablishmentError Event.
+The new Connection is actively opened, and it will locally send a Ready Event or an EstablishmentError Event.
 Calling Clone on any of these Connections adds another Connection to
 the Connection Group. Connections in a Connection Group share all
 Connection Properties except `connPriority` (see {{conn-priority}}),
@@ -3040,7 +3040,7 @@ an equivalent configuration in which all prioritization properties are left
 at their defaults.
 
 The Transport Services API does order `connPriority` over
-`msgPriority`. In the absense of other externalities
+`msgPriority`. In the absence of other externalities
 (e.g., transport-layer flow control), a priority 1 Message on a priority 0
 Connection will be sent before a priority 0 Message on a priority 1
 Connection in the same group.
@@ -3112,7 +3112,7 @@ A Received event indicates the delivery of a complete Message.
 It contains two objects, the received bytes as messageData, and the metadata and properties of the received Message as messageContext.
 
 The messageData object provides access to the bytes that were received for this Message, along with the length of the byte array.
-The messageContext is provided to enable retrieving metadata about the message and referring to the message. The messageContext object ist described in {{msg-ctx}}.
+The messageContext is provided to enable retrieving metadata about the message and referring to the message. The messageContext object is described in {{msg-ctx}}.
 
 See {{framing}} for handling Message framing in situations where the Protocol
 Stack only provides a byte-stream transport.
@@ -3130,7 +3130,7 @@ of the same Message, the application must invoke Receive again.
 Multiple invocations of ReceivedPartial deliver data for the same Message by
 passing the same MessageContext, until the endOfMessage flag is delivered or a
 ReceiveError occurs. All partial blocks of a single Message are delivered in
-order without gaps. This event does not support delivering discontiguous partial
+order without gaps. This event does not support delivering non-contiguous partial
 Messages. If, for example, Message A is divided into three pieces (A1, A2, A3) and
 Message B is divided into three pieces (B1, B2, B3), and preserveOrder is not Required,
 the ReceivedPartial may deliver them in a sequence like this: A1, B1, B2, A2, A3, B3,
@@ -3397,7 +3397,7 @@ that the Transport Services system implementation is either provided as a librar
 from a trusted party, or that it is part of the operating system that the application also relies on for
 other tasks.
 
-In either case, the Transport Services API is an internal interface that is used to change information locally between two systems.
+In either case, the Transport Services API is an internal interface that is used to exchange information locally between two systems.
 However, as the Transport Services system is responsible for network communication, it is in the position to
 potentially share any information provided by the application with the network or another communication peer.
 Most of the information provided over the Transport Services API are useful to configure and select protocols and paths
@@ -3417,7 +3417,7 @@ Applications should be aware that communication attempts can lead to more than o
 This is the case, for example, when the Transport Services system also executes name resolution, when support mechanisms such as
 TURN or ICE are used to establish connectivity, if protocols or paths are raised, or if a path fails and
 fallback or re-establishment is supported in the Transport Services system. Applications should take special
-care when using 0-RTT session resumption (see {{prop-0rtt}), as early data sent across multiple paths during
+care when using 0-RTT session resumption (see {{prop-0rtt}}), as early data sent across multiple paths during
 connection establishment may reveal information that can be used to correlate endpoints on these paths.
 
 Applications should also take care to not assume that all data received using the Transport Services API is always
