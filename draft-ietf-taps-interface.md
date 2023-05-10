@@ -1898,7 +1898,7 @@ those endpoints. A `PathChange<>` event, described in {{conn-path-change}}, will
 generated when the path changes.
 
 In some cases, however, it is necessary to explicitly indicate to a Connection that
-a new Remote Endpoint has become available for use, or to indicate that some Remote
+a new Remote Endpoint has become available for use, or to indicate that a Remote
 Endpoint is no longer available. This is most common in the case of peer to peer
 connections using Trickle ICE {{?RFC8838}}.
 
