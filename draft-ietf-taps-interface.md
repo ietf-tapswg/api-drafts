@@ -480,7 +480,7 @@ Connection.Receive()
 
 Connection -> Received<messageDataResponse, messageContext>
 
-// If new remote endpoint candidates are received from the peer over
+// If new Remote Endpoint candidates are received from the peer over
 // the signalling channel, for example if using Trickle ICE, then add
 // them to the Connection:
 Connection.AddRemote(NewRemoteCandidates)
@@ -805,7 +805,7 @@ See {{multicast-examples}} for more examples.
 
 Note that this API has multiple ways to constrain and prioritize endpoint candidates based on the network interface:
 
- - Specifying an interface on a RemoteEndpoint qualifies the scope of the remote endpoint, e.g., for link-local addresses.
+ - Specifying an interface on a RemoteEndpoint qualifies the scope of the Remote Endpoint, e.g., for link-local addresses.
  - Specifying an interface on a LocalEndpoint explicitly binds all candidates derived from this endpoint to use the specified interface.
  - Specifying an interface using the `interface` Selection Property ({{prop-interface}}) or indirectly via the `pvd` Selection Property ({{prop-pvd}}) influences the selection among the available candidates.
 
@@ -999,7 +999,7 @@ of the selected Protocol Stacks on a per-Connection and Message level.
 
 The protocol(s) and path(s) selected as candidates during establishment are
 determined and configured using these properties. Since there could be paths
-over which some transport protocols are unable to operate, or remote endpoints
+over which some transport protocols are unable to operate, or Remote Endpoints
 that support only specific network addresses or transports, transport protocol
 selection is necessarily tied to path selection. This may involve choosing
 between multiple local interfaces that are connected to different access
@@ -1898,8 +1898,8 @@ those endpoints. A `PathChange<>` event, described in {{conn-path-change}}, will
 generated when the path changes.
 
 In some cases, however, it is necessary to explicitly indicate to a Connection that
-a new remote endpoint has become available for use, or to indicate that some remote
-endpoint is no longer available. This is most common in the case of peer to peer
+a new Remote Endpoint has become available for use, or to indicate that a Remote
+Endpoint is no longer available. This is most common in the case of peer to peer
 connections using Trickle ICE {{?RFC8838}}.
 
 The `AddRemote()` action can be used to add one or more new Remote Endpoints
@@ -1921,7 +1921,7 @@ stop using one or more Remote Endpoints:
 Connection.RemoveRemote([]RemoteEndpoint)
 ~~~
 
-Removing all known remote endpoints can have the effect of aborting the
+Removing all known Remote Endpoints can have the effect of aborting the
 connection. The effect of removing the active Remote Endpoint(s) depends
 on the underlying transport: multipath aware transports might be able to
 switch to a new path if other reachable Remote Endpoints exist, or the
@@ -2225,7 +2225,7 @@ Type:
 Default:
 : `Unlimited` / `Unlimited` / `Unlimited` / `Unlimited`
 
-Numeric values of this property specify an upper-bound rate that a transfer is not expected to
+Numeric values of these properties specify an upper-bound rate that a transfer is not expected to
 exceed (even if flow control and congestion control allow higher rates), and/or a
 lower-bound rate below which the application does not deem
 it will be useful. These are specified in bits per second.
