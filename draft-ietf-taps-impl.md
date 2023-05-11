@@ -103,7 +103,7 @@ informative:
 
 The Transport Services system enables applications to use transport protocols flexibly for network communication
 and defines a protocol-independent Transport Services Application Programming Interface (API) that is based on an asynchronous,
-event-driven interaction pattern. This document serves as a guide to implementation on how to build such a system.
+event-driven interaction pattern. This document serves as a guide to implementating such a system.
 
 --- middle
 
@@ -770,8 +770,8 @@ For Protocol-specific Properties, such as the User Timeout that applies to TCP, 
 If an error is encountered in setting a property (for example, if the application tries to set a TCP-specific property on a Connection that is
 not using TCP), the action should fail gracefully. The application may be informed of the error, but the Connection itself should not be terminated.
 
-The Transport Services API should allow protocol instances in the Protocol Stack to pass up arbitrary generic or protocol-specific
-errors that can be delivered to the application as Soft Errors. These allow the application to be informed of ICMP errors, and other similar events.
+The Transport Services implementation SHOULD allow protocol instances in the Protocol Stack to pass up arbitrary generic or protocol-specific
+errors, which the API will be delivered to the application as Soft Errors. These allow the application to be informed of ICMP errors, and other similar events.
 
 ## Pooled Connection {#pooled-connections}
 
