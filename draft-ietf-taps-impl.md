@@ -103,7 +103,7 @@ informative:
 
 The Transport Services system enables applications to use transport protocols flexibly for network communication
 and defines a protocol-independent Transport Services Application Programming Interface (API) that is based on an asynchronous,
-event-driven interaction pattern. This document serves as a guide to implementating such a system.
+event-driven interaction pattern. This document serves as a guide to implementing such a system.
 
 --- middle
 
