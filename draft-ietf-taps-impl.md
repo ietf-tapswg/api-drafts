@@ -507,7 +507,7 @@ Connectionless protocols such as UDP and UDP-lite generally do not provide the s
 
 ### Implementing listeners for Multiplexed Protocols
 
-Protocols that provide multiplexing of streams into a single four-tuple can listen both for entirely new connections (a new HTTP/2 stream on a new TCP connection, for example) and for new sub-connections (a new HTTP/2 stream on an existing connection). If the abstraction of Connection presented to the application is mapped to the multiplexed stream, then the Listener should deliver new Connection objects in the same way for either case. The implementation should allow the application to introspect the Connection Group marked on the Connections to determine the grouping of the multiplexing.
+Protocols that provide multiplexing of streams into a single four-tuple can listen both for entirely new connections (a new HTTP/2 stream on a new TCP connection, for example) and for new sub-connections (a new HTTP/2 stream on an existing connection). If the abstraction of Connection presented to the application is mapped to the multiplexed stream, then for either case the Listener ought to deliver the new Connection objects in the same way. The implementation should allow the application to introspect the Connection Group marked on the Connections to determine the grouping of the multiplexing.
 
 # Implementing Sending and Receiving Data
 
