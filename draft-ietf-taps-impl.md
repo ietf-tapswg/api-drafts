@@ -771,7 +771,7 @@ If an error is encountered in setting a property (for example, if the applicatio
 not using TCP), the action should fail gracefully. The application may be informed of the error, but the Connection itself should not be terminated.
 
 The Transport Services implementation SHOULD allow protocol instances in the Protocol Stack to pass up arbitrary generic or protocol-specific
-errors, which the API will be delivered to the application as Soft Errors. These allow the application to be informed of ICMP errors, and other similar events.
+errors, the API will deliver them to the application as Soft Errors. These allow the application to be informed of ICMP errors, and other similar events.
 
 ## Pooled Connection {#pooled-connections}
 
