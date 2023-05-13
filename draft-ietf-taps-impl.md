@@ -799,39 +799,10 @@ The strategy to do so is implementation-specific, but should be consistent with 
 
 # Implementing Connection Termination
 
-With TCP, when an application closes a connection, this
-means that it has no more data to send (but expects all data that has been
-handed over to be reliably delivered). However, with TCP only, "close" does
-not mean that the application will stop receiving data. This is related to TCP's ability to
-support half-closed connections.
-
-SCTP is an example of a protocol that does not support such half-closed connections.
-Hence, with SCTP, the meaning of "close" is stricter: an application has no more data
-to send (but expects all data that has been handed over to be reliably delivered), and will
-also not receive any more data.
-
-Implementing a protocol independent transport system means that the exposed
-semantics must be the strictest subset of the semantics of all supported protocols.
-Hence, as is common with all reliable transport protocols, after a Close action, the
-application can expect to have its reliability requirements honored regarding the data
-provided to the Transport Services API, but it cannot expect to be able to read any
-more data after calling Close.
-
-Abort differs from Close only in that no guarantees are given regarding any data
-that the application sent to the Transport Services API before calling Abort.
-
-As explained in {{establish-mux}}, when a new stream is multiplexed on an already
-existing connection of a Transport Protocol Instance, there is no need for a connection
-establishment procedure. Because the Connections that are offered by a Transport Services implementation
-can be implemented as streams that are multiplexed on a transport protocol's connection,
-it can therefore not be guaranteed an Initiate action from one endpoint
-provokes a ConnectionReceived event at its peer.
-
-For Close (provoking a Finished event) and Abort (provoking a ConnectionError event), the
-same logic applies: while it is desirable to be informed when a peer closes or aborts a
-Connection, whether this is possible depends on the underlying protocol, and no guarantees
-can be given. With SCTP, the transport system can use the stream reset procedure to cause
-a Finish event upon a Close action from the peer {{NEAT-flow-mapping}}.
+For Close (provoking a Finished event) and Abort (provoking a ConnectionError event), it
+is desirable to be informed when a peer closes or aborts a
+Connection. Whether this is possible depends on the underlying protocol, and no guarantees
+can be given. When a Connection is mapped to an SCTP stream, the transport system can use the stream reset procedure to cause a Finish event upon a Close action from the peer {{NEAT-flow-mapping}}.
 
 # Cached State
 

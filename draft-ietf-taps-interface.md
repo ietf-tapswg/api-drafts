@@ -3262,6 +3262,9 @@ for a Message handed over before calling Close, the Closed Event will signify
 that this Message has indeed been delivered. This Action does not affect any other Connection
 in the same Connection Group.
 
+Applications MUST NOT assume that it can receive any further data on a Connection
+for which it has called Close, even if such data is already in flight.
+
 ~~~
 Connection.Close()
 ~~~
