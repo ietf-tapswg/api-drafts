@@ -473,7 +473,7 @@ a connection.
   the Preconnection. For example, if the Local and Remote Endpoints are TCP
   host candidates, then a TCP simultaneous open {{?RFC9293}} will be performed.
   However, if the set of Local Endpoints includes server reflexive
-  candidates, such as those provided by STUN (Session Traversal Utilities 
+  candidates, such as those provided by STUN (Session Traversal Utilities
   for NAT) {{?RFC5389}}, a Rendezvous action will race
   candidates in the style of the ICE (Interactive Connection Establishment)
   algorithm {{?RFC8445}} to perform NAT
