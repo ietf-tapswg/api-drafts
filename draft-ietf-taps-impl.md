@@ -135,6 +135,8 @@ Listener objects are created with a Preconnection, at which point their configur
 
 # Implementing Pre-Establishment
 
+The Pre-Establishment phase allows applications to specify properties for the Connections that they are about to make, or to query the API about potential Connections they could make.
+
 During pre-establishment the application specifies one or more Endpoints to be used for communication as well as protocol preferences and constraints via Selection Properties and, if desired, also Connection Properties. Generally, Connection Properties should be configured as early as possible, because they can serve as input to decisions that are made by the implementation (e.g., the Capacity Profile can guide usage of a protocol offering scavenger-type congestion control).
 
 The implementation stores these properties as a part of the Preconnection object for use during connection establishment. For Selection Properties that are not provided by the application, the implementation uses the default values specified in the Transport Services API ({{I-D.ietf-taps-interface}}).
