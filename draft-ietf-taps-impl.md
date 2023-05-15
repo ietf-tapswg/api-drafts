@@ -559,7 +559,7 @@ transport protocol session or DCCP connection).
 
 ### Send Completion
 
-The application should be notified (using a `Sent`, `Expired` or `SendError` Event) whenever a Message or partial Message has been consumed by the Protocol Stack, or has failed to send. The time at which a Message is considered to have been consumed by the Protocol Stack may vary depending on the protocol. For example, for a basic datagram protocol like UDP, this may correspond to the time when the packet is sent into the interface driver. For a protocol that buffers data in queues, like TCP, this may correspond to when the data has entered the send buffer. The time at which a message failed to send is when the the Transport Services implementation (including the Protocol Stack) has experienced a failure related to sending; this can depend on protocol-specific timeouts.
+The application should be notified (using a `Sent`, `Expired` or `SendError` Event) whenever a Message or partial Message has been consumed by the Protocol Stack, or has failed to send. The time at which a Message is considered to have been consumed by the Protocol Stack may vary depending on the protocol. For example, for a basic datagram protocol like UDP, this may correspond to the time when the packet is sent into the interface driver. For a protocol that buffers data in queues, like TCP, this may correspond to when the data has entered the send buffer. The time at which a message failed to send is when the Transport Services implementation (including the Protocol Stack) has experienced a failure related to sending; this can depend on protocol-specific timeouts.
 
 ### Batching Sends
 
