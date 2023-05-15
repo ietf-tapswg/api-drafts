@@ -802,7 +802,7 @@ The strategy to do so is implementation-specific, but should be consistent with 
 For Close (which leads to a Finished event) and Abort (which leads to a ConnectionError event),
 the application might find it useful to be informed when a peer closes or aborts a
 Connection. Whether this is possible depends on the underlying protocol, and no guarantees
-can be given. When an underlying transport connection such as SCTP supports multi-streaming, the transport system can use a stream reset procedure to cause a Finish event upon a Close action from the peer {{NEAT-flow-mapping}}.
+can be given. When an underlying transport connection supports multi-streaming (such as SCTP), the transport system can use a stream reset procedure to cause a Finish event upon a Close action from the peer {{NEAT-flow-mapping}}.
 
 # Cached State
 
