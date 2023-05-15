@@ -255,6 +255,10 @@ Information used in connection establishment (e.g. cryptographic resumption toke
 
 Flexibility after connection establishment is also important. Transport protocols that can migrate between multiple network-layer interfaces need to be able to process and react to interface changes. Protocols that support multiple application-layer streams need to support initiating and receiving new streams using existing connections.
 
+## Coexistence
+
+Note that while the Transport Service architecture is designed as an enhanced replacement for the Socket API, it need not replace it entirely on a system or platform; indeed, incremental deployability {{?RFC8170}} requires coexistence. The architecture is therefore designed such that it can run alongside (or, indeed, on top of) an existing Socket API implementation: only applications built to the Transport Services API are managed by the system's Transport Services implementation.
+
 # API and Implementation Requirements {#requirements}
 
 A goal of the Transport Services architecture is to redefine the interface between applications and transports in a way that allows the transport layer to evolve and improve without fundamentally changing the contract with the application. This requires a careful consideration of how to expose the capabilities of protocols. This architecture also encompasses system policies that can influence and inform how transport protocols use a network path or interface.
@@ -576,6 +580,30 @@ For example, a web browser application could use Connection Contexts with separa
 RFC-EDITOR: Please remove this section before publication.
 
 This document has no actions for IANA.
+
+# Operations and Management Considerations
+
+The Transport Services architecture provides a framework for a substantially
+wider interface between the application and transport layers than the existing
+sockets interface, and as such affords more degrees of freedom for configuring
+and operating hosts using it.
+
+From a management perspective, the most important abstraction in the architecture
+is the System Policy, which constrains and influences, at the host
+level, how an implementation will gather Candidate Paths and Protocol Stacks
+and race the candidates when establishing a Connection. As the details of
+System Policy configuration and enforcement are largely platform- and
+implementation- dependent, and do not affect application-level interoperability,
+the Transport Services API {{?I-D.ietf-taps-interface}} does not specify
+an interface for reading or writing System Policy.
+
+The Transport Services API specifies both synchronous and asynchronous methods
+for reporting connection errors to the application, as the application is the most
+likely entity to be able to meaningfully react or recover from those errors.
+For the ease of debugging connectivity issues at the host level, it is
+RECOMMENDED that Transport Services implementations also provide for
+administrator-configurable error logging. The details of this logging are out of
+scope for this specification.
 
 # Security and Privacy Considerations
 
