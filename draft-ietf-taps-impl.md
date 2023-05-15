@@ -799,7 +799,7 @@ The strategy to do so is implementation-specific, but should be consistent with 
 
 # Implementing Connection Termination
 
-For Close (provoking a Finished event) and Abort (provoking a ConnectionError event), it
+For Close (which leads to a Finished event) and Abort (which leads to a ConnectionError event),
 is desirable to be informed when a peer closes or aborts a
 Connection. Whether this is possible depends on the underlying protocol, and no guarantees
 can be given. When a Connection is mapped to an SCTP stream, the transport system can use the stream reset procedure to cause a Finish event upon a Close action from the peer {{NEAT-flow-mapping}}.
