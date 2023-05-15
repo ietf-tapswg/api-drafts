@@ -73,7 +73,7 @@ This document describes an architecture for exposing transport protocol features
 
 # Introduction
 
-Many application programming interfaces (APIs) to perform transport networking have been deployed, perhaps the most widely known and imitated being the BSD Socket {{POSIX}} interface (Socket API). The naming of objects and functions across these APIs is not consistent, and varies depending on the protocol being used. For example, sending and receiving streams of data is conceptually the same for both an unencrypted Transmission Control Protocol (TCP) stream and operating on an encrypted Transport Layer Security (TLS) {{?RFC8446}} stream over TCP, but applications cannot use the same socket ```send()``` and ```recv()``` calls on top of both kinds of connections.
+Many application programming interfaces (APIs) to perform transport networking have been deployed, perhaps the most widely known and imitated being the BSD Socket {{POSIX}} interface (Socket API). The naming of objects and functions across these APIs is not consistent and varies depending on the protocol being used. For example, sending and receiving streams of data is conceptually the same for both an unencrypted Transmission Control Protocol (TCP) stream and operating on an encrypted Transport Layer Security (TLS) {{?RFC8446}} stream over TCP, but applications cannot use the same socket ```send()``` and ```recv()``` calls on top of both kinds of connections.
 Similarly, terminology for the implementation of transport protocols varies based on the context of the protocols themselves: terms such as "flow", "stream", "message", and "connection" can take on many different meanings. This variety can lead to confusion when trying to understand the similarities and differences between protocols, and how applications can use them effectively.
 
 The goal of the Transport Services architecture is to provide a flexible and reusable architecture that provides a common interface for transport protocols. As applications adopt this interface, they will benefit from a wide set of transport features that can evolve over time, and ensure that the system providing the interface can optimize its behavior based on the application requirements and network conditions, without requiring changes to the applications. This flexibility enables faster deployment of new features and protocols. It can also support applications by offering racing mechanisms (attempting multiple IP addresses, protocols, or network paths in parallel), which otherwise need to be implemented in each application separately (see {{racing}}).
@@ -132,7 +132,7 @@ This subsection provides a glossary of key terms related to the Transport Servic
 - Path: A representation of an available set of properties that a Local Endpoint can use to communicate with a Remote Endpoint.
 - Peer: An endpoint application party to a Connection.
 - Preconnection: an object that represents a Connection that has not yet been established.
-- Preference: A preference to prohibit, avoid, ignore prefer or require a specific Transport Feature.
+- Preference: A preference to prohibit, avoid, ignore, prefer, or require a specific Transport Feature.
 - Primitive: A function call that is used to locally communicate between an application and an endpoint, which is related to one or more Transport Features {{?RFC8303}}.
 - Protocol Instance: A single instance of one protocol, including any state necessary to establish connectivity or send and receive Messages.
 - Protocol Stack: A set of Protocol Instances that are used together to establish connectivity or send and receive Messages.
@@ -279,7 +279,7 @@ Applications using the Transport Services API are REQUIRED to be robust to the a
 
 There are applications that will need to control fine-grained details of transport protocols to optimize their behavior and ensure compatibility with remote systems. It is therefore RECOMMENDED that the Transport Services API and the Transport Services implementation permit more specialized protocol features to be used.
 
-A specialized feature could be needed by an application only when using a specific protocol, and not when using others. For example, if an application is using TCP, it could require control over the User Timeout Option for TCP; these options would not take effect for other transport protocols. In such cases, the API ought to expose the features in such a way that they take effect when a particular protocol is selected, but do not imply that only that protocol could be used. For example, if the API allows an application to specify a preference to use the User Timeout Option, communication would not fail when a protocol such as QUIC is selected.
+A specialized feature could be needed by an application only when using a specific protocol, and not when using others. For example, if an application is using TCP, it could require control over the User Timeout Option for TCP {{?RFC5482}}; these options would not take effect for other transport protocols. In such cases, the API ought to expose the features in such a way that they take effect when a particular protocol is selected, but do not imply that only that protocol could be used. For example, if the API allows an application to specify a preference to use the User Timeout Option, communication would not fail when a protocol such as QUIC is selected.
 
 Other specialized features, however, can also be strictly required by an application and thus further constrain the set of protocols that can be used. For example, if an application requires support for automatic handover or failover for a connection, only protocol stacks that provide this feature are eligible to be used, e.g., protocol stacks that include a multipath protocol or a protocol that supports connection migration. A Transport Services API needs to allow applications to define such requirements and constrain the options available to a Transport Services implementation. Since such options are not part of the core/common features, it will generally be simple for an application to modify its set of constraints and change the set of allowable protocol features without changing the core implementation.
 
@@ -473,8 +473,10 @@ a connection.
   the Preconnection. For example, if the Local and Remote Endpoints are TCP
   host candidates, then a TCP simultaneous open {{?RFC9293}} will be performed.
   However, if the set of Local Endpoints includes server reflexive
-  candidates, such as those provided by STUN, a Rendezvous action will race
-  candidates in the style of the ICE algorithm {{?RFC8445}} to perform NAT
+  candidates, such as those provided by STUN (Session Traversal Utilities 
+  for NAT) {{?RFC5389}}, a Rendezvous action will race
+  candidates in the style of the ICE (Interactive Connection Establishment)
+  algorithm {{?RFC8445}} to perform NAT
   binding discovery and initiate a peer-to-peer connection.
 
 ### Data Transfer Objects and Actions {#datatransfer}
@@ -611,7 +613,7 @@ outbound TLS and QUIC connections, the Transport Services system MUST NOT use th
 automatically in other contexts (such as server authentication for inbound
 connections, or in other another security protocol handshake that is not equivalent to TLS).
 
-A Transport Services system must not automatically fall back from
+A Transport Services system MUST NOT automatically fall back from
 secure protocols to insecure protocols, or to weaker versions of secure
 protocols (see {{equivalence}}). For example, if an application requests a specific version of TLS,
 but the desired version of TLS is not available, its connection will fail.
