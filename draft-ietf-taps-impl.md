@@ -111,8 +111,7 @@ event-driven interaction pattern. This document serves as a guide to implementin
 
 The Transport Services architecture {{I-D.ietf-taps-arch}} defines a system that allows applications to flexibly use transport networking protocols. The API that such a system exposes to applications is defined as the Transport Services API {{I-D.ietf-taps-interface}}. This API is designed to be generic across multiple transport protocols and sets of protocol features.
 
-This document serves as a guide to implementing a system that provides a Transport Services API. This guide offers hints to developers, but it is not prescriptive: implementations are free to take any desired form as long as the API specification in {{I-D.ietf-taps-interface}} is honored.
-  It is the job of an implementation of a Transport Services system to turn the requests of an application into decisions on how to establish connections, and how to transfer data over those connections once established. The terminology used in this document is based on the Architecture {{I-D.ietf-taps-arch}}.
+This document serves as a guide to implementing a system that provides a Transport Services API. This guide offers hints to developers, but it is not prescriptive: implementations are free to take any desired form as long as the API specification in {{I-D.ietf-taps-interface}} is honored. It is the job of an implementation of a Transport Services system to turn the requests of an application into decisions on how to establish connections, and how to transfer data over those connections once established. The terminology used in this document is based on the Architecture {{I-D.ietf-taps-arch}}.
 
 # Implementing Connection Objects
 
