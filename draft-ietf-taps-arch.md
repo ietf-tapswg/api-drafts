@@ -359,7 +359,9 @@ The following diagram summarizes the top-level concepts in the architecture and 
 {: #fig-abstractions title="Concepts and Relationships in the Transport Services Architecture"}
 
 The Transport Services Implementation includes the Cached State and System Policy.
-The System Policy provides input from an operating system or other global preferences that can constrain or influence how an implementation will gather Candidate Paths and Protocol Stacks and race the candidates when establishing a Connection.
+
+The System Policy provides input from an operating system or other global preferences that can constrain or influence how an implementation will gather Candidate Paths and Protocol Stacks and race the candidates when establishing a Connection. As the details of System Policy configuration and enforcement are largely platform- and implementation- dependent, and do not affect application-level interoperability, the Transport Services API {{?I-D.ietf-taps-interface}} does not specify an interface for reading or writing System Policy.
+
 The Cached State is the state and history that the implementation keeps for each set of associated endpoints that have previously been used.
 
 ## Transport Services API Concepts
@@ -580,30 +582,6 @@ For example, a web browser application could use Connection Contexts with separa
 RFC-EDITOR: Please remove this section before publication.
 
 This document has no actions for IANA.
-
-# Operations and Management Considerations
-
-The Transport Services architecture provides a framework for a substantially
-wider interface between the application and transport layers than the existing
-sockets interface, and as such affords more degrees of freedom for configuring
-and operating hosts using it.
-
-From a management perspective, the most important abstraction in the architecture
-is the System Policy, which constrains and influences, at the host
-level, how an implementation will gather Candidate Paths and Protocol Stacks
-and race the candidates when establishing a Connection. As the details of
-System Policy configuration and enforcement are largely platform- and
-implementation- dependent, and do not affect application-level interoperability,
-the Transport Services API {{?I-D.ietf-taps-interface}} does not specify
-an interface for reading or writing System Policy.
-
-The Transport Services API specifies both synchronous and asynchronous methods
-for reporting errors to the application, as the application is the most
-likely entity to be able to meaningfully react or recover from those errors.
-For the ease of debugging connectivity issues at the host level, it is
-RECOMMENDED that Transport Services implementations also provide for
-administrator-configurable error logging. The details of this logging are out of
-scope for this specification.
 
 # Security and Privacy Considerations
 
