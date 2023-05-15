@@ -598,7 +598,7 @@ the Transport Services API {{?I-D.ietf-taps-interface}} does not specify
 an interface for reading or writing System Policy.
 
 The Transport Services API specifies both synchronous and asynchronous methods
-for reporting connection errors to the application, as the application is the most
+for reporting errors to the application, as the application is the most
 likely entity to be able to meaningfully react or recover from those errors.
 For the ease of debugging connectivity issues at the host level, it is
 RECOMMENDED that Transport Services implementations also provide for
