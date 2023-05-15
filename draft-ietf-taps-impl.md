@@ -1146,7 +1146,7 @@ This document has no actions for IANA.
 
 ## Considerations for Candidate Gathering
 
-Implementations should avoid downgrade attacks that allow network interference to cause the implementation to select less secure, or entirely insecure, combinations of paths and protocols.
+The Security Considerations of the Transport Services Architecture {{I-D.ietf-taps-arch}} forbids gathering and racing with protocol stacks that do not have equivalent security properties. Therefore, implementations need to avoid downgrade attacks that allow network interference to cause the implementation to select less secure, or entirely insecure, combinations of paths and protocols.
 
 ## Considerations for Candidate Racing
 
