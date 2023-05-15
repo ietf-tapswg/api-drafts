@@ -103,7 +103,7 @@ informative:
 
 The Transport Services system enables applications to use transport protocols flexibly for network communication
 and defines a protocol-independent Transport Services Application Programming Interface (API) that is based on an asynchronous,
-event-driven interaction pattern. This document serves as a guide to implementation on how to build such a system.
+event-driven interaction pattern. This document serves as a guide to implementing such a system.
 
 --- middle
 
@@ -509,7 +509,7 @@ Connectionless protocols such as UDP and UDP-lite generally do not provide the s
 
 ### Implementing listeners for Multiplexed Protocols
 
-Protocols that provide multiplexing of streams into a single four-tuple can listen both for entirely new connections (a new HTTP/2 stream on a new TCP connection, for example) and for new sub-connections (a new HTTP/2 stream on an existing connection). If the abstraction of Connection presented to the application is mapped to the multiplexed stream, then the Listener should deliver new Connection objects in the same way for either case. The implementation should allow the application to introspect the Connection Group marked on the Connections to determine the grouping of the multiplexing.
+Protocols that provide multiplexing of streams into a single four-tuple can listen both for entirely new connections (a new HTTP/2 stream on a new TCP connection, for example) and for new sub-connections (a new HTTP/2 stream on an existing connection). If the abstraction of Connection presented to the application is mapped to the multiplexed stream, then for either case the Listener ought to deliver the new Connection objects in the same way. The implementation should allow the application to introspect the Connection Group marked on the Connections to determine the grouping of the multiplexing.
 
 # Implementing Sending and Receiving Data
 
@@ -772,8 +772,8 @@ For Protocol-specific Properties, such as the User Timeout that applies to TCP, 
 If an error is encountered in setting a property (for example, if the application tries to set a TCP-specific property on a Connection that is
 not using TCP), the action should fail gracefully. The application may be informed of the error, but the Connection itself should not be terminated.
 
-The Transport Services API should allow protocol instances in the Protocol Stack to pass up arbitrary generic or protocol-specific
-errors that can be delivered to the application as Soft Errors. These allow the application to be informed of ICMP errors, and other similar events.
+When protocol instances in the Protocol Stack report generic or protocol-specific
+errors, the API will deliver them to the application as Soft Errors. These allow the application to be informed of ICMP errors, and other similar events.
 
 ## Pooled Connection {#pooled-connections}
 
