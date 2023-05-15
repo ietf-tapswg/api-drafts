@@ -255,6 +255,10 @@ Information used in connection establishment (e.g. cryptographic resumption toke
 
 Flexibility after connection establishment is also important. Transport protocols that can migrate between multiple network-layer interfaces need to be able to process and react to interface changes. Protocols that support multiple application-layer streams need to support initiating and receiving new streams using existing connections.
 
+## Coexistence
+
+Note that while the Transport Service architecture is designed as an enhanced replacement for the Socket API, it need not replace it entirely on a system or platform; indeed, incremental deployability {{?RFC8170}} requires coexistence. The architecture is therefore designed such that it can run alongside (or, indeed, on top of) an existing Socket API implementation; only applications built to the Transport Services API are managed by the system's Transport Services implementation.
+
 # API and Implementation Requirements {#requirements}
 
 A goal of the Transport Services architecture is to redefine the interface between applications and transports in a way that allows the transport layer to evolve and improve without fundamentally changing the contract with the application. This requires a careful consideration of how to expose the capabilities of protocols. This architecture also encompasses system policies that can influence and inform how transport protocols use a network path or interface.
@@ -355,7 +359,9 @@ The following diagram summarizes the top-level concepts in the architecture and 
 {: #fig-abstractions title="Concepts and Relationships in the Transport Services Architecture"}
 
 The Transport Services Implementation includes the Cached State and System Policy.
-The System Policy provides input from an operating system or other global preferences that can constrain or influence how an implementation will gather Candidate Paths and Protocol Stacks and race the candidates when establishing a Connection.
+
+The System Policy provides input from an operating system or other global preferences that can constrain or influence how an implementation will gather Candidate Paths and Protocol Stacks and race the candidates when establishing a Connection. As the details of System Policy configuration and enforcement are largely platform- and implementation- dependent, and do not affect application-level interoperability, the Transport Services API {{?I-D.ietf-taps-interface}} does not specify an interface for reading or writing System Policy.
+
 The Cached State is the state and history that the implementation keeps for each set of associated endpoints that have previously been used.
 
 ## Transport Services API Concepts
