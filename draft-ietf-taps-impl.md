@@ -463,7 +463,7 @@ New connection attempts that involve transmitting data on the network ought not 
 An implementation could choose to let certain handshakes and negotiations complete to gather metrics that influence future connections.
 Keeping additional connections is generally not recommended, because those attempts were slower to connect and may exhibit less desirable properties.
 
-### Determining Successful Establishment
+### Determining Successful Establishment {#determining-successful-establishment}
 
 On a per-protocol basis, implementations may select different criteria by which a leaf node is considered to be successfully connected. If the only protocol being used is a transport protocol with a clear handshake, like TCP, then the obvious choice is to declare that node "connected" when the last packet of the three-way handshake has been received. If the only protocol being used is an connectionless protocol, like UDP, the implementation may consider the node fully "connected" the moment it determines a route is present, before sending any packets on the network, see further {{connectionless-racing}}.
 
