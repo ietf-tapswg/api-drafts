@@ -520,7 +520,7 @@ Connectionless protocols such as UDP and UDP-lite generally do not provide the s
 
 ### Implementing listeners for Multiplexed Protocols
 
-Protocols that provide multiplexing of streams can listen for entirely new connections and for new sub-connections (streams of an already existing connection). A new stream arrival of an already existing connection must be presented to the application as a new Connection. This new Connection must be grouped with all other Connections that are multiplexed via the same protocol.
+Protocols that provide multiplexing of streams into a single four-tuple can listen both for entirely new connections (a new HTTP/2 stream on a new TCP connection, for example) and for new sub-connections (a new HTTP/2 stream on an existing connection). If the abstraction of Connection presented to the application is mapped to the multiplexed stream, then for either case the Listener ought to deliver the new Connection objects in the same way. The implementation should allow the application to introspect the Connection Group marked on the Connections to determine the grouping of the multiplexing.
 
 # Implementing Sending and Receiving Data
 
@@ -1050,7 +1050,7 @@ In such cases, the Transport Services system needs to explicitly enable re-use o
 in the socket API).
 
 ConnectionReceived:
-: UDP Multicast Receive Listeners will deliver new Connections once they have received traffic from a new Remote Endpoint.
+: UDP Multicast Receive Listeners will deliver new connections once they have received traffic from a new Remote Endpoint.
 
 Clone:
 : Calling `Clone` on a UDP Multicast Receive Connection creates a new Connection with equivalent parameters. The two Connections are otherwise independent.
