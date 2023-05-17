@@ -482,7 +482,7 @@ Multiplexing several Connections over a single underlying transport connection r
 
 Thus, when the Connections that are offered to an application by the Transport Services API are multiplexed,
 the Transport Services implementation can establish a new Connection by using
-a new stream of an already established transport connection. For such streams, there is often no explicit connection
+For such streams, there is often no explicit connection
 establishment procedure for the new stream prior to sending data on it (e.g., with SCTP). In this case, the same
 considerations apply to determining stream establishment as apply to establishing a UDP connection, as
 discussed in {{determining-successful-establishment}}.
