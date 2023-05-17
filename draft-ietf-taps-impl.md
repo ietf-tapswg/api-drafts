@@ -480,7 +480,6 @@ If all of the leaf nodes fail to connect during racing, i.e. none of the configu
 Multiplexing several Connections over a single underlying transport connection requires that the Connections to be multiplexed belong to the same Connection Group (as is indicated by the application using the Clone call). When the underlying transport connection supports multi-streaming, the Transport Services System can map each Connection in the Connection Group to a different stream.
 
 
-the Transport Services implementation can establish a new Connection by using
 For such streams, there is often no explicit connection
 establishment procedure for the new stream prior to sending data on it (e.g., with SCTP). In this case, the same
 considerations apply to determining stream establishment as apply to establishing a UDP connection, as
