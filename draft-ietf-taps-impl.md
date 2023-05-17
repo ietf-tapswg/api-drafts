@@ -485,7 +485,6 @@ establishment procedure for the new stream prior to sending data on it (e.g., wi
 considerations apply to determining stream establishment as apply to establishing a UDP connection, as
 discussed in {{determining-successful-establishment}}.
 
-a new stream of an already established transport Connection and there is no need for a connection establishment
 procedure. This, then, also means that there may not
 be any "establishment" message (like a TCP SYN), but the application can simply start sending
 or receiving.
