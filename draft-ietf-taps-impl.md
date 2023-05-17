@@ -485,7 +485,6 @@ establishment procedure for the new stream prior to sending data on it (e.g., wi
 considerations apply to determining stream establishment as apply to establishing a UDP connection, as
 discussed in {{determining-successful-establishment}}.
 
-Thus, when the Connections that are offered to an application by the Transport Services API are multiplexed,
 the Transport Services implementation can establish a new Connection by simply beginning to use
 a new stream of an already established transport Connection and there is no need for a connection establishment
 procedure. This, then, also means that there may not
