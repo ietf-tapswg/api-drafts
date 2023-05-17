@@ -486,7 +486,6 @@ considerations apply to determining stream establishment as apply to establishin
 discussed in {{determining-successful-establishment}}.
 This, then, also means that there may not
 be any "establishment" message (like a TCP SYN).
-or receiving.
 
 
 ## Handling connectionless protocols {#connectionless-racing}
