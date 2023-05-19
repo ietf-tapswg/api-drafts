@@ -595,7 +595,10 @@ It is also possible for Protocol Stacks within a particular leaf node to use 0-R
 
 Message Framers are functions that define
 simple transformations between application Message data and raw transport
-protocol data. A Framer can encapsulate or encode outbound Messages,
+protocol data. Generally, a Message Framer implements a simple
+application protocol that can either be provided by the Transport Service
+implementation or be customized by the application.
+A Framer can encapsulate or encode outbound Messages,
 decapsulate or decode inbound data into Messages, and implement parts of
 protocols that do not directly map to application Messages (such as
 protocol handshakes or preludes before Message exchange).
