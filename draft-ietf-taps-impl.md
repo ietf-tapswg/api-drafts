@@ -130,7 +130,7 @@ The Connection Properties held by a Connection or Listener are independent of ot
 
 Connection establishment is only a local operation for a connectionless protocols, which serves to simplify the local send/receive functions and to filter the traffic for the specified addresses and ports {{?RFC8085}} (for example using UDP or UDP-Lite transport without a connection handshake procedure).
 
-Once Initiate has been called, the Selection Properties and Endpoint information of the created Connection are immutable (i.e, an application is not able to later modify these properties of a Connection by manipulating the original Preconnection object).
+Once Initiate has been called, the Selection Properties and Endpoint information of the created Connection are immutable (i.e, an application is not able to later modify the properties of a Connection by manipulating the original Preconnection object).
 Listener objects are created with a Preconnection, at which point their configuration should be considered immutable by the implementation. The process of listening is described in {{listen}}.
 
 # Implementing Pre-Establishment
