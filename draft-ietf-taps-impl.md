@@ -509,7 +509,7 @@ Connectionless protocols such as UDP and UDP-lite generally do not provide the s
 
 ### Implementing listeners for Multiplexed Protocols
 
-Protocols that provide multiplexing of streams can listen for entirely new connections and for new sub-connections (streams of an already existing connection). A new stream arrival on an already existing connection must be presented to the application as a new Connection. This new Connection must be grouped with all other Connections that are multiplexed via the same protocol.
+Protocols that provide multiplexing of streams can listen for entirely new connections as well as for new sub-connections (streams of an already existing connection). A new stream arrival on an existing connection is presented to the application as a new Connection. This new Connection is grouped with all other Connections that are multiplexed via the same protocol.
 
 # Implementing Sending and Receiving Data
 
