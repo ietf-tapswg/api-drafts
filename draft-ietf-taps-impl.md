@@ -467,7 +467,7 @@ Keeping additional connections is generally not recommended, because those attem
 
 On a per-protocol basis, implementations may select different criteria by which a leaf node is considered to be successfully connected. If the only protocol being used is a transport protocol with a clear handshake, like TCP, then the obvious choice is to declare that node "connected" when the last packet of the three-way handshake has been received. If the only protocol being used is an connectionless protocol, like UDP, the implementation may consider the node fully "connected" the moment it determines a route is present, before sending any packets on the network, see further {{connectionless-racing}}.
 
-When the Initiate action of a Transport Services API is called without Messages being handed over, depending on the
+When the Initiate action is called without any Messages being sent at the same time, depending on the
 protocols involved, it is not guaranteed that the Remote Endpoint will be notified of this, and hence a passive
 endpoint's application may not receive a ConnectionReceived event until it receives the first Message on the new Connection.
 
@@ -484,7 +484,7 @@ For such streams, there is often no explicit connection
 establishment procedure for the new stream prior to sending data on it (e.g., with SCTP). In this case, the same
 considerations apply to determining stream establishment as apply to establishing a UDP connection, as
 discussed in {{determining-successful-establishment}}.
-This, then, also means that there may not
+This means that there might not
 be any "establishment" message (like a TCP SYN).
 
 
