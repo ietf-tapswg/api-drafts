@@ -1184,7 +1184,7 @@ Type:
 Default:
 : Prefer
 
-This property specifies that the application would prefer multiple Connections
+This property specifies whether the application would prefer multiple Connections
 within a Connection Group to be provided by streams of a single underlying
 transport connection where possible.
 
