@@ -467,6 +467,10 @@ Keeping additional connections is generally not recommended, because those attem
 
 On a per-protocol basis, implementations may select different criteria by which a leaf node is considered to be successfully connected. If the only protocol being used is a transport protocol with a clear handshake, like TCP, then the obvious choice is to declare that node "connected" when the last packet of the three-way handshake has been received. If the only protocol being used is an connectionless protocol, like UDP, the implementation may consider the node fully "connected" the moment it determines a route is present, before sending any packets on the network, see further {{connectionless-racing}}.
 
+When the Initiate action is called without any Messages being sent at the same time, depending on the
+protocols involved, it is not guaranteed that the Remote Endpoint will be notified of this, and hence a passive
+endpoint's application may not receive a ConnectionReceived event until it receives the first Message on the new Connection.
+
 For Protocol Stacks with multiple handshakes, the decision becomes more nuanced. If the Protocol Stack involves both TLS and TCP, an implementation could determine that a leaf node is connected after the TCP handshake is complete, or it can wait for the TLS handshake to complete as well. The benefit of declaring completion when the TCP handshake finishes, and thus stopping the race for other branches of the tree, is reduced burden on the network and Remote Endpoints from further connection attempts that are likely to be abandoned. On the other hand, by waiting until the TLS handshake is complete, an implementation avoids the scenario in which a TCP handshake completes quickly, but TLS negotiation is either very slow or fails altogether in particular network conditions or to a particular endpoint. To avoid the issue of TLS possibly failing, the implementation should not generate a Ready event for the Connection until the TLS handshake is complete.
 
 If all of the leaf nodes fail to connect during racing, i.e. none of the configurations that satisfy all requirements given in the Transport Properties actually work over the available paths, then the transport system should report an EstablishmentError to the application. An EstablishmentError event should also be generated in case the transport system finds no usable candidates to race.
@@ -474,15 +478,15 @@ If all of the leaf nodes fail to connect during racing, i.e. none of the configu
 ## Establishing multiplexed connections {#establish-mux}
 
 Multiplexing several Connections over a single underlying transport connection requires that the Connections to be multiplexed belong to the same Connection Group (as is indicated by the application using the Clone call). When the underlying transport connection supports multi-streaming, the Transport Services System can map each Connection in the Connection Group to a different stream.
-Thus, when the Connections that are offered to an application by the Transport Services API are multiplexed,
-the Transport Services implementation can establish a new Connection by simply beginning to use
-a new stream of an already established transport Connection and there is no need for a connection establishment
-procedure. This, then, also means that there may not
-be any "establishment" message (like a TCP SYN), but the application can simply start sending
-or receiving. Therefore, when the Initiate action of a Transport Services API is called without Messages being
-handed over, it cannot be guaranteed that the Remote Endpoint will have any way to know about this, and hence
-a passive endpoint's ConnectionReceived event might not be delivered until data is received.
-Instead, delivering the ConnectionReceived event could be delayed until the first Message arrives.
+
+
+For such streams, there is often no explicit connection
+establishment procedure for the new stream prior to sending data on it (e.g., with SCTP). In this case, the same
+considerations apply to determining stream establishment as apply to establishing a UDP connection, as
+discussed in {{determining-successful-establishment}}.
+This means that there might not
+be any "establishment" message (like a TCP SYN).
+
 
 ## Handling connectionless protocols {#connectionless-racing}
 
