@@ -1796,8 +1796,8 @@ transport-layer connection is established; for Connectionless transports,
 it occurs when the first Message is received from the Remote Endpoint. The
 resulting Connection is contained within the RendezvousDone<> Event, and is
 ready to use as soon as it is passed to the application via the Event.
-Changes made to a Preconnection after Rendezvous() has been called do
-not have any effect on existing Connections.
+Changes made to a Preconnection after Rendezvous() has been called MUST
+NOT have any effect on existing Connections.
 
 An EstablishmentError occurs either when the Properties and Security
 Parameters of the Preconnection cannot be fulfilled for rendezvous or
