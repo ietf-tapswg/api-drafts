@@ -161,45 +161,45 @@ choice to use a specific transport stack is discouraged for general use, because
 The Transport Services API is described in terms of
 
 - Objects with which an application can interact;
-- Actions the application can perform on these Objects;
-- Events, which an Object can send to an application to be processed asynchronously; and
-- Parameters associated with these Actions and Events.
+- Actions the application can perform on these objects;
+- Events, which an object can send to an application to be processed asynchronously; and
+- Parameters associated with these actions and events.
 
 The following notations, which can be combined, are used in this document:
 
-- An Action that creates an Object:
+- An action that creates an object:
 
 ~~~
       Object := Action()
 ~~~
 
-- An Action that creates an array of Objects:
+- An action that creates an array of objects:
 
 ~~~
       []Object := Action()
 ~~~
 
-- An Action that is performed on an Object:
+- An action that is performed on an object:
 
 ~~~
       Object.Action()
 ~~~
 
-- An Object sends an Event:
+- An object sends an event:
 
 ~~~
       Object -> Event<>
 ~~~
 
-- An Action takes a set of Parameters; an Event contains a set of Parameters.
-  Action and Event parameters whose names are suffixed with a question mark are optional.
+- An action takes a set of Parameters; an event contains a set of Parameters.
+  action and event parameters whose names are suffixed with a question mark are optional.
 
 ~~~
       Action(param0, param1?, ...) / Event<param0, param1, ...>
 ~~~
 
-Objects that are passed as parameters to Actions use call-by-value behavior.
-Actions associated with no Object are Actions on the API; they are equivalent to Actions on a per-application global context.
+Objects that are passed as parameters to actions use call-by-value behavior.
+Actions associated with no object are actions on the API; they are equivalent to actions on a per-application global context.
 
 Events are sent to the application or application-supplied code (e.g. framers,
 see {{framing}}) for processing; the details of event interfaces are platform-
@@ -283,7 +283,7 @@ provides:
 
 # API Summary
 
-An application primarily interacts with this API through two Objects:
+An application primarily interacts with this API through two objects:
 Preconnections and Connections. A Preconnection object ({{pre-establishment}})
 represents a set of properties and constraints on the selection and configuration of
 paths and protocols to establish a Connection with an Endpoint. A Connection object
@@ -304,9 +304,9 @@ via explicit Protocol Stack support, and via application support through a
 Message Framer that finds message boundaries in a stream. Messages are
 received asynchronously through event handlers registered by the application.
 Errors and other notifications also happen asynchronously on the Connection.
-It is not necessary for an application to handle all Events; some Events may
+It is not necessary for an application to handle all events; some events may
 have implementation-specific default handlers. The application should not
-assume that ignoring Events (e.g., Errors) is always safe.
+assume that ignoring events (e.g., errors) is always safe.
 
 
 ## Usage Examples
@@ -316,7 +316,7 @@ Transport Services API to:
 
 - Act as a server, by listening for incoming Connections, receiving requests,
   and sending responses, see {{server-example}}.
-- Act as a client, by connecting to a Remote Endpoint using Initiate, sending
+- Act as a client, by connecting to a Remote Endpoint using `Initiate`, sending
   requests, and receiving responses, see {{client-example}}.
 - Act as a peer, by connecting to a Remote Endpoint using Rendezvous while
   simultaneously waiting for incoming Connections, sending Messages, and
@@ -352,7 +352,7 @@ SecurityParameters := NewSecurityParameters()
 SecurityParameters.Set(identity, myIdentity)
 SecurityParameters.Set(key-pair, myPrivateKey, myPublicKey)
 
-// Specifying a Remote Endpoint is optional when using Listen()
+// Specifying a Remote Endpoint is optional when using Listen
 Preconnection := NewPreconnection(LocalSpecifier,
                                   TransportProperties,
                                   SecurityParameters)
@@ -398,7 +398,7 @@ TrustCallback := NewCallback({
 })
 SecurityParameters.SetTrustVerificationCallback(TrustCallback)
 
-// Specifying a local endpoint is optional when using Initiate()
+// Specifying a local endpoint is optional when using Initiate
 Preconnection := NewPreconnection(RemoteSpecifier,
                                   TransportProperties,
                                   SecurityParameters)
@@ -436,7 +436,7 @@ Connection := Preconnection.Initiate()
 ### Peer Example
 
 This is an example of how an application might establish a connection with a
-peer using Rendezvous(), send a Message, and receive a Message.
+peer using `Rendezvous`, send a Message, and receive a Message.
 
 ~~~
 // Configure local candidates: a port on the Local Endpoint
@@ -511,7 +511,7 @@ for how the Transport Services system should operate. This is done by using Tran
 
 Transport Properties are divided into Selection, Connection, and Message
 Properties. Selection Properties (see {{selection-props}}) can only be set during pre-establishment. They are only used to specify which paths and protocol stacks can be used and are preferred by the application.
-Although Connection Properties (see {{connection-props}}) can be set during pre-establishment, they may be changed later. They are used to inform decisions made during establishment and to fine-tune the established connection. Calling Initiate on a Preconnection creates an outbound Connection or a Listener, and the Selection Properties remain readable from the Connection or Listener, but become immutable.
+Although Connection Properties (see {{connection-props}}) can be set during pre-establishment, they may be changed later. They are used to inform decisions made during establishment and to fine-tune the established connection. Calling `Initiate` on a Preconnection creates an outbound Connection or a Listener, and the Selection Properties remain readable from the Connection or Listener, but become immutable.
 
 The behavior of the selected protocol stack(s) when
 sending Messages is controlled by Message Properties (see {{message-props}}).
@@ -587,7 +587,7 @@ apply their knowledge to another platform.
 
 We therefore make the following recommendations:
 
-- Actions, Events, and Errors in implementations of the Transport Services API SHOULD use
+- Actions, events, and errors in implementations of the Transport Services API SHOULD use
   the names given for them in the document, subject to capitalization,
   punctuation, and other typographic conventions in the language of the
   implementation, unless the implementation itself uses different names for
@@ -613,10 +613,10 @@ The Pre-Establishment phase allows applications to specify properties for
 the Connections that they are about to make, or to query the API about potential
 Connections they could make.
 
-A Preconnection Object represents a potential Connection. It is a passive Object
+A Preconnection object represents a potential Connection. It is a passive object
 (a data structure) that merely maintains the state that
 describes the properties of a Connection that might exist in the future.  This state
-comprises Local Endpoint and Remote Endpoint Objects that denote the endpoints
+comprises Local Endpoint and Remote Endpoint objects that denote the endpoints
 of the potential Connection (see {{endpointspec}}), the Selection Properties
 (see {{selection-props}}), any preconfigured Connection Properties
 ({{connection-props}}), and the security parameters (see
@@ -629,23 +629,23 @@ of the potential Connection (see {{endpointspec}}), the Selection Properties
                                      SecurityParameters)
 ~~~
 
-At least one Local Endpoint MUST be specified if the Preconnection is used to Listen()
+At least one Local Endpoint MUST be specified if the Preconnection is used to `Listen`
 for incoming Connections, but the list of Local Endpoints MAY be empty if
-the Preconnection is used to Initiate()
+the Preconnection is used to `Initiate`
 connections. If no Local Endpoint is specified, the Transport Services system will
 assign an ephemeral local port to the Connection on the appropriate interface(s).
 At least one Remote Endpoint MUST be specified if the Preconnection is used
-to Initiate() Connections, but the list of Remote Endpoints MAY be empty if
-the Preconnection is used to Listen() for incoming Connections.
+to `Initiate` Connections, but the list of Remote Endpoints MAY be empty if
+the Preconnection is used to `Listen` for incoming Connections.
 At least one Local Endpoint and one Remote Endpoint MUST be specified if a
-peer-to-peer Rendezvous() is to occur based on the Preconnection.
+peer-to-peer `Rendezvous` is to occur based on the Preconnection.
 
 If more than one Local Endpoint is specified on a Preconnection, then all
 the Local Endpoints on the Preconnection MUST represent the same host. For
 example, they might correspond to different interfaces on a multi-homed
 host, of they might correspond to local interfaces and a STUN server that
 can be resolved to a server reflexive address for a Preconnection used to
-make a peer-to-peer Rendezvous().
+make a peer-to-peer `Rendezvous`.
 
 If more than one Remote Endpoint is specified on the Preconnection, then
 all the Remote Endpoints on the Preconnection SHOULD represent the same
@@ -655,7 +655,7 @@ reach a host, or a set of hosts that provide equivalent local balanced
 service.
 
 In most cases, it is expected that a single Remote Endpoint will be
-specified by name, and a later call to  Initiate() on the Preconnection
+specified by name, and a later call to `Initiate` on the Preconnection
 (see {{initiate}}) will internally resolve that name to a list of concrete
 endpoints. Specifying multiple Remote Endpoints on a Preconnection allows
 applications to override this for more detailed control.
@@ -665,7 +665,7 @@ Preconnection during pre-establishment.
 
 ## Specifying Endpoints {#endpointspec}
 
-The transport services API uses the Local Endpoint and Remote Endpoint Objects
+The transport services API uses the Local Endpoint and Remote Endpoint objects
 to refer to the endpoints of a transport connection. Endpoints can be created
 as either remote or local:
 
@@ -674,12 +674,12 @@ RemoteSpecifier := NewRemoteEndpoint()
 LocalSpecifier := NewLocalEndpoint()
 ~~~
 
-A single Endpoint Object represents the identity of a network host. That endpoint
+A single Endpoint object represents the identity of a network host. That endpoint
 can be more or less specific depending on which identifiers are set. For example,
 an Endpoint that only specifies a hostname may in fact end up corresponding
 to several different IP addresses on different hosts.
 
-An Endpoint Object can be configured with the following identifiers:
+An Endpoint object can be configured with the following identifiers:
 
 - Hostname (string):
 
@@ -720,7 +720,7 @@ is equivalent to `WithIPv6Address` with an unscoped address and `WithInterface `
 
 The design of the API MUST NOT permit an Endpoint to be configured with multiple identifiers of the same type.
 For example, an endpoint cannot have two IP addresses specified. Two separate IP addresses
-are represented as two Endpoint Objects. If a Preconnection specifies a Remote
+are represented as two Endpoint objects. If a Preconnection specifies a Remote
 Endpoint with a specific IP address set, it will only establish Connections to
 that IP address. If, on the other hand, the Remote Endpoint specifies a hostname
 but no addresses, the Connection can perform name resolution and attempt
@@ -728,11 +728,11 @@ using any address derived from the original hostname of the Remote Endpoint.
 Note that multiple Remote Endpoints can be added to a Preconnection, as discussed
 in {{add-endpoints}}.
 
-The Transport Services system resolves names internally, when the Initiate(),
-Listen(), or Rendezvous() method is called to establish a Connection. Privacy
+The Transport Services system resolves names internally, when the `Initiate`,
+`Listen`, or `Rendezvous` method is called to establish a Connection. Privacy
 considerations for the timing of this resolution are given in {{privacy-security}}.
 
-The Resolve() action on a Preconnection can be used by the application to force
+The `Resolve` action on a Preconnection can be used by the application to force
 early binding when required, for example with some Network Address Translator
 (NAT) traversal protocols (see {{rendezvous}}).
 
@@ -741,15 +741,15 @@ early binding when required, for example with some Network Address Translator
 To use multicast, a Preconnection is first created with the Local/Remote Endpoint
 specifying the any-source multicast (ASM) or source-specific multicast (SSM) multicast group and destination port number.
 
-Calling Initiate() on that Preconnection creates a Connection that can be
-used to send messages to the multicast group. The Connection object that is
-created will support Send() but not Receive(). Any Connections created this
+Calling `Initiate` on that Preconnection creates a Connection that can be
+used to send Messages to the multicast group. The Connection object that is
+created will support `Send` but not `Receive`. Any Connections created this
 way are send-only, and do not join the multicast group. The resulting
 Connection will have a Local Endpoint indicating the local interface to
 which the connection is bound and a Remote Endpoint indicating the
 multicast group.
 
-The following API calls can be used to configure a Preconnection before calling Initiate():
+The following API calls can be used to configure a Preconnection before calling `Initiate`:
 
 ~~~
 RemoteSpecifier.WithMulticastGroupIPv4(GroupAddress)
@@ -758,14 +758,14 @@ RemoteSpecifier.WithPort(PortNumber)
 RemoteSpecifier.WithTTL(TTL)
 ~~~
 
-Calling Listen() on a Preconnection with a multicast group specified on the Remote
-Endpoint will join the multicast group to receive messages. This Listener
+Calling `Listen` on a Preconnection with a multicast group specified on the Remote
+Endpoint will join the multicast group to receive Messages. This Listener
 will create one Connection for each Remote Endpoint sending to the group,
 with the Local Endpoint set to the group address. The set of Connection
 objects created forms a Connection Group.
-The receiving interface can be restricted by passing it as part of the LocalSpecifier or queried through the Message Context on the messages received (see {{msg-ctx}} for further details).
+The receiving interface can be restricted by passing it as part of the LocalSpecifier or queried through the Message Context on the Messages received (see {{msg-ctx}} for further details).
 
-The following API calls can be used to configure a Preconnection before calling Listen():
+The following API calls can be used to configure a Preconnection before calling `Listen`:
 
 ~~~
 LocalSpecifier.WithSingleSourceMulticastGroupIPv4(GroupAddress, SourceAddress)
@@ -775,18 +775,18 @@ LocalSpecifier.WithAnySourceMulticastGroupIPv6(GroupAddress)
 LocalSpecifier.WithPort(PortNumber)
 ~~~
 
-Calling Rendezvous() on a Preconnection with an any-source multicast group
+Calling `Rendezvous` on a Preconnection with an any-source multicast group
 address as the Remote Endpoint will join the multicast group, and also
-indicates that the resulting connection can be used to send messages to the
-multicast group. The Rendezvous() call will return both a Connection that
+indicates that the resulting connection can be used to send Messages to the
+multicast group. The `Rendezvous` call will return both a Connection that
 can be used to send to the group, that acts the same as a connection
-returned by calling Initiate() with a multicast Remote Endpoint, and a
-Listener that acts as if Listen() had been called with a multicast Remote
+returned by calling `Initiate` with a multicast Remote Endpoint, and a
+Listener that acts as if `Listen` had been called with a multicast Remote
 Endpoint.
-Calling Rendezvous() on a Preconnection with a source-specific multicast
-group address as the Local Endpoint results in an EstablishmentError.
+Calling `Rendezvous` on a Preconnection with a source-specific multicast
+group address as the Local Endpoint results in an `EstablishmentError`.
 
-The following API calls can be used to configure a Preconnection before calling Rendezvous():
+The following API calls can be used to configure a Preconnection before calling `Rendezvous`:
 
 ~~~
 RemoteSpecifier.WithMulticastGroupIPv4(GroupAddress)
@@ -817,7 +817,7 @@ An Endpoint can have an alternative definition when using different protocols.
 For example, a server that supports both TLS/TCP and QUIC may be accessible
 on two different port numbers depending on which protocol is used.
 
-To support this, Endpoint Objects can specify "aliases". An Endpoint can have
+To support this, Endpoint objects can specify "aliases". An Endpoint can have
 multiple aliases set.
 
 ~~~
@@ -886,7 +886,7 @@ LocalSpecifier.WithPort(443)
 As an alternative to specifying an interface name for the Local Endpoint, an application
 can express more fine-grained preferences using the `Interface Instance or Type`
 Selection Property, see {{prop-interface}}. However, if the application specifies Selection
-Properties that are inconsistent with the Local Endpoint, this will result in an Error once the
+Properties that are inconsistent with the Local Endpoint, this will result in an error once the
 application attempts to open a Connection.
 
 Specify a Local Endpoint using a STUN server:
@@ -991,7 +991,7 @@ Join an any-source multicast group as both a sender and a receiver:
 
 ## Specifying Transport Properties {#selection-props}
 
-A Preconnection Object holds properties reflecting the application's
+A Preconnection object holds properties reflecting the application's
 requirements and preferences for the transport. These include Selection
 Properties for selecting protocol stacks and paths, as well as Connection
 Properties and Message Properties for configuration of the detailed operation
@@ -1056,7 +1056,7 @@ object:
 TransportProperties := NewTransportProperties()
 ~~~
 
-Individual properties are then set on the TransportProperties Object.
+Individual properties are then set on the TransportProperties object.
 Setting a Transport Property to a value overrides the previous value of this Transport Property.
 
 ~~~
@@ -1170,7 +1170,7 @@ This property specifies whether an application would like to supply a Message to
 the transport protocol before Connection establishment that will then be
 reliably transferred to the other side before or during Connection
 establishment. This Message can potentially be received multiple times (i.e.,
-multiple copies of the message data may be passed to the Remote Endpoint).
+multiple copies of the Message data may be passed to the Remote Endpoint).
 See also {{msg-safelyreplayable}}.
 
 ### Multistream Connections in Group {#prop-multistream}
@@ -1252,7 +1252,7 @@ Default:
 
 This property specifies whether the application would like the Connection to send
 keep-alive packets or not. Note that if a Connection determines that keep-alive
-packets are being sent, the application should itself avoid generating additional keep alive
+packets are being sent, the application should itself avoid generating additional keep-alive
 messages. Note that when supported, the system will use the default period
 for generation of the keep alive-packets. (See also {{keep-alive-timeout}}).
 
@@ -1280,7 +1280,7 @@ interface and interface type available on the system.
 
 The set of valid interface types is implementation- and system-specific. For
 example, on a mobile device, there may be `Wi-Fi` and `Cellular` interface types
-available; whereas on a desktop computer,  `Wi-Fi` and `Wired
+available; whereas on a desktop computer, `Wi-Fi` and `Wired
 Ethernet` interface types might be available. An implementation should provide all types
 that are supported on the local system, to allow
 applications to be written generically. For example, if a single implementation
@@ -1453,7 +1453,7 @@ Default:
 This property specifies whether an application considers it useful to be
 informed when an ICMP error message arrives that does not force termination of a
 connection. When set to true, received ICMP errors are available as
-SoftErrors, see {{soft-errors}}. Note that even if a protocol supporting this property is selected,
+`SoftError` events, see {{soft-errors}}. Note that even if a protocol supporting this property is selected,
 not all ICMP errors will necessarily be delivered, so applications cannot rely
 upon receiving them {{!RFC8085}}.
 
@@ -1473,9 +1473,9 @@ The most common client-server communication pattern involves the
 client actively opening a Connection, then sending data to the server. The
 server listens (passive open), reads, and then answers. This property
 specifies whether an application wants to diverge from this pattern -- either
-by actively opening with Initiate(), immediately followed by reading, or passively opening with Listen(),
+by actively opening with `Initiate`, immediately followed by reading, or passively opening with `Listen`,
 immediately followed by writing. This property is ignored when establishing
-connections using Rendezvous().
+connections using `Rendezvous`.
 Requiring this property limits the choice of mappings to underlying protocols,
 which can reduce
 efficiency. For example, it prevents the Transport Services system from mapping
@@ -1564,7 +1564,7 @@ that chosen for Transport Property names as suggested in {{scope-of-interface-de
 Security decisions, especially pertaining to trust, are not static. Once configured,
 parameters may also be supplied during connection establishment. These are best
 handled as client-provided callbacks.
-Callbacks block the progress of the connection establishment, which distinguishes them from other Events in the transport system. How callbacks and events are implemented is specific to each implementation.
+Callbacks block the progress of the connection establishment, which distinguishes them from other events in the transport system. How callbacks and events are implemented is specific to each implementation.
 Security handshake callbacks that may be invoked during connection establishment include:
 
 - Trust verification callback: Invoked when a Remote Endpoint's trust must be verified before the
@@ -1594,57 +1594,57 @@ Before a Connection can be used for data transfer, it needs to be established.
 Establishment ends the pre-establishment phase; all transport properties and
 cryptographic parameter specification must be complete before establishment,
 as these will be used to select candidate Paths and Protocol Stacks
-for the Connection. Establishment may be active, using the Initiate() Action;
-passive, using the Listen() Action; or simultaneous for peer-to-peer, using
-the Rendezvous() Action. These Actions are described in the subsections below.
+for the Connection. Establishment may be active, using the `Initiate` action;
+passive, using the `Listen` action; or simultaneous for peer-to-peer, using
+the `Rendezvous` action. These actions are described in the subsections below.
 
 
 ## Active Open: Initiate {#initiate}
 
-Active open is the Action of establishing a Connection to a Remote Endpoint presumed
+Active open is the action of establishing a Connection to a Remote Endpoint presumed
 to be listening for incoming Connection requests. Active open is used by clients in
 client-server interactions. Active open is supported by the Transport Services API through the
-Initiate Action:
+`Initiate` action:
 
 ~~~
 Connection := Preconnection.Initiate(timeout?)
 ~~~
 
 The timeout parameter specifies how long to wait before aborting Active open.
-Before calling Initiate, the caller must have populated a Preconnection
-Object with a Remote Endpoint specifier, optionally a Local Endpoint
+Before calling `Initiate`, the caller must have populated a Preconnection
+object with a Remote Endpoint specifier, optionally a Local Endpoint
 specifier (if not specified, the system will attempt to determine a
 suitable Local Endpoint), as well as all properties
 necessary for candidate selection.
 
-The Initiate() Action returns a Connection object. Once Initiate() has been
+The `Initiate` action returns a Connection object. Once `Initiate` has been
 called, any changes to the Preconnection MUST NOT have any effect on the
-Connection. However, the Preconnection can be reused, e.g., to Initiate
+Connection. However, the Preconnection can be reused, e.g., to `Initiate`
 another Connection.
 
-Once Initiate is called, the candidate Protocol Stack(s) may cause one or more
+Once `Initiate` is called, the candidate Protocol Stack(s) may cause one or more
 candidate transport-layer connections to be created to the specified Remote
 Endpoint. The caller may immediately begin sending Messages on the Connection
-(see {{sending}}) after calling Initiate(); note that any data marked as "safely replayable" that is sent
+(see {{sending}}) after calling `Initiate`; note that any data marked as "safely replayable" that is sent
 while the Connection is being established may be sent multiple times or on
 multiple candidates.
 
-The following Events may be sent by the Connection after Initiate() is called:
+The following events may be sent by the Connection after `Initiate` is called:
 
 ~~~
 Connection -> Ready<>
 ~~~
 
-The Ready Event occurs after Initiate has established a transport-layer
+The `Ready` event occurs after `Initiate` has established a transport-layer
 connection on at least one usable candidate Protocol Stack over at least one
-candidate Path. No Receive Events (see {{receiving}}) will occur before
-the Ready Event for Connections established using Initiate.
+candidate Path. No `Receive` events (see {{receiving}}) will occur before
+the `Ready` event for Connections established using `Initiate`.
 
 ~~~
 Connection -> EstablishmentError<reason?>
 ~~~
 
-An EstablishmentError occurs either when the set of transport properties and security
+An `EstablishmentError` occurs either when the set of transport properties and security
 parameters cannot be fulfilled on a Connection for initiation (e.g., the set of
 available Paths and/or Protocol Stacks meeting the constraints is empty) or
 reconciled with the Local and/or Remote Endpoints; when the remote specifier
@@ -1654,24 +1654,24 @@ connections, the application is prohibited from opening a Connection by the
 operating system, or the establishment attempt has timed out for any other reason).
 
 Connection establishment
-and transmission of the first message can be combined in a single action {{initiate-and-send}}.
+and transmission of the first Message can be combined in a single action {{initiate-and-send}}.
 
 ## Passive Open: Listen {#listen}
 
-Passive open is the Action of waiting for Connections from Remote Endpoints,
+Passive open is the action of waiting for Connections from Remote Endpoints,
 commonly used by servers in client-server interactions. Passive open is
-supported by the Transport Services API through the Listen Action and returns a Listener object:
+supported by the Transport Services API through the `Listen` action and returns a Listener object:
 
 ~~~
 Listener := Preconnection.Listen()
 ~~~
 
-Before calling Listen, the caller must have initialized the Preconnection
+Before calling `Listen`, the caller must have initialized the Preconnection
 during the pre-establishment phase with a Local Endpoint specifier, as well
 as all properties necessary for Protocol Stack selection. A Remote Endpoint
 may optionally be specified, to constrain what Connections are accepted.
 
-The Listen() Action returns a Listener object. Once Listen() has been called,
+The `Listen` action returns a Listener object. Once `Listen` has been called,
 any changes to the Preconnection MUST NOT have any effect on the Listener. The
 Preconnection can be disposed of or reused, e.g., to create another Listener.
 
@@ -1686,12 +1686,12 @@ action is performed on the Listener object.
 Listener -> ConnectionReceived<Connection>
 ~~~
 
-The ConnectionReceived Event occurs when a Remote Endpoint has established or cloned (e.g., by creating a new stream in a multi-stream transport; see {{groups}}) a
+The `ConnectionReceived` event occurs when a Remote Endpoint has established or cloned (e.g., by creating a new stream in a multi-stream transport; see {{groups}}) a
 transport-layer connection to this Listener (for Connection-oriented
 transport protocols), or when the first Message has been received from the
 Remote Endpoint (for Connectionless protocols or streams of a multi-streaming transport), causing a new Connection to be
-created. The resulting Connection is contained within the ConnectionReceived
-Event, and is ready to use as soon as it is passed to the application via the
+created. The resulting Connection is contained within the `ConnectionReceived`
+event, and is ready to use as soon as it is passed to the application via the
 event.
 
 ~~~
@@ -1699,9 +1699,9 @@ Listener.SetNewConnectionLimit(value)
 ~~~
 
 If the caller wants to rate-limit the number of inbound Connections that will be delivered,
-it can set a cap using SetNewConnectionLimit(). This mechanism allows a server to
+it can set a cap using `SetNewConnectionLimit`. This mechanism allows a server to
 protect itself from being drained of resources. Each time a new Connection is delivered
-by the ConnectionReceived Event, the value is automatically decremented. Once the
+by the `ConnectionReceived` event, the value is automatically decremented. Once the
 value reaches zero, no further Connections will be delivered until the caller sets the
 limit to a higher value. By default, this value is Infinite. The caller is also able to reset
 the value to Infinite at any point.
@@ -1710,64 +1710,64 @@ the value to Infinite at any point.
 Listener -> EstablishmentError<reason?>
 ~~~
 
-An EstablishmentError occurs either when the Properties and security parameters of the Preconnection cannot be fulfilled for listening or cannot be reconciled with the Local Endpoint (and/or Remote Endpoint, if specified), when the Local Endpoint (or Remote Endpoint, if specified) cannot
+An `EstablishmentError` occurs either when the Properties and security parameters of the Preconnection cannot be fulfilled for listening or cannot be reconciled with the Local Endpoint (and/or Remote Endpoint, if specified), when the Local Endpoint (or Remote Endpoint, if specified) cannot
 be resolved, or when the application is prohibited from listening by policy.
 
 ~~~
 Listener -> Stopped<>
 ~~~
 
-A Stopped Event occurs after the Listener has stopped listening.
+A `Stopped` event occurs after the Listener has stopped listening.
 
 ## Peer-to-Peer Establishment: Rendezvous {#rendezvous}
 
 Simultaneous peer-to-peer Connection establishment is supported by the
-Rendezvous() Action:
+`Rendezvous` action:
 
 ~~~
 Preconnection.Rendezvous()
 ~~~
 
-A Preconnection Object used in a Rendezvous() MUST have both the
+A Preconnection object used in a `Rendezvous` MUST have both the
 Local Endpoint candidates and the Remote Endpoint candidates specified,
 along with the Transport Properties and security parameters needed for
-Protocol Stack selection, before the Rendezvous() Action is initiated.
+Protocol Stack selection, before the `Rendezvous` action is initiated.
 
-The Rendezvous() Action listens on the Local Endpoint
+The `Rendezvous` action listens on the Local Endpoint
 candidates for an incoming Connection from the Remote Endpoint candidates,
 while also simultaneously trying to establish a Connection from the Local
 Endpoint candidates to the Remote Endpoint candidates.
 
 If there are multiple Local Endpoints or Remote Endpoints configured, then
-initiating a Rendezvous() action will systematically probe the reachability
+initiating a `Rendezvous` action will systematically probe the reachability
 of those endpoint candidates following an approach such as that used in
 Interactive Connectivity Establishment (ICE) {{?RFC8445}}.
 
-If the endpoints are suspected to be behind a NAT, Rendezvous() can be
+If the endpoints are suspected to be behind a NAT, `Rendezvous` can be
 initiated using Local Endpoints that support a method of discovering NAT
 bindings such as Session Traversal Utilities for NAT (STUN) {{?RFC8489}} or
 Traversal Using Relays around NAT (TURN) {{?RFC8656}}.  In this case, the
 Local Endpoint will resolve to a mixture of local and server reflexive
-addresses. The Resolve() action on the Preconnection can be used to
+addresses. The `Resolve` action on the Preconnection can be used to
 discover these bindings:
 
 ~~~
 []LocalEndpoint, []RemoteEndpoint := Preconnection.Resolve()
 ~~~
 
-The Resolve() call returns lists of Local Endpoints and Remote Endpoints,
+The `Resolve` call returns lists of Local Endpoints and Remote Endpoints,
 that represent the concrete addresses, local and server reflexive, on which
-a Rendezvous() for the Preconnection will listen for incoming Connections,
+a `Rendezvous` for the Preconnection will listen for incoming Connections,
 and to which it will attempt to establish connections.
 
-Note that the set of Local Endpoints returned by Resolve() might or might not
+Note that the set of Local Endpoints returned by `Resolve` might or might not
 contain information about all possible local interfaces; it is valid only
 for a Rendezvous happening at the same time as the resolution. Care should
 be taken in using these values in any other context.
 
-An application that uses Rendezvous() to establish a peer-to-peer connection
+An application that uses `Rendezvous` to establish a peer-to-peer connection
 in the presence of NATs will configure the Preconnection object with at least
-one a Local Endpoint that supports NAT binding discovery. It will then Resolve()
+one a Local Endpoint that supports NAT binding discovery. It will then `Resolve`
 the Preconnection, and pass the resulting list of Local Endpoint candidates to
 the peer via a signalling protocol, for example as part of an ICE {{?RFC8445}}
 exchange within SIP {{?RFC3261}} or WebRTC {{?RFC7478}}.  The peer will then,
@@ -1778,28 +1778,28 @@ The set of Remote Endpoint candidates are then configured onto the Preconnection
 Preconnection.AddRemote([]RemoteEndpoint)
 ~~~
 
-The Rendezvous() Action can be initiated once both the Local Endpoint
+The `Rendezvous` action can be initiated once both the Local Endpoint
 candidates and the Remote Endpoint candidates retrieved from the peer via
 the signalling channel have been added to the Preconnection.
 
 
-If successful, the Rendezvous() Action returns a Connection object via a
-RendezvousDone<> Event:
+If successful, the `Rendezvous` action returns a Connection object via a
+`RendezvousDone<>` event:
 
 ~~~
 Preconnection -> RendezvousDone<Connection>
 ~~~
 
-The RendezvousDone<> Event occurs when a Connection is established with the
+The `RendezvousDone<>` event occurs when a Connection is established with the
 Remote Endpoint. For Connection-oriented transports, this occurs when the
 transport-layer connection is established; for Connectionless transports,
 it occurs when the first Message is received from the Remote Endpoint. The
-resulting Connection is contained within the RendezvousDone<> Event, and is
-ready to use as soon as it is passed to the application via the Event.
-Changes made to a Preconnection after Rendezvous() has been called MUST
+resulting Connection is contained within the `RendezvousDone<>` event, and is
+ready to use as soon as it is passed to the application via the event.
+Changes made to a Preconnection after `Rendezvous` has been called MUST
 NOT have any effect on existing Connections.
 
-An EstablishmentError occurs either when the Properties and Security
+An `EstablishmentError` occurs either when the Properties and Security
 Parameters of the Preconnection cannot be fulfilled for rendezvous or
 cannot be reconciled with the Local and/or Remote Endpoints, when the Local
 Endpoint or Remote Endpoint cannot be resolved, when no transport-layer
@@ -1814,16 +1814,16 @@ Preconnection -> EstablishmentError<reason?>
 
 ## Connection Groups {#groups}
 
-Connection Groups can be created using the Clone Action:
+Connection Groups can be created using the `Clone` action:
 
 ~~~
 Connection := Connection.Clone(framer?, connectionProperties?)
 ~~~
 
-Calling Clone on a Connection yields a Connection Group containing two Connections: the parent
-Connection on which Clone was called, and a resulting cloned Connection.
-The new Connection is actively opened, and it will locally send a Ready Event or an EstablishmentError Event.
-Calling Clone on any of these Connections adds another Connection to
+Calling `Clone` on a Connection yields a Connection Group containing two Connections: the parent
+Connection on which `Clone` was called, and a resulting cloned Connection.
+The new Connection is actively opened, and it will locally send a `Ready` event or an `EstablishmentError` event.
+Calling `Clone` on any of these Connections adds another Connection to
 the Connection Group. Connections in a Connection Group share all
 Connection Properties except `connPriority` (see {{conn-priority}}),
 and these Connection Properties are entangled: Changing one of the
@@ -1833,7 +1833,7 @@ automatically changes the Connection Property for all others. For example, chang
 {{conn-timeout}}) on one Connection in a Connection Group will automatically
 make the same change to this Connection Property for all other Connections in the Connection Group.
 Like all other Properties, `connPriority` is copied
-to the new Connection when calling Clone(), but in this case, a later change to the
+to the new Connection when calling `Clone`, but in this case, a later change to the
 `connPriority` on one Connection does not change it on the
 other Connections in the same Connection Group.
 
@@ -1842,40 +1842,40 @@ Transport Properties that control the behavior of the underlying stream or conne
 
 Message Properties set on a Connection also apply only to that Connection.
 
-A new Connection created by Clone can have a Message Framer assigned via the optional
-`framer` parameter of the Clone Action. If this parameter is not supplied, the
+A new Connection created by `Clone` can have a Message Framer assigned via the optional
+`framer` parameter of the `Clone` action. If this parameter is not supplied, the
 stack of Message Framers associated with a Connection is copied to
-the cloned Connection when calling Clone. Then, a cloned Connection
+the cloned Connection when calling `Clone`. Then, a cloned Connection
 has the same stack of Message Framers as the Connection from which they
-are Cloned, but these Framers may internally maintain per-Connection state.
+are cloned, but these Framers may internally maintain per-Connection state.
 
 It is also possible to check which Connections belong to the same Connection Group.
-Calling GroupedConnections() on a specific Connection returns a set of all Connections
+Calling `GroupedConnections` on a specific Connection returns a set of all Connections
 in the same group.
 
 ~~~
 []Connection := Connection.GroupedConnections()
 ~~~
 
-Connections will belong to the same group if the application previously called Clone.
+Connections will belong to the same group if the application previously called `Clone`.
 Passive Connections can also be added to the same group -- e.g., when a Listener
 receives a new Connection that is just a new stream of an already active multi-streaming
 protocol instance.
 
 If the underlying protocol supports multi-streaming, it is natural to use this
-functionality to implement Clone. In that case, Connections in a Connection Group are
+functionality to implement `Clone`. In that case, Connections in a Connection Group are
 multiplexed together, giving them similar treatment not only inside Endpoints,
 but also across the end-to-end Internet path.
 
-Note that calling Clone() can result in on-the-wire signaling, e.g., to open a new
-transport connection, depending on the underlying Protocol Stack. When Clone() leads to
+Note that calling `Clone` can result in on-the-wire signaling, e.g., to open a new
+transport connection, depending on the underlying Protocol Stack. When `Clone` leads to
 the opening of multiple such connections,
 the Transport Services system will ensure consistency of
 Connection Properties by uniformly applying them to all underlying connections
 in a group. Even in such a case, there are possibilities for a Transport Services system
 to implement prioritization within a Connection Group {{TCP-COUPLING}} {{?RFC8699}}.
 
-Attempts to clone a Connection can result in a CloneError:
+Attempts to clone a Connection can result in a `CloneError`:
 
 ~~~
 Connection -> CloneError<reason?>
@@ -1902,7 +1902,7 @@ a new Remote Endpoint has become available for use, or to indicate that a Remote
 Endpoint is no longer available. This is most common in the case of peer to peer
 connections using Trickle ICE {{?RFC8838}}.
 
-The `AddRemote()` action can be used to add one or more new Remote Endpoints
+The `AddRemote` action can be used to add one or more new Remote Endpoints
 to a Connection:
 
 ~~~
@@ -1910,11 +1910,11 @@ Connection.AddRemote([]RemoteEndpoint)
 ~~~
 
 Endpoints that are already known to the Connection are ignored. A call to
-`AddRemote()` makes the new Remote Endpoints available to the Connection,
+`AddRemote` makes the new Remote Endpoints available to the Connection,
 but whether the Connection makes use of those endpoints will depend on the
 underlying transport protocol.
 
-Similarly, the `RemoveRemote()` action can be used to tell a connection to
+Similarly, the `RemoveRemote` action can be used to tell a connection to
 stop using one or more Remote Endpoints:
 
 ~~~
@@ -1927,7 +1927,7 @@ on the underlying transport: multipath aware transports might be able to
 switch to a new path if other reachable Remote Endpoints exist, or the
 connection might abort.
 
-Similarly, the `AddLocal()` and `RemoveLocal()` actions can be used to add
+Similarly, the `AddLocal` and `RemoveLocal` actions can be used to add
 and remove local endpoints to/from a Connection.
 
 
@@ -1935,7 +1935,7 @@ and remove local endpoints to/from a Connection.
 
 During pre-establishment and after establishment, connections can be configured and queried using Connection
 Properties, and asynchronous information may be available about the state of the
-connection via Soft Errors.
+connection via `SoftError` events.
 
 Connection Properties represent the configuration and state of the selected
 Protocol Stack(s) backing a Connection. These Connection Properties may be
@@ -1955,7 +1955,7 @@ Protocol-specific Properties are only used where specific protocols or propertie
 The application can set and query Connection Properties on a per-Connection
 basis. Connection Properties that are not read-only can be set during
 pre-establishment (see {{selection-props}}), as well as on connections directly using
-the SetProperty action:
+the `SetProperty` action:
 
 ~~~
 Connection.SetProperty(property, value)
@@ -2027,10 +2027,10 @@ Default:
 : `Full Coverage`
 
 If this property is an Integer, it specifies the minimum number of bytes in a received
-message that need to be covered by a checksum.
-A receiving endpoint will not forward messages that have less coverage
+Message that need to be covered by a checksum.
+A receiving endpoint will not forward Messages that have less coverage
 to the application. The application is responsible for handling
-any corruption within the non-protected part of the message {{!RFC8085}}.
+any corruption within the non-protected part of the Message {{!RFC8085}}.
 A special value of 0 means that a received packet may also have a zero checksum field,
 and the enumerated value `Full Coverage` means
 that the entire Message needs to be protected by a checksum.
@@ -2243,8 +2243,8 @@ Default:
 : `Unlimited`
 
 If this property is Numeric, it controls the number of Connections that can be accepted from
-a peer as new members of the Connection's group. Similar to SetNewConnectionLimit(),
-this limits the number of ConnectionReceived Events that will occur, but constrained
+a peer as new members of the Connection's group. Similar to `SetNewConnectionLimit`,
+this limits the number of `ConnectionReceived` events that will occur, but constrained
 to the group of the Connection associated with this property. For a multi-streaming transport,
 this limits the number of allowed streams.
 
@@ -2391,7 +2391,7 @@ During the lifetime of a connection there are events that can occur when configu
 
 ### Soft Errors {#soft-errors}
 
-Asynchronous introspection is also possible, via the SoftError Event. This event
+Asynchronous introspection is also possible, via the `SoftError` event. This event
 informs the application about the receipt and contents of an ICMP error message related to the Connection. This will only happen if the underlying protocol stack supports access to soft errors; however, even if the underlying stack supports it, there
 is no guarantee that a soft error will be signaled.
 
@@ -2417,13 +2417,13 @@ to communicate the boundaries of the data being transferred.
 
 ## Messages and Framers {#msg}
 
-Each Message has an optional Message Context, which allows to add Message Properties, identify Send Events related to a specific Message or to inspect meta-data related to the Message sent. Framers can be used to extend or modify the message data with additional information that can be processed at the receiver to detect message boundaries.
+Each Message has an optional Message Context, which allows to add Message Properties, identify `Send` events related to a specific Message or to inspect meta-data related to the Message sent. Framers can be used to extend or modify the Message data with additional information that can be processed at the receiver to detect message boundaries.
 
 
 ### Message Contexts {#msg-ctx}
 
-Using the MessageContext object, the application can set and retrieve meta-data of the message, including Message Properties (see {{message-props}}) and framing meta-data (see {{framing-meta}}).
-Therefore, a MessageContext object can be passed to the Send action and is returned by each Send and Receive related event.
+Using the MessageContext object, the application can set and retrieve meta-data of the Message, including Message Properties (see {{message-props}}) and framing meta-data (see {{framing-meta}}).
+Therefore, a MessageContext object can be passed to the `Send` action and is returned by each `Send` and `Receive` related event.
 
 Message Properties can be set and queried using the Message Context:
 
@@ -2434,7 +2434,7 @@ PropertyValue := MessageContext.get(property)
 
 These Message Properties may be generic properties or Protocol-specific Properties.
 
-For MessageContexts returned by send Events (see {{send-events}}) and receive Events (see {{receive-events}}), the application can query information about the Local and Remote Endpoint:
+For MessageContexts returned by `Send` events (see {{send-events}}) and `Receive` events (see {{receive-events}}), the application can query information about the Local and Remote Endpoint:
 
 ~~~
 RemoteEndpoint := MessageContext.GetRemoteEndpoint()
@@ -2461,7 +2461,7 @@ protocols require message boundaries to function, each application layer
 protocol has defined its own framing.
 
 To use a Message Framer, the application adds it to its Preconnection object.
-Then, the Message Framer can intercept all calls to Send() or Receive()
+Then, the Message Framer can intercept all calls to `Send` or `Receive`
 on a Connection to add Message semantics, in addition to interacting with
 the setup and teardown of the Connection. A Framer can start sending data
 before the application sends data if the framing protocol requires a prefix
@@ -2509,7 +2509,7 @@ guidance on implementing Message Framers can be found in {{I-D.ietf-taps-impl}}.
 The Message Framer object can be added to one or more Preconnections
 to run on top of transport protocols. Multiple Framers may be added to a Preconnection;
 in this case, the Framers operate as a framing stack, i.e. the last one added runs
-first when framing outbound messages, and last when parsing inbound data.
+first when framing outbound Messages, and last when parsing inbound data.
 
 The following example adds a basic HTTP Message Framer to a Preconnection:
 
@@ -2540,7 +2540,7 @@ messageContext.add(framer, key, value)
 Connection.Send(messageData, messageContext)
 ~~~
 
-When an application receives a MessageContext in a Receive event,
+When an application receives a MessageContext in a `Receive` event,
 it can also look to see if a value was set by a specific Message Framer.
 
 ~~~
@@ -2562,9 +2562,9 @@ messageContext.add(httpFramer, "accept", "text/html")
 
 Applications needing to annotate the Messages they send with extra information
 (for example, to control how data is scheduled and processed by the transport protocols supporting the
-Connection) can include this information in the Message Context passed to the Send Action. For other uses of the message context, see {{msg-ctx}}.
+Connection) can include this information in the Message Context passed to the `Send` action. For other uses of the Message Context, see {{msg-ctx}}.
 
-Message Properties are per-Message, not per-Send if partial Messages
+Message Properties are per-Message, not per-`Send` if partial Messages
 are sent ({{send-partial}}). All data blocks associated with a single Message
 share properties specified in the Message Contexts. For example, it would not
 make sense to have the beginning of a Message expire, but allow the end of a
@@ -2579,19 +2579,19 @@ messageContext.add(parameter, value)
 Connection.Send(messageData, messageContext)
 ~~~
 
-The simpler form of Send, which does not take any messageContext, is equivalent to passing a default MessageContext without adding any Message Properties.
+The simpler form of `Send`, which does not take any messageContext, is equivalent to passing a default MessageContext without adding any Message Properties.
 
-If an application wants to override Message Properties for a specific message,
-it can acquire an empty MessageContext Object and add all desired Message
-Properties to that Object. It can then reuse the same messageContext Object
+If an application wants to override Message Properties for a specific Message,
+it can acquire an empty MessageContext object and add all desired Message
+Properties to that object. It can then reuse the same messageContext object
 for sending multiple Messages with the same properties.
 
 Properties can be added to a MessageContext object only before the context is used
-for sending. Once a MessageContext has been used with a Send call, further modifications
-to the MessageContext object do not have any effect on this Send call. Message Properties
+for sending. Once a MessageContext has been used with a `Send` call, further modifications
+to the MessageContext object do not have any effect on this `Send` call. Message Properties
 that are not added to a MessageContext object before using the context for sending will either
 take a specific default value or be configured based on Selection or Connection Properties
-of the Connection that is associated with the Send call.
+of the Connection that is associated with the `Send` call.
 This initialization behavior is defined per Message Property below.
 
 The Message Properties could be inconsistent with the properties of the Protocol Stacks
@@ -2654,7 +2654,7 @@ yield to a Message with Priority 2, and so on. Priorities may be used as a
 sender-side scheduling construct only, or be used to specify priorities on the
 wire for Protocol Stacks supporting prioritization.
 
-Note that this property is not a per-message override of `connPriority`
+Note that this property is not a per-Message override of `connPriority`
 - see {{conn-priority}}. The priority properties may interact, but can be used
 independently and be realized by different mechanisms; see {{priority-in-taps}}.
 
@@ -2669,16 +2669,16 @@ Type:
 Default:
 : the queried Boolean value of the Selection Property `preserveOrder` ({{prop-ordering}})
 
-The order in which Messages were submitted for transmission via the Send Action will be preserved on delivery via Receive<> events for all Messages on a Connection that have this Message Property set to true.
+The order in which Messages were submitted for transmission via the `Send` action will be preserved on delivery via `Receive` events for all Messages on a Connection that have this Message Property set to true.
 
 If false, the Message is delivered to the receiving application without preserving the ordering.
 This property is used for protocols that support preservation of data ordering,
-see {{prop-ordering}}, but allow out-of-order delivery for certain messages, e.g., by multiplexing independent messages onto
+see {{prop-ordering}}, but allow out-of-order delivery for certain Messages, e.g., by multiplexing independent Messages onto
 different streams.
 
 If it is not configured by the application before sending, this property's default value
 will be based on the Selection Property `preserveOrder` of the Connection
-associated with the Send Action.
+associated with the `Send` action.
 
 #### Safely Replayable {#msg-safelyreplayable}
 
@@ -2692,16 +2692,16 @@ Default:
 : false
 
 If true, `safelyReplayable` specifies that a Message is safe to send to the Remote Endpoint
-more than once for a single Send Action. It marks the data as safe for
+more than once for a single `Send` action. It marks the data as safe for
 certain 0-RTT establishment techniques, where retransmission of the 0-RTT data
 may cause the remote application to receive the Message multiple times.
 
-For protocols that do not protect against duplicated messages,
-e.g., UDP, all messages need to be marked as "safely replayable" by enabling this property.
+For protocols that do not protect against duplicated Messages,
+e.g., UDP, all Messages need to be marked as "safely replayable" by enabling this property.
 To enable protocol selection to choose such a protocol,
 `safelyReplayable` needs to be added to the TransportProperties passed to the
 Preconnection. If such a protocol was chosen, disabling `safelyReplayable` on
-individual messages MUST result in a SendError.
+individual Messages MUST result in a `SendError`.
 
 #### Final {#msg-final}
 
@@ -2725,7 +2725,7 @@ the end of a Connection in a given direction will ignore this property.
 A Final Message must always be sorted to the end of a list of Messages.
 The Final property overrides Priority and any other property that would re-order
 Messages. If another Message is sent after a Message marked as Final has already
-been sent on a Connection, the Send Action for the new Message will cause a SendError Event.
+been sent on a Connection, the `Send` action for the new Message will cause a `SendError` event.
 
 #### Sending Corruption Protection Length {#msg-checksum}
 
@@ -2768,7 +2768,7 @@ or other reliability mechanisms for this particular Message, but such disabling 
 
 If it is not configured by the application before sending, this property's default value
 will be based on the Selection Property `reliability` of the Connection
-associated with the Send Action.
+associated with the `Send` action.
 
 #### Message Capacity Profile Override {#send-profile}
 
@@ -2786,7 +2786,7 @@ sending this Message; it is a per-Message override of the `connCapacityProfile`
 Connection Property (see {{prop-cap-profile}}).
 If it is not configured by the application before sending, this property's default value
 will be based on the Connection Property `connCapacityProfile` of the Connection
-associated with the Send Action.
+associated with the `Send` action.
 
 #### No Network-Layer Fragmentation {#send-singular}
 
@@ -2799,7 +2799,7 @@ Type:
 Default:
 : false
 
-This property specifies that a message should be sent and received
+This property specifies that a Message should be sent and received
 without network-layer fragmentation, if possible. It can be used
 to avoid network layer fragmentation when transport segmentation is prefered.
 
@@ -2808,11 +2808,11 @@ When it does take effect, setting this property to
 true will cause the sender to avoid network-layer source fragmentation.
 When using IPv4, this will result in the Don't Fragment bit being set in the IP header.
 
-Attempts to send a message with this property that result in a size greater than the
+Attempts to send a Message with this property that result in a size greater than the
 transport's current estimate of its maximum packet size (`singularTransmissionMsgMaxLen`)
 can result in transport segmentation when permitted, or in a `SendError`.
 
-Note: noSegmentation should be used when it is desired to only send a message within
+Note: noSegmentation should be used when it is desired to only send a Message within
 a single network packet.
 
 #### No Segmentation {#no-transport-fragmentation}
@@ -2827,16 +2827,16 @@ Default:
 : false
 
 When set to true, this property requests the transport layer
-to not provide segmentation of messages larger than the
+to not provide segmentation of Messages larger than the
 maximum size permitted by the network layer, and also
-to avoid network-layer source fragmentation of messages.
+to avoid network-layer source fragmentation of Messages.
 When running over IPv4, setting this property to
 true will result in a sending endpount setting the
 Don't Fragment bit in the IPv4 header of packets generated by the
 transport layer.
 
 An
-attempt to send a message that results in a size greater than the
+attempt to send a Message that results in a size greater than the
 transport's current estimate of its maximum packet size (`singularTransmissionMsgMaxLen`)
 will result in a `SendError`.
 This only takes effect when the transport and network layer
@@ -2845,19 +2845,19 @@ support this functionality.
 ## Sending Data {#sending}
 
 Once a Connection has been established, it can be used for sending Messages.
-By default, Send enqueues a complete Message,
-and takes optional per-Message properties (see {{send-basic}}). All Send actions
-are asynchronous, and deliver Events (see {{send-events}}). Sending partial
+By default, `Send` enqueues a complete Message,
+and takes optional per-Message properties (see {{send-basic}}). All `Send` actions
+are asynchronous, and deliver events (see {{send-events}}). Sending partial
 Messages for streaming large data is also supported (see {{send-partial}}).
 
-Messages are sent on a Connection using the Send action:
+Messages are sent on a Connection using the `Send` action:
 
 ~~~
 Connection.Send(messageData, messageContext?, endOfMessage?)
 ~~~
 
 where messageData is the data object to send, and messageContext allows
-adding Message Properties, identifying Send Events related to a specific
+adding Message Properties, identifying `Send` events related to a specific
 Message or inspecting meta-data related to the Message sent (see {{msg-ctx}}).
 
 The optional endOfMessage parameter supports partial sending and is described in
@@ -2883,24 +2883,24 @@ Some transport protocols can deliver arbitrarily sized Messages, but other
 protocols constrain the maximum Message size. Applications can query the
 Connection Property `sendMsgMaxLen` ({{conn-max-msg-send}}) to determine the maximum size
 allowed for a single Message. If a Message is too large to fit in the Maximum Message
-Size for the Connection, the Send will fail with a SendError event ({{send-error}}). For
+Size for the Connection, the `Send` will fail with a `SendError` event ({{send-error}}). For
 example, it is invalid to send a Message over a UDP connection that is larger than
 the available datagram sending size.
 
 ### Send Events {#send-events}
 
-Like all Actions in Transport Services API, the Send Action is asynchronous. There are
-several Events that can be delivered in response to Sending a Message.
-Exactly one Event (Sent, Expired, or SendError) will be delivered in response
-to each call to Send.
+Like all actions in Transport Services API, the `Send` action is asynchronous. There are
+several events that can be delivered in response to sending a Message.
+Exactly one event (`Sent`, `Expired`, or `SendError`) will be delivered in response
+to each call to `Send`.
 
-Note that if partial Sends are used ({{send-partial}}), there will still be exactly
-one Send Event delivered for each call to Send. For example, if a Message
-expired while two requests to Send data for that Message are outstanding,
-there will be two Expired events delivered.
+Note that if partial `Send` calls are used ({{send-partial}}), there will still be exactly
+one `Send` event delivered for each call to `Send`. For example, if a Message
+expired while two requests to `Send` data for that Message are outstanding,
+there will be two `Expired` events delivered.
 
-The Transport Services API should allow the application to correlate which Send Action resulted
-in a particular Send Event. The manner in which this correlation is indicated
+The Transport Services API should allow the application to correlate which `Send` action resulted
+in a particular `Send` event. The manner in which this correlation is indicated
 is implementation-specific.
 
 #### Sent {#sent}
@@ -2909,20 +2909,20 @@ is implementation-specific.
 Connection -> Sent<messageContext>
 ~~~
 
-The Sent Event occurs when a previous Send Action has completed, i.e., when
+The `Sent` event occurs when a previous `Send` action has completed, i.e., when
 the data derived from the Message has been passed down or through the
 underlying Protocol Stack and is no longer the responsibility of
 the Transport Services API. The exact disposition of the Message (i.e.,
 whether it has actually been transmitted, moved into a buffer on the network
-interface, moved into a kernel buffer, and so on) when the Sent Event occurs
-is implementation-specific. The Sent Event contains a reference to the Message
+interface, moved into a kernel buffer, and so on) when the `Sent` event occurs
+is implementation-specific. The `Sent` event contains a reference to the Message
 Context of the Message to which it applies.
 
-Sent Events allow an application to obtain an understanding of the amount
-of buffering it creates. That is, if an application calls the Send Action multiple
-times without waiting for a Sent Event, it has created more buffer inside the
-Transport Services system than an application that always waits for the Sent Event before
-calling the next Send Action.
+`Sent` events allow an application to obtain an understanding of the amount
+of buffering it creates. That is, if an application calls the `Send` action multiple
+times without waiting for a `Sent` event, it has created more buffer inside the
+Transport Services system than an application that always waits for the `Sent` event before
+calling the next `Send` action.
 
 #### Expired {#expired}
 
@@ -2930,10 +2930,10 @@ calling the next Send Action.
 Connection -> Expired<messageContext>
 ~~~
 
-The Expired Event occurs when a previous Send Action expired before completion;
+The `Expired` event occurs when a previous `Send` action expired before completion;
 i.e. when the Message was not sent before its Lifetime (see {{msg-lifetime}})
-expired. This is separate from SendError, as it is an expected behavior for
-partially reliable transports. The Expired Event contains a reference to the
+expired. This is separate from `SendError`, as it is an expected behavior for
+partially reliable transports. The `Expired` event contains a reference to the
 Message Context of the Message to which it applies.
 
 #### SendError {#send-error}
@@ -2942,25 +2942,25 @@ Message Context of the Message to which it applies.
 Connection -> SendError<messageContext, reason?>
 ~~~
 
-A SendError occurs when a Message was not sent due to an error condition:
+A `SendError` occurs when a Message was not sent due to an error condition:
 an attempt to send a Message which is too large for the system and
 Protocol Stack to handle, some failure of the underlying Protocol Stack, or a
 set of Message Properties not consistent with the Connection's transport
-properties. The SendError contains a reference to the Message Context of the
+properties. The `SendError` contains a reference to the Message Context of the
 Message to which it applies.
 
 ### Partial Sends {#send-partial}
 
 It is not always possible for an application to send all data associated with
-a Message in a single Send Action. The Message data may be too large for
+a Message in a single `Send` action. The Message data may be too large for
 the application to hold in memory at one time, or the length of the Message
 may be unknown or unbounded.
 
 Partial Message sending is supported by passing an endOfMessage boolean
-parameter to the Send Action. This value is always true by default, and
-the simpler forms of Send are equivalent to passing true for endOfMessage.
+parameter to the `Send` action. This value is always true by default, and
+the simpler forms of `Send` are equivalent to passing true for endOfMessage.
 
-The following example sends a Message in two separate calls to Send.
+The following example sends a Message in two separate calls to `Send`.
 
 ~~~
 messageContext := NewMessageContext()
@@ -2982,13 +2982,13 @@ endOfMessage is marked.
 ### Batching Sends {#send-batching}
 
 To reduce the overhead of sending multiple small Messages on a Connection, the
-application could batch several Send Actions together. This provides a hint to
+application could batch several `Send` actions together. This provides a hint to
 the system that the sending of these Messages ought to be coalesced when possible,
 and that sending any of the batched Messages can be delayed until the last Message
 in the batch is enqueued.
 
 The semantics for starting and ending a batch can be implementation-specific, but need
-to allow multiple Send Actions to be enqueued.
+to allow multiple `Send` actions to be enqueued.
 
 ~~~
 Connection.StartBatch()
@@ -3000,25 +3000,25 @@ Connection.EndBatch()
 ### Send on Active Open: InitiateWithSend {#initiate-and-send}
 
 For application-layer protocols where the Connection initiator also sends the
-first message, the InitiateWithSend() action combines Connection initiation with
+first Message, the `InitiateWithSend` action combines Connection initiation with
 a first Message sent:
 
 ~~~
 Connection := Preconnection.InitiateWithSend(messageData, messageContext?, timeout?)
 ~~~
 
-Whenever possible, a messageContext should be provided to declare the Message passed to InitiateWithSend
+Whenever possible, a messageContext should be provided to declare the Message passed to `InitiateWithSend`
 as "safely replayable" using the `safelyReplayable` property. This allows the Transport Services system to make use of 0-RTT establishment in case this is supported
 by the available protocol stacks. When the selected stack(s) do not support transmitting data upon connection
-establishment, InitiateWithSend is identical to Initiate() followed by Send().
+establishment, `InitiateWithSend` is identical to `Initiate` followed by `Send`.
 
-Neither partial sends nor send batching are supported by InitiateWithSend().
+Neither partial sends nor send batching are supported by `InitiateWithSend`.
 
-The Events that may be sent after InitiateWithSend() are equivalent to those
-that would be sent by an invocation of Initiate() followed immediately by an
-invocation of Send(), with the caveat that a send failure that occurs because
+The events that may be sent after `InitiateWithSend` are equivalent to those
+that would be sent by an invocation of `Initiate` followed immediately by an
+invocation of `Send`, with the caveat that a send failure that occurs because
 the Connection could not be established will not result in a
-SendError separate from the EstablishmentError signaling the failure of Connection
+`SendError` separate from the `EstablishmentError` signaling the failure of Connection
 establishment.
 
 ### Priority and the Transport Services API  {#priority-in-taps}
@@ -3035,7 +3035,7 @@ that do (e.g. {{?RFC9218}}.
 A Transport Services system gives no guarantees about how its expression of
 relative priorities will be realized. However, the Transport Services system will
 seek to ensure that performance of relatively-prioritized connections and
-messages is not worse with respect to those connections and messages than
+Messages is not worse with respect to those connections and Messages than
 an equivalent configuration in which all prioritization properties are left
 at their defaults.
 
@@ -3050,15 +3050,15 @@ Connection in the same group.
 Once a Connection is established, it can be used for receiving data (unless the
 `direction` property is set to `unidirectional send`). As with
 sending, the data is received in Messages. Receiving is an asynchronous
-operation, in which each call to Receive enqueues a request to receive new
+operation, in which each call to `Receive` enqueues a request to receive new
 data from the connection. Once data has been received, or an error is encountered,
-an event will be delivered to complete any pending Receive requests (see {{receive-events}}).
-If Messages arrive at the Transport Services system before Receive requests are issued,
-ensuing Receive requests will first operate on these Messages before awaiting any further Messages.
+an event will be delivered to complete any pending `Receive` requests (see {{receive-events}}).
+If Messages arrive at the Transport Services system before `Receive` requests are issued,
+ensuing `Receive` requests will first operate on these Messages before awaiting any further Messages.
 
 ### Enqueuing Receives
 
-Receive takes two parameters to specify the length of data that an application
+ `Receive` takes two parameters to specify the length of data that an application
 is willing to receive, both of which are optional and have default values if not
 specified.
 
@@ -3066,10 +3066,10 @@ specified.
 Connection.Receive(minIncompleteLength?, maxLength?)
 ~~~
 
-By default, Receive will try to deliver complete Messages in a single event ({{receive-complete}}).
+By default, `Receive` will try to deliver complete Messages in a single event ({{receive-complete}}).
 
 The application can set a minIncompleteLength value to indicate the smallest partial
-Message data size in bytes that should be delivered in response to this Receive. By default,
+Message data size in bytes that should be delivered in response to this `Receive`. By default,
 this value is infinite, which means that only complete Messages should be delivered (see {{receive-partial}}
 and {{framing}} for more information on how this is accomplished).
 If this value is set to some smaller value, the associated receive event will be triggered
@@ -3083,23 +3083,23 @@ The maxLength argument indicates the maximum size of a Message in bytes
 that the application is currently prepared to receive. The default
 value for maxLength is infinite. If an incoming Message is larger than the
 minimum of this size and the maximum Message size on receive for
-the Connection's Protocol Stack, it will be delivered via ReceivedPartial
+the Connection's Protocol Stack, it will be delivered via `ReceivedPartial`
 events ({{receive-partial}}).
 
 Note that maxLength does not guarantee that the application will receive that many
-bytes if they are available; the Transport Services API could return ReceivedPartial events with less
+bytes if they are available; the Transport Services API could return `ReceivedPartial` events with less
 data than maxLength according to implementation constraints. Note also that maxLength
 and minIncompleteLength are intended only to manage buffering, and are not interpreted
-as a receiver preference for message reordering.
+as a receiver preference for Message reordering.
 
 ### Receive Events {#receive-events}
 
-Each call to Receive will be paired with a single Receive Event, which can be a success
+Each call to `Receive` will be paired with a single `Receive` event, which can be a success
 or an error. This allows an application to provide backpressure to the transport stack
-when it is temporarily not ready to receive messages.
+when it is temporarily not ready to receive Messages.
 
-The Transport Services API should allow the application to correlate which call to Receive resulted
-in a particular Receive Event. The manner in which this correlation is indicated
+The Transport Services API should allow the application to correlate which call to `Receive` resulted
+in a particular `Receive` event. The manner in which this correlation is indicated
 is implementation-specific.
 
 #### Received {#receive-complete}
@@ -3108,11 +3108,11 @@ is implementation-specific.
 Connection -> Received<messageData, messageContext>
 ~~~
 
-A Received event indicates the delivery of a complete Message.
+A `Received` event indicates the delivery of a complete Message.
 It contains two objects, the received bytes as messageData, and the metadata and properties of the received Message as messageContext.
 
 The messageData object provides access to the bytes that were received for this Message, along with the length of the byte array.
-The messageContext is provided to enable retrieving metadata about the message and referring to the message. The messageContext object is described in {{msg-ctx}}.
+The messageContext is provided to enable retrieving metadata about the Message and referring to the Message. The messageContext object is described in {{msg-ctx}}.
 
 See {{framing}} for handling Message framing in situations where the Protocol
 Stack only provides a byte-stream transport.
@@ -3124,29 +3124,29 @@ Connection -> ReceivedPartial<messageData, messageContext, endOfMessage>
 ~~~
 
 If a complete Message cannot be delivered in one event, one part of the Message
-can be delivered with a ReceivedPartial event. To continue to receive more
-of the same Message, the application must invoke Receive again.
+can be delivered with a `ReceivedPartial` event. To continue to receive more
+of the same Message, the application must invoke `Receive` again.
 
-Multiple invocations of ReceivedPartial deliver data for the same Message by
+Multiple invocations of `ReceivedPartial` deliver data for the same Message by
 passing the same MessageContext, until the endOfMessage flag is delivered or a
-ReceiveError occurs. All partial blocks of a single Message are delivered in
+ `ReceiveError` occurs. All partial blocks of a single Message are delivered in
 order without gaps. This event does not support delivering non-contiguous partial
 Messages. If, for example, Message A is divided into three pieces (A1, A2, A3) and
 Message B is divided into three pieces (B1, B2, B3), and preserveOrder is not Required,
-the ReceivedPartial may deliver them in a sequence like this: A1, B1, B2, A2, A3, B3,
+the `ReceivedPartial` may deliver them in a sequence like this: A1, B1, B2, A2, A3, B3,
 because the messageContext allows the application to identify the pieces as belonging
 to Message A and B, respectively. However, a sequence like: A1, A3 will never occur.
 
 If the minIncompleteLength in the Receive request was set to be infinite (indicating
-a request to receive only complete Messages), the ReceivedPartial event may still be
+a request to receive only complete Messages), the `ReceivedPartial` event may still be
 delivered if one of the following conditions is true:
 
 * the underlying Protocol Stack supports message boundary preservation, and
   the size of the Message is larger than the buffers available for a single
-  message;
+  Message;
 * the underlying Protocol Stack does not support message boundary
   preservation, and the Message Framer (see {{framing}}) cannot determine
-  the end of the message using the buffer space it has available; or
+  the end of the Message using the buffer space it has available; or
 * the underlying Protocol Stack does not support message boundary
   preservation, and no Message Framer was supplied by the application
 
@@ -3155,8 +3155,8 @@ a Message Framer, all bytes received on the Connection will be represented as on
 large Message of indeterminate length.
 
 In the following example, an application only wants to receive up to 1000 bytes
-at a time from a Connection. If a 1500-byte message arrives, it would receive
-the message in two separate ReceivedPartial events.
+at a time from a Connection. If a 1500-byte Message arrives, it would receive
+the Message in two separate `ReceivedPartial` events.
 
 ~~~
 Connection.Receive(1, 1000)
@@ -3176,9 +3176,9 @@ Connection -> ReceivedPartial<messageData(500 bytes), messageContext, true>
 Connection -> ReceiveError<messageContext, reason?>
 ~~~
 
-A ReceiveError occurs when data is received by the underlying Protocol Stack
+A `ReceiveError` occurs when data is received by the underlying Protocol Stack
 that cannot be fully retrieved or parsed, and when it is useful for the application
-to be notified of such errors. For example, a ReceiveError can
+to be notified of such errors. For example, a `ReceiveError` can
 indicate that a Message (identified via the MessageContext)
 that was being partially received previously, but had not
 completed, encountered an error and will not be completed. This can be useful
@@ -3190,8 +3190,8 @@ an application can use this error as a hint to inform the peer application
 to adjust the `msgChecksumLen` property (see {{msg-checksum}}).
 
 In contrast, internal protocol reception errors (e.g., loss causing retransmissions
-in TCP) are not signalled by this Event. Conditions that irrevocably lead to
-the termination of the Connection are signaled using ConnectionError
+in TCP) are not signalled by this event. Conditions that irrevocably lead to
+the termination of the Connection are signaled using `ConnectionError`
 (see {{termination}}).
 
 
@@ -3236,82 +3236,82 @@ Some transport protocols and peers do not support signaling of the `final` prope
 Applications therefore should not rely on receiving a Message marked Final to know
 that the sending endpoint is done sending on a connection.
 
-Any calls to Receive once the Final Message has been delivered will result in errors.
+Any calls to `Receive` once the Final Message has been delivered will result in errors.
 
 # Connection Termination {#termination}
 
-A Connection can be terminated i) by the Local Endpoint (i.e., the application calls the Close, CloseGroup, Abort or AbortGroup Action), ii) by the Remote Endpoint (i.e., the remote application calls the Close, CloseGroup, Abort or AbortGroup Action), or iii) because of an error (e.g., a timeout). A local call of the Close Action will
-cause the Connection to either send a Closed Event or a ConnectionError Event, and a local call of
-the CloseGroup Action will cause all of the Connections in the group to either send a Closed Event
-or a ConnectionError Event. A local call of the Abort Action will cause the Connection to send
-a ConnectionError Event, indicating local Abort as a reason, and a local call of the AbortGroup Action
-will cause all of the Connections in the group to send a ConnectionError Event, indicating local Abort
+A Connection can be terminated i) by the Local Endpoint (i.e., the application calls the `Close`, `CloseGroup`, `Abort` or `AbortGroup` action), ii) by the Remote Endpoint (i.e., the remote application calls the `Close`, `CloseGroup`, `Abort` or `AbortGroup` action), or iii) because of an error (e.g., a timeout). A local call of the `Close` action will
+cause the Connection to either send a `Closed` event or a `ConnectionError` event, and a local call of
+the `CloseGroup` action will cause all of the Connections in the group to either send a `Closed` event
+or a `ConnectionError` event. A local call of the `Abort` action will cause the Connection to send
+a `ConnectionError` event, indicating local `Abort` as a reason, and a local call of the `AbortGroup` action
+will cause all of the Connections in the group to send a `ConnectionError` event, indicating local `Abort`
 as a reason.
 
-Remote Action calls map to Events similar to local calls (e.g., a remote Close causes the
-Connection to either send a Closed Event or a ConnectionError Event), but, different from local Action calls,
-it is not guaranteed that such Events will indeed be invoked. When an application needs to free resources
-associated with a Connection, it should therefore not rely on the invocation of such Events due to
-termination calls from the Remote Endpoint, but instead use the local termination Actions.
+Remote action calls map to events similar to local calls (e.g., a remote `Close` causes the
+Connection to either send a `Closed` event or a `ConnectionError` event), but, different from local action calls,
+it is not guaranteed that such events will indeed be invoked. When an application needs to free resources
+associated with a Connection, it should therefore not rely on the invocation of such events due to
+termination calls from the Remote Endpoint, but instead use the local termination actions.
 
-Close terminates a Connection after satisfying all the requirements that were
+`Close` terminates a Connection after satisfying all the requirements that were
 specified regarding the delivery of Messages that the application has already
 given to the Transport Services system. Upon successfully satisfying all these
-requirements, the Connection will send the Closed Event. For example, if reliable delivery was requested
-for a Message handed over before calling Close, the Closed Event will signify
-that this Message has indeed been delivered. This Action does not affect any other Connection
+requirements, the Connection will send the `Closed` event. For example, if reliable delivery was requested
+for a Message handed over before calling `Close`, the `Closed` event will signify
+that this Message has indeed been delivered. This action does not affect any other Connection
 in the same Connection Group.
 
 An application MUST NOT assume that it can receive any further data on a Connection
-for which it has called Close, even if such data is already in flight.
+for which it has called `Close`, even if such data is already in flight.
 
 ~~~
 Connection.Close()
 ~~~
 
-The Closed Event informs the application that a Close Action has successfully
+The `Closed` event informs the application that a `Close` action has successfully
 completed, or that the Remote Endpoint has closed the Connection.
-There is no guarantee that a remote Close will be signaled.
+There is no guarantee that a remote `Close` will be signaled.
 
 
 ~~~
 Connection -> Closed<>
 ~~~
 
-Abort terminates a Connection without delivering any remaining Messages. This action does
+`Abort` terminates a Connection without delivering any remaining Messages. This action does
 not affect any other Connection that is entangled with this one in a Connection Group.
-When the Abort Action has finished, the Connection will send a ConnectionError Event,
-indicating local Abort as a reason.
+When the `Abort` action has finished, the Connection will send a `ConnectionError` event,
+indicating local `Abort` as a reason.
 
 ~~~
 Connection.Abort()
 ~~~
 
-CloseGroup gracefully terminates a Connection and any other Connections in the
+`CloseGroup` gracefully terminates a Connection and any other Connections in the
 same Connection Group. For example, all of the Connections in a
 group might be streams of a single session for a multistreaming protocol; closing the entire
 group will close the underlying session. See also {{groups}}. All Connections in the group
-will send a Closed Event when the CloseGroup Action was successful.
-As with Close, any Messages
+will send a `Closed` event when the `CloseGroup` action was successful.
+As with `Close`, any Messages
 remaining to be processed on a Connection will be handled prior to closing.
 
 ~~~
 Connection.CloseGroup()
 ~~~
 
-AbortGroup terminates a Connection and any other Connections that are
+`AbortGroup` terminates a Connection and any other Connections that are
 in the same Connection Group without delivering any remaining Messages.
-When the AbortGroup Action has finished, all Connections in the group will
-send a ConnectionError Event, indicating local Abort as a reason.
+When the `AbortGroup` action has finished, all Connections in the group will
+send a `ConnectionError` event, indicating local `Abort` as a reason.
 
 ~~~
 Connection.AbortGroup()
 ~~~
 
-A ConnectionError informs the application that: 1) data could not be delivered to the
+A `ConnectionError` informs the application that: 1) data could not be delivered to the
 peer after a timeout,
-or 2) the Connection has been aborted (e.g., because the peer has called Abort).
-There is no guarantee that an Abort from the peer will be signaled.
+or 2) the Connection has been aborted (e.g., because the peer has called `Abort`).
+There is no guarantee that an `Abort` from the peer will be signaled.
 
 ~~~
 Connection -> ConnectionError<reason?>
@@ -3326,21 +3326,21 @@ events are dispatched, are implementation dependent.
 
 Each transition of connection state is associated with one of more events:
 
-- Ready<> occurs when a Connection created with Initiate() or
-  InitiateWithSend() transitions to Established state.
+- `Ready<>` occurs when a Connection created with `Initiate` or
+  `InitiateWithSend` transitions to Established state.
 
-- ConnectionReceived<> occurs when a Connection created with Listen()
+- `ConnectionReceived<>` occurs when a Connection created with `Listen`
   transitions to Established state.
 
-- RendezvousDone<> occurs when a Connection created with Rendezvous()
+- `RendezvousDone<>` occurs when a Connection created with `Rendezvous`
   transitions to Established state.
 
-- Closed<> occurs when a Connection transitions to Closed state without error.
+- `Closed<>` occurs when a Connection transitions to Closed state without error.
 
-- EstablishmentError<> occurs when a Connection created with Initiate() transitions
+- `EstablishmentError<>` occurs when a Connection created with `Initiate` transitions
   from Establishing state to Closed state due to an error.
 
-- ConnectionError<> occurs when a Connection transitions to Closed state due to
+- `ConnectionError<>` occurs when a Connection transitions to Closed state due to
   an error in all other circumstances.
 
 The following diagram shows the possible states of a Connection and the
@@ -3364,17 +3364,17 @@ Establishing -----> Established -----> Closing ------> Closed
 The Transport Services API  provides the following guarantees about the ordering of
  operations:
 
-- Sent<> events will occur on a Connection in the order in which the Messages
+- `Sent<>` events will occur on a Connection in the order in which the Messages
   were sent (i.e., delivered to the kernel or to the network interface,
   depending on implementation).
 
-- Received<> will never occur on a Connection before it is Established; i.e.
-  before a Ready<> event on that Connection, or a ConnectionReceived<> or
-  RendezvousDone<> containing that Connection.
+- `Received<>` will never occur on a Connection before it is Established; i.e.
+  before a `Ready<>` event on that Connection, or a `ConnectionReceived<>` or
+  `RendezvousDone<>` containing that Connection.
 
-- No events will occur on a Connection after it is Closed; i.e., after a
-  Closed<> event, an EstablishmentError<> or ConnectionError<> will not occur on that connection. To
-  ensure this ordering, Closed<> will not occur on a Connection while other
+- No events will occur on a Connection after it is `Closed`; i.e., after a
+  `Closed<>` event, an `EstablishmentError<>` or `ConnectionError<>` will not occur on that connection. To
+  ensure this ordering, `Closed<>` will not occur on a Connection while other
   events on the Connection are still locally outstanding (i.e., known to the
   Transport Services API and waiting to be dealt with by the application).
 
@@ -3383,7 +3383,7 @@ The Transport Services API  provides the following guarantees about the ordering
 
 RFC-EDITOR: Please remove this section before publication.
 
-This document has no Actions for IANA.
+This document has no actions for IANA.
 Later versions of this document may create IANA registries for generic transport property names and transport property namespaces (see {{property-names}}).
 
 # Privacy and Security Considerations {#privacy-security}
@@ -3424,8 +3424,8 @@ care when using 0-RTT session resumption (see {{prop-0rtt}}), as early data sent
 connection establishment may reveal information that can be used to correlate endpoints on these paths.
 
 Applications should also take care to not assume that all data received using the Transport Services API is always
-complete or well-formed. Specifically, messages that are received partially {{receive-partial}} could be a source
-of truncation attacks if applications do not distinguish between partial messages and complete messages.
+complete or well-formed. Specifically, Messages that are received partially {{receive-partial}} could be a source
+of truncation attacks if applications do not distinguish between partial Messages and complete Messages.
 
 The Transport Services API explicitly does not require the application to resolve names, though there is
 a tradeoff between early and late binding of addresses to names. Early binding
@@ -3472,7 +3472,7 @@ and for contributing text, e.g., on multicast.
 The way the concepts from this abstract API map into concrete APIs in a
 given language on a given platform largely depends on the features and norms of
 the language and the platform. Actions could be implemented as functions or
-method calls, for instance, and Events could be implemented via event queues,
+method calls, for instance, and events could be implemented via event queues,
 handler functions or classes, communicating sequential processes, or other
 asynchronous calling conventions.
 
@@ -3504,9 +3504,9 @@ if necessary.
 
 ## Events and Errors
 
-This specification treats Events and Errors similarly. Errors, just as any
-other Events, may occur asynchronously in network applications. However,
-implementations of this API may report Errors synchronously,
+This specification treats events and errors similarly. Errors, just as any
+other events, may occur asynchronously in network applications. However,
+implementations of this API may report errors synchronously,
 according to the error handling idioms of the implementation
 platform, where they can be immediately detected, such as by generating an
 exception when attempting to initiate a connection with inconsistent
@@ -3604,31 +3604,31 @@ coverage, see {{prop-checksum-control-send}} and {{prop-checksum-control-receive
 This list is a subset of the transport features in Appendix A of {{?RFC8923}}, which refers to the primitives in "pass 2" (Section 4) of {{?RFC8303}} for further details on the implementation with TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT.
 
 * Connect:
-`Initiate` Action ({{initiate}}).
+`Initiate` action ({{initiate}}).
 
 * Listen:
-`Listen` Action ({{listen}}).
+`Listen` action ({{listen}}).
 
-* Specify number of attempts and/or timeout for the first establishment message:
-`timeout` parameter of `Initiate` ({{initiate}}) or `InitiateWithSend` Action ({{initiate-and-send}}).
+* Specify number of attempts and/or timeout for the first establishment Message:
+`timeout` parameter of `Initiate` ({{initiate}}) or `InitiateWithSend` action ({{initiate-and-send}}).
 
 * Disable MPTCP:
 `multipath` property ({{multipath-mode}}).
 
-* Hand over a message to reliably transfer (possibly multiple times) before connection establishment:
-`InitiateWithSend` Action ({{initiate-and-send}}).
+* Hand over a Message to reliably transfer (possibly multiple times) before connection establishment:
+`InitiateWithSend` action ({{initiate-and-send}}).
 
 * Change timeout for aborting connection (using retransmit limit or time value):
 `connTimeout` property, using a time value ({{conn-timeout}}).
 
 * Timeout event when data could not be delivered for too long:
-`ConnectionError` Event ({{termination}}).
+`ConnectionError` event ({{termination}}).
 
 * Suggest timeout to the peer:
 See "TCP-specific Properties: User Timeout Option (UTO)" ({{tcp-uto}}).
 
 * Notification of ICMP error message arrival:
-`softErrorNotify` ({{prop-soft-error}}) and `SoftError` Event ({{soft-errors}}).
+`softErrorNotify` ({{prop-soft-error}}) and `SoftError` event ({{soft-errors}}).
 
 * Choose a scheduler to operate between streams of an association:
 `connScheduler` property ({{conn-scheduler}}).
@@ -3658,13 +3658,13 @@ This is a read-only Message Property of the MessageContext object (see "UDP(-Lit
 as suggested in Section 5.5 of {{?RFC8923}}, these transport features are collectively offered via the `connCapacityProfile` property ({{prop-cap-profile}}). Per-Message control ("Request not to bundle messages") is offered via the `msgCapacityProfile` property ({{send-profile}}).
 
 * Close after reliably delivering all remaining data, causing an event informing the application on the other side:
-this is offered by the `Close` Action with slightly changed semantics in line with the discussion in Section 5.2 of {{?RFC8923}} ({{termination}}).
+this is offered by the `Close` action with slightly changed semantics in line with the discussion in Section 5.2 of {{?RFC8923}} ({{termination}}).
 
 * "Abort without delivering remaining data, causing an event informing the application on the other side" and "Abort without delivering remaining data, not causing an event informing the application on the other side":
-this is offered by the `Abort` action without promising that this is signaled to the other side. If it is, a `ConnectionError` Event will be invoked at the peer ({{termination}}).
+this is offered by the `Abort` action without promising that this is signaled to the other side. If it is, a `ConnectionError` event will be invoked at the peer ({{termination}}).
 
 * "Reliably transfer data, with congestion control", "Reliably transfer a message, with congestion control" and "Unreliably transfer a message":
-data is transferred via the `Send` action ({{sending}}). Reliability is controlled via the `reliability` ({{prop-reliable}}) property and the `msgReliable` Message Property ({{msg-reliable-message}}). Transmitting data as a message or without delimiters is controlled via Message Framers ({{framing}}). The choice of congestion control is provided via the `congestionControl` property ({{prop-cc}}).
+data is transferred via the `Send` action ({{sending}}). Reliability is controlled via the `reliability` ({{prop-reliable}}) property and the `msgReliable` Message Property ({{msg-reliable-message}}). Transmitting data as a Message or without delimiters is controlled via Message Framers ({{framing}}). The choice of congestion control is provided via the `congestionControl` property ({{prop-cc}}).
 
 * Configurable Message Reliability:
 the `msgLifetime` Message Property implements a time-based way to configure message reliability ({{msg-lifetime}}).
@@ -3676,22 +3676,22 @@ these two transport features are controlled via the Message Property `msgOrdered
 should the protocol support it, this is one of the transport features the Transport Services system can apply when an application uses the `connCapacityProfile` Property ({{prop-cap-profile}}) or the `msgCapacityProfile` Message Property ({{send-profile}}) with value `Low Latency/Interactive`.
 
 * Receive data (with no message delimiting):
-`Receive` Action ({{receiving}}) and `Received` Event ({{receive-complete}}).
+`Receive` action ({{receiving}}) and `Received` event ({{receive-complete}}).
 
 * Receive a message:
-`Receive` Action ({{receiving}}) and `Received` Event ({{receive-complete}}), using Message Framers ({{framing}}).
+`Receive` action ({{receiving}}) and `Received` event ({{receive-complete}}), using Message Framers ({{framing}}).
 
 * Information about partial message arrival:
-`Receive` Action ({{receiving}}) and `ReceivedPartial` Event ({{receive-partial}}).
+`Receive` action ({{receiving}}) and `ReceivedPartial` event ({{receive-partial}}).
 
 * Notification of send failures:
-`Expired` Event ({{expired}}) and `SendError` Event ({{send-error}}).
+`Expired` event ({{expired}}) and `SendError` event ({{send-error}}).
 
 * Notification that the stack has no more user data to send:
-applications can obtain this information via the `Sent` Event ({{sent}}).
+applications can obtain this information via the `Sent` event ({{sent}}).
 
 * Notification to a receiver that a partial message delivery has been aborted:
-`ReceiveError` Event ({{receive-error}}).
+`ReceiveError` event ({{receive-error}}).
 
 * Notification of Excessive Retransmissions (early warning below abortion threshold):
- `SoftError` Event ({{soft-errors}}).
+ `SoftError` event ({{soft-errors}}).

@@ -130,7 +130,7 @@ The Connection Properties held by a Connection or Listener are independent of ot
 
 Connection establishment is only a local operation for a connectionless protocols, which serves to simplify the local send/receive functions and to filter the traffic for the specified addresses and ports {{?RFC8085}} (for example using UDP or UDP-Lite transport without a connection handshake procedure).
 
-Once Initiate has been called, the Selection Properties and Endpoint information of the created Connection are immutable (i.e, an application is not able to later modify the properties of a Connection by manipulating the original Preconnection object).
+Once `Initiate` has been called, the Selection Properties and Endpoint information of the created Connection are immutable (i.e, an application is not able to later modify the properties of a Connection by manipulating the original Preconnection object).
 Listener objects are created with a Preconnection, at which point their configuration should be considered immutable by the implementation. The process of listening is described in {{listen}}.
 
 # Implementing Pre-Establishment
@@ -160,13 +160,13 @@ The properties specified during pre-establishment have a close relationship to s
 2. Dynamic system policy, i.e., policy compiled from internally and externally acquired information about available network interfaces, supported transport protocols, and current/previous Connections. Examples of ways to externally retrieve policy-support information are through OS-specific statistics/measurement tools and tools that reside on middleboxes and routers.
 3. Default implementation policy, i.e., predefined policy by OS or application.
 
-In general, any protocol or path used for a connection must conform to all three sources of constraints. A violation that occurs at any of the policy layers should cause a protocol or path to be considered ineligible for use. If such a violation prevents a Connection from being established, this should be communicated to the application, e.g. via the EstablishmentError event. For an example of application preferences leading to constraints, an application may prohibit the use of metered network interfaces for a given Connection to avoid user cost. Similarly, the system policy at a given time may prohibit the use of such a metered network interface from the application's process. Lastly, the implementation itself may default to disallowing certain network interfaces unless explicitly requested by the application.
+In general, any protocol or path used for a connection must conform to all three sources of constraints. A violation that occurs at any of the policy layers should cause a protocol or path to be considered ineligible for use. If such a violation prevents a Connection from being established, this should be communicated to the application, e.g. via the `EstablishmentError` event. For an example of application preferences leading to constraints, an application may prohibit the use of metered network interfaces for a given Connection to avoid user cost. Similarly, the system policy at a given time may prohibit the use of such a metered network interface from the application's process. Lastly, the implementation itself may default to disallowing certain network interfaces unless explicitly requested by the application.
 
 It is expected that the database of system policies and the method of looking up these policies will vary across various platforms. An implementation should attempt to look up the relevant policies for the system in a dynamic way to make sure it is reflecting an accurate version of the system policy, since the system's policy regarding the application's traffic may change over time due to user or administrative changes.
 
 # Implementing Connection Establishment {#conn-establish}
 
-The process of establishing a network connection begins when an application expresses intent to communicate with a Remote Endpoint by calling Initiate,  at which point the Preconnection object contains all constraints or requirements the application has configured for the connection. The establishment process can be considered complete once there is at least one Protocol Stack that has completed any required setup to the point that it can transmit and receive the application's data.
+The process of establishing a network connection begins when an application expresses intent to communicate with a Remote Endpoint by calling `Initiate`, at which point the Preconnection object contains all constraints or requirements the application has configured for the connection. The establishment process can be considered complete once there is at least one Protocol Stack that has completed any required setup to the point that it can transmit and receive the application's data.
 
 Connection establishment is divided into two top-level steps: Candidate Gathering (defined in Section 4.2.1 of {{I-D.ietf-taps-arch}}), to identify the paths, protocols, and endpoints to use (see {{gathering}}); and Candidate Racing (defined in Section 4.2.2 of {{I-D.ietf-taps-arch}}), in which the necessary protocol handshakes are conducted so that the transport system can select which set to use (see {{racing}}). Candidate Racing involves attempting multiple options for connection establishment, and choosing the first option to succeed as the Protocol Stack to use for the connection. These attempts are usually staggered, starting each next option after a delay, but they can also be performed in parallel or only after waiting for failures.
 
@@ -367,11 +367,11 @@ An implementation can use the Capacity Profile to prefer paths that match an app
    * Low Latency/Non-Interactive:
      Prefer paths with a low expected Round Trip Time, but can tolerate delay variation;
    * Constant-Rate Streaming:
-     Prefer paths that are expected to satisfy the requested Stream Send or Stream Receive Bitrate, based on the observed maximum throughput;
+     Prefer paths that are expected to satisfy the requested stream `Send` or stream `Receive` bitrate, based on the observed maximum throughput;
    * Capacity-Seeking:
      Prefer adapting to paths to determine the highest available capacity, based on the observed maximum throughput.
 
-As another example, branch sorting can also be influenced by bounds on the Send or Receive rate (Selection Properties `minSendRate` / `minRecvRate` / `maxSendRate` / `maxRecvRate`): if the application indicates a bound on the expected Send or Receive bitrate, an implementation may prefer a path that can likely provide the desired bandwidth, based on cached maximum throughput, see {{performance-caches}}. The application may know the Send or Receive Bitrate from metadata in adaptive HTTP streaming, such as MPEG-DASH.
+As another example, branch sorting can also be influenced by bounds on the send or receive rate (Selection Properties `minSendRate` / `minRecvRate` / `maxSendRate` / `maxRecvRate`): if the application indicates a bound on the expected send or receive bitrate, an implementation may prefer a path that can likely provide the desired bandwidth, based on cached maximum throughput, see {{performance-caches}}. The application may know the `Send` or `Receive` Bitrate from metadata in adaptive HTTP streaming, such as MPEG-DASH.
 
 Implementations process the Properties (Section 6.2 of {{I-D.ietf-taps-interface}}) in the following order: Prohibit, Require, Prefer, Avoid.
 If Selection Properties contain any prohibited properties, the implementation should first purge branches containing nodes with these properties. For required properties, it should only keep branches that satisfy these requirements. Finally, it should order the branches according to the preferred properties, and finally use any avoided properties as a tiebreaker.
@@ -446,7 +446,7 @@ An example in which failover is recommended is a race between a Protocol Stack t
 
 ## Completing Establishment
 
-The process of connection establishment completes when one leaf node of the tree has successfully completed negotiation with the Remote Endpoint, or else all nodes of the tree have failed to connect. The first leaf node to complete its connection is then used by the application to send and receive data. This is signalled to the application using the Ready event in the API ({{Section 7.1 of I-D.ietf-taps-interface}}).
+The process of connection establishment completes when one leaf node of the tree has successfully completed negotiation with the Remote Endpoint, or else all nodes of the tree have failed to connect. The first leaf node to complete its connection is then used by the application to send and receive data. This is signalled to the application using the `Ready` event in the API ({{Section 7.1 of I-D.ietf-taps-interface}}).
 
 Successes and failures of a given attempt should be reported up to parent nodes (towards the trunk of the tree). For example, in the following case, if 1.1.1 fails to connect, it reports the failure to 1.1. Since 1.1 has no other child nodes, it also has failed and reports that failure to 1. Because 1.2 has not yet failed, 1 is not considered to have failed. Since 1.2 has not yet started, it is started and the process continues. Similarly, if 1.1.1 successfully connects, then it marks 1.1 as connected, which propagates to the trunk node 1. At this point, the connection as a whole is considered to be successfully connected and ready to process application data.
 
@@ -467,17 +467,17 @@ Keeping additional connections is generally not recommended, because those attem
 
 On a per-protocol basis, implementations may select different criteria by which a leaf node is considered to be successfully connected. If the only protocol being used is a transport protocol with a clear handshake, like TCP, then the obvious choice is to declare that node "connected" when the last packet of the three-way handshake has been received. If the only protocol being used is an connectionless protocol, like UDP, the implementation may consider the node fully "connected" the moment it determines a route is present, before sending any packets on the network, see further {{connectionless-racing}}.
 
-When the Initiate action is called without any Messages being sent at the same time, depending on the
+When the `Initiate` action is called without any Messages being sent at the same time, depending on the
 protocols involved, it is not guaranteed that the Remote Endpoint will be notified of this, and hence a passive
-endpoint's application may not receive a ConnectionReceived event until it receives the first Message on the new Connection.
+endpoint's application may not receive a `ConnectionReceived` event until it receives the first Message on the new Connection.
 
-For Protocol Stacks with multiple handshakes, the decision becomes more nuanced. If the Protocol Stack involves both TLS and TCP, an implementation could determine that a leaf node is connected after the TCP handshake is complete, or it can wait for the TLS handshake to complete as well. The benefit of declaring completion when the TCP handshake finishes, and thus stopping the race for other branches of the tree, is reduced burden on the network and Remote Endpoints from further connection attempts that are likely to be abandoned. On the other hand, by waiting until the TLS handshake is complete, an implementation avoids the scenario in which a TCP handshake completes quickly, but TLS negotiation is either very slow or fails altogether in particular network conditions or to a particular endpoint. To avoid the issue of TLS possibly failing, the implementation should not generate a Ready event for the Connection until the TLS handshake is complete.
+For Protocol Stacks with multiple handshakes, the decision becomes more nuanced. If the Protocol Stack involves both TLS and TCP, an implementation could determine that a leaf node is connected after the TCP handshake is complete, or it can wait for the TLS handshake to complete as well. The benefit of declaring completion when the TCP handshake finishes, and thus stopping the race for other branches of the tree, is reduced burden on the network and Remote Endpoints from further connection attempts that are likely to be abandoned. On the other hand, by waiting until the TLS handshake is complete, an implementation avoids the scenario in which a TCP handshake completes quickly, but TLS negotiation is either very slow or fails altogether in particular network conditions or to a particular endpoint. To avoid the issue of TLS possibly failing, the implementation should not generate a `Ready` event for the Connection until the TLS handshake is complete.
 
-If all of the leaf nodes fail to connect during racing, i.e. none of the configurations that satisfy all requirements given in the Transport Properties actually work over the available paths, then the transport system should report an EstablishmentError to the application. An EstablishmentError event should also be generated in case the transport system finds no usable candidates to race.
+If all of the leaf nodes fail to connect during racing, i.e. none of the configurations that satisfy all requirements given in the Transport Properties actually work over the available paths, then the transport system should report an `EstablishmentError` to the application. An `EstablishmentError` event should also be generated in case the transport system finds no usable candidates to race.
 
 ## Establishing multiplexed connections {#establish-mux}
 
-Multiplexing several Connections over a single underlying transport connection requires that the Connections to be multiplexed belong to the same Connection Group (as is indicated by the application using the Clone call). When the underlying transport connection supports multi-streaming, the Transport Services System can map each Connection in the Connection Group to a different stream.
+Multiplexing several Connections over a single underlying transport connection requires that the Connections to be multiplexed belong to the same Connection Group (as is indicated by the application using the `Clone` call). When the underlying transport connection supports multi-streaming, the Transport Services System can map each Connection in the Connection Group to a different stream.
 
 
 For such streams, there is often no explicit connection
@@ -531,21 +531,21 @@ insofar as they contain zero bytes in the messageData parameter, but can still i
 
 ## Sending Messages
 
-The effect of the application sending a Message is determined by the top-level protocol in the established Protocol Stack. That is, if the top-level protocol provides an abstraction of framed messages over a connection, the receiving application will be able to obtain multiple Messages on that connection, even if the framing protocol is built on a byte-stream protocol like TCP.
+The effect of the application sending a Message is determined by the top-level protocol in the established Protocol Stack. That is, if the top-level protocol provides an abstraction of framed Messages over a connection, the receiving application will be able to obtain multiple Messages on that connection, even if the framing protocol is built on a byte-stream protocol like TCP.
 
 ### Message Properties {#msg-properties}
 
 The API allows various properties to be associated with each Message, which should be implemented as discussed below.
 
-- `msgLifetime`: this should be implemented by removing the Message from the queue of pending Messages after the Lifetime has expired. A queue of pending Messages within the transport system implementation that have yet to be handed to the Protocol Stack can always support this property, but once a Message has been sent into the send buffer of a protocol, only certain protocols may support removing a message. For example, an implementation cannot remove bytes from a TCP send buffer, while it can remove data from a SCTP send buffer using the partial reliability extension {{?RFC8303}}. When there is no standing queue of Messages within the system, and the Protocol Stack does not support the removal of a Message from the stack's send buffer, this property may be ignored.
+- `msgLifetime`: this should be implemented by removing the Message from the queue of pending Messages after the Lifetime has expired. A queue of pending Messages within the transport system implementation that have yet to be handed to the Protocol Stack can always support this property, but once a Message has been sent into the send buffer of a protocol, only certain protocols may support removing a Message. For example, an implementation cannot remove bytes from a TCP send buffer, while it can remove data from a SCTP send buffer using the partial reliability extension {{?RFC8303}}. When there is no standing queue of Messages within the system, and the Protocol Stack does not support the removal of a Message from the stack's send buffer, this property may be ignored.
 
 - `msgPriority`: this represents the ability to prioritize a Message over other Messages. This can be implemented by the system re-ordering Messages that have yet to be handed to the Protocol Stack, or by giving relative priority hints to protocols that support priorities per Message. For example, an implementation of HTTP/2 could choose to send Messages of different Priority on streams of different priority.
 
 - `msgOrdered`: when this is false, this disables the requirement of in-order-delivery for protocols that support configurable ordering. When the Protocol Stack does not support configurable ordering, this property may be ignored.
 
-- `safelyReplayable`: when this is true, this means that the Message can be used by a transport mechanism that might transfer it multiple times -- e.g., as a result of racing multiple transports or as part of TCP Fast Open. Also, protocols that do not protect against duplicated messages, such as UDP (when used directly, without a protocol layered atop), can only be used with Messages that are Safely Replayable. When a transport system is permitted to replay messages, replay protection could be provided by the application.
+- `safelyReplayable`: when this is true, this means that the Message can be used by a transport mechanism that might transfer it multiple times -- e.g., as a result of racing multiple transports or as part of TCP Fast Open. Also, protocols that do not protect against duplicated Messages, such as UDP (when used directly, without a protocol layered atop), can only be used with Messages that are Safely Replayable. When a transport system is permitted to replay Messages, replay protection could be provided by the application.
 
-- `final`: when this is true, this means that the sender will not send any further messages. The Connection need not be closed (in case the Protocol Stack supports half-close operation, like TCP). Any messages sent after a Final message will result in a SendError.
+- `final`: when this is true, this means that the sender will not send any further Messages. The Connection need not be closed (in case the Protocol Stack supports half-close operation, like TCP). Any Messages sent after a final Message will result in a `SendError`.
 
 - `msgChecksumLen`: when this is set to any value other than `Full Coverage`, it sets the minimum protection in protocols that allow limiting the checksum length (e.g. UDP-Lite). If the Protocol Stack does not support checksum length limitation, this property may be ignored.
 
@@ -561,21 +561,21 @@ transport protocol session or DCCP connection).
 
 - `noFragmentation`: Setting this avoids network-layer fragmentation. Messages exceeding the transport’s current estimate of its maximum packet size (the `singularTransmissionMsgMaxLen` Connection Property) can result in transport segmentation when permitted, or generate an error. When used with transports running over IP version 4 the Don't Fragment bit will be set to avoid on-path IP fragmentation ({{!RFC8304}}).
 
-- `noSegmentation`: When set, this property limits the message size to the transport’s current estimate of its maximum packet size (the `singularTransmissionMsgMaxLen` Connection Property). Messages larger than this size generate an error. Setting this avoids transport-layer segmentation and network-layer fragmentation. When used with transports running over IP version 4 the Don't Fragment bit will be set to avoid on-path IP fragmentation ({{!RFC8304}}).
+- `noSegmentation`: When set, this property limits the Message size to the transport’s current estimate of its maximum packet size (the `singularTransmissionMsgMaxLen` Connection Property). Messages larger than this size generate an error. Setting this avoids transport-layer segmentation and network-layer fragmentation. When used with transports running over IP version 4 the Don't Fragment bit will be set to avoid on-path IP fragmentation ({{!RFC8304}}).
 
 ### Send Completion
 
-The application should be notified (using a `Sent`, `Expired` or `SendError` Event) whenever a Message or partial Message has been consumed by the Protocol Stack, or has failed to send. The time at which a Message is considered to have been consumed by the Protocol Stack may vary depending on the protocol. For example, for a basic datagram protocol like UDP, this may correspond to the time when the packet is sent into the interface driver. For a protocol that buffers data in queues, like TCP, this may correspond to when the data has entered the send buffer. The time at which a message failed to send is when the Transport Services implementation (including the Protocol Stack) has experienced a failure related to sending; this can depend on protocol-specific timeouts.
+The application should be notified (using a `Sent`, `Expired` or `SendError` event) whenever a Message or partial Message has been consumed by the Protocol Stack, or has failed to send. The time at which a Message is considered to have been consumed by the Protocol Stack may vary depending on the protocol. For example, for a basic datagram protocol like UDP, this may correspond to the time when the packet is sent into the interface driver. For a protocol that buffers data in queues, like TCP, this may correspond to when the data has entered the send buffer. The time at which a Message failed to send is when the Transport Services implementation (including the Protocol Stack) has experienced a failure related to sending; this can depend on protocol-specific timeouts.
 
 ### Batching Sends
 
-Since sending a Message may involve a context switch between the application and the Transport Services system, sending patterns that involve multiple small Messages can incur high overhead if each needs to be enqueued separately. To avoid this, the application can indicate a batch of Send actions through the API. When this is used, the implementation can defer the processing of Messages until the batch is complete.
+Since sending a Message may involve a context switch between the application and the Transport Services system, sending patterns that involve multiple small Messages can incur high overhead if each needs to be enqueued separately. To avoid this, the application can indicate a batch of `Send` actions through the API. When this is used, the implementation can defer the processing of Messages until the batch is complete.
 
 ## Receiving Messages
 
-Similar to sending, receiving a Message is determined by the top-level protocol in the established Protocol Stack. The main difference with receiving is that the size and boundaries of the Message are not known beforehand. The application can communicate in its Receive action the parameters for the Message, which can help the Transport Services implementation know how much data to deliver and when. For example, if the application only wants to receive a complete Message, the implementation should wait until an entire Message (datagram, stream, or frame) is read before delivering any Message content to the application. This requires the implementation to understand where messages end, either via a supplied Message Framer or because the top-level protocol in the established Protocol Stack preserves message boundaries. The application can also control the flow of received data by specifying the minimum and maximum number of bytes of Message content it wants to receive at one time.
+Similar to sending, receiving a Message is determined by the top-level protocol in the established Protocol Stack. The main difference with receiving is that the size and boundaries of the Message are not known beforehand. The application can communicate in its `Receive` action the parameters for the Message, which can help the Transport Services implementation know how much data to deliver and when. For example, if the application only wants to receive a complete Message, the implementation should wait until an entire Message (datagram, stream, or frame) is read before delivering any Message content to the application. This requires the implementation to understand where Messages end, either via a supplied Message Framer or because the top-level protocol in the established Protocol Stack preserves message boundaries. The application can also control the flow of received data by specifying the minimum and maximum number of bytes of Message content it wants to receive at one time.
 
-If a Connection finishes before a requested Receive action can be satisfied, the Transport Services API should deliver any partial Message content outstanding, or if none is available, an indication that there will be no more received Messages.
+If a Connection finishes before a requested `Receive` action can be satisfied, the Transport Services API should deliver any partial Message content outstanding, or if none is available, an indication that there will be no more received Messages.
 
 ## Handling of data for fast-open protocols {#fastopen}
 
@@ -689,7 +689,7 @@ MessageFramer.PrependFramer(connection, otherFramer)
 
 A Message Framer might also choose to go into a passthrough mode once an initial exchange or handshake has been completed, such as the STARTTLS case mentioned above.
 This can also be useful for proxy protocols like SOCKS {{?RFC1928}} or HTTP CONNECT {{?RFC7230}}. In such cases, a Message Framer implementation can intercept
-sending and receiving of messages at first, but then indicate that no more processing is needed.
+sending and receiving of Messages at first, but then indicate that no more processing is needed.
 
 ~~~
 MessageFramer.StartPassthrough()
@@ -698,7 +698,7 @@ MessageFramer.StartPassthrough()
 ## Sender-side Message Framing {#send-framing}
 
 Message Framers generate an event whenever a Connection sends a new Message. The parameters to the event
-align with the Send call in the API ({{Section 9.2 of I-D.ietf-taps-interface}}).
+align with the `Send` call in the API ({{Section 9.2 of I-D.ietf-taps-interface}}).
 
 ~~~
 MessageFramer -> NewSentMessage<connection, messageData, messageContext, endOfMessage>
@@ -723,7 +723,7 @@ Message data.
 In order to parse a received flow of data into Messages, the Message Framer
 notifies the framer implementation whenever new data is available to parse.
 The parameters to the the events and calls for receiving data with a framer
-align with the Receive call in the API ({{Section 9.3 of I-D.ietf-taps-interface}}).
+align with the `Receive` call in the API ({{Section 9.3 of I-D.ietf-taps-interface}}).
 
 ~~~
 MessageFramer -> HandleReceivedData<connection>
@@ -766,7 +766,7 @@ the header, marking the new Message as complete.
 # Implementing Connection Management
 
 Once a Connection is established, the Transport Services API allows applications to interact with the Connection by modifying or inspecting
-Connection Properties. A Connection can also generate events in the form of Soft Errors.
+Connection Properties. A Connection can also generate error events in the form of `SoftError` events.
 
 The set of Connection Properties that are supported for setting and getting on a Connection are described in {{I-D.ietf-taps-interface}}. For
 any properties that are generic, and thus could apply to all protocols being used by a Connection, the Transport Services implementation should store the properties
@@ -777,7 +777,7 @@ If an error is encountered in setting a property (for example, if the applicatio
 not using TCP), the action should fail gracefully. The application may be informed of the error, but the Connection itself should not be terminated.
 
 When protocol instances in the Protocol Stack report generic or protocol-specific
-errors, the API will deliver them to the application as Soft Errors. These allow the application to be informed of ICMP errors, and other similar events.
+errors, the API will deliver them to the application as `SoftError` events. These allow the application to be informed of ICMP errors, and other similar events.
 
 ## Pooled Connection {#pooled-connections}
 
@@ -805,10 +805,10 @@ The strategy to do so is implementation-specific, but should be consistent with 
 
 # Implementing Connection Termination
 
-For Close (which leads to a Finished event) and Abort (which leads to a ConnectionError event),
+For `Close` (which leads to a `Closed` event) and `Abort` (which leads to a `ConnectionError` event),
 the application might find it useful to be informed when a peer closes or aborts a
 Connection. Whether this is possible depends on the underlying protocol, and no guarantees
-can be given. When an underlying transport connection supports multi-streaming (such as SCTP), the transport system can use a stream reset procedure to cause a Finish event upon a Close action from the peer {{NEAT-flow-mapping}}.
+can be given. When an underlying transport connection supports multi-streaming (such as SCTP), the transport system can use a stream reset procedure to cause a Finish event upon a `Close` action from the peer {{NEAT-flow-mapping}}.
 
 # Cached State
 
@@ -958,7 +958,7 @@ Initiate:
 : CONNECT.UDP. Calling `Initiate` on a UDP Connection causes it to reserve a local port, but does not generate any traffic.
 
 InitiateWithSend:
-: Early data on a UDP Connection does not have any special meaning. The data is sent whenever the Connection is Ready.
+: Early data on a UDP Connection does not have any special meaning. The data is sent whenever the Connection is `Ready`.
 
 Ready:
 : A UDP Connection is ready once the system has reserved a local port and has a path to send to the Remote Endpoint.
@@ -967,7 +967,7 @@ EstablishmentError:
 : UDP Connections can only generate errors on initiation due to port conflicts on the local system.
 
 ConnectionError:
-: UDP Connections can only generate connection errors in response to `Abort` calls. (Once in use, UDP Connections can also generate `SoftError` Events (ERROR.UDP(-Lite)) upon receiving ICMP notifications indicating failures in the network.)
+: UDP Connections can only generate connection errors in response to `Abort` calls. (Once in use, UDP Connections can also generate `SoftError` events (ERROR.UDP(-Lite)) upon receiving ICMP notifications indicating failures in the network.)
 
 Listen:
 : LISTEN.UDP. Calling `Listen` for UDP binds a local port and prepares it to receive inbound UDP datagrams from peers.
@@ -988,7 +988,7 @@ Close:
 : Calling `Close` on a UDP Connection (ABORT.UDP(-Lite)) releases the local port reservation. The Connection then issues a `Closed` event.
 
 Abort:
-: Calling `Abort` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close`, except that the Connection will send a `ConnectionError` Event rather than a `Closed` Event.
+: Calling `Abort` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close`, except that the Connection will send a `ConnectionError` event rather than a `Closed` event.
 
 CloseGroup:
 : Calling `CloseGroup` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close` on this Connection and on all Connections in the same ConnectionGroup.
@@ -1004,7 +1004,7 @@ Data Unit: Datagram
 
 The Transport Services API mappings for UDP-Lite are identical to UDP. In addition,
 UDP-Lite supports the `msgChecksumLen` and `recvChecksumLen` Properties
-that allow an application to specify the minimum number of bytes in a message that
+that allow an application to specify the minimum number of bytes in a Message that
 need to be covered by a checksum.
 
 ## UDP Multicast Receive
@@ -1019,19 +1019,19 @@ Connection Object:
 : Established UDP Multicast Receive connections represent a pair of specific IP addresses and ports.  The `direction` Selection Property must be set to `unidirectional receive`, and the Local Endpoint must be configured with a group IP address and a port.
 
 Initiate:
-: Calling `Initiate` on a UDP Multicast Receive Connection causes an immediate EstablishmentError.  This is an unsupported operation.
+: Calling `Initiate` on a UDP Multicast Receive Connection causes an immediate `EstablishmentError`.  This is an unsupported operation.
 
 InitiateWithSend:
-: Calling `InitiateWithSend` on a UDP Multicast Receive Connection causes an immediate EstablishmentError.  This is an unsupported operation.
+: Calling `InitiateWithSend` on a UDP Multicast Receive Connection causes an immediate `EstablishmentError`.  This is an unsupported operation.
 
 Ready:
 : A UDP Multicast Receive Connection is ready once the system has received traffic for the appropriate group and port.
 
 EstablishmentError:
-: UDP Multicast Receive Connections generate an EstablishmentError indicating that joining a multicast group failed if `Initiate` is called.
+: UDP Multicast Receive Connections generate an `EstablishmentError` indicating that joining a multicast group failed if `Initiate` is called.
 
 ConnectionError:
-: The only ConnectionError generated by a UDP Multicast Receive Connection is in response to an `Abort` call.
+: The only `ConnectionError` generated by a UDP Multicast Receive Connection is in response to an `Abort` call.
 
 Listen:
 : LISTEN.UDP. Calling `Listen` for UDP Multicast Receive binds a local port, prepares it to receive inbound UDP datagrams from peers, and issues a multicast host join.  If a Remote Endpoint with an address is supplied, the join is Source-specific Multicast, and the path selection is based on the route to the Remote Endpoint.  If a Remote Endpoint is not supplied, the join is Any-source Multicast, and the path selection is based on the outbound route to the group supplied in the Local Endpoint.
@@ -1049,16 +1049,16 @@ Clone:
 : Calling `Clone` on a UDP Multicast Receive Connection creates a new Connection with equivalent parameters. The two Connections are otherwise independent.
 
 Send:
-: SEND.UDP(-Lite). Calling `Send` on a UDP Multicast Receive connection causes an immediate SendError.  This is an unsupported operation.
+: SEND.UDP(-Lite). Calling `Send` on a UDP Multicast Receive connection causes an immediate `SendError`.  This is an unsupported operation.
 
 Receive:
-: RECEIVE.UDP(-Lite). The Receive operation in a UDP Multicast Receive connection only delivers complete Messages to `Received`, each of which represents a single datagram received in a UDP packet. Upon receiving a UDP datagram, the ECN flag from the IP header can be obtained (GET_ECN.UDP(-Lite)).
+: RECEIVE.UDP(-Lite). The `Receive` operation in a UDP Multicast Receive connection only delivers complete Messages to `Received`, each of which represents a single datagram received in a UDP packet. Upon receiving a UDP datagram, the ECN flag from the IP header can be obtained (GET_ECN.UDP(-Lite)).
 
 Close:
-: Calling `Close` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) releases the local port reservation and leaves the group. The Connection then issues a `Closed` Event.
+: Calling `Close` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) releases the local port reservation and leaves the group. The Connection then issues a `Closed` event.
 
 Abort:
-: Calling `Abort` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) is identical to calling `Close`, except that the Connection will send a `ConnectionError` Event rather than a `Closed` Event.
+: Calling `Abort` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) is identical to calling `Close`, except that the Connection will send a `ConnectionError` event rather than a `Closed` event.
 
 CloseGroup:
 : Calling `CloseGroup` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) is identical to calling `Close` on this Connection and on all Connections in the same ConnectionGroup.
@@ -1078,7 +1078,7 @@ API mappings for SCTP are as follows:
 Connection Object:
 : Connection objects can be mapped to an SCTP association or a stream in an SCTP association. Mapping Connection objects to SCTP streams is called "stream mapping" and has additional requirements as follows. The following explanation assumes a client-server communication model.
 
-Stream mapping requires an association to already be in place between the client and the server, and it requires the server to understand that a new incoming stream should be represented as a new Connection Object by the Transport Services system. A new SCTP stream is created by sending an SCTP message with a new stream id. Thus, to implement stream mapping, the Transport Services API must provide a newly created Connection Object to the application upon the reception of such a message. The necessary semantics to implement a Transport Services system Close and Abort primitives are provided by the stream reconfiguration (reset) procedure described in {{?RFC6525}}. This also allows to re-use a stream id after resetting ("closing") the stream. To implement this functionality, SCTP stream reconfiguration {{?RFC6525}} must be supported by both the client and the server side.
+Stream mapping requires an association to already be in place between the client and the server, and it requires the server to understand that a new incoming stream should be represented as a new Connection object by the Transport Services system. A new SCTP stream is created by sending an SCTP Message with a new stream id. Thus, to implement stream mapping, the Transport Services API must provide a newly created Connection object to the application upon the reception of such a Message. The necessary semantics to implement a Transport Services system `Close` and `Abort` primitives are provided by the stream reconfiguration (reset) procedure described in {{?RFC6525}}. This also allows to re-use a stream id after resetting ("closing") the stream. To implement this functionality, SCTP stream reconfiguration {{?RFC6525}} must be supported by both the client and the server side.
 
 To avoid head-of-line blocking, stream mapping should only be implemented when both sides support message interleaving {{?RFC8260}}. This allows a sender to schedule transmissions between multiple streams without risking that transmission of a large message on one stream might block transmissions on other streams for a long time.
 
@@ -1101,7 +1101,7 @@ is used (see `Initiate` for how to handle running out of streams), and this just
 on a new stream.
 
 Ready:
-: `Initiate` or `InitiateWithSend` returns without an error, i.e. SCTP's four-way handshake has completed. If an association with the peer already exists, stream mapping is used and enough streams are available, a Connection Object instantly becomes Ready after calling `Initiate` or `InitiateWithSend`.
+: `Initiate` or `InitiateWithSend` returns without an error, i.e. SCTP's four-way handshake has completed. If an association with the peer already exists, stream mapping is used and enough streams are available, a Connection object instantly becomes `Ready` after calling `Initiate` or `InitiateWithSend`.
 
 EstablishmentError:
 : Failure of CONNECT.SCTP.
@@ -1242,7 +1242,7 @@ The system policy prevents the transport system from performing the action reque
 The Protocol Stack is not capable of being cloned.
 
 * MessageTooLarge:
-The message size is too big for the transport system to handle.
+The Message size is too big for the transport system to handle.
 
 * ProtocolFailed:
 The underlying Protocol Stack failed.
@@ -1257,7 +1257,7 @@ The data that was received by the underlying Protocol Stack could not be process
 The connection was aborted by the peer.
 
 * Timeout:
-Delivery of a message was not possible after a timeout.
+Delivery of a Message was not possible after a timeout.
 
 # Existing Implementations {#appendix-implementations}
 
