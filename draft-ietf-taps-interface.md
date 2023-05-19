@@ -2273,18 +2273,6 @@ estimates). Note that this property may degrade connection performance.
 
 The following generic Connection Properties are read-only, i.e. they cannot be changed by an application.
 
-#### Maximum Message Size Concurrent with Connection Establishment {#size-safelyreplayable}
-
-Name:
-: zeroRttMsgMaxLen
-
-Type:
-: Integer (non-negative)
-
-This property represents the maximum Message size that can be sent
-before or during Connection establishment, see also {{msg-safelyreplayable}}.
-It is specified as the number of bytes.
-
 #### Maximum Message Size Before Fragmentation or Segmentation {#conn-max-msg-notfrag}
 
 Name:
