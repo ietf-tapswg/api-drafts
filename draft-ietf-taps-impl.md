@@ -597,7 +597,7 @@ Message Framers are functions that define
 simple transformations between application Message data and raw transport
 protocol data. Generally, a Message Framer implements a simple
 application protocol that can either be provided by the Transport Services
-implementation or be customized by the application.
+implementation or by the application. It is optional for Transport Services system implementations to provide Message Framers: the specification {{I-D.ietf-taps-interface}} does not prescribe any particular Message Framers to be implemented.
 A Framer can encapsulate or encode outbound Messages,
 decapsulate or decode inbound data into Messages, and implement parts of
 protocols that do not directly map to application Messages (such as
