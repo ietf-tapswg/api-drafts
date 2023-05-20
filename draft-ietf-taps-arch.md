@@ -118,7 +118,7 @@ This subsection provides a glossary of key terms related to the Transport Servic
 - Candidate Protocol Stack: One Protocol Stack that can be used by an application for a Connection during racing.
 - Client: The peer responsible for initiating a Connection.
 - Clone: A Connection that was created from another Connection, and forms a part of a Connection Group.
-- Connection: Shared state of two or more endpoints that persists across Messages that are transmitted and received between these Endpoints {{?RFC8303}}. "Connection" with a capital C indicates a Connection Object that is being offered by the Transport Services system, while "connection" with a lower case c indicates a connection of an underlying transport protocol.
+- Connection: Shared state of two or more endpoints that persists across Messages that are transmitted and received between these Endpoints {{?RFC8303}}. When this document (and other Transport Services documents) use the capitalized "Connection" term, it refers to a Connection Object that is being offered by the Transport Services system, as opposed to more generic uses of the word "connection".
 - Connection Group: A set of Connections that shares properties and caches.
 - Connection Property: A Transport Property that controls per-Connection behavior of a Transport Services implementation.
 - Endpoint: An identifier for one side of a Connection (local or remote), such as a hostnames or URL.
