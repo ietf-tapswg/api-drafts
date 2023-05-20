@@ -287,7 +287,7 @@ A specialized feature could be needed by an application only when using a specif
 
 Other specialized features, however, can also be strictly required by an application and thus further constrain the set of protocols that can be used. For example, if an application requires support for automatic handover or failover for a connection, only Protocol Stacks that provide this feature are eligible to be used, e.g., Protocol Stacks that include a multipath protocol or a protocol that supports connection migration. A Transport Services API needs to allow applications to define such requirements and constrain the options available to a Transport Services implementation. Since such options are not part of the core/common features, it will generally be simple for an application to modify its set of constraints and change the set of allowable protocol features without changing the core implementation.
 
-To control these specialized features, the application can declare its preference – whether the presence of a specific feature is prohibited, should be avoided, can be ignored, is preferred, or is required in the Pre-Establishment phase. An implementation of a Transport Services API would honor this preference and allow the application to query the availability of each specialized feature after a successful establishment.
+To control these specialized features, the application can declare its preference – whether the presence of a specific feature is prohibited, should be avoided, can be ignored, is preferred, or is required in the pre-establishment phase. An implementation of a Transport Services API would honor this preference and allow the application to query the availability of each specialized feature after a successful establishment.
 
 ## Select Between Equivalent Protocol Stacks {#equivalence}
 
@@ -370,7 +370,7 @@ Fundamentally, a Transport Services API needs to provide connection objects ({{o
 
 Beyond the connection objects, there are several high-level groups of actions that any Transport Services API needs to provide:
 
-* Pre-Establishment ({{preestablishment}}) encompasses the properties that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. These properties apply to multiple transport protocols, unless otherwise specified. Properties specified during Pre-Establishment can have a large impact on the rest of the interface: they modify how establishment occurs, they influence the expectations around data transfer, and they determine the set of events that will be supported.
+* Pre-establishment ({{preestablishment}}) encompasses the properties that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. These properties apply to multiple transport protocols, unless otherwise specified. Properties specified during pre-establishment can have a large impact on the rest of the interface: they modify how establishment occurs, they influence the expectations around data transfer, and they determine the set of events that will be supported.
 
 * Establishment ({{establishment}}) focuses on the actions that an application takes on the connection objects to prepare for data transfer.
 
@@ -380,12 +380,12 @@ Beyond the connection objects, there are several high-level groups of actions th
 
 * Termination ({{termination}}) focuses on the methods by which data transmission is stopped, and connection state is torn down.
 
-The diagram below provides a high-level view of the actions and events during the lifetime of a Connection object. Note that some actions are alternatives (e.g., whether to initiate a connection or to listen for incoming connections), while others are optional (e.g., setting Connection and Message Properties in Pre-Establishment) or have been omitted for brevity and simplicity.
+The diagram below provides a high-level view of the actions and events during the lifetime of a Connection object. Note that some actions are alternatives (e.g., whether to initiate a connection or to listen for incoming connections), while others are optional (e.g., setting Connection and Message Properties in pre-establishment) or have been omitted for brevity and simplicity.
 
 
 ~~~~~~~~~~
 
-     Pre-Establishment     :       Established             : Termination
+     Pre-establishment     :       Established             : Termination
      -----------------     :       -----------             : -----------
                            :                               :
  +-- Local Endpoint        :           Message             :
@@ -408,9 +408,9 @@ The diagram below provides a high-level view of the actions and events during th
 {: #fig-lifetime title="The lifetime of a Connection object"}
 
 In this diagram, the lifetime of a Connection object is broken into three phases:
-Pre-Establishment, the Established state, and Termination.
+pre-establishment, the Established state, and Termination.
 
-Pre-Establishment is based around a Preconnection object, that contains various
+Pre-establishment is based around a Preconnection object, that contains various
 sub-objects that describe the properties and parameters of desired Connections
 (Local and Remote Endpoints, Transport Properties, and Security Parameters).
 A Preconnection can be used to start listening for inbound connections,
@@ -452,7 +452,7 @@ a connection.
 
 * Listener: A Listener object accepts incoming transport protocol connections from Remote Endpoints and generates corresponding Connection objects. It is created from a Preconnection object that specifies the type of incoming Connections it will accept.
 
-### Pre-Establishment {#preestablishment}
+### Pre-establishment {#preestablishment}
 
 * Selection Properties: The Selection Properties consist of the properties that an application can set to influence the selection of paths between the Local and Remote Endpoints, to influence the selection of transport protocols, or to configure the behavior of generic transport protocol features. These properties can take the form of requirements, prohibitions, or preferences. Examples of properties that influence path selection include the interface type (such as a Wi-Fi connection, or a Cellular LTE connection), requirements around the largest Message that can be sent, or preferences for throughput and latency. Examples of properties that influence protocol selection and configuration of transport protocol features include reliability, multipath support, and fast open support.
 

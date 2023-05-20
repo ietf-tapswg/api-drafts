@@ -62,7 +62,6 @@ normative:
     I-D.ietf-taps-interface:
 
 informative:
-    I-D.ietf-quic-transport:
     NEAT-flow-mapping:
       title: Transparent Flow Mapping for NEAT
       seriesinfo: IFIP NETWORKING 2017 Workshop on Future of Internet Transport (FIT 2017)
@@ -297,7 +296,7 @@ This approach is commonly used for connections with optional proxy server config
     1.3.1 [192.0.2.1:80, any path, HTTP/TCP]
 ~~~~~~~~~~
 
-This approach also allows a client to attempt different sets of application and transport protocols that, when available, could provide preferable features. For example, the protocol options could involve QUIC {{I-D.ietf-quic-transport}} over UDP on one branch, and HTTP/2 {{!RFC7540}} over TLS over TCP on the other:
+This approach also allows a client to attempt different sets of application and transport protocols that, when available, could provide preferable features. For example, the protocol options could involve QUIC {{?RFC9000}} over UDP on one branch, and HTTP/2 {{!RFC7540}} over TLS over TCP on the other:
 
 ~~~~~~~~~~
 1 [www.example.com:443, any path, HTTP]
