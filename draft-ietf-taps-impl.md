@@ -158,7 +158,7 @@ The properties specified during pre-establishment have a close relationship to s
 2. Dynamic system policy, i.e., policy compiled from internally and externally acquired information about available network interfaces, supported transport protocols, and current/previous Connections. Examples of ways to externally retrieve policy-support information are through OS-specific statistics/measurement tools and tools that reside on middleboxes and routers.
 3. Default implementation policy, i.e., predefined policy by OS or application.
 
-In general, any protocol or path used for a connection must conform to all three sources of constraints. A violation that occurs at any of the policy layers should cause a protocol or path to be considered ineligible for use. If such a violation prevents a Connection from being established, this should be communicated to the application, e.g. via the `EstablishmentError` event. For an example of application preferences leading to constraints, an application may prohibit the use of metered network interfaces for a given Connection to avoid user cost. Similarly, the system policy at a given time may prohibit the use of such a metered network interface from the application's process. Lastly, the implementation itself may default to disallowing certain network interfaces unless explicitly requested by the application.
+In general, any protocol or path used for a Connection must conform to all three sources of constraints. A violation that occurs at any of the policy layers should cause a protocol or path to be considered ineligible for use. If such a violation prevents a Connection from being established, this should be communicated to the application, e.g. via the `EstablishmentError` event. For an example of application preferences leading to constraints, an application may prohibit the use of metered network interfaces for a given Connection to avoid user cost. Similarly, the system policy at a given time may prohibit the use of such a metered network interface from the application's process. Lastly, the implementation itself may default to disallowing certain network interfaces unless explicitly requested by the application.
 
 It is expected that the database of system policies and the method of looking up these policies will vary across various platforms. An implementation should attempt to look up the relevant policies for the system in a dynamic way to make sure it is reflecting an accurate version of the system policy, since the system's policy regarding the application's traffic may change over time due to user or administrative changes.
 
@@ -365,11 +365,11 @@ An implementation can use the capacity profile to prefer paths that match an app
    * Low Latency/Non-Interactive:
      Prefer paths with a low expected Round Trip Time, but can tolerate delay variation;
    * Constant-Rate Streaming:
-     Prefer paths that are expected to satisfy the requested stream `Send` or stream `Receive` bitrate, based on the observed maximum throughput;
+     Prefer paths that are expected to satisfy the requested stream send or receive bitrate, based on the observed maximum throughput;
    * Capacity-Seeking:
      Prefer adapting to paths to determine the highest available capacity, based on the observed maximum throughput.
 
-As another example, branch sorting can also be influenced by bounds on the send or receive rate (Selection Properties `minSendRate` / `minRecvRate` / `maxSendRate` / `maxRecvRate`): if the application indicates a bound on the expected send or receive bitrate, an implementation may prefer a path that can likely provide the desired bandwidth, based on cached maximum throughput, see {{performance-caches}}. The application may know the `Send` or `Receive` Bitrate from metadata in adaptive HTTP streaming, such as MPEG-DASH.
+As another example, branch sorting can also be influenced by bounds on the send or receive rate (Selection Properties `minSendRate` / `minRecvRate` / `maxSendRate` / `maxRecvRate`): if the application indicates a bound on the expected send or receive bitrate, an implementation may prefer a path that can likely provide the desired bandwidth, based on cached maximum throughput, see {{performance-caches}}. The application may know the send or receive bitrate from metadata in adaptive HTTP streaming, such as MPEG-DASH.
 
 Implementations process the Properties (Section 6.2 of {{I-D.ietf-taps-interface}}) in the following order: Prohibit, Require, Prefer, Avoid.
 If Selection Properties contain any prohibited properties, the implementation should first purge branches containing nodes with these properties. For required properties, it should only keep branches that satisfy these requirements. Finally, it should order the branches according to the preferred properties, and finally use any avoided properties as a tiebreaker.
@@ -695,7 +695,7 @@ MessageFramer.StartPassthrough()
 ## Sender-side Message Framing {#send-framing}
 
 Message Framers generate an event whenever a Connection sends a new Message. The parameters to the event
-align with the `Send` call in the API ({{Section 9.2 of I-D.ietf-taps-interface}}).
+align with the `Send` action in the API ({{Section 9.2 of I-D.ietf-taps-interface}}).
 
 ~~~
 MessageFramer -> NewSentMessage<connection, messageData, messageContext, endOfMessage>
@@ -1068,7 +1068,7 @@ Data Unit: Message
 Connection Object:
 : Connection objects can be mapped to an SCTP association or a stream in an SCTP association. Mapping Connection objects to SCTP streams is called "stream mapping" and has additional requirements as follows. The following explanation assumes a client-server communication model.
 
-Stream mapping requires an association to already be in place between the client and the server, and it requires the server to understand that a new incoming stream should be represented as a new Connection object by the Transport Services system. A new SCTP stream is created by sending an SCTP Message with a new stream id. Thus, to implement stream mapping, the Transport Services API must provide a newly created Connection object to the application upon the reception of such a Message. The necessary semantics to implement a Transport Services system `Close` and `Abort` primitives are provided by the stream reconfiguration (reset) procedure described in {{?RFC6525}}. This also allows to re-use a stream id after resetting ("closing") the stream. To implement this functionality, SCTP stream reconfiguration {{?RFC6525}} must be supported by both the client and the server side.
+Stream mapping requires an association to already be in place between the client and the server, and it requires the server to understand that a new incoming stream should be represented as a new Connection object by the Transport Services system. A new SCTP stream is created by sending an SCTP message with a new stream id. Thus, to implement stream mapping, the Transport Services API must provide a newly created Connection object to the application upon the reception of such a message. The necessary semantics to implement a Transport Services system `Close` and `Abort` primitives are provided by the stream reconfiguration (reset) procedure described in {{?RFC6525}}. This also allows to re-use a stream id after resetting ("closing") the stream. To implement this functionality, SCTP stream reconfiguration {{?RFC6525}} must be supported by both the client and the server side.
 
 To avoid head-of-line blocking, stream mapping should only be implemented when both sides support message interleaving {{?RFC8260}}. This allows a sender to schedule transmissions between multiple streams without risking that transmission of a large message on one stream might block transmissions on other streams for a long time.
 

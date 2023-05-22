@@ -2579,7 +2579,7 @@ Properties to that object. It can then reuse the same messageContext object
 for sending multiple Messages with the same properties.
 
 Properties can be added to a MessageContext object only before the context is used
-for sending. Once a MessageContext has been used with a `Send` call, further modifications
+for sending. Once a MessageContext has been used with a `Send` action, further modifications
 to the MessageContext object do not have any effect on this `Send` call. Message Properties
 that are not added to a MessageContext object before using the context for sending will either
 take a specific default value or be configured based on Selection or Connection Properties
@@ -2901,7 +2901,7 @@ is implementation-specific.
 Connection -> Sent<messageContext>
 ~~~
 
-The `Sent` event occurs when a previous `Send` action has completed, i.e., when
+The `Sent` event occurs when a previous `Send` call has completed, i.e., when
 the data derived from the Message has been passed down or through the
 underlying Protocol Stack and is no longer the responsibility of
 the Transport Services API. The exact disposition of the Message (i.e.,
