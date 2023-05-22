@@ -721,7 +721,7 @@ In order to parse a received flow of data into Messages, the Message Framer
 notifies the framer implementation whenever new data is available to parse.
 
 The parameters to the events and calls for receiving data with a framer
-align with the `Receive` call in the API ({{Section 9.3 of I-D.ietf-taps-interface}}).
+align with the `Receive` action in the API ({{Section 9.3 of I-D.ietf-taps-interface}}).
 
 ~~~
 MessageFramer -> HandleReceivedData<connection>
