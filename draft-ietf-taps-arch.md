@@ -415,7 +415,7 @@ sub-objects that describe the properties and parameters of desired Connections
 (Local and Remote Endpoints, Transport Properties, and Security Parameters).
 A Preconnection can be used to start listening for inbound connections,
 in which case a Listener object is created, or can be used to establish a new
-connection directly using Initiate() (for outbound connections) or Rendezvous()
+connection directly using `Initiate` (for outbound connections) or `Rendezvous`
 (for peer-to-peer connections).
 
 Once a Connection is in the Established state, an application can send and receive
@@ -440,7 +440,7 @@ a connection.
 
 * Connection: A Connection object represents one or more active transport protocol instances that can send and/or receive Messages between Local and Remote Endpoints. It is an abstraction that represents the communication. The Connection object holds state pertaining to the underlying transport protocol instances and any ongoing data transfers. For example, an active Connection can represent a connection-oriented protocol such as TCP, or can represent a fully-specified 5-tuple for a connectionless protocol such as UDP, where the Connection remains an abstraction at the endpoints. It can also represent a pool of transport protocol instances, e.g., a set of TCP and QUIC connections to equivalent endpoints, or a stream of a multi-streaming transport protocol instance. Connections can be created from a Preconnection or by a Listener.
 
-* Preconnection: A Preconnection object is a representation of a Connection that has not yet been established. It has state that describes parameters of the Connection: the Local Endpoint from which that Connection will be established, the Remote Endpoint ({{preestablishment}}) to which it will connect, and Transport Properties that influence the paths and protocols a Connection will use. A Preconnection can be either fully specified (representing a single possible Connection), or it can be partially specified (representing a family of possible Connections). The Local Endpoint ({{preestablishment}}) is required for a Preconnection used to Listen for incoming Connections, but optional if it is used to Initiate a Connection. The Remote Endpoint is required in a Preconnection that used to Initiate a Connection, but is optional if it is used to Listen for incoming Connections. The Local Endpoint and the Remote Endpoint are both required if a peer-to-peer Rendezvous is to occur based on the Preconnection.
+* Preconnection: A Preconnection object is a representation of a Connection that has not yet been established. It has state that describes parameters of the Connection: the Local Endpoint from which that Connection will be established, the Remote Endpoint ({{preestablishment}}) to which it will connect, and Transport Properties that influence the paths and protocols a Connection will use. A Preconnection can be either fully specified (representing a single possible Connection), or it can be partially specified (representing a family of possible Connections). The Local Endpoint ({{preestablishment}}) is required for a Preconnection used to `Listen` for incoming Connections, but optional if it is used to `Initiate` a Connection. The Remote Endpoint is required in a Preconnection that used to `Initiate` a Connection, but is optional if it is used to `Listen` for incoming Connections. The Local Endpoint and the Remote Endpoint are both required if a peer-to-peer `Rendezvous` is to occur based on the Preconnection.
 
 * Transport Properties: Transport Properties allow the application to express their requirements, prohibitions, and preferences and configure a Transport Services system.  There are three kinds of Transport Properties:
 
@@ -462,7 +462,7 @@ a connection.
 
 ### Establishment Actions {#establishment}
 
-* Initiate: The primary action that an application can take to create a Connection to a Remote Endpoint, and prepare any required local or remote state to enable the transmission of Messages. For some protocols, this will initiate a client-to-server style handshake; for other protocols, this will just establish local state (e.g., with connectionless protocols such as UDP). The process of identifying options for connecting, such as resolution of the Remote Endpoint, occurs in response to the Initiate call.
+* Initiate: The primary action that an application can take to create a Connection to a Remote Endpoint, and prepare any required local or remote state to enable the transmission of Messages. For some protocols, this will initiate a client-to-server style handshake; for other protocols, this will just establish local state (e.g., with connectionless protocols such as UDP). The process of identifying options for connecting, such as resolution of the Remote Endpoint, occurs in response to the `Initiate` call.
 
 * Listen: Enables a Listener to accept incoming connections. The Listener will then create Connection objects as incoming connections are accepted ({{events}}). Listeners by default register with multiple paths, protocols, and Local Endpoints, unless constrained by Selection Properties and/or the specified Local Endpoint(s). Connections can be accepted on any of the available paths or endpoints.
 
@@ -470,17 +470,17 @@ a connection.
   Remote Endpoint. It simultaneously attempts to initiate a connection to
   a Remote Endpoint while listening for an incoming connection from that
   endpoint.  The process of identifying options for the connection, such
-  as resolution of the Remote Endpoint, occurs in response to the Rendezvous call.
+  as resolution of the Remote Endpoint, occurs in response to the `Rendezvous` call.
   As with Listeners, the set of local paths and endpoints is constrained
-  by Selection Properties. If successful, the Rendezvous call returns a
+  by Selection Properties. If successful, the `Rendezvous` call returns a
   Connection object to represent the established peer-to-peer connection.
-  The processes by which connections are initiated during a Rendezvous
+  The processes by which connections are initiated during a `Rendezvous`
   action will depend on the set of Local and Remote Endpoints configured on
   the Preconnection. For example, if the Local and Remote Endpoints are TCP
   host candidates, then a TCP simultaneous open {{?RFC9293}} will be performed.
   However, if the set of Local Endpoints includes server reflexive
   candidates, such as those provided by STUN (Session Traversal Utilities
-  for NAT) {{?RFC5389}}, a Rendezvous action will race
+  for NAT) {{?RFC5389}}, a `Rendezvous` action will race
   candidates in the style of the ICE (Interactive Connection Establishment)
   algorithm {{?RFC8445}} to perform NAT
   binding discovery and initiate a peer-to-peer connection.
@@ -489,11 +489,11 @@ a connection.
 
 * Message: A Message object is a unit of data that can be represented as bytes that can be transferred between two endpoints over a transport connection. The bytes within a Message are assumed to be ordered. If an application does not care about the order in which a peer receives two distinct spans of bytes, those spans of bytes are considered independent Messages. Messages are sent in the payload of IP packet. One packet can carry one or more Messages or parts of a Message.
 
-* Message Properties: Message Properties are used to specify details about Message transmission. They can be specified directly on individual Messages, or can be set on a Preconnection or Connection as defaults. These properties might only apply to how a Message is sent (such as how the transport will treat prioritization and reliability), but can also include properties that specific protocols encode and communicate to the Remote Endpoint. When receiving Messages, Message Properties can contain information about the received Message, such as metadata generated at the receiver and information signalled by the Remote Endpoint. For example, a Message can be marked with a Message Property indicating that it is the final message on a connection.
+* Message Properties: Message Properties are used to specify details about Message transmission. They can be specified directly on individual Messages, or can be set on a Preconnection or Connection as defaults. These properties might only apply to how a Message is sent (such as how the transport will treat prioritization and reliability), but can also include properties that specific protocols encode and communicate to the Remote Endpoint. When receiving Messages, Message Properties can contain information about the received Message, such as metadata generated at the receiver and information signalled by the Remote Endpoint. For example, a Message can be marked with a Message Property indicating that it is the final Message on a Connection.
 
-* Send: The action to transmit a Message over a Connection to the Remote Endpoint. The interface to Send can accept Message Properties specific to how the Message content is to be sent. The status of the Send operation is delivered back to the sending application in an Event ({{events}}).
+* Send: The action to transmit a Message over a Connection to the Remote Endpoint. The interface to `Send` can accept Message Properties specific to how the Message content is to be sent. The status of the `Send` operation is delivered back to the sending application in an event ({{events}}).
 
-* Receive: An action that indicates that the application is ready to asynchronously accept a Message over a Connection from a Remote Endpoint, while the Message content itself will be delivered in an Event ({{events}}). The interface to Receive can include Message Properties specific to the Message that is to be delivered to the application.
+* Receive: An action that indicates that the application is ready to asynchronously accept a Message over a Connection from a Remote Endpoint, while the Message content itself will be delivered in an event ({{events}}). The interface to `Receive` can include Message Properties specific to the Message that is to be delivered to the application.
 
 * Framer: A Framer is a data translation layer that can be added to a Connection. Framers allow extending a Connection's Protocol Stack to define how to encapsulate or encode outbound Messages, and how to decapsulate or decode inbound data into Messages. In this way, message boundaries can be preserved when using a Connection object, even with a protocol that otherwise presents unstructured streams, such as TCP. This is designed based on the fact that many of the current application protocols evolved over TCP, which does not provide message boundary preservation, and since many of these protocols require message boundaries to function, each application layer protocol has defined its own framing. For example, when an HTTP application sends and receives HTTP messages over a byte-stream transport, it must parse the boundaries of HTTP messages from the stream of bytes.
 
@@ -507,9 +507,9 @@ The following categories of events can be delivered to an application:
 
 * Connection Received: Signals to an application that a given Listener has received a Connection.
 
-* Message Received: Delivers received Message content to the application, based on a Receive action. This can include an error if the Receive action cannot be satisfied due to the Connection being closed.
+* Message Received: Delivers received Message content to the application, based on a `Receive` action. This can include an error if the `Receive` action cannot be satisfied due to the Connection being closed.
 
-* Message Sent: Notifies the application of the status of its Send action. This might indicate a failure if the Message cannot be sent, or an indication that the Message has been processed by the Transport Services system.
+* Message Sent: Notifies the application of the status of its `Send` action. This might indicate a failure if the Message cannot be sent, or an indication that the Message has been processed by the Transport Services system.
 
 * Path Properties Changed: Notifies the application that a property of the Connection has changed that might influence how and where data is sent and/or received.
 
@@ -517,7 +517,7 @@ The following categories of events can be delivered to an application:
 
 * Close: The action an application takes on a Connection to indicate that it no longer intends to send data, is no longer willing to receive data, and that the protocol should signal this state to the Remote Endpoint if the transport protocol allows this. (Note that this is distinct from the concept of "half-closing" a bidirectional connection, such as when a FIN is sent in one direction of a TCP connection {{?RFC9293}}. The end of a stream can also be indicated using Message Properties when sending.)
 
-* Abort: The action the application takes on a Connection to indicate a Close and also indicate that a Transport Services system should not attempt to deliver any outstanding data, and immediately drop the connection. This is intended for immediate, usually abnormal, termination of a connection.
+* Abort: The action the application takes on a Connection to indicate a `Close` and also indicate that a Transport Services system should not attempt to deliver any outstanding data, and immediately drop the connection. This is intended for immediate, usually abnormal, termination of a connection.
 
 ### Connection Groups
 
