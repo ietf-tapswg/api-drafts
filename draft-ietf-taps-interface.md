@@ -2571,11 +2571,11 @@ messageContext.add(parameter, value)
 Connection.Send(messageData, messageContext)
 ~~~
 
-The simpler form of `Send`, which does not take any messageContext, is equivalent to passing a default MessageContext without adding any Message Properties.
+The simpler form of `Send`, which does not take any MessageContext, is equivalent to passing a default MessageContext without adding any Message Properties.
 
 If an application wants to override Message Properties for a specific Message,
 it can acquire an empty MessageContext object and add all desired Message
-Properties to that object. It can then reuse the same messageContext object
+Properties to that object. It can then reuse the same MessageContext object
 for sending multiple Messages with the same properties.
 
 Properties can be added to a MessageContext object only before the context is used
@@ -2848,7 +2848,7 @@ Messages are sent on a Connection using the `Send` action:
 Connection.Send(messageData, messageContext?, endOfMessage?)
 ~~~
 
-where messageData is the data object to send, and messageContext allows
+where `messageData` is the data object to send, and `messageContext` allows
 adding Message Properties, identifying `Send` events related to a specific
 Message or inspecting meta-data related to the Message sent (see {{msg-ctx}}).
 
@@ -2999,7 +2999,7 @@ a first Message sent:
 Connection := Preconnection.InitiateWithSend(messageData, messageContext?, timeout?)
 ~~~
 
-Whenever possible, a messageContext should be provided to declare the Message passed to `InitiateWithSend`
+Whenever possible, a MessageContext should be provided to declare the Message passed to `InitiateWithSend`
 as "safely replayable" using the `safelyReplayable` property. This allows the Transport Services system to make use of 0-RTT establishment in case this is supported
 by the available Protocol Stacks. When the selected stack(s) do not support transmitting data upon connection
 establishment, `InitiateWithSend` is identical to `Initiate` followed by `Send`.
@@ -3101,10 +3101,10 @@ Connection -> Received<messageData, messageContext>
 ~~~
 
 A `Received` event indicates the delivery of a complete Message.
-It contains two objects, the received bytes as messageData, and the metadata and properties of the received Message as messageContext.
+It contains two objects, the received bytes as `messageData`, and the metadata and properties of the received Message as `messageContext`.
 
-The messageData object provides access to the bytes that were received for this Message, along with the length of the byte array.
-The messageContext is provided to enable retrieving metadata about the Message and referring to the Message. The messageContext object is described in {{msg-ctx}}.
+The `messageData` value provides access to the bytes that were received for this Message, along with the length of the byte array.
+The `messageContext` value is provided to enable retrieving metadata about the Message and referring to the Message. The MessageContext object is described in {{msg-ctx}}.
 
 See {{framing}} for handling Message framing in situations where the Protocol
 Stack only provides a byte-stream transport.
@@ -3126,7 +3126,7 @@ order without gaps. This event does not support delivering non-contiguous partia
 Messages. If, for example, Message A is divided into three pieces (A1, A2, A3) and
 Message B is divided into three pieces (B1, B2, B3), and preserveOrder is not Required,
 the `ReceivedPartial` may deliver them in a sequence like this: A1, B1, B2, A2, A3, B3,
-because the messageContext allows the application to identify the pieces as belonging
+because the MessageContext allows the application to identify the pieces as belonging
 to Message A and B, respectively. However, a sequence like: A1, A3 will never occur.
 
 If the minIncompleteLength in the Receive request was set to be infinite (indicating
@@ -3171,7 +3171,7 @@ Connection -> ReceiveError<messageContext, reason?>
 A `ReceiveError` occurs when data is received by the underlying Protocol Stack
 that cannot be fully retrieved or parsed, and when it is useful for the application
 to be notified of such errors. For example, a `ReceiveError` can
-indicate that a Message (identified via the MessageContext)
+indicate that a Message (identified via the `messageContext` value)
 that was being partially received previously, but had not
 completed, encountered an error and will not be completed. This can be useful
 for an application, which may want to use this error as a hint to remove
