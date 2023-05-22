@@ -1232,7 +1232,7 @@ The system policy prevents the Transport Services system from performing the act
 The Protocol Stack is not capable of being cloned.
 
 * MessageTooLarge:
-The Message size is too big for the Transport Services system to handle.
+The Message is too big for the Transport Services system to handle.
 
 * ProtocolFailed:
 The underlying Protocol Stack failed.
