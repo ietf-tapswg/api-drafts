@@ -1170,8 +1170,8 @@ Default:
 : Ignore
 
 This property specifies whether an application would like to supply a Message to
-the transport protocol before Connection establishment that will then be
-reliably transferred to the other side before or during Connection
+the transport protocol before connection establishment that will then be
+reliably transferred to the other side before or during connection
 establishment. This Message can potentially be received multiple times (i.e.,
 multiple copies of the Message data may be passed to the Remote Endpoint).
 See also {{msg-safelyreplayable}}.
