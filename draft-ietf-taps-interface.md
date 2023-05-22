@@ -1187,7 +1187,7 @@ Type:
 Default:
 : Prefer
 
-This property specifies that the application would prefer multiple Connections
+This property specifies whether the application would prefer multiple Connections
 within a Connection Group to be provided by streams of a single underlying
 transport connection where possible.
 
@@ -1799,8 +1799,8 @@ transport-layer connection is established; for Connectionless transports,
 it occurs when the first Message is received from the Remote Endpoint. The
 resulting Connection is contained within the RendezvousDone<> Event, and is
 ready to use as soon as it is passed to the application via the Event.
-Changes made to a Preconnection after Rendezvous() has been called do
-not have any effect on existing Connections.
+Changes made to a Preconnection after Rendezvous() has been called MUST
+NOT have any effect on existing Connections.
 
 An EstablishmentError occurs either when the Properties and Security
 Parameters of the Preconnection cannot be fulfilled for rendezvous or
@@ -2276,18 +2276,6 @@ estimates). Note that this property may degrade Connection performance.
 ### Read-only Connection Properties {#read-only-conn-prop}
 
 The following generic Connection Properties are read-only, i.e. they cannot be changed by an application.
-
-#### Maximum Message Size Concurrent with Connection Establishment {#size-safelyreplayable}
-
-Name:
-: zeroRttMsgMaxLen
-
-Type:
-: Integer (non-negative)
-
-This property represents the maximum Message size that can be sent
-before or during Connection establishment, see also {{msg-safelyreplayable}}.
-It is specified as the number of bytes.
 
 #### Maximum Message Size Before Fragmentation or Segmentation {#conn-max-msg-notfrag}
 
