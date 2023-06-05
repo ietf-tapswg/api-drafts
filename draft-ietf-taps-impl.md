@@ -247,7 +247,7 @@ There are three types of branching from a parent node into one or more child nod
 
 If a connection originally targets a single endpoint, there may be multiple endpoints of different types that can be derived from the original. This creates an ordered list of the derived endpoints according to application preference, system policy and expected performance.
 
-DNS hostname-to-address resolution is the most common method of endpoint derivation. When trying to connect to a hostname endpoint on a traditional IP network, the implementation should send DNS queries for both A (IPv4) and AAAA (IPv6) records if both are supported on the local interface. The algorithm for ordering and racing these addresses should follow the recommendations in Happy Eyeballs {{!RFC8305}}.
+DNS hostname-to-address resolution is the most common method of endpoint derivation. When trying to connect to a hostname endpoint on a traditional IP network, the implementation should send all applicable DNS queries. Commonly, this will include both A (IPv4) and AAAA (IPv6) records if both address families are supported on the local interface. This can also include SRV records {{?RFC2782}}, SVCB and HTTPS records {{?I-D.ietf-dnsop-svcb-https}}, or other future record types. The algorithm for ordering and racing these addresses should follow the recommendations in Happy Eyeballs {{!RFC8305}}.
 
 ~~~~~~~~~~
 1 [www.example.com:80, Wi-Fi, TCP]
@@ -825,7 +825,7 @@ it is expired, so the implementation should allow each protocol to specify an ex
 
 Examples of cached protocol state include:
 
-- The DNS protocol can cache resolution answers (A and AAAA queries, for example), associated with a Time To Live (TTL) to
+- The DNS protocol can cache resolved addresses (such as those retrieved from A and AAAA queries), associated with a Time To Live (TTL) to
 be used for future hostname resolutions without requiring asking the DNS resolver again.
 - TLS caches session state and tickets based on a hostname, which can be used for resuming sessions with a server.
 - TCP can cache cookies for use in TCP Fast Open.
