@@ -452,25 +452,31 @@ StunCandidate.WithStunServer(address, port, credentials)
 
 LocalCandidates = [HostCandidate, StunCandidate]
 
-// Configure transport and security properties
-TransportProperties := ...
-SecurityParameters  := ...
+TransportProperties := // ...Configure transport properties
+SecurityParameters  := // ...Configure security properties
 
 Preconnection := NewPreconnection(LocalCandidates,
                                   [], // No remote candidates yet
                                   TransportProperties,
                                   SecurityParameters)
 
-// Resolve the LocalCandidates. The Preconnection.Resolve() call
-// resolves both local and remote candidates but, since the remote
-// candidates have not yet been specified, the ResolvedRemote list
-// returned will be empty and is not used.
+// Resolve the LocalCandidates. The Preconnection.Resolve()
+// call resolves both local and remote candidates but, since
+// the remote candidates have not yet been specified, the
+// ResolvedRemote list returned will be empty and is not
+// used.
 ResolvedLocal, ResolvedRemote = Preconnection.Resolve()
 
-// ...Send the ResolvedLocal list to peer via signalling channel
-// ...Receive a list of RemoteCandidates from peer via
-//    signalling channel
+// Application-specific code goes here to send the ResolvedLocal
+// list to peer via some out-of-band signalling channel (e.g.,
+// in a SIP message)
+...
 
+// Application-specific code goes here to receive the list of
+// RemoteCandidates from peer via the signalling channel
+...
+
+// Add remote candidates and initiate the rendezvous:
 Preconnection.AddRemote(RemoteCandidates)
 Preconnection.Rendezvous()
 
@@ -483,20 +489,24 @@ Connection.Receive()
 
 Connection -> Received<messageDataResponse, messageContext>
 
-// If new Remote Endpoint candidates are received from the peer over
-// the signalling channel, for example if using Trickle ICE, then add
-// them to the Connection:
+// If new Remote Endpoint candidates are received from the
+// peer over the signalling channel, for example if using
+// Trickle ICE, then add them to the Connection:
 Connection.AddRemote(NewRemoteCandidates)
 
-// On a PathChange<> events, resolve the local endpoints to see if a
-// new local endpoint has become available and, if so, send to the peer
-// as a new candidate and add to the Connection:
+// On a PathChange<> events, resolve the local endpoints to
+// see if a new local endpoint has become available and, if
+// so, send to the peer as a new candidate and add to the
+// Connection:
 Connection -> PathChange<>
 
 //---- PathChange event handler begin ----
 ResolvedLocal, ResolvedRemote = Preconnection.Resolve()
 if ResolvedLocal has changed:
-  // ...Send the ResolvedLocal list to peer via signalling channel
+  // Application-specific code goes here to send the
+  // ResolvedLocal list to peer via signalling channel
+  ...
+
   // Add the new local endpoints to the Connection:
   Connection.AddLocal(ResolvedLocal)
 //---- PathChange event handler end ----
