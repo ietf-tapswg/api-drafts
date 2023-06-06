@@ -132,7 +132,7 @@ multiple interfaces and potential transport protocols.
 
 This document specifies an abstract application programming interface (API) that describes the interface component of
 the high-level Transport Services architecture defined in
-{{I-D.ietf-taps-arch}}. A Transport Services system supports
+{{!I-D.ietf-taps-arch}}. A Transport Services system supports
 asynchronous, atomic transmission of messages over transport protocols and
 network paths dynamically selected at runtime, in environments where an endpoint
 selects from multiple interfaces and potential transport protocols.
@@ -146,7 +146,7 @@ protocols, and can support applications by offering racing and fallback
 mechanisms, which otherwise need to be separately implemented in each application.
 Transport Services implementations are free to take any desired form as long
 as the API specification in this document is honored; a nonprescriptive guide to
-implementing a Transport Services system is available {{I-D.ietf-taps-impl}}.
+implementing a Transport Services system is available {{?I-D.ietf-taps-impl}}.
 
 The Transport Services system derives specific path and protocol selection
 properties and supported transport features from the analysis provided in
@@ -241,7 +241,7 @@ when, and only when, they appear in all capitals, as shown here.
 
 The design of the API specified in this document is based on a set of
 principles, themselves an elaboration on the architectural design principles
-defined in {{I-D.ietf-taps-arch}}. The API defined in this document
+defined in {{!I-D.ietf-taps-arch}}. The API defined in this document
 provides:
 
 
@@ -268,7 +268,7 @@ provides:
 
 - Selection between alternate network paths, using additional information about the
   networks over which a Connection can operate (e.g. Provisioning Domain (PvD)
-  information {{RFC7556}}) where available.
+  information {{?RFC7556}}) where available.
 
 - Explicit support for transport-specific features to be applied, should that
   particular transport be part of a chosen Protocol Stack.
@@ -520,7 +520,7 @@ Connection.Close()
 
 Each application using the Transport Services API declares its preferences
 for how the Transport Services system should operate. This is done by using Transport Properties, as defined in
-{{I-D.ietf-taps-arch}}, at each stage of the lifetime of a Connection.
+{{!I-D.ietf-taps-arch}}, at each stage of the lifetime of a Connection.
 
 Transport Properties are divided into Selection, Connection, and Message
 Properties. Selection Properties (see {{selection-props}}) can only be set during pre-establishment. They are only used to specify which paths and Protocol Stacks can be used and are preferred by the application.
@@ -541,7 +541,7 @@ Note that configuring Connection Properties and Message Properties on
 Preconnections is preferred over setting them later. Early specification of
 Connection Properties allows their use as additional input to the selection
 process. Protocol-specific Properties, which enable configuration of specialized
-features of a specific protocol, see Section 3.2 of {{I-D.ietf-taps-arch}}, are not
+features of a specific protocol, see Section 3.2 of {{!I-D.ietf-taps-arch}}, are not
 used as an input to the selection process, but only support configuration if
 the respective protocol has been selected.
 
@@ -1024,7 +1024,7 @@ between multiple local interfaces that are connected to different access
 networks.
 
 When additional information (such as Provisioning Domain (PvD) information
-{{RFC7556}}) is available about the networks over which an endpoint can operate,
+{{?RFC7556}}) is available about the networks over which an endpoint can operate,
 this can inform the selection between alternate network paths.
 Path information can include PMTU, set of supported DSCPs,
 expected usage, cost, etc. The usage of this information by the Transport
@@ -1250,8 +1250,8 @@ Default:
 This property specifies whether the application would like the Connection to be
 congestion controlled or not. Note that if a Connection is not congestion
 controlled, an application using such a Connection SHOULD itself perform
-congestion control in accordance with {{!RFC2914}} or use a circuit breaker in
-accordance with {{!RFC8084}}, whichever is appropriate. Also note that reliability
+congestion control in accordance with {{?RFC2914}} or use a circuit breaker in
+accordance with {{?RFC8084}}, whichever is appropriate. Also note that reliability
 is usually combined with congestion control in protocol implementations,
 rendering "reliable but not congestion controlled" a request that is unlikely to
 succeed. If the Connection is congestion controlled, performing additional congestion control
@@ -1333,7 +1333,7 @@ allows the application to control path selection by selecting which specific
 Provisioning Domain (PvD) or categories of PVDs it wants to
 `Require`, `Prohibit`, `Prefer`, or `Avoid`. Provisioning Domains define
 consistent sets of network properties that may be more specific than network
-interfaces {{RFC7556}}.
+interfaces {{?RFC7556}}.
 
 As with interface instances and types, this property is a tuple of an (Enumerated)
 PvD identifier and a preference, and can either be implemented directly as such,
@@ -1367,7 +1367,7 @@ Default:
 : Avoid for Listeners and Rendezvous Connections. Prefer for other Connections.
 
 This property allows the application to express a preference for the use of
-temporary local addresses, sometimes called "privacy" addresses {{!RFC8981}}.
+temporary local addresses, sometimes called "privacy" addresses {{?RFC8981}}.
 Temporary addresses are generally used to prevent linking connections over time
 when a stable address, sometimes called "permanent" address, is not needed.
 There are some caveats to note when specifying this property. First, if an
@@ -1473,7 +1473,7 @@ informed when an ICMP error message arrives that does not force termination of a
 connection. When set to true, received ICMP errors are available as
 `SoftError` events, see {{soft-errors}}. Note that even if a protocol supporting this property is selected,
 not all ICMP errors will necessarily be delivered, so applications cannot rely
-upon receiving them {{!RFC8085}}.
+upon receiving them {{?RFC8085}}.
 
 
 ### Initiating side is not the first to write {#active-read-before-send}
@@ -1498,7 +1498,7 @@ Requiring this property limits the choice of mappings to underlying protocols,
 which can reduce
 efficiency. For example, it prevents the Transport Services system from mapping
 Connections to SCTP streams, where
-the first transmitted data takes the role of an active open signal {{I-D.ietf-taps-impl}}.
+the first transmitted data takes the role of an active open signal {{?I-D.ietf-taps-impl}}.
 
 
 ## Specifying Security Parameters and Callbacks {#security-parameters}
@@ -2023,7 +2023,7 @@ Properties will include different information:
   path(s) used by the Protocol Stack. This can be derived from local PVD information,
   measurements by the Protocol Stack, or other sources.
   For example, a Transport System that is configured to receive and process PVD information
-  {{RFC7556}} could also provide network configuration information for the chosen path(s).
+  {{?RFC7556}} could also provide network configuration information for the chosen path(s).
 
 ## Generic Connection Properties {#connection-props}
 
@@ -2049,7 +2049,7 @@ If this property is an Integer, it specifies the minimum number of bytes in a re
 Message that need to be covered by a checksum.
 A receiving endpoint will not forward Messages that have less coverage
 to the application. The application is responsible for handling
-any corruption within the non-protected part of the Message {{!RFC8085}}.
+any corruption within the non-protected part of the Message {{?RFC8085}}.
 A special value of 0 means that a received packet may also have a zero checksum field,
 and the enumerated value `Full Coverage` means
 that the entire Message needs to be protected by a checksum.
@@ -2109,7 +2109,7 @@ packets have been sent) should wait before
 the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting this property
 will only take effect when the underlying stack supports sending keep-alive packets.
 Guidance on setting this value for connection-less transports is
-provided in {{!RFC8085}}.
+provided in {{?RFC8085}}.
 A value greater than the Connection timeout ({{conn-timeout}}) or the enumerated value `Disabled` will disable the sending of keep-alive packets.
 
 ### Connection Group Transmission Scheduler {#conn-scheduler}
@@ -2282,7 +2282,7 @@ cached information (such as session tickets or cookies) as possible from
 previous Connections that are not in the same Connection Group. Any state generated by this
 Connection will only be shared with Connections in the same Connection Group. Cloned Connections
 will use saved state from within the Connection Group.
-This is used for separating Connection Contexts as specified in {{I-D.ietf-taps-arch}}.
+This is used for separating Connection Contexts as specified in {{!I-D.ietf-taps-arch}}.
 
 Note that this does not guarantee no leakage of information, as
 implementations may not be able to fully isolate all caches (e.g. RTT
@@ -2509,7 +2509,7 @@ and can potentially support packing multiple application-layer Messages
 into individual transport datagrams.
 
 The API to implement a Message Framer can vary depending on the implementation;
-guidance on implementing Message Framers can be found in {{I-D.ietf-taps-impl}}.
+guidance on implementing Message Framers can be found in {{?I-D.ietf-taps-impl}}.
 
 #### Adding Message Framers to Pre-Connections
 
@@ -3225,7 +3225,7 @@ data transfer (before Connection establishment has finished). This is useful if
 applications need to treat early data separately,
 e.g., if early data has different security properties than data sent after
 connection establishment. In the case of TLS 1.3, client early data can be replayed
-maliciously (see {{!RFC8446}}). Thus, receivers might wish to perform additional
+maliciously (see {{?RFC8446}}). Thus, receivers might wish to perform additional
 checks for early data to ensure it is safely replayable. If TLS 1.3 is available
 and the recipient Message was sent as part of early data, the corresponding metadata carries
 a flag indicating as such. If early data is enabled, applications should check this metadata
