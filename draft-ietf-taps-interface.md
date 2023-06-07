@@ -596,9 +596,10 @@ There is no interoperability benefit in tightly defining how the API is
 presented to application programmers across diverse platforms. However,
 maintaining the "shape" of the abstract API across different platforms reduces
 the effort for programmers who learn to use the Transport Services API to then
-apply their knowledge to another platform.
-
-We therefore make the following recommendations:
+apply their knowledge to another platform. That said, implementations have
+significant freedom in presenting this API to programmers, balancing the
+conventions of the protocol with the shape of the API. We make the following
+recommendations:
 
 - Actions, events, and errors in implementations of the Transport Services API SHOULD use
   the names given for them in the document, subject to capitalization,
@@ -607,7 +608,7 @@ We therefore make the following recommendations:
   substantially equivalent objects for networking by convention.
 - Transport Services systems SHOULD implement each Selection Property,
   Connection Property, and Message Context Property specified in this document.
-  The Transport Services API SHOULD be implemented even when in a specific implementation/platform it
+  These features SHOULD be implemented even when in a specific implementation it
   will always result in no operation, e.g. there is no action when the API
   specifies a Property that is not available in a transport protocol implemented
   on a specific platform. For example, if TCP is the only underlying transport protocol,
