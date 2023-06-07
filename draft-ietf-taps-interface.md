@@ -1593,7 +1593,7 @@ handshake protocol can continue. For example, the application could verify an X.
 as described in {{?RFC5280}}.
 
 ~~~
-TrustCallback := NewCallback({
+trustCallback := NewCallback({
   // Handle trust, return the result
 })
 SecurityParameters.SetTrustVerificationCallback(trustCallback)
@@ -1603,7 +1603,7 @@ SecurityParameters.SetTrustVerificationCallback(trustCallback)
 local authentication is requested by a Remote Endpoint.
 
 ~~~
-ChallengeCallback := NewCallback({
+challengeCallback := NewCallback({
   // Handle challenge
 })
 SecurityParameters.SetIdentityChallengeCallback(challengeCallback)
