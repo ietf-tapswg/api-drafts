@@ -524,12 +524,12 @@ Transport Properties, as defined in {{!I-D.ietf-taps-arch}}, at each stage
 of the lifetime of a Connection.
 
 Transport Properties are divided into Selection, Connection, and Message
-Properties. 
+Properties.
 
 Selection Properties (see {{selection-props}}) can only be set
 during pre-establishment. They are only used to specify which paths and
 Protocol Stacks can be used and are preferred by the application.
-Calling `Initiate` on a Preconnection creates an outbound Connection, 
+Calling `Initiate` on a Preconnection creates an outbound Connection,
 and the Selection Properties remain readable from the
 Connection, but become immutable. Selection Properties
 can be set on Preconnections, and the effect of Selection Properties
@@ -566,10 +566,10 @@ digits `0-9`, the hyphen `-`, and the underscore `_`. These names serve two purp
 - Allowing different components of a Transport Services implementation to pass Transport
   Properties, e.g., between a language frontend and a policy manager,
   or as a representation of properties retrieved from a file or other storage.
-- Making the code of different Transport Services implementations look similar. 
-  While individual programming languages may preclude strict adherence to the 
+- Making the code of different Transport Services implementations look similar.
+  While individual programming languages may preclude strict adherence to the
   aforementioned naming convention (for instance, by prohibiting the use of hyphens
-  in symbols), users interacting with multiple implementations will still benefit 
+  in symbols), users interacting with multiple implementations will still benefit
   from the consistency resulting from the use of visually similar symbols.
 
 Transport Property Names are hierarchically organized in the
