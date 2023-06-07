@@ -519,48 +519,64 @@ Connection.Close()
 # Transport Properties {#transport-properties}
 
 Each application using the Transport Services API declares its preferences
-for how the Transport Services system should operate. This is done by using Transport Properties, as defined in
-{{!I-D.ietf-taps-arch}}, at each stage of the lifetime of a Connection.
+for how the Transport Services system should operate. This is done by using
+Transport Properties, as defined in {{!I-D.ietf-taps-arch}}, at each stage
+of the lifetime of a Connection.
 
 Transport Properties are divided into Selection, Connection, and Message
-Properties. Selection Properties (see {{selection-props}}) can only be set during pre-establishment. They are only used to specify which paths and Protocol Stacks can be used and are preferred by the application.
-Although Connection Properties (see {{connection-props}}) can be set during pre-establishment, they may be changed later. They are used to inform decisions made during establishment and to fine-tune the established Connection. Calling `Initiate` on a Preconnection creates an outbound Connection or a Listener, and the Selection Properties remain readable from the Connection or Listener, but become immutable.
+Properties. 
 
-The behavior of the selected Protocol Stack(s) when
-sending Messages is controlled by Message Properties (see {{message-props}}).
+Selection Properties (see {{selection-props}}) can only be set
+during pre-establishment. They are only used to specify which paths and
+Protocol Stacks can be used and are preferred by the application.
+Calling `Initiate` on a Preconnection creates an outbound Connection, 
+and the Selection Properties remain readable from the
+Connection, but become immutable. Selection Properties
+can be set on Preconnections, and the effect of Selection Properties
+can be queried on Connections and Messages.
 
-Selection Properties can be set on Preconnections, and the effect of
-Selection Properties can be queried on Connections and Messages.
-Connection Properties can be set on Connections and Preconnections;
-when set on Preconnections, they act as an initial default for the
-resulting Connections. Message Properties can be set on Messages,
-Connections, and Preconnections; when set on the latter two, they act as
-an initial default for the Messages sent over those Connections.
+Connection Properties (see {{connection-props}}) are used to inform
+decisions made during establishment and to fine-tune the established
+Connection. They can be set during pre-establishment, and may be
+changed later. Connection Properties can be set on Connections and
+Preconnections; when set on Preconnections, they act as an initial
+default for the resulting Connections.
+
+Message Properties (see {{message-props}}) control the behavior of the
+selected protocol stack(s) when sending Messages. Message Properties
+can be set on Messages, Connections, and Preconnections; when set on
+the latter two, they act as an initial default for the Messages sent
+over those Connections.
 
 Note that configuring Connection Properties and Message Properties on
 Preconnections is preferred over setting them later. Early specification of
 Connection Properties allows their use as additional input to the selection
 process. Protocol-specific Properties, which enable configuration of specialized
-features of a specific protocol, see Section 3.2 of {{!I-D.ietf-taps-arch}}, are not
+features of a specific protocol (see Section 3.2 of {{!I-D.ietf-taps-arch}}) are not
 used as an input to the selection process, but only support configuration if
 the respective protocol has been selected.
 
 ## Transport Property Names {#property-names}
 
-Transport Properties are referred to by property names. For the purposes of this document, these names are
-alphanumeric strings in which words may be separated by hyphens. Specifically, the following characters are allowed: lowercase letters `a-z`, uppercase letters `A-Z`, digits `0-9`, the hyphen `-`, and the underscore `_`.
-These names serve two purposes:
+Transport Properties are referred to by property names. For the purposes
+of this document, these names are alphanumeric strings in which the following
+characters are allowed: lowercase letters `a-z`, uppercase letters `A-Z`,
+digits `0-9`, the hyphen `-`, and the underscore `_`. These names serve two purposes:
 
 - Allowing different components of a Transport Services implementation to pass Transport
   Properties, e.g., between a language frontend and a policy manager,
   or as a representation of properties retrieved from a file or other storage.
-- Making the code of different Transport Services implementations look similar. While individual programming languages may preclude strict adherence to the aforementioned naming convention (for instance, by prohibiting the use of hyphens in symbols), users interacting with multiple implementations will still benefit from the consistency resulting from the use of visually similar symbols.
+- Making the code of different Transport Services implementations look similar. 
+  While individual programming languages may preclude strict adherence to the 
+  aforementioned naming convention (for instance, by prohibiting the use of hyphens
+  in symbols), users interacting with multiple implementations will still benefit 
+  from the consistency resulting from the use of visually similar symbols.
 
 Transport Property Names are hierarchically organized in the
 form \[\<Namespace>.\]\<PropertyName\>.
 
 - The Namespace component MUST be empty for well-known, generic properties, i.e., for
-  properties that are not specific to a protocol and are defined in an RFC.
+  properties that are not specific to a protocol.
 - Protocol-specific Properties MUST use the protocol acronym as the Namespace (e.g., a
   `tcp` Connection could support a TCP-specific Transport Property, such as the user timeout
   value, in a Protocol-specific Property called `tcp.userTimeoutValue` (see {{tcp-uto}})).
@@ -571,7 +587,7 @@ form \[\<Namespace>.\]\<PropertyName\>.
 Namespaces for each of the keywords provided in the IANA protocol numbers registry
 (see https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml) are reserved
 for Protocol-specific Properties and MUST NOT be used for vendor or implementation-specific properties.
-Avoid using any of the terms listed as keywords in the protocol numbers registry as any part of a vendor- or
+Terms listed as keywords as in the protocol numbers registry SHOULD be avoided as any part of a vendor- or
 implementation-specific property name.
 
 
