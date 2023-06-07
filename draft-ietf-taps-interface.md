@@ -589,7 +589,7 @@ the effort for programmers who learn to use the Transport Services API to then
 apply their knowledge to another platform. That said, implementations have
 significant freedom in presenting this API to programmers, balancing the
 conventions of the protocol with the shape of the API. We make the following
-recommendations to strike the right balance:
+recommendations:
 
 - Actions, events, and errors in implementations of the Transport Services API SHOULD use
   the names given for them in the document, subject to capitalization,
