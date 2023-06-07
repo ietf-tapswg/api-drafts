@@ -1593,20 +1593,20 @@ handshake protocol can continue. For example, the application could verify an X.
 as described in {{?RFC5280}}.
 
 ~~~
-trustCallback := NewCallback({
+TrustCallback := NewCallback({
   // Handle trust, return the result
 })
-SecurityParameters.SetTrustVerificationCallback(trustCallback)
+SecurityParameters.SetTrustVerificationCallback(TrustCallback)
 ~~~
 
 - Identity challenge callback: Invoked when a private key operation is required, e.g., when
 local authentication is requested by a Remote Endpoint.
 
 ~~~
-challengeCallback := NewCallback({
+ChallengeCallback := NewCallback({
   // Handle challenge
 })
-SecurityParameters.SetIdentityChallengeCallback(challengeCallback)
+SecurityParameters.SetIdentityChallengeCallback(ChallengeCallback)
 ~~~
 
 # Establishing Connections {#establishment}
