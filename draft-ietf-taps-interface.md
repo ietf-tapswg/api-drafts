@@ -212,6 +212,9 @@ We also make use of the following basic types:
 - Boolean: Instances take the value `true` or `false`.
 - Integer: Instances take positive or negative integer values.
 - Numeric: Instances take positive or negative real number values.
+- String: A string (represented in a way that is common to the programming
+  language, e.g. unicode).
+- IP Address: An IPv4 or IPv6 address.
 - Enumeration: A family of types in which each instance takes one of a fixed,
   predefined set of values specific to a given enumerated type.
 - Tuple: An ordered grouping of multiple value types, represented as a
@@ -222,9 +225,6 @@ We also make use of the following basic types:
   elements in a sequence of the given Type. An array may be of fixed or
   variable length.
 - Collection: An unordered grouping of one or more values of the same type.
-- String: An alphanumeric string.
-- IPv4Address: An IPv4 address.
-- IPv6Address: An IPv6 address.
 
 For guidance on how these abstract concepts may be implemented in languages
 in accordance with native design patterns and language and platform features,
