@@ -212,8 +212,8 @@ We also make use of the following basic types:
 - Boolean: Instances take the value `true` or `false`.
 - Integer: Instances take positive or negative integer values.
 - Numeric: Instances take positive or negative real number values.
-- String: A string (represented in a way that is common to the programming
-  language, e.g. unicode).
+- String: Instances are represented in a way that is common to the programming
+  language, e.g. unicode.
 - IP Address: An IPv4 or IPv6 address.
 - Enumeration: A family of types in which each instance takes one of a fixed,
   predefined set of values specific to a given enumerated type.
