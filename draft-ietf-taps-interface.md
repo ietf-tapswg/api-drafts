@@ -353,7 +353,7 @@ TransportProperties.Require(preserve-msg-boundaries)
 
 SecurityParameters := NewSecurityParameters()
 SecurityParameters.Set(identity, myIdentity)
-SecurityParameters.Set(key-pair, myPrivateKey, myPublicKey)
+SecurityParameters.Set(server-certificate, myCertificate)
 
 // Specifying a Remote Endpoint is optional when using Listen
 Preconnection := NewPreconnection(LocalSpecifier,
@@ -1545,12 +1545,14 @@ SecurityParameters := NewSecurityParameters()
 
 Security configuration parameters and sample usage follow:
 
-- Local identity and private keys: Used to perform private key operations and prove one's
+- Local identity, certificates, and private keys: Used to perform private key operations and prove one's
 identity to the Remote Endpoint. (Note, if private keys are not available, e.g., since they are
 stored in hardware security modules (HSMs), handshake callbacks must be used. See below for details.)
 
 ~~~
 SecurityParameters.Set(identity, myIdentity)
+SecurityParameters.Set(server-certificate, myCertificate)
+SecurityParameters.Set(client-certificate, myCertificate)
 SecurityParameters.Set(key-pair, myPrivateKey, myPublicKey)
 ~~~
 
@@ -1614,7 +1616,7 @@ as described in {{?RFC5280}}.
 TrustCallback := NewCallback({
   // Handle trust, return the result
 })
-SecurityParameters.SetTrustVerificationCallback(trustCallback)
+SecurityParameters.SetTrustVerificationCallback(TrustCallback)
 ~~~
 
 - Identity challenge callback: Invoked when a private key operation is required, e.g., when
@@ -1624,7 +1626,7 @@ local authentication is requested by a Remote Endpoint.
 ChallengeCallback := NewCallback({
   // Handle challenge
 })
-SecurityParameters.SetIdentityChallengeCallback(challengeCallback)
+SecurityParameters.SetIdentityChallengeCallback(ChallengeCallback)
 ~~~
 
 # Establishing Connections {#establishment}
