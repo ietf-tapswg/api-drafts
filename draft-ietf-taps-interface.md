@@ -705,11 +705,11 @@ RemoteSpecifier.WithService("https")
 - IP address (IPv4 or IPv6 address):
 
 ~~~
-RemoteSpecifier.WithIPv4Address(192.0.2.21)
+RemoteSpecifier.WithIPAddress(192.0.2.21)
 ~~~
 
 ~~~
-RemoteSpecifier.WithIPv6Address(2001:db8:4920:e29d:a420:7461:7073:0a)
+RemoteSpecifier.WithIPAddress(2001:db8:4920:e29d:a420:7461:7073:0a)
 ~~~
 
 - Interface name (string), e.g., to qualify link-local or multicast addresses (see {{ifspec}} for details):
@@ -719,7 +719,7 @@ LocalSpecifier.WithInterface("en0")
 ~~~
 
 Note that an IPv6 address specified with a scope (e.g. `2001:db8:4920:e29d:a420:7461:7073:0a%en0`)
-is equivalent to `WithIPv6Address` with an unscoped address and `WithInterface ` together.
+is equivalent to `WithIPAddress` with an unscoped address and `WithInterface ` together.
 
 The design of the API MUST NOT permit an Endpoint to be configured with multiple identifiers of the same type.
 For example, an endpoint cannot have two IP addresses specified. Two separate IP addresses
@@ -755,8 +755,7 @@ multicast group.
 The following API calls can be used to configure a Preconnection before calling Initiate():
 
 ~~~
-RemoteSpecifier.WithMulticastGroupIPv4(GroupAddress)
-RemoteSpecifier.WithMulticastGroupIPv6(GroupAddress)
+RemoteSpecifier.WithMulticastGroupIP(GroupAddress)
 RemoteSpecifier.WithPort(PortNumber)
 RemoteSpecifier.WithTTL(TTL)
 ~~~
@@ -771,10 +770,8 @@ The receiving interface can be restricted by passing it as part of the LocalSpec
 The following API calls can be used to configure a Preconnection before calling Listen():
 
 ~~~
-LocalSpecifier.WithSingleSourceMulticastGroupIPv4(GroupAddress, SourceAddress)
-LocalSpecifier.WithSingleSourceMulticastGroupIPv6(GroupAddress, SourceAddress)
-LocalSpecifier.WithAnySourceMulticastGroupIPv4(GroupAddress)
-LocalSpecifier.WithAnySourceMulticastGroupIPv6(GroupAddress)
+LocalSpecifier.WithSingleSourceMulticastGroupIP(GroupAddress, SourceAddress)
+LocalSpecifier.WithAnySourceMulticastGroupIP(GroupAddress)
 LocalSpecifier.WithPort(PortNumber)
 ~~~
 
@@ -792,12 +789,10 @@ group address as the Local Endpoint results in an EstablishmentError.
 The following API calls can be used to configure a Preconnection before calling Rendezvous():
 
 ~~~
-RemoteSpecifier.WithMulticastGroupIPv4(GroupAddress)
-RemoteSpecifier.WithMulticastGroupIPv6(GroupAddress)
+RemoteSpecifier.WithMulticastGroupIP(GroupAddress)
 RemoteSpecifier.WithPort(PortNumber)
 RemoteSpecifier.WithTTL(TTL)
-LocalSpecifier.WithAnySourceMulticastGroupIPv4(GroupAddress)
-LocalSpecifier.WithAnySourceMulticastGroupIPv6(GroupAddress)
+LocalSpecifier.WithAnySourceMulticastGroupIP(GroupAddress)
 LocalSpecifier.WithPort(PortNumber)
 LocalSpecifier.WithTTL(TTL)
 ~~~
@@ -866,7 +861,7 @@ Specify a Remote Endpoint using an IPv6 address and remote port:
 
 ~~~
 RemoteSpecifier := NewRemoteEndpoint()
-RemoteSpecifier.WithIPv6Address(2001:db8:4920:e29d:a420:7461:7073:0a)
+RemoteSpecifier.WithIPAddress(2001:db8:4920:e29d:a420:7461:7073:0a)
 RemoteSpecifier.WithPort(443)
 ~~~
 
@@ -874,7 +869,7 @@ Specify a Remote Endpoint using an IPv4 address and remote port:
 
 ~~~
 RemoteSpecifier := NewRemoteEndpoint()
-RemoteSpecifier.WithIPv4Address(192.0.2.21)
+RemoteSpecifier.WithIPAddress(192.0.2.21)
 RemoteSpecifier.WithPort(443)
 ~~~
 
@@ -910,7 +905,7 @@ port on a named local interface:
    RemoteSpecifier := NewRemoteEndpoint()
 
    LocalSpecifier := NewLocalEndpoint()
-   LocalSpecifier.WithAnySourceMulticastGroupIPv4(233.252.0.0)
+   LocalSpecifier.WithAnySourceMulticastGroupIP(233.252.0.0)
    LocalSpecifier.WithPort(5353)
    LocalSpecifier.WithInterface("en0")
 
@@ -931,7 +926,7 @@ port on a named local interface:
    RemoteSpecifier := NewRemoteEndpoint()
 
    LocalSpecifier := NewLocalEndpoint()
-   LocalSpecifier.WithSingleSourceMulticastGroupIPv4(233.252.0.0, 198.51.100.10)
+   LocalSpecifier.WithSingleSourceMulticastGroupIP(233.252.0.0, 198.51.100.10)
    LocalSpecifier.WithPort(5353)
    LocalSpecifier.WithInterface("en0")
 
@@ -949,12 +944,12 @@ Create a Source-Specific Multicast group as a sender:
 
 ~~~
    RemoteSpecifier := NewRemoteEndpoint()
-   RemoteSpecifier.WithMulticastGroupIPv4(232.1.1.1)
+   RemoteSpecifier.WithMulticastGroupIP(232.1.1.1)
    RemoteSpecifier.WithPort(5353)
    RemoteSpecifier.WithTTL(8)
 
    LocalSpecifier := NewLocalEndpoint()
-   LocalSpecifier.WithIPv4Address(192.0.2.22)
+   LocalSpecifier.WithIPAddress(192.0.2.22)
    LocalSpecifier.WithInterface("en0")
 
    TransportProperties := ...
@@ -971,13 +966,13 @@ Join an any-source multicast group as both a sender and a receiver:
 
 ~~~
    RemoteSpecifier := NewRemoteEndpoint()
-   RemoteSpecifier.WithMulticastGroupIPv4(233.252.0.0)
+   RemoteSpecifier.WithMulticastGroupIP(233.252.0.0)
    RemoteSpecifier.WithPort(5353)
    RemoteSpecifier.WithTTL(8)
 
    LocalSpecifier := NewLocalEndpoint()
-   LocalSpecifier.WithAnySourceMulticastGroupIPv4(233.252.0.0)
-   LocalSpecifier.WithIPv4Address(192.0.2.22)
+   LocalSpecifier.WithAnySourceMulticastGroupIP(233.252.0.0)
+   LocalSpecifier.WithIPAddress(192.0.2.22)
    LocalSpecifier.WithPort(5353)
    LocalSpecifier.WithInterface("en0")
 
