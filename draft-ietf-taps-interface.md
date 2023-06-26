@@ -69,8 +69,8 @@ author:
     ins: P. Tiesel
     name: Philipp S. Tiesel
     org: SAP SE
-    street: Konrad-Zuse-Ring 10
-    city: 14469 Potsdam
+    street: George-Stephenson-Straße 7-13
+    city: 10557 Berlin
     country: Germany
     email: philipp@tiesel.net
   -
