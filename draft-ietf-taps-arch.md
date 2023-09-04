@@ -452,7 +452,7 @@ a connection.
   Endpoints can be Local Endpoints or Remote Endpoints, and respectively represent an identity
   that the application uses for the source or destination of a connection.
   An endpoint can be specified at various levels of abstraction.
-  An endpoint at a higher level of abstraction (such as a hostname) can be resolved to more concrete identities (such as IP addresses). An endpoint may also represent a multicast group, in which case it selects a multicast transport for communication.
+  An endpoint at a higher level of abstraction (such as a hostname) can be resolved to more concrete identities (such as IP addresses). A destination endpoint can also represent a multicast group, in which case it selects a multicast transport for communication.
 
 * Remote Endpoint: The Remote Endpoint represents the application's identifier for a peer that can participate in a transport connection; for example, the combination of a DNS name for the peer and a service name/port.
 
