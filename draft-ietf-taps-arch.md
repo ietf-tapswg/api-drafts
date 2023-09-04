@@ -218,7 +218,7 @@ There are key differences between the Transport Services architecture and the ar
 
 Originally, the Socket API presented a blocking interface for establishing connections and transferring data. However, most modern applications interact with the network asynchronously. Emulation of an asynchronous interface using the Socket API can uses a try-and-fail model: If the application wants to read, but data has not yet been received from the peer, the call to read will fail. The application then waits and can try again later.
 
-In contrast to the Socket API, all interaction using the Transport Services API is expected to be asynchronous. The API is defined around an event-driven model (see {{events}}) in order to model this asynchronous interaction, though other forms of asynchronous communication may be available to applications depending on the platform implementing the interface.
+In contrast to the Socket API, all interaction using the Transport Services API is expected to be asynchronous. The API is defined around an event-driven model (see {{events}}), which models this asynchronous interaction. Other forms of asynchronous communication could also be available to applications, depending on the platform implementing the interface.
 
 For example, an application first issues a call to receive new data from the connection. When delivered data becomes available, this data is delivered to the application using asynchronous events that contain the data. Error handling is also asynchronous; a failure to send data results in an asynchronous error event.
 
@@ -475,7 +475,7 @@ a connection.
   endpoint.  The process of identifying options for the connection, such
   as resolution of the Remote Endpoint, occurs in response to the `Rendezvous` call.
   As with Listeners, the set of local paths and endpoints is constrained
-  by Selection Properties. If successful, the `Rendezvous` call returns a
+  by Selection Properties. If successful, the `Rendezvous` call generates and asynchronously returns a
   Connection object to represent the established peer-to-peer connection.
   The processes by which connections are initiated during a `Rendezvous`
   action will depend on the set of Local and Remote Endpoints configured on
