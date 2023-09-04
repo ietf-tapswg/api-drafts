@@ -258,7 +258,7 @@ Flexibility after connection establishment is also important. Transport protocol
 
 ## Coexistence
 
-Note that while the Transport Service architecture is designed as an enhanced replacement for the Socket API, it need not replace it entirely on a system or platform; indeed, incremental deployability {{?RFC8170}} requires coexistence. The architecture is therefore designed such that it can run alongside (or, indeed, on top of) an existing Socket API implementation; only applications built to the Transport Services API are managed by the system's Transport Services implementation.
+Note that while the Transport Service architecture is designed as an enhanced replacement for the Socket API, it need not replace it entirely on a system or platform; indeed, coexistence has been recommended for incremental deployability {{?RFC8170}}. The architecture is therefore designed such that it can run alongside (or, indeed, on top of) an existing Socket API implementation; only applications built to the Transport Services API are managed by the system's Transport Services implementation.
 
 # API and Implementation Requirements {#requirements}
 
