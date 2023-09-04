@@ -118,10 +118,11 @@ This subsection provides a glossary of key terms related to the Transport Servic
 - Candidate Protocol Stack: One Protocol Stack that can be used by an application for a Connection during racing.
 - Client: The peer responsible for initiating a Connection.
 - Clone: A Connection that was created from another Connection, and forms a part of a Connection Group.
-- Connection: Shared state of two or more endpoints that persists across Messages that are transmitted and received between these Endpoints {{?RFC8303}}. When this document (and other Transport Services documents) use the capitalized "Connection" term, it refers to a Connection Object that is being offered by the Transport Services system, as opposed to more generic uses of the word "connection".
-- Connection Group: A set of Connections that shares properties and caches.
+- Connection: Shared state of two or more endpoints that persists across Messages that are transmitted and received between these Endpoints {{?RFC8303}}. When this document (and other Transport Services documents) use the capitalized "Connection" term, it refers to a Connection object that is being offered by the Transport Services system, as opposed to more generic uses of the word "connection".
+- Connection Context: A set of stored properties across Connections, such as cached protocol state, cached path state, and heuristics, which can include one or more Connection Groups.
+- Connection Group: A set of Connections that share properties and caches.
 - Connection Property: A Transport Property that controls per-Connection behavior of a Transport Services implementation.
-- Endpoint: An identifier for one side of a Connection (local or remote), such as a hostnames or URL.
+- Endpoint: An identifier for one side of a Connection (local or remote), such as a hostname or URL.
 - Equivalent Protocol Stacks: Protocol Stacks that can be safely swapped or raced in parallel during establishment of a Connection.
 - Event: A primitive that is invoked by an endpoint {{?RFC8303}}.
 - Framer: A data translation layer that can be added to a Connection to define how application-layer Messages are transmitted over a Protocol Stack.
@@ -136,7 +137,7 @@ This subsection provides a glossary of key terms related to the Transport Servic
 - Primitive: A function call that is used to locally communicate between an application and an endpoint, which is related to one or more Transport Features {{?RFC8303}}.
 - Protocol Instance: A single instance of one protocol, including any state necessary to establish connectivity or send and receive Messages.
 - Protocol Stack: A set of Protocol Instances that are used together to establish connectivity or send and receive Messages.
-- Racing: The attempt to select between multiple Protocol Stacks based on the Selection and Connection Properties communicated by the application, along with any security parameters.
+- Racing: The attempt to select between multiple Protocol Stacks based on the Selection and Connection Properties communicated by the application, along with any Security Parameters.
 - Remote Endpoint: A representation of the application's identifier for a peer that can participate in establishing a Connection.
 - Rendezvous: The action of establishing a peer-to-peer Connection with a Remote Endpoint.
 - Security Parameters: Parameters that define an application's requirements for authentication and encryption on a Connection.
@@ -215,7 +216,7 @@ There are key differences between the Transport Services architecture and the ar
 
 ## Event-Driven API
 
-Originally, the Socket API presented a blocking interface for establishing connections and transferring data. However, most modern applications interact with the network asynchronously. Emulation of an asynchronous interface using the Socket API generally uses a try-and-fail model. If the application wants to read, but data has not yet been received from the peer, the call to read will fail. The application then waits and can try again later.
+Originally, the Socket API presented a blocking interface for establishing connections and transferring data. However, most modern applications interact with the network asynchronously. Emulation of an asynchronous interface using the Socket API can uses a try-and-fail model: If the application wants to read, but data has not yet been received from the peer, the call to read will fail. The application then waits and can try again later.
 
 In contrast to the Socket API, all interaction using the Transport Services API is expected to be asynchronous. The API is defined around an event-driven model (see {{events}}) in order to model this asynchronous interaction, though other forms of asynchronous communication may be available to applications depending on the platform implementing the interface.
 
@@ -249,7 +250,7 @@ The Socket API for protocols like TCP is generally limited to connecting to a si
 - to support multipath and multistreaming protocols;
 - to provide state caching and application control over it.
 
-A Transport Services implementation is intended to be flexible at connection establishment time, considering many different options and trying to select the most optimal combinations by racing them and measuring the results (see {{gathering}} and {{racing}}). This requires applications to provide higher-level endpoints than IP addresses, such as hostnames and URLs, which are used by a Transport Services implementation for resolution, path selection, and racing. An implementation can further implement fallback mechanisms if connection establishment of one protocol fails or performance is detected to be unsatisfactory.
+A Transport Services implementation is intended to be flexible at connection establishment time, considering many different options and trying to select the most optimal combinations by racing them and measuring the results (see {{gathering}} and {{racing}}). This requires applications to provide higher-level endpoints than IP addresses, such as a hostname or URL, which are used by a Transport Services implementation for resolution, path selection, and racing. An implementation can further implement fallback mechanisms if connection establishment of one protocol fails or performance is detected to be unsatisfactory.
 
 Information used in connection establishment (e.g. cryptographic resumption tokens, information about usability of certain protocols on the path, results of racing in previous connections) are cached in the Transport Services implementation. Applications have control over whether this information is used for a specific establishment, in order to allow tradeoffs between efficiency and linkability.
 
@@ -291,7 +292,7 @@ To control these specialized features, the application can declare its preferenc
 
 ## Select Between Equivalent Protocol Stacks {#equivalence}
 
-A Transport Services implementation can attempt and select between multiple Protocol Stacks based on the Selection and Connection Properties communicated by the application, along with any security parameters. The implementation can only attempt to use multiple Protocol Stacks when they are "equivalent", which means that the stacks can provide the same Transport Properties and interface expectations as requested by the application. Equivalent Protocol Stacks can be safely swapped or raced in parallel (see {{racing}}) during connection establishment.
+A Transport Services implementation can attempt and select between multiple Protocol Stacks based on the Selection and Connection Properties communicated by the application, along with any Security Parameters. The implementation can only attempt to use multiple Protocol Stacks when they are "equivalent", which means that the stacks can provide the same Transport Properties and interface expectations as requested by the application. Equivalent Protocol Stacks can be safely swapped or raced in parallel (see {{racing}}) during connection establishment.
 
 The following two examples show non-equivalent Protocol Stacks:
 
@@ -366,7 +367,7 @@ The Cached State is the state and history that the implementation keeps for each
 
 ## Transport Services API Concepts
 
-Fundamentally, a Transport Services API needs to provide connection objects ({{objects}}) that allow applications to establish communication, and then send and receive data. These could be exposed as handles or referenced objects, depending on the chosen programming language.
+Fundamentally, a Transport Services API needs to provide Connection objects ({{objects}}) that allow applications to establish communication, and then send and receive data. These could be exposed as handles or referenced objects, depending on the chosen programming language.
 
 Beyond the connection objects, there are several high-level groups of actions that any Transport Services API needs to provide:
 
