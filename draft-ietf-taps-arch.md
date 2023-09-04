@@ -216,7 +216,7 @@ There are key differences between the Transport Services architecture and the ar
 
 ## Event-Driven API
 
-Originally, the Socket API presented a blocking interface for establishing connections and transferring data. However, most modern applications interact with the network asynchronously. Emulation of an asynchronous interface using the Socket API can uses a try-and-fail model: If the application wants to read, but data has not yet been received from the peer, the call to read will fail. The application then waits and can try again later.
+Originally, the Socket API presented a blocking interface for establishing connections and transferring data. However, most modern applications interact with the network asynchronously. Emulation of an asynchronous interface using the Socket API can use a try-and-fail model: If the application wants to read, but data has not yet been received from the peer, the call to read will fail. The application then waits and can try again later.
 
 In contrast to the Socket API, all interaction using the Transport Services API is expected to be asynchronous. The API is defined around an event-driven model (see {{events}}), which models this asynchronous interaction. Other forms of asynchronous communication could also be available to applications, depending on the platform implementing the interface.
 
