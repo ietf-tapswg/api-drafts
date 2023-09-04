@@ -355,7 +355,9 @@ The following diagram summarizes the top-level concepts in the architecture and 
   +-------------+    Stack(s)    +----------------------+
                 +-------+--------+
                         V
-              Network Layer Interface
++-----------------------------------------------------+
+|               Network Layer Interface               |
++-----------------------------------------------------+
 ~~~~~~~~~~
 {: #fig-abstractions title="Concepts and Relationships in the Transport Services Architecture"}
 
