@@ -390,11 +390,11 @@ The Cached State is the state and history that the implementation keeps for each
 
 Fundamentally, a Transport Services API needs to provide Connection objects ({{objects}}) that allow applications to establish communication, and then send and receive data. These could be exposed as handles or referenced objects, depending on the chosen programming language.
 
-Beyond the connection objects, there are several high-level groups of actions that any Transport Services API needs to provide:
+Beyond the Connection objects, there are several high-level groups of actions that any Transport Services API needs to provide:
 
 * Pre-establishment ({{preestablishment}}) encompasses the properties that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. These properties apply to multiple transport protocols, unless otherwise specified. Properties specified during pre-establishment can have a large impact on the rest of the interface: they modify how establishment occurs, they influence the expectations around data transfer, and they determine the set of events that will be supported.
 
-* Establishment ({{establishment}}) focuses on the actions that an application takes on the connection objects to prepare for data transfer.
+* Establishment ({{establishment}}) focuses on the actions that an application takes on the Connection objects to prepare for data transfer.
 
 * Data Transfer ({{datatransfer}}) consists of how an application represents the data to be sent and received, the functions required to send and receive that data, and how the application is notified of the status of its data transfer.
 
