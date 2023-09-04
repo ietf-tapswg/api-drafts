@@ -88,6 +88,11 @@ Since transport security is an increasingly relevant aspect of using transport p
 
 One of the key insights to come from identifying the minimal set of features provided by transport protocols {{?RFC8923}} was that features either require application interaction and guidance (referred to in that document as Functional or Optimizing Features), or else can be handled automatically by a system implementing Transport Services (referred to as Automatable Features). Among the identified Functional and Optimizing Features, some were common across all or nearly all transport protocols, while others could be seen as features that, if specified, would only be useful with a subset of protocols, but would not harm the functionality of other protocols. For example, some protocols can deliver messages faster for applications that do not require messages to arrive in the order in which they were sent. However, this functionality needs to be explicitly allowed by the application, since reordering messages would be undesirable in many cases.
 
+An application uses the Transport Services system through an abstract Connection. It provides 
+flexible connection establishment allowing an application to request or require a set of properties. The system selects one or more candidate each with equivalent protocol stacks. 
+This set of candidates can be raced to identify 
+an optimal combination of transport protocol instance such as TCP, UDP, or another transport, together with  configuration of parameters and interfaces. The Connection represents an object that, once established, can be used to send and receive messages.
+
 ## Overview
 
 This document describes the Transport Services architecture in three sections:
@@ -97,8 +102,6 @@ This document describes the Transport Services architecture in three sections:
 - {{requirements}} explains the fundamental requirements for a Transport Services system. These principles are intended to make sure that transport protocols can continue to be enhanced and evolve without requiring significant changes by application developers.
 
 - {{concepts}} presents a diagram showing the Transport Services architecture and defines the concepts that are used by both the API {{?I-D.ietf-taps-interface}} and implementation guidelines {{?I-D.ietf-taps-impl}}. The Preconnection allows applications to configure Connection Properties.
-
-- {{concepts}} also presents how an abstract Connection is used to select a transport protocol instance such as TCP, UDP, or another transport. The Connection represents an object that can be used to send and receive messages.
 
 ## Specification of Requirements
 
@@ -278,7 +281,7 @@ It is RECOMMENDED that the Transport Services API offers properties that are com
 
 It is RECOMMENDED that the default values for Properties are selected to ensure correctness for the widest set of applications, while providing the widest set of options for selection. For example, since both applications that require reliability and those that do not require reliability can function correctly when a protocol provides reliability, reliability ought to be enabled by default. As another example, the default value for a Property regarding the selection of network interfaces ought to permit as many interfaces as possible.
 
-Applications using the Transport Services API are REQUIRED to be robust to the automated selection provided by the Transport Services implementation. This automated selection is constrained by the properties and preferences expressed by the application and requires applications to explicitly set properties that define any necessary constraints on protocol, path, and interface selection.
+Applications using the Transport Services API need to be designed to be robust to the automated selection provided by the Transport Services implementation. This automated selection is constrained by the properties and preferences expressed by the application and requires applications to explicitly set properties that define any necessary constraints on protocol, path, and interface selection.
 
 ## Allow Access to Specialized Features
 
