@@ -123,7 +123,7 @@ This subsection provides a glossary of key terms related to the Transport Servic
 - Connection Group: A set of Connections that share properties and caches.
 - Connection Property: A Transport Property that controls per-Connection behavior of a Transport Services implementation.
 - Endpoint: An identifier for one side of a Connection (local or remote), such as a hostname or URL.
-- Equivalent Protocol Stacks: Protocol Stacks that can be safely swapped or raced in parallel during establishment of a Connection.
+- Equivalent Protocol Stack: A Protocol Stack that can be safely swapped or raced in parallel during establishment of a Connection.
 - Event: A primitive that is invoked by an endpoint {{?RFC8303}}.
 - Framer: A data translation layer that can be added to a Connection to define how application-layer Messages are transmitted over a Protocol Stack.
 - Local Endpoint: A representation of the application's identifier for itself that it uses for a Connection.
@@ -152,7 +152,7 @@ This subsection provides a glossary of key terms related to the Transport Servic
 
 # API Model {#model}
 
-The traditional model of using sockets for networking can be represented as follows:
+The traditional model of using sockets for networking can be represented as follows (see figure 1):
 
 - Applications create connections and transfer data using the Socket API.
 - The Socket API provides the interface to the implementations of TCP and UDP
@@ -160,7 +160,7 @@ The traditional model of using sockets for networking can be represented as foll
 - TCP and UDP in the kernel send and receive data over the available network-layer interfaces.
 - Sockets are bound directly to transport-layer and network-layer addresses,
   obtained via a separate resolution step, usually performed by a
-  system-provided stub resolver.
+  system-provided DNS stub resolver.
 
 ~~~~~~~~~~
 
@@ -208,11 +208,11 @@ The Transport Services architecture evolves this general model of interaction, t
 ~~~~~~~~~~
 {: #fig-taps title="Transport Services API Model"}
 
-The Transport Services API {{?I-D.ietf-taps-interface}} defines the interface for an application to create Connections and transfer data. It combines interfaces for multiple interaction patterns into a unified whole. By combining name resolution with connection establishment and data transfer in a single API, it allows for more flexible implementations to provide path and transport protocol agility on the application's behalf.
+The Transport Services API {{?I-D.ietf-taps-interface}} defines the interface for an application to create Connections and transfer data. It combines interfaces for multiple interaction patterns into a unified whole (see figure 2). By combining name resolution with connection establishment and data transfer in a single API, it allows for more flexible implementations to provide path and transport protocol agility on the application's behalf.
 
 The Transport Services implementation {{?I-D.ietf-taps-impl}} implements the transport layer protocols and other functions needed to send and receive data. It is responsible for mapping the API to a specific available transport Protocol Stack and managing the available network interfaces and paths.
 
-There are key differences between the Transport Services architecture and the architecture of the Socket API: the API of the Transport Services architecture is asynchronous and event-driven; it uses messages for representing data transfer to applications; and it describes how implementations can use multiple IP addresses, multiple protocols, multiple paths, and provide multiple application streams.
+There are key differences between the Transport Services architecture and the architecture of the Socket API: the API of the Transport Services architecture is asynchronous and event-driven; it uses messages for representing data transfer to applications; and it describes how implementations can resolve Endpoint identifiers to use multiple IP addresses, multiple protocols, multiple paths, and provide multiple application streams.
 
 ## Event-Driven API
 
@@ -300,11 +300,18 @@ The following two examples show non-equivalent Protocol Stacks:
 
 - If the application specifies that it requires reliable transmission of data, then a Protocol Stack using UDP without any reliability layer on top would not be allowed to replace a Protocol Stack using TCP.
 
-The following example shows equivalent Protocol Stacks:
+The following example shows Equivalent Protocol Stacks:
 
-- If the application does not require reliable transmission of data, then a Protocol Stack that adds reliability could be regarded as an equivalent Protocol Stack as long as providing this would not conflict with any other application-requested properties.
+- If the application does not require reliable transmission of data, then a Protocol Stack that adds reliability could be regarded as an Equivalent Protocol Stack as long as providing this would not conflict with any other application-requested properties.
 
-To ensure that security protocols are not incorrectly swapped, a Transport Services implementation MUST only select Protocol Stacks that meet application requirements ({{?RFC8922}}). A Transport Services implementation SHOULD only race Protocol Stacks where the transport security protocols within the stacks are identical. A Transport Services implementation MUST NOT automatically fall back from secure protocols to insecure protocols, or to weaker versions of secure protocols. A Transport Services implementation MAY allow applications to explicitly specify which versions of a protocol ought to be permitted, e.g., to allow a minimum version of TLS 1.2 in case TLS 1.3 is not available.
+A Transport Services implementation can race different security
+protocols, e.g., if the application explicitly specifies that it considers them equivalent.
+A Transport Services implementation SHOULD only race Protocol Stacks where the transport security protocols within the stacks are identical.
+To ensure that security protocols are not incorrectly swapped, a Transport Services implementation MUST only select Protocol Stacks that meet application requirements ({{?RFC8922}}).
+A Transport Services implementation MUST NOT automatically fall back from secure protocols to insecure protocols, or to weaker versions of secure protocols.
+A Transport Services implementation MAY allow applications to explicitly specify which versions of a protocol ought to be permitted, e.g., to allow a minimum version of TLS 1.2 in case TLS 1.3 is not available.
+
+A Transport Services implementation MAY specify security properties relating to how the system operates (e.g., requirements, prohibitions, and preferences for the use of DNSSEC or DoH).
 
 ## Maintain Interoperability
 
