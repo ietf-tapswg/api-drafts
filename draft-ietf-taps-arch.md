@@ -81,7 +81,7 @@ and reusable architecture that provides a common interface for transport protoco
 This provides
 flexible connection establishment allowing an application to request or require a set of properties.
 
-As applications adopt this interface, they will benefit from a wide set of transport features that can evolve over time, and ensure that the system providing the interface can optimize its behavior based on the application requirements and network conditions, without requiring changes to the applications. This flexibility enables faster deployment of new features and protocols. 
+As applications adopt this interface, they will benefit from a wide set of transport features that can evolve over time, and ensure that the system providing the interface can optimize its behavior based on the application requirements and network conditions, without requiring changes to the applications. This flexibility enables faster deployment of new features and protocols.
 
 The Transport Services architecture can also support applications by offering racing mechanisms (attempting multiple IP addresses, protocols, or network paths in parallel), which otherwise need to be implemented in each application separately (see {{racing}}). Racing selects one or more candidates each with equivalent protocol stacks that are used to identify
 an optimal combination of transport protocol instance such as TCP, UDP, or another transport, together with configuration of parameters and
