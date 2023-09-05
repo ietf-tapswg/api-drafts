@@ -80,13 +80,14 @@ The goal of the Transport Services architecture is to provide a flexible
 and reusable architecture that provides a common interface for transport protocols. An application uses the Transport Services system through an abstract Connection (we use capitalization to distinguish these from the underlying connections of, e.g., TCP).
 This provides
 flexible connection establishment allowing an application to request or require a set of properties.
-The system selects one or more candidate each with equivalent protocol stacks.
-This set of candidates can be raced to identify
-an optimal combination of transport protocol instance such as TCP, UDP, or another transport, together with  configuration of parameters and
-interfaces. The Connection represents an object that, once established, can be used to send and receive messages.
-A Connection can be created from another Connection, by cloning, and then forms a part of a Connection Group whose Connections share properties.
 
-As applications adopt this interface, they will benefit from a wide set of transport features that can evolve over time, and ensure that the system providing the interface can optimize its behavior based on the application requirements and network conditions, without requiring changes to the applications. This flexibility enables faster deployment of new features and protocols. It can also support applications by offering racing mechanisms (attempting multiple IP addresses, protocols, or network paths in parallel), which otherwise need to be implemented in each application separately (see {{racing}}).
+As applications adopt this interface, they will benefit from a wide set of transport features that can evolve over time, and ensure that the system providing the interface can optimize its behavior based on the application requirements and network conditions, without requiring changes to the applications. This flexibility enables faster deployment of new features and protocols. 
+
+The Transport Services architecture can also support applications by offering racing mechanisms (attempting multiple IP addresses, protocols, or network paths in parallel), which otherwise need to be implemented in each application separately (see {{racing}}). Racing selects one or more candidates each with equivalent protocol stacks that are used to identify
+an optimal combination of transport protocol instance such as TCP, UDP, or another transport, together with configuration of parameters and
+interfaces. 
+The Connection represents an object that, once established, can be used to send and receive messages.
+A Connection can also be created from another Connection, by cloning, and then forms a part of a Connection Group whose Connections share properties.
 
 This document was developed in parallel with the specification of the Transport Services API {{?I-D.ietf-taps-interface}} and implementation guidelines {{?I-D.ietf-taps-impl}}. Although following the Transport Services architecture does not require that all APIs and implementations are identical, a common minimal set of features represented in a consistent fashion will enable applications to be easily ported from one system to another.
 
