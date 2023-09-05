@@ -77,7 +77,7 @@ Many application programming interfaces (APIs) to perform transport networking h
 Similarly, terminology for the implementation of transport protocols varies based on the context of the protocols themselves: terms such as "flow", "stream", "message", and "connection" can take on many different meanings. This variety can lead to confusion when trying to understand the similarities and differences between protocols, and how applications can use them effectively.
 
 The goal of the Transport Services architecture is to provide a flexible
-and a reusable architecture that provides a common interface for transport protocols. An application uses the Transport Services system through an abstract Connection.
+and reusable architecture that provides a common interface for transport protocols. An application uses the Transport Services system through an abstract Connection (we use capitalization to distinguish these from the underlying connections of, e.g., TCP).
 This provides
 flexible connection establishment allowing an application to request or require a set of properties.
 The system selects one or more candidate each with equivalent protocol stacks.
