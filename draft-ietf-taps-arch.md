@@ -311,7 +311,7 @@ To ensure that security protocols are not incorrectly swapped, a Transport Servi
 A Transport Services implementation MUST NOT automatically fall back from secure protocols to insecure protocols, or to weaker versions of secure protocols.
 A Transport Services implementation MAY allow applications to explicitly specify which versions of a protocol ought to be permitted, e.g., to allow a minimum version of TLS 1.2 in case TLS 1.3 is not available.
 
-A Transport Services implementation MAY specify security properties relating to how the system operates (e.g., requirements, prohibitions, and preferences for the use of DNSSEC or DoH).
+A Transport Services implementation MAY specify security properties relating to how the system operates (e.g., requirements, prohibitions, and preferences for the use of DNS Security Extensions (DNSSEC) or DNS over HTTPS (DoH)).
 
 ## Maintain Interoperability
 
