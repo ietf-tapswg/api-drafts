@@ -84,7 +84,7 @@ The system selects one or more candidate each with equivalent protocol stacks.
 This set of candidates can be raced to identify
 an optimal combination of transport protocol instance such as TCP, UDP, or another transport, together with  configuration of parameters and
 interfaces. The Connection represents an object that, once established, can be used to send and receive messages.
-A Connection can be created from another Connection, by cloning, and then forms a part of a Connection Group that share properties.
+A Connection can be created from another Connection, by cloning, and then forms a part of a Connection Group whose Connections share properties.
 
 As applications adopt this interface, they will benefit from a wide set of transport features that can evolve over time, and ensure that the system providing the interface can optimize its behavior based on the application requirements and network conditions, without requiring changes to the applications. This flexibility enables faster deployment of new features and protocols. It can also support applications by offering racing mechanisms (attempting multiple IP addresses, protocols, or network paths in parallel), which otherwise need to be implemented in each application separately (see {{racing}}).
 
