@@ -149,7 +149,7 @@ This subsection provides a glossary of key terms related to the Transport Servic
 - Protocol Instance: A single instance of one protocol, including any state necessary to establish connectivity or send and receive Messages.
 - Protocol Stack: A set of Protocol Instances that are used together to establish connectivity or send and receive Messages.
 - Racing: The attempt to select between multiple Protocol Stacks based on the Selection and Connection Properties communicated by the application, along with any Security Parameters.
-- Remote Endpoint: A representation of the application's identifier for a peer that can participate in establishing a Connection.
+- Remote Endpoint: A representation of the application's identifier for a peer (or multicast group) that can participate in establishing a Connection.
 - Rendezvous: The action of establishing a peer-to-peer Connection with a Remote Endpoint.
 - Security Parameters: Parameters that define an application's requirements for authentication and encryption on a Connection.
 - Server: The peer responsible for responding to a Connection initiation.
