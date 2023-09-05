@@ -740,7 +740,7 @@ RemoteSpecifier.WithIPAddress(192.0.2.21)
 ~~~
 
 ~~~
-RemoteSpecifier.WithIPAddress(2001:db8:4920:e29d:a420:7461:7073:0a)
+RemoteSpecifier.WithIPAddress(2001:db8:4920:e29d:a420:7461:7073:a)
 ~~~
 
 - Interface name (string), e.g., to qualify link-local or multicast addresses (see {{ifspec}} for details):
@@ -749,7 +749,7 @@ RemoteSpecifier.WithIPAddress(2001:db8:4920:e29d:a420:7461:7073:0a)
 LocalSpecifier.WithInterface("en0")
 ~~~
 
-Note that an IPv6 address specified with a scope (e.g. `2001:db8:4920:e29d:a420:7461:7073:0a%en0`)
+Note that an IPv6 address specified with a scope (e.g. `2001:db8:4920:e29d:a420:7461:7073:a%en0`)
 is equivalent to `WithIPAddress` with an unscoped address and `WithInterface ` together.
 
 The design of the API MUST NOT permit an Endpoint to be configured with multiple identifiers of the same type.
@@ -898,7 +898,7 @@ Specify a Remote Endpoint using an IPv6 address and remote port:
 
 ~~~
 RemoteSpecifier := NewRemoteEndpoint()
-RemoteSpecifier.WithIPAddress(2001:db8:4920:e29d:a420:7461:7073:0a)
+RemoteSpecifier.WithIPAddress(2001:db8:4920:e29d:a420:7461:7073:a)
 RemoteSpecifier.WithPort(443)
 ~~~
 
