@@ -123,7 +123,7 @@ This subsection provides a glossary of key terms related to the Transport Servic
 - Connection Group: A set of Connections that share properties and caches.
 - Connection Property: A Transport Property that controls per-Connection behavior of a Transport Services implementation.
 - Endpoint: An identifier for one side of a Connection (local or remote), such as a hostname or URL.
-- Equivalent Protocol Stack: A Protocol Stack that can be safely swapped or raced in parallel during establishment of a Connection.
+- Equivalent Protocol Stacks: Protocol Stacks that can be safely swapped or raced in parallel during establishment of a Connection.
 - Event: A primitive that is invoked by an endpoint {{?RFC8303}}.
 - Framer: A data translation layer that can be added to a Connection to define how application-layer Messages are transmitted over a Protocol Stack.
 - Local Endpoint: A representation of the application's identifier for itself that it uses for a Connection.
