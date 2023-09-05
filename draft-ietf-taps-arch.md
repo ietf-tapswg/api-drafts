@@ -531,7 +531,7 @@ The following categories of events can be delivered to an application:
 
 * Connection Received: Signals to an application that a given Listener has received a Connection.
 
-* Message Received: Delivers received Message content to the application, based on a `Receive` action. To allow an application to limit the occurrence of such events, each call to `Receive` will be paired with a single `Receive` event. This can include an error if the `Receive` action cannot be satisfied, e.g. due to the Connection being closed.
+* Message Received: Delivers received Message content to the application, based on a `Receive` action. To allow an application to limit the occurrence of such events, each call to `Receive` will be paired with a single `Receive` event. This can include an error if the `Receive` action cannot be satisfied, e.g., due to the Connection being closed.
 
 * Message Sent: Notifies the application of the status of its `Send` action. This might indicate a failure if the Message cannot be sent, or an indication that the Message has been processed by the Transport Services system.
 
