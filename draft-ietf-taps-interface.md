@@ -1706,7 +1706,7 @@ Listener := Preconnection.Listen()
 ~~~
 
 Before calling `Listen`, the caller must have initialized the Preconnection
-during the pre-establishment phase with a Local Endpoint identifier, as well
+during the pre-establishment phase with a Local Endpoint specifier, as well
 as all properties necessary for Protocol Stack selection. A Remote Endpoint
 may optionally be specified, to constrain what Connections are accepted.
 
