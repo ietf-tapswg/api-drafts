@@ -1651,8 +1651,8 @@ Connection := Preconnection.Initiate(timeout?)
 
 The timeout parameter specifies how long to wait before aborting Active open.
 Before calling `Initiate`, the caller must have populated a Preconnection
-object with a Remote Endpoint identifier, optionally a Local Endpoint
-identifier (if not specified, the system will attempt to determine a
+object with a Remote Endpoint specifier to identify the endpoint, optionally a Local Endpoint
+specifier (if not specified, the system will attempt to determine a
 suitable Local Endpoint), as well as all properties
 necessary for candidate selection.
 
