@@ -129,27 +129,30 @@ This subsection provides a glossary of key terms related to the Transport Servic
 - Candidate Protocol Stack: One Protocol Stack that can be used by an application for a Connection during racing.
 - Client: The peer responsible for initiating a Connection.
 - Clone: A Connection that was created from another Connection, and forms a part of a Connection Group.
-- Connection: Shared state of two or more endpoints that persists across Messages that are transmitted and received between these Endpoints {{?RFC8303}}. When this document (and other Transport Services documents) use the capitalized "Connection" term, it refers to a Connection object that is being offered by the Transport Services system, as opposed to more generic uses of the word "connection".
+- Connection: Shared state of two or more Endpoints that persists across Messages that are transmitted and received between these Endpoints {{?RFC8303}}. When this document (and other Transport Services documents) use the capitalized "Connection" term, it refers to a Connection object that is being offered by the Transport Services system, as opposed to more generic uses of the word "connection".
 - Connection Context: A set of stored properties across Connections, such as cached protocol state, cached path state, and heuristics, which can include one or more Connection Groups.
 - Connection Group: A set of Connections that share properties and caches.
 - Connection Property: A Transport Property that controls per-Connection behavior of a Transport Services implementation.
-- Endpoint: An identifier for one side of a Connection (local or remote), such as a hostname or URL.
+- Endpoint: An entity that communicates with one or more other endpoints using a transport protocol.
+- Endpoint Identifier: An identifier for one side of a Connection (local or remote), such as a hostname or URL.
 - Equivalent Protocol Stacks: Protocol Stacks that can be safely swapped or raced in parallel during establishment of a Connection.
-- Event: A primitive that is invoked by an endpoint {{?RFC8303}}.
+- Event: A primitive that is invoked by an Endpoint {{?RFC8303}}.
 - Framer: A data translation layer that can be added to a Connection to define how application-layer Messages are transmitted over a Protocol Stack.
 - Local Endpoint: A representation of the application's identifier for itself that it uses for a Connection.
 - Message: A unit of data that can be transferred between two Endpoints over a Connection.
 - Message Property: A property that can be used to specify details about Message transmission, or obtain details about the transmission after receiving a Message.
 - Parameter: A value passed between an application and a transport protocol by a primitive {{?RFC8303}}.
 - Path: A representation of an available set of properties that a Local Endpoint can use to communicate with a Remote Endpoint.
-- Peer: An endpoint application party to a Connection.
+- Peer: An Endpoint application party to a Connection.
 - Preconnection: an object that represents a Connection that has not yet been established.
 - Preference: A preference to prohibit, avoid, ignore, prefer, or require a specific Transport Feature.
-- Primitive: A function call that is used to locally communicate between an application and an endpoint, which is related to one or more Transport Features {{?RFC8303}}.
+- Primitive: A function call that is used to locally communicate between an application and an Endpoint, which is related to one or more Transport Features {{?RFC8303}}.
 - Protocol Instance: A single instance of one protocol, including any state necessary to establish connectivity or send and receive Messages.
 - Protocol Stack: A set of Protocol Instances that are used together to establish connectivity or send and receive Messages.
 - Racing: The attempt to select between multiple Protocol Stacks based on the Selection and Connection Properties communicated by the application, along with any Security Parameters.
-- Remote Endpoint: A representation of the application's identifier for a peer that can participate in establishing a Connection.
+- Remote Endpoint: The peer that a local Endpoint can communicate with when a Connection is established.
+- Remote Endpoint Indetifier: A representation of the application's identifier for a peer that can participate in establishing a Connection.
+
 - Rendezvous: The action of establishing a peer-to-peer Connection with a Remote Endpoint.
 - Security Parameters: Parameters that define an application's requirements for authentication and encryption on a Connection.
 - Server: The peer responsible for responding to a Connection initiation.
@@ -262,7 +265,7 @@ It also presents a single stream to the application. Software layers built upon 
 - to support multipath and multistreaming protocols;
 - to provide state caching and application control over it.
 
-A Transport Services implementation is intended to be flexible at connection establishment time, considering many different options and trying to select the most optimal combinations by racing them and measuring the results (see {{gathering}} and {{racing}}). This requires applications to provide higher-level endpoints than IP addresses, such as a hostname or URL, which are used by a Transport Services implementation for resolution, path selection, and racing. An implementation can further implement fallback mechanisms if connection establishment of one protocol fails or performance is detected to be unsatisfactory.
+A Transport Services implementation is intended to be flexible at connection establishment time, considering many different options and trying to select the most optimal combinations by racing them and measuring the results (see {{gathering}} and {{racing}}). This requires applications to provide identifiers for Local and Remote Endpoint that are higher-level than IP addresses, such as a hostname or URL, which are used by a Transport Services implementation for resolution, path selection, and racing. An implementation can further implement fallback mechanisms if connection establishment of one protocol fails or performance is detected to be unsatisfactory.
 
 Information used in connection establishment (e.g. cryptographic resumption tokens, information about usability of certain protocols on the path, results of racing in previous connections) are cached in the Transport Services implementation. Applications have control over whether this information is used for a specific establishment, in order to allow tradeoffs between efficiency and linkability.
 
@@ -327,7 +330,7 @@ A Transport Services implementation MAY specify security properties relating to 
 
 ## Maintain Interoperability
 
-It is important to note that neither the Transport Services API {{?I-D.ietf-taps-interface}} nor the guidelines for the Transport Service implementation {{?I-D.ietf-taps-impl}} define new protocols or protocol capabilities that affect what is communicated across the network. A Transport Services system MUST NOT require that a peer on the other side of a connection uses the same API or implementation. A Transport Services implementation acting as a connection initiator is able to communicate with any existing endpoint that implements the transport protocol(s) and all the required properties selected. Similarly, a Transport Services implementation acting as a Listener can receive connections for any protocol that is supported from an existing initiator that implements the protocol, independent of whether the initiator uses the Transport Services architecture or not.
+It is important to note that neither the Transport Services API {{?I-D.ietf-taps-interface}} nor the guidelines for the Transport Service implementation {{?I-D.ietf-taps-impl}} define new protocols or protocol capabilities that affect what is communicated across the network. A Transport Services system MUST NOT require that a peer on the other side of a connection uses the same API or implementation. A Transport Services implementation acting as a connection initiator is able to communicate with any existing Endpoint that implements the transport protocol(s) and all the required properties selected. Similarly, a Transport Services implementation acting as a Listener can receive connections for any protocol that is supported from an existing initiator that implements the protocol, independent of whether the initiator uses the Transport Services architecture or not.
 
 A Transport Services system makes decisions that select protocols and interfaces. In normal use, a given version of a Transport Services system SHOULD result in consistent protocol and interface selection decisions for the same network conditions given the same set of Properties. This is intended to provide predictable outcomes to the application using the API.
 
@@ -384,7 +387,7 @@ The Transport Services Implementation includes the Cached State and System Polic
 
 The System Policy provides input from an operating system or other global preferences that can constrain or influence how an implementation will gather Candidate Paths and Protocol Stacks and race the candidates when establishing a Connection. As the details of System Policy configuration and enforcement are largely platform- and implementation- dependent, and do not affect application-level interoperability, the Transport Services API {{?I-D.ietf-taps-interface}} does not specify an interface for reading or writing System Policy.
 
-The Cached State is the state and history that the implementation keeps for each set of associated endpoints that have previously been used. An application ought to explicitly request any required or desired properties via the Transport Services API.
+The Cached State is the state and history that the implementation keeps for each set of associated Endpoints that have previously been used. An application ought to explicitly request any required or desired properties via the Transport Services API.
 
 ## Transport Services API Concepts
 
@@ -448,23 +451,23 @@ a connection.
 
 ### Endpoint Objects
 
-* Endpoint: An endpoint represents an identifier for one side of a transport connection.
-  Endpoints can be Local Endpoints or Remote Endpoints, and respectively represent an identity
+An Endpoint identifier identifies for one side of a transport connection.
+  Endpoints can be Local Endpoints or Remote Endpoints, and the Endpoint identifiers can respectively represent an identity
   that the application uses for the source or destination of a connection.
-  An endpoint can be specified at various levels of abstraction.
-  An endpoint at a higher level of abstraction (such as a hostname) can be resolved to more concrete identities
-  (such as IP addresses). A destination endpoint can also represent a multicast group or anycast address.
+  An Endpoint identifier can be specified at various levels of abstraction.
+  An Endpoint identifier at a higher level of abstraction (such as a hostname) can be resolved to more concrete identities
+  (such as IP addresses). A Remote Endpoint Identifier can also represent a multicast group or anycast address.
   In the case of multicast, this selects a multicast transport for communication.
 
-* Remote Endpoint: The Remote Endpoint represents the application's identifier for a peer that can participate in a transport connection; for example, the combination of a DNS name for the peer and a service name/port.
+* Remote Endpoint Identifier: The Remote Endpoint Identifier represents the application's identifier for a peer that can participate in a transport connection; for example, the combination of a DNS name for the peer and a service name/port.
 
-* Local Endpoint: The Local Endpoint represents the application's identifier for itself that it uses for transport connections; for example, a local IP address and port.
+* Local Endpoint Identifier: The Local Endpoint Identifier represents the application's identifier for itself that it uses for transport connections; for example, a local IP address and port.
 
 ### Connections and Related Objects {#objects}
 
 * Connection: A Connection object represents one or more active transport protocol instances that can send and/or receive Messages between Local and Remote Endpoints. It is an abstraction that represents the communication. The Connection object holds state pertaining to the underlying transport protocol instances and any ongoing data transfers. For example, an active Connection can represent a connection-oriented protocol such as TCP, or can represent a fully-specified 5-tuple for a connectionless protocol such as UDP, where the Connection remains an abstraction at the endpoints. It can also represent a pool of transport protocol instances, e.g., a set of TCP and QUIC connections to equivalent endpoints, or a stream of a multi-streaming transport protocol instance. Connections can be created from a Preconnection or by a Listener.
 
-* Preconnection: A Preconnection object is a representation of a Connection that has not yet been established. It has state that describes parameters of the Connection: the Local Endpoint from which that Connection will be established, the Remote Endpoint ({{preestablishment}}) to which it will connect, and Transport Properties that influence the paths and protocols a Connection will use. A Preconnection can be either fully specified (representing a single possible Connection), or it can be partially specified (representing a family of possible Connections). The Local Endpoint ({{preestablishment}}) is required for a Preconnection used to `Listen` for incoming Connections, but optional if it is used to `Initiate` a Connection. The Remote Endpoint is required in a Preconnection that used to `Initiate` a Connection, but is optional if it is used to `Listen` for incoming Connections. The Local Endpoint and the Remote Endpoint are both required if a peer-to-peer `Rendezvous` is to occur based on the Preconnection.
+* Preconnection: A Preconnection object is a representation of a Connection that has not yet been established. It has state that describes parameters of the Connection: the Local Endpoint Identifier from which that Connection will be established, the Remote Endpoint Identifier ({{preestablishment}}) to which it will connect, and Transport Properties that influence the paths and protocols a Connection will use. A Preconnection can be either fully specified (representing a single possible Connection), or it can be partially specified (representing a family of possible Connections). The Local Endpoint ({{preestablishment}}) is required for a Preconnection used to `Listen` for incoming Connections, but optional if it is used to `Initiate` a Connection. The Remote Endpoint Identifier is required in a Preconnection that used to `Initiate` a Connection, but is optional if it is used to `Listen` for incoming Connections. The Local Endpoint Identifier and the Remote Endpoint Identifier are both required if a peer-to-peer `Rendezvous` is to occur based on the Preconnection.
 
 * Transport Properties: Transport Properties allow the application to express their requirements, prohibitions, and preferences and configure a Transport Services system.  There are three kinds of Transport Properties:
 
@@ -486,15 +489,15 @@ a connection.
 
 ### Establishment Actions {#establishment}
 
-* Initiate: The primary action that an application can take to create a Connection to a Remote Endpoint, and prepare any required local or remote state to enable the transmission of Messages. For some protocols, this will initiate a client-to-server style handshake; for other protocols, this will just establish local state (e.g., with connectionless protocols such as UDP). The process of identifying options for connecting, such as resolution of the Remote Endpoint, occurs in response to the `Initiate` call.
+* Initiate: The primary action that an application can take to create a Connection to a Remote Endpoint, and prepare any required local or remote state to enable the transmission of Messages. For some protocols, this will initiate a client-to-server style handshake; for other protocols, this will just establish local state (e.g., with connectionless protocols such as UDP). The process of identifying options for connecting, such as resolution of the Remote Endpoint Identifier, occurs in response to the `Initiate` call.
 
-* Listen: Enables a Listener to accept incoming connections. The Listener will then create Connection objects as incoming connections are accepted ({{events}}). Listeners by default register with multiple paths, protocols, and Local Endpoints, unless constrained by Selection Properties and/or the specified Local Endpoint(s). Connections can be accepted on any of the available paths or endpoints.
+* Listen: Enables a Listener to accept incoming connections. The Listener will then create Connection objects as incoming connections are accepted ({{events}}). Listeners by default register with multiple paths, protocols, and Local Endpoints, unless constrained by Selection Properties and/or the specified Local Endpoint Identifier(s). Connections can be accepted on any of the available paths or endpoints.
 
 * Rendezvous: The action of establishing a peer-to-peer connection with a
   Remote Endpoint. It simultaneously attempts to initiate a connection to
   a Remote Endpoint while listening for an incoming connection from that
   endpoint.  The process of identifying options for the connection, such
-  as resolution of the Remote Endpoint, occurs in response to the `Rendezvous` call.
+  as resolution of the Remote Endpoint Identifier(s), occurs in response to the `Rendezvous` call.
   As with Listeners, the set of local paths and endpoints is constrained
   by Selection Properties. If successful, the `Rendezvous` call generates and asynchronously returns a
   Connection object to represent the established peer-to-peer connection.
@@ -511,7 +514,7 @@ a connection.
 
 ### Data Transfer Objects and Actions {#datatransfer}
 
-* Message: A Message object is a unit of data that can be represented as bytes that can be transferred between two endpoints over a transport connection. The bytes within a Message are assumed to be ordered. If an application does not care about the order in which a peer receives two distinct spans of bytes, those spans of bytes are considered independent Messages. Messages are sent in the payload of an IP packet. One packet can carry one or more Messages or parts of a Message.
+* Message: A Message object is a unit of data that can be represented as bytes that can be transferred between the two endpoints over a transport connection. The bytes within a Message are assumed to be ordered. If an application does not care about the order in which a peer receives two distinct spans of bytes, those spans of bytes are considered independent Messages. Messages are sent in the payload of an IP packet. One packet can carry one or more Messages or parts of a Message.
 
 * Message Properties: Message Properties are used to specify details about Message transmission. They can be specified directly on individual Messages, or can be set on a Preconnection or Connection as defaults. These properties might only apply to how a Message is sent (such as how the transport will treat prioritization and reliability), but can also include properties that specific protocols encode and communicate to the Remote Endpoint. When receiving Messages, Message Properties can contain information about the received Message, such as metadata generated at the receiver and information signalled by the Remote Endpoint. For example, a Message can be marked with a Message Property indicating that it is the final Message on a Connection.
 
@@ -579,7 +582,7 @@ This section defines the key concepts of the Transport Services architecture.
 
 ### Candidate Gathering {#gathering}
 
-* Candidate Path Selection: Candidate Path Selection represents the act of choosing one or more paths that are available to use based on the Selection Properties and any available Local and Remote Endpoints provided by the application, as well as the policies and heuristics of a Transport Services implementation.
+* Candidate Path Selection: Candidate Path Selection represents the act of choosing one or more paths that are available to use based on the Selection Properties and any available Local and Remote Endpoint Identifiers provided by the application, as well as the policies and heuristics of a Transport Services implementation.
 
 * Candidate Protocol Selection: Candidate Protocol Selection represents the act of choosing one or more sets of Protocol Stacks that are available to use based on the Transport Properties provided by the application, and the heuristics or policies within the Transport Services implementation.
 
@@ -590,9 +593,9 @@ Connection establishment attempts for a set of candidates may be performed simul
 * Protocol Option Racing: Protocol Option Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on the composition of protocols or the options used for protocols.
 
 * Path Racing: Path Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on a selection from the available Paths. Since different Paths will have distinct configurations (see {{?RFC7556}})
-for local addresses and DNS servers, attempts across different Paths will perform separate DNS resolution steps, which can lead to further racing of the resolved Remote Endpoints.
+for local addresses and DNS servers, attempts across different Paths will perform separate DNS resolution steps, which can lead to further racing of the resolved Remote Endpoint Identifiers.
 
-* Remote Endpoint Racing: Remote Endpoint Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on the specific representation of the Remote Endpoint, such as a particular IP address that was resolved from a DNS hostname.
+* Remote Endpoint Racing: Remote Endpoint Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on the specific representation of the Remote Endpoint Identifier, such as a particular IP address that was resolved from a DNS hostname.
 
 ### Separating Connection Contexts {#conn-context}
 
