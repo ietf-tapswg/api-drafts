@@ -679,11 +679,11 @@ host, or they might correspond to local interfaces and a STUN server that
 can be resolved to a server reflexive address for a Preconnection used to
 make a peer-to-peer `Rendezvous`.
 
-If more than one Remote Endpoint identifier is specified on the Preconnection, then
+If more than one Remote Endpoint is specified on the Preconnection, then
 all the Remote Endpoints on the Preconnection should represent the same
 service, to the extent that the application and the Transport Services
-system can validate that the Remote Endpoints are indeed the same service.
-For example, the Remote Endpoint identifiers might represent various network
+system can validate that the Remote Endpoints correspond to the same service.
+For example, a Remote Endpoint might represent various network
 interfaces of a host, or a server reflexive address that can be used to
 reach a host, or a set of hosts that provide equivalent local balanced
 service.
@@ -752,8 +752,8 @@ LocalSpecifier.WithInterface("en0")
 Note that an IPv6 address specified with a scope zone ID (e.g. `fe80::2001:db8%en0`)
 is equivalent to `WithIPAddress` with an unscoped address and `WithInterface ` together.
 
-The design of the API MUST NOT permit an Endpoint to be configured with multiple identifiers of the same type.
-For example, an endpoint cannot specify two IP addresses. Two separate IP addresses
+The design of the API MUST NOT permit an Endpoint object to be configured with multiple identifiers of the same type.
+For example, an Endpoint object cannot specify two IP addresses. Two separate IP addresses
 are represented as two Endpoint objects. If a Preconnection specifies a Remote
 Endpoint with a specific IP address set, it will only establish Connections to
 that IP address. If, on the other hand, a Remote Endpoint identifier specifies a hostname
@@ -784,8 +784,8 @@ Calling `Initiate` on that Preconnection creates a Connection that can be
 used to send Messages to the multicast group. The Connection object that is
 created will support `Send` but not `Receive`. Any Connections created this
 way are send-only, and do not join the multicast group. The resulting
-Connection will have a Local Endpoint indicating the local interface to
-which the Connection is bound and a Remote Endpoint indicating the
+Connection will have a Local Endpoint identifying the local interface to
+which the Connection is bound and a Remote Endpoint identifying the
 multicast group.
 
 The following API calls can be used to configure a Preconnection before calling `Initiate`:
