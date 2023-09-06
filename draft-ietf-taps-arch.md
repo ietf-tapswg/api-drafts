@@ -134,11 +134,12 @@ This subsection provides a glossary of key terms related to the Transport Servic
 - Connection Group: A set of Connections that share properties and caches.
 - Connection Property: A Transport Property that controls per-Connection behavior of a Transport Services implementation.
 - Endpoint: An entity that communicates with one or more other endpoints using a transport protocol.
-- Endpoint Identifier: An identifier for one side of a Connection (local or remote), such as a hostname or URL.
+- Endpoint Identifier: An identifier that specifies one side of a Connection (local or remote), such as a hostname or URL.
 - Equivalent Protocol Stacks: Protocol Stacks that can be safely swapped or raced in parallel during establishment of a Connection.
 - Event: A primitive that is invoked by an Endpoint {{?RFC8303}}.
 - Framer: A data translation layer that can be added to a Connection to define how application-layer Messages are transmitted over a Protocol Stack.
-- Local Endpoint: A representation of the application's identifier for itself that it uses for a Connection.
+- Local Endpoint: The local Endpoint.
+- Local Endpoint Identifier: A representation of the application's identifier for itself that it uses for a Connection.
 - Message: A unit of data that can be transferred between two Endpoints over a Connection.
 - Message Property: A property that can be used to specify details about Message transmission, or obtain details about the transmission after receiving a Message.
 - Parameter: A value passed between an application and a transport protocol by a primitive {{?RFC8303}}.
@@ -151,7 +152,7 @@ This subsection provides a glossary of key terms related to the Transport Servic
 - Protocol Stack: A set of Protocol Instances that are used together to establish connectivity or send and receive Messages.
 - Racing: The attempt to select between multiple Protocol Stacks based on the Selection and Connection Properties communicated by the application, along with any Security Parameters.
 - Remote Endpoint: The peer that a local Endpoint can communicate with when a Connection is established.
-- Remote Endpoint Indetifier: A representation of the application's identifier for a peer that can participate in establishing a Connection.
+- Remote Endpoint Identifier: A representation of the application's identifier for a peer that can participate in establishing a Connection.
 
 - Rendezvous: The action of establishing a peer-to-peer Connection with a Remote Endpoint.
 - Security Parameters: Parameters that define an application's requirements for authentication and encryption on a Connection.
@@ -265,7 +266,7 @@ It also presents a single stream to the application. Software layers built upon 
 - to support multipath and multistreaming protocols;
 - to provide state caching and application control over it.
 
-A Transport Services implementation is intended to be flexible at connection establishment time, considering many different options and trying to select the most optimal combinations by racing them and measuring the results (see {{gathering}} and {{racing}}). This requires applications to provide identifiers for Local and Remote Endpoint that are higher-level than IP addresses, such as a hostname or URL, which are used by a Transport Services implementation for resolution, path selection, and racing. An implementation can further implement fallback mechanisms if connection establishment of one protocol fails or performance is detected to be unsatisfactory.
+A Transport Services implementation is intended to be flexible at connection establishment time, considering many different options and trying to select the most optimal combinations by racing them and measuring the results (see {{gathering}} and {{racing}}). This requires applications to specify identifiers for Local and Remote Endpoint that are higher-level than IP addresses, such as a hostname or URL, which are used by a Transport Services implementation for resolution, path selection, and racing. An implementation can further implement fallback mechanisms if connection establishment of one protocol fails or performance is detected to be unsatisfactory.
 
 Information used in connection establishment (e.g. cryptographic resumption tokens, information about usability of certain protocols on the path, results of racing in previous connections) are cached in the Transport Services implementation. Applications have control over whether this information is used for a specific establishment, in order to allow tradeoffs between efficiency and linkability.
 
@@ -451,7 +452,7 @@ a connection.
 
 ### Endpoint Objects
 
-An Endpoint identifier identifies for one side of a transport connection.
+An Endpoint identifier specifies one side of a transport connection.
   Endpoints can be Local Endpoints or Remote Endpoints, and the Endpoint identifiers can respectively represent an identity
   that the application uses for the source or destination of a connection.
   An Endpoint identifier can be specified at various levels of abstraction.
