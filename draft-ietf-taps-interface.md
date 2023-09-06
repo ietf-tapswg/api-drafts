@@ -1686,7 +1686,7 @@ Connection -> EstablishmentError<reason?>
 An `EstablishmentError` occurs either when the set of transport properties and security
 parameters cannot be fulfilled on a Connection for initiation (e.g., the set of
 available Paths and/or Protocol Stacks meeting the constraints is empty) or
-reconciled with the Local and/or Remote Endpoints; when the remote endpoint identifier
+reconciled with the Local and/or Remote Endpoints; when the remote endpoint specifier
 cannot be resolved; or when no transport-layer connection can be established to
 the Remote Endpoint (e.g., because the Remote Endpoint is not accepting
 connections, the application is prohibited from opening a Connection by the
