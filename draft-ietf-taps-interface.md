@@ -749,7 +749,7 @@ RemoteSpecifier.WithIPAddress(2001:db8:4920:e29d:a420:7461:7073:a)
 LocalSpecifier.WithInterface("en0")
 ~~~
 
-Note that an IPv6 address specified with a scope (e.g. `2001:db8:4920:e29d:a420:7461:7073:a%en0`)
+Note that an IPv6 address specified with a scope zone ID (e.g. `fe80::2001:db8%en0`)
 is equivalent to `WithIPAddress` with an unscoped address and `WithInterface ` together.
 
 The design of the API MUST NOT permit an Endpoint to be configured with multiple identifiers of the same type.
@@ -840,7 +840,7 @@ See {{multicast-examples}} for more examples.
 
 Note that this API has multiple ways to constrain and prioritize endpoint candidates based on the network interface:
 
- - Specifying an interface on a RemoteEndpoint qualifies the scope of the Remote Endpoint, e.g., for link-local addresses.
+ - Specifying an interface on a RemoteEndpoint qualifies the scope zone of the Remote Endpoint, e.g., for link-local addresses.
  - Specifying an interface on a LocalEndpoint explicitly binds all candidates derived from this endpoint to use the specified interface.
  - Specifying an interface using the `interface` Selection Property ({{prop-interface}}) or indirectly via the `pvd` Selection Property ({{prop-pvd}}) influences the selection among the available candidates.
 
@@ -1334,7 +1334,7 @@ such as metered or unmetered network access. If an application needs to prohibit
 metered interfaces, this should be specified via Provisioning Domain attributes
 (see {{prop-pvd}}) or another specific property.
 
-Note that this property is not used to specify an interface scope for a particular endpoint. {{ifspec}} provides details about how to qualify endpoint candidates on a per-interface basis.
+Note that this property is not used to specify an interface scope zone for a particular endpoint. {{ifspec}} provides details about how to qualify endpoint candidates on a per-interface basis.
 
 ### Provisioning Domain Instance or Type {#prop-pvd}
 
