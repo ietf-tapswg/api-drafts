@@ -584,8 +584,10 @@ form \[\<Namespace>.\]\<PropertyName\>.
   `TCP` Connection could support a TCP-specific Transport Property, such as the user timeout
   value, in a Protocol-specific Property called `TCP.userTimeoutValue` (see {{tcp-uto}})).
 - Vendor or implementation specific properties MUST use a string identifying
-  the vendor or implementation as the Namespace.
-- For IETF protocols, the name of a Protocol-specific Property SHOULD be specified in an IETF document published in the RFC Series.
+  the vendor or implementation as the Namespace. This string MUST NOT start with a capital letter,
+  to differentiate vendor or implementation names from IETF protocol Namespaces.
+- For IETF protocols, the name of a Protocol-specific Property SHOULD be specified in an IETF document
+  published in the RFC Series after IETF review.
 
 Namespaces for each of the keywords provided in the IANA protocol numbers registry
 (see https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml) are reserved
