@@ -740,7 +740,7 @@ RemoteSpecifier.WithIPAddress(192.0.2.21)
 ~~~
 
 ~~~
-RemoteSpecifier.WithIPAddress(2001:db8:4920:e29d:a420:7461:7073:0a)
+RemoteSpecifier.WithIPAddress(2001:db8:4920:e29d:a420:7461:7073:a)
 ~~~
 
 - Interface name (string), e.g., to qualify link-local or multicast addresses (see {{ifspec}} for details):
@@ -898,7 +898,7 @@ Specify a Remote Endpoint using an IPv6 address and remote port:
 
 ~~~
 RemoteSpecifier := NewRemoteEndpoint()
-RemoteSpecifier.WithIPAddress(2001:db8:4920:e29d:a420:7461:7073:0a)
+RemoteSpecifier.WithIPAddress(2001:db8:4920:e29d:a420:7461:7073:a)
 RemoteSpecifier.WithPort(443)
 ~~~
 

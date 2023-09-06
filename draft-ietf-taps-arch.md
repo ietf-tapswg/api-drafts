@@ -76,7 +76,20 @@ This document describes an architecture for exposing transport protocol features
 Many application programming interfaces (APIs) to perform transport networking have been deployed, perhaps the most widely known and imitated being the BSD Socket {{POSIX}} interface (Socket API). The naming of objects and functions across these APIs is not consistent and varies depending on the protocol being used. For example, sending and receiving streams of data is conceptually the same for both an unencrypted Transmission Control Protocol (TCP) stream and operating on an encrypted Transport Layer Security (TLS) {{?RFC8446}} stream over TCP, but applications cannot use the same socket ```send()``` and ```recv()``` calls on top of both kinds of connections.
 Similarly, terminology for the implementation of transport protocols varies based on the context of the protocols themselves: terms such as "flow", "stream", "message", and "connection" can take on many different meanings. This variety can lead to confusion when trying to understand the similarities and differences between protocols, and how applications can use them effectively.
 
-The goal of the Transport Services architecture is to provide a flexible and reusable architecture that provides a common interface for transport protocols. As applications adopt this interface, they will benefit from a wide set of transport features that can evolve over time, and ensure that the system providing the interface can optimize its behavior based on the application requirements and network conditions, without requiring changes to the applications. This flexibility enables faster deployment of new features and protocols. It can also support applications by offering racing mechanisms (attempting multiple IP addresses, protocols, or network paths in parallel), which otherwise need to be implemented in each application separately (see {{racing}}).
+The goal of the Transport Services architecture is to provide a flexible
+and reusable architecture that provides a common interface for transport protocols. An application uses the Transport Services system through an abstract Connection (we use capitalization to distinguish these from the underlying connections of, e.g., TCP).
+This provides
+flexible connection establishment allowing an application to request or require a set of properties.
+
+As applications adopt this interface, they will benefit from a wide set of transport features that can evolve over time,
+and ensure that the system providing the interface can optimize its behavior based on the application requirements
+and network conditions, without requiring changes to the applications. This flexibility enables faster deployment of new features and protocols.
+
+The Transport Services architecture can also support applications by offering racing mechanisms (attempting multiple IP addresses, protocols, or network paths in parallel), which otherwise need to be implemented in each application separately (see {{racing}}). Racing selects one or more candidates each with equivalent protocol stacks that are used to identify
+an optimal combination of transport protocol instance such as TCP, UDP, or another transport, together with configuration of parameters and
+interfaces.
+The Connection represents an object that, once established, can be used to send and receive messages.
+A Connection can also be created from another Connection, by cloning, and then forms a part of a Connection Group whose Connections share properties.
 
 This document was developed in parallel with the specification of the Transport Services API {{?I-D.ietf-taps-interface}} and implementation guidelines {{?I-D.ietf-taps-impl}}. Although following the Transport Services architecture does not require that all APIs and implementations are identical, a common minimal set of features represented in a consistent fashion will enable applications to be easily ported from one system to another.
 
@@ -97,8 +110,6 @@ This document describes the Transport Services architecture in three sections:
 - {{requirements}} explains the fundamental requirements for a Transport Services system. These principles are intended to make sure that transport protocols can continue to be enhanced and evolve without requiring significant changes by application developers.
 
 - {{concepts}} presents a diagram showing the Transport Services architecture and defines the concepts that are used by both the API {{?I-D.ietf-taps-interface}} and implementation guidelines {{?I-D.ietf-taps-impl}}. The Preconnection allows applications to configure Connection Properties.
-
-- {{concepts}} also presents how an abstract Connection is used to select a transport protocol instance such as TCP, UDP, or another transport. The Connection represents an object that can be used to send and receive messages.
 
 ## Specification of Requirements
 
@@ -138,7 +149,7 @@ This subsection provides a glossary of key terms related to the Transport Servic
 - Protocol Instance: A single instance of one protocol, including any state necessary to establish connectivity or send and receive Messages.
 - Protocol Stack: A set of Protocol Instances that are used together to establish connectivity or send and receive Messages.
 - Racing: The attempt to select between multiple Protocol Stacks based on the Selection and Connection Properties communicated by the application, along with any Security Parameters.
-- Remote Endpoint: A representation of the application's identifier for a peer that can participate in establishing a Connection.
+- Remote Endpoint: A representation of the application's identifier for a peer that can participate in establishing a Connection or for a multicast group to which the application will send data.
 - Rendezvous: The action of establishing a peer-to-peer Connection with a Remote Endpoint.
 - Security Parameters: Parameters that define an application's requirements for authentication and encryption on a Connection.
 - Server: The peer responsible for responding to a Connection initiation.
@@ -152,7 +163,7 @@ This subsection provides a glossary of key terms related to the Transport Servic
 
 # API Model {#model}
 
-The traditional model of using sockets for networking can be represented as follows:
+The traditional model of using sockets for networking can be represented as follows (see figure 1):
 
 - Applications create connections and transfer data using the Socket API.
 - The Socket API provides the interface to the implementations of TCP and UDP
@@ -160,7 +171,7 @@ The traditional model of using sockets for networking can be represented as foll
 - TCP and UDP in the kernel send and receive data over the available network-layer interfaces.
 - Sockets are bound directly to transport-layer and network-layer addresses,
   obtained via a separate resolution step, usually performed by a
-  system-provided stub resolver.
+  system-provided DNS stub resolver.
 
 ~~~~~~~~~~
 
@@ -208,19 +219,19 @@ The Transport Services architecture evolves this general model of interaction, t
 ~~~~~~~~~~
 {: #fig-taps title="Transport Services API Model"}
 
-The Transport Services API {{?I-D.ietf-taps-interface}} defines the interface for an application to create Connections and transfer data. It combines interfaces for multiple interaction patterns into a unified whole. By combining name resolution with connection establishment and data transfer in a single API, it allows for more flexible implementations to provide path and transport protocol agility on the application's behalf.
+The Transport Services API {{?I-D.ietf-taps-interface}} defines the interface for an application to create Connections and transfer data. It combines interfaces for multiple interaction patterns into a unified whole (see figure 2). By combining name resolution with connection establishment and data transfer in a single API, it allows for more flexible implementations to provide path and transport protocol agility on the application's behalf.
 
 The Transport Services implementation {{?I-D.ietf-taps-impl}} implements the transport layer protocols and other functions needed to send and receive data. It is responsible for mapping the API to a specific available transport Protocol Stack and managing the available network interfaces and paths.
 
-There are key differences between the Transport Services architecture and the architecture of the Socket API: the API of the Transport Services architecture is asynchronous and event-driven; it uses messages for representing data transfer to applications; and it describes how implementations can use multiple IP addresses, multiple protocols, multiple paths, and provide multiple application streams.
+There are key differences between the Transport Services architecture and the architecture of the Socket API: the API of the Transport Services architecture is asynchronous and event-driven; it uses messages for representing data transfer to applications; and it describes how implementations can resolve Endpoint identifiers to use multiple IP addresses, multiple protocols, multiple paths, and provide multiple application streams.
 
 ## Event-Driven API
 
-Originally, the Socket API presented a blocking interface for establishing connections and transferring data. However, most modern applications interact with the network asynchronously. Emulation of an asynchronous interface using the Socket API can uses a try-and-fail model: If the application wants to read, but data has not yet been received from the peer, the call to read will fail. The application then waits and can try again later.
+Originally, the Socket API presented a blocking interface for establishing connections and transferring data. However, most modern applications interact with the network asynchronously. Emulation of an asynchronous interface using the Socket API can use a try-and-fail model: If the application wants to read, but data has not yet been received from the peer, the call to read will fail. The application then waits and can try again later.
 
-In contrast to the Socket API, all interaction using the Transport Services API is expected to be asynchronous. The API is defined around an event-driven model (see {{events}}) in order to model this asynchronous interaction, though other forms of asynchronous communication may be available to applications depending on the platform implementing the interface.
+In contrast to the Socket API, all interactions using the Transport Services API are expected to be asynchronous. The API is defined around an event-driven model (see {{events}}), which models this asynchronous interaction. Other forms of asynchronous communication could also be available to applications, depending on the platform implementing the interface.
 
-For example, an application first issues a call to receive new data from the connection. When delivered data becomes available, this data is delivered to the application using asynchronous events that contain the data. Error handling is also asynchronous; a failure to send data results in an asynchronous error event.
+For example, when using the Transport Services API, an application first issues a call to receive new data from the connection. When delivered data becomes available, this data is delivered to the application using asynchronous events that contain the data. Error handling is also asynchronous; a failure to send data results in an asynchronous error event.
 
 This API also delivers events regarding the lifetime of a connection and changes in the available network links, which were not previously made explicit in the Socket API.
 
@@ -243,7 +254,8 @@ Allowing applications to interact with messages is backwards-compatible with exi
 
 ## Flexible Implementation
 
-The Socket API for protocols like TCP is generally limited to connecting to a single address over a single interface. It also presents a single stream to the application. Software layers built upon this API often propagate this limitation of a single-address single-stream model. The Transport Services architecture is designed:
+The Socket API for protocols like TCP is generally limited to connecting to a single address over a single interface (IP source address).
+It also presents a single stream to the application. Software layers built upon this API often propagate this limitation of a single-address single-stream model. The Transport Services architecture is designed:
 
 - to handle multiple candidate endpoints, protocols, and paths;
 - to support candidate protocol racing to select the most optimal stack in each situation;
@@ -258,7 +270,7 @@ Flexibility after connection establishment is also important. Transport protocol
 
 ## Coexistence
 
-Note that while the Transport Service architecture is designed as an enhanced replacement for the Socket API, it need not replace it entirely on a system or platform; indeed, incremental deployability {{?RFC8170}} requires coexistence. The architecture is therefore designed such that it can run alongside (or, indeed, on top of) an existing Socket API implementation; only applications built to the Transport Services API are managed by the system's Transport Services implementation.
+Note that while the Transport Service architecture is designed as an enhanced replacement for the Socket API, it need not replace it entirely on a system or platform; indeed, coexistence has been recommended for incremental deployability {{?RFC8170}}. The architecture is therefore designed such that it can run alongside (or, indeed, on top of) an existing Socket API implementation; only applications built to the Transport Services API are managed by the system's Transport Services implementation.
 
 # API and Implementation Requirements {#requirements}
 
@@ -278,7 +290,7 @@ It is RECOMMENDED that the Transport Services API offers properties that are com
 
 It is RECOMMENDED that the default values for Properties are selected to ensure correctness for the widest set of applications, while providing the widest set of options for selection. For example, since both applications that require reliability and those that do not require reliability can function correctly when a protocol provides reliability, reliability ought to be enabled by default. As another example, the default value for a Property regarding the selection of network interfaces ought to permit as many interfaces as possible.
 
-Applications using the Transport Services API are REQUIRED to be robust to the automated selection provided by the Transport Services implementation. This automated selection is constrained by the properties and preferences expressed by the application and requires applications to explicitly set properties that define any necessary constraints on protocol, path, and interface selection.
+Applications using the Transport Services API need to be designed to be robust to the automated selection provided by the Transport Services implementation. This automated selection is constrained by the properties and preferences expressed by the application and requires applications to explicitly set properties that define any necessary constraints on protocol, path, and interface selection.
 
 ## Allow Access to Specialized Features
 
@@ -300,11 +312,18 @@ The following two examples show non-equivalent Protocol Stacks:
 
 - If the application specifies that it requires reliable transmission of data, then a Protocol Stack using UDP without any reliability layer on top would not be allowed to replace a Protocol Stack using TCP.
 
-The following example shows equivalent Protocol Stacks:
+The following example shows Equivalent Protocol Stacks:
 
-- If the application does not require reliable transmission of data, then a Protocol Stack that adds reliability could be regarded as an equivalent Protocol Stack as long as providing this would not conflict with any other application-requested properties.
+- If the application does not require reliable transmission of data, then a Protocol Stack that adds reliability could be regarded as an Equivalent Protocol Stack as long as providing this would not conflict with any other application-requested properties.
 
-To ensure that security protocols are not incorrectly swapped, a Transport Services implementation MUST only select Protocol Stacks that meet application requirements ({{?RFC8922}}). A Transport Services implementation SHOULD only race Protocol Stacks where the transport security protocols within the stacks are identical. A Transport Services implementation MUST NOT automatically fall back from secure protocols to insecure protocols, or to weaker versions of secure protocols. A Transport Services implementation MAY allow applications to explicitly specify which versions of a protocol ought to be permitted, e.g., to allow a minimum version of TLS 1.2 in case TLS 1.3 is not available.
+A Transport Services implementation can race different security
+protocols, e.g., if the application explicitly specifies that it considers them equivalent.
+A Transport Services implementation SHOULD only race Protocol Stacks where the transport security protocols within the stacks are identical.
+To ensure that security protocols are not incorrectly swapped, a Transport Services implementation MUST only select Protocol Stacks that meet application requirements ({{?RFC8922}}).
+A Transport Services implementation MUST NOT automatically fall back from secure protocols to insecure protocols, or to weaker versions of secure protocols.
+A Transport Services implementation MAY allow applications to explicitly specify which versions of a protocol ought to be permitted, e.g., to allow a minimum version of TLS 1.2 in case TLS 1.3 is not available.
+
+A Transport Services implementation MAY specify security properties relating to how the system operates (e.g., requirements, prohibitions, and preferences for the use of DNS Security Extensions (DNSSEC) or DNS over HTTPS (DoH)).
 
 ## Maintain Interoperability
 
@@ -314,7 +333,7 @@ A Transport Services system makes decisions that select protocols and interfaces
 
 # Transport Services Architecture and Concepts {#concepts}
 
-This section and the remainder of this document describe the architecture non-normatively. The concepts defined in this document are intended primarily for use in the documents and specifications that describe the Transport Services system. This includes the architecture, the Transport Services API and the associated Transport Services implementation. While the specific terminology can be used in some implementations, it is expected that there will remain a variety of terms used by running code.
+This section of the document describes the architecture non-normatively. The concepts defined in this document are intended primarily for use in the documents and specifications that describe the Transport Services system. This includes the architecture, the Transport Services API and the associated Transport Services implementation. While the specific terminology can be used in some implementations, it is expected that there will remain a variety of terms used by running code.
 
 The architecture divides the concepts for Transport Services system into two categories:
 
@@ -365,17 +384,17 @@ The Transport Services Implementation includes the Cached State and System Polic
 
 The System Policy provides input from an operating system or other global preferences that can constrain or influence how an implementation will gather Candidate Paths and Protocol Stacks and race the candidates when establishing a Connection. As the details of System Policy configuration and enforcement are largely platform- and implementation- dependent, and do not affect application-level interoperability, the Transport Services API {{?I-D.ietf-taps-interface}} does not specify an interface for reading or writing System Policy.
 
-The Cached State is the state and history that the implementation keeps for each set of associated endpoints that have previously been used.
+The Cached State is the state and history that the implementation keeps for each set of associated endpoints that have previously been used. An application ought to explicitly request any required or desired properties via the Transport Services API.
 
 ## Transport Services API Concepts
 
 Fundamentally, a Transport Services API needs to provide Connection objects ({{objects}}) that allow applications to establish communication, and then send and receive data. These could be exposed as handles or referenced objects, depending on the chosen programming language.
 
-Beyond the connection objects, there are several high-level groups of actions that any Transport Services API needs to provide:
+Beyond the Connection objects, there are several high-level groups of actions that any Transport Services API needs to provide:
 
 * Pre-establishment ({{preestablishment}}) encompasses the properties that an application can pass to describe its intent, requirements, prohibitions, and preferences for its networking operations. These properties apply to multiple transport protocols, unless otherwise specified. Properties specified during pre-establishment can have a large impact on the rest of the interface: they modify how establishment occurs, they influence the expectations around data transfer, and they determine the set of events that will be supported.
 
-* Establishment ({{establishment}}) focuses on the actions that an application takes on the connection objects to prepare for data transfer.
+* Establishment ({{establishment}}) focuses on the actions that an application takes on the Connection objects to prepare for data transfer.
 
 * Data Transfer ({{datatransfer}}) consists of how an application represents the data to be sent and received, the functions required to send and receive that data, and how the application is notified of the status of its data transfer.
 
@@ -433,7 +452,9 @@ a connection.
   Endpoints can be Local Endpoints or Remote Endpoints, and respectively represent an identity
   that the application uses for the source or destination of a connection.
   An endpoint can be specified at various levels of abstraction.
-  An endpoint at a higher level of abstraction (such as a hostname) can be resolved to more concrete identities (such as IP addresses). An endpoint may also represent a multicast group, in which case it selects a multicast transport for communication.
+  An endpoint at a higher level of abstraction (such as a hostname) can be resolved to more concrete identities
+  (such as IP addresses). A destination endpoint can also represent a multicast group or anycast address.
+  In the case of multicast, this selects a multicast transport for communication.
 
 * Remote Endpoint: The Remote Endpoint represents the application's identifier for a peer that can participate in a transport connection; for example, the combination of a DNS name for the peer and a service name/port.
 
@@ -475,7 +496,7 @@ a connection.
   endpoint.  The process of identifying options for the connection, such
   as resolution of the Remote Endpoint, occurs in response to the `Rendezvous` call.
   As with Listeners, the set of local paths and endpoints is constrained
-  by Selection Properties. If successful, the `Rendezvous` call returns a
+  by Selection Properties. If successful, the `Rendezvous` call generates and asynchronously returns a
   Connection object to represent the established peer-to-peer connection.
   The processes by which connections are initiated during a `Rendezvous`
   action will depend on the set of Local and Remote Endpoints configured on
@@ -490,7 +511,7 @@ a connection.
 
 ### Data Transfer Objects and Actions {#datatransfer}
 
-* Message: A Message object is a unit of data that can be represented as bytes that can be transferred between two endpoints over a transport connection. The bytes within a Message are assumed to be ordered. If an application does not care about the order in which a peer receives two distinct spans of bytes, those spans of bytes are considered independent Messages. Messages are sent in the payload of IP packet. One packet can carry one or more Messages or parts of a Message.
+* Message: A Message object is a unit of data that can be represented as bytes that can be transferred between two endpoints over a transport connection. The bytes within a Message are assumed to be ordered. If an application does not care about the order in which a peer receives two distinct spans of bytes, those spans of bytes are considered independent Messages. Messages are sent in the payload of an IP packet. One packet can carry one or more Messages or parts of a Message.
 
 * Message Properties: Message Properties are used to specify details about Message transmission. They can be specified directly on individual Messages, or can be set on a Preconnection or Connection as defaults. These properties might only apply to how a Message is sent (such as how the transport will treat prioritization and reliability), but can also include properties that specific protocols encode and communicate to the Remote Endpoint. When receiving Messages, Message Properties can contain information about the received Message, such as metadata generated at the receiver and information signalled by the Remote Endpoint. For example, a Message can be marked with a Message Property indicating that it is the final Message on a Connection.
 
@@ -568,7 +589,8 @@ Connection establishment attempts for a set of candidates may be performed simul
 
 * Protocol Option Racing: Protocol Option Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on the composition of protocols or the options used for protocols.
 
-* Path Racing: Path Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on a selection from the available Paths. Since different Paths will have distinct configurations for local addresses and DNS servers, attempts across different Paths will perform separate DNS resolution steps, which can lead to further racing of the resolved Remote Endpoints.
+* Path Racing: Path Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on a selection from the available Paths. Since different Paths will have distinct configurations (see {{?RFC7556}})
+for local addresses and DNS servers, attempts across different Paths will perform separate DNS resolution steps, which can lead to further racing of the resolved Remote Endpoints.
 
 * Remote Endpoint Racing: Remote Endpoint Racing is the act of attempting to establish, or scheduling attempts to establish, multiple Protocol Stacks that differ based on the specific representation of the Remote Endpoint, such as a particular IP address that was resolved from a DNS hostname.
 
