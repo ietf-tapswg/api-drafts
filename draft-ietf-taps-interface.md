@@ -672,7 +672,7 @@ the Preconnection is used to `Listen` for incoming Connections.
 At least one Local Endpoint and one Remote Endpoint MUST be specified if a
 peer-to-peer `Rendezvous` is to occur based on the Preconnection.
 
-If more than one Local Endpoint indentifier is specified on a Preconnection, then all
+If more than one Local Endpoint identifier is specified on a Preconnection, then all
 the Local Endpoints on the Preconnection MUST represent the same host. For
 example, they might correspond to different interfaces on a multi-homed
 host, or they might correspond to local interfaces and a STUN server that
