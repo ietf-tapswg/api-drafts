@@ -496,7 +496,7 @@ Connection -> Received<messageDataResponse, messageContext>
 // Trickle ICE, then add them to the Connection:
 Connection.AddRemote(NewRemoteCandidates)
 
-// On a PathChange<> events, resolve the local endpoints to
+// On a PathChange<> events, resolve the local endpoint identifiers to
 // see if a new local endpoint has become available and, if
 // so, send to the peer as a new candidate and add to the
 // Connection:
@@ -672,18 +672,18 @@ the Preconnection is used to `Listen` for incoming Connections.
 At least one Local Endpoint and one Remote Endpoint MUST be specified if a
 peer-to-peer `Rendezvous` is to occur based on the Preconnection.
 
-If more than one Local Endpoint is specified on a Preconnection, then all
+If more than one Local Endpoint indentifier is specified on a Preconnection, then all
 the Local Endpoints on the Preconnection MUST represent the same host. For
 example, they might correspond to different interfaces on a multi-homed
 host, or they might correspond to local interfaces and a STUN server that
 can be resolved to a server reflexive address for a Preconnection used to
 make a peer-to-peer `Rendezvous`.
 
-If more than one Remote Endpoint is specified on the Preconnection, then
+If more than one Remote Endpoint identifier is specified on the Preconnection, then
 all the Remote Endpoints on the Preconnection should represent the same
 service, to the extent that the application and the Transport Services
 system can validate that the Remote Endpoints are indeed the same service.
-For example, the Remote Endpoints might represent various network
+For example, the Remote Endpoint identifiers might represent various network
 interfaces of a host, or a server reflexive address that can be used to
 reach a host, or a set of hosts that provide equivalent local balanced
 service.
@@ -753,10 +753,10 @@ Note that an IPv6 address specified with a scope (e.g. `2001:db8:4920:e29d:a420:
 is equivalent to `WithIPAddress` with an unscoped address and `WithInterface ` together.
 
 The design of the API MUST NOT permit an Endpoint to be configured with multiple identifiers of the same type.
-For example, an endpoint cannot have two IP addresses specified. Two separate IP addresses
+For example, an endpoint cannot specify two IP addresses. Two separate IP addresses
 are represented as two Endpoint objects. If a Preconnection specifies a Remote
 Endpoint with a specific IP address set, it will only establish Connections to
-that IP address. If, on the other hand, the Remote Endpoint specifies a hostname
+that IP address. If, on the other hand, a Remote Endpoint identifier specifies a hostname
 but no addresses, the Connection can perform name resolution and attempt
 using any address derived from the original hostname of the Remote Endpoint.
 Note that multiple Remote Endpoints can be added to a Preconnection, as discussed
@@ -799,7 +799,7 @@ RemoteSpecifier.WithTTL(TTL)
 Calling `Listen` on a Preconnection with a multicast group specified on the Remote
 Endpoint will join the multicast group to receive Messages. This Listener
 will create one Connection for each Remote Endpoint sending to the group,
-with the Local Endpoint set to the group address. The set of Connection
+with the Local Endpoint specified as a group address. The set of Connection
 objects created forms a Connection Group.
 The receiving interface can be restricted by passing it as part of the LocalSpecifier or queried through the Message Context on the Messages received (see {{msg-ctx}} for further details).
 
@@ -859,8 +859,8 @@ multiple aliases set.
 RemoteSpecifier.AddAlias(AlternateRemoteSpecifier)
 ~~~
 
-In order to scope an alias to a specific transport protocol, an Endpoint can
-specify a protocol identifier.
+To scope an alias to a specific transport protocol, an Endpoint can
+specify a protocol specifier.
 
 ~~~
 AlternateRemoteSpecifier.WithProtocol(QUIC)
@@ -1651,8 +1651,8 @@ Connection := Preconnection.Initiate(timeout?)
 
 The timeout parameter specifies how long to wait before aborting Active open.
 Before calling `Initiate`, the caller must have populated a Preconnection
-object with a Remote Endpoint specifier, optionally a Local Endpoint
-specifier (if not specified, the system will attempt to determine a
+object with a Remote Endpoint identifier, optionally a Local Endpoint
+identifier (if not specified, the system will attempt to determine a
 suitable Local Endpoint), as well as all properties
 necessary for candidate selection.
 
@@ -1686,7 +1686,7 @@ Connection -> EstablishmentError<reason?>
 An `EstablishmentError` occurs either when the set of transport properties and security
 parameters cannot be fulfilled on a Connection for initiation (e.g., the set of
 available Paths and/or Protocol Stacks meeting the constraints is empty) or
-reconciled with the Local and/or Remote Endpoints; when the remote specifier
+reconciled with the Local and/or Remote Endpoints; when the remote identifier
 cannot be resolved; or when no transport-layer connection can be established to
 the Remote Endpoint (e.g., because the Remote Endpoint is not accepting
 connections, the application is prohibited from opening a Connection by the
@@ -1706,7 +1706,7 @@ Listener := Preconnection.Listen()
 ~~~
 
 Before calling `Listen`, the caller must have initialized the Preconnection
-during the pre-establishment phase with a Local Endpoint specifier, as well
+during the pre-establishment phase with a Local Endpoint identifier, as well
 as all properties necessary for Protocol Stack selection. A Remote Endpoint
 may optionally be specified, to constrain what Connections are accepted.
 
