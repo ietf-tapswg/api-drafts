@@ -578,8 +578,8 @@ digits `0-9`, the hyphen `-`, and the underscore `_`. These names serve two purp
 Transport Property Names are hierarchically organized in the
 form \[\<Namespace>.\]\<PropertyName\>.
 
-- The Namespace component MUST be empty for well-known, generic properties, i.e., for
-  properties that are not specific to a protocol.
+- The optional Namespace component and its trailing character `.` MUST be omitted for well-known,
+  generic properties, i.e., for properties that are not specific to a protocol.
 - Protocol-specific Properties MUST use the protocol acronym as the Namespace (e.g., a
   `tcp` Connection could support a TCP-specific Transport Property, such as the user timeout
   value, in a Protocol-specific Property called `tcp.userTimeoutValue` (see {{tcp-uto}})).
