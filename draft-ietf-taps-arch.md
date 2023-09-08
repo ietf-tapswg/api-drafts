@@ -109,7 +109,7 @@ This document describes the Transport Services system in three sections:
 
 - {{requirements}} explains the fundamental requirements for a Transport Services system. These principles are intended to make sure that transport protocols can continue to be enhanced and evolve without requiring significant changes by application developers.
 
-- {{concepts}} presents the Transport Services system and defines the concepts that are used by both the API {{?I-D.ietf-taps-interface}} and described in the implementation guidelines {{?I-D.ietf-taps-impl}}. 
+- {{concepts}} presents the Transport Services system and defines the concepts that are used by both the API {{?I-D.ietf-taps-interface}} and described in the implementation guidelines {{?I-D.ietf-taps-impl}}.
 
 ## Specification of Requirements
 
