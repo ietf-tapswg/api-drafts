@@ -1,5 +1,5 @@
 ---
-title: An Architecture for Transport Services
+title: The Transport Service System
 abbrev: TAPS Architecture
 docname: draft-ietf-taps-arch-latest
 date:
@@ -67,7 +67,7 @@ informative:
 
 --- abstract
 
-This document describes an architecture for exposing transport protocol features to applications for network communication, a Transport Services system. The Transport Services Application Programming Interface (API) is based on an asynchronous, event-driven interaction pattern. This API uses messages for representing data transfer to applications, and describes how implementations can use multiple IP addresses, multiple protocols, and multiple paths, and provide multiple application streams. This document further defines common terminology and concepts to be used in definitions of a Transport Service API and a Transport Services implementation.
+This document defines the Transport Services system. This system exposes transport protocol features to applications for network communication. The Transport Services Application Programming Interface (API) is based on an asynchronous, event-driven interaction pattern. This API uses messages for representing data transfer to applications, and describes how implementations can use multiple IP addresses, multiple protocols, and multiple paths, and provide multiple application streams. This document provides the architecture and requirements. It defines common terminology and concepts to be used in definitions of a Transport Service API and a Transport Services implementation.
 
 --- middle
 
@@ -76,8 +76,8 @@ This document describes an architecture for exposing transport protocol features
 Many application programming interfaces (APIs) to perform transport networking have been deployed, perhaps the most widely known and imitated being the BSD Socket {{POSIX}} interface (Socket API). The naming of objects and functions across these APIs is not consistent and varies depending on the protocol being used. For example, sending and receiving streams of data is conceptually the same for both an unencrypted Transmission Control Protocol (TCP) stream and operating on an encrypted Transport Layer Security (TLS) {{?RFC8446}} stream over TCP, but applications cannot use the same socket ```send()``` and ```recv()``` calls on top of both kinds of connections.
 Similarly, terminology for the implementation of transport protocols varies based on the context of the protocols themselves: terms such as "flow", "stream", "message", and "connection" can take on many different meanings. This variety can lead to confusion when trying to understand the similarities and differences between protocols, and how applications can use them effectively.
 
-The goal of the Transport Services architecture is to provide a flexible
-and reusable architecture that provides a common interface for transport protocols. An application uses the Transport Services system through an abstract Connection (we use capitalization to distinguish these from the underlying connections of, e.g., TCP).
+The goal of the Transport Services system is to provide a flexible
+and reusable system with a common interface for transport protocols. An application uses the Transport Services system through an abstract Connection (we use capitalization to distinguish these from the underlying connections of, e.g., TCP).
 This provides
 flexible connection establishment allowing an application to request or require a set of properties.
 
@@ -85,31 +85,31 @@ As applications adopt this interface, they will benefit from a wide set of trans
 and ensure that the system providing the interface can optimize its behavior based on the application requirements
 and network conditions, without requiring changes to the applications. This flexibility enables faster deployment of new features and protocols.
 
-The Transport Services architecture can also support applications by offering racing mechanisms (attempting multiple IP addresses, protocols, or network paths in parallel), which otherwise need to be implemented in each application separately (see {{racing}}). Racing selects one or more candidates each with equivalent protocol stacks that are used to identify
+The Transport Services system can also support applications by offering racing mechanisms (attempting multiple IP addresses, protocols, or network paths in parallel), which otherwise need to be implemented in each application separately (see {{racing}}). Racing selects one or more candidates each with equivalent protocol stacks that are used to identify
 an optimal combination of transport protocol instance such as TCP, UDP, or another transport, together with configuration of parameters and
 interfaces.
-The Connection represents an object that, once established, can be used to send and receive messages.
+A Connection represents an object that, once established, can be used to send and receive messages.
 A Connection can also be created from another Connection, by cloning, and then forms a part of a Connection Group whose Connections share properties.
 
-This document was developed in parallel with the specification of the Transport Services API {{?I-D.ietf-taps-interface}} and implementation guidelines {{?I-D.ietf-taps-impl}}. Although following the Transport Services architecture does not require that all APIs and implementations are identical, a common minimal set of features represented in a consistent fashion will enable applications to be easily ported from one system to another.
+This document was developed in parallel with the specification of the Transport Services API {{?I-D.ietf-taps-interface}} and implementation guidelines {{?I-D.ietf-taps-impl}}. Although following the Transport Services architecture does not require that all APIs and implementations to be identical, a common minimal set of features represented in a consistent fashion will enable applications to be easily ported from one Transport Services implementation to another.
 
 ## Background
 
-The Transport Services architecture is based on the survey of services provided by IETF transport protocols and congestion control mechanisms {{?RFC8095}}, and the distilled minimal set of the features offered by transport protocols {{?RFC8923}}. These documents identified common features and patterns across all transport protocols developed thus far in the IETF.
+The architecture of the Transport Services system is based on the survey of services provided by IETF transport protocols and congestion control mechanisms {{?RFC8095}}, and the distilled minimal set of the features offered by transport protocols {{?RFC8923}}. These documents identified common features and patterns across all transport protocols developed thus far in the IETF.
 
-Since transport security is an increasingly relevant aspect of using transport protocols on the Internet, this architecture also considers the impact of transport security protocols on the feature-set exposed by Transport Services {{?RFC8922}}.
+Since transport security is an increasingly relevant aspect of using transport protocols on the Internet, this also considers the impact of transport security protocols on the feature-set exposed by Transport Services {{?RFC8922}}.
 
-One of the key insights to come from identifying the minimal set of features provided by transport protocols {{?RFC8923}} was that features either require application interaction and guidance (referred to in that document as Functional or Optimizing Features), or else can be handled automatically by a system implementing Transport Services (referred to as Automatable Features). Among the identified Functional and Optimizing Features, some were common across all or nearly all transport protocols, while others could be seen as features that, if specified, would only be useful with a subset of protocols, but would not harm the functionality of other protocols. For example, some protocols can deliver messages faster for applications that do not require messages to arrive in the order in which they were sent. However, this functionality needs to be explicitly allowed by the application, since reordering messages would be undesirable in many cases.
+One of the key insights to come from identifying the minimal set of features provided by transport protocols {{?RFC8923}} was that features either require application interaction and guidance (referred to in that document as Functional or Optimizing Features), or else can be handled automatically by an implementation of the Transport Services system (referred to as Automatable Features). Among the identified Functional and Optimizing Features, some are common across all or nearly all transport protocols, while present features that, if specified, would only be useful with a subset of protocols, but would not harm the functionality of other protocols. For example, some protocols can deliver messages faster for applications that do not require messages to arrive in the order in which they were sent. However, this functionality needs to be explicitly allowed by the application, since reordering messages would be undesirable in many cases.
 
 ## Overview
 
-This document describes the Transport Services architecture in three sections:
+This document describes the Transport Services system in three sections:
 
-- {{model}} describes how the API model of Transport Services architecture differs from traditional socket-based APIs. Specifically, it offers asynchronous event-driven interaction, the use of messages for data transfer, and the flexibility to use different transport protocols and paths without requiring major changes to the application.
+- {{model}} describes how the API model of Transport Services system differs from that of traditional socket-based APIs. Specifically, it offers asynchronous event-driven interaction, the use of messages for data transfer, and the flexibility to use different transport protocols and paths without requiring major changes to the application.
 
 - {{requirements}} explains the fundamental requirements for a Transport Services system. These principles are intended to make sure that transport protocols can continue to be enhanced and evolve without requiring significant changes by application developers.
 
-- {{concepts}} presents a diagram showing the Transport Services architecture and defines the concepts that are used by both the API {{?I-D.ietf-taps-interface}} and implementation guidelines {{?I-D.ietf-taps-impl}}. The Preconnection allows applications to configure Connection Properties.
+- {{concepts}} presents the Transport Services system and defines the concepts that are used by both the API {{?I-D.ietf-taps-interface}} and described in implementation guidelines {{?I-D.ietf-taps-impl}}. 
 
 ## Specification of Requirements
 
@@ -124,7 +124,7 @@ they appear in all capitals, as shown here.
 This subsection provides a glossary of key terms related to the Transport Services architecture. It provides a short description of key terms that are later defined in this document.
 
 - Application: An entity that uses the transport layer for end-to-end delivery of data across the network {{?RFC8095}}.
-- Cached State: The state and history that the implementation keeps for each set of associated Endpoints that have been used previously.
+- Cached State: The state and history that the implementation keeps for each set of the associated Endpoints that have been used previously.
 - Candidate Path: One path that is available to an application and conforms to the Selection Properties and System Policy during racing.
 - Candidate Protocol Stack: One Protocol Stack that can be used by an application for a Connection during racing.
 - Client: The peer responsible for initiating a Connection.
@@ -159,13 +159,13 @@ This subsection provides a glossary of key terms related to the Transport Servic
 - Transport Feature: A specific end-to-end feature that the transport layer provides to an application.
 - Transport Property: A property that expresses requirements, prohibitions and preferences {{?RFC8095}}.
 - Transport Service: A set of transport features, without an association to any given framing protocol, that provides a complete service to an application.
-- Transport Services System: The Transport Services implementation and the Transport Services API
+- Transport Services System: The Transport Services implementation including the Transport Services API
 
 # API Model {#model}
 
 The traditional model of using sockets for networking can be represented as follows (see figure 1):
 
-- Applications create connections and transfer data using the Socket API.
+- Applications create connections and transfer data using the Socket API. 
 - The Socket API provides the interface to the implementations of TCP and UDP
   (typically implemented in the system's kernel).
 - TCP and UDP in the kernel send and receive data over the available network-layer interfaces.
@@ -195,7 +195,7 @@ The traditional model of using sockets for networking can be represented as foll
 ~~~~~~~~~~
 {: #fig-sockets title="Socket API Model"}
 
-The Transport Services architecture evolves this general model of interaction, to both modernize the API surface presented to applications by the transport layer and to enrich the capabilities of the implementation below the API.
+The architecture of the Transport Services evolves this general model of interaction, to both modernize the API surface presented to applications by the transport layer and to enrich the capabilities of the implementation below the API.
 
 ~~~~~~~~~~
 
@@ -223,7 +223,7 @@ The Transport Services API {{?I-D.ietf-taps-interface}} defines the interface fo
 
 The Transport Services implementation {{?I-D.ietf-taps-impl}} implements the transport layer protocols and other functions needed to send and receive data. It is responsible for mapping the API to a specific available transport Protocol Stack and managing the available network interfaces and paths.
 
-There are key differences between the Transport Services architecture and the architecture of the Socket API: the API of the Transport Services architecture is asynchronous and event-driven; it uses messages for representing data transfer to applications; and it describes how implementations can resolve Endpoint identifiers to use multiple IP addresses, multiple protocols, multiple paths, and provide multiple application streams.
+There are key differences between the architecture of the Transport Services system and the architecture of the Socket API: the API of the Transport Services system is asynchronous and event-driven; it uses messages for representing data transfer to applications; and it describes how implementations can resolve Endpoint identifiers to use multiple IP addresses, multiple protocols, multiple paths, and provide multiple application streams.
 
 ## Event-Driven API
 
@@ -231,7 +231,7 @@ Originally, the Socket API presented a blocking interface for establishing conne
 
 In contrast to the Socket API, all interactions using the Transport Services API are expected to be asynchronous. The API is defined around an event-driven model (see {{events}}), which models this asynchronous interaction. Other forms of asynchronous communication could also be available to applications, depending on the platform implementing the interface.
 
-For example, when using the Transport Services API, an application first issues a call to receive new data from the connection. When delivered data becomes available, this data is delivered to the application using asynchronous events that contain the data. Error handling is also asynchronous; a failure to send data results in an asynchronous error event.
+For example, when using the Transport Services API, an application first issues a call to receive new data from the connection and a Preconnection allows the application to configure Connection Properties. When delivered data becomes available, this data is delivered to the application using asynchronous events that contain the data. Error handling is also asynchronous; a failure to send data results in an asynchronous error event.
 
 This API also delivers events regarding the lifetime of a connection and changes in the available network links, which were not previously made explicit in the Socket API.
 
@@ -270,11 +270,11 @@ Flexibility after connection establishment is also important. Transport protocol
 
 ## Coexistence
 
-Note that while the Transport Service architecture is designed as an enhanced replacement for the Socket API, it need not replace it entirely on a system or platform; indeed, coexistence has been recommended for incremental deployability {{?RFC8170}}. The architecture is therefore designed such that it can run alongside (or, indeed, on top of) an existing Socket API implementation; only applications built to the Transport Services API are managed by the system's Transport Services implementation.
+Note that while the Transport Service system is designed as an enhanced replacement for the Socket API, it need not replace it entirely on a system or platform; indeed, coexistence has been recommended for incremental deployability {{?RFC8170}}. The architecture is therefore designed such that it can run alongside (or, indeed, on top of) an existing Socket API implementation; only applications built to the Transport Services API are managed by the system's Transport Services implementation.
 
 # API and Implementation Requirements {#requirements}
 
-A goal of the Transport Services architecture is to redefine the interface between applications and transports in a way that allows the transport layer to evolve and improve without fundamentally changing the contract with the application. This requires a careful consideration of how to expose the capabilities of protocols. This architecture also encompasses system policies that can influence and inform how transport protocols use a network path or interface.
+A goal of the Transport Services system is to redefine the interface between applications and transports in a way that allows the transport layer to evolve and improve without fundamentally changing the contract with the application. This requires a careful consideration of how to expose the capabilities of protocols. This architecture also encompasses system policies that can influence and inform how transport protocols use a network path or interface.
 
 There are several ways the Transport Services system can offer flexibility to an application: it can provide access to transport protocols and protocol features; it can use these protocols across multiple paths that could have different performance and functional characteristics; and it can communicate with different remote systems to optimize performance, robustness to failure, or some other metric. Beyond these, if the Transport Services API remains the same over time, new protocols and features can be added to the Transport Services implementation without requiring changes in applications for adoption. Similarly, this can provide a common basis for utilizing information about a network path or interface, enabling evolution below the transport layer.
 
@@ -327,7 +327,7 @@ A Transport Services implementation MAY specify security properties relating to 
 
 ## Maintain Interoperability
 
-It is important to note that neither the Transport Services API {{?I-D.ietf-taps-interface}} nor the guidelines for the Transport Service implementation {{?I-D.ietf-taps-impl}} define new protocols or protocol capabilities that affect what is communicated across the network. A Transport Services system MUST NOT require that a peer on the other side of a connection uses the same API or implementation. A Transport Services implementation acting as a connection initiator is able to communicate with any existing endpoint that implements the transport protocol(s) and all the required properties selected. Similarly, a Transport Services implementation acting as a Listener can receive connections for any protocol that is supported from an existing initiator that implements the protocol, independent of whether the initiator uses the Transport Services architecture or not.
+It is important to note that neither the Transport Services API {{?I-D.ietf-taps-interface}} nor the guidelines for the Transport Service implementation {{?I-D.ietf-taps-impl}} define new protocols or protocol capabilities that affect what is communicated across the network. A Transport Services system MUST NOT require that a peer on the other side of a connection uses the same API or implementation. A Transport Services implementation acting as a connection initiator is able to communicate with any existing endpoint that implements the transport protocol(s) and all the required properties selected. Similarly, a Transport Services implementation acting as a Listener can receive connections for any protocol that is supported from an existing initiator that implements the protocol, independent of whether the initiator uses the Transport Services system or not.
 
 A Transport Services system makes decisions that select protocols and interfaces. In normal use, a given version of a Transport Services system SHOULD result in consistent protocol and interface selection decisions for the same network conditions given the same set of Properties. This is intended to provide predictable outcomes to the application using the API.
 
@@ -340,7 +340,7 @@ The architecture divides the concepts for Transport Services system into two cat
 1. API concepts, which are intended to be exposed to applications; and
 2. System-implementation concepts, which are intended to be internally used by a Transport Services implementation.
 
-The following diagram summarizes the top-level concepts in the architecture and how they relate to one another.
+The following diagram summarizes the top-level concepts in a Transport Servcies system and how they relate to one another.
 
 ~~~~~~~~~~
 
@@ -378,7 +378,7 @@ The following diagram summarizes the top-level concepts in the architecture and 
 |               Network Layer Interface               |
 +-----------------------------------------------------+
 ~~~~~~~~~~
-{: #fig-abstractions title="Concepts and Relationships in the Transport Services Architecture"}
+{: #fig-abstractions title="Concepts and Relationships in the Architecture of the Transport Services System"}
 
 The Transport Services Implementation includes the Cached State and System Policy.
 
@@ -429,7 +429,7 @@ The diagram below provides a high-level view of the actions and events during th
 ~~~~~~~~~~
 {: #fig-lifetime title="The lifetime of a Connection object"}
 
-In this diagram, the lifetime of a Connection object is broken into three phases:
+In this diagram, the lifetime of a Connection object is divided into three phases:
 pre-establishment, the Established state, and Termination.
 
 Pre-establishment is based around a Preconnection object, that contains various
@@ -448,11 +448,11 @@ a connection.
 
 ### Endpoint Objects
 
-* Endpoint: An endpoint represents an identifier for one side of a transport connection.
+* Endpoint: An Endpoint represents an identifier for one side of a transport connection.
   Endpoints can be Local Endpoints or Remote Endpoints, and respectively represent an identity
   that the application uses for the source or destination of a connection.
   An endpoint can be specified at various levels of abstraction.
-  An endpoint at a higher level of abstraction (such as a hostname) can be resolved to more concrete identities
+  An Endpoint at a higher level of abstraction (such as a hostname) can be resolved to more concrete identities
   (such as IP addresses). A destination endpoint can also represent a multicast group or anycast address.
   In the case of multicast, this selects a multicast transport for communication.
 
@@ -557,7 +557,7 @@ While Connection Groups are managed by the Transport Services system, an applica
 
 ## Transport Services Implementation
 
-This section defines the key concepts of the Transport Services architecture.
+This section defines the key concepts for the Transport Services system.
 
 * Transport Service implementation: This consists of all objects and protocol instances used internally to a system or library to implement the functionality needed to provide a transport service across a network, as required by the abstract interface.
 
@@ -575,7 +575,7 @@ This section defines the key concepts of the Transport Services architecture.
 
 * System Policy: The input from an operating system or other global preferences that can constrain or influence how an implementation will gather candidate paths and Protocol Stacks ({{gathering}}) and race the candidates during establishment ({{racing}}). Specific aspects of the System Policy either apply to all Connections or only certain ones, depending on the runtime context and properties of the Connection.
 
-* Cached State: The state and history that the implementation keeps for each set of associated Endpoints that have been used previously. This can include DNS results, TLS session state, previous success and quality of transport protocols over certain paths, as well as other information.  This caching does not imply that the same decisions are necessarily made for subsequent connections, rather, it means that cached state is used by the Transport Services architecture to inform functions such as choosing the candidates to be raced, selecting appropriate transport parameters, etc. An application SHOULD NOT rely on specific caching behaviour, instead it ought to explicitly request any required or desired properties via the Transport Services API.
+* Cached State: The state and history that the implementation keeps for each set of associated Endpoints that have been used previously. This can include DNS results, TLS session state, previous success and quality of transport protocols over certain paths, as well as other information.  This caching does not imply that the same decisions are necessarily made for subsequent connections, rather, it means that cached state is used by a Transport Services implementation to inform functions such as choosing the candidates to be raced, selecting appropriate transport parameters, etc. An application SHOULD NOT rely on specific caching behaviour, instead it ought to explicitly request any required or desired properties via the Transport Services API.
 
 ### Candidate Gathering {#gathering}
 
@@ -612,7 +612,7 @@ This document has no actions for IANA.
 
 # Security and Privacy Considerations
 
-The Transport Services architecture does not recommend use of specific security
+The Transport Services system does not recommend use of specific security
 protocols or algorithms. Its goal is to offer ease of use for existing protocols
 by providing a generic security-related interface. Each provided interface
 translates to an existing protocol-specific interface provided by supported
@@ -665,9 +665,9 @@ Research Council under grant EP/R04144X/1.
 
 Thanks to Reese Enghardt, Max Franke, Mirja Kuehlewind, Jonathan Lennox, and
 Michael Welzl for the discussions and feedback that helped shape the architecture
-described here.
+of the system described here.
 Particular thanks is also due to Philipp S. Tiesel and Christopher A. Wood,
-who were both co-authors of this architecture specification as it progressed
+who were both co-authors of this specification as it progressed
 through the TAPS working group.
 Thanks as well to Stuart Cheshire, Josh Graessley, David Schinazi,
 and Eric Kinnear for their implementation and design efforts, including Happy
