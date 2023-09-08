@@ -961,7 +961,7 @@ EstablishmentError:
 : UDP Connections can only generate errors on initiation due to port conflicts on the local system.
 
 ConnectionError:
-: UDP Connections can only generate Connection errors in response to `Abort` calls. (Once in use, UDP Connections can also generate `SoftError` events (ERROR.UDP(-Lite)) upon receiving ICMP notifications indicating failures in the network.)
+: UDP Connections can only generate Connection errors in response to `Abort` calls. (Once in use, UDP Connections can also generate `SoftError` events (ERROR.UDP) upon receiving ICMP notifications indicating failures in the network.)
 
 Listen:
 : LISTEN.UDP. Calling `Listen` for UDP binds a local port and prepares it to receive inbound UDP datagrams from peers.
@@ -973,22 +973,22 @@ Clone:
 : Calling `Clone` on a UDP Connection creates a new Connection with equivalent parameters. The two Connections are otherwise independent.
 
 Send:
-: SEND.UDP(-Lite). Calling `Send` on a UDP connection sends the data as the payload of a complete UDP datagram. Marking Messages as Final does not change anything in the datagram's contents. Upon sending a UDP datagram, some relevant fields and flags in the IP header can be controlled: DSCP (SET_DSCP.UDP(-Lite)), DF in IPv4 (SET_DF.UDP(-Lite)) and ECN flag (SET_ECN.UDP(-Lite)).
+: SEND.UDP. Calling `Send` on a UDP connection sends the data as the payload of a complete UDP datagram. Marking Messages as Final does not change anything in the datagram's contents. Upon sending a UDP datagram, some relevant fields and flags in the IP header can be controlled: DSCP (SET_DSCP.UDP), DF in IPv4 (SET_DF.UDP) and ECN flag (SET_ECN.UDP).
 
 Receive:
-: RECEIVE.UDP(-Lite). UDP only delivers complete Messages to `Received`, each of which represents a single datagram received in a UDP packet. Upon receiving a UDP datagram, the ECN flag from the IP header can be obtained (GET_ECN.UDP(-Lite)).
+: RECEIVE.UDP. UDP only delivers complete Messages to `Received`, each of which represents a single datagram received in a UDP packet. Upon receiving a UDP datagram, the ECN flag from the IP header can be obtained (GET_ECN.UDP).
 
 Close:
-: Calling `Close` on a UDP Connection (ABORT.UDP(-Lite)) releases the local port reservation. The Connection then issues a `Closed` event.
+: Calling `Close` on a UDP Connection (ABORT.UDP) releases the local port reservation. The Connection then issues a `Closed` event.
 
 Abort:
-: Calling `Abort` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close`, except that the Connection will send a `ConnectionError` event rather than a `Closed` event.
+: Calling `Abort` on a UDP Connection (ABORT.UDP) is identical to calling `Close`, except that the Connection will send a `ConnectionError` event rather than a `Closed` event.
 
 CloseGroup:
-: Calling `CloseGroup` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close` on this Connection and on all Connections in the same ConnectionGroup.
+: Calling `CloseGroup` on a UDP Connection (ABORT.UDP) is identical to calling `Close` on this Connection and on all Connections in the same ConnectionGroup.
 
 AbortGroup:
-: Calling `AbortGroup` on a UDP Connection (ABORT.UDP(-Lite)) is identical to calling `Close` on this Connection and on all Connections in the same ConnectionGroup.
+: Calling `AbortGroup` on a UDP Connection (ABORT.UDP) is identical to calling `Close` on this Connection and on all Connections in the same ConnectionGroup.
 
 ## UDP-Lite
 
@@ -1000,6 +1000,8 @@ The Transport Services API mappings for UDP-Lite are identical to UDP. In additi
 UDP-Lite supports the `msgChecksumLen` and `recvChecksumLen` Properties
 that allow an application to specify the minimum number of bytes in a Message that
 need to be covered by a checksum.
+
+This includes: CONNECT.UDP-Lite; LISTEN.UDP-Lite; SEND.UDP-Lite; RECEIVE.UDP-Lite; ABORT.UDP-Lite; ERROR.UDP-Lite; SET_DSCP.UDP-Lite; SET_DF.UDP-Lite; SET_ECN.UDP-Lite; GET_ECN.UDP-Lite.
 
 ## UDP Multicast Receive
 
@@ -1041,22 +1043,22 @@ Clone:
 : Calling `Clone` on a UDP Multicast Receive Connection creates a new Connection with equivalent parameters. The two Connections are otherwise independent.
 
 Send:
-: SEND.UDP(-Lite). Calling `Send` on a UDP Multicast Receive connection causes an immediate `SendError`.  This is an unsupported operation.
+: SEND.UDP. Calling `Send` on a UDP Multicast Receive connection causes an immediate `SendError`.  This is an unsupported operation.
 
 Receive:
-: RECEIVE.UDP(-Lite). The `Receive` operation in a UDP Multicast Receive connection only delivers complete Messages to `Received`, each of which represents a single datagram received in a UDP packet. Upon receiving a UDP datagram, the ECN flag from the IP header can be obtained (GET_ECN.UDP(-Lite)).
+: RECEIVE.UDP. The `Receive` operation in a UDP Multicast Receive connection only delivers complete Messages to `Received`, each of which represents a single datagram received in a UDP packet. Upon receiving a UDP datagram, the ECN flag from the IP header can be obtained (GET_ECN.UDP).
 
 Close:
-: Calling `Close` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) releases the local port reservation and leaves the group. The Connection then issues a `Closed` event.
+: Calling `Close` on a UDP Multicast Receive Connection (ABORT.UDP) releases the local port reservation and leaves the group. The Connection then issues a `Closed` event.
 
 Abort:
-: Calling `Abort` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) is identical to calling `Close`, except that the Connection will send a `ConnectionError` event rather than a `Closed` event.
+: Calling `Abort` on a UDP Multicast Receive Connection (ABORT.UDP) is identical to calling `Close`, except that the Connection will send a `ConnectionError` event rather than a `Closed` event.
 
 CloseGroup:
-: Calling `CloseGroup` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) is identical to calling `Close` on this Connection and on all Connections in the same ConnectionGroup.
+: Calling `CloseGroup` on a UDP Multicast Receive Connection (ABORT.UDP) is identical to calling `Close` on this Connection and on all Connections in the same ConnectionGroup.
 
 AbortGroup:
-: Calling `AbortGroup` on a UDP Multicast Receive Connection (ABORT.UDP(-Lite)) is identical to calling `Close`
+: Calling `AbortGroup` on a UDP Multicast Receive Connection (ABORT.UDP) is identical to calling `Close`
 on this Connection and on all Connections in the same ConnectionGroup.
 
 ## SCTP
