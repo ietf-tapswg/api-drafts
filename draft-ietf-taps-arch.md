@@ -620,7 +620,7 @@ security protocols. For example, trust verification callbacks are common parts
 of TLS APIs; a Transport Services API exposes similar functionality
 {{?RFC8922}}.
 
-As described above in {{equivalence}}, if an implementation of the Transport Services system races
+As described above in {{equivalence}}, if an implementation of the Transport Services System races
 between two different Protocol Stacks, both need to use the same security protocols
 and options. However, a Transport Services Implementation can race different security
 protocols, e.g., if the application explicitly specifies that it considers them
