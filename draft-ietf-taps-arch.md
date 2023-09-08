@@ -612,7 +612,7 @@ This document has no actions for IANA.
 
 # Security and Privacy Considerations
 
-The Transport Services system does not recommend use of specific security
+The Transport Services System does not recommend use of specific security
 protocols or algorithms. Its goal is to offer ease of use for existing protocols
 by providing a generic security-related interface. Each provided interface
 translates to an existing protocol-specific interface provided by supported
