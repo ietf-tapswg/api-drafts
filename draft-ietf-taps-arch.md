@@ -231,7 +231,7 @@ Originally, the Socket API presented a blocking interface for establishing conne
 
 In contrast to the Socket API, all interactions using the Transport Services API are expected to be asynchronous. The API is defined around an event-driven model (see {{events}}), which models this asynchronous interaction. Other forms of asynchronous communication could also be available to applications, depending on the platform implementing the interface.
 
-For example, when using the Transport Services API, an application first issues a call to receive new data from the connection and a Preconnection allows the application to configure Connection Properties. When delivered data becomes available, this data is delivered to the application using asynchronous events that contain the data. Error handling is also asynchronous; a failure to send data results in an asynchronous error event.
+For example, when using the Transport Services API, an application first issues a call to receive new data from the Connection and a Preconnection allows the application to configure Connection Properties. When delivered data becomes available, this data is delivered to the application using asynchronous events that contain the data. Error handling is also asynchronous; a failure to send data results in an asynchronous error event.
 
 This API also delivers events regarding the lifetime of a connection and changes in the available network links, which were not previously made explicit in the Socket API.
 
