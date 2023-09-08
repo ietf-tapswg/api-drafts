@@ -160,7 +160,7 @@ This subsection provides a glossary of key terms related to the Transport Servic
 - Transport Feature: A specific end-to-end feature that the transport layer provides to an application.
 - Transport Property: A property that expresses requirements, prohibitions and preferences {{?RFC8095}}.
 - Transport Service: A set of transport features, without an association to any given framing protocol, that provides a complete service to an application.
-- Transport Service Implementation: This consists of all objects and protocol instances used internally to a system or library to implement the functionality needed to provide a transport service across a network, as required by the abstract interface.
+- Transport Services Implementation: This consists of all objects and protocol instances used internally to a system or library to implement the functionality needed to provide a transport service across a network, as required by the abstract interface.
 - Transport Services System: The Transport Services Implementation and the Transport Services API.
 
 # API Model {#model}
