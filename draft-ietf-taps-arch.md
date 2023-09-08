@@ -264,7 +264,7 @@ It also presents a single stream to the application. Software layers built upon 
 - to support multipath and multistreaming protocols;
 - to provide state caching and application control over it.
 
-A Transport Services Implementation is intended to be flexible at connection establishment time, considering many different options and trying to select the most optimal combinations by racing them and measuring the results (see {{gathering}} and {{racing}}). This requires applications to specify identifiers for the Local and Remote Endpoint that are higher-level than IP addresses, such as a hostname or URL, which are used by a Transport Services implementation for resolution, path selection, and racing. An implementation can further implement fallback mechanisms if connection establishment of one protocol fails or performance is detected to be unsatisfactory.
+A Transport Services Implementation is intended to be flexible at connection establishment time, considering many different options and trying to select the most optimal combinations by racing them and measuring the results (see {{gathering}} and {{racing}}). This requires applications to specify identifiers for the Local and Remote Endpoint that are higher-level than IP addresses, such as a hostname or URL, which are used by a Transport Services Implementation for resolution, path selection, and racing. An implementation can further implement fallback mechanisms if connection establishment of one protocol fails or performance is detected to be unsatisfactory.
 
 Information used in connection establishment (e.g. cryptographic resumption tokens, information about usability of certain protocols on the path, results of racing in previous connections) are cached in the Transport Services Implementation. Applications have control over whether this information is used for a specific establishment, in order to allow tradeoffs between efficiency and linkability.
 
@@ -329,7 +329,7 @@ A Transport Services Implementation MAY specify security properties relating to 
 
 ## Maintain Interoperability
 
-It is important to note that neither the Transport Services API {{?I-D.ietf-taps-interface}} nor the guidelines for the Transport Service implementation {{?I-D.ietf-taps-impl}} define new protocols or protocol capabilities that affect what is communicated across the network. A Transport Services system MUST NOT require that a peer on the other side of a connection uses the same API or implementation. A Transport Services Implementation acting as a connection initiator is able to communicate with any existing Endpoint that implements the transport protocol(s) and all the required properties selected. Similarly, a Transport Services implementation acting as a Listener can receive connections for any protocol that is supported from an existing initiator that implements the protocol, independent of whether the initiator uses the Transport Services System or not.
+It is important to note that neither the Transport Services API {{?I-D.ietf-taps-interface}} nor the guidelines for implementation of the Transport Service System {{?I-D.ietf-taps-impl}} define new protocols or protocol capabilities that affect what is communicated across the network. A Transport Services System MUST NOT require that a peer on the other side of a connection uses the same API or implementation. A Transport Services Implementation acting as a connection initiator is able to communicate with any existing Endpoint that implements the transport protocol(s) and all the required properties selected. Similarly, a Transport Services Implementation acting as a Listener can receive connections for any protocol that is supported from an existing initiator that implements the protocol, independent of whether the initiator uses the Transport Services System or not.
 
 A Transport Services Implemenation makes decisions that select protocols and interfaces. In normal use, a given version of a Transport Services System SHOULD result in consistent protocol and interface selection decisions for the same network conditions given the same set of Properties. This is intended to provide predictable outcomes to the application using the API.
 
@@ -450,12 +450,13 @@ a connection.
 
 ### Endpoint Objects
 
-* An Endpoint identifier specifies one side of a transport connection.
+An Endpoint identifier specifies one side of a transport connection.
   Endpoints can be Local Endpoints or Remote Endpoints, and the Endpoint identifiers can respectively represent an identity
   that the application uses for the source or destination of a connection.
   An Endpoint identifier can be specified at various levels of abstraction.
   An Endpoint identifier at a higher level of abstraction (such as a hostname) can be resolved to more concrete identities
   (such as IP addresses). A Remote Endpoint Identifier can also represent a multicast group or anycast address.
+  In the case of multicast, this selects a multicast transport for communication.
 
 * Remote Endpoint: The Remote Endpoint represents the application's identifier for a peer that can participate in a transport connection; for example, the combination of a DNS name for the peer and a service name/port.
 
