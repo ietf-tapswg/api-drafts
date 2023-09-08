@@ -73,7 +73,7 @@ This document describes an architecture for exposing transport protocol features
 
 # Introduction
 
-Many application programming interfaces (APIs) to perform transport networking have been deployed, perhaps the most widely known and imitated being the BSD Socket {{POSIX}} interface (Socket API). The naming of objects and functions across these APIs is not consistent and varies depending on the protocol being used. For example, sending and receiving streams of data is conceptually the same for both an unencrypted Transmission Control Protocol (TCP) stream and operating on an encrypted Transport Layer Security (TLS) {{?RFC8446}} stream over TCP, but applications cannot use the same socket ```send()``` and ```recv()``` calls on top of both kinds of connections.
+Many application programming interfaces (APIs) to perform transport interfaces to networks have been deployed, perhaps the most widely known and imitated being the BSD Socket {{POSIX}} interface (Socket API). The naming of objects and functions across these APIs is not consistent and varies depending on the protocol being used. For example, sending and receiving streams of data is conceptually the same for both an unencrypted Transmission Control Protocol (TCP) stream and operating on an encrypted Transport Layer Security (TLS) {{?RFC8446}} stream over TCP, but applications cannot use the same socket ```send()``` and ```recv()``` calls on top of both kinds of connections.
 Similarly, terminology for the implementation of transport protocols varies based on the context of the protocols themselves: terms such as "flow", "stream", "message", and "connection" can take on many different meanings. This variety can lead to confusion when trying to understand the similarities and differences between protocols, and how applications can use them effectively.
 
 The goal of the Transport Services architecture is to provide a flexible
@@ -166,7 +166,7 @@ This subsection provides a glossary of key terms related to the Transport Servic
 
 # API Model {#model}
 
-The traditional model of using sockets for networking can be represented as follows (see figure 1):
+The traditional model of using sockets can be represented as follows (see figure 1):
 
 - Applications create connections and transfer data using the Socket API.
 - The Socket API provides the interface to the implementations of TCP and UDP
