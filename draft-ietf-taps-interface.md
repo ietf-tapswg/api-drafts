@@ -794,7 +794,7 @@ The following API calls can be used to configure a Preconnection before calling 
 ~~~
 RemoteSpecifier.WithMulticastGroupIP(GroupAddress)
 RemoteSpecifier.WithPort(PortNumber)
-RemoteSpecifier.WithTTL(TTL)
+RemoteSpecifier.WithHopLimit(HopLimit)
 ~~~
 
 Calling `Listen` on a Preconnection with a multicast group specified on the Remote
@@ -803,6 +803,8 @@ will create one Connection for each Remote Endpoint sending to the group,
 with the Local Endpoint specified as a group address. The set of Connection
 objects created forms a Connection Group.
 The receiving interface can be restricted by passing it as part of the LocalSpecifier or queried through the Message Context on the Messages received (see {{msg-ctx}} for further details).
+
+The HopLimit sets the Time To Live (TTL) field in the header of an IPv4 packet, or the Hop Count field in the header of an IPv6 packet. 
 
 The following API calls can be used to configure a Preconnection before calling `Listen`:
 
@@ -829,10 +831,10 @@ The following API calls can be used to configure a Preconnection before calling 
 ~~~
 RemoteSpecifier.WithMulticastGroupIP(GroupAddress)
 RemoteSpecifier.WithPort(PortNumber)
-RemoteSpecifier.WithTTL(TTL)
+RemoteSpecifier.WithHopLimit(HopLimit)
 LocalSpecifier.WithAnySourceMulticastGroupIP(GroupAddress)
 LocalSpecifier.WithPort(PortNumber)
-LocalSpecifier.WithTTL(TTL)
+LocalSpecifier.WithHopLimit(HopLimit)
 ~~~
 
 See {{multicast-examples}} for more examples.
@@ -986,7 +988,7 @@ Create a Source-Specific Multicast group as a sender:
    RemoteSpecifier := NewRemoteEndpoint()
    RemoteSpecifier.WithMulticastGroupIP(232.1.1.1)
    RemoteSpecifier.WithPort(5353)
-   RemoteSpecifier.WithTTL(8)
+   RemoteSpecifier.WithHopLimit(8)
 
    LocalSpecifier := NewLocalEndpoint()
    LocalSpecifier.WithIPAddress(192.0.2.22)
@@ -1008,7 +1010,7 @@ Join an any-source multicast group as both a sender and a receiver:
    RemoteSpecifier := NewRemoteEndpoint()
    RemoteSpecifier.WithMulticastGroupIP(233.252.0.0)
    RemoteSpecifier.WithPort(5353)
-   RemoteSpecifier.WithTTL(8)
+   RemoteSpecifier.WithHopLimit(8)
 
    LocalSpecifier := NewLocalEndpoint()
    LocalSpecifier.WithAnySourceMulticastGroupIP(233.252.0.0)
