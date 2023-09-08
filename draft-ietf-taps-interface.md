@@ -804,7 +804,7 @@ with the Local Endpoint specified as a group address. The set of Connection
 objects created forms a Connection Group.
 The receiving interface can be restricted by passing it as part of the LocalSpecifier or queried through the Message Context on the Messages received (see {{msg-ctx}} for further details).
 
-The HopLimit sets the Time To Live (TTL) field in the header of an IPv4 packet, or the Hop Count field in the header of an IPv6 packet. 
+Specifying WithHopLimit sets the Time To Live (TTL) field in the header of IPv4 packets or the Hop Count field in the header of IPv6 packets.
 
 The following API calls can be used to configure a Preconnection before calling `Listen`:
 
