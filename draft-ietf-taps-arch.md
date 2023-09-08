@@ -340,7 +340,7 @@ The architecture divides the concepts for Transport Services system into two cat
 1. API concepts, which are intended to be exposed to applications; and
 2. System-implementation concepts, which are intended to be internally used by a Transport Services Implementation.
 
-The following diagram summarizes the top-level concepts in a Transport Servcies system and how they relate to one another.
+The following diagram summarizes the top-level concepts in a Transport Services System and how they relate to one another.
 
 ~~~~~~~~~~
 
