@@ -165,7 +165,7 @@ This subsection provides a glossary of key terms related to the Transport Servic
 
 The traditional model of using sockets for networking can be represented as follows (see figure 1):
 
-- Applications create connections and transfer data using the Socket API. 
+- Applications create connections and transfer data using the Socket API.
 - The Socket API provides the interface to the implementations of TCP and UDP
   (typically implemented in the system's kernel).
 - TCP and UDP in the kernel send and receive data over the available network-layer interfaces.
