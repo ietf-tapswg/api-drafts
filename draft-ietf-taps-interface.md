@@ -198,7 +198,8 @@ The following notations, which can be combined, are used in this document:
   action and event parameters whose names are suffixed with a question mark are optional.
 
 ~~~
-      Action(param0, param1?, ...) / Event<param0, param1, ...>
+      Action(param0, param1?, ...)
+      Event<param0, param1?, ...>
 ~~~
 
 Objects that are passed as parameters to actions use call-by-value behavior.
@@ -577,14 +578,14 @@ digits `0-9`, the hyphen `-`, and the underscore `_`. These names serve two purp
 Transport Property Names are hierarchically organized in the
 form \[\<Namespace>.\]\<PropertyName\>.
 
-- The Namespace component MUST be empty for well-known, generic properties, i.e., for
-  properties that are not specific to a protocol.
+- The optional Namespace component and its trailing character `.` MUST be omitted for well-known,
+  generic properties, i.e., for properties that are not specific to a protocol.
 - Protocol-specific Properties MUST use the protocol acronym as the Namespace (e.g., a
   `tcp` Connection could support a TCP-specific Transport Property, such as the user timeout
   value, in a Protocol-specific Property called `tcp.userTimeoutValue` (see {{tcp-uto}})).
 - Vendor or implementation specific properties MUST use a string identifying
   the vendor or implementation as the Namespace.
-- For IETF protocols, the name of a Protocol-specific Property SHOULD be specified in an IETF document published in the RFC Series.
+- For IETF protocols, the name of a Protocol-specific Property SHOULD be specified in an IETF document published in the RFC Series after IETF review.
 
 Namespaces for each of the keywords provided in the IANA protocol numbers registry
 (see https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml) are reserved
@@ -2323,7 +2324,7 @@ Type:
 
 This property, if applicable, represents the maximum Message size that can be
 sent without incurring network-layer fragmentation at the sender.
-It is specified as the number of bytes. It exposes a value to the application
+It is specified as a number of bytes. It exposes a value to the application
 based on the Maximum Packet Size (MPS) as described in Datagram PLPMTUD {{?RFC8899}}.
 This can allow a sending stack to avoid unwanted fragmentation at the
 network-layer or segmentation by the transport layer.
