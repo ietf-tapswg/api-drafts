@@ -91,7 +91,7 @@ interfaces.
 A Connection represents an object that, once established, can be used to send and receive messages.
 A Connection can also be created from another Connection, by cloning, and then forms a part of a Connection Group whose Connections share properties.
 
-This document was developed in parallel with the specification of the Transport Services API {{?I-D.ietf-taps-interface}} and implementation guidelines {{?I-D.ietf-taps-impl}}. Although following the Transport Services architecture does not require that all APIs and implementations to be identical, a common minimal set of features represented in a consistent fashion will enable applications to be easily ported from one implementation of the Transport Services system to another.
+This document was developed in parallel with the specification of the Transport Services API {{?I-D.ietf-taps-interface}} and implementation guidelines {{?I-D.ietf-taps-impl}}. Although following the Transport Services architecture does not require all APIs and implementations to be identical, a common minimal set of features represented in a consistent fashion will enable applications to be easily ported from one implementation of the Transport Services system to another.
 
 ## Background
 
