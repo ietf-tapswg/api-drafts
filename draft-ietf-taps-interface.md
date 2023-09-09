@@ -1149,8 +1149,9 @@ Default:
 : Require
 
 This property specifies whether the application needs to use a transport
-protocol that ensures that all data is received at the Remote Endpoint without
-corruption. When reliable data transfer is enabled, this
+protocol that ensures that
+all data is received at the Remote Endpoint in order without loss or duplication. 
+When reliable data transfer is enabled, this
 also entails being notified when a Connection is closed or aborted.
 
 ### Preservation of Message Boundaries {#prop-boundaries}
