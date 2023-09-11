@@ -583,9 +583,9 @@ form \[\<Namespace>.\]\<PropertyName\>.
 - Protocol-specific Properties MUST use the protocol acronym as the Namespace (e.g., a
   `tcp` Connection could support a TCP-specific Transport Property, such as the user timeout
   value, in a Protocol-specific Property called `tcp.userTimeoutValue` (see {{tcp-uto}})).
-- Vendor or implementation specific properties MUST use a string identifying
-  the vendor or implementation as the Namespace.
-- For IETF protocols, the name of a Protocol-specific Property SHOULD be specified in an IETF document published in the RFC Series after IETF review.
+- Vendor or implementation specific properties MUST be placed in a Namespace starting with the underscore `_` character
+   and SHOULD use a string identifying the vendor or implementation.
+- For IETF protocols, the name of a Protocol-specific Property SHOULD be specified in an IETF document published in the RFC Series after IETF review and registered in the "Transport Property Namespaces" registry.
 
 Namespaces for each of the keywords provided in the IANA protocol numbers registry
 (see https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml) are reserved
@@ -3419,8 +3419,25 @@ The Transport Services API  provides the following guarantees about the ordering
 
 RFC-EDITOR: Please remove this section before publication.
 
-This document has no actions for IANA.
-Later versions of this document may create IANA registries for generic transport property names and transport property namespaces (see {{property-names}}).
+IANA will create the following registry in a new registry group called "Transport Service System (TAPS)":
+
+Registry Name: Transport Property Namespaces
+
+Registration Procedure: 
+
+- IETF Review
+- First Come First Served for vendor/implementation specific entries strating with an underscore "_"
+
+The initial values in the "Transport Property Namespaces" registry are:
+
+   | namespace  | Protocol                              | Reference       |
+   |------------|---------------------------------------|-----------------|
+   | udp        | User Datagram Protocol                | [This Document] |
+   | tcp        | Transmission Control Protocol         | [This Document] |
+   | sctp       | Stream Transmission Control Protocol  | [This Document] |
+{: #tab-iana-taps-namespace title="Uniztal Transport Property Namespaces"}
+
+Later versions of this document may create an IANA registry for generic transport property names (see {{property-names}}).
 
 # Privacy and Security Considerations {#privacy-security}
 
