@@ -3432,10 +3432,10 @@ The initial values in the "Transport Property Namespaces" registry are:
 
    | namespace  | Protocol                              | Reference       |
    |------------|---------------------------------------|-----------------|
-   | udp        | User Datagram Protocol                | [This Document] |
-   | tcp        | Transmission Control Protocol         | [This Document] |
-   | sctp       | Stream Transmission Control Protocol  | [This Document] |
-{: #tab-iana-taps-namespace title="Uniztal Transport Property Namespaces"}
+   | udp        | User Datagram Protocol                | This Document   |
+   | tcp        | Transmission Control Protocol         | This Document   |
+   | sctp       | Stream Transmission Control Protocol  | This Document   |
+{: #tab-iana-taps-namespaces title="Inital Transport Property Namespaces"}
 
 Later versions of this document may create an IANA registry for generic transport property names (see {{property-names}}).
 
