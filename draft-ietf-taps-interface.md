@@ -3423,7 +3423,7 @@ IANA will create the following registry in a new registry group called "Transpor
 
 Registry Name: Transport Property Namespaces
 
-Registration Procedure: 
+Registration Procedure:
 
 - IETF Review
 - First Come First Served for vendor/implementation specific entries strating with an underscore "_"
