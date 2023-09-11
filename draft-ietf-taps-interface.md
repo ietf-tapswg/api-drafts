@@ -1982,7 +1982,7 @@ Connection via `SoftError` events.
 
 Connection Properties represent the configuration and state of the selected
 Protocol Stack(s) backing a Connection. These Connection Properties may be
-Generic, applying regardless of transport protocol, or Specific, applicable to a
+generic, applying regardless of transport protocol, or specific, applicable to a
 single implementation of a single transport Protocol Stack. Generic Connection
 Properties are defined in {{connection-props}} below.
 
@@ -1992,8 +1992,8 @@ permit more specialized protocol features to be used.
 Too much reliance by an application on Protocol-specific Properties can significantly reduce the flexibility
 of a transport services system to make appropriate
 selection and configuration choices. Therefore, it is RECOMMENDED that
-Protocol-specific Properties are used for properties common across different protocols and that
-Protocol-specific Properties are only used where specific protocols or properties are necessary.
+Generic Connection Properties are used for properties common across different protocols and that
+Protocol-specific Connection Properties are only used where specific protocols or properties are necessary.
 
 The application can set and query Connection Properties on a per-Connection
 basis. Connection Properties that are not read-only can be set during
