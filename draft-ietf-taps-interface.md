@@ -231,7 +231,7 @@ We also make use of the following basic types:
 - Collection: An unordered grouping of one or more values of the same type.
 
 For guidance on how these abstract concepts may be implemented in languages
-in accordance with native design patterns and language and platform features,
+in accordance with language-specific design patterns and platform features,
 see {{implmapping}}.
 
 ## Specification of Requirements
@@ -3522,7 +3522,7 @@ implementation-specific limitations. For example:
   to the underlying platform's ranges for each.
 - In C, a Tuple may be represented as a `struct` with one member for each of
   the value types in the ordered grouping. In Python, by contrast, a Tuple may
-  be represented natively as a `tuple`, a sequence of dynamically-typed
+  be represented as a `tuple`, a sequence of dynamically-typed
   elements.
 - A Collection may be represented as a `std::set` in C++ or as a `set` in
   Python. In C, it may be represented as an array or as a higher-level data

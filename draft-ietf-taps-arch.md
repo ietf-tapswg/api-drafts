@@ -256,7 +256,7 @@ The Transport Services API represents data as messages, so that it more closely 
 * the ability to control reliability, which messages to retransmit when there is packet loss, and how best to make use of the data that arrived;
 * the ability to automatically assign messages and connections to underlying transport connections to utilize multi-streaming and pooled connections.
 
-Allowing applications to interact with messages is backwards-compatible with existing protocols and APIs because it does not change the wire format of any protocol. Instead, it provides the Protocol Stack with additional information to allow it to make better use of modern transport services, while simplifying the application's role in parsing data. For protocols that natively use a streaming abstraction, framers ({{datatransfer}}) bridge the gap between the two abstractions.
+Allowing applications to interact with messages is backwards-compatible with existing protocols and APIs because it does not change the wire format of any protocol. Instead, it provides the Protocol Stack with additional information to allow it to make better use of modern transport services, while simplifying the application's role in parsing data. For protocols that inherently use a streaming abstraction, framers ({{datatransfer}}) bridge the gap between the two abstractions.
 
 ## Flexible Implementation
 
@@ -639,7 +639,7 @@ the Transport Services system is used during establishment.
 This allows applications to make
 tradeoffs between efficiency (through racing) and privacy (via information that
 might leak from the cache toward an on-path observer). Some applications have
-native concepts (e.g. "incognito mode") that align with this functionality.
+features (e.g. "incognito mode") that align with this functionality.
 
 Applications need to ensure that they use security APIs appropriately. In cases
 where applications use an interface to provide sensitive keying material, e.g.,
