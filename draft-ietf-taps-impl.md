@@ -601,7 +601,7 @@ While many protocols can be represented as Message Framers, for the
 purposes of the Transport Services API, these are ways for applications
 or application frameworks to define their own Message parsing to be
 included within a Connection's Protocol Stack. As an example, TLS
-is a protocol that is natively supported by the Transport Services
+is a protocol that is by default built into the Transport Services
 API, even though it could also serve the purpose of framing data over TCP.
 
 Most Message Framers fall into one of two categories:
