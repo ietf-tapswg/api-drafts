@@ -3426,15 +3426,13 @@ Registry Name: Transport Property Namespaces
 Registration Procedure:
 
 - IETF Review
-- First Come First Served for vendor/implementation specific entries strating with an underscore "_"
+- First Come First Served for vendor/implementation specific entries; These entries MUST start with an underscore "_" and provide a stable URL as reference for the values within the namespace.
 
 The initial values in the "Transport Property Namespaces" registry are:
 
-   | namespace  | Protocol                              | Reference       |
+   | Namespace  | Protocol                              | Reference       |
    |------------|---------------------------------------|-----------------|
-   | udp        | User Datagram Protocol                | This Document   |
    | tcp        | Transmission Control Protocol         | This Document   |
-   | sctp       | Stream Transmission Control Protocol  | This Document   |
 {: #tab-iana-taps-namespaces title="Inital Transport Property Namespaces"}
 
 Later versions of this document may create an IANA registry for generic transport property names (see {{property-names}}).
