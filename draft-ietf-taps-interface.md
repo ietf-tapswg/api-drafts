@@ -561,8 +561,7 @@ the respective protocol has been selected.
 
 ## Transport Property Names {#property-names}
 
-Transport Properties are referred to by property names. For the purposes
-of this document, these names are alphanumeric strings in which the following
+Transport Properties are referred to by property names. These names are alphanumeric strings in which the following
 characters are allowed: lowercase letters `a-z`, uppercase letters `A-Z`,
 digits `0-9`, the hyphen `-`, and the underscore `_`. These names serve two purposes:
 
@@ -3476,7 +3475,7 @@ the goal of a Transport Services system is to support
 such mechanisms as a generic service within the transport layer. This enables applications to more dynamically
 benefit from innovations and new protocols in the transport, although it reduces transparency of the
 underlying communication actions to the application itself. The Transport Services API is designed such that protocol and path selection
-can be limited to a small and controlled set if required by the application for functional or security purposes. Further,
+can be limited to a small and controlled set if required by the application to perform a function or to provide security. Further,
 introspection on the properties of Connection objects allows an application to determine which protocol(s) and path(s) are in use.
 A Transport Services system SHOULD provide a facility logging the communication events of each Connection.
 
