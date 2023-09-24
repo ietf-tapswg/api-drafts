@@ -303,7 +303,7 @@ connection-oriented. Connections can be created from Preconnections in three way
 
 - by initiating the Preconnection (i.e., actively opening, as in a client; {{initiate}}),
 - through listening on the Preconnection (i.e., passively opening, as in a server; {{listen}}),
-- or rendezvousing on the Preconnection (i.e., peer to peer establishment; {{rendezvous}}).
+- or a rendezvous for the Preconnection (i.e., peer to peer establishment; {{rendezvous}}).
 
 Once a Connection is established, data can be sent and received on it in the form of
 Messages. The API supports the preservation of message boundaries both
