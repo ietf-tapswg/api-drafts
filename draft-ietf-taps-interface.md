@@ -2907,8 +2907,9 @@ Connection.Send(messageData)
 
 The interpretation of a Message to be sent is dependent on the implementation, and
 on the constraints on the Protocol Stacks implied by the Connection’s transport properties.
-For example, a Message may be a single datagram for UDP Connections; or an HTTP
-Request for HTTP Connections.
+For example, a Message could be the payload of
+a single datagram for a UDP Connection; or an HTTP Request for an HTTP
+Connection.
 
 Some transport protocols can deliver arbitrarily sized Messages, but other
 protocols constrain the maximum Message size. Applications can query the
