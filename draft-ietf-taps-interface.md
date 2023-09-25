@@ -586,6 +586,7 @@ form \[\<Namespace>.\]\<PropertyName\>.
 - Vendor or implementation specific properties MUST be placed in a Namespace starting with the underscore `_` character
    and SHOULD use a string identifying the vendor or implementation.
 - For IETF protocols, the name of a Protocol-specific Property SHOULD be specified in an IETF document published in the RFC Series after IETF review and registered in the "Transport Property Namespaces" registry.
+  An IETF protocol Namespace does not start with an underscore character.
 
 Namespaces for each of the keywords provided in the IANA protocol numbers registry
 (see https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml) are reserved
