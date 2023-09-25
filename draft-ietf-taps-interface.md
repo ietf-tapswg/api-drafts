@@ -2327,10 +2327,14 @@ Type:
 
 This property, if applicable, represents the maximum Message size that can be
 sent without incurring network-layer fragmentation at the sender.
-It is specified as a number of bytes. It exposes a value to the application
+It is specified as a number of bytes and is less than or equal to the
+Maximum Message Size on Send.
+It exposes a readable value to the application
 based on the Maximum Packet Size (MPS) as described in Datagram PLPMTUD {{?RFC8899}}.
-This can allow a sending stack to avoid unwanted fragmentation at the
-network-layer or segmentation by the transport layer.
+This value allows a sending stack to avoid unwanted fragmentation at the
+network-layer or segmentation by the transport layer before
+choosing the message size and/or after a `SendError` occurs indicating
+an attempt to send a Message that is too large.
 
 #### Maximum Message Size on Send {#conn-max-msg-send}
 
@@ -2974,7 +2978,7 @@ Connection -> SendError<messageContext, reason?>
 ~~~
 
 A `SendError` occurs when a Message was not sent due to an error condition:
-an attempt to send a Message which is too large for the system and
+an attempt to send a Message that is too large for the system and
 Protocol Stack to handle, some failure of the underlying Protocol Stack, or a
 set of Message Properties not consistent with the Connection's transport
 properties. The `SendError` contains a reference to the Message Context of the
