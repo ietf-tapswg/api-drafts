@@ -2327,9 +2327,9 @@ Type:
 
 This property, if applicable, represents the maximum Message size that can be
 sent without incurring network-layer fragmentation at the sender.
-It is specified as a number of bytes. It exposes a value to the application
+It is specified as a number of bytes. It exposes a readable value to the application
 based on the Maximum Packet Size (MPS) as described in Datagram PLPMTUD {{?RFC8899}}.
-This can allow a sending stack to avoid unwanted fragmentation at the
+This can allow a sending stack to determine a suitable packet size to avoid fragmentation at the
 network-layer or segmentation by the transport layer.
 
 #### Maximum Message Size on Send {#conn-max-msg-send}
