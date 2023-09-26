@@ -305,6 +305,8 @@ connection-oriented. Connections can be created from Preconnections in three way
 - by listening on the Preconnection (i.e., passively opening, as in a server; {{listen}}),
 - or by a rendezvous for the Preconnection (i.e., peer to peer establishment; {{rendezvous}}).
 
+if the application requires this or
+
 Once a Connection is established, data can be sent and received on it in the form of
 Messages. The API supports the preservation of message boundaries both
 via explicit Protocol Stack support, and via application support through a
@@ -3475,7 +3477,9 @@ the goal of a Transport Services system is to support
 such mechanisms as a generic service within the transport layer. This enables applications to more dynamically
 benefit from innovations and new protocols in the transport, although it reduces transparency of the
 underlying communication actions to the application itself. The Transport Services API is designed such that protocol and path selection
-can be limited to a small and controlled set if the application requires this or to implement a security policy. Further,
+can be limited to a small and controlled set if the application requires this or to implement a security policy.
+can be limited to a small and controlled set if required by the application to perform a function or to provide security.
+Further,
 introspection on the properties of Connection objects allows an application to determine which protocol(s) and path(s) are in use.
 A Transport Services system SHOULD provide a facility logging the communication events of each Connection.
 
