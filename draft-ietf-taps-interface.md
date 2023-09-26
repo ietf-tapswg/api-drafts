@@ -2330,7 +2330,7 @@ sent without incurring network-layer fragmentation at the sender.
 It is specified as a number of bytes and is less than or equal to the
 Maximum Message Size on Send.
 It exposes a readable value to the application
-based on the Maximum Packet Size (MPS) as described in Datagram PLPMTUD {{?RFC8899}}.
+based on the Maximum Packet Size (MPS). The value of this property can change over time (and can be updated by Datagram PLPMTUD {{?RFC8899}}).
 This value allows a sending stack to avoid unwanted fragmentation at the
 network-layer or segmentation by the transport layer before
 choosing the message size and/or after a `SendError` occurs indicating
