@@ -302,8 +302,8 @@ application, irrespective of whether the underlying transport is connection-less
 connection-oriented. Connections can be created from Preconnections in three ways:
 
 - by initiating the Preconnection (i.e., actively opening, as in a client; {{initiate}}),
-- through listening on the Preconnection (i.e., passively opening, as in a server; {{listen}}),
-- or a rendezvous for the Preconnection (i.e., peer to peer establishment; {{rendezvous}}).
+- by listening on the Preconnection (i.e., passively opening, as in a server; {{listen}}),
+- or by a rendezvous for the Preconnection (i.e., peer to peer establishment; {{rendezvous}}).
 
 Once a Connection is established, data can be sent and received on it in the form of
 Messages. The API supports the preservation of message boundaries both
