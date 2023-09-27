@@ -960,7 +960,7 @@ port on a named local interface:
    Listener := Preconnection.Listen()
 ~~~
 
-Join an Source-Specific Multicast group in receive-only mode, bound to a known
+Join a Source-Specific Multicast group in receive-only mode, bound to a known
 port on a named local interface:
 
 ~~~
@@ -2454,7 +2454,7 @@ to communicate the boundaries of the data being transferred.
 
 ## Messages and Framers {#msg}
 
-Each Message has an optional Message Context, which allows to add Message Properties, identify `Send` events related to a specific Message or to inspect meta-data related to the Message sent. Framers can be used to extend or modify the Message data with additional information that can be processed at the receiver to detect message boundaries.
+Each Message has an optional Message Context, which allows adding Message Properties, identify `Send` events related to a specific Message or to inspect meta-data related to the Message sent. Framers can be used to extend or modify the Message data with additional information that can be processed at the receiver to detect message boundaries.
 
 
 ### Message Contexts {#msg-ctx}
@@ -2502,7 +2502,7 @@ Then, the Message Framer can intercept all calls to `Send` or `Receive`
 on a Connection to add Message semantics, in addition to interacting with
 the setup and teardown of the Connection. A Framer can start sending data
 before the application sends data if the framing protocol requires a prefix
-or handshake (see {{?RFC8229}} for an example of such a framing protocol).
+or handshake (see {{?RFC9329}} for an example of such a framing protocol).
 
 ~~~~~~~~~~
 
@@ -2534,7 +2534,7 @@ or handshake (see {{?RFC8229}} for an example of such a framing protocol).
 Note that while Message Framers add the most value when placed above
 a protocol that otherwise does not preserve message boundaries, they can
 also be used with datagram- or message-based protocols. In these cases,
-they add an additional transformation to further encode or encapsulate,
+they add a transformation to further encode or encapsulate,
 and can potentially support packing multiple application-layer Messages
 into individual transport datagrams.
 
@@ -3446,7 +3446,7 @@ In either case, the Transport Services API is an internal interface that is used
 However, as the Transport Services system is responsible for network communication, it is in the position to
 potentially share any information provided by the application with the network or another communication peer.
 Most of the information provided over the Transport Services API are useful to configure and select protocols and paths
-and are not necessarily privacy sensitive. Still, some information could be privacy sensitive because
+and are not necessarily privacy-sensitive. Still, some information could be privacy sensitive because
 it might reveal usage characteristics and habits of the user of an application.
 
 Of course any communication over a network reveals usage characteristics, because all
@@ -3488,7 +3488,7 @@ Further,
 introspection on the properties of Connection objects allows an application to determine which protocol(s) and path(s) are in use.
 A Transport Services system SHOULD provide a facility logging the communication events of each Connection.
 
-# Acknowledgements
+# Acknowledgments
 
 This work has received funding from the European Union's Horizon 2020 research and
 innovation programme under grant agreements No. 644334 (NEAT) and No. 688421 (MAMI).
@@ -3583,7 +3583,7 @@ TransportProperties.Prohibit(property)
 
 To ease the use of the Transport Services API, implementations
 can provide a mechanism to create Transport Property objects (see {{selection-props}})
-that are pre-configured with frequently used sets of properties; the following are
+that are preconfigured with frequently used sets of properties; the following are
 in common use in current applications:
 
 ### reliable-inorder-stream
@@ -3716,7 +3716,7 @@ the `msgLifetime` Message Property implements a time-based way to configure mess
 * "Ordered message delivery (potentially slower than unordered)" and "Unordered message delivery (potentially faster than ordered)":
 these two transport features are controlled via the Message Property `msgOrdered` ({{msg-ordered}}).
 
-* Request not to delay the acknowledgement (SACK) of a message:
+* Request not to delay the acknowledgment (SACK) of a message:
 should the protocol support it, this is one of the transport features the Transport Services system can apply when an application uses the `connCapacityProfile` Property ({{prop-cap-profile}}) or the `msgCapacityProfile` Message Property ({{send-profile}}) with value `Low Latency/Interactive`.
 
 * Receive data (with no message delimiting):
