@@ -228,7 +228,7 @@ We also make use of the following basic types:
 - Array: Denoted `[]Type`, an instance takes a value for each of zero or more
   elements in a sequence of the given Type. An array may be of fixed or
   variable length.
-- Collection: An unordered grouping of one or more values of the same type.
+- Set: An unordered grouping of one or more different values of the same type.
 
 For guidance on how these abstract concepts may be implemented in languages
 in accordance with language-specific design patterns and platform features,
@@ -1306,7 +1306,7 @@ Name:
 : interface
 
 Type:
-: Collection of (Preference, Enumeration)
+: Set of (Preference, Enumeration)
 
 Default:
 : Empty (not setting a preference for any interface)
@@ -1349,7 +1349,7 @@ Name:
 : pvd
 
 Type:
-: Collection of (Preference, Enumeration)
+: Set of (Preference, Enumeration)
 
 Default:
 : Empty (not setting a preference for any PvD)
@@ -3532,7 +3532,7 @@ implementation-specific limitations. For example:
   the value types in the ordered grouping. In Python, by contrast, a Tuple may
   be represented as a `tuple`, a sequence of dynamically-typed
   elements.
-- A Collection may be represented as a `std::set` in C++ or as a `set` in
+- A Set may be represented as a `std::set` in C++ or as a `set` in
   Python. In C, it may be represented as an array or as a higher-level data
   structure with appropriate accessors defined.
 
