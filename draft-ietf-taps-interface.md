@@ -2449,7 +2449,7 @@ to communicate the boundaries of the data being transferred.
 
 ## Messages and Framers {#msg}
 
-Each Message has an optional Message Context, which allows adding add Message Properties, identify `Send` events related to a specific Message or to inspect meta-data related to the Message sent. Framers can be used to extend or modify the Message data with additional information that can be processed at the receiver to detect message boundaries.
+Each Message has an optional Message Context, which allows adding Message Properties, identify `Send` events related to a specific Message or to inspect meta-data related to the Message sent. Framers can be used to extend or modify the Message data with additional information that can be processed at the receiver to detect message boundaries.
 
 
 ### Message Contexts {#msg-ctx}
