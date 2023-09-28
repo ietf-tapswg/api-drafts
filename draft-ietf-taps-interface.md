@@ -3136,7 +3136,10 @@ as a receiver preference for Message reordering.
 Each call to `Receive` will be paired with a single `Receive` event. This allows an application
 to provide backpressure to the transport stack when it is temporarily not ready to receive Messages.
 For example, an application that will later be able to handle multiple receive events at the same time
-can make multiple calls to `Receive` without waiting for, or processing, any receive events.
+can make multiple calls to `Receive` without waiting for, or processing, any receive events. An application
+that is temporarily unable to process received events for a connection could refrain from calling `Receive`
+or delay calling it. This would lead to a build-up of unread data, which, in turn, could result in
+backpressure to the sender via a transport protocol's flow control.
 
 The Transport Services API should allow the application to correlate which call to `Receive` resulted
 in a particular `Receive` event. The manner in which this correlation is indicated
