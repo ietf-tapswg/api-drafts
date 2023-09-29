@@ -269,7 +269,7 @@ Applications can influence which derived Endpoints are allowed and preferred via
 
 #### Network Paths
 
-If a client has multiple network paths available to it, e.g., a mobile client with interfaces for both Wi-Fi and Cellular connectivity, it can attempt a connection over any of the paths. This represents a branch point in the connection establishment. Similar to a derived Endpoint Identifer, the paths should be ranked based on preference, system policy, and performance. Attempts should be started on one path (e.g., a specific interface), and then successively on other paths (or interfaces) after delays based on the expected path round-trip-time or other available metrics.
+If a client has multiple network paths available to it, e.g., a mobile client with interfaces for both Wi-Fi and Cellular connectivity, it can attempt a connection over any of the paths. This represents a branch point in the connection establishment. Similar to a derived Endpoint, the paths should be ranked based on preference, system policy, and performance. Attempts should be started on one path (e.g., a specific interface), and then successively on other paths (or interfaces) after delays based on the expected path round-trip-time or other available metrics.
 
 ~~~~~~~~~~
 1 [192.0.2.1:80, any path, TCP]
