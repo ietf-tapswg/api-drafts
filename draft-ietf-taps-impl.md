@@ -1150,7 +1150,7 @@ See {{fastopen}} for security considerations around racing with 0-RTT data.
 
 An attacker that knows a particular device is racing several options during connection establishment may be able to block packets for the first connection attempt, thus inducing the device to fall back to a secondary attempt. This is a problem if the secondary attempts have worse security properties that enable further attacks. Implementations should ensure that all options have equivalent security properties to avoid incentivizing attacks.
 
-Since results from the network can determine how a connection attempt tree is built, such as when DNS returns a list of resolved Endpoint Identifers, it is possible for the network to cause an implementation to consume significant on-device resources. Implementations should limit the maximum amount of state allowed for any given node, including the number of child nodes, especially when the state is based on results from the network.
+Since results from the network can determine how a connection attempt tree is built, such as when DNS returns a list of resolved Endpoints, it is possible for the network to cause an implementation to consume significant on-device resources. Implementations should limit the maximum amount of state allowed for any given node, including the number of child nodes, especially when the state is based on results from the network.
 
 # Acknowledgements
 
