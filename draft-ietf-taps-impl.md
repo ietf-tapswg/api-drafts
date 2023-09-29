@@ -332,7 +332,7 @@ where a lower number indicates higher precedence and therefore higher placement 
 
 Protocol options are next checked in order. Whether or not a set of protocols, or protocol-specific options, can successfully connect is generally not dependent on which specific IP address is used. Furthermore, the Protocol Stacks being attempted may influence or altogether change the Endpoint Identifers being used. Adding a proxy to a connection's branch will change the Endpoint Identifer to the proxy's IP address or hostname. Choosing an alternate protocol may also modify the ports that should be selected.
 
-Branching for derived Endpoint Identifers is the final step, and may have multiple layers of derivation or resolution, such as DNS service resolution and DNS hostname resolution.
+Branching for derived Endpoints is the final step, and may have multiple layers of derivation or resolution, such as DNS service resolution and DNS hostname resolution.
 
 For example, if the application has indicated both a preference for WiFi over LTE and for a feature only available in SCTP, branches will be first sorted accord to path selection, with WiFi attempted first. Then, branches with SCTP will be attempted first within their subtree according to the properties influencing protocol selection. However, if the implementation has current cache information that SCTP is not available on the path over WiFi, there would be no SCTP node in the WiFi subtree. Here, the path over WiFi will be attempted first, and, if connection establishment succeeds, TCP will be used. Thus, the Selection Property preferring WiFi takes precedence over the Property that led to a preference for SCTP.
 
