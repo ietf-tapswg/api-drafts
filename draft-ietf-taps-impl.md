@@ -326,7 +326,7 @@ This document recommends the following order of operations for branching:
 
 1. Network Paths
 2. Protocol Options
-3. Derived Endpoint Identifers
+3. Derived Endpoints
 
 where a lower number indicates higher precedence and therefore higher placement in the tree. Branching between paths is the first in the list because results across multiple interfaces are likely not related to one another: Endpoint Identifer resolution may return different results, especially when using locally resolved host and service names, and which protocols are supported and preferred may differ across interfaces. Thus, if multiple paths are attempted, the overall connection establishment process can be seen as a race between the available paths or interfaces.
 
