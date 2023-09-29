@@ -245,7 +245,7 @@ There are three types of branching from a parent node into one or more child nod
 
 #### Derived Endpoints
 
-If a connection originally targets a single Endpoint Identifer, there may be multiple Endpoint Identifers of different types that can be derived from the original. This creates an ordered list of the derived Endpoint Identifers according to application preference, system policy and expected performance.
+If a connection originally targets a single Endpoint Identifer, there may be multiple Endpoint candidates of different types that can be derived from the original. This creates an ordered list of the derived Endpoint candidates according to application preference, system policy and expected performance.
 
 DNS hostname-to-address resolution is the most common method of Endpoint Identifer derivation. When trying to connect to a hostname Endpoint Identifer on a traditional IP network, the implementation should send all applicable DNS queries. Commonly, this will include both A (IPv4) and AAAA (IPv6) records if both address families are supported on the local interface. This can also include SRV records {{?RFC2782}}, SVCB and HTTPS records {{?I-D.ietf-dnsop-svcb-https}}, or other future record types. The algorithm for ordering and racing these addresses should follow the recommendations in Happy Eyeballs {{!RFC8305}}.
 
