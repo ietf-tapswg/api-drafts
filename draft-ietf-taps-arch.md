@@ -337,6 +337,15 @@ It is important to note that neither the Transport Services API {{?I-D.ietf-taps
 
 A Transport Services system makes decisions that select protocols and interfaces. In normal use, a given version of a Transport Services system SHOULD result in consistent protocol and interface selection decisions for the same network conditions given the same set of Properties. This is intended to provide predictable outcomes to the application using the API.
 
+## Support Monitoring
+
+The Transport Services API increases the layer of abstraction for applications, and it enables greater automation below the API. Such increased
+abstraction comes at the cost of increased complexity when application programmers, users or system administrators
+try to understand why any issues and failures may be happening. Transport Services systems should therefore offer monitoring functions that
+provide relevant debug and diagnostics information. For example, such monitoring functions could indicate the protocol(s) in use, the
+number of open connections per protocol, and any statistics that these protocols may offer.
+
+
 # Transport Services Architecture and Concepts {#concepts}
 
 This section of the document describes the architecture non-normatively. The concepts defined in this document are intended primarily for use in the documents and specifications that describe the Transport Services system. This includes the architecture, the Transport Services API and the associated Transport Services implementation. While the specific terminology can be used in some implementations, it is expected that there will remain a variety of terms used by running code.
