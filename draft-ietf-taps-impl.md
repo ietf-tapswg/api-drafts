@@ -265,7 +265,7 @@ DNS-Based Service Discovery {{?RFC6763}} can also provide an Endpoint derivation
     1.1.1 [31.133.160.18.631, Wi-Fi, TCP]
 ~~~~~~~~~~
 
-Applications can influence which derived Endpoint Identifers are allowed and preferred via Selection Properties set on the Preconnection. For example, setting a preference for `useTemporaryLocalAddress` would prefer the use of IPv6 over IPv4, and requiring `useTemporaryLocalAddress` would eliminate IPv4 options, since IPv4 does not support temporary addresses.
+Applications can influence which derived Endpoints are allowed and preferred via Selection Properties set on the Preconnection. For example, setting a preference for `useTemporaryLocalAddress` would prefer the use of IPv6 over IPv4, and requiring `useTemporaryLocalAddress` would eliminate IPv4 options, since IPv4 does not support temporary addresses.
 
 #### Network Paths
 
