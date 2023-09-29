@@ -698,7 +698,10 @@ Message Framers generate an event whenever a Connection sends a new Message. The
 align with the `Send` action in the API ({{Section 9.2 of I-D.ietf-taps-interface}}).
 
 ~~~
-MessageFramer -> NewSentMessage<connection, messageData, messageContext, endOfMessage>
+                        MessageFramer
+                              |
+                              V
+NewSentMessage<connection, messageData, messageContext, endOfMessage>
 ~~~
 
 Upon receiving this event, a framer implementation is responsible for
@@ -733,7 +736,10 @@ application requests a specific amount of data it needs to have available in ord
 If the data is not available, the parse fails.
 
 ~~~
-MessageFramer.Parse(connection, minimumIncompleteLength, maximumLength) -> (messageData, messageContext, endOfMessage)
+MessageFramer.Parse(connection, minimumIncompleteLength, maximumLength)
+                                 |
+                                 V
+             (messageData, messageContext, endOfMessage)
 ~~~
 
 The framer implementation can directly advance the receive cursor once it has
