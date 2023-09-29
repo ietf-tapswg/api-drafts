@@ -2150,7 +2150,8 @@ Default:
 : Weighted Fair Queueing (see Section 3.6 in {{?RFC8260}})
 
 This property specifies which scheduler should be used among Connections within
-a Connection Group, see {{groups}}. A set of schedulers is
+a Connection Group to apportion the available capacity according to Connection priorities
+(see {{groups}} and {{conn-priority}}). A set of schedulers is
 described in {{?RFC8260}}.
 
 ### Capacity Profile {#prop-cap-profile}
