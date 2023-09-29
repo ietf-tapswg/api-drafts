@@ -1125,6 +1125,8 @@ with the Selection Property, and `false` means that the Protocol Stack does not
 support the feature or use the path. Implementations
 of Transport Services systems may alternatively use the two Preference values `Require`
 and `Prohibit` to represent `true` and `false`, respectively.
+Other types of Selection Properties remain unchanged when they are made available for
+reading later.
 
 An implementation of the Transport Services API needs to provide sensible defaults for Selection
 Properties. The default values for each property below represent a
