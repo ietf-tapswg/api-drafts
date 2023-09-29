@@ -257,7 +257,7 @@ DNS hostname-to-address resolution is the most common method of Endpoint derivat
   1.4 [2001:DB8::3.80, Wi-Fi, TCP]
 ~~~~~~~~~~
 
-DNS-Based Service Discovery {{?RFC6763}} can also provide an Endpoint Identifer derivation step. When trying to connect to a named service, the client may discover one or more hostname and port pairs on the local network using multicast DNS {{?RFC6762}}. These hostnames should each be treated as a branch that can be attempted independently from other hostnames. Each of these hostnames might resolve to one or more addresses, which would create multiple layers of branching.
+DNS-Based Service Discovery {{?RFC6763}} can also provide an Endpoint derivation step. When trying to connect to a named service, the client may discover one or more hostname and port pairs on the local network using multicast DNS {{?RFC6762}}. These hostnames should each be treated as a branch that can be attempted independently from other hostnames. Each of these hostnames might resolve to one or more addresses, which would create multiple layers of branching.
 
 ~~~~~~~~~~
 1 [term-printer._ipp._tcp.meeting.ietf.org, Wi-Fi, TCP]
