@@ -560,7 +560,7 @@ While Connection Groups are managed by the Transport Services Implementation, an
 
 ## Transport Services Implementation
 
-This section defines the key archirtectural concepts for the Transport Services Implementation within the Transport Services System.
+This section defines the key architectural concepts for the Transport Services Implementation within the Transport Services System.
 
 The Transport Services System consists of the Transport Services Implementation and the Transport Services API.
 The Transport Services Implementation consists of all objects and protocol instances used internally to a system or library to implement the functionality needed to provide a transport service across a network, as required by the abstract interface.
