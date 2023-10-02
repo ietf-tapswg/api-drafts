@@ -754,6 +754,11 @@ LocalSpecifier.WithInterface("en0")
 Note that an IPv6 address specified with a scope zone ID (e.g. `fe80::2001:db8%en0`)
 is equivalent to `WithIPAddress` with an unscoped address and `WithInterface ` together.
 
+Applications creating Endpoint objects using `WithHostname` SHOULD provide fully-qualified
+domain names (FQDNs). Not providing an FQDN will result in the Transport Services Implementation
+needing to resolve using DNS search domains, which might lead to inconsistent or unpredictable
+behavior.
+
 The design of the API MUST NOT permit an Endpoint object to be configured with multiple identifiers of the same type.
 For example, an Endpoint object cannot specify two IP addresses. Two separate IP addresses
 are represented as two Endpoint objects. If a Preconnection specifies a Remote
