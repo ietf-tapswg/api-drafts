@@ -274,7 +274,7 @@ provides:
   networks over which a Connection can operate (e.g. Provisioning Domain (PvD)
   information {{?RFC7556}}) where available.
 
-- Explicit support for transport-specific features to be applied, should that
+- Explicit support for transport-specific features to be applied, when that
   particular transport be part of a chosen Protocol Stack.
 
 - Explicit support for security properties as first-order transport features.
@@ -314,7 +314,7 @@ Message Framer that finds message boundaries in a stream. Messages are
 received asynchronously through event handlers registered by the application.
 Errors and other notifications also happen asynchronously on the Connection.
 It is not necessary for an application to handle all events; some events may
-have implementation-specific default handlers. The application should not
+have implementation-specific default handlers. The application ought not
 assume that ignoring events (e.g., errors) is always safe.
 
 
@@ -524,7 +524,7 @@ Connection.Close()
 # Transport Properties {#transport-properties}
 
 Each application using the Transport Services API declares its preferences
-for how the Transport Services system should operate. This is done by using
+for how the Transport Services system is to operate. This is done by using
 Transport Properties, as defined in {{!I-D.ietf-taps-arch}}, at each stage
 of the lifetime of a Connection.
 
@@ -682,7 +682,7 @@ can be resolved to a server reflexive address for a Preconnection used to
 make a peer-to-peer `Rendezvous`.
 
 If more than one Remote Endpoint is specified on the Preconnection, then
-all the Remote Endpoints on the Preconnection should represent the same
+all the Remote Endpoints on the Preconnection ought to represent the same
 service, to the extent that the application and the Transport Services
 system can validate that the Remote Endpoints correspond to the same service.
 For example, a Remote Endpoint might represent various network
@@ -1296,7 +1296,7 @@ Default:
 
 This property specifies whether the application would like the Connection to send
 keep-alive packets or not. Note that if a Connection determines that keep-alive
-packets are being sent, the application should itself avoid generating additional keep-alive
+packets are being sent, the application SHOULD itself avoid generating additional keep-alive
 messages. Note that when supported, the system will use the default period
 for generation of the keep alive-packets. (See also {{keep-alive-timeout}}).
 
@@ -1336,7 +1336,7 @@ The set of interface types is expected to change over time as new access
 technologies become available. The taxonomy of interface types on a given
 Transport Services system is implementation-specific.
 
-Interface types should not be treated as a proxy for properties of interfaces
+Interface types SHOULD NOT be treated as a proxy for properties of interfaces
 such as metered or unmetered network access. If an application needs to prohibit
 metered interfaces, this should be specified via Provisioning Domain attributes
 (see {{prop-pvd}}) or another specific property.
@@ -1449,7 +1449,7 @@ Type:
 Default:
 : False
 
-This property specifies whether alternative addresses, e.g., of other interfaces, should be advertised to the
+This property specifies whether alternative addresses, e.g., of other interfaces, ought to be advertised to the
 peer endpoint by the Protocol Stack. Advertising these addresses enables the peer-endpoint to establish additional connectivity, e.g., for Connection migration or using multiple paths.
 
 Note that this can have privacy implications because it might result in users being linkable across the multiple paths.
@@ -1602,7 +1602,7 @@ SecurityParameters := NewDisabledSecurityParameters()
 SecurityParameters := NewOpportunisticSecurityParameters()
 ~~~
 
-Representation of security parameters in implementations should parallel
+Representation of security parameters in implementations ought to parallel
 that chosen for Transport Property names as suggested in {{scope-of-interface-defn}}.
 
 ### Connection Establishment Callbacks
@@ -1808,7 +1808,7 @@ and to which it will attempt to establish Connections.
 
 Note that the set of Local Endpoints returned by `Resolve` might or might not
 contain information about all possible local interfaces; it is valid only
-for a Rendezvous happening at the same time as the resolution. Care should
+for a Rendezvous happening at the same time as the resolution. Care ought to
 be taken in using these values in any other context.
 
 An application that uses `Rendezvous` to establish a peer-to-peer Connection
@@ -2133,7 +2133,7 @@ Default:
 
 A Transport Services API can request a protocol that supports sending keep alive packets ({{keep-alive}}).
 If this property is Numeric, it specifies the maximum length of time an idle Connection (one for which no transport
-packets have been sent) should wait before
+packets have been sent) ought to wait before
 the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting this property
 will only take effect when the underlying stack supports sending keep-alive packets.
 Guidance on setting this value for connection-less transports is
@@ -2151,7 +2151,7 @@ Type:
 Default:
 : Weighted Fair Queueing (see Section 3.6 in {{?RFC8260}})
 
-This property specifies which scheduler should be used among Connections within
+This property specifies which scheduler is used among Connections within
 a Connection Group, see {{groups}}. A set of schedulers is
 described in {{?RFC8260}}.
 
@@ -2196,7 +2196,7 @@ The following values are valid for the capacity profile:
 
   Low Latency/Interactive:
   : The application is interactive, and prefers loss to
-  latency. Response time should be optimized at the expense of delay variation
+  latency. Response time SHOULD be optimized at the expense of delay variation
   and efficient use of the available capacity when sending on this Connection. This can be
   used by the system to disable the coalescing of multiple small Messages into
   larger packets (Nagle's algorithm); to prefer immediate acknowledgment from
@@ -2205,7 +2205,7 @@ The following values are valid for the capacity profile:
 
   Low Latency/Non-Interactive:
   : The application prefers loss to latency, but is
-  not interactive. Response time should be optimized at the expense of delay
+  not interactive. Response time SHOULD be optimized at the expense of delay
   variation and efficient use of the available capacity when sending on this Connection. Transport
   system implementations that map the requested capacity profile onto
   per-connection DSCP signaling without multiplexing SHOULD assign a DSCP
@@ -2213,7 +2213,7 @@ The following values are valid for the capacity profile:
 
   Constant-Rate Streaming:
   : The application expects to send/receive data at a
-  constant rate after Connection establishment. Delay and delay variation should
+  constant rate after Connection establishment. Delay and delay variation SHOULD
   be minimized at the expense of efficient use of the available capacity.
   This implies that the Connection might fail if the Path is unable to maintain the desired rate.
   A transport can interpret this capacity profile as preferring a circuit
@@ -2850,7 +2850,7 @@ Attempts to send a Message with this property that result in a size greater than
 transport's current estimate of its maximum packet size (`singularTransmissionMsgMaxLen`)
 can result in transport segmentation when permitted, or in a `SendError`.
 
-Note: noSegmentation should be used when it is desired to only send a Message within
+Note: noSegmentation is used when it is desired to only send a Message within
 a single network packet.
 
 #### No Segmentation {#no-transport-fragmentation}
@@ -3110,12 +3110,12 @@ Connection.Receive(minIncompleteLength?, maxLength?)
 By default, `Receive` will try to deliver complete Messages in a single event ({{receive-complete}}).
 
 The application can set a minIncompleteLength value to indicate the smallest partial
-Message data size in bytes that should be delivered in response to this `Receive`. By default,
+Message data size in bytes to be delivered in response to this `Receive`. By default,
 this value is infinite, which means that only complete Messages should be delivered (see {{receive-partial}}
 and {{framing}} for more information on how this is accomplished).
 If this value is set to some smaller value, the associated receive event will be triggered
 only when at least that many bytes are available, or the Message is complete with fewer
-bytes, or the system needs to free up memory. Applications should always
+bytes, or the system needs to free up memory. Applications SHOULD always
 check the length of the data delivered to the receive event and not assume
 it will be as long as minIncompleteLength in the case of shorter complete Messages
 or memory issues.
@@ -3277,7 +3277,7 @@ Connection once the Message has been completely delivered. This corresponds
 to the `final` property that may be marked on a sent Message, see {{msg-final}}.
 
 Some transport protocols and peers do not support signaling of the `final` property.
-Applications therefore should not rely on receiving a Message marked Final to know
+Applications therefore  SHOULD NOT rely on receiving a Message marked Final to know
 that the sending endpoint is done sending on a Connection.
 
 Any calls to `Receive` once the Final Message has been delivered will result in errors.
@@ -3295,7 +3295,7 @@ as a reason.
 Remote action calls map to events similar to local calls (e.g., a remote `Close` causes the
 Connection to either send a `Closed` event or a `ConnectionError` event), but, different from local action calls,
 it is not guaranteed that such events will indeed be invoked. When an application needs to free resources
-associated with a Connection, it should therefore not rely on the invocation of such events due to
+associated with a Connection, it ought not to therefore rely on the invocation of such events due to
 termination calls from the Remote Endpoint, but instead use the local termination actions.
 
 `Close` terminates a Connection after satisfying all the requirements that were
@@ -3453,7 +3453,7 @@ Of course any communication over a network reveals usage characteristics, becaus
 packets, as well as their timing and size, are part of the network-visible wire image {{?RFC8546}}. However,
 the selection of a protocol and its configuration also impacts which information is visible, potentially in
 clear text, and which other entities can access it. In most cases, information provided for protocol and path selection
-should not directly translate to information that can be observed by network devices on the path.
+does not directly translate to information that can be observed by network devices on the path.
 However, there might be specific configuration
 information that is intended for path exposure, e.g., a DiffServ codepoint setting, that is either provided
 directly by the application or indirectly configured for a traffic profile.
