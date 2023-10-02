@@ -682,7 +682,7 @@ can be resolved to a server reflexive address for a Preconnection used to
 make a peer-to-peer `Rendezvous`.
 
 If more than one Remote Endpoint is specified on the Preconnection, then
-all the Remote Endpoints on the Preconnection ought to represent the same
+all the Remote Endpoints on the Preconnection SHOULD represent the same
 service, to the extent that the application and the Transport Services
 system can validate that the Remote Endpoints correspond to the same service.
 For example, a Remote Endpoint might represent various network
