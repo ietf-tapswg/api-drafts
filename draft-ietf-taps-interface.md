@@ -275,7 +275,7 @@ provides:
   information {{?RFC7556}}) where available.
 
 - Explicit support for transport-specific features to be applied, when that
-  particular transport be part of a chosen Protocol Stack.
+  particular transport is part of a chosen Protocol Stack.
 
 - Explicit support for security properties as first-order transport features.
 
