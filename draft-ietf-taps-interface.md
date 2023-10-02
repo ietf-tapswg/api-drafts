@@ -1550,6 +1550,13 @@ SecurityParameters := NewSecurityParameters()
 
 Security configuration parameters and sample usage follow:
 
+- Application-layer protocol negotiation (ALPN) values: Used to indicate which application-layer protocols
+are negotiated by the security protocol layer. See {{!ALPN=RFC7301}} for definition of the ALPN field.
+
+~~~
+SecurityParameters.Set(alpn, "h2")
+~~~
+
 - Local identity, certificates, and private keys: Used to perform private key operations and prove one's
 identity to the Remote Endpoint. (Note, if private keys are not available, e.g., since they are
 stored in hardware security modules (HSMs), handshake callbacks must be used. See below for details.)
