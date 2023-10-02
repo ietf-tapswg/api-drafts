@@ -86,7 +86,7 @@ As applications adopt this interface, they will benefit from a wide set of trans
 and ensure that the system providing the interface can optimize its behavior based on the application requirements
 and network conditions, without requiring changes to the applications. This flexibility enables faster deployment of new features and protocols.
 
-This acrhitecture can also support applications by offering racing mechanisms (attempting multiple IP addresses, protocols, or network paths in parallel), which otherwise need to be implemented in each application separately (see {{racing}}). Racing selects one or more candidates each with equivalent protocol stacks that are used to identify
+This architecture can also support applications by offering racing mechanisms (attempting multiple IP addresses, protocols, or network paths in parallel), which otherwise need to be implemented in each application separately (see {{racing}}). Racing selects one or more candidates each with equivalent protocol stacks that are used to identify
 an optimal combination of transport protocol instance such as TCP, UDP, or another transport, together with configuration of parameters and
 interfaces.
 A Connection represents an object that, once established, can be used to send and receive messages.
