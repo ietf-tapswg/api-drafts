@@ -110,7 +110,7 @@ This document describes the Transport Services System in three sections:
 
 - {{requirements}} explains the fundamental requirements for a Transport Services System. These principles are intended to make sure that transport protocols can continue to be enhanced and evolve without requiring significant changes by application developers.
 
-- {{concepts}} presents the Transport Services Implementation and defines the concepts that are used by the API {{?I-D.ietf-taps-interface}} and described in the implementation guidelines {{?I-D.ietf-taps-impl}}. This introdcues the Preconnection, which allows applications to configure Connection Properties.
+- {{concepts}} presents the Transport Services Implementation and defines the concepts that are used by the API {{?I-D.ietf-taps-interface}} and described in the implementation guidelines {{?I-D.ietf-taps-impl}}. This introduces the Preconnection, which allows applications to configure Connection Properties.
 
 ## Specification of Requirements
 
