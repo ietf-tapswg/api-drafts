@@ -723,7 +723,7 @@ An Endpoint object can be configured with the following identifiers:
 RemoteSpecifier.WithHostname("example.com")
 ~~~
 
-- Port (a 16-bit integer):
+- Port (a 16-bit unsigned integer):
 
 ~~~
 RemoteSpecifier.WithPort(443)
@@ -759,7 +759,7 @@ For example, an Endpoint object cannot specify two IP addresses. Two separate IP
 are represented as two Endpoint objects. If a Preconnection specifies a Remote
 Endpoint with a specific IP address set, it will only establish Connections to
 that IP address. If, on the other hand, a Remote Endpoint identifier specifies a hostname
-but no addresses, the Connection can perform name resolution and attempt
+but no addresses, the Transport Services Implementation can perform name resolution and attempt
 using any address derived from the original hostname of the Remote Endpoint.
 Note that multiple Remote Endpoints can be added to a Preconnection, as discussed
 in {{add-endpoints}}.
@@ -953,7 +953,7 @@ port on a named local interface:
    TransportProperties := ...
    SecurityParameters  := ...
 
-   Preconnection := newPreconnection(LocalSpecifier,
+   Preconnection := NewPreconnection(LocalSpecifier,
                                      RemoteSpecifier,
                                      TransportProperties,
                                      SecurityProperties)
@@ -976,7 +976,7 @@ port on a named local interface:
    TransportProperties := ...
    SecurityParameters  := ...
 
-   Preconnection := newPreconnection(LocalSpecifier,
+   Preconnection := NewPreconnection(LocalSpecifier,
                                      RemoteSpecifier,
                                      TransportProperties,
                                      SecurityProperties)
@@ -998,7 +998,7 @@ Create a Source-Specific Multicast group as a sender:
    TransportProperties := ...
    SecurityParameters  := ...
 
-   Preconnection := newPreconnection(LocalSpecifier,
+   Preconnection := NewPreconnection(LocalSpecifier,
                                      RemoteSpecifier,
                                      TransportProperties,
                                      SecurityProperties)
@@ -1023,7 +1023,7 @@ Join an any-source multicast group as both a sender and a receiver:
    TransportProperties := ...
    SecurityParameters  := ...
 
-   Preconnection := newPreconnection(LocalSpecifier,
+   Preconnection := NewPreconnection(LocalSpecifier,
                                      RemoteSpecifier,
                                      TransportProperties,
                                      SecurityProperties)
@@ -1574,7 +1574,7 @@ out-of-band. Each pre-shared keying material is associated with some identity th
 its use or has some protocol-specific meaning to the Remote Endpoint.
 
 ~~~
-SecurityParameters.Set(pre-shared-key, key, identity)
+SecurityParameters.Set(pre-shared-key, key, myIdentity)
 ~~~
 
 - Session cache management: Used to tune session cache capacity, lifetime, and
@@ -3422,8 +3422,6 @@ The Transport Services API  provides the following guarantees about the ordering
 
 
 # IANA Considerations
-
-RFC-EDITOR: Please remove this section before publication.
 
 This document has no actions for IANA.
 Later versions of this document may create IANA registries for generic transport property names and transport property namespaces (see {{property-names}}).
