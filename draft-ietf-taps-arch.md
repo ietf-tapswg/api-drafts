@@ -1,5 +1,5 @@
 ---
-title: An Architecture and Requirements for Transport Services
+title: Architecture and Requirements for Transport Services
 abbrev: TAPS Architecture
 docname: draft-ietf-taps-arch-latest
 date:
