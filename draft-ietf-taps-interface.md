@@ -1930,8 +1930,8 @@ Connection -> CloneError<reason?>
 The `connPriority` Connection Property operates on Connections in a Connection Group
 using the same approach as in {{msg-priority}}: when allocating available network
 capacity among Connections in a Connection Group, sends on Connections with
-higher Priority values will be prioritized over sends on Connections that have
-lower Priority values. Capacity will be shared among these Connections according to
+lower Priority values will be prioritized over sends on Connections that have
+higher Priority values. Capacity will be shared among these Connections according to
 the `connScheduler` property ({{conn-scheduler}}).
 See {{priority-in-taps}} for more.
 
@@ -2096,7 +2096,7 @@ Default:
 This property is a non-negative integer representing the
 priority of this Connection
 relative to other Connections in the same
-Connection Group. A higher value reflects a higher priority. It has no effect
+Connection Group. A lower value reflects a higher priority. It has no effect
 on Connections not part of a Connection
 Group. As noted in {{groups}}, this property is not entangled when Connections
 are cloned, i.e., changing the Priority on one Connection in a Connection Group
@@ -2685,10 +2685,10 @@ Default:
 : 100
 
 This property specifies the priority of a Message, relative to other Messages sent over the
-same Connection.
+same Connection. A lower value represents a higher priority.
 
-A Message with Priority 0 will yield to a Message with Priority 1, which will
-yield to a Message with Priority 2, and so on. Priorities may be used as a
+A Message with Priority 2 will yield to a Message with Priority 1, which will
+yield to a Message with Priority o, and so on. Priorities may be used as a
 sender-side scheduling construct only, or be used to specify priorities on the
 wire for Protocol Stacks supporting prioritization.
 
@@ -3082,8 +3082,8 @@ at their defaults.
 
 The Transport Services API does order `connPriority` over
 `msgPriority`. In the absence of other externalities
-(e.g., transport-layer flow control), a priority 1 Message on a priority 0
-Connection will be sent before a priority 0 Message on a priority 1
+(e.g., transport-layer flow control), a priority 0 Message on a priority 1
+Connection will be sent before a priority 1 Message on a priority 0
 Connection in the same group.
 
 ## Receiving Data {#receiving}
