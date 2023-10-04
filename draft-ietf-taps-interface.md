@@ -585,7 +585,7 @@ form \[\<Namespace>.\]\<PropertyName\>.
   value, in a Protocol-specific Property called `tcp.userTimeoutValue` (see {{tcp-uto}})).
 - Vendor or implementation specific properties MUST be placed in a Namespace starting with the underscore `_` character
    and SHOULD use a string identifying the vendor or implementation.
-- For IETF protocols, the name of a Protocol-specific Property SHOULD be specified in an IETF document published in the RFC Series after IETF review and registered in the "Transport Property Namespaces" registry.
+- For IETF protocols, the name of a Protocol-specific Property SHOULD be specified in an IETF document published in the RFC Series after IETF review.
   An IETF protocol Namespace does not start with an underscore character.
 
 Namespaces for each of the keywords provided in the IANA protocol numbers registry
@@ -3420,23 +3420,9 @@ The Transport Services API  provides the following guarantees about the ordering
 
 RFC-EDITOR: Please remove this section before publication.
 
-IANA will create the following registry in a new registry group called "Transport Service System (TAPS)":
+This document has no actions for IANA.
 
-Registry Name: Transport Property Namespaces
-
-Registration Procedure:
-
-- IETF Review
-- First Come First Served for vendor/implementation specific entries; These entries MUST start with an underscore "_" and provide a stable URL as reference for the values within the namespace.
-
-The initial values in the "Transport Property Namespaces" registry are:
-
-   | Namespace  | Protocol                              | Reference       |
-   |------------|---------------------------------------|-----------------|
-   | tcp        | Transmission Control Protocol         | This Document   |
-{: #tab-iana-taps-namespaces title="Inital Transport Property Namespaces"}
-
-Later versions of this document may create an IANA registry for generic transport property names (see {{property-names}}).
+Later versions of this document may create IANA registries for generic transport property names and transport property namespaces (see {{property-names}}).
 
 # Privacy and Security Considerations {#privacy-security}
 
