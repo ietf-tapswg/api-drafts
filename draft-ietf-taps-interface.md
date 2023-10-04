@@ -584,9 +584,10 @@ form \[\<Namespace>.\]\<PropertyName\>.
 - Protocol-specific Properties MUST use the protocol acronym as the Namespace (e.g., a
   `tcp` Connection could support a TCP-specific Transport Property, such as the user timeout
   value, in a Protocol-specific Property called `tcp.userTimeoutValue` (see {{tcp-uto}})).
-- Vendor or implementation specific properties MUST use a string identifying
-  the vendor or implementation as the Namespace.
+- Vendor or implementation specific properties MUST be placed in a Namespace starting with the underscore `_` character
+   and SHOULD use a string identifying the vendor or implementation.
 - For IETF protocols, the name of a Protocol-specific Property SHOULD be specified in an IETF document published in the RFC Series after IETF review.
+  An IETF protocol Namespace does not start with an underscore character.
 
 Namespaces for each of the keywords provided in the IANA protocol numbers registry
 (see https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml) are reserved
@@ -3426,6 +3427,7 @@ The Transport Services API  provides the following guarantees about the ordering
 # IANA Considerations
 
 This document has no actions for IANA.
+
 Later versions of this document may create IANA registries for generic transport property names and transport property namespaces (see {{property-names}}).
 
 # Privacy and Security Considerations {#privacy-security}
