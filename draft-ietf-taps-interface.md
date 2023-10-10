@@ -228,7 +228,7 @@ We also make use of the following basic types:
 - Array: Denoted `[]Type`, an instance takes a value for each of zero or more
   elements in a sequence of the given Type. An array can be of fixed or
   variable length.
-- Collection: An unordered grouping of one or more values of the same type.
+- Set: An unordered grouping of one or more different values of the same type.
 
 For guidance on how these abstract concepts can be implemented in languages
 in accordance with language-specific design patterns and platform features,
@@ -584,9 +584,10 @@ form \[\<Namespace>.\]\<PropertyName\>.
 - Protocol-specific Properties MUST use the protocol acronym as the Namespace (e.g., a
   `tcp` Connection could support a TCP-specific Transport Property, such as the user timeout
   value, in a Protocol-specific Property called `tcp.userTimeoutValue` (see {{tcp-uto}})).
-- Vendor or implementation specific properties MUST use a string identifying
-  the vendor or implementation as the Namespace.
+- Vendor or implementation specific properties MUST be placed in a Namespace starting with the underscore `_` character
+   and SHOULD use a string identifying the vendor or implementation.
 - For IETF protocols, the name of a Protocol-specific Property SHOULD be specified in an IETF document published in the RFC Series after IETF review.
+  An IETF protocol Namespace does not start with an underscore character.
 
 Namespaces for each of the keywords provided in the IANA protocol numbers registry
 (see https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml) are reserved
@@ -723,7 +724,7 @@ An Endpoint object can be configured with the following identifiers:
 RemoteSpecifier.WithHostname("example.com")
 ~~~
 
-- Port (a 16-bit integer):
+- Port (a 16-bit unsigned integer):
 
 ~~~
 RemoteSpecifier.WithPort(443)
@@ -759,7 +760,7 @@ For example, an Endpoint object cannot specify two IP addresses. Two separate IP
 are represented as two Endpoint objects. If a Preconnection specifies a Remote
 Endpoint with a specific IP address set, it will only establish Connections to
 that IP address. If, on the other hand, a Remote Endpoint identifier specifies a hostname
-but no addresses, the Connection can perform name resolution and attempt
+but no addresses, the Transport Services Implementation can perform name resolution and attempt
 using any address derived from the original hostname of the Remote Endpoint.
 Note that multiple Remote Endpoints can be added to a Preconnection, as discussed
 in {{add-endpoints}}.
@@ -953,7 +954,7 @@ port on a named local interface:
    TransportProperties := ...
    SecurityParameters  := ...
 
-   Preconnection := newPreconnection(LocalSpecifier,
+   Preconnection := NewPreconnection(LocalSpecifier,
                                      RemoteSpecifier,
                                      TransportProperties,
                                      SecurityProperties)
@@ -976,7 +977,7 @@ port on a named local interface:
    TransportProperties := ...
    SecurityParameters  := ...
 
-   Preconnection := newPreconnection(LocalSpecifier,
+   Preconnection := NewPreconnection(LocalSpecifier,
                                      RemoteSpecifier,
                                      TransportProperties,
                                      SecurityProperties)
@@ -998,7 +999,7 @@ Create a Source-Specific Multicast group as a sender:
    TransportProperties := ...
    SecurityParameters  := ...
 
-   Preconnection := newPreconnection(LocalSpecifier,
+   Preconnection := NewPreconnection(LocalSpecifier,
                                      RemoteSpecifier,
                                      TransportProperties,
                                      SecurityProperties)
@@ -1023,7 +1024,7 @@ Join an any-source multicast group as both a sender and a receiver:
    TransportProperties := ...
    SecurityParameters  := ...
 
-   Preconnection := newPreconnection(LocalSpecifier,
+   Preconnection := NewPreconnection(LocalSpecifier,
                                      RemoteSpecifier,
                                      TransportProperties,
                                      SecurityProperties)
@@ -1125,6 +1126,8 @@ with the Selection Property, and `false` means that the Protocol Stack does not
 support the feature or use the path. Implementations
 of Transport Services systems could alternatively use the two Preference values `Require`
 and `Prohibit` to represent `true` and `false`, respectively.
+Other types of Selection Properties remain unchanged when they are made available for
+reading after a Connection is established.
 
 An implementation of the Transport Services API needs to provide sensible defaults for Selection
 Properties. The default values for each property below represent a
@@ -1304,7 +1307,7 @@ Name:
 : interface
 
 Type:
-: Collection of (Preference, Enumeration)
+: Set of (Preference, Enumeration)
 
 Default:
 : Empty (not setting a preference for any interface)
@@ -1347,7 +1350,7 @@ Name:
 : pvd
 
 Type:
-: Collection of (Preference, Enumeration)
+: Set of (Preference, Enumeration)
 
 Default:
 : Empty (not setting a preference for any PvD)
@@ -1574,7 +1577,7 @@ out-of-band. Each pre-shared keying material is associated with some identity th
 its use or has some protocol-specific meaning to the Remote Endpoint.
 
 ~~~
-SecurityParameters.Set(pre-shared-key, key, identity)
+SecurityParameters.Set(pre-shared-key, key, myIdentity)
 ~~~
 
 - Session cache management: Used to tune session cache capacity, lifetime, and
@@ -2150,7 +2153,8 @@ Default:
 : Weighted Fair Queueing (see Section 3.6 in {{?RFC8260}})
 
 This property specifies which scheduler is used among Connections within
-a Connection Group, see {{groups}}. A set of schedulers is
+a Connection Group to apportion the available capacity according to Connection priorities
+(see {{groups}} and {{conn-priority}}). A set of schedulers is
 described in {{?RFC8260}}.
 
 ### Capacity Profile {#prop-cap-profile}
@@ -3423,8 +3427,6 @@ The Transport Services API  provides the following guarantees about the ordering
 
 # IANA Considerations
 
-RFC-EDITOR: Please remove this section before publication.
-
 This document has no actions for IANA.
 Later versions of this document might create IANA registries for generic transport property names and transport property namespaces (see {{property-names}}).
 
@@ -3532,7 +3534,7 @@ implementation-specific limitations. For example:
   the value types in the ordered grouping. In Python, by contrast, a Tuple may
   be represented as a `tuple`, a sequence of dynamically-typed
   elements.
-- A Collection may be represented as a `std::set` in C++ or as a `set` in
+- A Set may be represented as a `std::set` in C++ or as a `set` in
   Python. In C, it may be represented as an array or as a higher-level data
   structure with appropriate accessors defined.
 
