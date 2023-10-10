@@ -123,7 +123,7 @@ Preconnection objects should be implemented as bundles of properties that an app
 
 Once a Preconnection has been used to create an outbound Connection or a Listener, the implementation should ensure that the copy of the properties held by the Connection or Listener cannot be mutated by the application making changes to the original Preconnection object. This may involve the implementation performing a deep-copy, copying the object with all the objects that it references.
 
-Once the Connection is established, the Transport Services implementation maps actions and events to the details of the chosen Protocol Stack. For example, the same Connection object may ultimately represent a single transport protocol instance (e.g., a TCP connection, a TLS session over TCP, a UDP flow with fully-specified Local and Remote Endpoints, a DTLS session, a SCTP stream, a QUIC stream, or an HTTP/2 stream).
+Once the Connection is established, the Transport Services implementation maps actions and events to the details of the chosen Protocol Stack. For example, the same Connection object may ultimately represent a single transport protocol instance (e.g., a TCP connection, a TLS session over TCP, a UDP flow with fully-specified Local and Remote Endpoint Identifiers, a DTLS session, a SCTP stream, a QUIC stream, or an HTTP/2 stream).
 The Connection Properties held by a Connection or Listener are independent of other Connections that are not part of the same Connection Group.
 
 Connection establishment is only a local operation for a connectionless protocols, which serves to simplify the local send/receive functions and to filter the traffic for the specified addresses and ports {{?RFC8085}} (for example using UDP or UDP-Lite transport without a connection handshake procedure).
@@ -171,15 +171,15 @@ Connection establishment is divided into two top-level steps: Candidate Gatherin
 For ease of illustration, this document structures the candidates for racing as a tree (see {{tree-structure}}).
 This is not meant to restrict implementations from structuring racing candidates differently.
 
-The most simple example of this process might involve identifying the single IP address to which the implementation wishes to connect, using the system's current default path (i.e., using the default interface), and starting a TCP handshake to establish a stream to the specified IP address. However, each step may also differ depending on the requirements of the connection: if the endpoint is defined as a hostname and port, then there may be multiple resolved addresses that are available; there may also be multiple paths available, (in this case using an interface other than the default system interface); and some protocols may not need any transport handshake to be considered "established" (such as UDP), while other connections may utilize layered protocol handshakes, such as TLS over TCP.
+The most simple example of this process might involve identifying the single IP address to which the implementation wishes to connect, using the system's current default path (i.e., using the default interface), and starting a TCP handshake to establish a stream to the specified IP address. However, each step may also differ depending on the requirements of the connection: if the Endpoint Identifier is a hostname and port, then there may be multiple resolved addresses that are available; there may also be multiple paths available, (in this case using an interface other than the default system interface); and some protocols may not need any transport handshake to be considered "established" (such as UDP), while other connections may utilize layered protocol handshakes, such as TLS over TCP.
 
-Whenever an implementation has multiple options for connection establishment, it can view the set of all individual connection establishment options as a single, aggregate connection establishment. The aggregate set conceptually includes every valid combination of endpoints, paths, and protocols. As an example, consider an implementation that initiates a TCP connection to a hostname + port endpoint, and has two valid interfaces available (Wi-Fi and LTE). The hostname resolves to a single IPv4 address on the Wi-Fi network, and resolves to the same IPv4 address on the LTE network, as well as a single IPv6 address. The aggregate set of connection establishment options can be viewed as follows:
+Whenever an implementation has multiple options for connection establishment, it can view the set of all individual connection establishment options as a single, aggregate connection establishment. The aggregate set conceptually includes every valid combination of endpoints, paths, and protocols. As an example, consider an implementation that initiates a TCP connection to a hostname + port Endpoint Identifier, and has two valid interfaces available (Wi-Fi and LTE). The hostname resolves to a single IPv4 address on the Wi-Fi network, and resolves to the same IPv4 address on the LTE network, as well as a single IPv6 address. The aggregate set of connection establishment options can be viewed as follows:
 
 ~~~~~~~~~~
-Aggregate [Endpoint: www.example.com:80] [Interface: Any]   [Protocol: TCP]
-|-> [Endpoint: 192.0.2.1:80]       [Interface: Wi-Fi] [Protocol: TCP]
-|-> [Endpoint: 192.0.2.1:80]       [Interface: LTE]   [Protocol: TCP]
-|-> [Endpoint: 2001:db8::1.80]     [Interface: LTE]   [Protocol: TCP]
+Aggregate [Endpoint Identifier: www.example.com:80] [Interface: Any]   [Protocol: TCP]
+|-> [Endpoint Identifier: 192.0.2.1:80]       [Interface: Wi-Fi] [Protocol: TCP]
+|-> [Endpoint Identifier: 192.0.2.1:80]       [Interface: LTE]   [Protocol: TCP]
+|-> [Endpoint Identifier: 2001:db8::1.80]     [Interface: LTE]   [Protocol: TCP]
 ~~~~~~~~~~
 
 Any one of these sub-entries on the aggregate connection attempt would satisfy the original application intent. The concern of this section is the algorithm defining which of these options to try, when, and in what order.
@@ -194,7 +194,7 @@ properties, Avoided properties, and possibly other criteria.
 
 As noted above, the consideration of multiple candidates in a gathering and racing process can be conceptually structured as a tree; this terminological convention is used throughout this document.
 
-Each leaf node of the tree represents a single, coherent connection attempt, with an endpoint, a network path, and a set of protocols that can directly negotiate and send data on the network. Each node in the tree that is not a leaf represents a connection attempt that is either underspecified, or else includes multiple distinct options. For example, when connecting on an IP network, a connection attempt to a hostname and port is underspecified, because the connection attempt requires a resolved IP address as its Remote Endpoint. In this case, the node represented by the connection attempt to the hostname is a parent node, with child nodes for each IP address. Similarly, an implementation that is allowed to connect using multiple interfaces will have a parent node of the tree for the decision between the network paths, with a branch for each interface.
+Each leaf node of the tree represents a single, coherent connection attempt, with an endpoint, a network path, and a set of protocols that can directly negotiate and send data on the network. Each node in the tree that is not a leaf represents a connection attempt that is either underspecified, or else includes multiple distinct options. For example, when connecting on an IP network, a connection attempt to a hostname and port is underspecified, because the connection attempt requires a resolved IP address as its Remote Endpoint Identifier. In this case, the node represented by the connection attempt to the hostname is a parent node, with child nodes for each IP address. Similarly, an implementation that is allowed to connect using multiple interfaces will have a parent node of the tree for the decision between the network paths, with a branch for each interface.
 
 The example aggregate connection attempt above can be drawn as a tree by grouping the addresses resolved on the same interface into branches:
 
@@ -245,9 +245,9 @@ There are three types of branching from a parent node into one or more child nod
 
 #### Derived Endpoints
 
-If a connection originally targets a single endpoint, there may be multiple endpoints of different types that can be derived from the original. This creates an ordered list of the derived endpoints according to application preference, system policy and expected performance.
+If a connection originally targets a single Endpoint Identifer, there may be multiple endpoint candidates of different types that can be derived from the original. This creates an ordered list of the derived endpoint candidates according to application preference, system policy and expected performance.
 
-DNS hostname-to-address resolution is the most common method of endpoint derivation. When trying to connect to a hostname endpoint on a traditional IP network, the implementation should send all applicable DNS queries. Commonly, this will include both A (IPv4) and AAAA (IPv6) records if both address families are supported on the local interface. This can also include SRV records {{?RFC2782}}, SVCB and HTTPS records {{?I-D.ietf-dnsop-svcb-https}}, or other future record types. The algorithm for ordering and racing these addresses should follow the recommendations in Happy Eyeballs {{!RFC8305}}.
+DNS hostname-to-address resolution is the most common method of endpoint derivation. When trying to connect to a hostname Endpoint Identifer on a traditional IP network, the implementation should send all applicable DNS queries. Commonly, this will include both A (IPv4) and AAAA (IPv6) records if both address families are supported on the local interface. This can also include SRV records {{?RFC2782}}, SVCB and HTTPS records {{?I-D.ietf-dnsop-svcb-https}}, or other future record types. The algorithm for ordering and racing these addresses should follow the recommendations in Happy Eyeballs {{!RFC8305}}.
 
 ~~~~~~~~~~
 1 [www.example.com:80, Wi-Fi, TCP]
@@ -265,7 +265,7 @@ DNS-Based Service Discovery {{?RFC6763}} can also provide an endpoint derivation
     1.1.1 [31.133.160.18.631, Wi-Fi, TCP]
 ~~~~~~~~~~
 
-Applications can influence which derived endpoints are allowed and preferred via Selection Properties set on the Preconnection. For example, setting a preference for `useTemporaryLocalAddress` would prefer the use of IPv6 over IPv4, and requiring `useTemporaryLocalAddress` would eliminate IPv4 options, since IPv4 does not support temporary addresses.
+Applications can influence which derived Endpoints are allowed and preferred via Selection Properties set on the Preconnection. For example, setting a preference for `useTemporaryLocalAddress` would prefer the use of IPv6 over IPv4, and requiring `useTemporaryLocalAddress` would eliminate IPv4 options, since IPv4 does not support temporary addresses.
 
 #### Network Paths
 
@@ -330,7 +330,7 @@ This document recommends the following order of operations for branching:
 
 where a lower number indicates higher precedence and therefore higher placement in the tree. Branching between paths is the first in the list because results across multiple interfaces are likely not related to one another: endpoint resolution may return different results, especially when using locally resolved host and service names, and which protocols are supported and preferred may differ across interfaces. Thus, if multiple paths are attempted, the overall connection establishment process can be seen as a race between the available paths or interfaces.
 
-Protocol options are next checked in order. Whether or not a set of protocols, or protocol-specific options, can successfully connect is generally not dependent on which specific IP address is used. Furthermore, the Protocol Stacks being attempted may influence or altogether change the endpoints being used. Adding a proxy to a connection's branch will change the endpoint to the proxy's IP address or hostname. Choosing an alternate protocol may also modify the ports that should be selected.
+Protocol options are next checked in order. Whether or not a set of protocols, or protocol-specific options, can successfully connect is generally not dependent on which specific IP address is used. Furthermore, the Protocol Stacks being attempted may influence or altogether change the Endpoint Identifers being used. Adding a proxy to a connection's branch will change the Endpoint Identifer to the proxy's IP address or hostname. Choosing an alternate protocol may also modify the ports that should be selected.
 
 Branching for derived endpoints is the final step, and may have multiple layers of derivation or resolution, such as DNS service resolution and DNS hostname resolution.
 
@@ -390,15 +390,15 @@ Both Local and Remote Endpoint Candidates must be discovered during connection e
 
 The set of possible Local Endpoints is gathered.  In a simple case, this merely enumerates the local interfaces and protocols, and allocates ephemeral source ports.  For example, a system that has WiFi and Ethernet and supports IPv4 and IPv6 might gather four candidate Local Endpoints (IPv4 on Ethernet, IPv6 on Ethernet, IPv4 on WiFi, and IPv6 on WiFi) that can form the source for a transient.
 
-If NAT traversal is required, the process of gathering Local Endpoints becomes broadly equivalent to the ICE Candidate Gathering phase (see Section 5.1.1 of {{RFC8445}}).  The endpoint determines its server reflexive Local Endpoints (i.e., the translated address of a Local Endpoint, on the other side of a NAT, e.g via a STUN sever {{?RFC5389}}) and relayed Local Endpoints (e.g., via a TURN server {{?RFC5766}} or other relay), for each interface and network protocol.  These are added to the set of candidate Local Endpoints for this connection.
+If NAT traversal is required, the process of gathering Local Endpoints becomes broadly equivalent to the ICE Candidate Gathering phase (see Section 5.1.1 of {{RFC8445}}).  The endpoint determines its server reflexive Local Endpoints (i.e., the translated address of a Local Endpoint, on the other side of a NAT, e.g via a STUN sever {{?RFC5389}}) and relayed Local Endpoints (e.g., via a TURN server {{?RFC5766}} or other relay), for each interface and network protocol.  These are added to the set of candidate Local Endpoint Identifers for this connection.
 
 Gathering Local Endpoints is primarily a local operation, although it might involve exchanges with a STUN server to derive server reflexive Local Endpoints, or with a TURN server or other relay to derive relayed Local Endpoints.  However, it does not involve communication with the Remote Endpoint.
 
 #### Remote Endpoint Candidates
 
-The Remote Endpoint is typically a name that needs to be resolved into a set of possible addresses that can be used for communication.  Resolving the Remote Endpoint is the process of recursively performing such name lookups, until fully resolved, to return the set of candidates for the Remote Endpoint of this Connection.
+The Remote Endpoint Identifer is typically a name that needs to be resolved into a set of possible addresses that can be used for communication.  Resolving the Remote Endpoint is the process of recursively performing such name lookups, until fully resolved, to return the set of candidates for the Remote Endpoint of this Connection.
 
-How this resolution is done will depend on the type of the Remote Endpoint, and can also be specific to each Local Endpoint.  A common case is when the Remote Endpoint is a DNS name, in which case it is resolved to give a set of IPv4 and IPv6 addresses representing that name.  Some types of Remote Endpoint might require more complex resolution.  Resolving the Remote Endpoint for a peer-to-peer connection might involve communication with a rendezvous server, which in turn contacts the peer to gain consent to communicate and retrieve its set of candidate Local Endpoints, which are returned and form the candidate remote addresses for contacting that peer.
+How this resolution is done will depend on the type of the Remote Endpoint, and can also be specific to each Local Endpoint.  A common case is when the Remote Endpoint Identifer is a DNS name, in which case it is resolved to give a set of IPv4 and IPv6 addresses representing that name.  Some types of Remote Endpoint Identifers might require more complex resolution.  Resolving the Remote Endpoint for a peer-to-peer connection might involve communication with a rendezvous server, which in turn contacts the peer to gain consent to communicate and retrieve its set of candidate Local Endpoints, which are returned and form the candidate remote addresses for contacting that peer.
 
 Resolving the Remote Endpoint is not a local operation.  It will involve a directory service, and can require communication with the Remote Endpoint to rendezvous and exchange peer addresses.  This can expose some or all of the candidate Local Endpoints to the Remote Endpoint.
 
@@ -492,7 +492,7 @@ However, this can cause a problem if a specific peer is not reachable over the n
 
 ## Implementing Listeners {#listen}
 
-When an implementation is asked to Listen, it registers with the system to wait for incoming traffic to the Local Endpoint. If no Local Endpoint is specified, the implementation should use an ephemeral port.
+When an implementation is asked to Listen, it registers with the system to wait for incoming traffic to the Local Endpoint. If no Local Endpoint Identifer is specified, the implementation should use an ephemeral port.
 
 If the Selection Properties do not require a single network interface or path, but allow the use of multiple paths, the Listener object should register for incoming traffic on all of the network interfaces or paths that conform to the Properties. The set of available paths can change over time, so the implementation should monitor network path changes, and change the registration of the Listener across all usable paths as appropriate. When using multiple paths, the Listener is generally expected to use the same port for listening on each.
 
@@ -500,7 +500,7 @@ If the Selection Properties allow multiple protocols to be used for listening, a
 
 ### Implementing Listeners for Connected Protocols
 
-Connected protocols such as TCP and TLS-over-TCP have a strong mapping between the Local and Remote Endpoints (four-tuple) and their protocol connection state. These map into Connection objects. Whenever a new inbound handshake is being started, the Listener should generate a new Connection object and pass it to the application.
+Connected protocols such as TCP and TLS-over-TCP have a strong mapping between the Local and Remote Endpoint Identifers (four-tuple) and their protocol connection state. These map into Connection objects. Whenever a new inbound handshake is being started, the Listener should generate a new Connection object and pass it to the application.
 
 ### Implementing Listeners for Connectionless Protocols
 
@@ -821,7 +821,7 @@ state can help improve future Connection establishment due to re-using results a
 
 Cached state may be associated with different endpoints for the same Connection, depending on the protocol generating the cached content.
 For example, session tickets for TLS are associated with specific endpoints, and thus should be cached based on a connection's
-hostname endpoint (if applicable). However, performance characteristics of a path are more likely tied to the IP address
+hostname Endpoint Identifer (if applicable). However, performance characteristics of a path are more likely tied to the IP address
 and subnet being used.
 
 ## Protocol state caches
@@ -837,7 +837,7 @@ be used for future hostname resolutions without requiring asking the DNS resolve
 - TCP can cache cookies for use in TCP Fast Open.
 
 Cached protocol state is primarily used during Connection establishment for a single Protocol Stack, but may be used to influence an
-implementation's preference between several candidate Protocol Stacks. For example, if two IP address endpoints are otherwise
+implementation's preference between several candidate Protocol Stacks. For example, if two IP address Endpoint Identifers are otherwise
 equally preferred, an implementation may choose to attempt a connection to an address for which it has a TCP Fast Open cookie.
 
 Applications can use the Transport Services API to request that a Connection Group maintain a separate cache for
@@ -1034,7 +1034,7 @@ ConnectionError:
 : The only `ConnectionError` generated by a UDP Multicast Receive Connection is in response to an `Abort` call.
 
 Listen:
-: LISTEN.UDP. Calling `Listen` for UDP Multicast Receive binds a local port, prepares it to receive inbound UDP datagrams from peers, and issues a multicast host join.  If a Remote Endpoint with an address is supplied, the join is Source-specific Multicast, and the path selection is based on the route to the Remote Endpoint.  If a Remote Endpoint is not supplied, the join is Any-source Multicast, and the path selection is based on the outbound route to the group supplied in the Local Endpoint.
+: LISTEN.UDP. Calling `Listen` for UDP Multicast Receive binds a local port, prepares it to receive inbound UDP datagrams from peers, and issues a multicast host join.  If a Remote Endpoint Identifer with an address is supplied, the join is Source-specific Multicast, and the path selection is based on the route to the Remote Endpoint.  If a Remote Endpoint Identifer is not supplied, the join is Any-source Multicast, and the path selection is based on the outbound route to the group supplied in the Local Endpoint.
 
 There are cases where it is required to open multiple connections for the same address(es).
 For example, one Connection might be opened for a multicast group to for a multicast control bus,
@@ -1220,7 +1220,7 @@ AbortGroup:
 The Transport Services API {{I-D.ietf-taps-interface}} allows for the several generic error types to specify a more detailed reason about why an error occurred. This appendix lists some of the possible reasons.
 
 * InvalidConfiguration:
-The transport properties and endpoints provided by the application are either contradictory or incomplete. Examples include the lack of a Remote Endpoint on an active open or using a multicast group address while not requesting a unidirectional receive.
+The transport properties and Endpoint Identifers provided by the application are either contradictory or incomplete. Examples include the lack of a Remote Endpoint Identifer on an active open or using a multicast group address while not requesting a unidirectional receive.
 
 * NoCandidates:
 The configuration is valid, but none of the available transport protocols can satisfy the transport properties provided by the application.
