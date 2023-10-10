@@ -501,7 +501,7 @@ An Endpoint Identifier specifies one side of a transport connection.
   a Remote Endpoint while listening for an incoming connection from that
   Endpoint.  The process of identifying options for the connection, such
   as resolution of the Remote Endpoint Identifier(s), occurs in response to the `Rendezvous` call.
-  As with Listeners, the set of local paths and Endpoints is constrained
+  As with Listeners, the set of local paths and endpoints is constrained
   by Selection Properties. If successful, the `Rendezvous` call generates and asynchronously returns a
   Connection object to represent the established peer-to-peer connection.
   The processes by which connections are initiated during a `Rendezvous`
