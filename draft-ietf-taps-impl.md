@@ -166,14 +166,14 @@ It is expected that the database of system policies and the method of looking up
 
 The process of establishing a network connection begins when an application expresses intent to communicate with a Remote Endpoint by calling `Initiate`, at which point the Preconnection object contains all constraints or requirements the application has configured. The establishment process can be considered complete once there is at least one Protocol Stack that has completed any required setup to the point that it can transmit and receive the application's data.
 
-Connection establishment is divided into two top-level steps: Candidate Gathering (defined in Section 4.2.1 of {{I-D.ietf-taps-arch}}), to identify the paths, protocols, and Endpoints to use (see {{gathering}}); and Candidate Racing (defined in Section 4.2.2 of {{I-D.ietf-taps-arch}}), in which the necessary protocol handshakes are conducted so that the Transport Services system can select which set to use (see {{racing}}). Candidate Racing involves attempting multiple options for connection establishment, and choosing the first option to succeed as the Protocol Stack to use for the connection. These attempts are usually staggered, starting each next option after a delay, but they can also be performed in parallel or only after waiting for failures.
+Connection establishment is divided into two top-level steps: Candidate Gathering (defined in Section 4.2.1 of {{I-D.ietf-taps-arch}}), to identify the paths, protocols, and endpoints to use (see {{gathering}}); and Candidate Racing (defined in Section 4.2.2 of {{I-D.ietf-taps-arch}}), in which the necessary protocol handshakes are conducted so that the Transport Services system can select which set to use (see {{racing}}). Candidate Racing involves attempting multiple options for connection establishment, and choosing the first option to succeed as the Protocol Stack to use for the connection. These attempts are usually staggered, starting each next option after a delay, but they can also be performed in parallel or only after waiting for failures.
 
 For ease of illustration, this document structures the candidates for racing as a tree (see {{tree-structure}}).
 This is not meant to restrict implementations from structuring racing candidates differently.
 
-The most simple example of this process might involve identifying the single IP address to which the implementation wishes to connect, using the system's current default path (i.e., using the default interface), and starting a TCP handshake to establish a stream to the specified IP address. However, each step may also differ depending on the requirements of the connection: if the Endpoint Identifier is as a hostname and port, then there may be multiple resolved addresses that are available; there may also be multiple paths available, (in this case using an interface other than the default system interface); and some protocols may not need any transport handshake to be considered "established" (such as UDP), while other connections may utilize layered protocol handshakes, such as TLS over TCP.
+The most simple example of this process might involve identifying the single IP address to which the implementation wishes to connect, using the system's current default path (i.e., using the default interface), and starting a TCP handshake to establish a stream to the specified IP address. However, each step may also differ depending on the requirements of the connection: if the Endpoint Identifier is a hostname and port, then there may be multiple resolved addresses that are available; there may also be multiple paths available, (in this case using an interface other than the default system interface); and some protocols may not need any transport handshake to be considered "established" (such as UDP), while other connections may utilize layered protocol handshakes, such as TLS over TCP.
 
-Whenever an implementation has multiple options for connection establishment, it can view the set of all individual connection establishment options as a single, aggregate connection establishment. The aggregate set conceptually includes every valid combination of Endpoint Identifiers, paths, and protocols. As an example, consider an implementation that initiates a TCP connection to a hostname + port Endpoint Identifier, and has two valid interfaces available (Wi-Fi and LTE). The hostname resolves to a single IPv4 address on the Wi-Fi network, and resolves to the same IPv4 address on the LTE network, as well as a single IPv6 address. The aggregate set of connection establishment options can be viewed as follows:
+Whenever an implementation has multiple options for connection establishment, it can view the set of all individual connection establishment options as a single, aggregate connection establishment. The aggregate set conceptually includes every valid combination of endpoints, paths, and protocols. As an example, consider an implementation that initiates a TCP connection to a hostname + port Endpoint Identifier, and has two valid interfaces available (Wi-Fi and LTE). The hostname resolves to a single IPv4 address on the Wi-Fi network, and resolves to the same IPv4 address on the LTE network, as well as a single IPv6 address. The aggregate set of connection establishment options can be viewed as follows:
 
 ~~~~~~~~~~
 Aggregate [Endpoint Identifier: www.example.com:80] [Interface: Any]   [Protocol: TCP]
@@ -194,7 +194,7 @@ properties, Avoided properties, and possibly other criteria.
 
 As noted above, the consideration of multiple candidates in a gathering and racing process can be conceptually structured as a tree; this terminological convention is used throughout this document.
 
-Each leaf node of the tree represents a single, coherent connection attempt, with an Endpoint, a network path, and a set of protocols that can directly negotiate and send data on the network. Each node in the tree that is not a leaf represents a connection attempt that is either underspecified, or else includes multiple distinct options. For example, when connecting on an IP network, a connection attempt to a hostname and port is underspecified, because the connection attempt requires a resolved IP address as its Remote Endpoint Identifier. In this case, the node represented by the connection attempt to the hostname is a parent node, with child nodes for each IP address. Similarly, an implementation that is allowed to connect using multiple interfaces will have a parent node of the tree for the decision between the network paths, with a branch for each interface.
+Each leaf node of the tree represents a single, coherent connection attempt, with an endpoint, a network path, and a set of protocols that can directly negotiate and send data on the network. Each node in the tree that is not a leaf represents a connection attempt that is either underspecified, or else includes multiple distinct options. For example, when connecting on an IP network, a connection attempt to a hostname and port is underspecified, because the connection attempt requires a resolved IP address as its Remote Endpoint Identifier. In this case, the node represented by the connection attempt to the hostname is a parent node, with child nodes for each IP address. Similarly, an implementation that is allowed to connect using multiple interfaces will have a parent node of the tree for the decision between the network paths, with a branch for each interface.
 
 The example aggregate connection attempt above can be drawn as a tree by grouping the addresses resolved on the same interface into branches:
 
@@ -213,7 +213,7 @@ The example aggregate connection attempt above can be drawn as a tree by groupin
   +====================+  +====================+  +======================+
 ~~~~~~~~~~
 
-The rest of this section will use a notation scheme to represent this tree. The root node (or parent node) of the tree will be represented by a single integer, such as "1". ("1" is used assuming that this is the first connection made by the system; future connections created by the application would allocate numbers in an increasing manner.) Each child of that node will have an integer that identifies it, from 1 to the number of children. That child node will be uniquely identified by concatenating its integer to its parent's identifier with a dot in between, such as "1.1" and "1.2". Each node will be summarized by a tuple of three elements: Endpoint Identifier, path (labeled here by interface), and protocol. In Protocol Stacks, the layers are separated by '/' and ordered with the protocol closest to the application first. The above example can now be written more succinctly as:
+The rest of this section will use a notation scheme to represent this tree. The root node (or parent node) of the tree will be represented by a single integer, such as "1". ("1" is used assuming that this is the first connection made by the system; future connections created by the application would allocate numbers in an increasing manner.) Each child of that node will have an integer that identifies it, from 1 to the number of children. That child node will be uniquely identified by concatenating its integer to its parent's identifier with a dot in between, such as "1.1" and "1.2". Each node will be summarized by a tuple of three elements: endpoint, path (labeled here by interface), and protocol. In Protocol Stacks, the layers are separated by '/' and ordered with the protocol closest to the application first. The above example can now be written more succinctly as:
 
 ~~~~~~~~~~
 1 [www.example.com:80, any path, TCP]
@@ -245,9 +245,9 @@ There are three types of branching from a parent node into one or more child nod
 
 #### Derived Endpoints
 
-If a connection originally targets a single Endpoint Identifer, there may be multiple Endpoint candidates of different types that can be derived from the original. This creates an ordered list of the derived Endpoint candidates according to application preference, system policy and expected performance.
+If a connection originally targets a single Endpoint Identifer, there may be multiple endpoint candidates of different types that can be derived from the original. This creates an ordered list of the derived endpoint candidates according to application preference, system policy and expected performance.
 
-DNS hostname-to-address resolution is the most common method of Endpoint derivation. When trying to connect to a hostname Endpoint Identifer on a traditional IP network, the implementation should send all applicable DNS queries. Commonly, this will include both A (IPv4) and AAAA (IPv6) records if both address families are supported on the local interface. This can also include SRV records {{?RFC2782}}, SVCB and HTTPS records {{?I-D.ietf-dnsop-svcb-https}}, or other future record types. The algorithm for ordering and racing these addresses should follow the recommendations in Happy Eyeballs {{!RFC8305}}.
+DNS hostname-to-address resolution is the most common method of endpoint derivation. When trying to connect to a hostname Endpoint Identifer on a traditional IP network, the implementation should send all applicable DNS queries. Commonly, this will include both A (IPv4) and AAAA (IPv6) records if both address families are supported on the local interface. This can also include SRV records {{?RFC2782}}, SVCB and HTTPS records {{?I-D.ietf-dnsop-svcb-https}}, or other future record types. The algorithm for ordering and racing these addresses should follow the recommendations in Happy Eyeballs {{!RFC8305}}.
 
 ~~~~~~~~~~
 1 [www.example.com:80, Wi-Fi, TCP]
@@ -257,7 +257,7 @@ DNS hostname-to-address resolution is the most common method of Endpoint derivat
   1.4 [2001:DB8::3.80, Wi-Fi, TCP]
 ~~~~~~~~~~
 
-DNS-Based Service Discovery {{?RFC6763}} can also provide an Endpoint derivation step. When trying to connect to a named service, the client may discover one or more hostname and port pairs on the local network using multicast DNS {{?RFC6762}}. These hostnames should each be treated as a branch that can be attempted independently from other hostnames. Each of these hostnames might resolve to one or more addresses, which would create multiple layers of branching.
+DNS-Based Service Discovery {{?RFC6763}} can also provide an endpoint derivation step. When trying to connect to a named service, the client may discover one or more hostname and port pairs on the local network using multicast DNS {{?RFC6762}}. These hostnames should each be treated as a branch that can be attempted independently from other hostnames. Each of these hostnames might resolve to one or more addresses, which would create multiple layers of branching.
 
 ~~~~~~~~~~
 1 [term-printer._ipp._tcp.meeting.ietf.org, Wi-Fi, TCP]
@@ -269,7 +269,7 @@ Applications can influence which derived Endpoints are allowed and preferred via
 
 #### Network Paths
 
-If a client has multiple network paths available to it, e.g., a mobile client with interfaces for both Wi-Fi and Cellular connectivity, it can attempt a connection over any of the paths. This represents a branch point in the connection establishment. Similar to a derived Endpoint, the paths should be ranked based on preference, system policy, and performance. Attempts should be started on one path (e.g., a specific interface), and then successively on other paths (or interfaces) after delays based on the expected path round-trip-time or other available metrics.
+If a client has multiple network paths available to it, e.g., a mobile client with interfaces for both Wi-Fi and Cellular connectivity, it can attempt a connection over any of the paths. This represents a branch point in the connection establishment. Similar to a derived endpoint, the paths should be ranked based on preference, system policy, and performance. Attempts should be started on one path (e.g., a specific interface), and then successively on other paths (or interfaces) after delays based on the expected path round-trip-time or other available metrics.
 
 ~~~~~~~~~~
 1 [192.0.2.1:80, any path, TCP]
@@ -316,11 +316,11 @@ Another example is racing SCTP with TCP:
     1.2.1 [192.0.2.1:80, any path, TCP]
 ~~~~~~~~~~
 
-Implementations that support racing protocols and protocol options should maintain a history of which protocols and protocol options were successfully established, on a per-network and per-Endpoint Identifer basis (see {{performance-caches}}). This information can influence future racing decisions to prioritize or prune branches.
+Implementations that support racing protocols and protocol options should maintain a history of which protocols and protocol options were successfully established, on a per-network and per-endpoint basis (see {{performance-caches}}). This information can influence future racing decisions to prioritize or prune branches.
 
 ### Branching Order-of-Operations
 
-Branch types ought to occur in a specific order relative to one another to avoid creating leaf nodes with invalid or incompatible settings. In the example above, it would be invalid to branch for derived Endpoint (the DNS results for www.example.com) before branching between interface paths, since there are situations when the results will be different across networks due to private names or different supported IP versions. Implementations need to be careful to branch in a consistent order that results in usable leaf nodes whenever there are multiple branch types that could be used from a single node.
+Branch types ought to occur in a specific order relative to one another to avoid creating leaf nodes with invalid or incompatible settings. In the example above, it would be invalid to branch for derived endpoints (the DNS results for www.example.com) before branching between interface paths, since there are situations when the results will be different across networks due to private names or different supported IP versions. Implementations need to be careful to branch in a consistent order that results in usable leaf nodes whenever there are multiple branch types that could be used from a single node.
 
 This document recommends the following order of operations for branching:
 
@@ -328,11 +328,11 @@ This document recommends the following order of operations for branching:
 2. Protocol Options
 3. Derived Endpoints
 
-where a lower number indicates higher precedence and therefore higher placement in the tree. Branching between paths is the first in the list because results across multiple interfaces are likely not related to one another: Endpoint Identifer resolution may return different results, especially when using locally resolved host and service names, and which protocols are supported and preferred may differ across interfaces. Thus, if multiple paths are attempted, the overall connection establishment process can be seen as a race between the available paths or interfaces.
+where a lower number indicates higher precedence and therefore higher placement in the tree. Branching between paths is the first in the list because results across multiple interfaces are likely not related to one another: endpoint resolution may return different results, especially when using locally resolved host and service names, and which protocols are supported and preferred may differ across interfaces. Thus, if multiple paths are attempted, the overall connection establishment process can be seen as a race between the available paths or interfaces.
 
 Protocol options are next checked in order. Whether or not a set of protocols, or protocol-specific options, can successfully connect is generally not dependent on which specific IP address is used. Furthermore, the Protocol Stacks being attempted may influence or altogether change the Endpoint Identifers being used. Adding a proxy to a connection's branch will change the Endpoint Identifer to the proxy's IP address or hostname. Choosing an alternate protocol may also modify the ports that should be selected.
 
-Branching for derived Endpoints is the final step, and may have multiple layers of derivation or resolution, such as DNS service resolution and DNS hostname resolution.
+Branching for derived endpoints is the final step, and may have multiple layers of derivation or resolution, such as DNS service resolution and DNS hostname resolution.
 
 For example, if the application has indicated both a preference for WiFi over LTE and for a feature only available in SCTP, branches will be first sorted accord to path selection, with WiFi attempted first. Then, branches with SCTP will be attempted first within their subtree according to the properties influencing protocol selection. However, if the implementation has current cache information that SCTP is not available on the path over WiFi, there would be no SCTP node in the WiFi subtree. Here, the path over WiFi will be attempted first, and, if connection establishment succeeds, TCP will be used. Thus, the Selection Property preferring WiFi takes precedence over the Property that led to a preference for SCTP.
 
@@ -380,7 +380,7 @@ The available protocols and paths on a specific system and in a specific context
 
 ## Candidate Gathering {#gathering}
 
-The step of gathering candidates involves identifying which paths, protocols, and Endpoint Identifers may be used for a given Connection. This list is determined by the requirements, prohibitions, and preferences of the application as specified in the Selection Properties.
+The step of gathering candidates involves identifying which paths, protocols, and endpoints may be used for a given Connection. This list is determined by the requirements, prohibitions, and preferences of the application as specified in the Selection Properties.
 
 ### Gathering Endpoint Candidates
 
@@ -390,7 +390,7 @@ Both Local and Remote Endpoint Candidates must be discovered during connection e
 
 The set of possible Local Endpoints is gathered.  In a simple case, this merely enumerates the local interfaces and protocols, and allocates ephemeral source ports.  For example, a system that has WiFi and Ethernet and supports IPv4 and IPv6 might gather four candidate Local Endpoints (IPv4 on Ethernet, IPv6 on Ethernet, IPv4 on WiFi, and IPv6 on WiFi) that can form the source for a transient.
 
-If NAT traversal is required, the process of gathering Local Endpoints becomes broadly equivalent to the ICE Candidate Gathering phase (see Section 5.1.1 of {{RFC8445}}).  The Endpoint determines its server reflexive Local Endpoints (i.e., the translated address of a Local Endpoint, on the other side of a NAT, e.g via a STUN sever {{?RFC5389}}) and relayed Local Endpoints (e.g., via a TURN server {{?RFC5766}} or other relay), for each interface and network protocol.  These are added to the set of candidate Local Endpoint Identifers for this connection.
+If NAT traversal is required, the process of gathering Local Endpoints becomes broadly equivalent to the ICE Candidate Gathering phase (see Section 5.1.1 of {{RFC8445}}).  The endpoint determines its server reflexive Local Endpoints (i.e., the translated address of a Local Endpoint, on the other side of a NAT, e.g via a STUN sever {{?RFC5389}}) and relayed Local Endpoints (e.g., via a TURN server {{?RFC5766}} or other relay), for each interface and network protocol.  These are added to the set of candidate Local Endpoint Identifers for this connection.
 
 Gathering Local Endpoints is primarily a local operation, although it might involve exchanges with a STUN server to derive server reflexive Local Endpoints, or with a TURN server or other relay to derive relayed Local Endpoints.  However, it does not involve communication with the Remote Endpoint.
 
@@ -404,7 +404,7 @@ Resolving the Remote Endpoint is not a local operation.  It will involve a direc
 
 ## Candidate Racing {#racing}
 
-The primary goal of the Candidate Racing process is to successfully negotiate a Protocol Stack to an Endpoint over an interface to connect a single leaf node of the tree with as little delay and as few unnecessary connections attempts as possible. Optimizing these two factors improves the user experience, while minimizing network load.
+The primary goal of the Candidate Racing process is to successfully negotiate a Protocol Stack to an endpoint over an interface to connect a single leaf node of the tree with as little delay and as few unnecessary connections attempts as possible. Optimizing these two factors improves the user experience, while minimizing network load.
 
 This section covers the dynamic aspect of connection establishment. The tree described above is a useful conceptual and architectural model. However, an implementation is unable to know all of the nodes that will be used until steps like name resolution have occurred, and many of the possible branches ultimately might not be attempted.
 
@@ -467,9 +467,9 @@ On a per-protocol basis, implementations may select different criteria by which 
 
 When the `Initiate` action is called without any Messages being sent at the same time, depending on the
 protocols involved, it is not guaranteed that the Remote Endpoint will be notified of this, and hence a passive
-Endpoint's application may not receive a `ConnectionReceived` event until it receives the first Message on the new Connection.
+endpoint's application may not receive a `ConnectionReceived` event until it receives the first Message on the new Connection.
 
-For Protocol Stacks with multiple handshakes, the decision becomes more nuanced. If the Protocol Stack involves both TLS and TCP, an implementation could determine that a leaf node is connected after the TCP handshake is complete, or it can wait for the TLS handshake to complete as well. The benefit of declaring completion when the TCP handshake finishes, and thus stopping the race for other branches of the tree, is reduced burden on the network and Remote Endpoints from further connection attempts that are likely to be abandoned. On the other hand, by waiting until the TLS handshake is complete, an implementation avoids the scenario in which a TCP handshake completes quickly, but TLS negotiation is either very slow or fails altogether in particular network conditions or to a particular Endpoint. To avoid the issue of TLS possibly failing, the implementation should not generate a `Ready` event for the Connection until the TLS handshake is complete.
+For Protocol Stacks with multiple handshakes, the decision becomes more nuanced. If the Protocol Stack involves both TLS and TCP, an implementation could determine that a leaf node is connected after the TCP handshake is complete, or it can wait for the TLS handshake to complete as well. The benefit of declaring completion when the TCP handshake finishes, and thus stopping the race for other branches of the tree, is reduced burden on the network and Remote Endpoints from further connection attempts that are likely to be abandoned. On the other hand, by waiting until the TLS handshake is complete, an implementation avoids the scenario in which a TCP handshake completes quickly, but TLS negotiation is either very slow or fails altogether in particular network conditions or to a particular endpoint. To avoid the issue of TLS possibly failing, the implementation should not generate a `Ready` event for the Connection until the TLS handshake is complete.
 
 If all of the leaf nodes fail to connect during racing, i.e. none of the configurations that satisfy all requirements given in the Transport Properties actually work over the available paths, then the Transport Services system should report an `EstablishmentError` to the application. An `EstablishmentError` event should also be generated in case the Transport Services system finds no usable candidates to race.
 
@@ -500,7 +500,7 @@ If the Selection Properties allow multiple protocols to be used for listening, a
 
 ### Implementing Listeners for Connected Protocols
 
-Connected protocols such as TCP and TLS-over-TCP have a strong mapping between the Local and Remote Identifers (four-tuple) and their protocol connection state. These map into Connection objects. Whenever a new inbound handshake is being started, the Listener should generate a new Connection object and pass it to the application.
+Connected protocols such as TCP and TLS-over-TCP have a strong mapping between the Local and Remote Endpoint Identifers (four-tuple) and their protocol connection state. These map into Connection objects. Whenever a new inbound handshake is being started, the Listener should generate a new Connection object and pass it to the application.
 
 ### Implementing Listeners for Connectionless Protocols
 
@@ -779,11 +779,11 @@ errors, the API will deliver them to the application as `SoftError` events. Thes
 
 ## Pooled Connection {#pooled-connections}
 
-For applications that do not need in-order delivery of Messages, the Transport Services implementation may distribute Messages of a single Connection across several underlying transport connections or multiple streams of multi-streaming connections between Endpoints, as long as all of these satisfy the Selection Properties.
+For applications that do not need in-order delivery of Messages, the Transport Services implementation may distribute Messages of a single Connection across several underlying transport connections or multiple streams of multi-streaming connections between endpoints, as long as all of these satisfy the Selection Properties.
 The Transport Services implementation will then hide this connection management and only expose a single Connection object, which we here call a "Pooled Connection". This is in contrast to Connection Groups, which explicitly expose combined treatment of Connections, giving the application control over multiplexing, for example.
 
 Pooled Connections can be useful when the application using the Transport Services system implements a protocol such as HTTP, which employs request/response pairs and does not require in-order delivery of responses.
-This enables implementations of Transport Services systems to realize transparent connection coalescing, connection migration, and to perform per-message Endpoint and path selection by choosing among multiple underlying connections.
+This enables implementations of Transport Services systems to realize transparent connection coalescing, connection migration, and to perform per-message endpoint and path selection by choosing among multiple underlying connections.
 
 ## Handling Path Changes
 
@@ -813,14 +813,14 @@ can be given. When an underlying transport connection supports multi-streaming (
 Beyond a single Connection's lifetime, it is useful for an implementation to keep state and history. This cached
 state can help improve future Connection establishment due to re-using results and credentials, and favoring paths and protocols that performed well in the past.
 
-Cached state may be associated with different Endpoints for the same Connection, depending on the protocol generating the cached content.
-For example, session tickets for TLS are associated with specific Endpoints, and thus should be cached based on a connection's
+Cached state may be associated with different endpoints for the same Connection, depending on the protocol generating the cached content.
+For example, session tickets for TLS are associated with specific endpoints, and thus should be cached based on a connection's
 hostname Endpoint Identifer (if applicable). However, performance characteristics of a path are more likely tied to the IP address
 and subnet being used.
 
 ## Protocol state caches
 
-Some protocols will have long-term state to be cached in association with Endpoints. This state often has some time after which
+Some protocols will have long-term state to be cached in association with endpoints. This state often has some time after which
 it is expired, so the implementation should allow each protocol to specify an expiration for cached content.
 
 Examples of cached protocol state include:
@@ -851,7 +851,7 @@ In addition to protocol state, Protocol Instances should provide data into a per
 
 These items can be cached on a per-address and per-subnet granularity, and averaged between different values. The information should be cached on a per-network basis, since it is expected that different network attachments will have different performance characteristics. Besides Protocol Instances, other system entities may also provide data into performance-oriented caches. This could for instance be signal strength information reported by radio modems like Wi-Fi and mobile broadband or information about the battery-level of the device. Furthermore, the system may cache the observed maximum throughput on a path as an estimate of the available bandwidth.
 
-An implementation should use this information, when possible, to influence preference between candidate paths, Endpoints, and protocol options. Eligible options that historically had significantly better performance than others should be selected first when gathering candidates (see {{gathering}}) to ensure better performance for the application.
+An implementation should use this information, when possible, to influence preference between candidate paths, endpoints, and protocol options. Eligible options that historically had significantly better performance than others should be selected first when gathering candidates (see {{gathering}}) to ensure better performance for the application.
 
 The reasonable lifetime for cached performance values will vary depending on the nature of the value. Certain information, like the connection establishment success rate to a Remote Endpoint using a given Protocol Stack, can be stored for a long period of time (hours or longer), since it is expected that the capabilities of the Remote Endpoint are not changing very quickly. On the other hand, the Round Trip Time observed by TCP over a particular network path may vary over a relatively short time interval. For such values, the implementation should remove them from the cache more quickly, or treat older values with less confidence/weight.
 
@@ -865,8 +865,8 @@ For example, the mapping of the `Send` function for TCP applies to Connections i
 
 Each protocol has a notion of Connectedness. Possible values for Connectedness are:
 
-- Connectionless. Connectionless protocols do not establish explicit state between Endpoints, and do not perform a handshake during Connection establishment.
-- Connected. Connected (also called "connection-oriented") protocols establish state between Endpoints, and perform a handshake during connection establishment. The handshake may be 0-RTT to send data or resume a session, but bidirectional traffic is required to confirm connectedness.
+- Connectionless. Connectionless protocols do not establish explicit state between endpoints, and do not perform a handshake during Connection establishment.
+- Connected. Connected (also called "connection-oriented") protocols establish state between endpoints, and perform a handshake during connection establishment. The handshake may be 0-RTT to send data or resume a session, but bidirectional traffic is required to confirm connectedness.
 - Multiplexing Connected. Multiplexing Connected protocols share properties with Connected protocols, but also explictly support opening multiple application-level flows. This means that they can support cloning new Connection objects without a new explicit handshake.
 
 Protocols also have a notion of Data Unit. Possible values for Data Unit are:
@@ -1074,7 +1074,7 @@ Stream mapping requires an association to already be in place between the client
 
 To avoid head-of-line blocking, stream mapping should only be implemented when both sides support message interleaving {{?RFC8260}}. This allows a sender to schedule transmissions between multiple streams without risking that transmission of a large message on one stream might block transmissions on other streams for a long time.
 
-To avoid conflicts between stream ids, the following procedure is recommended: the first Connection, for which the SCTP association has been created, must always use stream id zero. All additional Connections are assigned to unused stream ids in growing order. To avoid a conflict when both Endpoints map new Connections simultaneously, the peer which initiated association must use even stream ids whereas the remote side must map its Connections to odd stream ids. Both sides maintain a status map of the assigned stream ids. Generally, new streams should consume the lowest available (even or odd, depending on the side) stream id; this rule is relevant when lower ids become available because Connection objects associated with the streams are closed.
+To avoid conflicts between stream ids, the following procedure is recommended: the first Connection, for which the SCTP association has been created, must always use stream id zero. All additional Connections are assigned to unused stream ids in growing order. To avoid a conflict when both endpoints map new Connections simultaneously, the peer which initiated association must use even stream ids whereas the remote side must map its Connections to odd stream ids. Both sides maintain a status map of the assigned stream ids. Generally, new streams should consume the lowest available (even or odd, depending on the side) stream id; this rule is relevant when lower ids become available because Connection objects associated with the streams are closed.
 
 SCTP stream mapping as described here has been implemented in a research prototype; a desription of this implementation is given in {{NEAT-flow-mapping}}.
 
@@ -1150,7 +1150,7 @@ See {{fastopen}} for security considerations around racing with 0-RTT data.
 
 An attacker that knows a particular device is racing several options during connection establishment may be able to block packets for the first connection attempt, thus inducing the device to fall back to a secondary attempt. This is a problem if the secondary attempts have worse security properties that enable further attacks. Implementations should ensure that all options have equivalent security properties to avoid incentivizing attacks.
 
-Since results from the network can determine how a connection attempt tree is built, such as when DNS returns a list of resolved Endpoints, it is possible for the network to cause an implementation to consume significant on-device resources. Implementations should limit the maximum amount of state allowed for any given node, including the number of child nodes, especially when the state is based on results from the network.
+Since results from the network can determine how a connection attempt tree is built, such as when DNS returns a list of resolved endpoints, it is possible for the network to cause an implementation to consume significant on-device resources. Implementations should limit the maximum amount of state allowed for any given node, including the number of child nodes, especially when the state is based on results from the network.
 
 # Acknowledgements
 
