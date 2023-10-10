@@ -123,7 +123,7 @@ of new protocols and protocol features without requiring changes to the
 applications. The specified API follows the Transport Services architecture
 by providing asynchronous, atomic transmission of messages. It is intended to replace the
 BSD sockets API as the common interface to the
-transport layer, in an environment where Endpoints could select from
+transport layer, in an environment where endpoints could select from
 multiple interfaces and potential transport protocols.
 
 --- middle
@@ -134,7 +134,7 @@ This document specifies an abstract application programming interface (API) that
 the high-level Transport Services architecture defined in
 {{!I-D.ietf-taps-arch}}. A Transport Services system supports
 asynchronous, atomic transmission of messages over transport protocols and
-network paths dynamically selected at runtime, in environments where an Endpoint
+network paths dynamically selected at runtime, in environments where an endpoint
 selects from multiple interfaces and potential transport protocols.
 
 Applications that adopt this API will benefit from a wide set of
@@ -405,7 +405,7 @@ TrustCallback := NewCallback({
 })
 SecurityParameters.SetTrustVerificationCallback(TrustCallback)
 
-// Specifying a local Endpoint is optional when using Initiate
+// Specifying a Local Endpoint is optional when using Initiate
 Preconnection := NewPreconnection(RemoteSpecifier,
                                   TransportProperties,
                                   SecurityParameters)
@@ -497,8 +497,8 @@ Connection -> Received<messageDataResponse, messageContext>
 // Trickle ICE, then add them to the Connection:
 Connection.AddRemote(NewRemoteCandidates)
 
-// On a PathChange<> events, resolve the local Endpoint Identifiers to
-// see if a new local Endpoint has become available and, if
+// On a PathChange<> events, resolve the Local Endpoint Identifiers to
+// see if a new Local Endpoint has become available and, if
 // so, send to the peer as a new candidate and add to the
 // Connection:
 Connection -> PathChange<>
@@ -510,7 +510,7 @@ if ResolvedLocal has changed:
   // ResolvedLocal list to peer via signalling channel
   ...
 
-  // Add the new local Endpoints to the Connection:
+  // Add the new Local Endpoints to the Connection:
   Connection.AddLocal(ResolvedLocal)
 //---- PathChange event handler end ----
 
@@ -649,8 +649,8 @@ Connections they could make.
 A Preconnection object represents a potential Connection. It is a passive object
 (a data structure) that merely maintains the state that
 describes the properties of a Connection that might exist in the future.  This state
-comprises Local Endpoint and Remote Endpoint objects that denote the Endpoints
-of the potential Connection (see {{Endpointspec}}), the Selection Properties
+comprises Local Endpoint and Remote Endpoint objects that denote the endpoints
+of the potential Connection (see {{endpointspec}}), the Selection Properties
 (see {{selection-props}}), any preconfigured Connection Properties
 ({{connection-props}}), and the security parameters (see
 {{security-parameters}}):
@@ -698,10 +698,10 @@ applications to override this for more detailed control.
 If Message Framers are used (see {{framing}}), they MUST be added to the
 Preconnection during pre-establishment.
 
-## Specifying Endpoints {#Endpointspec}
+## Specifying Endpoints {#endpointspec}
 
 The Transport Services API uses the Local Endpoint and Remote Endpoint objects
-to refer to the Endpoints of a Connection. Endpoints can be created
+to refer to the endpoints of a Connection. Endpoints can be created
 as either remote or local:
 
 ~~~
@@ -761,7 +761,7 @@ that IP address. If, on the other hand, a Remote Endpoint specifies a hostname
 but no addresses, the Connection can perform name resolution and attempt
 using any address derived from the original hostname of the Remote Endpoint.
 Note that multiple Remote Endpoints can be added to a Preconnection, as discussed
-in {{add-Endpoints}}.
+in {{add-endpoints}}.
 
 The Transport Services system resolves names internally, when the `Initiate`,
 `Listen`, or `Rendezvous` method is called to establish a Connection. Privacy
@@ -841,7 +841,7 @@ See {{multicast-examples}} for more examples.
 
 ### Constraining Interfaces for Endpoints {#ifspec}
 
-Note that this API has multiple ways to constrain and prioritize Endpoint candidates based on the network interface:
+Note that this API has multiple ways to constrain and prioritize endpoint candidates based on the network interface:
 
  - Specifying an interface on a Remote Endpoint qualifies the scope zone of the Remote Endpoint, e.g., for link-local addresses.
  - Specifying an interface on a Local Endpoint explicitly binds all candidates derived from this Endpoint to use the specified interface.
@@ -1046,7 +1046,7 @@ between multiple local interfaces that are connected to different access
 networks.
 
 When additional information (such as Provisioning Domain (PvD) information
-{{?RFC7556}}) is available about the networks over which an Endpoint can operate,
+{{?RFC7556}}) is available about the networks over which an endpoint can operate,
 this can inform the selection between alternate network paths.
 Path information can include PMTU, set of supported DSCPs,
 expected usage, cost, etc. The usage of this information by the Transport
@@ -1338,7 +1338,7 @@ such as metered or unmetered network access. If an application needs to prohibit
 metered interfaces, this should be specified via Provisioning Domain attributes
 (see {{prop-pvd}}) or another specific property.
 
-Note that this property is not used to specify an interface scope zone for a particular Endpoint. {{ifspec}} provides details about how to qualify Endpoint candidates on a per-interface basis.
+Note that this property is not used to specify an interface scope zone for a particular Endpoint. {{ifspec}} provides details about how to qualify endpoint candidates on a per-interface basis.
 
 ### Provisioning Domain Instance or Type {#prop-pvd}
 
@@ -1427,7 +1427,7 @@ Passive:
 : The Connection will support the use of multiple paths if the Remote Endpoint requests it.
 
 The policy for using multiple paths is specified using the separate `multipathPolicy` property, see {{multipath-policy}} below.
-To enable the peer Endpoint to initiate additional paths towards a local address other than the one initially used, it is necessary to set the `advertisesAltaddr` property (see {{altaddr}} below).
+To enable the peer endpoint to initiate additional paths towards a local address other than the one initially used, it is necessary to set the `advertisesAltaddr` property (see {{altaddr}} below).
 
 Setting this property to `Active` can have privacy implications: It enables the transport to establish connectivity using alternate paths that might result in users being linkable across the multiple paths, even if the `advertisesAltaddr` property (see {{altaddr}} below) is set to false.
 
@@ -1447,7 +1447,7 @@ Default:
 : False
 
 This property specifies whether alternative addresses, e.g., of other interfaces, should be advertised to the
-peer Endpoint by the Protocol Stack. Advertising these addresses enables the peer Endpoint to establish additional connectivity, e.g., for Connection migration or using multiple paths.
+peer endpoint by the Protocol Stack. Advertising these addresses enables the peer endpoint to establish additional connectivity, e.g., for Connection migration or using multiple paths.
 
 Note that this can have privacy implications because it might result in users being linkable across the multiple paths.
 Also, note that setting this to false does not prevent the local Transport Services system from _establishing_ connectivity using alternate paths (see {{multipath-mode}} above); it only prevents _proactive advertisement_ of addresses.
@@ -1585,8 +1585,8 @@ SecurityParameters.Set(cached-session-lifetime-seconds, 3600)
 ~~~
 
 Connections that use Transport Services SHOULD use security in general. However, for
-compatibility with Endpoints that do not support transport security protocols (such
-as a TCP Endpoint that does not support TLS), applications can initialize their
+compatibility with endpoints that do not support transport security protocols (such
+as a TCP endpoint that does not support TLS), applications can initialize their
 security parameters to indicate that security can be disabled, or can be opportunistic.
 If security is disabled, the Transport Services system will not attempt to add
 transport security automatically. If security is opportunistic, it will allow
@@ -1655,7 +1655,7 @@ Connection := Preconnection.Initiate(timeout?)
 
 The timeout parameter specifies how long to wait before aborting Active open.
 Before calling `Initiate`, the caller must have populated a Preconnection
-object with a Remote Endpoint object to identify the Endpoint, optionally a Local Endpoint
+object with a Remote Endpoint object to identify the endpoint, optionally a Local Endpoint
 object (if not specified, the system will attempt to determine a
 suitable Local Endpoint), as well as all properties
 necessary for candidate selection.
@@ -1690,7 +1690,7 @@ Connection -> EstablishmentError<reason?>
 An `EstablishmentError` occurs either when the set of transport properties and security
 parameters cannot be fulfilled on a Connection for initiation (e.g., the set of
 available Paths and/or Protocol Stacks meeting the constraints is empty) or
-reconciled with the Local and/or Remote Endpoints; when a remote Endpoint
+reconciled with the Local and/or Remote Endpoints; when a remote Endpoint Identifier
 cannot be resolved; or when no transport-layer connection can be established to
 the Remote Endpoint (e.g., because the Remote Endpoint is not accepting
 connections, the application is prohibited from opening a Connection by the
@@ -1783,10 +1783,10 @@ Endpoint candidates to the Remote Endpoint candidates.
 
 If there are multiple Local Endpoints or Remote Endpoints configured, then
 initiating a `Rendezvous` action will systematically probe the reachability
-of those Endpoint candidates following an approach such as that used in
+of those endpoint candidates following an approach such as that used in
 Interactive Connectivity Establishment (ICE) {{?RFC8445}}.
 
-If the Endpoints are suspected to be behind a NAT, `Rendezvous` can be
+If the endpoints are suspected to be behind a NAT, `Rendezvous` can be
 initiated using Local Endpoints that support a method of discovering NAT
 bindings such as Session Traversal Utilities for NAT (STUN) {{?RFC8489}} or
 Traversal Using Relays around NAT (TURN) {{?RFC8656}}.  In this case, the
@@ -1933,7 +1933,7 @@ the `connScheduler` property ({{conn-scheduler}}).
 See {{priority-in-taps}} for more.
 
 
-## Adding and Removing Endpoints on a Connection {#add-Endpoints}
+## Adding and Removing Endpoints on a Connection {#add-endpoints}
 
 Transport protocols that are explicitly multipath aware are expected to automatically
 manage the set of Remote Endpoints that they are communicating with, and the paths to
