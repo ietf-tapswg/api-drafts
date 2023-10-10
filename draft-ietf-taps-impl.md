@@ -179,7 +179,7 @@ Whenever an implementation has multiple options for connection establishment, it
 Aggregate [Endpoint: www.example.com:80] [Interface: Any]   [Protocol: TCP]
 |-> [Endpoint: 192.0.2.1:80]       [Interface: Wi-Fi] [Protocol: TCP]
 |-> [Endpoint: 192.0.2.1:80]       [Interface: LTE]   [Protocol: TCP]
-|-> [Endpoint: 2001:DB8::1.80]     [Interface: LTE]   [Protocol: TCP]
+|-> [Endpoint: 2001:db8::1.80]     [Interface: LTE]   [Protocol: TCP]
 ~~~~~~~~~~
 
 Any one of these sub-entries on the aggregate connection attempt would satisfy the original application intent. The concern of this section is the algorithm defining which of these options to try, when, and in what order.
@@ -209,7 +209,7 @@ The example aggregate connection attempt above can be drawn as a tree by groupin
 +==========================+       +==========================+
              ||                      //                    \\
   +====================+  +====================+  +======================+
-  | 192.0.2.1:80/Wi-Fi |  |  192.0.2.1:80/LTE  |  |  2001:DB8::1.80/LTE  |
+  | 192.0.2.1:80/Wi-Fi |  |  192.0.2.1:80/LTE  |  |  2001:db8::1.80/LTE  |
   +====================+  +====================+  +======================+
 ~~~~~~~~~~
 
@@ -221,7 +221,7 @@ The rest of this section will use a notation scheme to represent this tree. The 
     1.1.1 [192.0.2.1:80, Wi-Fi, TCP]
   1.2 [www.example.com:80, LTE, TCP]
     1.2.1 [192.0.2.1:80, LTE, TCP]
-    1.2.2 [2001:DB8::1.80, LTE, TCP]
+    1.2.2 [2001:db8::1.80, LTE, TCP]
 ~~~~~~~~~~
 
 When an implementation is asked to establish a single connection, only one of the leaf nodes in the candidate set is needed to transfer data. Thus, once a single leaf node becomes ready to use, then the connection establishment tree is considered ready. One way to implement this is by having every leaf node update the state of its parent node when it becomes ready, until the root node of the tree is ready, which then notifies the application that the Connection as a whole is ready to use.
@@ -251,17 +251,17 @@ DNS hostname-to-address resolution is the most common method of endpoint derivat
 
 ~~~~~~~~~~
 1 [www.example.com:80, Wi-Fi, TCP]
-  1.1 [2001:DB8::1.80, Wi-Fi, TCP]
+  1.1 [2001:db8::1.80, Wi-Fi, TCP]
   1.2 [192.0.2.1:80, Wi-Fi, TCP]
-  1.3 [2001:DB8::2.80, Wi-Fi, TCP]
-  1.4 [2001:DB8::3.80, Wi-Fi, TCP]
+  1.3 [2001:db8::2.80, Wi-Fi, TCP]
+  1.4 [2001:db8::3.80, Wi-Fi, TCP]
 ~~~~~~~~~~
 
 DNS-Based Service Discovery {{?RFC6763}} can also provide an endpoint derivation step. When trying to connect to a named service, the client may discover one or more hostname and port pairs on the local network using multicast DNS {{?RFC6762}}. These hostnames should each be treated as a branch that can be attempted independently from other hostnames. Each of these hostnames might resolve to one or more addresses, which would create multiple layers of branching.
 
 ~~~~~~~~~~
-1 [term-printer._ipp._tcp.meeting.ietf.org, Wi-Fi, TCP]
-  1.1 [term-printer.meeting.ietf.org:631, Wi-Fi, TCP]
+1 [term-printer._ipp._tcp.meeting.example.com, Wi-Fi, TCP]
+  1.1 [term-printer.meeting.example.com:631, Wi-Fi, TCP]
     1.1.1 [31.133.160.18.631, Wi-Fi, TCP]
 ~~~~~~~~~~
 
@@ -535,7 +535,7 @@ The API allows various properties to be associated with each Message, which shou
 
 - `msgLifetime`: this should be implemented by removing the Message from the queue of pending Messages after the Lifetime has expired. A queue of pending Messages within the Transport Services implementation that have yet to be handed to the Protocol Stack can always support this property, but once a Message has been sent into the send buffer of a protocol, only certain protocols may support removing it from their send buffer. For example, a Transport Services implementation cannot remove bytes from a TCP send buffer, while it can remove data from a SCTP send buffer using the partial reliability extension {{?RFC8303}}. When there is no standing queue of Messages within the system, and the Protocol Stack does not support the removal of a Message from the stack's send buffer, this property may be ignored.
 
-- `msgPriority`: this represents the ability to prioritize a Message over other Messages. This can be implemented by the Transport Services system by re-ordering Messages that have yet to be handed to the Protocol Stack, or by giving relative priority hints to protocols that support priorities per Message. For example, an implementation of HTTP/2 could choose to send Messages of different Priority on streams of different priority.
+- `msgPriority`: this represents the ability to prioritize a Message over other Messages. This can be implemented by the Transport Services system by re-ordering Messages that have yet to be handed to the Protocol Stack, or by giving relative priority hints to protocols that support priorities per Message. For example, an implementation of HTTP/2 could choose to send Messages of different priority on streams of different priority.
 
 - `msgOrdered`: when this is false, this disables the requirement of in-order-delivery for protocols that support configurable ordering. When the Protocol Stack does not support configurable ordering, this property may be ignored.
 
@@ -698,7 +698,10 @@ Message Framers generate an event whenever a Connection sends a new Message. The
 align with the `Send` action in the API ({{Section 9.2 of I-D.ietf-taps-interface}}).
 
 ~~~
-MessageFramer -> NewSentMessage<connection, messageData, messageContext, endOfMessage>
+                        MessageFramer
+                              |
+                              V
+NewSentMessage<connection, messageData, messageContext, endOfMessage>
 ~~~
 
 Upon receiving this event, a framer implementation is responsible for
@@ -733,7 +736,10 @@ application requests a specific amount of data it needs to have available in ord
 If the data is not available, the parse fails.
 
 ~~~
-MessageFramer.Parse(connection, minimumIncompleteLength, maximumLength) -> (messageData, messageContext, endOfMessage)
+MessageFramer.Parse(connection, minimumIncompleteLength, maximumLength)
+                                 |
+                                 V
+             (messageData, messageContext, endOfMessage)
 ~~~
 
 The framer implementation can directly advance the receive cursor once it has
@@ -1131,8 +1137,6 @@ Calling `AbortGroup` calls ABORT.SCTP, immediately closing all Connections in th
 In addition to the API mappings described above, when there are multiple Connection objects assigned to the same SCTP association, SCTP can support Connection properties such as `connPriority` and `connScheduler` where CONFIGURE_STREAM_SCHEDULER.SCTP can be called to adjust the priorities of streams in the SCTP association.
 
 # IANA Considerations
-
-RFC-EDITOR: Please remove this section before publication.
 
 This document has no actions for IANA.
 
