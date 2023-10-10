@@ -582,7 +582,7 @@ form \[\<Namespace>.\]\<PropertyName\>.
 - The optional Namespace component and its trailing character `.` MUST be omitted for well-known,
   generic properties, i.e., for properties that are not specific to a protocol.
 - Protocol-specific Properties MUST use the protocol acronym as the Namespace (e.g., a
-  `tcp` Connection could support a TCP-specific Transport Property, such as the user timeout
+  `tcp` Connection could support a TCP-specific Transport Property, such as the TCP user timeout
   value, in a Protocol-specific Property called `tcp.userTimeoutValue` (see {{tcp-uto}})).
 - Vendor or implementation specific properties MUST be placed in a Namespace starting with the underscore `_` character
    and SHOULD use a string identifying the vendor or implementation.
@@ -2370,14 +2370,16 @@ It is specified as the number of bytes.
 
 ## TCP-specific Properties: User Timeout Option (UTO) {#tcp-uto}
 
-These properties specify configurations for the User Timeout Option (UTO),
-in the case that TCP becomes the chosen transport protocol.
-Implementation is optional and useful only if TCP is implemented in the Transport Services system.
+These properties specify configurations for the TCP User Timeout Option (UTO).
+This is a TCP-specific property, that is only used
+in the case that TCP becomes the chosen transport protocol
+and useful only if TCP is implemented in the Transport Services system.
+Protocol-specific options could also be defined for other transport protocols.
 
-These TCP-specific properties are included here because the feature `Suggest
+These are included here because the feature `Suggest
 timeout to the peer` is part of the minimal set of transport services
 {{?RFC8923}}, where this feature was categorized as "functional".
-This means that when an Transport Services system offers this feature,
+This means that when a Transport Services system offers this feature,
 the Transport Services API has to expose an interface to the application. Otherwise, the implementation might
 violate assumptions by the application, which could cause the application to
 fail.
@@ -2411,7 +2413,7 @@ Type:
 Default:
 : false
 
-This property controls whether the UTO option is enabled for a
+This property controls whether the TCP UTO option is enabled for a
 connection. This applies to both sending and receiving.
 
 ### Timeout Changeable
@@ -2425,7 +2427,7 @@ Type:
 Default:
 : true
 
-This property controls whether the `connTimeout` (see {{conn-timeout}})
+This property controls whether the TCP `connTimeout` (see {{conn-timeout}})
 can be changed
 based on a UTO option received from the remote peer. This boolean becomes false when
 `connTimeout` (see {{conn-timeout}}) is used.
