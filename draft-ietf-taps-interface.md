@@ -3083,7 +3083,7 @@ at their defaults.
 The Transport Services API does order `connPriority` over
 `msgPriority`. In the absence of other externalities
 (e.g., transport-layer flow control), a priority 1 Message on a priority 0
-Connection will be sent before a priority 1 Message on a priority 0
+Connection will be sent before a priority 0 Message on a priority 1
 Connection in the same group.
 
 ## Receiving Data {#receiving}
