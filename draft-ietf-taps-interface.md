@@ -198,7 +198,8 @@ The following notations, which can be combined, are used in this document:
   action and event parameters whose names are suffixed with a question mark are optional.
 
 ~~~
-      Action(param0, param1?, ...) / Event<param0, param1, ...>
+      Action(param0, param1?, ...)
+      Event<param0, param1?, ...>
 ~~~
 
 Objects that are passed as parameters to actions use call-by-value behavior.
@@ -206,7 +207,7 @@ Actions associated with no object are actions on the API; they are equivalent to
 
 Events are sent to the application or application-supplied code (e.g. framers,
 see {{framing}}) for processing; the details of event interfaces are platform-
-and implementation-specific, and may be implemented using
+and implementation-specific, and can be implemented using
 other forms of asynchronous processing, as idiomatic for the
 implementing platform.
 
@@ -225,12 +226,12 @@ We also make use of the following basic types:
   Instances take a sequence of values each valid for the corresponding value
   type.
 - Array: Denoted `[]Type`, an instance takes a value for each of zero or more
-  elements in a sequence of the given Type. An array may be of fixed or
+  elements in a sequence of the given Type. An array can be of fixed or
   variable length.
-- Collection: An unordered grouping of one or more values of the same type.
+- Set: An unordered grouping of one or more different values of the same type.
 
-For guidance on how these abstract concepts may be implemented in languages
-in accordance with native design patterns and language and platform features,
+For guidance on how these abstract concepts can be implemented in languages
+in accordance with language-specific design patterns and platform features,
 see {{implmapping}}.
 
 ## Specification of Requirements
@@ -273,8 +274,8 @@ provides:
   networks over which a Connection can operate (e.g. Provisioning Domain (PvD)
   information {{?RFC7556}}) where available.
 
-- Explicit support for transport-specific features to be applied, should that
-  particular transport be part of a chosen Protocol Stack.
+- Explicit support for transport-specific features to be applied, when that
+  particular transport is part of a chosen Protocol Stack.
 
 - Explicit support for security properties as first-order transport features.
 
@@ -301,8 +302,10 @@ application, irrespective of whether the underlying transport is connection-less
 connection-oriented. Connections can be created from Preconnections in three ways:
 
 - by initiating the Preconnection (i.e., actively opening, as in a client; {{initiate}}),
-- through listening on the Preconnection (i.e., passively opening, as in a server; {{listen}}),
-- or rendezvousing on the Preconnection (i.e., peer to peer establishment; {{rendezvous}}).
+- by listening on the Preconnection (i.e., passively opening, as in a server; {{listen}}),
+- or by a rendezvous for the Preconnection (i.e., peer to peer establishment; {{rendezvous}}).
+
+if the application requires this or
 
 Once a Connection is established, data can be sent and received on it in the form of
 Messages. The API supports the preservation of message boundaries both
@@ -310,8 +313,8 @@ via explicit Protocol Stack support, and via application support through a
 Message Framer that finds message boundaries in a stream. Messages are
 received asynchronously through event handlers registered by the application.
 Errors and other notifications also happen asynchronously on the Connection.
-It is not necessary for an application to handle all events; some events may
-have implementation-specific default handlers. The application should not
+It is not necessary for an application to handle all events; some events can
+have implementation-specific default handlers. The application ought not
 assume that ignoring events (e.g., errors) is always safe.
 
 
@@ -404,7 +407,7 @@ TrustCallback := NewCallback({
 })
 SecurityParameters.SetTrustVerificationCallback(TrustCallback)
 
-// Specifying a local endpoint is optional when using Initiate
+// Specifying a Local Endpoint is optional when using Initiate
 Preconnection := NewPreconnection(RemoteSpecifier,
                                   TransportProperties,
                                   SecurityParameters)
@@ -496,8 +499,8 @@ Connection -> Received<messageDataResponse, messageContext>
 // Trickle ICE, then add them to the Connection:
 Connection.AddRemote(NewRemoteCandidates)
 
-// On a PathChange<> events, resolve the local endpoints to
-// see if a new local endpoint has become available and, if
+// On a PathChange<> events, resolve the Local Endpoint Identifiers to
+// see if a new Local Endpoint has become available and, if
 // so, send to the peer as a new candidate and add to the
 // Connection:
 Connection -> PathChange<>
@@ -509,7 +512,7 @@ if ResolvedLocal has changed:
   // ResolvedLocal list to peer via signalling channel
   ...
 
-  // Add the new local endpoints to the Connection:
+  // Add the new Local Endpoints to the Connection:
   Connection.AddLocal(ResolvedLocal)
 //---- PathChange event handler end ----
 
@@ -521,7 +524,7 @@ Connection.Close()
 # Transport Properties {#transport-properties}
 
 Each application using the Transport Services API declares its preferences
-for how the Transport Services system should operate. This is done by using
+for how the Transport Services system is to operate. This is done by using
 Transport Properties, as defined in {{!I-D.ietf-taps-arch}}, at each stage
 of the lifetime of a Connection.
 
@@ -539,7 +542,7 @@ can be queried on Connections and Messages.
 
 Connection Properties (see {{connection-props}}) are used to inform
 decisions made during establishment and to fine-tune the established
-Connection. They can be set during pre-establishment, and may be
+Connection. They can be set during pre-establishment, and can be
 changed later. Connection Properties can be set on Connections and
 Preconnections; when set on Preconnections, they act as an initial
 default for the resulting Connections.
@@ -560,8 +563,7 @@ the respective protocol has been selected.
 
 ## Transport Property Names {#property-names}
 
-Transport Properties are referred to by property names. For the purposes
-of this document, these names are alphanumeric strings in which the following
+Transport Properties are referred to by property names. These names are alphanumeric strings in which the following
 characters are allowed: lowercase letters `a-z`, uppercase letters `A-Z`,
 digits `0-9`, the hyphen `-`, and the underscore `_`. These names serve two purposes:
 
@@ -569,7 +571,7 @@ digits `0-9`, the hyphen `-`, and the underscore `_`. These names serve two purp
   Properties, e.g., between a language frontend and a policy manager,
   or as a representation of properties retrieved from a file or other storage.
 - Making the code of different Transport Services implementations look similar.
-  While individual programming languages may preclude strict adherence to the
+  While individual programming languages might preclude strict adherence to the
   aforementioned naming convention (for instance, by prohibiting the use of hyphens
   in symbols), users interacting with multiple implementations will still benefit
   from the consistency resulting from the use of visually similar symbols.
@@ -577,14 +579,15 @@ digits `0-9`, the hyphen `-`, and the underscore `_`. These names serve two purp
 Transport Property Names are hierarchically organized in the
 form \[\<Namespace>.\]\<PropertyName\>.
 
-- The Namespace component MUST be empty for well-known, generic properties, i.e., for
-  properties that are not specific to a protocol.
+- The optional Namespace component and its trailing character `.` MUST be omitted for well-known,
+  generic properties, i.e., for properties that are not specific to a protocol.
 - Protocol-specific Properties MUST use the protocol acronym as the Namespace (e.g., a
-  `tcp` Connection could support a TCP-specific Transport Property, such as the user timeout
+  `tcp` Connection could support a TCP-specific Transport Property, such as the TCP user timeout
   value, in a Protocol-specific Property called `tcp.userTimeoutValue` (see {{tcp-uto}})).
-- Vendor or implementation specific properties MUST use a string identifying
-  the vendor or implementation as the Namespace.
-- For IETF protocols, the name of a Protocol-specific Property SHOULD be specified in an IETF document published in the RFC Series.
+- Vendor or implementation specific properties MUST be placed in a Namespace starting with the underscore `_` character
+   and SHOULD use a string identifying the vendor or implementation.
+- For IETF protocols, the name of a Protocol-specific Property SHOULD be specified in an IETF document published in the RFC Series after IETF review.
+  An IETF protocol Namespace does not start with an underscore character.
 
 Namespaces for each of the keywords provided in the IANA protocol numbers registry
 (see https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml) are reserved
@@ -635,7 +638,7 @@ recommendations:
   for Connections over TCP. Similarly, the `msgLifetime` Message Property can be
   implemented but ignored, as the description of this Property states that "it is not
   guaranteed that a Message will not be sent when its Lifetime has expired".
-- Implementations may use other representations for Transport Property Names,
+- Implementations can use other representations for Transport Property Names,
   e.g., by providing constants, but should provide a straight-forward mapping
   between their representation and the property names specified here.
 
@@ -674,16 +677,16 @@ peer-to-peer `Rendezvous` is to occur based on the Preconnection.
 
 If more than one Local Endpoint is specified on a Preconnection, then all
 the Local Endpoints on the Preconnection MUST represent the same host. For
-example, they might correspond to different interfaces on a multi-homed
-host, or they might correspond to local interfaces and a STUN server that
+example, their Endpoint Identifiers might correspond to different interfaces on a multi-homed
+host, or their Endpoint Identifiers might correspond to local interfaces and a STUN server that
 can be resolved to a server reflexive address for a Preconnection used to
 make a peer-to-peer `Rendezvous`.
 
 If more than one Remote Endpoint is specified on the Preconnection, then
-all the Remote Endpoints on the Preconnection should represent the same
+all the Remote Endpoints on the Preconnection SHOULD represent the same
 service, to the extent that the application and the Transport Services
-system can validate that the Remote Endpoints are indeed the same service.
-For example, the Remote Endpoints might represent various network
+system can validate that the Remote Endpoints correspond to the same service.
+For example, a Remote Endpoint might represent various network
 interfaces of a host, or a server reflexive address that can be used to
 reach a host, or a set of hosts that provide equivalent local balanced
 service.
@@ -691,7 +694,7 @@ service.
 In most cases, it is expected that a single Remote Endpoint will be
 specified by name, and a later call to `Initiate` on the Preconnection
 (see {{initiate}}) will internally resolve that name to a list of concrete
-endpoints. Specifying multiple Remote Endpoints on a Preconnection allows
+Endpoint Identifers. Specifying multiple Remote Endpoints on a Preconnection allows
 applications to override this for more detailed control.
 
 If Message Framers are used (see {{framing}}), they MUST be added to the
@@ -709,8 +712,8 @@ LocalSpecifier := NewLocalEndpoint()
 ~~~
 
 A single Endpoint object represents the identity of a network host. That endpoint
-can be more or less specific depending on which identifiers are set. For example,
-an Endpoint that only specifies a hostname may in fact end up corresponding
+can be more or less specific depending on which Endpoint Identifiers are set. For example,
+an Endpoint that only specifies a hostname can, in fact, finally correspond
 to several different IP addresses on different hosts.
 
 An Endpoint object can be configured with the following identifiers:
@@ -721,7 +724,7 @@ An Endpoint object can be configured with the following identifiers:
 RemoteSpecifier.WithHostname("example.com")
 ~~~
 
-- Port (a 16-bit integer):
+- Port (a 16-bit unsigned integer):
 
 ~~~
 RemoteSpecifier.WithPort(443)
@@ -752,12 +755,17 @@ LocalSpecifier.WithInterface("en0")
 Note that an IPv6 address specified with a scope zone ID (e.g. `fe80::2001:db8%en0`)
 is equivalent to `WithIPAddress` with an unscoped address and `WithInterface ` together.
 
-The design of the API MUST NOT permit an Endpoint to be configured with multiple identifiers of the same type.
-For example, an endpoint cannot have two IP addresses specified. Two separate IP addresses
+Applications creating Endpoint objects using `WithHostname` SHOULD provide fully-qualified
+domain names (FQDNs). Not providing an FQDN will result in the Transport Services Implementation
+needing to resolve using DNS search domains, which might lead to inconsistent or unpredictable
+behavior.
+
+The design of the API MUST NOT permit an Endpoint object to be configured with multiple Endpoint Identifiers of the same type.
+For example, an Endpoint object cannot specify two IP addresses. Two separate IP addresses
 are represented as two Endpoint objects. If a Preconnection specifies a Remote
 Endpoint with a specific IP address set, it will only establish Connections to
-that IP address. If, on the other hand, the Remote Endpoint specifies a hostname
-but no addresses, the Connection can perform name resolution and attempt
+that IP address. If, on the other hand, a Remote Endpoint specifies a hostname
+but no addresses, the Transport Services Implementation can perform name resolution and attempt
 using any address derived from the original hostname of the Remote Endpoint.
 Note that multiple Remote Endpoints can be added to a Preconnection, as discussed
 in {{add-endpoints}}.
@@ -772,7 +780,7 @@ early binding when required, for example with some Network Address Translator
 
 ### Using Multicast Endpoints
 
-To use multicast, a Preconnection is first created with the Local/Remote Endpoint
+To use multicast, a Preconnection is first created with the Local/Remote Endpoint Identifer
 specifying the any-source multicast (ASM) or source-specific multicast (SSM) multicast group and destination port number.
 This is then followed by a call to either `Initiate`, `Listen`, or
 `Rendezvous` depending on whether the resulting Connection is to be
@@ -784,8 +792,8 @@ Calling `Initiate` on that Preconnection creates a Connection that can be
 used to send Messages to the multicast group. The Connection object that is
 created will support `Send` but not `Receive`. Any Connections created this
 way are send-only, and do not join the multicast group. The resulting
-Connection will have a Local Endpoint indicating the local interface to
-which the Connection is bound and a Remote Endpoint indicating the
+Connection will have a Local Endpoint identifying the local interface to
+which the Connection is bound and a Remote Endpoint identifying the
 multicast group.
 
 The following API calls can be used to configure a Preconnection before calling `Initiate`:
@@ -793,15 +801,17 @@ The following API calls can be used to configure a Preconnection before calling 
 ~~~
 RemoteSpecifier.WithMulticastGroupIP(GroupAddress)
 RemoteSpecifier.WithPort(PortNumber)
-RemoteSpecifier.WithTTL(TTL)
+RemoteSpecifier.WithHopLimit(HopLimit)
 ~~~
 
 Calling `Listen` on a Preconnection with a multicast group specified on the Remote
 Endpoint will join the multicast group to receive Messages. This Listener
 will create one Connection for each Remote Endpoint sending to the group,
-with the Local Endpoint set to the group address. The set of Connection
+with the Local Endpoint Identifer specified as a group address. The set of Connection
 objects created forms a Connection Group.
 The receiving interface can be restricted by passing it as part of the LocalSpecifier or queried through the Message Context on the Messages received (see {{msg-ctx}} for further details).
+
+Specifying WithHopLimit sets the Time To Live (TTL) field in the header of IPv4 packets or the Hop Count field in the header of IPv6 packets.
 
 The following API calls can be used to configure a Preconnection before calling `Listen`:
 
@@ -813,7 +823,7 @@ LocalSpecifier.WithPort(PortNumber)
 ~~~
 
 Calling `Rendezvous` on a Preconnection with an any-source multicast group
-address as the Remote Endpoint will join the multicast group, and also
+address as the Remote Endpoint Identifer will join the multicast group, and also
 indicates that the resulting Connection can be used to send Messages to the
 multicast group. The `Rendezvous` call will return both a Connection that
 can be used to send to the group, that acts the same as a Connection
@@ -821,17 +831,17 @@ returned by calling `Initiate` with a multicast Remote Endpoint, and a
 Listener that acts as if `Listen` had been called with a multicast Remote
 Endpoint.
 Calling `Rendezvous` on a Preconnection with a source-specific multicast
-group address as the Local Endpoint results in an `EstablishmentError`.
+group address as the Local Endpoint Identifer results in an `EstablishmentError`.
 
 The following API calls can be used to configure a Preconnection before calling `Rendezvous`:
 
 ~~~
 RemoteSpecifier.WithMulticastGroupIP(GroupAddress)
 RemoteSpecifier.WithPort(PortNumber)
-RemoteSpecifier.WithTTL(TTL)
+RemoteSpecifier.WithHopLimit(HopLimit)
 LocalSpecifier.WithAnySourceMulticastGroupIP(GroupAddress)
 LocalSpecifier.WithPort(PortNumber)
-LocalSpecifier.WithTTL(TTL)
+LocalSpecifier.WithHopLimit(HopLimit)
 ~~~
 
 See {{multicast-examples}} for more examples.
@@ -840,8 +850,8 @@ See {{multicast-examples}} for more examples.
 
 Note that this API has multiple ways to constrain and prioritize endpoint candidates based on the network interface:
 
- - Specifying an interface on a RemoteEndpoint qualifies the scope zone of the Remote Endpoint, e.g., for link-local addresses.
- - Specifying an interface on a LocalEndpoint explicitly binds all candidates derived from this endpoint to use the specified interface.
+ - Specifying an interface on a Remote Endpoint qualifies the scope zone of the Remote Endpoint, e.g., for link-local addresses.
+ - Specifying an interface on a Local Endpoint explicitly binds all candidates derived from this Endpoint to use the specified interface.
  - Specifying an interface using the `interface` Selection Property ({{prop-interface}}) or indirectly via the `pvd` Selection Property ({{prop-pvd}}) influences the selection among the available candidates.
 
 While specifying an Interface on an Endpoint restricts the candidates available for Connection establishment in the Pre-Establishment Phase, the Selection Properties prioritize and constrain the Connection establishment.
@@ -849,7 +859,7 @@ While specifying an Interface on an Endpoint restricts the candidates available 
 ### Endpoint Aliases
 
 An Endpoint can have an alternative definition when using different protocols.
-For example, a server that supports both TLS/TCP and QUIC may be accessible
+For example, a server that supports both TLS/TCP and QUIC could be accessible
 on two different port numbers depending on which protocol is used.
 
 To support this, Endpoint objects can specify "aliases". An Endpoint can have
@@ -859,8 +869,8 @@ multiple aliases set.
 RemoteSpecifier.AddAlias(AlternateRemoteSpecifier)
 ~~~
 
-In order to scope an alias to a specific transport protocol, an Endpoint can
-specify a protocol identifier.
+To scope an alias to a specific transport protocol, an Endpoint can
+specify a protocol specifier.
 
 ~~~
 AlternateRemoteSpecifier.WithProtocol(QUIC)
@@ -949,14 +959,14 @@ port on a named local interface:
    TransportProperties := ...
    SecurityParameters  := ...
 
-   Preconnection := newPreconnection(LocalSpecifier,
+   Preconnection := NewPreconnection(LocalSpecifier,
                                      RemoteSpecifier,
                                      TransportProperties,
                                      SecurityProperties)
    Listener := Preconnection.Listen()
 ~~~
 
-Join an Source-Specific Multicast group in receive-only mode, bound to a known
+Join a Source-Specific Multicast group in receive-only mode, bound to a known
 port on a named local interface:
 
 ~~~
@@ -972,7 +982,7 @@ port on a named local interface:
    TransportProperties := ...
    SecurityParameters  := ...
 
-   Preconnection := newPreconnection(LocalSpecifier,
+   Preconnection := NewPreconnection(LocalSpecifier,
                                      RemoteSpecifier,
                                      TransportProperties,
                                      SecurityProperties)
@@ -985,7 +995,7 @@ Create a Source-Specific Multicast group as a sender:
    RemoteSpecifier := NewRemoteEndpoint()
    RemoteSpecifier.WithMulticastGroupIP(232.1.1.1)
    RemoteSpecifier.WithPort(5353)
-   RemoteSpecifier.WithTTL(8)
+   RemoteSpecifier.WithHopLimit(8)
 
    LocalSpecifier := NewLocalEndpoint()
    LocalSpecifier.WithIPAddress(192.0.2.22)
@@ -994,7 +1004,7 @@ Create a Source-Specific Multicast group as a sender:
    TransportProperties := ...
    SecurityParameters  := ...
 
-   Preconnection := newPreconnection(LocalSpecifier,
+   Preconnection := NewPreconnection(LocalSpecifier,
                                      RemoteSpecifier,
                                      TransportProperties,
                                      SecurityProperties)
@@ -1007,7 +1017,7 @@ Join an any-source multicast group as both a sender and a receiver:
    RemoteSpecifier := NewRemoteEndpoint()
    RemoteSpecifier.WithMulticastGroupIP(233.252.0.0)
    RemoteSpecifier.WithPort(5353)
-   RemoteSpecifier.WithTTL(8)
+   RemoteSpecifier.WithHopLimit(8)
 
    LocalSpecifier := NewLocalEndpoint()
    LocalSpecifier.WithAnySourceMulticastGroupIP(233.252.0.0)
@@ -1019,7 +1029,7 @@ Join an any-source multicast group as both a sender and a receiver:
    TransportProperties := ...
    SecurityParameters  := ...
 
-   Preconnection := newPreconnection(LocalSpecifier,
+   Preconnection := NewPreconnection(LocalSpecifier,
                                      RemoteSpecifier,
                                      TransportProperties,
                                      SecurityProperties)
@@ -1038,7 +1048,7 @@ The protocol(s) and path(s) selected as candidates during establishment are
 determined and configured using these properties. Since there could be paths
 over which some transport protocols are unable to operate, or Remote Endpoints
 that support only specific network addresses or transports, transport protocol
-selection is necessarily tied to path selection. This may involve choosing
+selection is necessarily tied to path selection. This could involve choosing
 between multiple local interfaces that are connected to different access
 networks.
 
@@ -1119,8 +1129,10 @@ Preference type of a Selection Property changes into Boolean, where `true` means
 that the selected Protocol Stack supports the feature or uses the path associated
 with the Selection Property, and `false` means that the Protocol Stack does not
 support the feature or use the path. Implementations
-of Transport Services systems may alternatively use the two Preference values `Require`
+of Transport Services systems could alternatively use the two Preference values `Require`
 and `Prohibit` to represent `true` and `false`, respectively.
+Other types of Selection Properties remain unchanged when they are made available for
+reading after a Connection is established.
 
 An implementation of the Transport Services API needs to provide sensible defaults for Selection
 Properties. The default values for each property below represent a
@@ -1146,8 +1158,9 @@ Default:
 : Require
 
 This property specifies whether the application needs to use a transport
-protocol that ensures that all data is received at the Remote Endpoint without
-corruption. When reliable data transfer is enabled, this
+protocol that ensures that
+all data is received at the Remote Endpoint in order without loss or duplication.
+When reliable data transfer is enabled, this
 also entails being notified when a Connection is closed or aborted.
 
 ### Preservation of Message Boundaries {#prop-boundaries}
@@ -1207,7 +1220,7 @@ This property specifies whether an application would like to supply a Message to
 the transport protocol before connection establishment that will then be
 reliably transferred to the other side before or during connection
 establishment. This Message can potentially be received multiple times (i.e.,
-multiple copies of the Message data may be passed to the Remote Endpoint).
+multiple copies of the Message data could be passed to the Remote Endpoint).
 See also {{msg-safelyreplayable}}.
 
 ### Multistream Connections in Group {#prop-multistream}
@@ -1289,7 +1302,7 @@ Default:
 
 This property specifies whether the application would like the Connection to send
 keep-alive packets or not. Note that if a Connection determines that keep-alive
-packets are being sent, the application should itself avoid generating additional keep-alive
+packets are being sent, the application SHOULD itself avoid generating additional keep-alive
 messages. Note that when supported, the system will use the default period
 for generation of the keep alive-packets. (See also {{keep-alive-timeout}}).
 
@@ -1299,7 +1312,7 @@ Name:
 : interface
 
 Type:
-: Collection of (Preference, Enumeration)
+: Set of (Preference, Enumeration)
 
 Default:
 : Empty (not setting a preference for any interface)
@@ -1316,7 +1329,7 @@ implemented directly as such, or for making one preference available for each
 interface and interface type available on the system.
 
 The set of valid interface types is implementation- and system-specific. For
-example, on a mobile device, there may be `Wi-Fi` and `Cellular` interface types
+example, on a mobile device, there could be `Wi-Fi` and `Cellular` interface types
 available; whereas on a desktop computer, `Wi-Fi` and `Wired
 Ethernet` interface types might be available. An implementation should provide all types
 that are supported on the local system, to allow
@@ -1329,12 +1342,12 @@ The set of interface types is expected to change over time as new access
 technologies become available. The taxonomy of interface types on a given
 Transport Services system is implementation-specific.
 
-Interface types should not be treated as a proxy for properties of interfaces
+Interface types SHOULD NOT be treated as a proxy for properties of interfaces
 such as metered or unmetered network access. If an application needs to prohibit
 metered interfaces, this should be specified via Provisioning Domain attributes
 (see {{prop-pvd}}) or another specific property.
 
-Note that this property is not used to specify an interface scope zone for a particular endpoint. {{ifspec}} provides details about how to qualify endpoint candidates on a per-interface basis.
+Note that this property is not used to specify an interface scope zone for a particular Endpoint. {{ifspec}} provides details about how to qualify endpoint candidates on a per-interface basis.
 
 ### Provisioning Domain Instance or Type {#prop-pvd}
 
@@ -1342,7 +1355,7 @@ Name:
 : pvd
 
 Type:
-: Collection of (Preference, Enumeration)
+: Set of (Preference, Enumeration)
 
 Default:
 : Empty (not setting a preference for any PvD)
@@ -1351,7 +1364,7 @@ Similar to `interface` (see {{prop-interface}}), this property
 allows the application to control path selection by selecting which specific
 Provisioning Domain (PvD) or categories of PVDs it wants to
 `Require`, `Prohibit`, `Prefer`, or `Avoid`. Provisioning Domains define
-consistent sets of network properties that may be more specific than network
+consistent sets of network properties that might be more specific than network
 interfaces {{?RFC7556}}.
 
 As with interface instances and types, this property is a tuple of an (Enumerated)
@@ -1442,8 +1455,8 @@ Type:
 Default:
 : False
 
-This property specifies whether alternative addresses, e.g., of other interfaces, should be advertised to the
-peer endpoint by the Protocol Stack. Advertising these addresses enables the peer-endpoint to establish additional connectivity, e.g., for Connection migration or using multiple paths.
+This property specifies whether alternative addresses, e.g., of other interfaces, ought to be advertised to the
+peer endpoint by the Protocol Stack. Advertising these addresses enables the peer endpoint to establish additional connectivity, e.g., for Connection migration or using multiple paths.
 
 Note that this can have privacy implications because it might result in users being linkable across the multiple paths.
 Also, note that setting this to false does not prevent the local Transport Services system from _establishing_ connectivity using alternate paths (see {{multipath-mode}} above); it only prevents _proactive advertisement_ of addresses.
@@ -1472,7 +1485,7 @@ Unidirectional receive:
 
 Since unidirectional communication can be
 supported by transports offering bidirectional communication, specifying
-unidirectional communication may cause a transport stack that supports
+unidirectional communication might cause a transport stack that supports
 bidirectional communication to be selected.
 
 
@@ -1523,7 +1536,7 @@ the first transmitted data takes the role of an active open signal.
 ## Specifying Security Parameters and Callbacks {#security-parameters}
 
 Most security parameters, e.g., TLS ciphersuites, local identity and private key, etc.,
-may be configured statically. Others are dynamically configured during Connection establishment.
+can be configured statically. Others are dynamically configured during Connection establishment.
 Security parameters and callbacks are partitioned based on their place in the lifetime
 of Connection establishment. Similar to Transport Properties, both parameters and callbacks
 are inherited during cloning (see {{groups}}).
@@ -1569,7 +1582,7 @@ out-of-band. Each pre-shared keying material is associated with some identity th
 its use or has some protocol-specific meaning to the Remote Endpoint.
 
 ~~~
-SecurityParameters.Set(pre-shared-key, key, identity)
+SecurityParameters.Set(pre-shared-key, key, myIdentity)
 ~~~
 
 - Session cache management: Used to tune session cache capacity, lifetime, and
@@ -1595,16 +1608,16 @@ SecurityParameters := NewDisabledSecurityParameters()
 SecurityParameters := NewOpportunisticSecurityParameters()
 ~~~
 
-Representation of security parameters in implementations should parallel
+Representation of security parameters in implementations ought to parallel
 that chosen for Transport Property names as suggested in {{scope-of-interface-defn}}.
 
 ### Connection Establishment Callbacks
 
 Security decisions, especially pertaining to trust, are not static. Once configured,
-parameters may also be supplied during Connection establishment. These are best
+parameters can also be supplied during Connection establishment. These are best
 handled as client-provided callbacks.
 Callbacks block the progress of the Connection establishment, which distinguishes them from other events in the transport system. How callbacks and events are implemented is specific to each implementation.
-Security handshake callbacks that may be invoked during Connection establishment include:
+Security handshake callbacks that could be invoked during Connection establishment include:
 
 - Trust verification callback: Invoked when a Remote Endpoint's trust must be verified before the
 handshake protocol can continue. For example, the application could verify an X.509 certificate
@@ -1633,7 +1646,7 @@ Before a Connection can be used for data transfer, it needs to be established.
 Establishment ends the pre-establishment phase; all transport properties and
 cryptographic parameter specification must be complete before establishment,
 as these will be used to select candidate Paths and Protocol Stacks
-for the Connection. Establishment may be active, using the `Initiate` action;
+for the Connection. Establishment can be active, using the `Initiate` action;
 passive, using the `Listen` action; or simultaneous for peer-to-peer, using
 the `Rendezvous` action. These actions are described in the subsections below.
 
@@ -1651,8 +1664,8 @@ Connection := Preconnection.Initiate(timeout?)
 
 The timeout parameter specifies how long to wait before aborting Active open.
 Before calling `Initiate`, the caller must have populated a Preconnection
-object with a Remote Endpoint specifier, optionally a Local Endpoint
-specifier (if not specified, the system will attempt to determine a
+object with a Remote Endpoint object to identify the endpoint, optionally a Local Endpoint
+object (if not specified, the system will attempt to determine a
 suitable Local Endpoint), as well as all properties
 necessary for candidate selection.
 
@@ -1661,14 +1674,14 @@ called, any changes to the Preconnection MUST NOT have any effect on the
 Connection. However, the Preconnection can be reused, e.g., to `Initiate`
 another Connection.
 
-Once `Initiate` is called, the candidate Protocol Stack(s) may cause one or more
+Once `Initiate` is called, the candidate Protocol Stack(s) can cause one or more
 candidate transport-layer connections to be created to the specified Remote
-Endpoint. The caller may immediately begin sending Messages on the Connection
+Endpoint. The caller could immediately begin sending Messages on the Connection
 (see {{sending}}) after calling `Initiate`; note that any data marked as "safely replayable" that is sent
-while the Connection is being established may be sent multiple times or on
+while the Connection is being established could be sent multiple times or on
 multiple candidates.
 
-The following events may be sent by the Connection after `Initiate` is called:
+The following events can be sent by the Connection after `Initiate` is called:
 
 ~~~
 Connection -> Ready<>
@@ -1686,7 +1699,7 @@ Connection -> EstablishmentError<reason?>
 An `EstablishmentError` occurs either when the set of transport properties and security
 parameters cannot be fulfilled on a Connection for initiation (e.g., the set of
 available Paths and/or Protocol Stacks meeting the constraints is empty) or
-reconciled with the Local and/or Remote Endpoints; when the remote specifier
+reconciled with the Local and/or Remote Endpoints; when a remote Endpoint Identifier
 cannot be resolved; or when no transport-layer connection can be established to
 the Remote Endpoint (e.g., because the Remote Endpoint is not accepting
 connections, the application is prohibited from opening a Connection by the
@@ -1706,9 +1719,9 @@ Listener := Preconnection.Listen()
 ~~~
 
 Before calling `Listen`, the caller must have initialized the Preconnection
-during the pre-establishment phase with a Local Endpoint specifier, as well
+during the pre-establishment phase with a Local Endpoint object, as well
 as all properties necessary for Protocol Stack selection. A Remote Endpoint
-may optionally be specified, to constrain what Connections are accepted.
+can optionally be specified, to constrain what Connections are accepted.
 
 The `Listen` action returns a Listener object. Once `Listen` has been called,
 any changes to the Preconnection MUST NOT have any effect on the Listener. The
@@ -1801,12 +1814,12 @@ and to which it will attempt to establish Connections.
 
 Note that the set of Local Endpoints returned by `Resolve` might or might not
 contain information about all possible local interfaces; it is valid only
-for a Rendezvous happening at the same time as the resolution. Care should
+for a Rendezvous happening at the same time as the resolution. Care ought to
 be taken in using these values in any other context.
 
 An application that uses `Rendezvous` to establish a peer-to-peer Connection
 in the presence of NATs will configure the Preconnection object with at least
-one a Local Endpoint that supports NAT binding discovery. It will then `Resolve`
+one Local Endpoint that supports NAT binding discovery. It will then `Resolve`
 the Preconnection, and pass the resulting list of Local Endpoint candidates to
 the peer via a signalling protocol, for example as part of an ICE {{?RFC8445}}
 exchange within SIP {{?RFC3261}} or WebRTC {{?RFC7478}}.  The peer will then,
@@ -1886,7 +1899,7 @@ A new Connection created by `Clone` can have a Message Framer assigned via the o
 stack of Message Framers associated with a Connection is copied to
 the cloned Connection when calling `Clone`. Then, a cloned Connection
 has the same stack of Message Framers as the Connection from which they
-are cloned, but these Framers may internally maintain per-Connection state.
+are cloned, but these Framers can internally maintain per-Connection state.
 
 It is also possible to check which Connections belong to the same Connection Group.
 Calling `GroupedConnections` on a specific Connection returns a set of all Connections
@@ -1950,7 +1963,7 @@ Connection.AddRemote([]RemoteEndpoint)
 
 Endpoints that are already known to the Connection are ignored. A call to
 `AddRemote` makes the new Remote Endpoints available to the Connection,
-but whether the Connection makes use of those endpoints will depend on the
+but whether the Connection makes use of those Endpoints will depend on the
 underlying transport protocol.
 
 Similarly, the `RemoveRemote` action can be used to tell a Connection to
@@ -1967,18 +1980,18 @@ switch to a new path if other reachable Remote Endpoints exist, or the
 connection might abort.
 
 Similarly, the `AddLocal` and `RemoveLocal` actions can be used to add
-and remove local endpoints to/from a Connection.
+and remove Local Endpoints to/from a Connection.
 
 
 # Managing Connections {#introspection}
 
 During pre-establishment and after establishment, (Pre-)Connections can be configured and queried using Connection
-Properties, and asynchronous information may be available about the state of the
+Properties, and asynchronous information could be available about the state of the
 Connection via `SoftError` events.
 
 Connection Properties represent the configuration and state of the selected
-Protocol Stack(s) backing a Connection. These Connection Properties may be
-Generic, applying regardless of transport protocol, or Specific, applicable to a
+Protocol Stack(s) backing a Connection. These Connection Properties can be
+generic, applying regardless of transport protocol, or specific, applicable to a
 single implementation of a single transport Protocol Stack. Generic Connection
 Properties are defined in {{connection-props}} below.
 
@@ -1988,8 +2001,8 @@ permit more specialized protocol features to be used.
 Too much reliance by an application on Protocol-specific Properties can significantly reduce the flexibility
 of a transport services system to make appropriate
 selection and configuration choices. Therefore, it is RECOMMENDED that
-Protocol-specific Properties are used for properties common across different protocols and that
-Protocol-specific Properties are only used where specific protocols or properties are necessary.
+Generic Connection Properties are used for properties common across different protocols and that
+Protocol-specific Connection Properties are only used where specific protocols or properties are necessary.
 
 The application can set and query Connection Properties on a per-Connection
 basis. Connection Properties that are not read-only can be set during
@@ -2071,7 +2084,7 @@ Message that need to be covered by a checksum.
 A receiving endpoint will not forward Messages that have less coverage
 to the application. The application is responsible for handling
 any corruption within the non-protected part of the Message {{?RFC8085}}.
-A special value of 0 means that a received packet may also have a zero checksum field,
+A special value of 0 means that a received packet might also have a zero checksum field,
 and the enumerated value `Full Coverage` means
 that the entire Message needs to be protected by a checksum.
 
@@ -2095,7 +2108,7 @@ Group. As noted in {{groups}}, this property is not entangled when Connections
 are cloned, i.e., changing the Priority on one Connection in a Connection Group
 does not change it on the other Connections in the same Connection Group.
 No guarantees of a specific behavior regarding Connection Priority are given;
-a Transport Services system may ignore this property. See {{priority-in-taps}} for more details.
+a Transport Services system could ignore this property. See {{priority-in-taps}} for more details.
 
 ### Timeout for Aborting Connection {#conn-timeout}
 
@@ -2126,7 +2139,7 @@ Default:
 
 A Transport Services API can request a protocol that supports sending keep alive packets ({{keep-alive}}).
 If this property is Numeric, it specifies the maximum length of time an idle Connection (one for which no transport
-packets have been sent) should wait before
+packets have been sent) ought to wait before
 the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting this property
 will only take effect when the underlying stack supports sending keep-alive packets.
 Guidance on setting this value for connection-less transports is
@@ -2144,8 +2157,9 @@ Type:
 Default:
 : Weighted Fair Queueing (see Section 3.6 in {{?RFC8260}})
 
-This property specifies which scheduler should be used among Connections within
-a Connection Group, see {{groups}}. A set of schedulers is
+This property specifies which scheduler is used among Connections within
+a Connection Group to apportion the available capacity according to Connection priorities
+(see {{groups}} and {{conn-priority}}). A set of schedulers is
 described in {{?RFC8260}}.
 
 ### Capacity Profile {#prop-cap-profile}
@@ -2189,7 +2203,7 @@ The following values are valid for the capacity profile:
 
   Low Latency/Interactive:
   : The application is interactive, and prefers loss to
-  latency. Response time should be optimized at the expense of delay variation
+  latency. Response time SHOULD be optimized at the expense of delay variation
   and efficient use of the available capacity when sending on this Connection. This can be
   used by the system to disable the coalescing of multiple small Messages into
   larger packets (Nagle's algorithm); to prefer immediate acknowledgment from
@@ -2198,7 +2212,7 @@ The following values are valid for the capacity profile:
 
   Low Latency/Non-Interactive:
   : The application prefers loss to latency, but is
-  not interactive. Response time should be optimized at the expense of delay
+  not interactive. Response time SHOULD be optimized at the expense of delay
   variation and efficient use of the available capacity when sending on this Connection. Transport
   system implementations that map the requested capacity profile onto
   per-connection DSCP signaling without multiplexing SHOULD assign a DSCP
@@ -2206,7 +2220,7 @@ The following values are valid for the capacity profile:
 
   Constant-Rate Streaming:
   : The application expects to send/receive data at a
-  constant rate after Connection establishment. Delay and delay variation should
+  constant rate after Connection establishment. Delay and delay variation SHOULD
   be minimized at the expense of efficient use of the available capacity.
   This implies that the Connection might fail if the Path is unable to maintain the desired rate.
   A transport can interpret this capacity profile as preferring a circuit
@@ -2306,8 +2320,8 @@ will use saved state from within the Connection Group.
 This is used for separating Connection Contexts as specified in {{Section 4.2.3 of I-D.ietf-taps-arch}}.
 
 Note that this does not guarantee no leakage of information, as
-implementations may not be able to fully isolate all caches (e.g. RTT
-estimates). Note that this property may degrade Connection performance.
+implementations might not be able to fully isolate all caches (e.g. RTT
+estimates). Note that this property could degrade Connection performance.
 
 ### Read-only Connection Properties {#read-only-conn-prop}
 
@@ -2323,10 +2337,14 @@ Type:
 
 This property, if applicable, represents the maximum Message size that can be
 sent without incurring network-layer fragmentation at the sender.
-It is specified as the number of bytes. It exposes a value to the application
-based on the Maximum Packet Size (MPS) as described in Datagram PLPMTUD {{?RFC8899}}.
-This can allow a sending stack to avoid unwanted fragmentation at the
-network-layer or segmentation by the transport layer.
+It is specified as a number of bytes and is less than or equal to the
+Maximum Message Size on Send.
+It exposes a readable value to the application
+based on the Maximum Packet Size (MPS). The value of this property can change over time (and can be updated by Datagram PLPMTUD {{?RFC8899}}).
+This value allows a sending stack to avoid unwanted fragmentation at the
+network-layer or segmentation by the transport layer before
+choosing the message size and/or after a `SendError` occurs indicating
+an attempt to send a Message that is too large.
 
 #### Maximum Message Size on Send {#conn-max-msg-send}
 
@@ -2352,14 +2370,16 @@ It is specified as the number of bytes.
 
 ## TCP-specific Properties: User Timeout Option (UTO) {#tcp-uto}
 
-These properties specify configurations for the User Timeout Option (UTO),
-in the case that TCP becomes the chosen transport protocol.
-Implementation is optional and useful only if TCP is implemented in the Transport Services system.
+These properties specify configurations for the TCP User Timeout Option (UTO).
+This is a TCP-specific property, that is only used
+in the case that TCP becomes the chosen transport protocol
+and useful only if TCP is implemented in the Transport Services system.
+Protocol-specific options could also be defined for other transport protocols.
 
-These TCP-specific properties are included here because the feature `Suggest
+These are included here because the feature `Suggest
 timeout to the peer` is part of the minimal set of transport services
 {{?RFC8923}}, where this feature was categorized as "functional".
-This means that when an Transport Services system offers this feature,
+This means that when a Transport Services system offers this feature,
 the Transport Services API has to expose an interface to the application. Otherwise, the implementation might
 violate assumptions by the application, which could cause the application to
 fail.
@@ -2393,7 +2413,7 @@ Type:
 Default:
 : false
 
-This property controls whether the UTO option is enabled for a
+This property controls whether the TCP UTO option is enabled for a
 connection. This applies to both sending and receiving.
 
 ### Timeout Changeable
@@ -2407,8 +2427,8 @@ Type:
 Default:
 : true
 
-This property controls whether the `connTimeout` (see {{conn-timeout}})
-may be changed
+This property controls whether the TCP `connTimeout` (see {{conn-timeout}})
+can be changed
 based on a UTO option received from the remote peer. This boolean becomes false when
 `connTimeout` (see {{conn-timeout}}) is used.
 
@@ -2445,7 +2465,7 @@ to communicate the boundaries of the data being transferred.
 
 ## Messages and Framers {#msg}
 
-Each Message has an optional Message Context, which allows to add Message Properties, identify `Send` events related to a specific Message or to inspect meta-data related to the Message sent. Framers can be used to extend or modify the Message data with additional information that can be processed at the receiver to detect message boundaries.
+Each Message has an optional Message Context, which allows adding Message Properties, identify `Send` events related to a specific Message or to inspect meta-data related to the Message sent. Framers can be used to extend or modify the Message data with additional information that can be processed at the receiver to detect message boundaries.
 
 
 ### Message Contexts {#msg-ctx}
@@ -2460,7 +2480,7 @@ MessageContext.add(property, value)
 PropertyValue := MessageContext.get(property)
 ~~~
 
-These Message Properties may be generic properties or Protocol-specific Properties.
+These Message Properties can be generic properties or Protocol-specific Properties.
 
 For MessageContexts returned by `Send` events (see {{send-events}}) and `Receive` events (see {{receive-events}}), the application can query information about the Local and Remote Endpoint:
 
@@ -2493,7 +2513,7 @@ Then, the Message Framer can intercept all calls to `Send` or `Receive`
 on a Connection to add Message semantics, in addition to interacting with
 the setup and teardown of the Connection. A Framer can start sending data
 before the application sends data if the framing protocol requires a prefix
-or handshake (see {{?RFC8229}} for an example of such a framing protocol).
+or handshake (see {{?RFC9329}} for an example of such a framing protocol).
 
 ~~~~~~~~~~
 
@@ -2525,7 +2545,7 @@ or handshake (see {{?RFC8229}} for an example of such a framing protocol).
 Note that while Message Framers add the most value when placed above
 a protocol that otherwise does not preserve message boundaries, they can
 also be used with datagram- or message-based protocols. In these cases,
-they add an additional transformation to further encode or encapsulate,
+they add a transformation to further encode or encapsulate,
 and can potentially support packing multiple application-layer Messages
 into individual transport datagrams.
 
@@ -2535,7 +2555,7 @@ guidance on implementing Message Framers can be found in {{?I-D.ietf-taps-impl}}
 #### Adding Message Framers to Pre-Connections
 
 The Message Framer object can be added to one or more Preconnections
-to run on top of transport protocols. Multiple Framers may be added to a Preconnection;
+to run on top of transport protocols. Multiple Framers can be added to a Preconnection;
 in this case, the Framers operate as a framing stack, i.e. the last one added runs
 first when framing outbound Messages, and last when parsing inbound data.
 
@@ -2547,7 +2567,7 @@ Preconnection.AddFramer(framer)
 ~~~
 
 Since Message Framers pass from Preconnection to Listener or Connection, addition of
-Framers must happen before any operation that may result in the creation of a Connection.
+Framers must happen before any operation that might result in the creation of a Connection.
 
 #### Framing Meta-Data {#framing-meta}
 
@@ -2636,7 +2656,10 @@ with configurable per-Message reliability is used, setting
 allow this Message to be sent without any reliability guarantees. Changing
 the `msgReliable` Message Property is only possible for
 Connections that were established enabling the Selection Property
-`perMsgReliability`.
+`perMsgReliability`. If the contradicting Message Property
+cannot be supported by the Connection (such as requiring reliability
+on a Connection that uses an unreliable protocol), the `Send` action
+will result in a `SendError` event.
 
 The following Message Properties are supported:
 
@@ -2677,12 +2700,12 @@ This property specifies the priority of a Message, relative to other Messages se
 same Connection.
 
 A Message with Priority 0 will yield to a Message with Priority 1, which will
-yield to a Message with Priority 2, and so on. Priorities may be used as a
+yield to a Message with Priority 2, and so on. Priorities can be used as a
 sender-side scheduling construct only, or be used to specify priorities on the
 wire for Protocol Stacks supporting prioritization.
 
 Note that this property is not a per-Message override of `connPriority`
-- see {{conn-priority}}. The priority properties may interact, but can be used
+- see {{conn-priority}}. The priority properties might interact, but can be used
 independently and be realized by different mechanisms; see {{priority-in-taps}}.
 
 #### Ordered {#msg-ordered}
@@ -2721,7 +2744,7 @@ Default:
 If true, `safelyReplayable` specifies that a Message is safe to send to the Remote Endpoint
 more than once for a single `Send` action. It marks the data as safe for
 certain 0-RTT establishment techniques, where retransmission of the 0-RTT data
-may cause the remote application to receive the Message multiple times.
+could cause the remote application to receive the Message multiple times.
 
 For protocols that do not protect against duplicated Messages,
 e.g., UDP, all Messages need to be marked as "safely replayable" by enabling this property.
@@ -2790,7 +2813,7 @@ without corruption. Changing the `msgReliable` property on Messages
 is only possible for Connections that were established enabling the Selection Property `perMsgReliability`.
 When this is not the case, changing `msgReliable` will generate an error.
 
-Disabling this property indicates that the Transport Services system may disable retransmissions
+Disabling this property indicates that the Transport Services system could disable retransmissions
 or other reliability mechanisms for this particular Message, but such disabling is not guaranteed.
 
 If it is not configured by the application before sending, this property's default value
@@ -2839,7 +2862,7 @@ Attempts to send a Message with this property that result in a size greater than
 transport's current estimate of its maximum packet size (`singularTransmissionMsgMaxLen`)
 can result in transport segmentation when permitted, or in a `SendError`.
 
-Note: noSegmentation should be used when it is desired to only send a Message within
+Note: noSegmentation is used when it is desired to only send a Message within
 a single network packet.
 
 #### No Segmentation {#no-transport-fragmentation}
@@ -2903,8 +2926,9 @@ Connection.Send(messageData)
 
 The interpretation of a Message to be sent is dependent on the implementation, and
 on the constraints on the Protocol Stacks implied by the Connection’s transport properties.
-For example, a Message may be a single datagram for UDP Connections; or an HTTP
-Request for HTTP Connections.
+For example, a Message could be the payload of
+a single datagram for a UDP Connection; or an HTTP Request for an HTTP
+Connection.
 
 Some transport protocols can deliver arbitrarily sized Messages, but other
 protocols constrain the maximum Message size. Applications can query the
@@ -2970,7 +2994,7 @@ Connection -> SendError<messageContext, reason?>
 ~~~
 
 A `SendError` occurs when a Message was not sent due to an error condition:
-an attempt to send a Message which is too large for the system and
+an attempt to send a Message that is too large for the system and
 Protocol Stack to handle, some failure of the underlying Protocol Stack, or a
 set of Message Properties not consistent with the Connection's transport
 properties. The `SendError` contains a reference to the Message Context of the
@@ -2979,9 +3003,9 @@ Message to which it applies.
 ### Partial Sends {#send-partial}
 
 It is not always possible for an application to send all data associated with
-a Message in a single `Send` action. The Message data may be too large for
+a Message in a single `Send` action. The Message data might be too large for
 the application to hold in memory at one time, or the length of the Message
-may be unknown or unbounded.
+might be unknown or unbounded.
 
 Partial Message sending is supported by passing an endOfMessage boolean
 parameter to the `Send` action. This value is always true by default, and
@@ -3043,7 +3067,7 @@ establishment, `InitiateWithSend` is identical to `Initiate` followed by `Send`.
 
 Neither partial sends nor send batching are supported by `InitiateWithSend`.
 
-The events that may be sent after `InitiateWithSend` are equivalent to those
+The events that are sent after `InitiateWithSend` are equivalent to those
 that would be sent by an invocation of `Initiate` followed immediately by an
 invocation of `Send`, with the caveat that a send failure that occurs because
 the Connection could not be established will not result in a
@@ -3098,12 +3122,12 @@ Connection.Receive(minIncompleteLength?, maxLength?)
 By default, `Receive` will try to deliver complete Messages in a single event ({{receive-complete}}).
 
 The application can set a minIncompleteLength value to indicate the smallest partial
-Message data size in bytes that should be delivered in response to this `Receive`. By default,
+Message data size in bytes to be delivered in response to this `Receive`. By default,
 this value is infinite, which means that only complete Messages should be delivered (see {{receive-partial}}
 and {{framing}} for more information on how this is accomplished).
 If this value is set to some smaller value, the associated receive event will be triggered
 only when at least that many bytes are available, or the Message is complete with fewer
-bytes, or the system needs to free up memory. Applications should always
+bytes, or the system needs to free up memory. Applications SHOULD always
 check the length of the data delivered to the receive event and not assume
 it will be as long as minIncompleteLength in the case of shorter complete Messages
 or memory issues.
@@ -3163,12 +3187,12 @@ passing the same MessageContext, until the endOfMessage flag is delivered or a
 order without gaps. This event does not support delivering non-contiguous partial
 Messages. If, for example, Message A is divided into three pieces (A1, A2, A3) and
 Message B is divided into three pieces (B1, B2, B3), and preserveOrder is not Required,
-the `ReceivedPartial` may deliver them in a sequence like this: A1, B1, B2, A2, A3, B3,
+the `ReceivedPartial` could deliver them in a sequence like this: A1, B1, B2, A2, A3, B3,
 because the MessageContext allows the application to identify the pieces as belonging
 to Message A and B, respectively. However, a sequence like: A1, A3 will never occur.
 
 If the minIncompleteLength in the Receive request was set to be infinite (indicating
-a request to receive only complete Messages), the `ReceivedPartial` event may still be
+a request to receive only complete Messages), the `ReceivedPartial` event could still be
 delivered if one of the following conditions is true:
 
 * the underlying Protocol Stack supports message boundary preservation, and
@@ -3214,7 +3238,7 @@ to be notified of such errors. For example, a `ReceiveError` can
 indicate that a Message (identified via the `messageContext` value)
 that was being partially received previously, but had not
 completed, encountered an error and will not be completed. This can be useful
-for an application, which may want to use this error as a hint to remove
+for an application, which might wish to use this error as a hint to remove
 previously received Message parts from memory. As another example,
 if an incoming Message does not fulfill the `recvChecksumLen` property
 (see {{conn-recv-checksum}}),
@@ -3229,7 +3253,7 @@ the termination of the Connection are signaled using `ConnectionError`
 
 ### Receive Message Properties {#recv-meta}
 
-Each Message Context may contain metadata from protocols in the Protocol Stack;
+Each Message Context could contain metadata from protocols in the Protocol Stack;
 which metadata is available is Protocol Stack dependent. These are exposed through additional read-only Message Properties that can be queried from the MessageContext object (see {{msg-ctx}}) passed by the receive event.
 The following metadata values are supported:
 
@@ -3262,10 +3286,10 @@ The Message Context can indicate whether or not this Message is
 the Final Message on a Connection. For any Message that is marked as Final,
 the application can assume that there will be no more Messages received on the
 Connection once the Message has been completely delivered. This corresponds
-to the `final` property that may be marked on a sent Message, see {{msg-final}}.
+to the `final` property that can be marked on a sent Message, see {{msg-final}}.
 
 Some transport protocols and peers do not support signaling of the `final` property.
-Applications therefore should not rely on receiving a Message marked Final to know
+Applications therefore  SHOULD NOT rely on receiving a Message marked Final to know
 that the sending endpoint is done sending on a Connection.
 
 Any calls to `Receive` once the Final Message has been delivered will result in errors.
@@ -3283,7 +3307,7 @@ as a reason.
 Remote action calls map to events similar to local calls (e.g., a remote `Close` causes the
 Connection to either send a `Closed` event or a `ConnectionError` event), but, different from local action calls,
 it is not guaranteed that such events will indeed be invoked. When an application needs to free resources
-associated with a Connection, it should therefore not rely on the invocation of such events due to
+associated with a Connection, it ought not to therefore rely on the invocation of such events due to
 termination calls from the Remote Endpoint, but instead use the local termination actions.
 
 `Close` terminates a Connection after satisfying all the requirements that were
@@ -3413,10 +3437,8 @@ The Transport Services API  provides the following guarantees about the ordering
 
 # IANA Considerations
 
-RFC-EDITOR: Please remove this section before publication.
-
 This document has no actions for IANA.
-Later versions of this document may create IANA registries for generic transport property names and transport property namespaces (see {{property-names}}).
+Later versions of this document might create IANA registries for generic transport property names and transport property namespaces (see {{property-names}}).
 
 # Privacy and Security Considerations {#privacy-security}
 
@@ -3436,14 +3458,14 @@ In either case, the Transport Services API is an internal interface that is used
 However, as the Transport Services system is responsible for network communication, it is in the position to
 potentially share any information provided by the application with the network or another communication peer.
 Most of the information provided over the Transport Services API are useful to configure and select protocols and paths
-and are not necessarily privacy sensitive. Still, some information could be privacy sensitive because
+and are not necessarily privacy-sensitive. Still, some information could be privacy sensitive because
 it might reveal usage characteristics and habits of the user of an application.
 
 Of course any communication over a network reveals usage characteristics, because all
 packets, as well as their timing and size, are part of the network-visible wire image {{?RFC8546}}. However,
 the selection of a protocol and its configuration also impacts which information is visible, potentially in
 clear text, and which other entities can access it. In most cases, information provided for protocol and path selection
-should not directly translate to information that can be observed by network devices on the path.
+does not directly translate to information that can be observed by network devices on the path.
 However, there might be specific configuration
 information that is intended for path exposure, e.g., a DiffServ codepoint setting, that is either provided
 directly by the application or indirectly configured for a traffic profile.
@@ -3453,7 +3475,7 @@ This is the case, for example, when the Transport Services system also executes 
 TURN or ICE are used to establish connectivity, if protocols or paths are raced, or if a path fails and
 fallback or re-establishment is supported in the Transport Services system. Applications should take special
 care when using 0-RTT session resumption (see {{prop-0rtt}}), as early data sent across multiple paths during
-connection establishment may reveal information that can be used to correlate endpoints on these paths.
+connection establishment could reveal information that can be used to correlate endpoints on these paths.
 
 Applications should also take care to not assume that all data received using the Transport Services API is always
 complete or well-formed. Specifically, Messages that are received partially {{receive-partial}} could be a source
@@ -3472,11 +3494,13 @@ the goal of a Transport Services system is to support
 such mechanisms as a generic service within the transport layer. This enables applications to more dynamically
 benefit from innovations and new protocols in the transport, although it reduces transparency of the
 underlying communication actions to the application itself. The Transport Services API is designed such that protocol and path selection
-can be limited to a small and controlled set if required by the application for functional or security purposes. Further,
+can be limited to a small and controlled set if the application requires this or to implement a security policy.
+can be limited to a small and controlled set if required by the application to perform a function or to provide security.
+Further,
 introspection on the properties of Connection objects allows an application to determine which protocol(s) and path(s) are in use.
 A Transport Services system SHOULD provide a facility logging the communication events of each Connection.
 
-# Acknowledgements
+# Acknowledgments
 
 This work has received funding from the European Union's Horizon 2020 research and
 innovation programme under grant agreements No. 644334 (NEAT) and No. 688421 (MAMI).
@@ -3518,9 +3542,9 @@ implementation-specific limitations. For example:
   to the underlying platform's ranges for each.
 - In C, a Tuple may be represented as a `struct` with one member for each of
   the value types in the ordered grouping. In Python, by contrast, a Tuple may
-  be represented natively as a `tuple`, a sequence of dynamically-typed
+  be represented as a `tuple`, a sequence of dynamically-typed
   elements.
-- A Collection may be represented as a `std::set` in C++ or as a `set` in
+- A Set may be represented as a `std::set` in C++ or as a `set` in
   Python. In C, it may be represented as an array or as a higher-level data
   structure with appropriate accessors defined.
 
@@ -3571,7 +3595,7 @@ TransportProperties.Prohibit(property)
 
 To ease the use of the Transport Services API, implementations
 can provide a mechanism to create Transport Property objects (see {{selection-props}})
-that are pre-configured with frequently used sets of properties; the following are
+that are preconfigured with frequently used sets of properties; the following are
 in common use in current applications:
 
 ### reliable-inorder-stream
@@ -3704,7 +3728,7 @@ the `msgLifetime` Message Property implements a time-based way to configure mess
 * "Ordered message delivery (potentially slower than unordered)" and "Unordered message delivery (potentially faster than ordered)":
 these two transport features are controlled via the Message Property `msgOrdered` ({{msg-ordered}}).
 
-* Request not to delay the acknowledgement (SACK) of a message:
+* Request not to delay the acknowledgment (SACK) of a message:
 should the protocol support it, this is one of the transport features the Transport Services system can apply when an application uses the `connCapacityProfile` Property ({{prop-cap-profile}}) or the `msgCapacityProfile` Message Property ({{send-profile}}) with value `Low Latency/Interactive`.
 
 * Receive data (with no message delimiting):
