@@ -101,7 +101,7 @@ This document was developed in parallel with the specification of the Transport 
 
 The architecture of the Transport Services System is based on the survey of services provided by IETF transport protocols and congestion control mechanisms {{?RFC8095}}, and the distilled minimal set of the features offered by transport protocols {{?RFC8923}}. These documents identified common features and patterns across all transport protocols developed thus far in the IETF.
 
-Since transport security is an increasingly relevant aspect of using transport protocols on the Internet, this also considers the impact of transport security protocols on the feature-set exposed by Transport Services {{?RFC8922}}.
+Since transport security is an increasingly relevant aspect of using transport protocols on the Internet, this document also considers the impact of transport security protocols on the feature-set exposed by Transport Services {{?RFC8922}}.
 
 One of the key insights to come from identifying the minimal set of features provided by transport protocols {{?RFC8923}} was that features either require application interaction and guidance (referred to in that document as Functional or Optimizing Features), or else can be handled automatically by an implementation of the Transport Services System (referred to as Automatable Features). Among the identified Functional and Optimizing Features, some are common across all or nearly all transport protocols, while others present features that, if specified, would only be useful with a subset of protocols, but would not harm the functionality of other protocols. For example, some protocols can deliver messages faster for applications that do not require messages to arrive in the order in which they were sent. This functionality needs to be explicitly allowed by the application, since reordering messages would be undesirable in many cases.
 
@@ -109,7 +109,7 @@ One of the key insights to come from identifying the minimal set of features pro
 
 This document describes the Transport Services System in three sections:
 
-- {{model}} describes how the API model of architecture differs from that of traditional socket-based APIs. Specifically, it offers asynchronous event-driven interaction, the use of messages for data transfer, and the flexibility to use different transport protocols and paths without requiring major changes to the application.
+- {{model}} describes how the Transport Services API model differs from that of traditional socket-based APIs. Specifically, it offers asynchronous event-driven interaction, the use of messages for data transfer, and the flexibility to use different transport protocols and paths without requiring major changes to the application.
 
 - {{requirements}} explains the fundamental requirements for a Transport Services System. These principles are intended to make sure that transport protocols can continue to be enhanced and evolve without requiring significant changes by application developers.
 
@@ -239,7 +239,7 @@ Originally, the Socket API presented a blocking interface for establishing conne
 
 In contrast to the Socket API, all interactions using the Transport Services API are expected to be asynchronous. The API is defined around an event-driven model (see {{events}}), which models this asynchronous interaction. Other forms of asynchronous communication could also be available to applications, depending on the platform implementing the interface.
 
-For example, when using the Transport Services API, a receiving application first creates a Preconnection. This allows the application to configure Connection Properties. It then issues a call to receive new data from the Connection. When delivered data becomes available, this data is delivered to the application using asynchronous events that contain the data. Error handling is also asynchronous, resulting in asynchronous error events.
+For example, when an application that uses the Transport Services API wants to receive data, it issues an asynchronous call to receive new data from the Connection. When delivered data becomes available, this data is delivered to the application using asynchronous events that contain the data. Error handling is also asynchronous, resulting in asynchronous error events.
 
 This API also delivers events regarding the lifetime of a connection and changes in the available network links, which were not previously made explicit in the Socket API.
 
@@ -282,7 +282,7 @@ While the architecture of the Transport Services System is designed as an enhanc
 
 # API and Implementation Requirements {#requirements}
 
-One goal of the archietcture is to redefine the interface between applications and transports in a way that allows the transport layer to evolve and improve without fundamentally changing the contract with the application. This requires a careful consideration of how to expose the capabilities of protocols. The architecture also encompasses system policies that can influence and inform how transport protocols use a network path or interface.
+One goal of the architecture is to redefine the interface between applications and transports in a way that allows the transport layer to evolve and improve without fundamentally changing the contract with the application. This requires a careful consideration of how to expose the capabilities of protocols. The architecture also encompasses system policies that can influence and inform how transport protocols use a network path or interface.
 
 There are several ways the Transport Services System can offer flexibility to an application: it can provide access to transport protocols and protocol features; it can use these protocols across multiple paths that could have different performance and functional characteristics; and it can communicate with different remote systems to optimize performance, robustness to failure, or some other metric. Beyond these, if the Transport Services API remains the same over time, new protocols and features can be added to the Transport Services Implementation without requiring changes in applications for adoption. Similarly, this can provide a common basis for utilizing information about a network path or interface, enabling evolution below the transport layer.
 
@@ -350,7 +350,7 @@ number of open connections per protocol, and any statistics that these protocols
 
 # Transport Services Architecture and Concepts {#concepts}
 
-This section of the document describes the architecture non-normatively and explain the operation of a Transport Services Implementation. The concepts defined in this document are intended primarily for use in the documents and specifications that describe the Transport Services System. This includes the architecture, the Transport Services API and the associated Transport Services Implementation. While the specific terminology can be used in some implementations, it is expected that there will remain a variety of terms used by running code.
+This section of the document describes the architecture non-normatively and explains the operation of a Transport Services Implementation. The concepts defined in this document are intended primarily for use in the documents and specifications that describe the Transport Services System. This includes the architecture, the Transport Services API and the associated Transport Services Implementation. While the specific terminology can be used in some implementations, it is expected that there will remain a variety of terms used by running code.
 
 The architecture divides the concepts for Transport Services System into two categories:
 
