@@ -1937,7 +1937,7 @@ See {{priority-in-taps}} for more.
 
 Transport protocols that are explicitly multipath aware are expected to automatically
 manage the set of Remote Endpoints that they are communicating with, and the paths to
-those Endpoints. A `PathChange<>` event, described in {{conn-path-change}}, will be
+those endpoints. A `PathChange<>` event, described in {{conn-path-change}}, will be
 generated when the path changes.
 
 In some cases, however, it is necessary to explicitly indicate to a Connection that
