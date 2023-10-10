@@ -2649,7 +2649,10 @@ with configurable per-Message reliability is used, setting
 allow this Message to be sent without any reliability guarantees. Changing
 the `msgReliable` Message Property is only possible for
 Connections that were established enabling the Selection Property
-`perMsgReliability`.
+`perMsgReliability`. If the contradicting Message Property
+cannot be supported by the Connection (such as requiring reliability
+on a Connection that uses an unreliable protocol), the `Send` action
+will result in a `SendError` event.
 
 The following Message Properties are supported:
 
