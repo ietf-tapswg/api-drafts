@@ -136,7 +136,7 @@ This subsection provides a glossary of key terms related to the Transport Servic
 - Connection Context: A set of stored properties across Connections, such as cached protocol state, cached path state, and heuristics, which can include one or more Connection Groups.
 - Connection Group: A set of Connections that share properties and caches.
 - Connection Property: A Transport Property that controls per-Connection behavior of a Transport Services implementation.
-- Endpoint: An entity that communicates with one or more other Endpoints using a transport protocol.
+- Endpoint: An entity that communicates with one or more other endpoints using a transport protocol.
 - Endpoint Identifier: An identifier that specifies one side of a Connection (local or remote), such as a hostname or URL.
 - Equivalent Protocol Stacks: Protocol Stacks that can be safely swapped or raced in parallel during establishment of a Connection.
 - Event: A primitive that is invoked by an Endpoint {{?RFC8303}}.
