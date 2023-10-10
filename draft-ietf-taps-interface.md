@@ -2688,7 +2688,7 @@ This property specifies the priority of a Message, relative to other Messages se
 same Connection. A lower value represents a higher priority.
 
 A Message with Priority 2 will yield to a Message with Priority 1, which will
-yield to a Message with Priority o, and so on. Priorities may be used as a
+yield to a Message with Priority 0, and so on. Priorities may be used as a
 sender-side scheduling construct only, or be used to specify priorities on the
 wire for Protocol Stacks supporting prioritization.
 
