@@ -563,9 +563,11 @@ the respective protocol has been selected.
 
 ## Transport Property Names {#property-names}
 
-Transport Properties are referred to by property names. These names are alphanumeric strings in which the following
-characters are allowed: lowercase letters `a-z`, uppercase letters `A-Z`,
-digits `0-9`, the hyphen `-`, and the underscore `_`. These names serve two purposes:
+Transport Properties are referred to by property names. These names are 
+case-insensitive alphanumeric strings in which the following characters are allowed:
+letters `a-z` / `A-Z`, digits `0-9`, the hyphen `-`. 
+The underscore `_` is only allowed at the first position. 
+They must start with a letter or an underscore. These names serve two purposes:
 
 - Allowing different components of a Transport Services implementation to pass Transport
   Properties, e.g., between a language frontend and a policy manager,
@@ -595,6 +597,8 @@ for Protocol-specific Properties and MUST NOT be used for vendor or implementati
 Terms listed as keywords as in the protocol numbers registry SHOULD be avoided as any part of a vendor- or
 implementation-specific property name.
 
+Though Transport Property Names are case-insensitive, it is recommended to use camelCase to improve readability.
+Implementations may transpose Transport Property Names into snake_case or PascalCase to blend into the language environment.
 
 ## Transport Property Types {#property-types}
 
