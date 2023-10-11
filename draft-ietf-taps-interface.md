@@ -870,7 +870,9 @@ RemoteSpecifier.AddAlias(AlternateRemoteSpecifier)
 ~~~
 
 To scope an alias to a specific transport protocol, an Endpoint can
-specify a protocol specifier.
+specify a protocol specifier. Protocol specifiers are strings. The API
+documentation of a Transport Services system implementation ought to
+contain a list of selectable protocol specifiers.
 
 ~~~
 AlternateRemoteSpecifier.WithProtocol(QUIC)
