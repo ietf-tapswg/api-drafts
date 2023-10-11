@@ -1323,8 +1323,8 @@ or categories of interfaces it wants to `Require`, `Prohibit`, `Prefer`, or
 selection to that single interface, and often leads to less flexible and resilient
 connection establishment.
 
-In contrast to other Selection Properties, this property is a tuple of an
-(Enumerated) interface identifier and a preference, and can either be
+In contrast to other Selection Properties, this property is a set of
+(Enumerated) interface identifier and preference tuples, and can either be
 implemented directly as such, or for making one preference available for each
 interface and interface type available on the system.
 
@@ -1367,8 +1367,8 @@ Provisioning Domain (PvD) or categories of PVDs it wants to
 consistent sets of network properties that might be more specific than network
 interfaces {{?RFC7556}}.
 
-As with interface instances and types, this property is a tuple of an (Enumerated)
-PvD identifier and a preference, and can either be implemented directly as such,
+As with interface instances and types, this property is a set of (Enumerated)
+PvD identifier and a preference tuples, and can either be implemented directly as such,
 or for making one preference available for each interface and interface type
 available on the system.
 
@@ -1438,7 +1438,7 @@ Passive:
 The policy for using multiple paths is specified using the separate `multipathPolicy` property, see {{multipath-policy}} below.
 To enable the peer endpoint to initiate additional paths towards a local address other than the one initially used, it is necessary to set the `advertisesAltaddr` property (see {{altaddr}} below).
 
-Setting this property to `Active` can have privacy implications: It enables the transport to establish connectivity using alternate paths that might result in users being linkable across the multiple paths, even if the `advertisesAltaddr` property (see {{altaddr}} below) is set to false.
+Setting this property to `Active` can have privacy implications: It enables the transport to establish connectivity using alternate paths that might result in users being linkable across the multiple paths, even if the `advertisesAltaddr` property (see {{altaddr}} below) is set to `false.
 
 Note that Multipath Transport has no corresponding Selection Property of type Preference.
 Enumeration values other than `Disabled` are interpreted as a preference for choosing protocols that can make use of multiple paths.
@@ -1502,7 +1502,7 @@ Default:
 
 This property specifies whether an application considers it useful to be
 informed when an ICMP error message arrives that does not force termination of a
-connection. When set to true, received ICMP errors are available as
+connection. When set to `true`, received ICMP errors are available as
 `SoftError` events, see {{soft-errors}}. Note that even if a protocol supporting this property is selected,
 not all ICMP errors will necessarily be delivered, so applications cannot rely
 upon receiving them {{?RFC8085}}.
@@ -2074,19 +2074,18 @@ Name:
 : recvChecksumLen
 
 Type:
-: Integer (non-negative) or `Full Coverage`
+: Tuple of (Integer (non-negative), Boolean)
 
 Default:
-: `Full Coverage`
+: 0, false
 
-If this property is an Integer, it specifies the minimum number of bytes in a received
-Message that need to be covered by a checksum.
+If the Boolean element of this property is `false`, the entire Message needs to be protected by a checksum.
+If the Boolean element of this property is `true`, the Integer element specifies the minimum number
+of bytes in a received Message that need to be covered by a checksum.
 A receiving endpoint will not forward Messages that have less coverage
 to the application. The application is responsible for handling
 any corruption within the non-protected part of the Message {{?RFC8085}}.
-A special value of 0 means that a received packet might also have a zero checksum field,
-and the enumerated value `Full Coverage` means
-that the entire Message needs to be protected by a checksum.
+A special value of 0 means that a received packet might also have a zero checksum field.
 
 ### Connection Priority {#conn-priority}
 
@@ -2116,15 +2115,15 @@ Name:
 : connTimeout
 
 Type:
-: Numeric (non-negative) or `Disabled`
+: Tuple of (Numeric (non-negative), Boolean)
 
 Default:
-: `Disabled`
+: 0, false
 
-If this property is Numeric, it specifies how long to wait before deciding that an active Connection has
-failed when trying to reliably deliver data to the Remote Endpoint. Adjusting this property
-will only take effect when the underlying stack supports reliability. If this property has the enumerated
-value `Disabled`, it means that no timeout is scheduled.
+If the Boolean element of this property is `true`, the Numeric element specifies how long to wait before deciding that an active Connection has
+failed when trying to reliably deliver data to the Remote Endpoint. If the Boolean element of this property
+is `false`, it means that no timeout is scheduled. Adjusting this property
+will only take effect when the underlying stack supports reliability.
 
 ### Timeout for keep alive packets {#keep-alive-timeout}
 
@@ -2132,19 +2131,20 @@ Name:
 : keepAliveTimeout
 
 Type:
-: Numeric (non-negative) or `Disabled`
+: Tuple of (Numeric (non-negative), Boolean)
 
 Default:
-: `Disabled`
+: 0, false
 
 A Transport Services API can request a protocol that supports sending keep alive packets ({{keep-alive}}).
-If this property is Numeric, it specifies the maximum length of time an idle Connection (one for which no transport
+If the Boolean element of this property is `true`, the Numeric element specifies the maximum length of time an idle Connection (one for which no transport
 packets have been sent) ought to wait before
 the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting this property
 will only take effect when the underlying stack supports sending keep-alive packets.
 Guidance on setting this value for connection-less transports is
 provided in {{?RFC8085}}.
-A value greater than the Connection timeout ({{conn-timeout}}) or the enumerated value `Disabled` will disable the sending of keep-alive packets.
+A value greater than the Connection timeout ({{conn-timeout}}) or setting the Boolean element of this property to `false` will disable
+the sending of keep-alive packets.
 
 ### Connection Group Transmission Scheduler {#conn-scheduler}
 
@@ -2291,12 +2291,12 @@ Name:
 : groupConnLimit
 
 Type:
-: Numeric (non-negative) or `Unlimited`
+: Tuple of (Numeric (non-negative), Boolean)
 
 Default:
-: `Unlimited`
+: 0, false
 
-If this property is Numeric, it controls the number of Connections that can be accepted from
+If the Boolean element of this property is `true`, the Numeric element controls the number of Connections that can be accepted from
 a peer as new members of the Connection's group. Similar to `SetNewConnectionLimit`,
 this limits the number of `ConnectionReceived` events that will occur, but constrained
 to the group of the Connection associated with this property. For a multi-streaming transport,
@@ -2312,7 +2312,7 @@ Type:
 Default:
 : false
 
-When set to true, this property will initiate new Connections using as little
+When set to `true`, this property will initiate new Connections using as little
 cached information (such as session tickets or cookies) as possible from
 previous Connections that are not in the same Connection Group. Any state generated by this
 Connection will only be shared with Connections in the same Connection Group. Cloned Connections
@@ -2333,9 +2333,9 @@ Name:
 : singularTransmissionMsgMaxLen
 
 Type:
-: Integer (non-negative) or `Not applicable`
+: Tuple of (Integer (non-negative), Boolean)
 
-This property, if applicable, represents the maximum Message size that can be
+If the Boolean element of this property is `true`, the Integer element represents the maximum Message size that can be
 sent without incurring network-layer fragmentation at the sender.
 It is specified as a number of bytes and is less than or equal to the
 Maximum Message Size on Send.
@@ -2384,7 +2384,7 @@ the Transport Services API has to expose an interface to the application. Otherw
 violate assumptions by the application, which could cause the application to
 fail.
 
-All of the below properties are optional (e.g., it is possible to specify `User Timeout Enabled` as true,
+All of the below properties are optional (e.g., it is possible to specify `User Timeout Enabled` as `true`,
 but not specify an Advertised User Timeout value; in this case, the TCP default will be used).
 These properties reflect the API extension specified in Section 3 of {{?RFC5482}}.
 
@@ -2429,7 +2429,7 @@ Default:
 
 This property controls whether the TCP `connTimeout` (see {{conn-timeout}})
 can be changed
-based on a UTO option received from the remote peer. This boolean becomes false when
+based on a UTO option received from the remote peer. This boolean becomes `false` when
 `connTimeout` (see {{conn-timeout}}) is used.
 
 
@@ -2719,9 +2719,9 @@ Type:
 Default:
 : the queried Boolean value of the Selection Property `preserveOrder` ({{prop-ordering}})
 
-The order in which Messages were submitted for transmission via the `Send` action will be preserved on delivery via `Receive` events for all Messages on a Connection that have this Message Property set to true.
+The order in which Messages were submitted for transmission via the `Send` action will be preserved on delivery via `Receive` events for all Messages on a Connection that have this Message Property set to `true`.
 
-If false, the Message is delivered to the receiving application without preserving the ordering.
+If `false`, the Message is delivered to the receiving application without preserving the ordering.
 This property is used for protocols that support preservation of data ordering,
 see {{prop-ordering}}, but allow out-of-order delivery for certain Messages, e.g., by multiplexing independent Messages onto
 different streams.
@@ -2741,7 +2741,7 @@ Type:
 Default:
 : false
 
-If true, `safelyReplayable` specifies that a Message is safe to send to the Remote Endpoint
+If `true`, `safelyReplayable` specifies that a Message is safe to send to the Remote Endpoint
 more than once for a single `Send` action. It marks the data as safe for
 certain 0-RTT establishment techniques, where retransmission of the 0-RTT data
 could cause the remote application to receive the Message multiple times.
@@ -2764,7 +2764,7 @@ Type:
 Default:
 : false
 
-If true, this indicates a Message is the last that
+If `true`, this indicates a Message is the last that
 the application will send on a Connection. This allows underlying protocols
 to indicate to the Remote Endpoint that the Connection has been effectively
 closed in the sending direction. For example, TCP-based Connections can
@@ -2783,17 +2783,17 @@ Name:
 : msgChecksumLen
 
 Type:
-: Integer (non-negative) or `Full Coverage`
+: Tuple of (Integer (non-negative), Boolean)
 
 Default:
-: `Full Coverage`
+: 0, false
 
-If this property is an Integer, it specifies the minimum length of the section of a sent Message,
+If the Boolean element of this property is `true`, the Integer element specifies the minimum length of the section of a sent Message,
 starting from byte 0, that the application requires to be delivered without
 corruption due to lower layer errors. It is used to specify options for simple
 integrity protection via checksums. A value of 0 means that no checksum
-needs to be calculated, and the enumerated value `Full Coverage` means
-that the entire Message needs to be protected by a checksum. Only `Full Coverage` is
+needs to be calculated. If the Boolean element of this property is `false`, it means
+`Full Coverage`: the entire Message needs to be protected by a checksum. Only `Full Coverage` is
 guaranteed, any other requests are advisory, which may result in `Full Coverage` being applied.
 
 #### Reliable Data Transfer (Message) {#msg-reliable-message}
@@ -2807,7 +2807,7 @@ Type:
 Default:
 : the queried Boolean value of the Selection Property `reliability` ({{prop-reliable}})
 
-When true, this property specifies that a Message should be sent in such a way
+If `true`, this property specifies that a Message should be sent in such a way
 that the transport protocol ensures all data is received on the other side
 without corruption. Changing the `msgReliable` property on Messages
 is only possible for Connections that were established enabling the Selection Property `perMsgReliability`.
@@ -2855,7 +2855,7 @@ to avoid network layer fragmentation when transport segmentation is preferred.
 
 This only takes effect when the transport uses a network layer that supports this functionality.
 When it does take effect, setting this property to
-true will cause the sender to avoid network-layer source fragmentation.
+`true` will cause the sender to avoid network-layer source fragmentation.
 When using IPv4, this will result in the Don't Fragment bit being set in the IP header.
 
 Attempts to send a Message with this property that result in a size greater than the
@@ -2876,12 +2876,12 @@ Type:
 Default:
 : false
 
-When set to true, this property requests the transport layer
+When set to `true`, this property requests the transport layer
 to not provide segmentation of Messages larger than the
 maximum size permitted by the network layer, and also
 to avoid network-layer source fragmentation of Messages.
 When running over IPv4, setting this property to
-true will result in a sending endpoint setting the
+`true` will result in a sending endpoint setting the
 Don't Fragment bit in the IPv4 header of packets generated by the
 transport layer.
 
@@ -3008,8 +3008,8 @@ the application to hold in memory at one time, or the length of the Message
 might be unknown or unbounded.
 
 Partial Message sending is supported by passing an endOfMessage boolean
-parameter to the `Send` action. This value is always true by default, and
-the simpler forms of `Send` are equivalent to passing true for endOfMessage.
+parameter to the `Send` action. This value is always `true` by default, and
+the simpler forms of `Send` are equivalent to passing `true` for endOfMessage.
 
 The following example sends a Message in two separate calls to `Send`.
 
