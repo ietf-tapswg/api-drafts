@@ -1205,7 +1205,7 @@ Default:
 This property specifies whether the application wishes to use a transport
 protocol that can ensure that data is received by the application at the Remote Endpoint in the same order as it was sent.
 
-### Use 0-RTT Session Establishment with a Safely Replayable Message {#prop-0rtt}
+### Initial Message will be Safely Replayable {#prop-0rtt}
 
 Name:
 : zeroRttMsg
@@ -1217,8 +1217,8 @@ Default:
 : Ignore
 
 This property specifies whether an application would like to supply a Message to
-the transport protocol before connection establishment that will then be
-reliably transferred to the other side before or during connection
+the transport protocol before Connection establishment that will then be
+reliably transferred to the other side before or during Connection
 establishment. This Message can potentially be received multiple times (i.e.,
 multiple copies of the Message data could be passed to the Remote Endpoint).
 See also {{msg-safelyreplayable}}.
