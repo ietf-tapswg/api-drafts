@@ -1251,7 +1251,7 @@ Default:
 
 This property specifies the application's need for protection against
 corruption for all data transmitted on this Connection. Disabling this property could enable
-later control of the sender checksum coverage (see {{msg-checksum}}).
+the application to influence the sender checksum coverage after Connection establishment (see {{msg-checksum}}).
 
 ### Full Checksum Coverage on Receiving {#prop-checksum-control-receive}
 
@@ -1266,7 +1266,7 @@ Default:
 
 This property specifies the application's need for protection against
 corruption for all data received on this Connection. Disabling this property could enable
-later control of the required minimum receiver checksum coverage (see {{conn-recv-checksum}}).
+the application to influence the required minimum receiver checksum coverage after Connection establishment (see {{conn-recv-checksum}}).
 
 ### Congestion control {#prop-cc}
 
@@ -2808,8 +2808,8 @@ Default:
 : the queried Boolean value of the Selection Property `reliability` ({{prop-reliable}})
 
 When true, this property specifies that a Message should be sent in such a way
-that the transport protocol ensures all data is received on the other side
-without corruption. Changing the `msgReliable` property on Messages
+that the transport protocol ensures all data is received on the other side.
+Changing the `msgReliable` property on Messages
 is only possible for Connections that were established enabling the Selection Property `perMsgReliability`.
 When this is not the case, changing `msgReliable` will generate an error.
 
