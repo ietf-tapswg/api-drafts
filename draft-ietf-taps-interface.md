@@ -1599,8 +1599,8 @@ as a TCP endpoint that does not support TLS), applications can initialize their
 security parameters to indicate that security can be disabled, or can be opportunistic.
 If security is disabled, the Transport Services system will not attempt to add
 transport security automatically. If security is opportunistic, it will allow
-Connections without transport security, but will still attempt to use security if
-available.
+Connections without transport security, but will still attempt to use unauthenticated
+security if available.
 
 ~~~
 SecurityParameters := NewDisabledSecurityParameters()
