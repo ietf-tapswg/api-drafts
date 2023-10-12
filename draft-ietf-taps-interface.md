@@ -3084,13 +3084,8 @@ and implementation of a wide variety of approaches to transmission priority in
 the transport and application layer, including those which do not appear on
 the wire (affecting only sender-side transmission scheduling) as well as those
 that do (e.g. {{?RFC9218}}.
-
 A Transport Services system gives no guarantees about how its expression of
-relative priorities will be realized. However, the Transport Services system will
-seek to ensure that performance of relatively-prioritized Connections and
-Messages is not worse with respect to those Connections and Messages than
-an equivalent configuration in which all prioritization properties are left
-at their defaults.
+relative priorities will be realized.
 
 The Transport Services API does order `connPriority` over
 `msgPriority`. In the absence of other externalities
