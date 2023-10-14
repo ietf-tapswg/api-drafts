@@ -2096,7 +2096,7 @@ Default:
 This property is a non-negative integer representing the
 priority of this Connection
 relative to other Connections in the same
-Connection Group. A lower value reflects a higher priority. It has no effect
+Connection Group. A numerically lower value reflects a higher priority. It has no effect
 on Connections not part of a Connection
 Group. As noted in {{groups}}, this property is not entangled when Connections
 are cloned, i.e., changing the Priority on one Connection in a Connection Group
