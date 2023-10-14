@@ -2685,7 +2685,7 @@ Default:
 : 100
 
 This property specifies the priority of a Message, relative to other Messages sent over the
-same Connection. A lower value represents a higher priority.
+same Connection. A numerically lower value represents a higher priority.
 
 A Message with Priority 2 will yield to a Message with Priority 1, which will
 yield to a Message with Priority 0, and so on. Priorities may be used as a
