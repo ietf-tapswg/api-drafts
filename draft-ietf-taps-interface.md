@@ -1930,8 +1930,8 @@ Connection -> CloneError<reason?>
 The `connPriority` Connection Property operates on Connections in a Connection Group
 using the same approach as in {{msg-priority}}: when allocating available network
 capacity among Connections in a Connection Group, sends on Connections with
-lower Priority values will be prioritized over sends on Connections that have
-higher Priority values. Capacity will be shared among these Connections according to
+numerically lower Priority values will be prioritized over sends on Connections that have
+numerically  higher Priority values. Capacity will be shared among these Connections according to
 the `connScheduler` property ({{conn-scheduler}}).
 See {{priority-in-taps}} for more.
 
