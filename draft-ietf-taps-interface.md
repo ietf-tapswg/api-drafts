@@ -730,7 +730,7 @@ An Endpoint object can be configured with the following identifiers:
 RemoteSpecifier.WithHostName("example.com")
 ~~~
 
-- Port (a 16-bit unsigned integer):
+- Port (a 16-bit unsigned Integer):
 
 ~~~
 RemoteSpecifier.WithPort(443)
@@ -1381,7 +1381,7 @@ available on the system.
 The identification of a specific PvD is
 implementation- and system-specific, because there is currently no portable standard
 format for a PvD identifier. For example, this identifier might be a string name
-or an integer. As with requiring specific interfaces, requiring a specific PvD
+or an Integer. As with requiring specific interfaces, requiring a specific PvD
 strictly limits the path selection.
 
 Categories or types of PvDs are also defined to be implementation- and
@@ -2105,7 +2105,7 @@ Type:
 Default:
 : 100
 
-This property is a non-negative integer representing the
+This property is a non-negative Integer representing the
 priority of this Connection
 relative to other Connections in the same
 Connection Group. A higher value reflects a higher priority. It has no effect
