@@ -391,6 +391,11 @@ Listener.Stop()
 
 This is an example of how an application might open two Connections to a remote application
 using the Transport Services API, and send a request as well as receive a response on each of them.
+The code designated with comments as "Ready event handler" could, e.g., be implemented
+as a callback function, for example. This function would receive the Connection that it expects
+to operate on ("Connection" and "Connection2" in the example), handed over using the variable
+name "C".
+
 
 ~~~
 RemoteSpecifier := NewRemoteEndpoint()
