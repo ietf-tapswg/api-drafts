@@ -565,7 +565,9 @@ The application should be notified (using a `Sent`, `Expired` or `SendError` eve
 
 ### Batching Sends
 
-Since sending a Message may involve a context switch between the application and the Transport Services system, sending patterns that involve multiple small Messages can incur high overhead if each needs to be enqueued separately. To avoid this, the application can indicate a batch of `Send` actions through the API. When this is used, the implementation can defer the processing of Messages until the batch is complete.
+Sending multiple Messages can incur high overhead if each needs to be enqueued separately (e.g., each Message might involve a context switch between the
+application and the Transport Services System). To avoid this, the application can indicate a batch of `Send` actions through the API. When this is used,
+the implementation can defer the processing of Messages until the batch is complete.
 
 ## Receiving Messages
 
