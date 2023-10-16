@@ -2147,8 +2147,7 @@ will only take effect when the underlying stack supports sending keep-alive pack
 Guidance on setting this value for connection-less transports is
 provided in {{?RFC8085}}.
 A value greater than the Connection timeout ({{conn-timeout}}) or the enumerated value `Disabled` will disable the sending of keep-alive packets. A Transport Services API
-could express `Disabled` in various ways -- e.g., via an additional Boolean
-parameter of a function call.
+could express `Disabled` in an environment-typical way, e.g., as a Union type or special value.
 
 ### Connection Group Transmission Scheduler {#conn-scheduler}
 
@@ -2288,8 +2287,7 @@ exceed (even if flow control and congestion control allow higher rates), and/or 
 lower-bound rate below which the application does not deem
 it will be useful. These are specified in bits per second.
 The enumerated value `Unlimited` indicates that no bound is specified.
-A Transport Services API could express `Unlimited` in various ways -- e.g.,
-via an additional Boolean parameter of a function call.
+A Transport Services API could express `Unlimited` in an environment-typical way, e.g., as a Union type or special value.
 
 ### Group Connection Limit
 
@@ -2307,8 +2305,7 @@ a peer as new members of the Connection's group. Similar to `SetNewConnectionLim
 this limits the number of `ConnectionReceived` events that will occur, but constrained
 to the group of the Connection associated with this property. For a multi-streaming transport,
 this limits the number of allowed streams.  A Transport Services API
-could express `Unlimited` in various ways -- e.g., via an additional Boolean
-parameter of a function call.
+could express `Unlimited` in an environment-typical way, e.g., as a Union type or special value.
 
 ### Isolate Session {#isolate-session}
 Name:
