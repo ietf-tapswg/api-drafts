@@ -2350,8 +2350,7 @@ This value allows a sending stack to avoid unwanted fragmentation at the
 network-layer or segmentation by the transport layer before
 choosing the message size and/or after a `SendError` occurs indicating
 an attempt to send a Message that is too large.  A Transport Services API
-could express `Not applicable` in various ways -- e.g., by letting a querying
-function call fail.
+could express `Not applicable` in an environment-typical way, e.g., as a Union type or special value.
 
 #### Maximum Message Size on Send {#conn-max-msg-send}
 
