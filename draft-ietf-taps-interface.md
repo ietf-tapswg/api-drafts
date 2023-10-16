@@ -1942,8 +1942,8 @@ Connection -> CloneError<reason?>
 The `connPriority` Connection Property operates on Connections in a Connection Group
 using the same approach as in {{msg-priority}}: when allocating available network
 capacity among Connections in a Connection Group, sends on Connections with
-higher Priority values will be prioritized over sends on Connections that have
-lower Priority values. Capacity will be shared among these Connections according to
+numerically lower Priority values will be prioritized over sends on Connections that have
+numerically higher Priority values. Capacity will be shared among these Connections according to
 the `connScheduler` property ({{conn-scheduler}}).
 See {{priority-in-taps}} for more.
 
@@ -2108,7 +2108,7 @@ Default:
 This property is a non-negative Integer representing the
 priority of this Connection
 relative to other Connections in the same
-Connection Group. A higher value reflects a higher priority. It has no effect
+Connection Group. A numerically lower value reflects a higher priority. It has no effect
 on Connections not part of a Connection
 Group. As noted in {{groups}}, this property is not entangled when Connections
 are cloned, i.e., changing the Priority on one Connection in a Connection Group
@@ -2703,10 +2703,10 @@ Default:
 : 100
 
 This property specifies the priority of a Message, relative to other Messages sent over the
-same Connection.
+same Connection. A numerically lower value represents a higher priority.
 
-A Message with Priority 0 will yield to a Message with Priority 1, which will
-yield to a Message with Priority 2, and so on. Priorities can be used as a
+A Message with Priority 2 will yield to a Message with Priority 1, which will
+yield to a Message with Priority 0, and so on. Priorities can be used as a
 sender-side scheduling construct only, or be used to specify priorities on the
 wire for Protocol Stacks supporting prioritization.
 
