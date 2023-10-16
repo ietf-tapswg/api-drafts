@@ -391,10 +391,15 @@ Listener.Stop()
 
 This is an example of how an application might open two Connections to a remote application
 using the Transport Services API, and send a request as well as receive a response on each of them.
+The code designated with comments as "Ready event handler" could, e.g., be implemented
+as a callback function, for example. This function would receive the Connection that it expects
+to operate on ("Connection" and "Connection2" in the example), handed over using the variable
+name "C".
+
 
 ~~~
 RemoteSpecifier := NewRemoteEndpoint()
-RemoteSpecifier.WithHostname("example.com")
+RemoteSpecifier.WithHostName("example.com")
 RemoteSpecifier.WithService("https")
 
 TransportProperties := NewTransportProperties()
@@ -718,10 +723,10 @@ to several different IP addresses on different hosts.
 
 An Endpoint object can be configured with the following identifiers:
 
-- Hostname (string):
+- HostName (string):
 
 ~~~
-RemoteSpecifier.WithHostname("example.com")
+RemoteSpecifier.WithHostName("example.com")
 ~~~
 
 - Port (a 16-bit unsigned integer):
@@ -755,7 +760,7 @@ LocalSpecifier.WithInterface("en0")
 Note that an IPv6 address specified with a scope zone ID (e.g. `fe80::2001:db8%en0`)
 is equivalent to `WithIPAddress` with an unscoped address and `WithInterface ` together.
 
-Applications creating Endpoint objects using `WithHostname` SHOULD provide fully-qualified
+Applications creating Endpoint objects using `WithHostName` SHOULD provide fully-qualified
 domain names (FQDNs). Not providing an FQDN will result in the Transport Services Implementation
 needing to resolve using DNS search domains, which might lead to inconsistent or unpredictable
 behavior.
@@ -881,11 +886,11 @@ running on port 443, with an alternate port of 8443 for QUIC.
 
 ~~~
 RemoteSpecifier := NewRemoteEndpoint()
-RemoteSpecifier.WithHostname("example.com")
+RemoteSpecifier.WithHostName("example.com")
 RemoteSpecifier.WithPort(443)
 
 QUICRemoteSpecifier := NewRemoteEndpoint()
-QUICRemoteSpecifier.WithHostname("example.com")
+QUICRemoteSpecifier.WithHostName("example.com")
 QUICRemoteSpecifier.WithPort(8443)
 QUICRemoteSpecifier.WithProtocol(QUIC)
 
@@ -900,7 +905,7 @@ Specify a Remote Endpoint using a hostname and service name:
 
 ~~~
 RemoteSpecifier := NewRemoteEndpoint()
-RemoteSpecifier.WithHostname("example.com")
+RemoteSpecifier.WithHostName("example.com")
 RemoteSpecifier.WithService("https")
 ~~~
 
@@ -1251,7 +1256,7 @@ Default:
 
 This property specifies the application's need for protection against
 corruption for all data transmitted on this Connection. Disabling this property could enable
-later control of the sender checksum coverage (see {{msg-checksum}}).
+the application to influence the sender checksum coverage after Connection establishment (see {{msg-checksum}}).
 
 ### Full Checksum Coverage on Receiving {#prop-checksum-control-receive}
 
@@ -1266,7 +1271,7 @@ Default:
 
 This property specifies the application's need for protection against
 corruption for all data received on this Connection. Disabling this property could enable
-later control of the required minimum receiver checksum coverage (see {{conn-recv-checksum}}).
+the application to influence the required minimum receiver checksum coverage after Connection establishment (see {{conn-recv-checksum}}).
 
 ### Congestion control {#prop-cc}
 
@@ -2809,7 +2814,7 @@ Default:
 
 When true, this property specifies that a Message should be sent in such a way
 that the transport protocol ensures all data is received by the Remote Endpoint
-without corruption. Changing the `msgReliable` property on Messages
+Changing the `msgReliable` property on Messages
 is only possible for Connections that were established enabling the Selection Property `perMsgReliability`.
 When this is not the case, changing `msgReliable` will generate an error.
 
