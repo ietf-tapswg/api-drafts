@@ -1223,7 +1223,7 @@ Default:
 
 This property specifies whether an application would like to supply a Message to
 the transport protocol before connection establishment that will then be
-reliably transferred to the other side before or during connection
+reliably transferred to the Remote Endpoint before or during connection
 establishment. This Message can potentially be received multiple times (i.e.,
 multiple copies of the Message data could be passed to the Remote Endpoint).
 See also {{msg-safelyreplayable}}.
@@ -2812,8 +2812,8 @@ Type:
 Default:
 : the queried Boolean value of the Selection Property `reliability` ({{prop-reliable}})
 
-When `true`, this property specifies that a Message should be sent in such a way
-that the transport protocol ensures all data is received on the other side.
+When true, this property specifies that a Message should be sent in such a way
+that the transport protocol ensures all data is received by the Remote Endpoint.
 Changing the `msgReliable` property on Messages
 is only possible for Connections that were established enabling the Selection Property `perMsgReliability`.
 When this is not the case, changing `msgReliable` will generate an error.
