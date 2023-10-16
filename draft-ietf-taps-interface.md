@@ -1367,8 +1367,8 @@ Provisioning Domain (PvD) or categories of PVDs it wants to
 consistent sets of network properties that might be more specific than network
 interfaces {{?RFC7556}}.
 
-As with interface instances and types, this property is a set of (Enumerated)
-PvD identifier and preference tuples. It can either be implemented directly as such,
+As with interface instances and types, this property is a set of tuples of (Enumerated)
+PvD identifier and preference. It can either be implemented directly as such,
 or for making one preference available for each interface and interface type
 available on the system.
 
