@@ -2086,9 +2086,8 @@ to the application. The application is responsible for handling
 any corruption within the non-protected part of the Message {{?RFC8085}}.
 A special value of 0 means that a received packet might also have a zero checksum field,
 and the enumerated value `Full Coverage` means
-that the entire Message needs to be protected by a checksum. A Transport Services API
-could express `Full Coverage` in various ways -- e.g., via an additional Boolean
-parameter of a function call.
+that the entire Message needs to be protected by a checksum. An implementation
+is supposed to express `Full Coverage` in an environment-typical way, e.g., as a Union type or special value.
 
 ### Connection Priority {#conn-priority}
 
