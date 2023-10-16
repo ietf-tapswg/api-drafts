@@ -438,11 +438,12 @@ Connection.Close()
 Connection2.Close()
 ~~~
 
-Preconnections are reusable after being used to initiate a Connection, whether this Connection was closed or not. Hence, it would be correct to continue as follows after the above example:
+A Preconnection serves as a template for creating a Connection via initiating, listening, or via rendezvous. Once a Connection has been created,
+changes made to the Preconnection that was used to create it do not affect this Connection. Preconnections are reusable after being used to create a Connection, whether this Connection was closed or not. Hence, in the above example, it would be correct for the client to initiate a third Connection to the example.com server by continuing as follows:
 
 ~~~
 //.. carry out adjustments to the Preconnection, if desired
-Connection := Preconnection.Initiate()
+Connection3 := Preconnection.Initiate()
 ~~~
 
 
