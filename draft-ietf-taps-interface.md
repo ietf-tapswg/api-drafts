@@ -394,7 +394,7 @@ using the Transport Services API, and send a request as well as receive a respon
 
 ~~~
 RemoteSpecifier := NewRemoteEndpoint()
-RemoteSpecifier.WithHostname("example.com")
+RemoteSpecifier.WithHostName("example.com")
 RemoteSpecifier.WithService("https")
 
 TransportProperties := NewTransportProperties()
@@ -718,10 +718,10 @@ to several different IP addresses on different hosts.
 
 An Endpoint object can be configured with the following identifiers:
 
-- Hostname (string):
+- HostName (string):
 
 ~~~
-RemoteSpecifier.WithHostname("example.com")
+RemoteSpecifier.WithHostName("example.com")
 ~~~
 
 - Port (a 16-bit unsigned integer):
@@ -755,7 +755,7 @@ LocalSpecifier.WithInterface("en0")
 Note that an IPv6 address specified with a scope zone ID (e.g. `fe80::2001:db8%en0`)
 is equivalent to `WithIPAddress` with an unscoped address and `WithInterface ` together.
 
-Applications creating Endpoint objects using `WithHostname` SHOULD provide fully-qualified
+Applications creating Endpoint objects using `WithHostName` SHOULD provide fully-qualified
 domain names (FQDNs). Not providing an FQDN will result in the Transport Services Implementation
 needing to resolve using DNS search domains, which might lead to inconsistent or unpredictable
 behavior.
@@ -881,11 +881,11 @@ running on port 443, with an alternate port of 8443 for QUIC.
 
 ~~~
 RemoteSpecifier := NewRemoteEndpoint()
-RemoteSpecifier.WithHostname("example.com")
+RemoteSpecifier.WithHostName("example.com")
 RemoteSpecifier.WithPort(443)
 
 QUICRemoteSpecifier := NewRemoteEndpoint()
-QUICRemoteSpecifier.WithHostname("example.com")
+QUICRemoteSpecifier.WithHostName("example.com")
 QUICRemoteSpecifier.WithPort(8443)
 QUICRemoteSpecifier.WithProtocol(QUIC)
 
@@ -900,7 +900,7 @@ Specify a Remote Endpoint using a hostname and service name:
 
 ~~~
 RemoteSpecifier := NewRemoteEndpoint()
-RemoteSpecifier.WithHostname("example.com")
+RemoteSpecifier.WithHostName("example.com")
 RemoteSpecifier.WithService("https")
 ~~~
 
