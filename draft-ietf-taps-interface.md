@@ -2126,8 +2126,7 @@ If this property is Numeric, it specifies how long to wait before deciding that 
 failed when trying to reliably deliver data to the Remote Endpoint. Adjusting this property
 will only take effect when the underlying stack supports reliability. If this property has the enumerated
 value `Disabled`, it means that no timeout is scheduled. A Transport Services API
-could express `Disabled` in various ways -- e.g., via an additional Boolean
-parameter of a function call.
+could express `Disabled` in an environment-typical way, e.g., as a Union type or special value.
 
 ### Timeout for keep alive packets {#keep-alive-timeout}
 
