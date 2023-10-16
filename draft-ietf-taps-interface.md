@@ -1324,7 +1324,7 @@ selection to that single interface, and often leads to less flexible and resilie
 connection establishment.
 
 In contrast to other Selection Properties, this property is a set of
-(Enumerated) interface identifier and preference tuples. It can either be
+tuples of (Enumerated) interface identifier and preference. It can either be
 implemented directly as such, or for making one preference available for each
 interface and interface type available on the system.
 
