@@ -738,13 +738,13 @@ RemoteSpecifier.WithHostName("example.com")
 RemoteSpecifier.WithPort(443)
 ~~~
 
-- Service (an identifier that maps to a port; either the name of a well-known service, or a DNS SRV service name to be resolved):
+- Service (an identifier string that maps to a port; either the name of a well-known service, or a DNS SRV service name to be resolved):
 
 ~~~
 RemoteSpecifier.WithService("https")
 ~~~
 
-- IP address (IPv4 or IPv6 address):
+- IP address (IPv4 or IPv6 address strings):
 
 ~~~
 RemoteSpecifier.WithIPAddress(192.0.2.21)
