@@ -1556,25 +1556,25 @@ are inherited during cloning (see {{groups}}).
 
 This document specifies an abstract API, which may appear to conflict with the need
 for security parameters to be unambiguous in order to reduce the chances
-of implementation errors. The Transport Services system SHOULD provide reasonable, 
+of implementation errors. The Transport Services system SHOULD provide reasonable,
 secure defaults for each enumerated security parameter, such that users of the system
-only need to specify parameters required to establish a secure connection 
+only need to specify parameters required to establish a secure connection
 ('server-certificate', 'client-certificate'). Specifying specific security parameters
-from enumerated values (e.g., specific ciphersuites) may constrain the Transport 
+from enumerated values (e.g., specific ciphersuites) may constrain the Transport
 Protocols that can be selected during connection establishment.
 
 Except as noted below, as with the rest of the TAPS system, exact names of parameters and/or
 values of enumerations (e.g., ciphersuites) used in the security parameters are system
-and implementation specific, and should be chosen to follow the principle of least 
+and implementation specific, and should be chosen to follow the principle of least
 surprise for users of the platform / language environment in question.
 
 ### Specifying Security Parameters on a Preconnection
 
-Common security parameters such as TLS ciphersuites are known to implementations. 
-Clients should use common safe defaults for these values whenever possible. 
+Common security parameters such as TLS ciphersuites are known to implementations.
+Clients should use common safe defaults for these values whenever possible.
 However, as discussed in {{?RFC8922}}, many transport security protocols require specific
 security parameters and constraints from the client at the time of configuration and
-actively during a handshake. 
+actively during a handshake.
 
 The configuration parameters need to be specified in the pre-connection phase
 and are created as follows:
