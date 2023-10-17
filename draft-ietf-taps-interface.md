@@ -1585,10 +1585,12 @@ SecurityParameters := NewSecurityParameters()
 
 Security configuration parameters and sample usage follow:
 
-- One or more certificate bundles identifying the Local Endpoint, whether as a server
-  certificate or a client certificate. Multiple bundles may be provided to allow selection
-  among different protocol stacks that may require differently formatted bundles. The form and format of the certificate bundle is implementation-specific. Note that if the private keys associated
-  with a bundle are not available, e.g., since they are stored in hardware
+- One or more certificate bundles identifying the Local Endpoint, whether
+  as a server certificate or a client certificate. Multiple bundles may
+  be provided to allow selection among different protocol stacks that may
+  require differently formatted bundles. The form and format of the
+  certificate bundle is implementation-specific. Note that if the private
+  keys associated with a bundle are not available, e.g., since they are stored in hardware
   security modules (HSMs), handshake callbacks must be used. See below for details.
 
 ~~~
@@ -1596,7 +1598,10 @@ SecurityParameters.Set(server-certificate, myCertificateBundle[])
 SecurityParameters.Set(client-certificate, myCertificateBundle[])
 ~~~
 
-- One or more certificate chains to use as pinned server certificates, such that connection will fail if the presented server certificate does not match one of the  supplied pinned certificates. The form and format of the certificate chain is implementation-specific 
+- One or more certificate chains to use as pinned server
+  certificates, such that connection will fail if the presented server
+  certificate does not match one of the  supplied pinned certificates.
+  The form and format of the certificate chain is implementation-specific.
 
 ~~~
 SecurityParameters.Set(pinned-server-certificate, yourCertificateChain[])
@@ -1612,9 +1617,9 @@ SecurityParameters.Set(pinned-server-certificate, yourCertificateChain[])
 SecurityParameters.Set(alpn, "h2")
 ~~~
 
-- Supported algorithms: Used to restrict what parameters are used by underlying transport security protocols.
-When not specified, these algorithms should use known and safe defaults for the system. Parameters include:
-ciphersuites, supported groups, and signature algorithms. These parameters take a collection of supported algorithms as parameter.
+- Supported algorithms, ciphersuites, groups: Used to restrict what parameters
+  are used by underlying transport security protocols. When not specified, '
+  these algorithms should use known and safe defaults for the system. 
 
 ~~~
 SecurityParameters.Set(supported-group, "secp256r1")
