@@ -300,11 +300,9 @@ protocol or a datagram protocol). Connections are presented consistently to the
 application, irrespective of whether the underlying transport is connection-less or
 connection-oriented. Connections can be created from Preconnections in three ways:
 
-- by initiating the Preconnection (i.e., actively opening, as in a client; {{initiate}}),
-- by listening on the Preconnection (i.e., passively opening, as in a server; {{listen}}),
-- or by a rendezvous for the Preconnection (i.e., peer to peer establishment; {{rendezvous}}).
-
-if the application requires this or
+- by initiating the Preconnection (i.e., creating a Connection from the Preconnection, actively opening, as in a client; see Initiate() in {{initiate}}),
+- by listening on the Preconnection (i.e., creating a Listener based on the Preconnection, passively opening, as in a server; see Listen() in {{listen}}),
+- or by a rendezvous for the Preconnection (i.e., peer to peer establishment; see Rendezvous() in {{rendezvous}}).
 
 Once a Connection is established, data can be sent and received on it in the form of
 Messages. The API supports the preservation of message boundaries both
