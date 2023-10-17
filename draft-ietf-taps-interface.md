@@ -908,7 +908,7 @@ RemoteSpecifier.AddAlias(QUICRemoteSpecifier)
 
 The following examples of Endpoints show common usage patterns.
 
-Specify a Remote Endpoint using a hostname and service name:
+Specify a Remote Endpoint using a hostname "example.com" and a service name "https", which tells the system to use the default port for HTTPS (443):
 
 ~~~
 RemoteSpecifier := NewRemoteEndpoint()
