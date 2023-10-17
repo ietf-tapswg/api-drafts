@@ -608,7 +608,7 @@ Each Transport Property has one of the basic types described in {{notation}}.
 
 Most Selection Properties (see {{selection-props}}) are of the Enumeration type,
 and use the Preference Enumeration, which takes one of five possible values
-(Prohibit, Avoid, Ignore,  Prefer, or Require) denoting the level of preference
+(Prohibit, Avoid, None, Prefer, or Require) denoting the level of preference
 for a given property during protocol selection.
 
 # Scope of the API Definition {#scope-of-interface-defn}
@@ -1073,7 +1073,7 @@ take one of five values:
    |------------|------------------------------------------------------------------------|
    | Require    | Select only protocols/paths providing the property, fail otherwise     |
    | Prefer     | Prefer protocols/paths providing the property, proceed otherwise       |
-   | Ignore     | No preference                                                          |
+   | None       | No preference                                                          |
    | Avoid      | Prefer protocols/paths not providing the property, proceed otherwise   |
    | Prohibit   | Select only protocols/paths not providing the property, fail otherwise |
 {: #tab-pref-levels title="Selection Property Preference Levels"}
@@ -1178,7 +1178,7 @@ Type:
 : Preference
 
 Default:
-: Ignore
+: None
 
 This property specifies whether the application needs or prefers to use a transport
 protocol that preserves message boundaries.
@@ -1192,7 +1192,7 @@ Type:
 : Preference
 
 Default:
-: Ignore
+: None
 
 This property specifies whether an application considers it useful to specify different
 reliability requirements for individual Messages in a Connection.
@@ -1220,7 +1220,7 @@ Type:
 : Preference
 
 Default:
-: Ignore
+: None
 
 This property specifies whether an application would like to supply a Message to
 the transport protocol before connection establishment that will then be
@@ -1304,7 +1304,7 @@ Type:
 : Preference
 
 Default:
-: Ignore
+: None
 
 This property specifies whether the application would like the Connection to send
 keep-alive packets or not. Note that if a Connection determines that keep-alive
@@ -1504,7 +1504,7 @@ Type:
 : Preference
 
 Default:
-: Ignore
+: None
 
 This property specifies whether an application considers it useful to be
 informed when an ICMP error message arrives that does not force termination of a
@@ -1523,7 +1523,7 @@ Type:
 : Preference
 
 Default:
-: Ignore
+: None
 
 The most common client-server communication pattern involves the
 client actively opening a Connection, then sending data to the server. The
@@ -3594,7 +3594,7 @@ is equivalent to `TransportProperties.Avoid(some_property)`:
 ~~~
 TransportProperties.Require(property)
 TransportProperties.Prefer(property)
-TransportProperties.Ignore(property)
+TransportProperties.None(property)
 TransportProperties.Avoid(property)
 TransportProperties.Prohibit(property)
 ~~~
@@ -3618,7 +3618,7 @@ It should consist of the following properties:
  | reliability              | require   |
  | preserveOrder            | require   |
  | congestionControl        | require   |
- | preserveMsgBoundaries    | ignore    |
+ | preserveMsgBoundaries    | none      |
 {: #tabrio title="reliable-inorder-stream preferences"}
 
 ### reliable-message
@@ -3647,7 +3647,7 @@ It consists of the following properties:
  |:-------------------------|:----------|
  | reliability              | avoid     |
  | preserveOrder            | avoid     |
- | congestionControl        | ignore    |
+ | congestionControl        | none      |
  | preserveMsgBoundaries    | require   |
  | safelyReplayable         | true      |
 {: #tabud title="unreliable-datagram preferences"}
