@@ -932,6 +932,14 @@ RemoteSpecifier.WithIPAddress(192.0.2.21)
 RemoteSpecifier.WithPort(443)
 ~~~
 
+Specify a Local Endpoint using a local interface name and no local port,
+to let the system assign an ephemeral local port:
+
+~~~
+LocalSpecifier := NewLocalEndpoint()
+LocalSpecifier.WithInterface("en0")
+~~~
+
 Specify a Local Endpoint using a local interface name and local port:
 
 ~~~
