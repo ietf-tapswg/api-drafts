@@ -2282,7 +2282,7 @@ Default:
 Numeric values of these properties specify an upper-bound rate that a transfer is not expected to
 exceed (even if flow control and congestion control allow higher rates), and/or a
 lower-bound application-layer rate below which the application does not deem
-it will be useful. These rate values are meant at the application layer, i.e. not considering header overheads
+it will be useful. These rate values are measured at the application layer, i.e. do not consider the header overhead
 from protocols used by the Transport Services system. The values are specified in bits per second,
 and assumed to be measured over one-second time intervals. E.g., specifying a maxSendRate of X bits per second
 means that, from the moment at which the property value is chosen, not more than X bits will be send in any
