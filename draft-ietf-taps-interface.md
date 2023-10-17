@@ -877,7 +877,6 @@ objects or enumeration values provided by the Transport
 Services API, which will vary based on which protocols are
 implemented in a particular system.
 
-
 ~~~
 AlternateRemoteSpecifier.WithProtocol(QUIC)
 ~~~
