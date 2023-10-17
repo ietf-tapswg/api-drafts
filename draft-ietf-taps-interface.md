@@ -217,7 +217,7 @@ We also make use of the following basic types:
 - Integer: Instances take positive or negative integer values.
 - Numeric: Instances take positive or negative real number values.
 - String: Instances are represented in UTF-8.
-- IP Address: An IPv4 or IPv6 address.
+- IP Address: An IPv4 or IPv6 address {{?RFC5952}}.
 - Enumeration: A family of types in which each instance takes one of a fixed,
   predefined set of values specific to a given enumerated type.
 - Tuple: An ordered grouping of multiple value types, represented as a
@@ -313,7 +313,9 @@ Message Framer that finds message boundaries in a stream. Messages are
 received asynchronously through event handlers registered by the application.
 Errors and other notifications also happen asynchronously on the Connection.
 It is not necessary for an application to handle all events; some events can
-have implementation-specific default handlers. The application SHOULD NOT
+have implementation-specific default handlers.
+
+The application SHOULD NOT
 assume that ignoring events (e.g., errors) is always safe.
 
 
@@ -735,7 +737,7 @@ RemoteSpecifier.WithHostName("example.com")
 RemoteSpecifier.WithPort(443)
 ~~~
 
-- Service (an identifier that maps to a port; either the name of a well-known service, or a DNS SRV service name to be resolved):
+- Service (an identifier string that maps to a port; either the name of a well-known service, or a DNS SRV service name to be resolved):
 
 ~~~
 RemoteSpecifier.WithService("https")
@@ -874,8 +876,13 @@ multiple aliases set.
 RemoteSpecifier.AddAlias(AlternateRemoteSpecifier)
 ~~~
 
-To scope an alias to a specific transport protocol, an Endpoint can
-specify a protocol specifier.
+To scope an alias to apply conditionally to a specific transport
+protocol (such as defining an alternate port to use when QUIC
+is selected, as opposed to TCP), an alias Endpoint can be
+associated with a protocol identifier. Protocol identifiers are
+objects or enumeration values provided by the Transport
+Services API, which will vary based on which protocols are
+implemented in a particular system.
 
 ~~~
 AlternateRemoteSpecifier.WithProtocol(QUIC)
@@ -1561,6 +1568,14 @@ SecurityParameters := NewSecurityParameters()
 
 Security configuration parameters and sample usage follow:
 
+- Application-layer protocol negotiation (ALPN) values: used to indicate which application-layer protocols
+are negotiated by the security protocol layer. See {{!ALPN=RFC7301}} for definition of the ALPN field. Note that the Transport Services System can provide ALPN values automatically, based on
+the protocols being used, if not explicitly specified by the application.
+
+~~~
+SecurityParameters.Set(alpn, "h2")
+~~~
+
 - Local identity, certificates, and private keys: Used to perform private key operations and prove one's
 identity to the Remote Endpoint. (Note, if private keys are not available, e.g., since they are
 stored in hardware security modules (HSMs), handshake callbacks must be used. See below for details.)
@@ -1604,8 +1619,8 @@ as a TCP endpoint that does not support TLS), applications can initialize their
 security parameters to indicate that security can be disabled, or can be opportunistic.
 If security is disabled, the Transport Services system will not attempt to add
 transport security automatically. If security is opportunistic, it will allow
-Connections without transport security, but will still attempt to use security if
-available.
+Connections without transport security, but will still attempt to use unauthenticated
+security if available.
 
 ~~~
 SecurityParameters := NewDisabledSecurityParameters()
@@ -2091,7 +2106,8 @@ to the application. The application is responsible for handling
 any corruption within the non-protected part of the Message {{?RFC8085}}.
 A special value of 0 means that a received packet might also have a zero checksum field,
 and the enumerated value `Full Coverage` means
-that the entire Message needs to be protected by a checksum.
+that the entire Message needs to be protected by a checksum. An implementation
+is supposed to express `Full Coverage` in an environment-typical way, e.g., as a Union type or special value.
 
 ### Connection Priority {#conn-priority}
 
@@ -2129,7 +2145,8 @@ Default:
 If this property is Numeric, it specifies how long to wait before deciding that an active Connection has
 failed when trying to reliably deliver data to the Remote Endpoint. Adjusting this property
 will only take effect when the underlying stack supports reliability. If this property has the enumerated
-value `Disabled`, it means that no timeout is scheduled.
+value `Disabled`, it means that no timeout is scheduled. A Transport Services API
+could express `Disabled` in an environment-typical way, e.g., as a Union type or special value.
 
 ### Timeout for keep alive packets {#keep-alive-timeout}
 
@@ -2149,7 +2166,8 @@ the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting t
 will only take effect when the underlying stack supports sending keep-alive packets.
 Guidance on setting this value for connection-less transports is
 provided in {{?RFC8085}}.
-A value greater than the Connection timeout ({{conn-timeout}}) or the enumerated value `Disabled` will disable the sending of keep-alive packets.
+A value greater than the Connection timeout ({{conn-timeout}}) or the enumerated value `Disabled` will disable the sending of keep-alive packets. A Transport Services API
+could express `Disabled` in an environment-typical way, e.g., as a Union type or special value.
 
 ### Connection Group Transmission Scheduler {#conn-scheduler}
 
@@ -2292,6 +2310,7 @@ from protocols used by the Transport Services system. The values are specified i
 and assumed to be measured over one-second time intervals. E.g., specifying a maxSendRate of X bits per second
 means that, from the moment at which the property value is chosen, not more than X bits will be send in any
 following second. The enumerated value `Unlimited` indicates that no bound is specified.
+A Transport Services API could express `Unlimited` in an environment-typical way, e.g., as a Union type or special value.
 
 ### Group Connection Limit
 
@@ -2308,7 +2327,8 @@ If this property is Numeric, it controls the number of Connections that can be a
 a peer as new members of the Connection's group. Similar to `SetNewConnectionLimit`,
 this limits the number of `ConnectionReceived` events that will occur, but constrained
 to the group of the Connection associated with this property. For a multi-streaming transport,
-this limits the number of allowed streams.
+this limits the number of allowed streams.  A Transport Services API
+could express `Unlimited` in an environment-typical way, e.g., as a Union type or special value.
 
 ### Isolate Session {#isolate-session}
 Name:
@@ -2352,7 +2372,8 @@ based on the Maximum Packet Size (MPS). The value of this property can change ov
 This value allows a sending stack to avoid unwanted fragmentation at the
 network-layer or segmentation by the transport layer before
 choosing the message size and/or after a `SendError` occurs indicating
-an attempt to send a Message that is too large.
+an attempt to send a Message that is too large.  A Transport Services API
+could express `Not applicable` in an environment-typical way, e.g., as a Union type or special value.
 
 #### Maximum Message Size on Send {#conn-max-msg-send}
 
