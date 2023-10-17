@@ -218,7 +218,7 @@ We also make use of the following basic types:
 - Numeric: Instances take positive or negative real number values.
 - String: Instances are represented in a way that is common to the programming
   language, e.g. UTF-8.
-- IP Address: An IPv4 or IPv6 address.
+- IP Address: An IPv4 or IPv6 address {{?RFC5952}}.
 - Enumeration: A family of types in which each instance takes one of a fixed,
   predefined set of values specific to a given enumerated type.
 - Tuple: An ordered grouping of multiple value types, represented as a
