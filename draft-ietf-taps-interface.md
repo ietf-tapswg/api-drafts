@@ -1596,6 +1596,12 @@ SecurityParameters.Set(server-certificate, myCertificateBundle[])
 SecurityParameters.Set(client-certificate, myCertificateBundle[])
 ~~~
 
+- One or more certificate chains to use as pinned server certificates, such that connection will fail if the presented server certificate does not match one of the  supplied pinned certificates. The form and format of the certificate chain is implementation-specific 
+
+~~~
+SecurityParameters.Set(pinned-server-certificate, yourCertificateChain[])
+~~~
+
 - Application-layer protocol negotiation (ALPN) values: used to indicate which
   application-layer protocols are negotiated by the security protocol layer.
   See {{!ALPN=RFC7301}} for definition of the ALPN field. Note that the Transport
