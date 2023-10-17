@@ -218,7 +218,7 @@ We also make use of the following basic types:
 - Numeric: Instances take positive or negative real number values.
 - String: Instances are represented in a way that is common to the programming
   language, e.g. UTF-8.
-- IP Address: An IPv4 or IPv6 address.
+- IP Address: An IPv4 or IPv6 address {{?RFC5952}}.
 - Enumeration: A family of types in which each instance takes one of a fixed,
   predefined set of values specific to a given enumerated type.
 - Tuple: An ordered grouping of multiple value types, represented as a
@@ -314,7 +314,9 @@ Message Framer that finds message boundaries in a stream. Messages are
 received asynchronously through event handlers registered by the application.
 Errors and other notifications also happen asynchronously on the Connection.
 It is not necessary for an application to handle all events; some events can
-have implementation-specific default handlers. The application ought not
+have implementation-specific default handlers.
+
+The application SHOULD NOT
 assume that ignoring events (e.g., errors) is always safe.
 
 
@@ -391,10 +393,15 @@ Listener.Stop()
 
 This is an example of how an application might open two Connections to a remote application
 using the Transport Services API, and send a request as well as receive a response on each of them.
+The code designated with comments as "Ready event handler" could, e.g., be implemented
+as a callback function, for example. This function would receive the Connection that it expects
+to operate on ("Connection" and "Connection2" in the example), handed over using the variable
+name "C".
+
 
 ~~~
 RemoteSpecifier := NewRemoteEndpoint()
-RemoteSpecifier.WithHostname("example.com")
+RemoteSpecifier.WithHostName("example.com")
 RemoteSpecifier.WithService("https")
 
 TransportProperties := NewTransportProperties()
@@ -433,11 +440,12 @@ Connection.Close()
 Connection2.Close()
 ~~~
 
-Preconnections are reusable after being used to initiate a Connection, whether this Connection was closed or not. Hence, it would be correct to continue as follows after the above example:
+A Preconnection serves as a template for creating a Connection via initiating, listening, or via rendezvous. Once a Connection has been created,
+changes made to the Preconnection that was used to create it do not affect this Connection. Preconnections are reusable after being used to create a Connection, whether this Connection was closed or not. Hence, in the above example, it would be correct for the client to initiate a third Connection to the example.com server by continuing as follows:
 
 ~~~
 //.. carry out adjustments to the Preconnection, if desired
-Connection := Preconnection.Initiate()
+Connection3 := Preconnection.Initiate()
 ~~~
 
 
@@ -718,19 +726,19 @@ to several different IP addresses on different hosts.
 
 An Endpoint object can be configured with the following identifiers:
 
-- Hostname (string):
+- HostName (string):
 
 ~~~
-RemoteSpecifier.WithHostname("example.com")
+RemoteSpecifier.WithHostName("example.com")
 ~~~
 
-- Port (a 16-bit unsigned integer):
+- Port (a 16-bit unsigned Integer):
 
 ~~~
 RemoteSpecifier.WithPort(443)
 ~~~
 
-- Service (an identifier that maps to a port; either the name of a well-known service, or a DNS SRV service name to be resolved):
+- Service (an identifier string that maps to a port; either the name of a well-known service, or a DNS SRV service name to be resolved):
 
 ~~~
 RemoteSpecifier.WithService("https")
@@ -755,7 +763,7 @@ LocalSpecifier.WithInterface("en0")
 Note that an IPv6 address specified with a scope zone ID (e.g. `fe80::2001:db8%en0`)
 is equivalent to `WithIPAddress` with an unscoped address and `WithInterface ` together.
 
-Applications creating Endpoint objects using `WithHostname` SHOULD provide fully-qualified
+Applications creating Endpoint objects using `WithHostName` SHOULD provide fully-qualified
 domain names (FQDNs). Not providing an FQDN will result in the Transport Services Implementation
 needing to resolve using DNS search domains, which might lead to inconsistent or unpredictable
 behavior.
@@ -881,11 +889,11 @@ running on port 443, with an alternate port of 8443 for QUIC.
 
 ~~~
 RemoteSpecifier := NewRemoteEndpoint()
-RemoteSpecifier.WithHostname("example.com")
+RemoteSpecifier.WithHostName("example.com")
 RemoteSpecifier.WithPort(443)
 
 QUICRemoteSpecifier := NewRemoteEndpoint()
-QUICRemoteSpecifier.WithHostname("example.com")
+QUICRemoteSpecifier.WithHostName("example.com")
 QUICRemoteSpecifier.WithPort(8443)
 QUICRemoteSpecifier.WithProtocol(QUIC)
 
@@ -900,7 +908,7 @@ Specify a Remote Endpoint using a hostname and service name:
 
 ~~~
 RemoteSpecifier := NewRemoteEndpoint()
-RemoteSpecifier.WithHostname("example.com")
+RemoteSpecifier.WithHostName("example.com")
 RemoteSpecifier.WithService("https")
 ~~~
 
@@ -1218,7 +1226,7 @@ Default:
 
 This property specifies whether an application would like to supply a Message to
 the transport protocol before connection establishment that will then be
-reliably transferred to the other side before or during connection
+reliably transferred to the Remote Endpoint before or during connection
 establishment. This Message can potentially be received multiple times (i.e.,
 multiple copies of the Message data could be passed to the Remote Endpoint).
 See also {{msg-safelyreplayable}}.
@@ -1251,7 +1259,7 @@ Default:
 
 This property specifies the application's need for protection against
 corruption for all data transmitted on this Connection. Disabling this property could enable
-later control of the sender checksum coverage (see {{msg-checksum}}).
+the application to influence the sender checksum coverage after Connection establishment (see {{msg-checksum}}).
 
 ### Full Checksum Coverage on Receiving {#prop-checksum-control-receive}
 
@@ -1266,7 +1274,7 @@ Default:
 
 This property specifies the application's need for protection against
 corruption for all data received on this Connection. Disabling this property could enable
-later control of the required minimum receiver checksum coverage (see {{conn-recv-checksum}}).
+the application to influence the required minimum receiver checksum coverage after Connection establishment (see {{conn-recv-checksum}}).
 
 ### Congestion control {#prop-cc}
 
@@ -1323,8 +1331,8 @@ or categories of interfaces it wants to `Require`, `Prohibit`, `Prefer`, or
 selection to that single interface, and often leads to less flexible and resilient
 connection establishment.
 
-In contrast to other Selection Properties, this property is a tuple of an
-(Enumerated) interface identifier and a preference, and can either be
+In contrast to other Selection Properties, this property is a set of
+tuples of (Enumerated) interface identifier and preference. It can either be
 implemented directly as such, or for making one preference available for each
 interface and interface type available on the system.
 
@@ -1367,15 +1375,15 @@ Provisioning Domain (PvD) or categories of PVDs it wants to
 consistent sets of network properties that might be more specific than network
 interfaces {{?RFC7556}}.
 
-As with interface instances and types, this property is a tuple of an (Enumerated)
-PvD identifier and a preference, and can either be implemented directly as such,
+As with interface instances and types, this property is a set of tuples of (Enumerated)
+PvD identifier and preference. It can either be implemented directly as such,
 or for making one preference available for each interface and interface type
 available on the system.
 
 The identification of a specific PvD is
 implementation- and system-specific, because there is currently no portable standard
 format for a PvD identifier. For example, this identifier might be a string name
-or an integer. As with requiring specific interfaces, requiring a specific PvD
+or an Integer. As with requiring specific interfaces, requiring a specific PvD
 strictly limits the path selection.
 
 Categories or types of PvDs are also defined to be implementation- and
@@ -1438,7 +1446,7 @@ Passive:
 The policy for using multiple paths is specified using the separate `multipathPolicy` property, see {{multipath-policy}} below.
 To enable the peer endpoint to initiate additional paths towards a local address other than the one initially used, it is necessary to set the `advertisesAltaddr` property (see {{altaddr}} below).
 
-Setting this property to `Active` can have privacy implications: It enables the transport to establish connectivity using alternate paths that might result in users being linkable across the multiple paths, even if the `advertisesAltaddr` property (see {{altaddr}} below) is set to false.
+Setting this property to `Active` can have privacy implications: It enables the transport to establish connectivity using alternate paths that might result in users being linkable across the multiple paths, even if the `advertisesAltaddr` property (see {{altaddr}} below) is set to `false`.
 
 Note that Multipath Transport has no corresponding Selection Property of type Preference.
 Enumeration values other than `Disabled` are interpreted as a preference for choosing protocols that can make use of multiple paths.
@@ -1453,13 +1461,13 @@ Type:
 : Boolean
 
 Default:
-: False
+: `false`
 
 This property specifies whether alternative addresses, e.g., of other interfaces, ought to be advertised to the
 peer endpoint by the Protocol Stack. Advertising these addresses enables the peer endpoint to establish additional connectivity, e.g., for Connection migration or using multiple paths.
 
 Note that this can have privacy implications because it might result in users being linkable across the multiple paths.
-Also, note that setting this to false does not prevent the local Transport Services system from _establishing_ connectivity using alternate paths (see {{multipath-mode}} above); it only prevents _proactive advertisement_ of addresses.
+Also, note that setting this to `false` does not prevent the local Transport Services system from _establishing_ connectivity using alternate paths (see {{multipath-mode}} above); it only prevents _proactive advertisement_ of addresses.
 
 ### Direction of communication
 
@@ -1502,7 +1510,7 @@ Default:
 
 This property specifies whether an application considers it useful to be
 informed when an ICMP error message arrives that does not force termination of a
-connection. When set to true, received ICMP errors are available as
+connection. When set to `true`, received ICMP errors are available as
 `SoftError` events, see {{soft-errors}}. Note that even if a protocol supporting this property is selected,
 not all ICMP errors will necessarily be delivered, so applications cannot rely
 upon receiving them {{?RFC8085}}.
@@ -1556,6 +1564,14 @@ SecurityParameters := NewSecurityParameters()
 
 Security configuration parameters and sample usage follow:
 
+- Application-layer protocol negotiation (ALPN) values: used to indicate which application-layer protocols
+are negotiated by the security protocol layer. See {{!ALPN=RFC7301}} for definition of the ALPN field. Note that the Transport Services System can provide ALPN values automatically, based on
+the protocols being used, if not explicitly specified by the application.
+
+~~~
+SecurityParameters.Set(alpn, "h2")
+~~~
+
 - Local identity, certificates, and private keys: Used to perform private key operations and prove one's
 identity to the Remote Endpoint. (Note, if private keys are not available, e.g., since they are
 stored in hardware security modules (HSMs), handshake callbacks must be used. See below for details.)
@@ -1599,8 +1615,8 @@ as a TCP endpoint that does not support TLS), applications can initialize their
 security parameters to indicate that security can be disabled, or can be opportunistic.
 If security is disabled, the Transport Services system will not attempt to add
 transport security automatically. If security is opportunistic, it will allow
-Connections without transport security, but will still attempt to use security if
-available.
+Connections without transport security, but will still attempt to use unauthenticated
+security if available.
 
 ~~~
 SecurityParameters := NewDisabledSecurityParameters()
@@ -1936,8 +1952,8 @@ Connection -> CloneError<reason?>
 The `connPriority` Connection Property operates on Connections in a Connection Group
 using the same approach as in {{msg-priority}}: when allocating available network
 capacity among Connections in a Connection Group, sends on Connections with
-higher Priority values will be prioritized over sends on Connections that have
-lower Priority values. Capacity will be shared among these Connections according to
+numerically lower Priority values will be prioritized over sends on Connections that have
+numerically higher Priority values. Capacity will be shared among these Connections according to
 the `connScheduler` property ({{conn-scheduler}}).
 See {{priority-in-taps}} for more.
 
@@ -2100,10 +2116,10 @@ Type:
 Default:
 : 100
 
-This property is a non-negative integer representing the
+This property is a non-negative Integer representing the
 priority of this Connection
 relative to other Connections in the same
-Connection Group. A higher value reflects a higher priority. It has no effect
+Connection Group. A numerically lower value reflects a higher priority. It has no effect
 on Connections not part of a Connection
 Group. As noted in {{groups}}, this property is not entangled when Connections
 are cloned, i.e., changing the Priority on one Connection in a Connection Group
@@ -2284,9 +2300,12 @@ Default:
 
 Numeric values of these properties specify an upper-bound rate that a transfer is not expected to
 exceed (even if flow control and congestion control allow higher rates), and/or a
-lower-bound rate below which the application does not deem
-it will be useful. These are specified in bits per second.
-The enumerated value `Unlimited` indicates that no bound is specified.
+lower-bound application-layer rate below which the application does not deem
+it will be useful. These rate values are measured at the application layer, i.e. do not consider the header overhead
+from protocols used by the Transport Services system. The values are specified in bits per second,
+and assumed to be measured over one-second time intervals. E.g., specifying a maxSendRate of X bits per second
+means that, from the moment at which the property value is chosen, not more than X bits will be send in any
+following second. The enumerated value `Unlimited` indicates that no bound is specified.
 A Transport Services API could express `Unlimited` in an environment-typical way, e.g., as a Union type or special value.
 
 ### Group Connection Limit
@@ -2315,9 +2334,9 @@ Type:
 : Boolean
 
 Default:
-: false
+: `false`
 
-When set to true, this property will initiate new Connections using as little
+When set to `true`, this property will initiate new Connections using as little
 cached information (such as session tickets or cookies) as possible from
 previous Connections that are not in the same Connection Group. Any state generated by this
 Connection will only be shared with Connections in the same Connection Group. Cloned Connections
@@ -2390,7 +2409,7 @@ the Transport Services API has to expose an interface to the application. Otherw
 violate assumptions by the application, which could cause the application to
 fail.
 
-All of the below properties are optional (e.g., it is possible to specify `User Timeout Enabled` as true,
+All of the below properties are optional (e.g., it is possible to specify `User Timeout Enabled` as `true`,
 but not specify an Advertised User Timeout value; in this case, the TCP default will be used).
 These properties reflect the API extension specified in Section 3 of {{?RFC5482}}.
 
@@ -2417,7 +2436,7 @@ Type:
 : Boolean
 
 Default:
-: false
+: `false`
 
 This property controls whether the TCP UTO option is enabled for a
 connection. This applies to both sending and receiving.
@@ -2431,11 +2450,11 @@ Type:
 : Boolean
 
 Default:
-: true
+: `true`
 
 This property controls whether the TCP `connTimeout` (see {{conn-timeout}})
 can be changed
-based on a UTO option received from the remote peer. This boolean becomes false when
+based on a UTO option received from the remote peer. This boolean becomes `false` when
 `connTimeout` (see {{conn-timeout}}) is used.
 
 
@@ -2703,10 +2722,10 @@ Default:
 : 100
 
 This property specifies the priority of a Message, relative to other Messages sent over the
-same Connection.
+same Connection. A numerically lower value represents a higher priority.
 
-A Message with Priority 0 will yield to a Message with Priority 1, which will
-yield to a Message with Priority 2, and so on. Priorities can be used as a
+A Message with Priority 2 will yield to a Message with Priority 1, which will
+yield to a Message with Priority 0, and so on. Priorities can be used as a
 sender-side scheduling construct only, or be used to specify priorities on the
 wire for Protocol Stacks supporting prioritization.
 
@@ -2725,9 +2744,9 @@ Type:
 Default:
 : the queried Boolean value of the Selection Property `preserveOrder` ({{prop-ordering}})
 
-The order in which Messages were submitted for transmission via the `Send` action will be preserved on delivery via `Receive` events for all Messages on a Connection that have this Message Property set to true.
+The order in which Messages were submitted for transmission via the `Send` action will be preserved on delivery via `Receive` events for all Messages on a Connection that have this Message Property set to `true`.
 
-If false, the Message is delivered to the receiving application without preserving the ordering.
+If `false`, the Message is delivered to the receiving application without preserving the ordering.
 This property is used for protocols that support preservation of data ordering,
 see {{prop-ordering}}, but allow out-of-order delivery for certain Messages, e.g., by multiplexing independent Messages onto
 different streams.
@@ -2745,9 +2764,9 @@ Type:
 : Boolean
 
 Default:
-: false
+: `false`
 
-If true, `safelyReplayable` specifies that a Message is safe to send to the Remote Endpoint
+If `true`, `safelyReplayable` specifies that a Message is safe to send to the Remote Endpoint
 more than once for a single `Send` action. It marks the data as safe for
 certain 0-RTT establishment techniques, where retransmission of the 0-RTT data
 could cause the remote application to receive the Message multiple times.
@@ -2768,9 +2787,9 @@ Type:
 : Boolean
 
 Default:
-: false
+: `false`
 
-If true, this indicates a Message is the last that
+If `true`, this indicates a Message is the last that
 the application will send on a Connection. This allows underlying protocols
 to indicate to the Remote Endpoint that the Connection has been effectively
 closed in the sending direction. For example, TCP-based Connections can
@@ -2814,8 +2833,8 @@ Default:
 : the queried Boolean value of the Selection Property `reliability` ({{prop-reliable}})
 
 When true, this property specifies that a Message should be sent in such a way
-that the transport protocol ensures all data is received on the other side
-without corruption. Changing the `msgReliable` property on Messages
+that the transport protocol ensures all data is received by the Remote Endpoint.
+Changing the `msgReliable` property on Messages
 is only possible for Connections that were established enabling the Selection Property `perMsgReliability`.
 When this is not the case, changing `msgReliable` will generate an error.
 
@@ -2853,7 +2872,7 @@ Type:
 : Boolean
 
 Default:
-: false
+: `false`
 
 This property specifies that a Message should be sent and received
 without network-layer fragmentation, if possible. It can be used
@@ -2861,7 +2880,7 @@ to avoid network layer fragmentation when transport segmentation is preferred.
 
 This only takes effect when the transport uses a network layer that supports this functionality.
 When it does take effect, setting this property to
-true will cause the sender to avoid network-layer source fragmentation.
+`true` will cause the sender to avoid network-layer source fragmentation.
 When using IPv4, this will result in the Don't Fragment bit being set in the IP header.
 
 Attempts to send a Message with this property that result in a size greater than the
@@ -2880,14 +2899,14 @@ Type:
 : Boolean
 
 Default:
-: false
+: `false`
 
-When set to true, this property requests the transport layer
+When set to `true`, this property requests the transport layer
 to not provide segmentation of Messages larger than the
 maximum size permitted by the network layer, and also
 to avoid network-layer source fragmentation of Messages.
 When running over IPv4, setting this property to
-true will result in a sending endpoint setting the
+`true` will result in a sending endpoint setting the
 Don't Fragment bit in the IPv4 header of packets generated by the
 transport layer.
 
@@ -3013,9 +3032,9 @@ a Message in a single `Send` action. The Message data might be too large for
 the application to hold in memory at one time, or the length of the Message
 might be unknown or unbounded.
 
-Partial Message sending is supported by passing an endOfMessage boolean
-parameter to the `Send` action. This value is always true by default, and
-the simpler forms of `Send` are equivalent to passing true for endOfMessage.
+Partial Message sending is supported by passing an endOfMessage Boolean
+parameter to the `Send` action. This value is always `true` by default, and
+the simpler forms of `Send` are equivalent to passing `true` for endOfMessage.
 
 The following example sends a Message in two separate calls to `Send`.
 
@@ -3090,13 +3109,8 @@ and implementation of a wide variety of approaches to transmission priority in
 the transport and application layer, including those which do not appear on
 the wire (affecting only sender-side transmission scheduling) as well as those
 that do (e.g. {{?RFC9218}}.
-
 A Transport Services system gives no guarantees about how its expression of
-relative priorities will be realized. However, the Transport Services system will
-seek to ensure that performance of relatively-prioritized Connections and
-Messages is not worse with respect to those Connections and Messages than
-an equivalent configuration in which all prioritization properties are left
-at their defaults.
+relative priorities will be realized.
 
 The Transport Services API does order `connPriority` over
 `msgPriority`. In the absence of other externalities
@@ -3153,9 +3167,13 @@ as a receiver preference for Message reordering.
 
 ### Receive Events {#receive-events}
 
-Each call to `Receive` will be paired with a single `Receive` event, which can be a success
-or an error. This allows an application to provide backpressure to the transport stack
-when it is temporarily not ready to receive Messages.
+Each call to `Receive` will be paired with a single `Receive` event. This allows an application
+to provide backpressure to the transport stack when it is temporarily not ready to receive Messages.
+For example, an application that will later be able to handle multiple receive events at the same time
+can make multiple calls to `Receive` without waiting for, or processing, any receive events. An application
+that is temporarily unable to process received events for a connection could refrain from calling `Receive`
+or delay calling it. This would lead to a build-up of unread data, which, in turn, could result in
+backpressure to the sender via a transport protocol's flow control.
 
 The Transport Services API should allow the application to correlate which call to `Receive` resulted
 in a particular `Receive` event. The manner in which this correlation is indicated
