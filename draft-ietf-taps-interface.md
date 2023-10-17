@@ -877,8 +877,13 @@ multiple aliases set.
 RemoteSpecifier.AddAlias(AlternateRemoteSpecifier)
 ~~~
 
-To scope an alias to a specific transport protocol, an Endpoint can
-specify a protocol specifier.
+To scope an alias to apply conditionally to a specific transport
+protocol (such as defining an alternate port to use when QUIC
+is selected, as opposed to TCP), an alias Endpoint can be
+associated with a protocol identifier. Protocol identifiers are
+objects or enumeration values provided by the Transport
+Services API, which will vary based on which protocols are
+implemented in a particular system.
 
 ~~~
 AlternateRemoteSpecifier.WithProtocol(QUIC)
