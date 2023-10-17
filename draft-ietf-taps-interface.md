@@ -1585,14 +1585,15 @@ SecurityParameters := NewSecurityParameters()
 
 Security configuration parameters and sample usage follow:
 
-- A certificate bundle identifying the Local Endpoint, whether as a server
-  certificate or a client certificate. Note that if the private keys associated
+- One or more certificate bundles identifying the Local Endpoint, whether as a server
+  certificate or a client certificate. Multiple bundles may be provided to allow selection
+  among different protocol stacks that may require differently formatted bundles. The form and format of the certificate bundle is implementation-specific. Note that if the private keys associated
   with a bundle are not available, e.g., since they are stored in hardware
   security modules (HSMs), handshake callbacks must be used. See below for details.
 
 ~~~
-SecurityParameters.Set(server-certificate, myCertificateBundle)
-SecurityParameters.Set(client-certificate, myCertificateBundle)
+SecurityParameters.Set(server-certificate, myCertificateBundle[])
+SecurityParameters.Set(client-certificate, myCertificateBundle[])
 ~~~
 
 - Application-layer protocol negotiation (ALPN) values: used to indicate which
