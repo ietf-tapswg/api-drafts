@@ -1003,7 +1003,7 @@ Create a Source-Specific Multicast group as a sender:
 
 ~~~
    RemoteSpecifier := NewRemoteEndpoint()
-   RemoteSpecifier.WithMulticastGroupIP(232.1.1.1)
+   RemoteSpecifier.WithMulticastGroupIP(233.251.240.1)
    RemoteSpecifier.WithPort(5353)
    RemoteSpecifier.WithHopLimit(8)
 
