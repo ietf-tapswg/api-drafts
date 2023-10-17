@@ -314,7 +314,7 @@ Message Framer that finds message boundaries in a stream. Messages are
 received asynchronously through event handlers registered by the application.
 Errors and other notifications also happen asynchronously on the Connection.
 It is not necessary for an application to handle all events; some events can
-have implementation-specific default handlers. The application ought not
+have implementation-specific default handlers. The application SHOULD NOT
 assume that ignoring events (e.g., errors) is always safe.
 
 
