@@ -1563,7 +1563,7 @@ only need to specify parameters required to establish a secure connection
 from enumerated values (e.g., specific ciphersuites) may constrain the Transport
 Protocols that can be selected during connection establishment.
 
-Except as noted below, as with the rest of the TAPS system, exact names of parameters and/or
+Except as noted below, as with the rest of the Transport Services API, exact names of parameters and/or
 values of enumerations (e.g., ciphersuites) used in the security parameters are system
 and implementation specific, and should be chosen to follow the principle of least
 surprise for users of the platform / language environment in question.
