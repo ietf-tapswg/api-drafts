@@ -879,7 +879,7 @@ Normally, an endpoint ought not to request a specific transport protocol or
 protocol stack. The Transport Services system is responsible for mapping
 the API to a specific available transport protocol stack and managing
 the available network interfaces and paths. When specifically needed,
-this automated selection could be over-ridden (e.g., for testing or
+this automated selection could be overridden (e.g., for testing or
 debugging purposes).
 
 ~~~
