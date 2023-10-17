@@ -227,8 +227,8 @@ The architecture of the Transport Services System is an evolution of this genera
 ~~~~~~~~~~
 {: #fig-taps title="Transport Services API Model"}
 
-The Transport Services API {{?I-D.ietf-taps-interface}} defines the interface for an application to create Connections and transfer data. It combines interfaces for multiple interaction patterns into a unified whole (see figure 2). 
-This offers generic functions and also the protocol-specific mappings for TCP, UDP, UDP-Lite, and other protocol layers. These mapping are extensible. Future documents could define similar mappings for new layers and for other transport protocols, such as QUIC {{?RFC9000}}. 
+The Transport Services API {{?I-D.ietf-taps-interface}} defines the interface for an application to create Connections and transfer data. It combines interfaces for multiple interaction patterns into a unified whole (see figure 2).
+This offers generic functions and also the protocol-specific mappings for TCP, UDP, UDP-Lite, and other protocol layers. These mapping are extensible. Future documents could define similar mappings for new layers and for other transport protocols, such as QUIC {{?RFC9000}}.
 By combining name resolution with connection establishment and data transfer in a single API, it allows for more flexible implementations to provide path and transport protocol agility on the application's behalf.
 
 The Transport Services Implementation {{?I-D.ietf-taps-impl}} is the component of the Transport Services System that implements the transport layer protocols and other functions needed to send and receive data. It is responsible for mapping the API to a specific available transport Protocol Stack and managing the available network interfaces and paths.
