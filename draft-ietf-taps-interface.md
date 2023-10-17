@@ -896,7 +896,7 @@ RemoteSpecifier.AddAlias(QUICRemoteSpecifier)
 
 The following examples of Endpoints show common usage patterns.
 
-Specify a Remote Endpoint using a hostname and service name (since `WithProtocol` is not used, it is up to the Transport Services system to choose which sets of protocols to use, e.g., TLS/TCP or QUIC):
+Specify a Remote Endpoint using a hostname and service name (since `WithProtocol` is not used, the Transport Services system chooses which sets of protocols to use, e.g., TLS/TCP or QUIC):
 
 ~~~
 RemoteSpecifier := NewRemoteEndpoint()
