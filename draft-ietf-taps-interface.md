@@ -2107,7 +2107,8 @@ to the application. The application is responsible for handling
 any corruption within the non-protected part of the Message {{?RFC8085}}.
 A special value of 0 means that a received packet might also have a zero checksum field,
 and the enumerated value `Full Coverage` means
-that the entire Message needs to be protected by a checksum.
+that the entire Message needs to be protected by a checksum. An implementation
+is supposed to express `Full Coverage` in an environment-typical way, e.g., as a Union type or special value.
 
 ### Connection Priority {#conn-priority}
 
@@ -2145,7 +2146,8 @@ Default:
 If this property is Numeric, it specifies how long to wait before deciding that an active Connection has
 failed when trying to reliably deliver data to the Remote Endpoint. Adjusting this property
 will only take effect when the underlying stack supports reliability. If this property has the enumerated
-value `Disabled`, it means that no timeout is scheduled.
+value `Disabled`, it means that no timeout is scheduled. A Transport Services API
+could express `Disabled` in an environment-typical way, e.g., as a Union type or special value.
 
 ### Timeout for keep alive packets {#keep-alive-timeout}
 
@@ -2165,7 +2167,8 @@ the Local Endpoint sends a keep-alive packet to the Remote Endpoint. Adjusting t
 will only take effect when the underlying stack supports sending keep-alive packets.
 Guidance on setting this value for connection-less transports is
 provided in {{?RFC8085}}.
-A value greater than the Connection timeout ({{conn-timeout}}) or the enumerated value `Disabled` will disable the sending of keep-alive packets.
+A value greater than the Connection timeout ({{conn-timeout}}) or the enumerated value `Disabled` will disable the sending of keep-alive packets. A Transport Services API
+could express `Disabled` in an environment-typical way, e.g., as a Union type or special value.
 
 ### Connection Group Transmission Scheduler {#conn-scheduler}
 
@@ -2308,6 +2311,7 @@ from protocols used by the Transport Services system. The values are specified i
 and assumed to be measured over one-second time intervals. E.g., specifying a maxSendRate of X bits per second
 means that, from the moment at which the property value is chosen, not more than X bits will be send in any
 following second. The enumerated value `Unlimited` indicates that no bound is specified.
+A Transport Services API could express `Unlimited` in an environment-typical way, e.g., as a Union type or special value.
 
 ### Group Connection Limit
 
@@ -2324,7 +2328,8 @@ If this property is Numeric, it controls the number of Connections that can be a
 a peer as new members of the Connection's group. Similar to `SetNewConnectionLimit`,
 this limits the number of `ConnectionReceived` events that will occur, but constrained
 to the group of the Connection associated with this property. For a multi-streaming transport,
-this limits the number of allowed streams.
+this limits the number of allowed streams.  A Transport Services API
+could express `Unlimited` in an environment-typical way, e.g., as a Union type or special value.
 
 ### Isolate Session {#isolate-session}
 Name:
@@ -2368,7 +2373,8 @@ based on the Maximum Packet Size (MPS). The value of this property can change ov
 This value allows a sending stack to avoid unwanted fragmentation at the
 network-layer or segmentation by the transport layer before
 choosing the message size and/or after a `SendError` occurs indicating
-an attempt to send a Message that is too large.
+an attempt to send a Message that is too large.  A Transport Services API
+could express `Not applicable` in an environment-typical way, e.g., as a Union type or special value.
 
 #### Maximum Message Size on Send {#conn-max-msg-send}
 
