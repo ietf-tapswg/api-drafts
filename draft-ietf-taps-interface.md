@@ -1550,8 +1550,9 @@ SecurityParameters := NewSecurityParameters()
 
 Security configuration parameters and sample usage follow:
 
-- Application-layer protocol negotiation (ALPN) values: Used to indicate which application-layer protocols
-are negotiated by the security protocol layer. See {{!ALPN=RFC7301}} for definition of the ALPN field.
+- Application-layer protocol negotiation (ALPN) values: used to indicate which application-layer protocols
+are negotiated by the security protocol layer. See {{!ALPN=RFC7301}} for definition of the ALPN field. Note that the Transport Services System can provide ALPN values automatically, based on
+the protocols being used, if not explicitly specified by the application.
 
 ~~~
 SecurityParameters.Set(alpn, "h2")
