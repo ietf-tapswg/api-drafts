@@ -1619,7 +1619,7 @@ SecurityParameters.Set(alpn, "h2")
 
 - Supported algorithms, ciphersuites, groups: Used to restrict what parameters
   are used by underlying transport security protocols. When not specified, '
-  these algorithms should use known and safe defaults for the system. 
+  these algorithms should use known and safe defaults for the system.
 
 ~~~
 SecurityParameters.Set(supported-group, "secp256r1")
