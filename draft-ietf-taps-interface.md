@@ -1380,11 +1380,11 @@ PvD identifier and preference. It can either be implemented directly as such,
 or for making one preference available for each interface and interface type
 available on the system.
 
-The identification of a specific PvD is
-implementation- and system-specific, because there is currently no portable standard
-format for a PvD identifier. For example, this identifier might be a string name
-or an Integer. As with requiring specific interfaces, requiring a specific PvD
-strictly limits the path selection.
+The identification of a specific PvD is implementation- and system-specific.
+{{?RFC8801}} defines how to use an FQDN to identify a PvD when advertised by
+a network, but systems might also use other locally-relevant identifiers
+such as string names or Integers to identify PvDs. As with requiring specific
+interfaces, requiring a specific PvD strictly limits the path selection.
 
 Categories or types of PvDs are also defined to be implementation- and
 system-specific. These can be useful to identify a service that is provided by a
