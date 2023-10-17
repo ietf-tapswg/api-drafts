@@ -744,7 +744,7 @@ RemoteSpecifier.WithPort(443)
 RemoteSpecifier.WithService("https")
 ~~~
 
-- IP address (IPv4 or IPv6 address strings):
+- IP address (IPv4 or IPv6 address):
 
 ~~~
 RemoteSpecifier.WithIPAddress(192.0.2.21)
