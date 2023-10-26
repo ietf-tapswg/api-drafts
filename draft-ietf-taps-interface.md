@@ -1555,12 +1555,12 @@ of Connection establishment. Similar to Transport Properties, both parameters an
 are inherited during cloning (see {{groups}}).
 
 This document specifies an abstract API, which may appear to conflict with the need
-for security parameters to be unambiguous in order to reduce the chances
-of implementation errors. The Transport Services system SHOULD provide reasonable,
+for security parameters to be unambiguous, intended to reduce the chances
+of implementation errors. The Transport Services System SHOULD provide reasonable,
 secure defaults for each enumerated security parameter, such that users of the system
 only need to specify parameters required to establish a secure connection
 ('server-certificate', 'client-certificate'). Specifying specific security parameters
-from enumerated values (e.g., specific ciphersuites) may constrain the Transport
+from enumerated values (e.g., specific ciphersuites) might constrain the Transport
 Protocols that can be selected during connection establishment.
 
 Except as noted below, as with the rest of the Transport Services API, exact names of parameters and/or
@@ -1571,7 +1571,7 @@ surprise for users of the platform / language environment in question.
 ### Specifying Security Parameters on a Preconnection
 
 Common security parameters such as TLS ciphersuites are known to implementations.
-Clients should use common safe defaults for these values whenever possible.
+Applications should use common safe defaults for these values whenever possible.
 However, as discussed in {{?RFC8922}}, many transport security protocols require specific
 security parameters and constraints from the client at the time of configuration and
 actively during a handshake.
@@ -1640,7 +1640,7 @@ SecurityParameters.Set(cached-session-lifetime-seconds, 3600)
 out-of-band. Each pre-shared keying material is associated with some identity
 that typically identifies its use or has some protocol-specific meaning to the
 Remote Endpoint. Note that use of a pre-shared key will tend to select a single
-security protocol and therefore a single underlying protocol stack directly.
+security protocol, and therefore directly select a single underlying protocol stack.
 
 ~~~
 SecurityParameters.Set(pre-shared-key, key, myIdentity)
