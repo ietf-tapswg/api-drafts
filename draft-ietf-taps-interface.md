@@ -585,7 +585,7 @@ form \[\<Namespace>.\]\<PropertyName\>.
 - The optional Namespace component and its trailing character `.` MUST be omitted for well-known,
   generic properties, i.e., for properties that are not specific to a protocol.
 - Protocol-specific Properties MUST use the protocol acronym as the Namespace (e.g., a
-  Connection  that uses TCP could support a TCP-specific Transport Property, such as the TCP user timeout
+  Connection that uses TCP could support a TCP-specific Transport Property, such as the TCP user timeout
   value, in a Protocol-specific Property called `tcp.userTimeoutValue` (see {{tcp-uto}})).
 - Vendor or implementation specific properties MUST be placed in a Namespace starting with the underscore `_` character
    and SHOULD use a string identifying the vendor or implementation.
