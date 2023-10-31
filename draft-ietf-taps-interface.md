@@ -751,7 +751,7 @@ RemoteSpecifier.WithIPAddress(192.0.2.21)
 RemoteSpecifier.WithIPAddress(2001:db8:4920:e29d:a420:7461:7073:a)
 ~~~
 
-- Interface name (string), e.g., to qualify link-local or multicast addresses (see {{ifspec}} for details):
+- Interface name (string), e.g., to qualify link-local or  addresses (see {{ifspec}} for details):
 
 ~~~
 LocalSpecifier.WithInterface("en0")
@@ -793,7 +793,7 @@ used to send messages to the multicast group, receive messages from
 the group, or, for an any-source multicast group, to both send and
 receive messages.
 
-Note that the Transport Services API has separate specifier calls for multicast groups to avoid introducing filter properties for single-source multicast and the confusion traditions overloading of the unicast specifiers in other systems causes.   
+Note that the Transport Services API has separate specifier calls for multicast groups to avoid introducing filter properties for single-source multicast and seeks to avoid the confusion caused in other systems by overloading the unicast specifiers.
 
 Calling `Initiate` on that Preconnection creates a Connection that can be
 used to send Messages to the multicast group. The Connection object that is
