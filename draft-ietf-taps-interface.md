@@ -793,6 +793,8 @@ used to send messages to the multicast group, receive messages from
 the group, or, for an any-source multicast group, to both send and
 receive messages.
 
+Note that the Transport Services API has separate specifier calls for multicast groups to avoid introducing filter properties for single-source multicast and the confusion traditions overloading of the unicast specifiers in other systems causes.   
+
 Calling `Initiate` on that Preconnection creates a Connection that can be
 used to send Messages to the multicast group. The Connection object that is
 created will support `Send` but not `Receive`. Any Connections created this
