@@ -1,4 +1,4 @@
----
+qualify link-local---
 title: An Abstract Application Layer Interface to Transport Services
 abbrev: TAPS Interface
 docname: draft-ietf-taps-interface-latest
@@ -751,7 +751,7 @@ RemoteSpecifier.WithIPAddress(192.0.2.21)
 RemoteSpecifier.WithIPAddress(2001:db8:4920:e29d:a420:7461:7073:a)
 ~~~
 
-- Interface name (string), e.g., to qualify link-local or  addresses (see {{ifspec}} for details):
+- Interface name (string), e.g., to qualify link-local addresses (see {{ifspec}} for details):
 
 ~~~
 LocalSpecifier.WithInterface("en0")
