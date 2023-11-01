@@ -2372,7 +2372,7 @@ Name:
 Type:
 : Enumeration
 
-This property informs about the current state of the Connection. Possible values are: `Establishing`, `Established`, `Closing` or `Closed`.
+This property informs about the current state of the Connection. Possible values are: `Establishing`, `Established`, `Closing` or `Closed`; for more details on Connection state, see {{state-ordering}}.
 
 
 #### Can Send Data {#conn-send-data}
@@ -3444,7 +3444,7 @@ Connection -> ConnectionError<reason?>
 ~~~
 
 
-# Connection State and Ordering of Operations and Events
+# Connection State and Ordering of Operations and Events {#state-ordering}
 
 This Transport Services API is designed to be independent of an implementation's
 concurrency model.  The details of how exactly actions are handled, and how
