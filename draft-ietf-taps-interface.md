@@ -2397,17 +2397,6 @@ Type:
 This property can be queried to learn whether the Connection can be used to receive data.
 
 
-#### Maximum Message Size on Receive {#conn-max-msg-recv}
-
-Name:
-: recvMsgMaxLen
-
-Type:
-: Integer (non-negative)
-
-..
-
-
 #### Maximum Message Size Before Fragmentation or Segmentation {#conn-max-msg-notfrag}
 
 Name:
