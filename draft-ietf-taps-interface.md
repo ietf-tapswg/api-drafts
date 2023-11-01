@@ -2160,10 +2160,10 @@ Name:
 : keepAliveTimeout
 
 Type:
-: Numeric (non-negative) or `Disabled`
+: Numeric (non-negative) or `Disabled` or `System default`
 
 Default:
-: `Disabled`
+: `System default`
 
 A Transport Services API can request a protocol that supports sending keep alive packets ({{keep-alive}}).
 If this property is Numeric, it specifies the maximum length of time an idle Connection (one for which no transport
@@ -2173,7 +2173,9 @@ will only take effect when the underlying stack supports sending keep-alive pack
 Guidance on setting this value for connection-less transports is
 provided in {{?RFC8085}}.
 A value greater than the Connection timeout ({{conn-timeout}}) or the enumerated value `Disabled` will disable the sending of keep-alive packets. A Transport Services API
-could express `Disabled` in an environment-typical way, e.g., as a Union type or special value.
+could express `Disabled` and `System default` in an environment-typical way, e.g., as a Union type or special value. Choosing `System default` is a hint to the Transport Services system that it should
+implement its own default value, preferably using the default value of an underlying protocol
+when that is possible.
 
 ### Connection Group Transmission Scheduler {#conn-scheduler}
 
