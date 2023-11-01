@@ -2055,15 +2055,17 @@ Depending on the status of the Connection, the queried Connection
 Properties will include different information:
 
 * The Connection state, which can be one of the following:
-  Establishing, Established, Closing, or Closed.
+  Establishing, Established, Closing, or Closed (see {{conn-state}}).
 
-* Whether the Connection can be used to send data. A Connection can not be used
+* Whether the Connection can be used to send data (see {{conn-send-data}}).
+  A Connection can not be used
   for sending if the Connection was created with the Selection Property
   `direction` set to `unidirectional receive` or if a Message
   marked as `Final` was sent over this Connection. See also {{msg-final}}.
 
-* Whether the Connection can be used to receive data. A Connection cannot be
-  used for reading if the Connection was created with the Selection Property
+* Whether the Connection can be used to receive data (see {{conn-receive-data}}).
+  A Connection cannot be
+  used for receiving if the Connection was created with the Selection Property
   `direction` set to `unidirectional send` or if a Message
   marked as `Final` was received. See {{receiving-final-messages}}. The latter
   is only supported by certain transport protocols, e.g., by TCP as half-closed
@@ -2079,7 +2081,8 @@ Properties will include different information:
   Protocol Selection Properties that the application specified on the
   Preconnection.
 
-* For Connections that are Established: information concerning the
+* For Connections that are Established: Transport Services system implementations
+  ought to provide information concerning the
   path(s) used by the Protocol Stack. This can be derived from local PVD information,
   measurements by the Protocol Stack, or other sources.
   For example, a Transport System that is configured to receive and process PVD information
@@ -2360,6 +2363,50 @@ estimates). Note that this property could degrade Connection performance.
 ### Read-only Connection Properties {#read-only-conn-prop}
 
 The following generic Connection Properties are read-only, i.e. they cannot be changed by an application.
+
+#### Connection state {#conn-state}
+
+Name:
+: state
+
+Type:
+: Enumeration
+
+This property informs about the current state of the Connection. Possible values are: `Establishing`, `Established`, `Closing` or `Closed`.
+
+
+#### Can Send Data {#conn-send-data}
+
+Name:
+: canSend
+
+Type:
+: Boolean
+
+This property can be queried to learn whether the Connection can be used to send data.
+
+
+#### Can Receive Data {#conn-receive-data}
+
+Name:
+: canReceive
+
+Type:
+: Boolean
+
+This property can be queried to learn whether the Connection can be used to receive data.
+
+
+#### Maximum Message Size on Receive {#conn-max-msg-recv}
+
+Name:
+: recvMsgMaxLen
+
+Type:
+: Integer (non-negative)
+
+..
+
 
 #### Maximum Message Size Before Fragmentation or Segmentation {#conn-max-msg-notfrag}
 
