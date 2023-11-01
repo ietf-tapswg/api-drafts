@@ -504,7 +504,7 @@ Connection -> Received<messageDataResponse, messageContext>
 // Trickle ICE, then add them to the Connection:
 Connection.AddRemote(NewRemoteCandidates)
 
-// On a PathChange<> events, resolve the Local Endpoint Identifiers to
+// On a PathChange<> event, resolve the Local Endpoint Identifiers to
 // see if a new Local Endpoint has become available and, if
 // so, send to the peer as a new candidate and add to the
 // Connection:
