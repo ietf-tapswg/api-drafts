@@ -3139,7 +3139,7 @@ an event will be delivered to complete any pending `Receive` requests (see {{rec
 If Messages arrive at the Transport Services system before `Receive` requests are issued,
 ensuing `Receive` requests will first operate on these Messages before awaiting any further Messages.
 
-### Enqueuing Receives
+### Enqueuing Receives {#receiving-action}
 
  `Receive` takes two parameters to specify the length of data that an application
 is willing to receive, both of which are optional and have default values if not
@@ -3691,7 +3691,8 @@ coverage, see {{prop-checksum-control-send}} and {{prop-checksum-control-receive
 # Relationship to the Minimal Set of Transport Services for End Systems
 
 {{?RFC8923}} identifies a minimal set of transport services that end systems should offer. These services make all non-security-related transport features of TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT available that 1) require interaction with the application, and 2) do not get in the way of a possible implementation over TCP (or, with limitations, UDP). The following text explains how this minimal set is reflected in the present API. For brevity, it is based on the list in Section 4.1 of {{?RFC8923}}, updated according to the discussion in Section 5 of {{?RFC8923}}. The present API covers all elements of this section.
-This list is a subset of the transport features in Appendix A of {{?RFC8923}}, which refers to the primitives in "pass 2" (Section 4) of {{?RFC8303}} for further details on the implementation with TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT.
+This list is a subset of the transport features in Appendix A of {{?RFC8923}}, which refers to the primitives in "pass 2" (Section 4) of {{?RFC8303}} for further details on the implementation with TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT. This facilitates finding the specifications for implementing
+the services listed below with these protocols.
 
 * Connect:
 `Initiate` action ({{initiate}}).
@@ -3766,13 +3767,13 @@ these two transport features are controlled via the Message Property `msgOrdered
 should the protocol support it, this is one of the transport features the Transport Services system can apply when an application uses the `connCapacityProfile` Property ({{prop-cap-profile}}) or the `msgCapacityProfile` Message Property ({{send-profile}}) with value `Low Latency/Interactive`.
 
 * Receive data (with no message delimiting):
-`Receive` action ({{receiving}}) and `Received` event ({{receive-complete}}).
+`Receive` action ({{receiving-action}}) and `Received` event ({{receive-complete}}).
 
 * Receive a message:
-`Receive` action ({{receiving}}) and `Received` event ({{receive-complete}}), using Message Framers ({{framing}}).
+`Receive` action ({{receiving-action}}) and `Received` event ({{receive-complete}}), using Message Framers ({{framing}}).
 
 * Information about partial message arrival:
-`Receive` action ({{receiving}}) and `ReceivedPartial` event ({{receive-partial}}).
+`Receive` action ({{receiving-action}}) and `ReceivedPartial` event ({{receive-partial}}).
 
 * Notification of send failures:
 `Expired` event ({{expired}}) and `SendError` event ({{send-error}}).
