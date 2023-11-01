@@ -3498,7 +3498,7 @@ it might reveal usage characteristics and habits of the user of an application.
 Of course any communication over a network reveals usage characteristics, because all
 packets, as well as their timing and size, are part of the network-visible wire image {{?RFC8546}}. However,
 the selection of a protocol and its configuration also impacts which information is visible, potentially in
-clear text, and which other entities can access it. How Transport Services systems ought to choose protocols depending on the needed level or type of security is out of scope of the present document as well as {{?I-D.ietf-taps-impl}}, as these documents are limited to transport protocols. The choice of a security protocol can be informed by the survey provided in {{?RFC8922}}.
+clear text, and which other entities can access it. How Transport Services systems ought to choose protocols depending on the needed level or type of security is out of scope of the present document as well as {{?I-D.ietf-taps-impl}}, because the current documents are limited to transport protocols. The choice of a security protocol can be informed by the survey provided in {{?RFC8922}}.
 
 In most cases, information provided for protocol and path selection
 does not directly translate to information that can be observed by network devices on the path.
