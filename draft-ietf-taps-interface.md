@@ -214,8 +214,8 @@ implementing platform.
 We also make use of the following basic types:
 
 - Boolean: Instances take the value `true` or `false`.
-- Integer: Instances take positive or negative integer values.
-- Numeric: Instances take positive or negative real number values.
+- Integer: Instances take positive or negative integer values, or the value 0.
+- Numeric: Instances take positive or negative real number values, or the value 0.
 - String: Instances are represented in UTF-8.
 - IP Address: An IPv4 or IPv6 address {{?RFC5952}}.
 - Enumeration: A family of types in which each instance takes one of a fixed,
@@ -2143,7 +2143,7 @@ Name:
 : connTimeout
 
 Type:
-: Numeric (non-negative) or `Disabled`
+: Numeric (positive) or `Disabled`
 
 Default:
 : `Disabled`
@@ -2160,7 +2160,7 @@ Name:
 : keepAliveTimeout
 
 Type:
-: Numeric (non-negative) or `Disabled`
+: Numeric (positive) or `Disabled`
 
 Default:
 : `Disabled`
@@ -2303,7 +2303,7 @@ Name:
 : minSendRate / minRecvRate / maxSendRate / maxRecvRate
 
 Type:
-: Numeric (non-negative) or `Unlimited` / Numeric (non-negative) or `Unlimited` / Numeric (non-negative) or `Unlimited` / Numeric (non-negative) or `Unlimited`
+: Numeric (positive) or `Unlimited` / Numeric (positive) or `Unlimited` / Numeric (positive) or `Unlimited` / Numeric (positive) or `Unlimited`
 
 Default:
 : `Unlimited` / `Unlimited` / `Unlimited` / `Unlimited`
@@ -2324,7 +2324,7 @@ Name:
 : groupConnLimit
 
 Type:
-: Numeric (non-negative) or `Unlimited`
+: Numeric (positive) or `Unlimited`
 
 Default:
 : `Unlimited`
@@ -2379,7 +2379,7 @@ This value allows a sending stack to avoid unwanted fragmentation at the
 network-layer or segmentation by the transport layer before
 choosing the message size and/or after a `SendError` occurs indicating
 an attempt to send a Message that is too large.  A Transport Services API
-could express `Not applicable` in an environment-typical way, e.g., as a Union type or special value.
+could express `Not applicable` in an environment-typical way, e.g., as a Union type or special value (e.g., 0).
 
 #### Maximum Message Size on Send {#conn-max-msg-send}
 
@@ -2390,7 +2390,7 @@ Type:
 : Integer (non-negative)
 
 This property represents the maximum Message size that an application can send.
-It is specified as the number of bytes.
+It is specified as the number of bytes. A value of 0 indicates that sending is not possible.
 
 #### Maximum Message Size on Receive {#conn-max-msg-recv}
 
@@ -2401,7 +2401,7 @@ Type:
 : Integer (non-negative)
 
 This property represents the maximum Message size that an application can receive.
-It is specified as the number of bytes.
+It is specified as the number of bytes. A value of 0 indicate that receiving is not possible.
 
 ## TCP-specific Properties: User Timeout Option (UTO) {#tcp-uto}
 
@@ -2429,13 +2429,12 @@ Name:
 : tcp.userTimeoutValue
 
 Type:
-: Integer (non-negative)
+: Integer (positive)
 
 Default:
 : the TCP default
 
-This time value is advertised via the TCP User Timeout Option (UTO) {{?RFC5482}} at the Remote Endpoint
-to adapt its own `Timeout for aborting Connection` (see {{conn-timeout}}) value.
+This time value is advertised via the TCP User Timeout Option (UTO) {{?RFC5482}} to the Remote Endpoint which can use it to adapt its own `Timeout for aborting Connection` (see {{conn-timeout}}) value.
 
 ### User Timeout Enabled
 
@@ -2704,7 +2703,7 @@ Name:
 : msgLifetime
 
 Type:
-: Numeric (non-negative)
+: Numeric (positive)
 
 Default:
 : infinite
