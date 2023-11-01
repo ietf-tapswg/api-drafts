@@ -2367,7 +2367,7 @@ The following generic Connection Properties are read-only, i.e. they cannot be c
 #### Connection state {#conn-state}
 
 Name:
-: state
+: connState
 
 Type:
 : Enumeration
