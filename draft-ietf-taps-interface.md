@@ -735,7 +735,8 @@ RemoteSpecifier.WithHostName("example.com")
 RemoteSpecifier.WithPort(443)
 ~~~
 
-- Service (an identifier string that maps to a port; either the name of a well-known service, or a DNS SRV service name to be resolved):
+- Service (an identifier string that maps to a port; either a service
+name associated with a port number on https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml or a DNS SRV service name to be resolved):
 
 ~~~
 RemoteSpecifier.WithService("https")
