@@ -3414,7 +3414,7 @@ This Transport Services API is designed to be independent of an implementation's
 concurrency model.  The details of how exactly actions are handled, and how
 events are dispatched, are implementation dependent.
 
-Each transition of Connection state is associated with one of more events:
+Some transitions of Connection states are associated with events:
 
 - `Ready<>` occurs when a Connection created with `Initiate` or
   `InitiateWithSend` transitions to Established state.
