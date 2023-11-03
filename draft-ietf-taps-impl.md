@@ -1269,10 +1269,13 @@ This appendix gives an overview of existing implementations, at the time of writ
 * NEAT and NEATPy:
   * NEAT is the output of the European H2020 research project "NEAT"; it is a user-space library for protocol-independent communication on top of TCP, UDP and SCTP, with many more features, such as a policy manager.
   * Code: <https://github.com/NEAT-project/neat>
+  * Code at the Software Heritage Archive: <https://archive.softwareheritage.org/swh:1:dir:737820840f83c4ec9493a8c0cc89b3159e2e1a57;origin=https://github.com/NEAT-project/neat;visit=swh:1:snp:bbb611b04e355439d47e426e8ad5d07cdbf647e0;anchor=swh:1:rev:652ee991043ce3560a6e5715fa2a5c211139d15c>
   * NEAT project: <https://www.neat-project.org>
   * NEATPy is a Python shim over NEAT which updates the NEAT API to be in line with version 6 of the Transport Services API draft.
   * Code: <https://github.com/theagilepadawan/NEATPy>
+  * Code at the Software Heritage Archive: <https://archive.softwareheritage.org/swh:1:dir:295ccd148cf918ccb9ed7ad14b5ae968a8d2c370;origin=https://github.com/theagilepadawan/NEATPy;visit=swh:1:snp:6e1a3a9dd4c532ba6c0f52c8f734c1256a06cedc;anchor=swh:1:rev:cd0788d7f7f34a0e9b8654516da7c002c44d2e95>
 
 * PyTAPS:
   * A TAPS implementation based on Python asyncio, offering protocol-independent communication to applications on top of TCP, UDP and TLS, with support for multicast.
   * Code: <https://github.com/fg-inet/python-asyncio-taps>
+  * Code at the Software Heritage Archive: <https://archive.softwareheritage.org/swh:1:dir:a7151096d91352b439b092ef116d04f38e52e556;origin=https://github.com/fg-inet/python-asyncio-taps;visit=swh:1:snp:4841e59b53b28bb385726e7d3a569bee0fea7fc4;anchor=swh:1:rev:63571fd7545da25142bc1a6371b8f13097cba38e>
