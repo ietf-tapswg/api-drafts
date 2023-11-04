@@ -688,7 +688,7 @@ can be resolved to a server reflexive address for a Preconnection used to
 make a peer-to-peer `Rendezvous`.
 
 If more than one Remote Endpoint is specified on the Preconnection,
-the transport system SHOULD assume that all the Remote Endpoints on the
+the Transport Services system SHOULD assume that all the Remote Endpoints on the
 Preconnection represent equivalent services, to the extent that the
 the Transport Services system can choose any of them serving the application.
 For example, a Remote Endpoint might represent various network
