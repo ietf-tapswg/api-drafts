@@ -681,7 +681,7 @@ At least one Local Endpoint and one Remote Endpoint MUST be specified if a
 peer-to-peer `Rendezvous` is to occur based on the Preconnection.
 
 If Local Endpoints are specified on a Preconnection, then all the Local Endpoints
-on the Preconnection MUST eligible for communication from the host they are specified on.
+on the Preconnection MUST be eligible for communication from the host they are specified on.
 For example, their Endpoint Identifiers might correspond to different interfaces on a multi-homed
 host, or their Endpoint Identifiers might correspond to local interfaces and a STUN server that
 can be resolved to a server reflexive address for a Preconnection used to
