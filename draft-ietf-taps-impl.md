@@ -177,9 +177,9 @@ Whenever an implementation has multiple options for connection establishment, it
 
 ~~~~~~~~~~
 Aggregate [Endpoint Identifier: www.example.com:80] [Interface: Any]   [Protocol: TCP]
-|-> [Endpoint Identifier: 192.0.2.1:80]       [Interface: Wi-Fi] [Protocol: TCP]
-|-> [Endpoint Identifier: 192.0.2.1:80]       [Interface: LTE]   [Protocol: TCP]
-|-> [Endpoint Identifier: 2001:db8::1.80]     [Interface: LTE]   [Protocol: TCP]
+|-> [Endpoint Identifier: 2001:db8:23::1#80]        [Interface: Wi-Fi] [Protocol: TCP]
+|-> [Endpoint Identifier: 192.0.2.1#80]             [Interface: LTE]   [Protocol: TCP]
+|-> [Endpoint Identifier: 2001:db8:42::1#80]        [Interface: LTE]   [Protocol: TCP]
 ~~~~~~~~~~
 
 Any one of these sub-entries on the aggregate connection attempt would satisfy the original application intent. The concern of this section is the algorithm defining which of these options to try, when, and in what order.
@@ -208,9 +208,9 @@ The example aggregate connection attempt above can be drawn as a tree by groupin
 | www.example.com:80/Wi-Fi |       |  www.example.com:80/LTE  |
 +==========================+       +==========================+
              ||                      //                    \\
-  +====================+  +====================+  +======================+
-  | 192.0.2.1:80/Wi-Fi |  |  192.0.2.1:80/LTE  |  |  2001:db8::1.80/LTE  |
-  +====================+  +====================+  +======================+
++=========================+  +====================+  +=======================+
+| 2001:db8:23::1#80/Wi-Fi |  |  192.0.2.1#80/LTE  |  | 2001:db8:42::1#80/LTE |
++=========================+  +====================+  +=======================+
 ~~~~~~~~~~
 
 The rest of this section will use a notation scheme to represent this tree. The root node (or parent node) of the tree will be represented by a single integer, such as "1". ("1" is used assuming that this is the first connection made by the system; future connections created by the application would allocate numbers in an increasing manner.) Each child of that node will have an integer that identifies it, from 1 to the number of children. That child node will be uniquely identified by concatenating its integer to its parent's identifier with a dot in between, such as "1.1" and "1.2". Each node will be summarized by a tuple of three elements: endpoint, path (labeled here by interface), and protocol. In Protocol Stacks, the layers are separated by '/' and ordered with the protocol closest to the application first. The above example can now be written more succinctly as:
@@ -218,10 +218,10 @@ The rest of this section will use a notation scheme to represent this tree. The 
 ~~~~~~~~~~
 1 [www.example.com:80, any path, TCP]
   1.1 [www.example.com:80, Wi-Fi, TCP]
-    1.1.1 [192.0.2.1:80, Wi-Fi, TCP]
+    1.1.1 [2001:db8:23::1#80, Wi-Fi, TCP]
   1.2 [www.example.com:80, LTE, TCP]
-    1.2.1 [192.0.2.1:80, LTE, TCP]
-    1.2.2 [2001:db8::1.80, LTE, TCP]
+    1.2.1 [192.0.2.1#80, LTE, TCP]
+    1.2.2 [2001:db8.42::1#80, LTE, TCP]
 ~~~~~~~~~~
 
 When an implementation is asked to establish a single connection, only one of the leaf nodes in the candidate set is needed to transfer data. Thus, once a single leaf node becomes ready to use, then the connection establishment tree is considered ready. One way to implement this is by having every leaf node update the state of its parent node when it becomes ready, until the root node of the tree is ready, which then notifies the application that the Connection as a whole is ready to use.
@@ -229,14 +229,14 @@ When an implementation is asked to establish a single connection, only one of th
 A connection establishment tree may consist of only a single node, such as a connection attempt to an IP address over a single interface with a single protocol.
 
 ~~~~~~~~~~
-1 [192.0.2.1:80, Wi-Fi, TCP]
+1 [2001:db8:23::1#80, Wi-Fi, TCP]
 ~~~~~~~~~~
 
 A root node may also only have one child (or leaf) node, such as a when a hostname resolves to only a single IP address.
 
 ~~~~~~~~~~
 1 [www.example.com:80, Wi-Fi, TCP]
-  1.1 [192.0.2.1:80, Wi-Fi, TCP]
+  1.1 [2001:db8:23::1#80, Wi-Fi, TCP]
 ~~~~~~~~~~
 
 ### Branch Types
@@ -251,10 +251,10 @@ DNS hostname-to-address resolution is the most common method of endpoint derivat
 
 ~~~~~~~~~~
 1 [www.example.com:80, Wi-Fi, TCP]
-  1.1 [2001:db8::1.80, Wi-Fi, TCP]
-  1.2 [192.0.2.1:80, Wi-Fi, TCP]
-  1.3 [2001:db8::2.80, Wi-Fi, TCP]
-  1.4 [2001:db8::3.80, Wi-Fi, TCP]
+  1.1 [2001:db8::1#80, Wi-Fi, TCP]
+  1.2 [192.0.2.1#80, Wi-Fi, TCP]
+  1.3 [2001:db8::2#80, Wi-Fi, TCP]
+  1.4 [2001:db8::3#80, Wi-Fi, TCP]
 ~~~~~~~~~~
 
 DNS-Based Service Discovery {{?RFC6763}} can also provide an endpoint derivation step. When trying to connect to a named service, the client may discover one or more hostname and port pairs on the local network using multicast DNS {{?RFC6762}}. These hostnames should each be treated as a branch that can be attempted independently from other hostnames. Each of these hostnames might resolve to one or more addresses, which would create multiple layers of branching.
@@ -262,7 +262,7 @@ DNS-Based Service Discovery {{?RFC6763}} can also provide an endpoint derivation
 ~~~~~~~~~~
 1 [term-printer._ipp._tcp.meeting.example.com, Wi-Fi, TCP]
   1.1 [term-printer.meeting.example.com:631, Wi-Fi, TCP]
-    1.1.1 [31.133.160.18.631, Wi-Fi, TCP]
+    1.1.1 [31.133.160.18#631, Wi-Fi, TCP]
 ~~~~~~~~~~
 
 Applications can influence which derived Endpoints are allowed and preferred via Selection Properties set on the Preconnection. For example, setting a preference for `useTemporaryLocalAddress` would prefer the use of IPv6 over IPv4, and requiring `useTemporaryLocalAddress` would eliminate IPv4 options, since IPv4 does not support temporary addresses.
@@ -272,9 +272,9 @@ Applications can influence which derived Endpoints are allowed and preferred via
 If a client has multiple network paths available to it, e.g., a mobile client with interfaces for both Wi-Fi and Cellular connectivity, it can attempt a connection over any of the paths. This represents a branch point in the connection establishment. Similar to a derived endpoint, the paths should be ranked based on preference, system policy, and performance. Attempts should be started on one path (e.g., a specific interface), and then successively on other paths (or interfaces) after delays based on the expected path round-trip-time or other available metrics.
 
 ~~~~~~~~~~
-1 [192.0.2.1:80, any path, TCP]
-  1.1 [192.0.2.1:80, Wi-Fi, TCP]
-  1.2 [192.0.2.1:80, LTE, TCP]
+1 [192.0.2.1#80, any path, TCP]
+  1.1 [192.0.2.1#80, Wi-Fi, TCP]
+  1.2 [192.0.2.1#80, LTE, TCP]
 ~~~~~~~~~~
 
 The same approach applies to any situation in which the client is aware of multiple links or views of the network. A single interface may be shared by
@@ -290,10 +290,10 @@ This approach is commonly used for connections with optional proxy server config
 
 ~~~~~~~~~~
 1 [www.example.com:80, any path, HTTP/TCP]
-  1.1 [192.0.2.8:80, any path, HTTP/HTTP Proxy/TCP]
-  1.2 [192.0.2.7:10234, any path, HTTP/SOCKS/TCP]
+  1.1 [192.0.2.8#80, any path, HTTP/HTTP Proxy/TCP]
+  1.2 [192.0.2.7#10234, any path, HTTP/SOCKS/TCP]
   1.3 [www.example.com:80, any path, HTTP/TCP]
-    1.3.1 [192.0.2.1:80, any path, HTTP/TCP]
+    1.3.1 [192.0.2.1#80, any path, HTTP/TCP]
 ~~~~~~~~~~
 
 This approach also allows a client to attempt different sets of application and transport protocols that, when available, could provide preferable features. For example, the protocol options could involve QUIC {{?RFC9000}} over UDP on one branch, and HTTP/2 {{!RFC7540}} over TLS over TCP on the other:
@@ -301,9 +301,9 @@ This approach also allows a client to attempt different sets of application and 
 ~~~~~~~~~~
 1 [www.example.com:443, any path, HTTP]
   1.1 [www.example.com:443, any path, HTTP3/QUIC/UDP]
-    1.1.1 [192.0.2.1:443, any path, HTTP3/QUIC/UDP]
+    1.1.1 [192.0.2.1#443, any path, HTTP3/QUIC/UDP]
   1.2 [www.example.com:443, any path, HTTP2/TLS/TCP]
-    1.2.1 [192.0.2.1:443, any path, HTTP2/TLS/TCP]
+    1.2.1 [192.0.2.1#443, any path, HTTP2/TLS/TCP]
 ~~~~~~~~~~
 
 Another example is racing SCTP with TCP:
@@ -311,9 +311,9 @@ Another example is racing SCTP with TCP:
 ~~~~~~~~~~
 1 [www.example.com:80, any path, reliable-inorder-stream]
   1.1 [www.example.com:80, any path, SCTP]
-    1.1.1 [192.0.2.1:80, any path, SCTP]
+    1.1.1 [192.0.2.1#80, any path, SCTP]
   1.2 [www.example.com:80, any path, TCP]
-    1.2.1 [192.0.2.1:80, any path, TCP]
+    1.2.1 [192.0.2.1#80, any path, TCP]
 ~~~~~~~~~~
 
 Implementations that support racing protocols and protocol options should maintain a history of which protocols and protocol options were successfully established, on a per-network and per-endpoint basis (see {{performance-caches}}). This information can influence future racing decisions to prioritize or prune branches.
@@ -338,11 +338,11 @@ For example, if the application has indicated both a preference for WiFi over LT
 
 ~~~~~~~~~~
 1. [www.example.com:80, any path, reliable-inorder-stream]
-1.1 [192.0.2.1:80, Wi-Fi, reliable-inorder-stream]
-1.1.1 [192.0.2.1:80, Wi-Fi, TCP]
-1.2 [192.0.3.1:80, LTE, reliable-inorder-stream]
-1.2.1 [192.0.3.1:80, LTE, SCTP]
-1.2.2 [192.0.3.1:80, LTE, TCP]
+1.1 [192.0.2.1#80, Wi-Fi, reliable-inorder-stream]
+1.1.1 [192.0.2.1#80, Wi-Fi, TCP]
+1.2 [192.0.3.1#80, LTE, reliable-inorder-stream]
+1.2.1 [192.0.3.1#80, LTE, SCTP]
+1.2.2 [192.0.3.1#80, LTE, TCP]
 ~~~~~~~~~~
 
 ### Sorting Branches {#branch-sorting}
@@ -451,7 +451,7 @@ Successes and failures of a given attempt should be reported up to parent nodes 
 ~~~~~~~~~~
 1 [www.example.com:80, Any, TCP]
   1.1 [www.example.com:80, Wi-Fi, TCP]
-    1.1.1 [192.0.2.1:80, Wi-Fi, TCP]
+    1.1.1 [192.0.2.1#80, Wi-Fi, TCP]
   1.2 [www.example.com:80, LTE, TCP]
 ...
 ~~~~~~~~~~
