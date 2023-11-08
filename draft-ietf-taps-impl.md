@@ -176,10 +176,10 @@ The most simple example of this process might involve identifying the single IP 
 Whenever an implementation has multiple options for connection establishment, it can view the set of all individual connection establishment options as a single, aggregate connection establishment. The aggregate set conceptually includes every valid combination of endpoints, paths, and protocols. As an example, consider an implementation that initiates a TCP connection to a hostname + port Endpoint Identifier, and has two valid interfaces available (Wi-Fi and LTE). The hostname resolves to a single IPv4 address on the Wi-Fi network, and resolves to the same IPv4 address on the LTE network, as well as a single IPv6 address. The aggregate set of connection establishment options can be viewed as follows:
 
 ~~~~~~~~~~
-Aggregate [Endpoint Identifier: www.example.com:80] [Interface: Any]   [Protocol: TCP]
-|-> [Endpoint Identifier: 2001:db8:23::1#80]        [Interface: Wi-Fi] [Protocol: TCP]
-|-> [Endpoint Identifier: 192.0.2.1#80]             [Interface: LTE]   [Protocol: TCP]
-|-> [Endpoint Identifier: 2001:db8:42::1#80]        [Interface: LTE]   [Protocol: TCP]
+Aggregate [Endpoint Identifier: www.example.com:443] [Interface: Any]   [Protocol: TCP]
+|-> [Endpoint Identifier: [2001:db8:23::1]:443]        [Interface: Wi-Fi] [Protocol: TCP]
+|-> [Endpoint Identifier: 192.0.2.1:443]             [Interface: LTE]   [Protocol: TCP]
+|-> [Endpoint Identifier: [2001:db8:42::1]:443]        [Interface: LTE]   [Protocol: TCP]
 ~~~~~~~~~~
 
 Any one of these sub-entries on the aggregate connection attempt would satisfy the original application intent. The concern of this section is the algorithm defining which of these options to try, when, and in what order.
