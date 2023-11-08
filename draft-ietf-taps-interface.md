@@ -680,17 +680,17 @@ the Preconnection is used to `Listen` for incoming Connections.
 At least one Local Endpoint and one Remote Endpoint MUST be specified if a
 peer-to-peer `Rendezvous` is to occur based on the Preconnection.
 
-If Local Endpoints are specified on a Preconnection, then all the Local Endpoints
-on the Preconnection MUST be eligible for communication from the host they are specified on.
-For example, their Endpoint Identifiers might correspond to different interfaces on a multi-homed
+If more than one Local Endpoint is specified on a Preconnection, then the application
+ is indicating that all of the Local Endpoints are eligible to be used for Connections. For
+ example, their Endpoint Identifiers might correspond to different interfaces on a multi-homed
 host, or their Endpoint Identifiers might correspond to local interfaces and a STUN server that
 can be resolved to a server reflexive address for a Preconnection used to
 make a peer-to-peer `Rendezvous`.
 
-If more than one Remote Endpoint is specified on the Preconnection,
-the Transport Services system SHOULD assume that all the Remote Endpoints on the
-Preconnection represent equivalent services, to the extent that the
-the Transport Services system can choose any of them serving the application.
+If more than one Remote Endpoint is specified on the Preconnection, the
+application is indicating that it expects all of the Remote Endpoints to
+offer an equivalent service, and that the Transport Services system can choose
+any of them for a Connection.
 For example, a Remote Endpoint might represent various network
 interfaces of a host, or a server reflexive address that can be used to
 reach a host, or a set of hosts that provide equivalent local balanced
