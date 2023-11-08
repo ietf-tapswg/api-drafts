@@ -1599,7 +1599,7 @@ SecurityParameters.Set(client-certificate, myCertificateBundle[])
 ~~~
 
 - One or more certificate chains to use as pinned server
-  certificates, such that connection will fail if the presented server
+  certificates, such that connecting will fail if the presented server
   certificate does not match one of the  supplied pinned certificates.
   The form and format of the certificate chain is implementation-specific.
 
@@ -1617,8 +1617,8 @@ SecurityParameters.Set(pinned-server-certificate, yourCertificateChain[])
 SecurityParameters.Set(alpn, "h2")
 ~~~
 
-- Supported algorithms, ciphersuites, groups: Used to restrict what parameters
-  are used by underlying transport security protocols. When not specified, '
+- Supported groups, ciphersuites, algorithms: Used to restrict what parameters
+  are used by underlying transport security protocols. When not specified,
   these algorithms should use known and safe defaults for the system.
 
 ~~~
