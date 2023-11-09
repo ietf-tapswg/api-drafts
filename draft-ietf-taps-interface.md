@@ -1554,24 +1554,24 @@ Security parameters and callbacks are partitioned based on their place in the li
 of Connection establishment. Similar to Transport Properties, both parameters and callbacks
 are inherited during cloning (see {{groups}}).
 
-This document specifies an abstract API, which may appear to conflict with the need
+This document specifies an abstract API, which could appear to conflict with the need
 for security parameters to be unambiguous, intended to reduce the chances
 of implementation errors. The Transport Services System SHOULD provide reasonable,
 secure defaults for each enumerated security parameter, such that users of the system
 only need to specify parameters required to establish a secure connection
-('server-certificate', 'client-certificate'). Specifying specific security parameters
+(e.g., 'server-certificate', 'client-certificate'). Specifying specific security parameters
 from enumerated values (e.g., specific ciphersuites) might constrain the Transport
 Protocols that can be selected during connection establishment.
 
 Except as noted below, as with the rest of the Transport Services API, exact names of parameters and/or
 values of enumerations (e.g., ciphersuites) used in the security parameters are system
-and implementation specific, and should be chosen to follow the principle of least
+and implementation specific, and ought to be chosen to follow the principle of least
 surprise for users of the platform / language environment in question.
 
 ### Specifying Security Parameters on a Preconnection
 
 Common security parameters such as TLS ciphersuites are known to implementations.
-Applications should use common safe defaults for these values whenever possible.
+Applications SHOULD use common safe defaults for these values whenever possible.
 However, as discussed in {{?RFC8922}}, many transport security protocols require specific
 security parameters and constraints from the client at the time of configuration and
 actively during a handshake.
@@ -1591,7 +1591,7 @@ Security configuration parameters and sample usage follow:
   require differently formatted bundles. The form and format of the
   certificate bundle is implementation-specific. Note that if the private
   keys associated with a bundle are not available, e.g., since they are stored in hardware
-  security modules (HSMs), handshake callbacks must be used. See below for details.
+  security modules (HSMs), handshake callbacks are necessary. See below for details.
 
 ~~~
 SecurityParameters.Set(server-certificate, myCertificateBundle[])
@@ -1637,7 +1637,7 @@ SecurityParameters.Set(cached-session-lifetime-seconds, 3600)
 ~~~
 
 - Pre-Shared Key import: Used to install pre-shared keying material established
-out-of-band. Each pre-shared keying material is associated with some identity
+out-of-band. Each instance of pre-shared keying material is associated with some identity
 that typically identifies its use or has some protocol-specific meaning to the
 Remote Endpoint. Note that use of a pre-shared key will tend to select a single
 security protocol, and therefore directly select a single underlying protocol stack.
