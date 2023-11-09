@@ -867,22 +867,15 @@ Note that this API has multiple ways to constrain and prioritize endpoint candid
 
 While specifying an Interface on an Endpoint restricts the candidates available for Connection establishment in the Pre-Establishment Phase, the Selection Properties prioritize and constrain the Connection establishment.
 
-### Endpoint Aliases
+### Protocol-Specific Endpoints
 
 An Endpoint can have an alternative definition when using different protocols.
 For example, a server that supports both TLS/TCP and QUIC could be accessible
 on two different port numbers depending on which protocol is used.
 
-To support this, Endpoint objects can specify "aliases". An Endpoint can have
-multiple aliases set.
-
-~~~
-RemoteSpecifier.AddAlias(AlternateRemoteSpecifier)
-~~~
-
-To scope an alias to apply conditionally to a specific transport
+To scope an Endpoint to apply conditionally to a specific transport
 protocol (such as defining an alternate port to use when QUIC
-is selected, as opposed to TCP), an alias Endpoint can be
+is selected, as opposed to TCP), an Endpoint can be
 associated with a protocol identifier. Protocol identifiers are
 objects or enumeration values provided by the Transport
 Services API, which will vary based on which protocols are
@@ -893,7 +886,8 @@ AlternateRemoteSpecifier.WithProtocol(QUIC)
 ~~~
 
 The following example shows a case where `example.com` has a server
-running on port 443, with an alternate port of 8443 for QUIC.
+running on port 443, with an alternate port of 8443 for QUIC. Both
+endpoints can be passed when creating a Preconnection.
 
 ~~~
 RemoteSpecifier := NewRemoteEndpoint()
@@ -905,7 +899,7 @@ QUICRemoteSpecifier.WithHostName("example.com")
 QUICRemoteSpecifier.WithPort(8443)
 QUICRemoteSpecifier.WithProtocol(QUIC)
 
-RemoteSpecifier.AddAlias(QUICRemoteSpecifier)
+RemoteSpecifiers := [ RemoteSpecifier, QUICRemoteSpecifier ]
 ~~~
 
 ### Endpoint Examples
