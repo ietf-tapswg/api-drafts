@@ -3576,7 +3576,9 @@ it might reveal usage characteristics and habits of the user of an application.
 Of course any communication over a network reveals usage characteristics, because all
 packets, as well as their timing and size, are part of the network-visible wire image {{?RFC8546}}. However,
 the selection of a protocol and its configuration also impacts which information is visible, potentially in
-clear text, and which other entities can access it. In most cases, information provided for protocol and path selection
+clear text, and which other entities can access it. How Transport Services systems ought to choose protocols depending on the security properties required is out of scope of this specification, as it is limited to transport protocols. The choice of a security protocol can be informed by the survey provided in {{?RFC8922}}.
+
+In most cases, information provided for protocol and path selection
 does not directly translate to information that can be observed by network devices on the path.
 However, there might be specific configuration
 information that is intended for path exposure, e.g., a DiffServ codepoint setting, that is either provided
