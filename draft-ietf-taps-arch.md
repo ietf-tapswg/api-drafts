@@ -327,7 +327,7 @@ The following example shows Equivalent Protocol Stacks:
 - If the application does not require reliable transmission of data, then a Protocol Stack that adds reliability could be regarded as an Equivalent Protocol Stack as long as providing this would not conflict with any other application-requested properties.
 
 A Transport Services Implementation can race different security
-protocols, e.g., if the application explicitly specifies that it considers them equivalent.
+protocols, e.g., if the System Policy is explicitly configured to consider them equivalent.
 A Transport Services implementation SHOULD only race Protocol Stacks where the transport security protocols within the stacks are identical.
 To ensure that security protocols are not incorrectly swapped, a Transport Services Implementation MUST only select Protocol Stacks that meet application requirements ({{?RFC8922}}).
 A Transport Services Implementation MUST NOT automatically fall back from secure protocols to insecure protocols, or to weaker versions of secure protocols.
