@@ -776,8 +776,17 @@ Connection Properties. A Connection can also generate error events in the form o
 
 The set of Connection Properties that are supported for setting and getting on a Connection are described in {{I-D.ietf-taps-interface}}. For
 any properties that are generic, and thus could apply to all protocols being used by a Connection, the Transport Services implementation should store the properties
-in storage common to all protocols, and notify all protocol instances in the Protocol Stack whenever the properties have been modified by the application. {{!RFC8303}} and {{!RFC8304}} offer guidance on how to do this for TCP, MPTCP, SCTP, UDP and UDP-Lite; see {{specific-protocol-considerations}} for a description of a back-tracking method to find the relevant protocol primitives using these documents.
+in storage common to all protocols, and notify the Protocol Stack as a whole whenever the properties have been modified by the application. {{!RFC8303}} and {{!RFC8304}} offer guidance on how to do this for TCP, MPTCP, SCTP, UDP and UDP-Lite; see {{specific-protocol-considerations}} for a description of a back-tracking method to find the relevant protocol primitives using these documents.
 For Protocol-specific Properties, such as the User Timeout that applies to TCP, the Transport Services implementation only needs to update the relevant protocol instance.
+
+Some Connection Properties might apply to multiple protocols within a Protocol Stack. Depending on the specific property,
+it might be appropriate to apply the property across multiple protocols simultaneously, or else only apply it to one protocol.
+In general, the Transport Services implementation should allow the protocol closest to the application to interpret
+Connection Properties, and potentially modify the set of Connection Properties passed down to the next protocol in the
+stack. For example, if the application has requested to use keepalives with the `keepAlive` property, and the Protocol
+Stack contains both HTTP/2 and TCP, the HTTP/2 protocol can choose to enable its own keepalives to satisfy the application
+request, and disable TCP-level keepalives. For cases where the application needs to have fine-grained per-protocol control,
+the Transport Services implementation can expose Protocol-specific Properties.
 
 If an error is encountered in setting a property (for example, if the application tries to set a TCP-specific property on a Connection that is
 not using TCP), the action must fail gracefully. The application must be informed of the error, but the Connection itself must not be terminated.
