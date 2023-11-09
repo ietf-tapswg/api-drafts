@@ -1959,8 +1959,8 @@ Attempts to clone a Connection can result in a `CloneError`:
 Connection -> CloneError<reason?>
 ~~~
 
-A CloneError can also occur later, after `Clone` was successfully called. In this case,
-it informs the application that the Connection that sends the CloneError is no longer a
+A `CloneError` can also occur later, after `Clone` was successfully called. In this case,
+it informs the application that the Connection that sends the `CloneError` is no longer a
 part of any Connection Group. For example, this can occur when the Transport Services
 system is unable to implement entanglement (a Connection Property was changed on a different
 Connection in the Connection Group, but this change could not be successfully applied
