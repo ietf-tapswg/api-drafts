@@ -2401,7 +2401,7 @@ Type:
 : Integer (non-negative)
 
 This property represents the maximum Message size that an application can receive.
-It is specified as the number of bytes. A value of 0 indicate that receiving is not possible.
+It is specified as the number of bytes. A value of 0 indicates that receiving is not possible.
 
 ## TCP-specific Properties: User Timeout Option (UTO) {#tcp-uto}
 
