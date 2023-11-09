@@ -780,7 +780,7 @@ in storage common to all protocols, and notify the Protocol Stack as a whole whe
 For Protocol-specific Properties, such as the User Timeout that applies to TCP, the Transport Services implementation only needs to update the relevant protocol instance.
 
 Some Connection Properties might apply to multiple protocols within a Protocol Stack. Depending on the specific property,
-it might be appropriate to apply the property across these multiple protocols simultaneously, or else only apply to one.
+it might be appropriate to apply the property across multiple protocols simultaneously, or else only apply it to one protocol.
 In general, the Transport Services implementation should allow the protocol closest to the application to interpret
 Connection Properties, and potentially modify the set of Connection Properties passed down to the next protocol in the
 stack. For example, if the application has requested to use keepalives with the `keepAlive` property, and the Protocol
