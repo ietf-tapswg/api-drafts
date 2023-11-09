@@ -309,11 +309,11 @@ This approach also allows a client to attempt different sets of application and 
 Another example is racing SCTP with TCP:
 
 ~~~~~~~~~~
-1 [www.example.com:443, any path, reliable-inorder-stream]
-  1.1 [www.example.com:443, any path, SCTP]
-    1.1.1 [192.0.2.1:443, any path, SCTP]
-  1.2 [www.example.com:443, any path, TCP]
-    1.2.1 [192.0.2.1:443, any path, TCP]
+1 [www.example.com:4740, any path, reliable-inorder-stream]
+  1.1 [www.example.com:4740, any path, SCTP]
+    1.1.1 [192.0.2.1:4740, any path, SCTP]
+  1.2 [www.example.com:4740, any path, TCP]
+    1.2.1 [192.0.2.1:4740, any path, TCP]
 ~~~~~~~~~~
 
 Implementations that support racing protocols and protocol options should maintain a history of which protocols and protocol options were successfully established, on a per-network and per-endpoint basis (see {{performance-caches}}). This information can influence future racing decisions to prioritize or prune branches.
