@@ -871,7 +871,8 @@ Each protocol that is supported by a Transport Services implementation should ha
 API mappings for a protocol are important for Connections in which a given protocol is the "top" of the Protocol Stack.
 For example, the mapping of the `Send` function for TCP applies to Connections in which the application directly sends over TCP.
 
-Each protocol has a notion of Connectedness. Possible values for Connectedness are:
+Each protocol has a notion of Connectedness. Possible definitions of
+Connectedness for various types of protocols are:
 
 - Connectionless. Connectionless protocols do not establish explicit state between endpoints, and do not perform a handshake during Connection establishment.
 - Connected. Connected (also called "connection-oriented") protocols establish state between endpoints, and perform a handshake during connection establishment. The handshake may be 0-RTT to send data or resume a session, but bidirectional traffic is required to confirm connectedness.
