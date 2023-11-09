@@ -214,8 +214,8 @@ implementing platform.
 We also make use of the following basic types:
 
 - Boolean: Instances take the value `true` or `false`.
-- Integer: Instances take positive or negative integer values, or the value 0.
-- Numeric: Instances take positive or negative real number values, or the value 0.
+- Integer: Instances take integer values.
+- Numeric: Instances take real number values.
 - String: Instances are represented in UTF-8.
 - IP Address: An IPv4 or IPv6 address {{?RFC5952}}.
 - Enumeration: A family of types in which each instance takes one of a fixed,
