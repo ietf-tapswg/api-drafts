@@ -1555,8 +1555,7 @@ of Connection establishment. Similar to Transport Properties, both parameters an
 are inherited during cloning (see {{groups}}).
 
 This document specifies an abstract API, which could appear to conflict with the need
-for security parameters to be unambiguous, intended to reduce the chances
-of implementation errors. The Transport Services System SHOULD provide reasonable,
+for security parameters to be unambiguous. The Transport Services System SHOULD provide reasonable,
 secure defaults for each enumerated security parameter, such that users of the system
 only need to specify parameters required to establish a secure connection
 (e.g., 'server-certificate', 'client-certificate'). Specifying specific security parameters
