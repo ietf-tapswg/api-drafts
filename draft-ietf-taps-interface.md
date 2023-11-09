@@ -757,6 +757,9 @@ RemoteSpecifier.WithIPAddress(2001:db8:4920:e29d:a420:7461:7073:a)
 LocalSpecifier.WithInterface("en0")
 ~~~
 
+Systems usually offer means to obtain a list of available local interfaces; when available, these allow the application to obtain the interface name string to supply to this function.
+The details of the system means to enumerate local interfaces are platform-specific.
+
 Note that an IPv6 address specified with a scope zone ID (e.g. `fe80::2001:db8%en0`)
 is equivalent to `WithIPAddress` with an unscoped address and `WithInterface ` together.
 
