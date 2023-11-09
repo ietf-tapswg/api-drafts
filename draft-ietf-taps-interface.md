@@ -124,7 +124,7 @@ applications. The specified API follows the Transport Services architecture
 by providing asynchronous, atomic transmission of messages. It is intended to replace the
 BSD sockets API as the common interface to the
 transport layer, in an environment where endpoints could select from
-multiple interfaces and potential transport protocols.
+multiple network paths and potential transport protocols.
 
 --- middle
 
@@ -135,7 +135,7 @@ the high-level Transport Services architecture defined in
 {{!I-D.ietf-taps-arch}}. A Transport Services system supports
 asynchronous, atomic transmission of messages over transport protocols and
 network paths dynamically selected at runtime, in environments where an endpoint
-selects from multiple interfaces and potential transport protocols.
+selects from multiple network paths and potential transport protocols.
 
 Applications that adopt this API will benefit from a wide set of
 transport features that can evolve over time. This protocol-independent API ensures that the system
