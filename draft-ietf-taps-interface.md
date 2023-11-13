@@ -1848,7 +1848,7 @@ while also simultaneously trying to establish a Connection from the Local
 Endpoint candidates to the Remote Endpoint candidates.
 
 If there are multiple Local Endpoints or Remote Endpoints configured, then
-initiating a `Rendezvous` action will cause the Transport Service
+initiating a `Rendezvous` action will cause the Transport Services
 Implementation to systematically probe the reachability
 of those endpoint candidates following an approach such as that used in
 Interactive Connectivity Establishment (ICE) {{?RFC8445}}.
