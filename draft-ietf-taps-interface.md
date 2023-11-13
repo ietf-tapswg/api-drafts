@@ -1414,7 +1414,7 @@ Type:
 : Preference
 
 Default:
-: Avoid for Listeners and Rendezvous Connections. Prefer for other Connections.
+: Avoid for Listeners. Prefer for other Connections.
 
 This property allows the application to express a preference for the use of
 temporary local addresses, sometimes called "privacy" addresses {{?RFC8981}}.
@@ -1426,6 +1426,10 @@ cannot use IPv4, because temporary addresses do not exist in IPv4. Second,
 temporary local addresses might involve trading off privacy for performance.
 For instance, temporary addresses (e.g., {{?RFC8981}}) can interfere with resumption mechanisms
 that some protocols rely on to reduce initial latency.
+
+The default is Prefer for Rendezvous since the expectation is that peer-to-peer
+connections are short-lived. Listeners, that are expected to be long-lived public
+services default to avoiding temporary local addresses.
 
 ### Multipath Transport {#multipath-mode}
 
