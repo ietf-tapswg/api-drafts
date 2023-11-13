@@ -482,8 +482,9 @@ ResolvedLocal, ResolvedRemote = Preconnection.Resolve()
 // in a SIP message)
 ...
 
-// Application-specific code goes here to receive the list of
-// RemoteCandidates from peer via the signalling channel
+// Application-specific code goes here to receive RemoteCandidates
+// (type []RemoteEndpoint, a list of RemoteEndpoint objects) from
+// the peer via the signalling channel
 ...
 
 // Add remote candidates and initiate the rendezvous:
