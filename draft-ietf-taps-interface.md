@@ -144,7 +144,7 @@ requirements and network conditions, without requiring changes to the
 applications.  This flexibility enables faster deployment of new features and
 protocols, and can support applications by offering racing and fallback
 mechanisms, which otherwise need to be separately implemented in each application.
-Transport Services implementations are free to take any desired form as long
+Transport Services Implementations are free to take any desired form as long
 as the API specification in this document is honored; a nonprescriptive guide to
 implementing a Transport Services system is available {{?I-D.ietf-taps-impl}}.
 
@@ -571,10 +571,10 @@ the respective protocol has been selected.
 
 Transport Properties are referred to by property names, represented as case-insensitive strings. These names serve two purposes:
 
-- Allowing different components of a Transport Services implementation to pass Transport
+- Allowing different components of a Transport Services Implementation to pass Transport
   Properties, e.g., between a language frontend and a policy manager,
   or as a representation of properties retrieved from a file or other storage.
-- Making the code of different Transport Services implementations look similar.
+- Making the code of different Transport Services Implementations look similar.
   While individual programming languages might preclude strict adherence to the
   aforementioned naming convention (for instance, by prohibiting the use of hyphens
   in symbols), users interacting with multiple implementations will still benefit
@@ -3558,7 +3558,7 @@ Security considerations for these protocols are discussed in the respective spec
 
 The described API is used to exchange information between an application and the Transport Services system. While
 it is not necessarily expected that both systems are implemented by the same authority, it is expected
-that the Transport Services implementation is either provided as a library that is selected by the application
+that the Transport Services Implementation is either provided as a library that is selected by the application
 from a trusted party, or that it is part of the operating system that the application also relies on for
 other tasks.
 
@@ -3593,7 +3593,7 @@ of truncation attacks if applications do not distinguish between partial Message
 
 The Transport Services API explicitly does not require the application to resolve names, though there is
 a tradeoff between early and late binding of addresses to names. Early binding
-allows the Transport Services implementation to reduce Connection setup latency, at the cost
+allows the Transport Services Implementation to reduce Connection setup latency, at the cost
 of potentially limited scope for alternate path discovery during Connection
 establishment, as well as potential additional information leakage about
 application interest when used with a resolution method (such as DNS without

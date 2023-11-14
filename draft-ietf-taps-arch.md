@@ -136,7 +136,7 @@ This subsection provides a glossary of key terms related to the Transport Servic
 - Connection: Shared state of two or more Endpoints that persists across Messages that are transmitted and received between these Endpoints {{?RFC8303}}. When this document (and other Transport Services documents) use the capitalized "Connection" term, it refers to a Connection object that is being offered by the Transport Services system, as opposed to more generic uses of the word "connection".
 - Connection Context: A set of stored properties across Connections, such as cached protocol state, cached path state, and heuristics, which can include one or more Connection Groups.
 - Connection Group: A set of Connections that share properties and caches.
-- Connection Property: A Transport Property that controls per-Connection behavior of a Transport Services implementation.
+- Connection Property: A Transport Property that controls per-Connection behavior of a Transport Services Implementation.
 - Endpoint: An entity that communicates with one or more other endpoints using a transport protocol.
 - Endpoint Identifier: An identifier that specifies one side of a Connection (local or remote), such as a hostname or URL.
 - Equivalent Protocol Stacks: Protocol Stacks that can be safely swapped or raced in parallel during establishment of a Connection.
@@ -328,7 +328,7 @@ The following example shows Equivalent Protocol Stacks:
 
 A Transport Services Implementation can race different security
 protocols, e.g., if the System Policy is explicitly configured to consider them equivalent.
-A Transport Services implementation SHOULD only race Protocol Stacks where the transport security protocols within the stacks are identical.
+A Transport Services Implementation SHOULD only race Protocol Stacks where the transport security protocols within the stacks are identical.
 To ensure that security protocols are not incorrectly swapped, a Transport Services Implementation MUST only select Protocol Stacks that meet application requirements ({{?RFC8922}}).
 A Transport Services Implementation MUST NOT automatically fall back from secure protocols to insecure protocols, or to weaker versions of secure protocols.
 A Transport Services Implementation MAY allow applications to explicitly specify which versions of a protocol ought to be permitted, e.g., to allow a minimum version of TLS 1.2 in case TLS 1.3 is not available.
@@ -597,7 +597,7 @@ The Transport Services Implementation consists of all objects and protocol insta
 
 ### Candidate Gathering {#gathering}
 
-* Candidate Path Selection: Candidate Path Selection represents the act of choosing one or more paths that are available to use based on the Selection Properties and any available Local and Remote Endpoint Identifiers provided by the application, as well as the policies and heuristics of a Transport Services implementation.
+* Candidate Path Selection: Candidate Path Selection represents the act of choosing one or more paths that are available to use based on the Selection Properties and any available Local and Remote Endpoint Identifiers provided by the application, as well as the policies and heuristics of a Transport Services Implementation.
 
 * Candidate Protocol Selection: Candidate Protocol Selection represents the act of choosing one or more sets of Protocol Stacks that are available to use based on the Transport Properties provided by the application, and the heuristics or policies within the Transport Services Implementation.
 

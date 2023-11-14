@@ -123,7 +123,7 @@ Preconnection objects should be implemented as bundles of properties that an app
 
 Once a Preconnection has been used to create an outbound Connection or a Listener, the implementation should ensure that the copy of the properties held by the Connection or Listener cannot be mutated by the application making changes to the original Preconnection object. This may involve the implementation performing a deep-copy, copying the object with all the objects that it references.
 
-Once the Connection is established, the Transport Services implementation maps actions and events to the details of the chosen Protocol Stack. For example, the same Connection object may ultimately represent a single transport protocol instance (e.g., a TCP connection, a TLS session over TCP, a UDP flow with fully-specified Local and Remote Endpoint Identifiers, a DTLS session, a SCTP stream, a QUIC stream, or an HTTP/2 stream).
+Once the Connection is established, the Transport Services Implementation maps actions and events to the details of the chosen Protocol Stack. For example, the same Connection object may ultimately represent a single transport protocol instance (e.g., a TCP connection, a TLS session over TCP, a UDP flow with fully-specified Local and Remote Endpoint Identifiers, a DTLS session, a SCTP stream, a QUIC stream, or an HTTP/2 stream).
 The Connection Properties held by a Connection or Listener are independent of other Connections that are not part of the same Connection Group.
 
 Connection establishment is only a local operation for a connectionless protocols, which serves to simplify the local send/receive functions and to filter the traffic for the specified addresses and ports {{?RFC8085}} (for example using UDP or UDP-Lite transport without a connection handshake procedure).
@@ -533,7 +533,7 @@ The effect of the application sending a Message is determined by the top-level p
 
 The API allows various properties to be associated with each Message, which should be implemented as discussed below.
 
-- `msgLifetime`: this should be implemented by removing the Message from the queue of pending Messages after the Lifetime has expired. A queue of pending Messages within the Transport Services implementation that have yet to be handed to the Protocol Stack can always support this property, but once a Message has been sent into the send buffer of a protocol, only certain protocols may support removing it from their send buffer. For example, a Transport Services implementation cannot remove bytes from a TCP send buffer, while it can remove data from a SCTP send buffer using the partial reliability extension {{?RFC8303}}. When there is no standing queue of Messages within the system, and the Protocol Stack does not support the removal of a Message from the stack's send buffer, this property may be ignored.
+- `msgLifetime`: this should be implemented by removing the Message from the queue of pending Messages after the Lifetime has expired. A queue of pending Messages within the Transport Services Implementation that have yet to be handed to the Protocol Stack can always support this property, but once a Message has been sent into the send buffer of a protocol, only certain protocols may support removing it from their send buffer. For example, a Transport Services Implementation cannot remove bytes from a TCP send buffer, while it can remove data from a SCTP send buffer using the partial reliability extension {{?RFC8303}}. When there is no standing queue of Messages within the system, and the Protocol Stack does not support the removal of a Message from the stack's send buffer, this property may be ignored.
 
 - `msgPriority`: this represents the ability to prioritize a Message over other Messages. This can be implemented by the Transport Services system by re-ordering Messages that have yet to be handed to the Protocol Stack, or by giving relative priority hints to protocols that support priorities per Message. For example, an implementation of HTTP/2 could choose to send Messages of different priority on streams of different priority.
 
@@ -561,7 +561,7 @@ transport protocol session or DCCP connection).
 
 ### Send Completion
 
-The application should be notified (using a `Sent`, `Expired` or `SendError` event) whenever a Message or partial Message has been consumed by the Protocol Stack, or has failed to send. The time at which a Message is considered to have been consumed by the Protocol Stack may vary depending on the protocol. For example, for a basic datagram protocol like UDP, this may correspond to the time when the packet is sent into the interface driver. For a protocol that buffers data in queues, like TCP, this may correspond to when the data has entered the send buffer. The time at which a Message failed to send is when the Transport Services implementation (including the Protocol Stack) has experienced a failure related to sending; this can depend on protocol-specific timeouts.
+The application should be notified (using a `Sent`, `Expired` or `SendError` event) whenever a Message or partial Message has been consumed by the Protocol Stack, or has failed to send. The time at which a Message is considered to have been consumed by the Protocol Stack may vary depending on the protocol. For example, for a basic datagram protocol like UDP, this may correspond to the time when the packet is sent into the interface driver. For a protocol that buffers data in queues, like TCP, this may correspond to when the data has entered the send buffer. The time at which a Message failed to send is when the Transport Services Implementation (including the Protocol Stack) has experienced a failure related to sending; this can depend on protocol-specific timeouts.
 
 ### Batching Sends
 
@@ -571,7 +571,7 @@ the implementation can defer the processing of Messages until the batch is compl
 
 ## Receiving Messages
 
-Similar to sending, receiving a Message is determined by the top-level protocol in the established Protocol Stack. The main difference with receiving is that the size and boundaries of the Message are not known beforehand. The application can communicate in its `Receive` action the parameters for the Message, which can help the Transport Services implementation know how much data to deliver and when. For example, if the application only wants to receive a complete Message, the implementation should wait until an entire Message (datagram, stream, or frame) is read before delivering any Message content to the application. This requires the implementation to understand where Messages end, either via a supplied Message Framer or because the top-level protocol in the established Protocol Stack preserves message boundaries. The application can also control the flow of received data by specifying the minimum and maximum number of bytes of Message content it wants to receive at one time.
+Similar to sending, receiving a Message is determined by the top-level protocol in the established Protocol Stack. The main difference with receiving is that the size and boundaries of the Message are not known beforehand. The application can communicate in its `Receive` action the parameters for the Message, which can help the Transport Services Implementation know how much data to deliver and when. For example, if the application only wants to receive a complete Message, the implementation should wait until an entire Message (datagram, stream, or frame) is read before delivering any Message content to the application. This requires the implementation to understand where Messages end, either via a supplied Message Framer or because the top-level protocol in the established Protocol Stack preserves message boundaries. The application can also control the flow of received data by specifying the minimum and maximum number of bytes of Message content it wants to receive at one time.
 
 If a Connection finishes before a requested `Receive` action can be satisfied, the Transport Services system should deliver any partial Message content outstanding, or if none is available, an indication that there will be no more received Messages.
 
@@ -581,7 +581,7 @@ Several protocols allow sending higher-level protocol or application data during
 
 The application can express its preference for sending messagess as 0-RTT data by using the `zeroRttMsg` Selection Property on the Preconnection. Then, the application can provide the message to send as 0-RTT data via the `InitiateWithSend` action. In order to be sent as 0-RTT data, the message needs to be marked with the `safelyReplayable` send paramteter. In general, 0-RTT data may be replayed (for example, if a TCP SYN contains data, and the SYN is retransmitted, the data will be retransmitted as well but may be considered as a new connection instead of a retransmission). When racing connections, different leaf nodes have the opportunity to send the same data independently. If data is truly safely replayable, this is permissible.
 
-Once the application has provided its 0-RTT data, a Transport Services implementation should keep a copy of this data and provide it to each new leaf node that is started and for which a protocol instance supporting 0-RTT is being used. Note that the amount of data that can actually be sent as 0-RTT data varies by protocol, so any given Protocol Stack might only consume part of the saved data prior to becoming established. The implementation needs to keep track of how much data a particular Protocol Stack has consumed, and ensure that any pending 0-RTT-eligible data from the application is handled before subsequent Messages.
+Once the application has provided its 0-RTT data, a Transport Services Implementation should keep a copy of this data and provide it to each new leaf node that is started and for which a protocol instance supporting 0-RTT is being used. Note that the amount of data that can actually be sent as 0-RTT data varies by protocol, so any given Protocol Stack might only consume part of the saved data prior to becoming established. The implementation needs to keep track of how much data a particular Protocol Stack has consumed, and ensure that any pending 0-RTT-eligible data from the application is handled before subsequent Messages.
 
 It is also possible for Protocol Stacks within a particular leaf node to use a 0-RTT handshakes in a lower-level protocol without any safely replayable application data if a higher-level protocol in the stack has idempotent handshake data to send. For example, TCP Fast Open could use a Client Hello from TLS as its 0-RTT data, without any data being provided by the application.
 
@@ -612,7 +612,7 @@ Most Message Framers fall into one of two categories:
 
 - Delimiter-separated formats, such as HTTP/1.1
 
-Common Message Framers can be provided by a Transport Services implementation,
+Common Message Framers can be provided by a Transport Services Implementation,
 but an implementation ought to allow custom Message Framers to be defined by
 the application or some other piece of software. This section describes one
 possible API for defining Message Framers, as an example.
@@ -630,7 +630,7 @@ to the custom framer implementation whenever data is ready to be parsed or frame
 The API examples in this section use the notation conventions for the Transport
 Services API defined in {{Section 1.1 of I-D.ietf-taps-interface}}.
 
-The Transport Services implementation needs to ensure that all of the
+The Transport Services Implementation needs to ensure that all of the
 events and actions taken on a Message Framer are synchronized to ensure
 consistent behavior. For example, some of the actions defined below (such as
 PrependFramer and StartPassthrough) modify how data flows in a protocol
@@ -775,18 +775,18 @@ Once a Connection is established, the Transport Services API allows applications
 Connection Properties. A Connection can also generate error events in the form of `SoftError` events.
 
 The set of Connection Properties that are supported for setting and getting on a Connection are described in {{I-D.ietf-taps-interface}}. For
-any properties that are generic, and thus could apply to all protocols being used by a Connection, the Transport Services implementation should store the properties
+any properties that are generic, and thus could apply to all protocols being used by a Connection, the Transport Services Implementation should store the properties
 in storage common to all protocols, and notify the Protocol Stack as a whole whenever the properties have been modified by the application. {{!RFC8303}} and {{!RFC8304}} offer guidance on how to do this for TCP, MPTCP, SCTP, UDP and UDP-Lite; see {{specific-protocol-considerations}} for a description of a back-tracking method to find the relevant protocol primitives using these documents.
-For Protocol-specific Properties, such as the User Timeout that applies to TCP, the Transport Services implementation only needs to update the relevant protocol instance.
+For Protocol-specific Properties, such as the User Timeout that applies to TCP, the Transport Services Implementation only needs to update the relevant protocol instance.
 
 Some Connection Properties might apply to multiple protocols within a Protocol Stack. Depending on the specific property,
 it might be appropriate to apply the property across multiple protocols simultaneously, or else only apply it to one protocol.
-In general, the Transport Services implementation should allow the protocol closest to the application to interpret
+In general, the Transport Services Implementation should allow the protocol closest to the application to interpret
 Connection Properties, and potentially modify the set of Connection Properties passed down to the next protocol in the
 stack. For example, if the application has requested to use keepalives with the `keepAlive` property, and the Protocol
 Stack contains both HTTP/2 and TCP, the HTTP/2 protocol can choose to enable its own keepalives to satisfy the application
 request, and disable TCP-level keepalives. For cases where the application needs to have fine-grained per-protocol control,
-the Transport Services implementation can expose Protocol-specific Properties.
+the Transport Services Implementation can expose Protocol-specific Properties.
 
 If an error is encountered in setting a property (for example, if the application tries to set a TCP-specific property on a Connection that is
 not using TCP), the action must fail gracefully. The application must be informed of the error, but the Connection itself must not be terminated.
@@ -796,25 +796,25 @@ errors, the API will deliver them to the application as `SoftError` events. Thes
 
 ## Pooled Connection {#pooled-connections}
 
-For applications that do not need in-order delivery of Messages, the Transport Services implementation may distribute Messages of a single Connection across several underlying transport connections or multiple streams of multi-streaming connections between endpoints, as long as all of these satisfy the Selection Properties.
-The Transport Services implementation will then hide this connection management and only expose a single Connection object, which we here call a "Pooled Connection". This is in contrast to Connection Groups, which explicitly expose combined treatment of Connections, giving the application control over multiplexing, for example.
+For applications that do not need in-order delivery of Messages, the Transport Services Implementation may distribute Messages of a single Connection across several underlying transport connections or multiple streams of multi-streaming connections between endpoints, as long as all of these satisfy the Selection Properties.
+The Transport Services Implementation will then hide this connection management and only expose a single Connection object, which we here call a "Pooled Connection". This is in contrast to Connection Groups, which explicitly expose combined treatment of Connections, giving the application control over multiplexing, for example.
 
 Pooled Connections can be useful when the application using the Transport Services system implements a protocol such as HTTP, which employs request/response pairs and does not require in-order delivery of responses.
 This enables implementations of Transport Services systems to realize transparent connection coalescing, connection migration, and to perform per-message endpoint and path selection by choosing among multiple underlying connections.
 
 ## Handling Path Changes
 
-When a path change occurs, e.g., when the IP address of an interface changes or a new interface becomes available, the Transport Services implementation is responsible for notifying the Protocol Instance of the change. The path change may interrupt connectivity on a path for an active Connection or provide an opportunity for a transport that supports multipath or migration to adapt to the new paths. Note that, in the model of the Transport Services API, migration is considered a part of multipath connectivity; it is just a limiting policy on multipath usage. If the `multipath` Selection Property is set to `Disabled`, migration is disallowed.
+When a path change occurs, e.g., when the IP address of an interface changes or a new interface becomes available, the Transport Services Implementation is responsible for notifying the Protocol Instance of the change. The path change may interrupt connectivity on a path for an active Connection or provide an opportunity for a transport that supports multipath or migration to adapt to the new paths. Note that, in the model of the Transport Services API, migration is considered a part of multipath connectivity; it is just a limiting policy on multipath usage. If the `multipath` Selection Property is set to `Disabled`, migration is disallowed.
 
-For protocols that do not support multipath or migration, the Protocol Instances should be informed of the path change, but should not be forcibly disconnected if the previously used path becomes unavailable. There are many common usage scenarios that can lead to a path becoming temporarily unavailable, and then recovering before the transport protocol reaches a timeout error. These are particularly common using mobile devices. Examples include: an Ethernet cable becoming unplugged and then plugged back in; a device losing a Wi-Fi signal while a user is in an elevator, and reattaching when the user leaves the elevator; and a user losing the radio signal while riding a train through a tunnel. If the device is able to rejoin a network with the same IP address, a stateful transport connection can generally resume. Thus, while it is useful for a Protocol Instance to be aware of a temporary loss of connectivity, the Transport Services implementation should not aggressively close Connections in these scenarios.
+For protocols that do not support multipath or migration, the Protocol Instances should be informed of the path change, but should not be forcibly disconnected if the previously used path becomes unavailable. There are many common usage scenarios that can lead to a path becoming temporarily unavailable, and then recovering before the transport protocol reaches a timeout error. These are particularly common using mobile devices. Examples include: an Ethernet cable becoming unplugged and then plugged back in; a device losing a Wi-Fi signal while a user is in an elevator, and reattaching when the user leaves the elevator; and a user losing the radio signal while riding a train through a tunnel. If the device is able to rejoin a network with the same IP address, a stateful transport connection can generally resume. Thus, while it is useful for a Protocol Instance to be aware of a temporary loss of connectivity, the Transport Services Implementation should not aggressively close Connections in these scenarios.
 
-If the Protocol Stack includes a transport protocol that supports multipath connectivity, the Transport Services implementation should also inform the Protocol Instance about potentially new paths that become permissible based on the `multipath` Selection Property and the `multipathPolicy` Connection Property choices made by the application.
+If the Protocol Stack includes a transport protocol that supports multipath connectivity, the Transport Services Implementation should also inform the Protocol Instance about potentially new paths that become permissible based on the `multipath` Selection Property and the `multipathPolicy` Connection Property choices made by the application.
 A protocol can then establish new subflows over new paths while an active path is still available or, if migration is supported, also after a break has been detected, and should attempt to tear down subflows over paths that are no longer used. The Connection Property `multipathPolicy` of the Transport Services API
 allows an application to indicate when and how different paths should be used. However, detailed handling of these policies is implementation-specific.
 For example, if the `multipath` Selection Property is set to `active`, the decision about when to create a new path or to announce a new path or set of paths to the Remote Endpoint, e.g., in the form of additional IP addresses, is implementation-specific.
 If the Protocol Stack includes a transport protocol that does not support multipath, but does support migrating between paths, the update to the set of available paths can trigger the connection to be migrated.
 
-In the case of a Pooled Connection {{pooled-connections}}, the Transport Services implementation may add connections over new paths to the pool if permissible based on the multipath policy and Selection Properties.
+In the case of a Pooled Connection {{pooled-connections}}, the Transport Services Implementation may add connections over new paths to the pool if permissible based on the multipath policy and Selection Properties.
 In the case that a previously used path becomes unavailable, the Transport Services system may disconnect all connections that require this path, but should not disconnect the pooled Connection object exposed to the application.
 The strategy to do so is implementation-specific, but should be consistent with the behavior of multipath transports.
 
@@ -876,7 +876,7 @@ The reasonable lifetime for cached performance values will vary depending on the
 
 # Specific Transport Protocol Considerations {#specific-protocol-considerations}
 
-Each protocol that is supported by a Transport Services implementation should have a well-defined API mapping.
+Each protocol that is supported by a Transport Services Implementation should have a well-defined API mapping.
 API mappings for a protocol are important for Connections in which a given protocol is the "top" of the Protocol Stack.
 For example, the mapping of the `Send` function for TCP applies to Connections in which the application directly sends over TCP.
 
