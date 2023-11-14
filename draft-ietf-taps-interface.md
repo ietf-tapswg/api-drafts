@@ -759,8 +759,8 @@ RemoteSpecifier.WithIPAddress(2001:db8:4920:e29d:a420:7461:7073:a)
 LocalSpecifier.WithInterface("en0")
 ~~~
 
-Systems usually offer means to obtain a list of available local interfaces; when available, these allow the application to obtain the interface name string to supply to this function.
-The details of the system means to enumerate local interfaces are platform-specific.
+The `Resolve` action on a Preconnection can be used to obtain a list of
+available local interfaces.
 
 Note that an IPv6 address specified with a scope zone ID (e.g. `fe80::2001:db8%en0`)
 is equivalent to `WithIPAddress` with an unscoped address and `WithInterface ` together.
@@ -1871,9 +1871,9 @@ a `Rendezvous` for the Preconnection will listen for incoming Connections,
 and to which it will attempt to establish Connections.
 
 Note that the set of Local Endpoints returned by `Resolve` might or might not
-contain information about all possible local interfaces; it is valid only
-for a Rendezvous happening at the same time as the resolution. Care ought to
-be taken in using these values in any other context.
+contain information about all possible local interfaces depending on how the
+Preconnection is configured. The set of available local interfaces can also
+change over time so care needs to be taken when using stored interface names.
 
 An application that uses `Rendezvous` to establish a peer-to-peer Connection
 in the presence of NATs will configure the Preconnection object with at least
