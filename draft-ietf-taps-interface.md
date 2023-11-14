@@ -1849,23 +1849,22 @@ while also simultaneously trying to establish a Connection from the Local
 Endpoint candidates to the Remote Endpoint candidates.
 
 If there are multiple Local Endpoints or Remote Endpoints configured, then
-initiating a `Rendezvous` action will systematically probe the reachability
+initiating a `Rendezvous` action will cause the Transport Services
+Implementation to systematically probe the reachability
 of those endpoint candidates following an approach such as that used in
 Interactive Connectivity Establishment (ICE) {{?RFC8445}}.
 
-If the endpoints are suspected to be behind a NAT, `Rendezvous` can be
-initiated using Local Endpoints that support a method of discovering NAT
-bindings such as Session Traversal Utilities for NAT (STUN) {{?RFC8489}} or
-Traversal Using Relays around NAT (TURN) {{?RFC8656}}.  In this case, the
-Local Endpoint will resolve to a mixture of local and server reflexive
-addresses. The `Resolve` action on the Preconnection can be used to
-discover these bindings:
+If the endpoints are suspected to be behind a NAT, and the Local Endpoint
+supports a method of discovering NAT bindings, such as Session Traversal
+Utilities for NAT (STUN) {{?RFC8489}} or Traversal Using Relays around NAT
+(TURN) {{?RFC8656}}, then the `Resolve` action on the Preconnection can be
+used to discover such bindings:
 
 ~~~
 []LocalEndpoint, []RemoteEndpoint := Preconnection.Resolve()
 ~~~
 
-The `Resolve` call returns lists of Local Endpoints and Remote Endpoints,
+The `Resolve` call returns lists of Local Endpoints and Remote Endpoints
 that represent the concrete addresses, local and server reflexive, on which
 a `Rendezvous` for the Preconnection will listen for incoming Connections,
 and to which it will attempt to establish Connections.
@@ -1888,9 +1887,10 @@ The set of Remote Endpoint candidates are then configured onto the Preconnection
 Preconnection.AddRemote([]RemoteEndpoint)
 ~~~
 
-The `Rendezvous` action can be initiated once both the Local Endpoint
-candidates and the Remote Endpoint candidates retrieved from the peer via
-the signalling channel have been added to the Preconnection.
+The `Rendezvous` action is initiated, and causes the Transport Services
+Implementation to begin connectivity checks, once the application has
+added both the Local Endpoint candidates and the Remote Endpoint candidates
+retrieved from the peer via the signalling channel to the Preconnection.
 
 
 If successful, the `Rendezvous` action returns a Connection object via a
