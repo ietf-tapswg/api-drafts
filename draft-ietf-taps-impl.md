@@ -135,13 +135,13 @@ Listener objects are created with a Preconnection, at which point their configur
 
 The pre-establishment phase allows applications to specify properties for the Connections that they are about to make, or to query the API about potential Connections they could make.
 
-During pre-establishment the application specifies one or more Endpoints to be used for communication as well as protocol preferences and constraints via Selection Properties and, if desired, also Connection Properties. Section 4 of {{I-D.ietf-taps-interface}} states that Connection Properties should preferably be configured during pre-establishment, because they can serve as input to decisions that are made by the implementation (e.g., the capacity profile can guide usage of a protocol offering scavenger-type congestion control).
+During pre-establishment the application specifies one or more Endpoints to be used for communication as well as protocol preferences and constraints via Selection Properties and, if desired, also Connection Properties. {{Section 4 of I-D.ietf-taps-interface}} states that Connection Properties should preferably be configured during pre-establishment, because they can serve as input to decisions that are made by the implementation (e.g., the capacity profile can guide usage of a protocol offering scavenger-type congestion control).
 
 The implementation stores these properties as a part of the Preconnection object for use during connection establishment. For Selection Properties that are not provided by the application, the implementation uses the default values specified in the Transport Services API ({{I-D.ietf-taps-interface}}).
 
 ## Configuration-time errors
 
-The Transport Services system should have a list of supported protocols available, which each have transport features reflecting the capabilities of the protocol. Once an application specifies its Transport Properties, the Transport Services system matches the required and prohibited properties against the transport features of the available protocols (see Section 6.2 of {{I-D.ietf-taps-interface}} for the definition of property preferences).
+The Transport Services system should have a list of supported protocols available, which each have transport features reflecting the capabilities of the protocol. Once an application specifies its Transport Properties, the Transport Services system matches the required and prohibited properties against the transport features of the available protocols (see {{Section 6.2 of I-D.ietf-taps-interface}} for the definition of property preferences).
 
 In the following cases, failure should be detected during pre-establishment:
 
@@ -166,7 +166,7 @@ It is expected that the database of system policies and the method of looking up
 
 The process of establishing a network connection begins when an application expresses intent to communicate with a Remote Endpoint by calling `Initiate`, at which point the Preconnection object contains all constraints or requirements the application has configured. The establishment process can be considered complete once there is at least one Protocol Stack that has completed any required setup to the point that it can transmit and receive the application's data.
 
-Connection establishment is divided into two top-level steps: Candidate Gathering (defined in Section 4.2.1 of {{I-D.ietf-taps-arch}}), to identify the paths, protocols, and endpoints to use (see {{gathering}}); and Candidate Racing (defined in Section 4.2.2 of {{I-D.ietf-taps-arch}}), in which the necessary protocol handshakes are conducted so that the Transport Services system can select which set to use (see {{racing}}). Candidate Racing involves attempting multiple options for connection establishment, and choosing the first option to succeed as the Protocol Stack to use for the connection. These attempts are usually staggered, starting each next option after a delay, but they can also be performed in parallel or only after waiting for failures.
+Connection establishment is divided into two top-level steps: Candidate Gathering (defined in {{Section 4.2.1 of I-D.ietf-taps-arch}}), to identify the paths, protocols, and endpoints to use (see {{gathering}}); and Candidate Racing (defined in {{Section 4.2.2 of I-D.ietf-taps-arch}}), in which the necessary protocol handshakes are conducted so that the Transport Services system can select which set to use (see {{racing}}). Candidate Racing involves attempting multiple options for connection establishment, and choosing the first option to succeed as the Protocol Stack to use for the connection. These attempts are usually staggered, starting each next option after a delay, but they can also be performed in parallel or only after waiting for failures.
 
 For ease of illustration, this document structures the candidates for racing as a tree (see {{tree-structure}}).
 This is not meant to restrict implementations from structuring racing candidates differently.
@@ -185,7 +185,7 @@ Aggregate [Endpoint Identifier: www.example.com:443] [Interface: Any]   [Protoco
 Any one of these sub-entries on the aggregate connection attempt would satisfy the original application intent. The concern of this section is the algorithm defining which of these options to try, when, and in what order.
 
 During Candidate Gathering ({{gathering}}), an implementation prunes and sorts branches according
-to the Selection Property preferences (Section 6.2 of {{I-D.ietf-taps-interface}}.
+to the Selection Property preferences ({{Section 6.2 of I-D.ietf-taps-interface}}.
 It first excludes all protocols and paths that match a Prohibit property or do not
 match all Require properties. Then it will sort branches according to Preferred
 properties, Avoided properties, and possibly other criteria.
@@ -371,7 +371,7 @@ An implementation can use the capacity profile to prefer paths that match an app
 
 As another example, branch sorting can also be influenced by bounds on the send or receive rate (Selection Properties `minSendRate` / `minRecvRate` / `maxSendRate` / `maxRecvRate`): if the application indicates a bound on the expected send or receive bitrate, an implementation may prefer a path that can likely provide the desired bandwidth, based on cached maximum throughput, see {{performance-caches}}. The application may know the send or receive bitrate from metadata in adaptive HTTP streaming, such as MPEG-DASH.
 
-Implementations process the Properties (Section 6.2 of {{I-D.ietf-taps-interface}}) in the following order: Prohibit, Require, Prefer, Avoid.
+Implementations process the Properties ({{Section 6.2 of I-D.ietf-taps-interface}}) in the following order: Prohibit, Require, Prefer, Avoid.
 If Selection Properties contain any prohibited properties, the implementation should first purge branches containing nodes with these properties. For required properties, it should only keep branches that satisfy these requirements. Finally, it should order the branches according to the preferred properties, and finally use any avoided properties as a tiebreaker.
 When ordering branches, an implementation can give more weight to properties that the application has explicitly set, than to the properties that are default.
 
@@ -390,7 +390,7 @@ Both Local and Remote Endpoint Candidates must be discovered during connection e
 
 The set of possible Local Endpoints is gathered.  In a simple case, this merely enumerates the local interfaces and protocols, and allocates ephemeral source ports.  For example, a system that has WiFi and Ethernet and supports IPv4 and IPv6 might gather four candidate Local Endpoints (IPv4 on Ethernet, IPv6 on Ethernet, IPv4 on WiFi, and IPv6 on WiFi) that can form the source for a transient.
 
-If NAT traversal is required, the process of gathering Local Endpoints becomes broadly equivalent to the ICE Candidate Gathering phase (see Section 5.1.1 of {{RFC8445}}).  The endpoint determines its server reflexive Local Endpoints (i.e., the translated address of a Local Endpoint, on the other side of a NAT, e.g via a STUN sever {{?RFC5389}}) and relayed Local Endpoints (e.g., via a TURN server {{?RFC5766}} or other relay), for each interface and network protocol.  These are added to the set of candidate Local Endpoint Identifers for this connection.
+If NAT traversal is required, the process of gathering Local Endpoints becomes broadly equivalent to the ICE Candidate Gathering phase (see {{Section 5.1.1 of RFC8445}}).  The endpoint determines its server reflexive Local Endpoints (i.e., the translated address of a Local Endpoint, on the other side of a NAT, e.g via a STUN sever {{?RFC5389}}) and relayed Local Endpoints (e.g., via a TURN server {{?RFC5766}} or other relay), for each interface and network protocol.  These are added to the set of candidate Local Endpoint Identifers for this connection.
 
 Gathering Local Endpoints is primarily a local operation, although it might involve exchanges with a STUN server to derive server reflexive Local Endpoints, or with a TURN server or other relay to derive relayed Local Endpoints.  However, it does not involve communication with the Remote Endpoint.
 
@@ -551,7 +551,7 @@ protocol does not support unreliable transmission, the Message should be reliabl
 - `msgCapacityProfile`: When true, this expresses a wish to override the
 Generic Connection Property `connCapacityProfile` for this Message. Depending on the
 value, this can, for example, be implemented by changing the DSCP value of the
-associated packet (note that the guidelines in Section 6 of {{?RFC7657}} apply; e.g.,
+associated packet (note that the guidelines in {{Section 6 of ?RFC7657}} apply; e.g.,
 the DSCP value should not be changed for different packets within a reliable
 transport protocol session or DCCP connection).
 
@@ -585,7 +585,7 @@ Once the application has provided its 0-RTT data, a Transport Services Implement
 
 It is also possible for Protocol Stacks within a particular leaf node to use a 0-RTT handshakes in a lower-level protocol without any safely replayable application data if a higher-level protocol in the stack has idempotent handshake data to send. For example, TCP Fast Open could use a Client Hello from TLS as its 0-RTT data, without any data being provided by the application.
 
-0-RTT handshakes often rely on previous state, such as TCP Fast Open cookies, previously established TLS tickets, or out-of-band distributed pre-shared keys (PSKs). Implementations should be aware of security concerns around using these tokens across multiple addresses or paths when racing. In the case of TLS, any given ticket or PSK should only be used on one leaf node, since servers will likely reject duplicate tickets in order to prevent replays (see section-8.1 {{?RFC8446}}). If implementations have multiple tickets available from a previous connection, each leaf node attempt can use a different ticket. In effect, each leaf node will send the same early application data, yet encoded (encrypted) differently on the wire.
+0-RTT handshakes often rely on previous state, such as TCP Fast Open cookies, previously established TLS tickets, or out-of-band distributed pre-shared keys (PSKs). Implementations should be aware of security concerns around using these tokens across multiple addresses or paths when racing. In the case of TLS, any given ticket or PSK should only be used on one leaf node, since servers will likely reject duplicate tickets in order to prevent replays (see {{Section 8.1 of ?RFC8446}}). If implementations have multiple tickets available from a previous connection, each leaf node attempt can use a different ticket. In effect, each leaf node will send the same early application data, yet encoded (encrypted) differently on the wire.
 
 # Implementing Message Framers {#message-framers}
 
@@ -893,7 +893,7 @@ Protocols also have a notion of Data Unit. Possible values for Data Unit are:
 - Datagram. Datagram protocols define message boundaries at the same level of transmission, such that only complete (not partial) messages are supported.
 - Message. Message protocols support message boundaries that can be sent and received either as complete or partial messages. Maximum message lengths can be defined, and messages can be partially reliable.
 
-Below, terms in capitals with a dot (e.g., "CONNECT.SCTP") refer to the primitives with the same name in section 4 of {{!RFC8303}}. For further implementation details, the description of these primitives in {{!RFC8303}} points to section 3 of {{!RFC8303}} and section 3 of {{!RFC8304}}, which refers back to the relevant specifications for each protocol. This back-tracking method applies to all elements of {{!RFC8923}} (see appendix D of {{I-D.ietf-taps-interface}}): they are listed in appendix A of {{!RFC8923}} with an implementation hint in the same style, pointing back to section 4 of {{!RFC8303}}.
+Below, terms in capitals with a dot (e.g., "CONNECT.SCTP") refer to the primitives with the same name in {{Section 4 of !RFC8303}}. For further implementation details, the description of these primitives in {{!RFC8303}} points to {{Section 3 of !RFC8303}} and {{Section 3 of !RFC8304}}, which refers back to the relevant specifications for each protocol. This back-tracking method applies to all elements of {{!RFC8923}} (see appendix D of {{I-D.ietf-taps-interface}}): they are listed in appendix A of {{!RFC8923}} with an implementation hint in the same style, pointing back to {{Section 4 of !RFC8303}}.
 
 This document presents the protocol mappings defined in {{!RFC8923}}. Other protocol mappings can be provided as separate documents, following the mapping template in {{appendix-mapping-template}}.
 
