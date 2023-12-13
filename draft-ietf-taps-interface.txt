@@ -5,7 +5,7 @@
 TAPS Working Group                                      B. Trammell, Ed.
 Internet-Draft                                   Google Switzerland GmbH
 Intended status: Standards Track                           M. Welzl, Ed.
-Expires: 17 May 2024                                  University of Oslo
+Expires: 15 June 2024                                 University of Oslo
                                                              R. Enghardt
                                                                  Netflix
                                                             G. Fairhurst
@@ -18,7 +18,7 @@ Expires: 17 May 2024                                  University of Oslo
                                                                   SAP SE
                                                                 T. Pauly
                                                               Apple Inc.
-                                                        14 November 2023
+                                                        13 December 2023
 
 
      An Abstract Application Layer Interface to Transport Services
@@ -52,7 +52,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 17 May 2024.
+   This Internet-Draft will expire on 15 June 2024.
 
 Copyright Notice
 
@@ -678,10 +678,10 @@ Table of Contents
       Namespace starting with the underscore _ character and SHOULD use
       a string identifying the vendor or implementation.
 
-   *  For IETF protocols, the name of a Protocol-specific Property
-      SHOULD be specified in an IETF document published in the RFC
-      Series after IETF review.  An IETF protocol Namespace does not
-      start with an underscore character.
+   *  For IETF protocols, the name of a Protocol-specific Property MUST
+      be specified in an IETF document published in the RFC Series after
+      IETF review.  An IETF protocol Namespace does not start with an
+      underscore character.
 
    Namespaces for each of the keywords provided in the IANA protocol
    numbers registry (see https://www.iana.org/assignments/protocol-

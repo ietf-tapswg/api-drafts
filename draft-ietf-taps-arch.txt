@@ -5,14 +5,14 @@
 TAPS Working Group                                         T. Pauly, Ed.
 Internet-Draft                                                Apple Inc.
 Intended status: Standards Track                        B. Trammell, Ed.
-Expires: 17 May 2024                             Google Switzerland GmbH
+Expires: 15 June 2024                            Google Switzerland GmbH
                                                             A. Brunstrom
                                                      Karlstad University
                                                             G. Fairhurst
                                                   University of Aberdeen
                                                               C. Perkins
                                                    University of Glasgow
-                                                        14 November 2023
+                                                        13 December 2023
 
 
           Architecture and Requirements for Transport Services
@@ -48,7 +48,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 17 May 2024.
+   This Internet-Draft will expire on 15 June 2024.
 
 Copyright Notice
 
@@ -1475,9 +1475,9 @@ Table of Contents
               Kühlewind, M., Perkins, C., Tiesel, P. S., and T. Pauly,
               "An Abstract Application Layer Interface to Transport
               Services", Work in Progress, Internet-Draft, draft-ietf-
-              taps-interface-22, 6 July 2023,
+              taps-interface-23, 14 November 2023,
               <https://datatracker.ietf.org/doc/html/draft-ietf-taps-
-              interface-22>.
+              interface-23>.
 
    [POSIX]    "IEEE Std. 1003.1-2008 Standard for Information Technology
               -- Portable Operating System Interface (POSIX).  Open
