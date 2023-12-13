@@ -590,7 +590,7 @@ form \[\<Namespace>.\]\<PropertyName\>.
   value, in a Protocol-specific Property called `tcp.userTimeoutValue` (see {{tcp-uto}})).
 - Vendor or implementation specific properties MUST be placed in a Namespace starting with the underscore `_` character
    and SHOULD use a string identifying the vendor or implementation.
-- For IETF protocols, the name of a Protocol-specific Property SHOULD be specified in an IETF document published in the RFC Series after IETF review.
+- For IETF protocols, the name of a Protocol-specific Property MUST be specified in an IETF document published in the RFC Series after IETF review.
   An IETF protocol Namespace does not start with an underscore character.
 
 Namespaces for each of the keywords provided in the IANA protocol numbers registry
