@@ -5,14 +5,14 @@
 TAPS Working Group                                     A. Brunstrom, Ed.
 Internet-Draft                                       Karlstad University
 Intended status: Informational                             T. Pauly, Ed.
-Expires: 15 June 2024                                         Apple Inc.
+Expires: 16 June 2024                                         Apple Inc.
                                                              R. Enghardt
                                                                  Netflix
                                                                P. Tiesel
                                                                   SAP SE
                                                                 M. Welzl
                                                       University of Oslo
-                                                        13 December 2023
+                                                        14 December 2023
 
 
              Implementing Interfaces to Transport Services
@@ -42,7 +42,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 15 June 2024.
+   This Internet-Draft will expire on 16 June 2024.
 
 Copyright Notice
 
@@ -1258,7 +1258,7 @@ Aggregate [Endpoint Identifier: www.example.com:443] [Interface: Any]   [Protoco
    addresses or paths when racing.  In the case of TLS, any given ticket
    or PSK should only be used on one leaf node, since servers will
    likely reject duplicate tickets in order to prevent replays (see
-   section-8.1 [RFC8446]).  If implementations have multiple tickets
+   Section 8.1 of [RFC8446]).  If implementations have multiple tickets
    available from a previous connection, each leaf node attempt can use
    a different ticket.  In effect, each leaf node will send the same
    early application data, yet encoded (encrypted) differently on the
@@ -1743,14 +1743,14 @@ MessageFramer.Deliver(connection, messageContext, messageData, endOfMessage)
       reliable.
 
    Below, terms in capitals with a dot (e.g., "CONNECT.SCTP") refer to
-   the primitives with the same name in section 4 of [RFC8303].  For
+   the primitives with the same name in Section 4 of [RFC8303].  For
    further implementation details, the description of these primitives
-   in [RFC8303] points to section 3 of [RFC8303] and section 3 of
+   in [RFC8303] points to Section 3 of [RFC8303] and Section 3 of
    [RFC8304], which refers back to the relevant specifications for each
    protocol.  This back-tracking method applies to all elements of
    [RFC8923] (see appendix D of [I-D.ietf-taps-interface]): they are
    listed in appendix A of [RFC8923] with an implementation hint in the
-   same style, pointing back to section 4 of [RFC8303].
+   same style, pointing back to Section 4 of [RFC8303].
 
    This document presents the protocol mappings defined in [RFC8923].
    Other protocol mappings can be provided as separate documents,

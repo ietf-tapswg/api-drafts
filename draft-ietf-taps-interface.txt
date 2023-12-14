@@ -5,7 +5,7 @@
 TAPS Working Group                                      B. Trammell, Ed.
 Internet-Draft                                   Google Switzerland GmbH
 Intended status: Standards Track                           M. Welzl, Ed.
-Expires: 15 June 2024                                 University of Oslo
+Expires: 16 June 2024                                 University of Oslo
                                                              R. Enghardt
                                                                  Netflix
                                                             G. Fairhurst
@@ -18,7 +18,7 @@ Expires: 15 June 2024                                 University of Oslo
                                                                   SAP SE
                                                                 T. Pauly
                                                               Apple Inc.
-                                                        13 December 2023
+                                                        14 December 2023
 
 
      An Abstract Application Layer Interface to Transport Services
@@ -52,7 +52,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 15 June 2024.
+   This Internet-Draft will expire on 16 June 2024.
 
 Copyright Notice
 
@@ -2329,7 +2329,7 @@ SecurityParameters.Set(pinned-server-certificate, yourCertificateChain[])
 
    Type:  Enumeration
 
-   Default:  Weighted Fair Queueing (see Section 3.6 in [RFC8260])
+   Default:  Weighted Fair Queueing (see Section 3.6 of [RFC8260])
 
    This property specifies which scheduler is used among Connections
    within a Connection Group to apportion the available capacity
