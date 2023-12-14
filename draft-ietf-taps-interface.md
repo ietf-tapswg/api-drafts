@@ -563,7 +563,7 @@ Note that configuring Connection Properties and Message Properties on
 Preconnections is preferred over setting them later. Early specification of
 Connection Properties allows their use as additional input to the selection
 process. Protocol-specific Properties, which enable configuration of specialized
-features of a specific protocol (see Section 3.2 of {{!I-D.ietf-taps-arch}}) are not
+features of a specific protocol (see {{Section 3.2 of !I-D.ietf-taps-arch}}) are not
 used as an input to the selection process, but only support configuration if
 the respective protocol has been selected.
 
@@ -2226,7 +2226,7 @@ Type:
 : Enumeration
 
 Default:
-: Weighted Fair Queueing (see Section 3.6 in {{?RFC8260}})
+: Weighted Fair Queueing (see {{Section 3.6 of ?RFC8260}})
 
 This property specifies which scheduler is used among Connections within
 a Connection Group to apportion the available capacity according to Connection priorities
@@ -2253,7 +2253,7 @@ efficient use of the available capacity based on the capacity profile specified.
 is implementation-specific. The capacity profile MAY also be used
 to set markings on the wire for Protocol Stacks supporting this.
 Recommendations for use with DSCP are provided below for each profile; note that
-when a Connection is multiplexed, the guidelines in Section 6 of {{?RFC7657}} apply.
+when a Connection is multiplexed, the guidelines in {{Section 6 of ?RFC7657}} apply.
 
 The following values are valid for the capacity profile:
 
@@ -2306,7 +2306,7 @@ The following values are valid for the capacity profile:
   period of time. Transport Services systems that map the requested
   capacity profile onto per-connection DSCP signaling without multiplexing
   SHOULD assign a DSCP Assured Forwarding (AF11,AF12,AF13,AF14) {{?RFC2597}} PHB
-  per Section 4.8 of {{?RFC4594}}.
+  per {{Section 4.8 of ?RFC4594}}.
 
 The capacity profile for a selected Protocol Stack may be modified on a
 per-Message basis using the Transmission Profile Message Property; see
@@ -2496,7 +2496,7 @@ fail.
 
 All of the below properties are optional (e.g., it is possible to specify `User Timeout Enabled` as `true`,
 but not specify an Advertised User Timeout value; in this case, the TCP default will be used).
-These properties reflect the API extension specified in Section 3 of {{?RFC5482}}.
+These properties reflect the API extension specified in {{Section 3 of ?RFC5482}}.
 
 ### Advertised User Timeout
 
@@ -3766,7 +3766,7 @@ coverage, see {{prop-checksum-control-send}} and {{prop-checksum-control-receive
 
 # Relationship to the Minimal Set of Transport Services for End Systems
 
-{{?RFC8923}} identifies a minimal set of transport services that end systems should offer. These services make all non-security-related transport features of TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT available that 1) require interaction with the application, and 2) do not get in the way of a possible implementation over TCP (or, with limitations, UDP). The following text explains how this minimal set is reflected in the present API. For brevity, it is based on the list in Section 4.1 of {{?RFC8923}}, updated according to the discussion in Section 5 of {{?RFC8923}}. The present API covers all elements of this section.
+{{?RFC8923}} identifies a minimal set of transport services that end systems should offer. These services make all non-security-related transport features of TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT available that 1) require interaction with the application, and 2) do not get in the way of a possible implementation over TCP (or, with limitations, UDP). The following text explains how this minimal set is reflected in the present API. For brevity, it is based on the list in  {{Section 4.1 of ?RFC8923}}, updated according to the discussion in {{Section 5 of ?RFC8923}}. The present API covers all elements of this section.
 This list is a subset of the transport features in Appendix A of {{?RFC8923}}, which refers to the primitives in "pass 2" (Section 4) of {{?RFC8303}} for further details on the implementation with TCP, MPTCP, UDP, UDP-Lite, SCTP and LEDBAT. This facilitates finding the specifications for implementing
 the services listed below with these protocols.
 
@@ -3822,10 +3822,10 @@ See "TCP-specific Properties: User Timeout Option (UTO)" ({{tcp-uto}}).
 This is a read-only Message Property of the MessageContext object (see "UDP(-Lite)-specific Property: ECN" {{receive-ecn}}).
 
 * "Specify DSCP field", "Disable Nagle algorithm", "Enable and configure a `Low Extra Delay Background Transfer`":
-as suggested in Section 5.5 of {{?RFC8923}}, these transport features are collectively offered via the `connCapacityProfile` property ({{prop-cap-profile}}). Per-Message control ("Request not to bundle messages") is offered via the `msgCapacityProfile` property ({{send-profile}}).
+as suggested in {{Section 5.5 of ?RFC8923}}, these transport features are collectively offered via the `connCapacityProfile` property ({{prop-cap-profile}}). Per-Message control ("Request not to bundle messages") is offered via the `msgCapacityProfile` property ({{send-profile}}).
 
 * Close after reliably delivering all remaining data, causing an event informing the application on the other side:
-this is offered by the `Close` action with slightly changed semantics in line with the discussion in Section 5.2 of {{?RFC8923}} ({{termination}}).
+this is offered by the `Close` action with slightly changed semantics in line with the discussion in {{Section 5.2 of ?RFC8923}} ({{termination}}).
 
 * "Abort without delivering remaining data, causing an event informing the application on the other side" and "Abort without delivering remaining data, not causing an event informing the application on the other side":
 this is offered by the `Abort` action without promising that this is signaled to the other side. If it is, a `ConnectionError` event will be invoked at the peer ({{termination}}).
