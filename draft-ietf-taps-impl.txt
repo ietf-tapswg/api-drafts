@@ -2152,7 +2152,7 @@ MessageFramer.Deliver(connection, messageContext, messageData, endOfMessage)
 
 12.  Security Considerations
 
-   [I-D.ietf-taps-arch] outlines general security consideration and
+   [I-D.ietf-taps-arch] outlines general security considerations and
    requirements for any system that implements the Transport Services
    architecture.  [I-D.ietf-taps-interface] provides further discussion
    on security and privacy implications of the Transport Services API.
