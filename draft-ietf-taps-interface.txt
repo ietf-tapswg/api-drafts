@@ -5,7 +5,7 @@
 TAPS Working Group                                      B. Trammell, Ed.
 Internet-Draft                                   Google Switzerland GmbH
 Intended status: Standards Track                           M. Welzl, Ed.
-Expires: 16 June 2024                                 University of Oslo
+Expires: 9 July 2024                                  University of Oslo
                                                              R. Enghardt
                                                                  Netflix
                                                             G. Fairhurst
@@ -18,7 +18,7 @@ Expires: 16 June 2024                                 University of Oslo
                                                                   SAP SE
                                                                 T. Pauly
                                                               Apple Inc.
-                                                        14 December 2023
+                                                          6 January 2024
 
 
      An Abstract Application Layer Interface to Transport Services
@@ -52,11 +52,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 16 June 2024.
+   This Internet-Draft will expire on 9 July 2024.
 
 Copyright Notice
 
-   Copyright (c) 2023 IETF Trust and the persons identified as the
+   Copyright (c) 2024 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -3836,9 +3836,9 @@ SecurityParameters.Set(pinned-server-certificate, yourCertificateChain[])
    [I-D.ietf-taps-impl]
               Brunstrom, A., Pauly, T., Enghardt, R., Tiesel, P. S., and
               M. Welzl, "Implementing Interfaces to Transport Services",
-              Work in Progress, Internet-Draft, draft-ietf-taps-impl-17,
-              9 November 2023, <https://datatracker.ietf.org/doc/html/
-              draft-ietf-taps-impl-17>.
+              Work in Progress, Internet-Draft, draft-ietf-taps-impl-18,
+              14 December 2023, <https://datatracker.ietf.org/doc/html/
+              draft-ietf-taps-impl-18>.
 
    [RFC2474]  Nichols, K., Blake, S., Baker, F., and D. Black,
               "Definition of the Differentiated Services Field (DS

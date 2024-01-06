@@ -5,14 +5,14 @@
 TAPS Working Group                                         T. Pauly, Ed.
 Internet-Draft                                                Apple Inc.
 Intended status: Standards Track                        B. Trammell, Ed.
-Expires: 16 June 2024                            Google Switzerland GmbH
+Expires: 9 July 2024                             Google Switzerland GmbH
                                                             A. Brunstrom
                                                      Karlstad University
                                                             G. Fairhurst
                                                   University of Aberdeen
                                                               C. Perkins
                                                    University of Glasgow
-                                                        14 December 2023
+                                                          6 January 2024
 
 
           Architecture and Requirements for Transport Services
@@ -48,11 +48,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 16 June 2024.
+   This Internet-Draft will expire on 9 July 2024.
 
 Copyright Notice
 
-   Copyright (c) 2023 IETF Trust and the persons identified as the
+   Copyright (c) 2024 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -1466,18 +1466,18 @@ Table of Contents
    [I-D.ietf-taps-impl]
               Brunstrom, A., Pauly, T., Enghardt, R., Tiesel, P. S., and
               M. Welzl, "Implementing Interfaces to Transport Services",
-              Work in Progress, Internet-Draft, draft-ietf-taps-impl-17,
-              9 November 2023, <https://datatracker.ietf.org/doc/html/
-              draft-ietf-taps-impl-17>.
+              Work in Progress, Internet-Draft, draft-ietf-taps-impl-18,
+              14 December 2023, <https://datatracker.ietf.org/doc/html/
+              draft-ietf-taps-impl-18>.
 
    [I-D.ietf-taps-interface]
               Trammell, B., Welzl, M., Enghardt, R., Fairhurst, G.,
               Kühlewind, M., Perkins, C., Tiesel, P. S., and T. Pauly,
               "An Abstract Application Layer Interface to Transport
               Services", Work in Progress, Internet-Draft, draft-ietf-
-              taps-interface-23, 14 November 2023,
+              taps-interface-24, 14 December 2023,
               <https://datatracker.ietf.org/doc/html/draft-ietf-taps-
-              interface-23>.
+              interface-24>.
 
    [POSIX]    "IEEE Std. 1003.1-2008 Standard for Information Technology
               -- Portable Operating System Interface (POSIX).  Open

@@ -5,14 +5,14 @@
 TAPS Working Group                                     A. Brunstrom, Ed.
 Internet-Draft                                       Karlstad University
 Intended status: Informational                             T. Pauly, Ed.
-Expires: 16 June 2024                                         Apple Inc.
+Expires: 9 July 2024                                          Apple Inc.
                                                              R. Enghardt
                                                                  Netflix
                                                                P. Tiesel
                                                                   SAP SE
                                                                 M. Welzl
                                                       University of Oslo
-                                                        14 December 2023
+                                                          6 January 2024
 
 
              Implementing Interfaces to Transport Services
@@ -42,11 +42,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 16 June 2024.
+   This Internet-Draft will expire on 9 July 2024.
 
 Copyright Notice
 
-   Copyright (c) 2023 IETF Trust and the persons identified as the
+   Copyright (c) 2024 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -2154,7 +2154,7 @@ MessageFramer.Deliver(connection, messageContext, messageData, endOfMessage)
 
    [I-D.ietf-taps-arch] outlines general security consideration and
    requirements for any system that implements the Transport Services
-   archtecture.  [I-D.ietf-taps-interface] provides further discussion
+   architecture.  [I-D.ietf-taps-interface] provides further discussion
    on security and privacy implications of the Transport Services API.
    This document provides additional guidance on implementation
    specifics for the Transport Services API and as such the security
@@ -2231,9 +2231,9 @@ MessageFramer.Deliver(connection, messageContext, messageData, endOfMessage)
               Kühlewind, M., Perkins, C., Tiesel, P. S., and T. Pauly,
               "An Abstract Application Layer Interface to Transport
               Services", Work in Progress, Internet-Draft, draft-ietf-
-              taps-interface-23, 14 November 2023,
+              taps-interface-24, 14 December 2023,
               <https://datatracker.ietf.org/doc/html/draft-ietf-taps-
-              interface-23>.
+              interface-24>.
 
    [RFC7413]  Cheng, Y., Chu, J., Radhakrishnan, S., and A. Jain, "TCP
               Fast Open", RFC 7413, DOI 10.17487/RFC7413, December 2014,
