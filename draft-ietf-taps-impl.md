@@ -1154,7 +1154,7 @@ This document has no actions for IANA.
 
 # Security Considerations
 
-{{I-D.ietf-taps-arch}} outlines general security consideration and requirements for any system that implements the Transport Services archtecture. {{I-D.ietf-taps-interface}} provides further discussion on security and privacy implications of the Transport Services API. This document provides additional guidance on implementation specifics for the Transport Services API and as such the security considerations in both of these documents apply. The next two subsections discuss further considerations that are specific to mechanisms specified in this document.
+{{I-D.ietf-taps-arch}} outlines general security consideration and requirements for any system that implements the Transport Services architecture. {{I-D.ietf-taps-interface}} provides further discussion on security and privacy implications of the Transport Services API. This document provides additional guidance on implementation specifics for the Transport Services API and as such the security considerations in both of these documents apply. The next two subsections discuss further considerations that are specific to mechanisms specified in this document.
 
 ## Considerations for Candidate Gathering
 
