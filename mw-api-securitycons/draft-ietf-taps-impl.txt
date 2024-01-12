@@ -5,14 +5,14 @@
 TAPS Working Group                                     A. Brunstrom, Ed.
 Internet-Draft                                       Karlstad University
 Intended status: Informational                             T. Pauly, Ed.
-Expires: 9 July 2024                                          Apple Inc.
+Expires: 15 July 2024                                         Apple Inc.
                                                              R. Enghardt
                                                                  Netflix
                                                                P. Tiesel
                                                                   SAP SE
                                                                 M. Welzl
                                                       University of Oslo
-                                                          6 January 2024
+                                                         12 January 2024
 
 
              Implementing Interfaces to Transport Services
@@ -42,7 +42,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 9 July 2024.
+   This Internet-Draft will expire on 15 July 2024.
 
 Copyright Notice
 
@@ -2152,7 +2152,7 @@ MessageFramer.Deliver(connection, messageContext, messageData, endOfMessage)
 
 12.  Security Considerations
 
-   [I-D.ietf-taps-arch] outlines general security consideration and
+   [I-D.ietf-taps-arch] provides general security consideration and
    requirements for any system that implements the Transport Services
    architecture.  [I-D.ietf-taps-interface] provides further discussion
    on security and privacy implications of the Transport Services API.

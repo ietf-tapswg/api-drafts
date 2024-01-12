@@ -1044,7 +1044,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Trammell, et al.</td>
-<td class="center">Expires 9 July 2024</td>
+<td class="center">Expires 15 July 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1057,12 +1057,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-ietf-taps-interface-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-01-06" class="published">6 January 2024</time>
+<time datetime="2024-01-12" class="published">12 January 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-07-09">9 July 2024</time></dd>
+<dd class="expires"><time datetime="2024-07-15">15 July 2024</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1134,7 +1134,7 @@ multiple network paths and potential transport protocols.<a href="#section-abstr
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 9 July 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 15 July 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -2299,7 +2299,7 @@ available local interfaces.<a href="#section-6.1-16" class="pilcrow">¶</a></p>
 is equivalent to <code>WithIPAddress</code> with an unscoped address and <code>WithInterface </code> together.<a href="#section-6.1-17" class="pilcrow">¶</a></p>
 <p id="section-6.1-18">Applications creating Endpoint objects using <code>WithHostName</code> SHOULD provide fully-qualified
 domain names (FQDNs). Not providing an FQDN will result in the Transport Services Implementation
-needing to resolve using DNS search domains, which might lead to inconsistent or unpredictable
+needing to use DNS search domains for name resolution, which might lead to inconsistent or unpredictable
 behavior.<a href="#section-6.1-18" class="pilcrow">¶</a></p>
 <p id="section-6.1-19">The design of the API MUST NOT permit an Endpoint object to be configured with multiple Endpoint Identifiers of the same type.
 For example, an Endpoint object cannot specify two IP addresses. Two separate IP addresses
@@ -5854,7 +5854,7 @@ Part of this API includes configuration details for transport security protocols
 in <a href="#security-parameters" class="auto internal xref">Section 6.3</a>. It does not recommend use (or disuse) of specific
 algorithms or protocols. Any API-compatible transport security protocol ought to work in a Transport Services system.
 Security considerations for these protocols are discussed in the respective specifications.<a href="#section-13-1" class="pilcrow">¶</a></p>
-<p id="section-13-2"><span>[<a href="#I-D.ietf-taps-arch" class="cite xref">I-D.ietf-taps-arch</a>]</span> outlines general security considerations and requirements for any system that implements the Transport Services architecture. These include recommendations of relevance to the API, e.g. regarding the use of keying material.<a href="#section-13-2" class="pilcrow">¶</a></p>
+<p id="section-13-2"><span>[<a href="#I-D.ietf-taps-arch" class="cite xref">I-D.ietf-taps-arch</a>]</span> provides general security considerations and requirements for any system that implements the Transport Services architecture. These include recommendations of relevance to the API, e.g. regarding the use of keying material.<a href="#section-13-2" class="pilcrow">¶</a></p>
 <p id="section-13-3">The described API is used to exchange information between an application and the Transport Services system. While
 it is not necessarily expected that both systems are implemented by the same authority, it is expected
 that the Transport Services Implementation is either provided as a library that is selected by the application
@@ -5891,7 +5891,7 @@ of potentially limited scope for alternate path discovery during Connection
 establishment, as well as potential additional information leakage about
 application interest when used with a resolution method (such as DNS without
 TLS) which does not protect query confidentiality.
-Names used with the Transport Services API SHOULD be fully-qualified domain names (FQDNs); not providing an FQDN will result in the Transport Services Implementation needing to resolve using DNS search domains, which might lead to inconsistent or unpredictable behavior.<a href="#section-13-9" class="pilcrow">¶</a></p>
+Names used with the Transport Services API SHOULD be fully-qualified domain names (FQDNs); not providing an FQDN will result in the Transport Services Implementation needing to to use DNS search domains for name resolution, which might lead to inconsistent or unpredictable behavior.<a href="#section-13-9" class="pilcrow">¶</a></p>
 <p id="section-13-10">These communication activities are not different from what is used today. However,
 the goal of a Transport Services system is to support
 such mechanisms as a generic service within the transport layer. This enables applications to more dynamically
