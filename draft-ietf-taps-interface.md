@@ -767,7 +767,7 @@ is equivalent to `WithIPAddress` with an unscoped address and `WithInterface ` t
 
 Applications creating Endpoint objects using `WithHostName` SHOULD provide fully-qualified
 domain names (FQDNs). Not providing an FQDN will result in the Transport Services Implementation
-needing to resolve using DNS search domains, which might lead to inconsistent or unpredictable
+needing to use DNS search domains for name resolution, which might lead to inconsistent or unpredictable
 behavior.
 
 The design of the API MUST NOT permit an Endpoint object to be configured with multiple Endpoint Identifiers of the same type.
@@ -3556,7 +3556,7 @@ in {{security-parameters}}. It does not recommend use (or disuse) of specific
 algorithms or protocols. Any API-compatible transport security protocol ought to work in a Transport Services system.
 Security considerations for these protocols are discussed in the respective specifications.
 
-{{I-D.ietf-taps-arch}} outlines general security considerations and requirements for any system that implements the Transport Services architecture. These include recommendations of relevance to the API, e.g. regarding the use of keying material.
+{{I-D.ietf-taps-arch}} provides general security considerations and requirements for any system that implements the Transport Services architecture. These include recommendations of relevance to the API, e.g. regarding the use of keying material.
 
 The described API is used to exchange information between an application and the Transport Services system. While
 it is not necessarily expected that both systems are implemented by the same authority, it is expected
@@ -3600,7 +3600,7 @@ of potentially limited scope for alternate path discovery during Connection
 establishment, as well as potential additional information leakage about
 application interest when used with a resolution method (such as DNS without
 TLS) which does not protect query confidentiality.
-Names used with the Transport Services API SHOULD be fully-qualified domain names (FQDNs); not providing an FQDN will result in the Transport Services Implementation needing to resolve using DNS search domains, which might lead to inconsistent or unpredictable behavior.
+Names used with the Transport Services API SHOULD be fully-qualified domain names (FQDNs); not providing an FQDN will result in the Transport Services Implementation needing to to use DNS search domains for name resolution, which might lead to inconsistent or unpredictable behavior.
 
 These communication activities are not different from what is used today. However,
 the goal of a Transport Services system is to support
