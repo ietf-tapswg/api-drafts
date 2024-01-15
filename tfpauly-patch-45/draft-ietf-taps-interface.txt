@@ -5,7 +5,7 @@
 TAPS Working Group                                      B. Trammell, Ed.
 Internet-Draft                                   Google Switzerland GmbH
 Intended status: Standards Track                           M. Welzl, Ed.
-Expires: 14 July 2024                                 University of Oslo
+Expires: 18 July 2024                                 University of Oslo
                                                              R. Enghardt
                                                                  Netflix
                                                             G. Fairhurst
@@ -18,7 +18,7 @@ Expires: 14 July 2024                                 University of Oslo
                                                                   SAP SE
                                                                 T. Pauly
                                                               Apple Inc.
-                                                         11 January 2024
+                                                         15 January 2024
 
 
      An Abstract Application Layer Interface to Transport Services
@@ -52,7 +52,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 14 July 2024.
+   This Internet-Draft will expire on 18 July 2024.
 
 Copyright Notice
 
@@ -1680,10 +1680,10 @@ Table of Contents
    The Transport Services System SHOULD provide reasonable, secure
    defaults for each enumerated security parameter, such that users of
    the system only need to specify parameters required to establish a
-   secure connection (e.g., ServerCertificate, ClientCertificate).
-   Specifying specific security parameters from enumerated values (e.g.,
-   specific ciphersuites) might constrain the Transport Protocols that
-   can be selected during connection establishment.
+   secure connection (e.g., serverCertificate, clientCertificate).
+   Specifying security parameters from enumerated values (e.g., specific
+   ciphersuites) might constrain the Transport Protocols that can be
+   selected during connection establishment.
 
    Security configuration parameters are specified in the pre-connection
    phase and are created as follows:
