@@ -1736,6 +1736,7 @@ out-of-band. Each instance of pre-shared keying material is associated with some
 that typically identifies its use or has some protocol-specific meaning to the
 Remote Endpoint. Note that use of a pre-shared key will tend to select a single
 security protocol, and therefore directly select a single underlying protocol stack.
+A Transport Services API could express `None` in an environment-typical way, e.g., as a Union type or special value.
 
 ~~~
 SecurityParameters.Set(preSharedKey, key, myIdentity)
