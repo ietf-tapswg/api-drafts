@@ -3606,7 +3606,8 @@ SecurityParameters.Set(cachedSessionLifetimeSeconds, 3600)
 out-of-band. Each instance of pre-shared keying material is associated with some identity
 that typically identifies its use or has some protocol-specific meaning to the
 Remote Endpoint. Note that use of a pre-shared key will tend to select a single
-security protocol, and therefore directly select a single underlying protocol stack.<a href="#section-6.3.6-2" class="pilcrow">¶</a></p>
+security protocol, and therefore directly select a single underlying protocol stack.
+A Transport Services API could express <code>None</code> in an environment-typical way, e.g., as a Union type or special value.<a href="#section-6.3.6-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-6.3.6-3">
 <pre>
 SecurityParameters.Set(preSharedKey, key, myIdentity)
