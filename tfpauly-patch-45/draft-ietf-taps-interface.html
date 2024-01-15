@@ -3366,9 +3366,9 @@ for security parameters to be unambiguous. The Transport Services System SHOULD 
 secure defaults for each enumerated security parameter, such that users of the system
 only need to specify parameters required to establish a secure connection
 (e.g., <code>serverCertificate</code>, <code>clientCertificate</code>). Specifying security parameters
-from enumerated values (e.g., specific ciphersuites) might constrain the Transport
-Protocols that can be selected during connection establishment.<a href="#section-6.3-2" class="pilcrow">¶</a></p>
-<p id="section-6.3-3">Security configuration parameters are specified in the pre-connection phase
+from enumerated values (e.g., specific ciphersuites) might constrain which transport
+protocols can be selected during Connection establishment.<a href="#section-6.3-2" class="pilcrow">¶</a></p>
+<p id="section-6.3-3">Security configuration parameters are specified in the pre-establishment phase
 and are created as follows:<a href="#section-6.3-3" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-6.3-4">
 <pre>
@@ -3385,11 +3385,11 @@ ciphersuites, implementations are responsible for exposing the set of values
 they support. For security parameters that are not simple value types, such
 as certificates and keys, implementations are responsible for exposing
 types appropriate for the platform / language environment.<a href="#section-6.3-7" class="pilcrow">¶</a></p>
-<p id="section-6.3-8">Applications SHOULD use common safe defaults for values such as TLS ciphersuite
+<p id="section-6.3-8">Applications SHOULD use common safe defaults for values such as TLS ciphersuites
 whenever possible. However, as discussed in <span>[<a href="#RFC8922" class="cite xref">RFC8922</a>]</span>, many transport security protocols
 require specific security parameters and constraints from the client at the time of
 configuration and actively during a handshake.<a href="#section-6.3-8" class="pilcrow">¶</a></p>
-<p id="section-6.3-9">The set of security parameters defined here are not exhaustive, but illustrative.
+<p id="section-6.3-9">The set of security parameters defined here is not exhaustive, but illustrative.
 Implementations SHOULD expose an equivalent to the parameters listed below to allow for
 sufficient configuration of security parameters, but the details are expected
 to vary based on platform and implementation constraints.<a href="#section-6.3-9" class="pilcrow">¶</a></p>

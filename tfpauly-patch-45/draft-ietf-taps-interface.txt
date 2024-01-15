@@ -1682,11 +1682,11 @@ Table of Contents
    the system only need to specify parameters required to establish a
    secure connection (e.g., serverCertificate, clientCertificate).
    Specifying security parameters from enumerated values (e.g., specific
-   ciphersuites) might constrain the Transport Protocols that can be
-   selected during connection establishment.
+   ciphersuites) might constrain which transport protocols can be
+   selected during Connection establishment.
 
-   Security configuration parameters are specified in the pre-connection
-   phase and are created as follows:
+   Security configuration parameters are specified in the pre-
+   establishment phase and are created as follows:
 
    SecurityParameters := NewSecurityParameters()
 
@@ -1707,12 +1707,12 @@ Table of Contents
    language environment.
 
    Applications SHOULD use common safe defaults for values such as TLS
-   ciphersuite whenever possible.  However, as discussed in [RFC8922],
+   ciphersuites whenever possible.  However, as discussed in [RFC8922],
    many transport security protocols require specific security
    parameters and constraints from the client at the time of
    configuration and actively during a handshake.
 
-   The set of security parameters defined here are not exhaustive, but
+   The set of security parameters defined here is not exhaustive, but
    illustrative.  Implementations SHOULD expose an equivalent to the
    parameters listed below to allow for sufficient configuration of
    security parameters, but the details are expected to vary based on
