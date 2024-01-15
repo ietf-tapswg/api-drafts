@@ -1564,10 +1564,10 @@ for security parameters to be unambiguous. The Transport Services System SHOULD 
 secure defaults for each enumerated security parameter, such that users of the system
 only need to specify parameters required to establish a secure connection
 (e.g., `serverCertificate`, `clientCertificate`). Specifying security parameters
-from enumerated values (e.g., specific ciphersuites) might constrain the Transport
-Protocols that can be selected during connection establishment.
+from enumerated values (e.g., specific ciphersuites) might constrain which transport
+protocols can be selected during Connection establishment.
 
-Security configuration parameters are specified in the pre-connection phase
+Security configuration parameters are specified in the pre-establishment phase
 and are created as follows:
 
 ~~~
@@ -1587,12 +1587,12 @@ they support. For security parameters that are not simple value types, such
 as certificates and keys, implementations are responsible for exposing
 types appropriate for the platform / language environment.
 
-Applications SHOULD use common safe defaults for values such as TLS ciphersuite
+Applications SHOULD use common safe defaults for values such as TLS ciphersuites
 whenever possible. However, as discussed in {{?RFC8922}}, many transport security protocols
 require specific security parameters and constraints from the client at the time of
 configuration and actively during a handshake.
 
-The set of security parameters defined here are not exhaustive, but illustrative.
+The set of security parameters defined here is not exhaustive, but illustrative.
 Implementations SHOULD expose an equivalent to the parameters listed below to allow for
 sufficient configuration of security parameters, but the details are expected
 to vary based on platform and implementation constraints.
