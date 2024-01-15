@@ -1563,7 +1563,7 @@ This document specifies an abstract API, which could appear to conflict with the
 for security parameters to be unambiguous. The Transport Services System SHOULD provide reasonable,
 secure defaults for each enumerated security parameter, such that users of the system
 only need to specify parameters required to establish a secure connection
-(e.g., `ServerCertificate`, `ClientCertificate`). Specifying specific security parameters
+(e.g., `serverCertificate`, `clientCertificate`). Specifying security parameters
 from enumerated values (e.g., specific ciphersuites) might constrain the Transport
 Protocols that can be selected during connection establishment.
 
