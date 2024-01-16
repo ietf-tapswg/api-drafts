@@ -353,12 +353,11 @@ LocalSpecifier.WithInterface("any")
 LocalSpecifier.WithService("https")
 
 TransportProperties := NewTransportProperties()
-TransportProperties.Require(preserve-msg-boundaries)
+TransportProperties.Require(preserveMsgBoundaries)
 // Reliable Data Transfer and Preserve Order are Required by default
 
 SecurityParameters := NewSecurityParameters()
-SecurityParameters.Set(identity, myIdentity)
-SecurityParameters.Set(server-certificate, myCertificate)
+SecurityParameters.Set(serverCertificate, myCertificate)
 
 // Specifying a Remote Endpoint is optional when using Listen
 Preconnection := NewPreconnection(LocalSpecifier,
@@ -1564,92 +1563,42 @@ This document specifies an abstract API, which could appear to conflict with the
 for security parameters to be unambiguous. The Transport Services System SHOULD provide reasonable,
 secure defaults for each enumerated security parameter, such that users of the system
 only need to specify parameters required to establish a secure connection
-(e.g., 'server-certificate', 'client-certificate'). Specifying specific security parameters
-from enumerated values (e.g., specific ciphersuites) might constrain the Transport
-Protocols that can be selected during connection establishment.
+(e.g., `serverCertificate`, `clientCertificate`). Specifying security parameters
+from enumerated values (e.g., specific ciphersuites) might constrain which transport
+protocols can be selected during Connection establishment.
 
-Except as noted below, as with the rest of the Transport Services API, exact names of parameters and/or
-values of enumerations (e.g., ciphersuites) used in the security parameters are system
-and implementation specific, and ought to be chosen to follow the principle of least
-surprise for users of the platform / language environment in question.
-
-### Specifying Security Parameters on a Preconnection
-
-Common security parameters such as TLS ciphersuites are known to implementations.
-Applications SHOULD use common safe defaults for these values whenever possible.
-However, as discussed in {{?RFC8922}}, many transport security protocols require specific
-security parameters and constraints from the client at the time of configuration and
-actively during a handshake.
-
-The configuration parameters need to be specified in the pre-connection phase
+Security configuration parameters are specified in the pre-establishment phase
 and are created as follows:
 
 ~~~
 SecurityParameters := NewSecurityParameters()
 ~~~
 
-Security configuration parameters and sample usage follow:
+Specific parameters are added using a call to `Set()` on the `SecurityParameters`.
 
-- One or more certificate bundles identifying the Local Endpoint, whether
-  as a server certificate or a client certificate. Multiple bundles may
-  be provided to allow selection among different protocol stacks that may
-  require differently formatted bundles. The form and format of the
-  certificate bundle is implementation-specific. Note that if the private
-  keys associated with a bundle are not available, e.g., since they are stored in hardware
-  security modules (HSMs), handshake callbacks are necessary. See below for details.
+As with the rest of the Transport Services API, the exact names of parameters and/or
+values of enumerations (e.g., ciphersuites) used in the security parameters are system-
+and implementation-specific, and ought to be chosen to follow the principle of least
+surprise for users of the platform / language environment in question.
 
-~~~
-SecurityParameters.Set(server-certificate, myCertificateBundle[])
-SecurityParameters.Set(client-certificate, myCertificateBundle[])
-~~~
+For security parameters that are enumerations of known values, such as TLS
+ciphersuites, implementations are responsible for exposing the set of values
+they support. For security parameters that are not simple value types, such
+as certificates and keys, implementations are responsible for exposing
+types appropriate for the platform / language environment.
 
-- One or more certificate chains to use as pinned server
-  certificates, such that connecting will fail if the presented server
-  certificate does not match one of the  supplied pinned certificates.
-  The form and format of the certificate chain is implementation-specific.
+Applications SHOULD use common safe defaults for values such as TLS ciphersuites
+whenever possible. However, as discussed in {{?RFC8922}}, many transport security protocols
+require specific security parameters and constraints from the client at the time of
+configuration and actively during a handshake.
 
-~~~
-SecurityParameters.Set(pinned-server-certificate, yourCertificateChain[])
-~~~
+The set of security parameters defined here is not exhaustive, but illustrative.
+Implementations SHOULD expose an equivalent to the parameters listed below to allow for
+sufficient configuration of security parameters, but the details are expected
+to vary based on platform and implementation constraints.
 
-- Application-layer protocol negotiation (ALPN) values: used to indicate which
-  application-layer protocols are negotiated by the security protocol layer.
-  See {{!ALPN=RFC7301}} for definition of the ALPN field. Note that the Transport
-  Services System can provide ALPN values automatically, based on
-  the protocols being used, if not explicitly specified by the application.
-
-~~~
-SecurityParameters.Set(alpn, "h2")
-~~~
-
-- Supported groups, ciphersuites, algorithms: Used to restrict what parameters
-  are used by underlying transport security protocols. When not specified,
-  these algorithms should use known and safe defaults for the system.
-
-~~~
-SecurityParameters.Set(supported-group, "secp256r1")
-SecurityParameters.Set(ciphersuite, "TLS_AES_128_GCM_SHA256")
-SecurityParameters.Set(signature-algorithm, "ecdsa_secp256r1_sha256")
-~~~
-
-- Session cache management: Used to tune session cache capacity, lifetime, and
-other policies.
-
-~~~
-SecurityParameters.Set(max-cached-sessions, 16)
-
-SecurityParameters.Set(cached-session-lifetime-seconds, 3600)
-~~~
-
-- Pre-Shared Key import: Used to install pre-shared keying material established
-out-of-band. Each instance of pre-shared keying material is associated with some identity
-that typically identifies its use or has some protocol-specific meaning to the
-Remote Endpoint. Note that use of a pre-shared key will tend to select a single
-security protocol, and therefore directly select a single underlying protocol stack.
-
-~~~
-SecurityParameters.Set(pre-shared-key, key, myIdentity)
-~~~
+Representation of security parameters in implementations ought to parallel
+that chosen for Transport Property names as suggested in {{scope-of-interface-defn}}.
 
 Connections that use Transport Services SHOULD use security in general. However, for
 compatibility with endpoints that do not support transport security protocols (such
@@ -1666,15 +1615,140 @@ SecurityParameters := NewDisabledSecurityParameters()
 SecurityParameters := NewOpportunisticSecurityParameters()
 ~~~
 
-Representation of security parameters in implementations ought to parallel
-that chosen for Transport Property names as suggested in {{scope-of-interface-defn}}.
+### Certificate bundles
+
+Names:
+: serverCertificate, clientCertificate
+
+Type:
+: Array of certificate objects
+
+Default:
+: Empty array
+
+One or more certificate bundles identifying the Local Endpoint, whether
+as a server certificate or a client certificate. Multiple bundles may
+be provided to allow selection among different protocol stacks that may
+require differently formatted bundles. The form and format of the
+certificate bundle is implementation-specific. Note that if the private
+keys associated with a bundle are not available, e.g., since they are stored in hardware
+security modules (HSMs), handshake callbacks are necessary. See below for details.
+
+~~~
+SecurityParameters.Set(serverCertificate, myCertificateBundle[])
+SecurityParameters.Set(clientCertificate, myCertificateBundle[])
+~~~
+
+### Pinned server certificate
+
+Name:
+: pinnedServerCertificate
+
+Type:
+: Array of certificate chain objects
+
+Default:
+: Empty array
+
+Zero or more certificate chains to use as pinned server
+certificates, such that connecting will fail if the presented server
+certificate does not match one of the supplied pinned certificates.
+The form and format of the certificate chain is implementation-specific.
+
+~~~
+SecurityParameters.Set(pinnedServerCertificate, yourCertificateChain[])
+~~~
+
+### Application-layer protocol negotiation
+
+Name:
+: alpn
+
+Type:
+: Array of Strings
+
+Default:
+: Automatic selection
+
+Application-layer protocol negotiation (ALPN) values: used to indicate which
+application-layer protocols are negotiated by the security protocol layer.
+See {{!ALPN=RFC7301}} for definition of the ALPN field. Note that the Transport
+Services System can provide ALPN values automatically, based on
+the protocols being used, if not explicitly specified by the application.
+
+~~~
+SecurityParameters.Set(alpn, ["h2"])
+~~~
+
+### Groups, ciphersuites, and signature algorithms
+
+Names:
+: supportedGroup, ciphersuite, signatureAlgorithm
+
+Types:
+: Arrays of implementation-specific enumerations
+
+Default:
+: Automatic selection
+
+These are used to restrict what cryptographic parameters
+are used by underlying transport security protocols. When not specified,
+these algorithms should use known and safe defaults for the system.
+
+~~~
+SecurityParameters.Set(supportedGroup, secp256r1)
+SecurityParameters.Set(ciphersuite, TLS_AES_128_GCM_SHA256)
+SecurityParameters.Set(signatureAlgorithm, ecdsa_secp256r1_sha256)
+~~~
+
+### Session cache options
+
+Names:
+: maxCachedSessions, cachedSessionLifetimeSeconds
+
+Type:
+: Integer
+
+Default:
+: Automatic selection
+
+These values are used to tune session cache capacity and lifetime, and
+can be extended to include other policies.
+
+~~~
+SecurityParameters.Set(maxCachedSessions, 16)
+SecurityParameters.Set(cachedSessionLifetimeSeconds, 3600)
+~~~
+
+### Pre-shared key
+
+Name:
+: preSharedKey
+
+Type:
+: Key and identity (platform-specific)
+
+Default:
+: None
+
+Used to install pre-shared keying material established
+out-of-band. Each instance of pre-shared keying material is associated with some identity
+that typically identifies its use or has some protocol-specific meaning to the
+Remote Endpoint. Note that use of a pre-shared key will tend to select a single
+security protocol, and therefore directly select a single underlying protocol stack.
+A Transport Services API could express `None` in an environment-typical way, e.g., as a Union type or special value.
+
+~~~
+SecurityParameters.Set(preSharedKey, key, myIdentity)
+~~~
 
 ### Connection Establishment Callbacks
 
 Security decisions, especially pertaining to trust, are not static. Once configured,
 parameters can also be supplied during Connection establishment. These are best
 handled as client-provided callbacks.
-Callbacks block the progress of the Connection establishment, which distinguishes them from other events in the transport system. How callbacks and events are implemented is specific to each implementation.
+Callbacks block the progress of the Connection establishment, which distinguishes them
+from other events in the transport system. How callbacks and events are implemented is specific to each implementation.
 Security handshake callbacks that could be invoked during Connection establishment include:
 
 - Trust verification callback: Invoked when a Remote Endpoint's trust must be verified before the
