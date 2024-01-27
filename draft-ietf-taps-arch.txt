@@ -5,14 +5,14 @@
 TAPS Working Group                                         T. Pauly, Ed.
 Internet-Draft                                                Apple Inc.
 Intended status: Standards Track                        B. Trammell, Ed.
-Expires: 19 July 2024                            Google Switzerland GmbH
+Expires: 30 July 2024                            Google Switzerland GmbH
                                                             A. Brunstrom
                                                      Karlstad University
                                                             G. Fairhurst
                                                   University of Aberdeen
                                                               C. Perkins
                                                    University of Glasgow
-                                                         16 January 2024
+                                                         27 January 2024
 
 
           Architecture and Requirements for Transport Services
@@ -48,7 +48,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 19 July 2024.
+   This Internet-Draft will expire on 30 July 2024.
 
 Copyright Notice
 

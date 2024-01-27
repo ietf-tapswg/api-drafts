@@ -15,11 +15,11 @@
 and defines a protocol-independent Transport Services Application Programming Interface (API) that is based on an asynchronous,
 event-driven interaction pattern. This document serves as a guide to implementing such a system. 
     " name="description">
-<meta content="xml2rfc 3.19.0" name="generator">
+<meta content="xml2rfc 3.19.1" name="generator">
 <meta content="Internet-Draft" name="keyword">
 <meta content="draft-ietf-taps-impl-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.19.0
+  xml2rfc 3.19.1
     Python 3.11.6
     ConfigArgParse 1.7
     google-i18n-address 3.1.0
@@ -32,7 +32,7 @@ event-driven interaction pattern. This document serves as a guide to implementin
     requests 2.31.0
     setuptools 68.2.2
     six 1.16.0
-    wcwidth 0.2.12
+    wcwidth 0.2.13
 -->
 <link href="draft-ietf-taps-impl.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -1035,7 +1035,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Brunstrom, et al.</td>
-<td class="center">Expires 19 July 2024</td>
+<td class="center">Expires 30 July 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1048,12 +1048,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-ietf-taps-impl-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-01-16" class="published">16 January 2024</time>
+<time datetime="2024-01-27" class="published">27 January 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-07-19">19 July 2024</time></dd>
+<dd class="expires"><time datetime="2024-07-30">30 July 2024</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1107,7 +1107,7 @@ event-driven interaction pattern. This document serves as a guide to implementin
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 19 July 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 30 July 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -2729,7 +2729,7 @@ Calling <code>AbortGroup</code> calls ABORT.SCTP, immediately closing all Connec
       <h2 id="name-security-considerations">
 <a href="#section-12" class="section-number selfRef">12. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
       </h2>
-<p id="section-12-1"><span>[<a href="#I-D.ietf-taps-arch" class="cite xref">I-D.ietf-taps-arch</a>]</span> outlines general security considerations and requirements for any system that implements the Transport Services architecture. <span>[<a href="#I-D.ietf-taps-interface" class="cite xref">I-D.ietf-taps-interface</a>]</span> provides further discussion on security and privacy implications of the Transport Services API. This document provides additional guidance on implementation specifics for the Transport Services API and as such the security considerations in both of these documents apply. The next two subsections discuss further considerations that are specific to mechanisms specified in this document.<a href="#section-12-1" class="pilcrow">¶</a></p>
+<p id="section-12-1"><span>[<a href="#I-D.ietf-taps-arch" class="cite xref">I-D.ietf-taps-arch</a>]</span> provides general security consideration and requirements for any system that implements the Transport Services architecture. <span>[<a href="#I-D.ietf-taps-interface" class="cite xref">I-D.ietf-taps-interface</a>]</span> provides further discussion on security and privacy implications of the Transport Services API. This document provides additional guidance on implementation specifics for the Transport Services API and as such the security considerations in both of these documents apply. The next two subsections discuss further considerations that are specific to mechanisms specified in this document.<a href="#section-12-1" class="pilcrow">¶</a></p>
 <div id="considerations-for-candidate-gathering">
 <section id="section-12.1">
         <h3 id="name-considerations-for-candidat">
