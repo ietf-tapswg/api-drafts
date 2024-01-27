@@ -723,7 +723,13 @@ to several different IP addresses on different hosts.
 
 An Endpoint object can be configured with the following identifiers:
 
-- HostName (string):
+- FQDN (string containing a Fully Qualified Domain Name):
+
+~~~
+RemoteSpecifier.FQDN("example.com")
+~~~
+
+- HostName (string that gets qualified while resolving, e.g., using DNS search domains):
 
 ~~~
 RemoteSpecifier.WithHostName("example.com")
@@ -764,8 +770,8 @@ available local interfaces.
 Note that an IPv6 address specified with a scope zone ID (e.g. `fe80::2001:db8%en0`)
 is equivalent to `WithIPAddress` with an unscoped address and `WithInterface ` together.
 
-Applications creating Endpoint objects using `WithHostName` SHOULD provide fully-qualified
-domain names (FQDNs). Not providing an FQDN will result in the Transport Services Implementation
+Applications creating Endpoint objects using `WithHostName` should consider using fully-qualified
+domain names (FQDNs) instead. Not providing an FQDN will result in the Transport Services Implementation
 needing to use DNS search domains for name resolution, which might lead to inconsistent or unpredictable
 behavior.
 
