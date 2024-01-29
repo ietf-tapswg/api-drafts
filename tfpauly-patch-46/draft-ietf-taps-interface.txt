@@ -1742,8 +1742,7 @@ Table of Contents
 
 6.3.1.  Allowed security protocols
 
-   Name:  allowedSecurityProtocols (alternatively,
-      minimumSecurityProtocolVersion and maximumSecurityProtocolVersion)
+   Name:  allowedSecurityProtocols
 
    Type:  Implementation-specific enumeration of security protocol names
       and/or versions.
