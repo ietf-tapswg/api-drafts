@@ -1595,7 +1595,9 @@ configuration and actively during a handshake.
 The set of security parameters defined here is not exhaustive, but illustrative.
 Implementations SHOULD expose an equivalent to the parameters listed below to allow for
 sufficient configuration of security parameters, but the details are expected
-to vary based on platform and implementation constraints.
+to vary based on platform and implementation constraints. Applications MUST be able
+to constrain the security protocols and versions that the Transport Services System
+will use.
 
 Representation of security parameters in implementations ought to parallel
 that chosen for Transport Property names as suggested in {{scope-of-interface-defn}}.
@@ -1613,6 +1615,23 @@ security if available.
 SecurityParameters := NewDisabledSecurityParameters()
 
 SecurityParameters := NewOpportunisticSecurityParameters()
+~~~
+
+### Allowed security protocols
+
+Name:
+: allowedSecurityProtocols (alternatively, minimumSecurityProtocolVersion and maximumSecurityProtocolVersion)
+
+Type:
+: Implementation-specific enumeration of security protocol names and/or versions.
+
+Default:
+: Implementation-specific best available security protocols
+
+This property allows applications to restrict which security protocols and security protocol versions can be used in the protocol stack. Applications MUST be able to constrain the security protocols used by this or an equivalent mechanism, in order to prevent the use of security protocols with unknown or weak security properties.
+
+~~~
+SecurityParameters.Set(allowedSecurityProtocols, [ tls_1_2, tls_1_3 ])
 ~~~
 
 ### Certificate bundles
