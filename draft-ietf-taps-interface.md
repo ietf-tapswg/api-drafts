@@ -1620,7 +1620,7 @@ SecurityParameters := NewOpportunisticSecurityParameters()
 ### Allowed security protocols
 
 Name:
-: allowedSecurityProtocols (alternatively, minimumSecurityProtocolVersion and maximumSecurityProtocolVersion)
+: allowedSecurityProtocols
 
 Type:
 : Implementation-specific enumeration of security protocol names and/or versions.
