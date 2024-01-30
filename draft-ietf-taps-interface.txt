@@ -5,7 +5,7 @@
 TAPS Working Group                                      B. Trammell, Ed.
 Internet-Draft                                   Google Switzerland GmbH
 Intended status: Standards Track                           M. Welzl, Ed.
-Expires: 30 July 2024                                 University of Oslo
+Expires: 2 August 2024                                University of Oslo
                                                              R. Enghardt
                                                                  Netflix
                                                             G. Fairhurst
@@ -18,7 +18,7 @@ Expires: 30 July 2024                                 University of Oslo
                                                                   SAP SE
                                                                 T. Pauly
                                                               Apple Inc.
-                                                         27 January 2024
+                                                         30 January 2024
 
 
      An Abstract Application Layer Interface to Transport Services
@@ -52,7 +52,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 30 July 2024.
+   This Internet-Draft will expire on 2 August 2024.
 
 Copyright Notice
 
@@ -111,13 +111,14 @@ Table of Contents
        6.2.17. Notification of ICMP soft error message arrival
        6.2.18. Initiating side is not the first to write
      6.3.  Specifying Security Parameters and Callbacks
-       6.3.1.  Certificate bundles
-       6.3.2.  Pinned server certificate
-       6.3.3.  Application-layer protocol negotiation
-       6.3.4.  Groups, ciphersuites, and signature algorithms
-       6.3.5.  Session cache options
-       6.3.6.  Pre-shared key
-       6.3.7.  Connection Establishment Callbacks
+       6.3.1.  Allowed security protocols
+       6.3.2.  Certificate bundles
+       6.3.3.  Pinned server certificate
+       6.3.4.  Application-layer protocol negotiation
+       6.3.5.  Groups, ciphersuites, and signature algorithms
+       6.3.6.  Session cache options
+       6.3.7.  Pre-shared key
+       6.3.8.  Connection Establishment Callbacks
    7.  Establishing Connections
      7.1.  Active Open: Initiate
      7.2.  Passive Open: Listen
@@ -1716,7 +1717,9 @@ Table of Contents
    illustrative.  Implementations SHOULD expose an equivalent to the
    parameters listed below to allow for sufficient configuration of
    security parameters, but the details are expected to vary based on
-   platform and implementation constraints.
+   platform and implementation constraints.  Applications MUST be able
+   to constrain the security protocols and versions that the Transport
+   Services System will use.
 
    Representation of security parameters in implementations ought to
    parallel that chosen for Transport Property names as suggested in
@@ -1737,7 +1740,24 @@ Table of Contents
 
    SecurityParameters := NewOpportunisticSecurityParameters()
 
-6.3.1.  Certificate bundles
+6.3.1.  Allowed security protocols
+
+   Name:  allowedSecurityProtocols
+
+   Type:  Implementation-specific enumeration of security protocol names
+      and/or versions.
+
+   Default:  Implementation-specific best available security protocols
+
+   This property allows applications to restrict which security
+   protocols and security protocol versions can be used in the protocol
+   stack.  Applications MUST be able to constrain the security protocols
+   used by this or an equivalent mechanism, in order to prevent the use
+   of security protocols with unknown or weak security properties.
+
+  SecurityParameters.Set(allowedSecurityProtocols, [ tls_1_2, tls_1_3 ])
+
+6.3.2.  Certificate bundles
 
    Names:  serverCertificate, clientCertificate
 
@@ -1757,7 +1777,7 @@ Table of Contents
    SecurityParameters.Set(serverCertificate, myCertificateBundle[])
    SecurityParameters.Set(clientCertificate, myCertificateBundle[])
 
-6.3.2.  Pinned server certificate
+6.3.3.  Pinned server certificate
 
    Name:  pinnedServerCertificate
 
@@ -1772,7 +1792,7 @@ Table of Contents
 
  SecurityParameters.Set(pinnedServerCertificate, yourCertificateChain[])
 
-6.3.3.  Application-layer protocol negotiation
+6.3.4.  Application-layer protocol negotiation
 
    Name:  alpn
 
@@ -1789,7 +1809,7 @@ Table of Contents
 
    SecurityParameters.Set(alpn, ["h2"])
 
-6.3.4.  Groups, ciphersuites, and signature algorithms
+6.3.5.  Groups, ciphersuites, and signature algorithms
 
    Names:  supportedGroup, ciphersuite, signatureAlgorithm
 
@@ -1805,7 +1825,7 @@ Table of Contents
    SecurityParameters.Set(ciphersuite, TLS_AES_128_GCM_SHA256)
    SecurityParameters.Set(signatureAlgorithm, ecdsa_secp256r1_sha256)
 
-6.3.5.  Session cache options
+6.3.6.  Session cache options
 
    Names:  maxCachedSessions, cachedSessionLifetimeSeconds
 
@@ -1819,7 +1839,7 @@ Table of Contents
    SecurityParameters.Set(maxCachedSessions, 16)
    SecurityParameters.Set(cachedSessionLifetimeSeconds, 3600)
 
-6.3.6.  Pre-shared key
+6.3.7.  Pre-shared key
 
    Name:  preSharedKey
 
@@ -1838,7 +1858,7 @@ Table of Contents
 
    SecurityParameters.Set(preSharedKey, key, myIdentity)
 
-6.3.7.  Connection Establishment Callbacks
+6.3.8.  Connection Establishment Callbacks
 
    Security decisions, especially pertaining to trust, are not static.
    Once configured, parameters can also be supplied during Connection
