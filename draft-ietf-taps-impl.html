@@ -15,18 +15,18 @@
 and defines a protocol-independent Transport Services Application Programming Interface (API) that is based on an asynchronous,
 event-driven interaction pattern. This document serves as a guide to implementing such a system. 
     " name="description">
-<meta content="xml2rfc 3.19.1" name="generator">
+<meta content="xml2rfc 3.20.0" name="generator">
 <meta content="Internet-Draft" name="keyword">
 <meta content="draft-ietf-taps-impl-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.19.1
-    Python 3.11.6
+  xml2rfc 3.20.0
+    Python 3.11.8
     ConfigArgParse 1.7
     google-i18n-address 3.1.0
     intervaltree 3.1.0
     Jinja2 3.1.2
     lxml 4.9.3
-    platformdirs 4.1.0
+    platformdirs 4.2.0
     pycountry 22.3.5
     PyYAML 6.0.1
     requests 2.31.0
@@ -1031,11 +1031,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">TAPS Implementation</td>
-<td class="right">January 2024</td>
+<td class="right">March 2024</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Brunstrom, et al.</td>
-<td class="center">Expires 2 August 2024</td>
+<td class="center">Expires 13 September 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1048,12 +1048,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-ietf-taps-impl-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-01-30" class="published">30 January 2024</time>
+<time datetime="2024-03-12" class="published">12 March 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-08-02">2 August 2024</time></dd>
+<dd class="expires"><time datetime="2024-09-13">13 September 2024</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1107,7 +1107,7 @@ event-driven interaction pattern. This document serves as a guide to implementin
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 2 August 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 13 September 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1394,14 +1394,14 @@ Listener objects are created with a Preconnection, at which point their configur
 <a href="#section-3" class="section-number selfRef">3. </a><a href="#name-implementing-pre-establishm" class="section-name selfRef">Implementing Pre-Establishment</a>
       </h2>
 <p id="section-3-1">The pre-establishment phase allows applications to specify properties for the Connections that they are about to make, or to query the API about potential Connections they could make.<a href="#section-3-1" class="pilcrow">¶</a></p>
-<p id="section-3-2">During pre-establishment the application specifies one or more Endpoints to be used for communication as well as protocol preferences and constraints via Selection Properties and, if desired, also Connection Properties. <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-taps-interface-24#section-4" class="relref">Section 4</a> of [<a href="#I-D.ietf-taps-interface" class="cite xref">I-D.ietf-taps-interface</a>]</span> states that Connection Properties should preferably be configured during pre-establishment, because they can serve as input to decisions that are made by the implementation (e.g., the capacity profile can guide usage of a protocol offering scavenger-type congestion control).<a href="#section-3-2" class="pilcrow">¶</a></p>
+<p id="section-3-2">During pre-establishment the application specifies one or more Endpoints to be used for communication as well as protocol preferences and constraints via Selection Properties and, if desired, also Connection Properties. <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-taps-interface-25#section-4" class="relref">Section 4</a> of [<a href="#I-D.ietf-taps-interface" class="cite xref">I-D.ietf-taps-interface</a>]</span> states that Connection Properties should preferably be configured during pre-establishment, because they can serve as input to decisions that are made by the implementation (e.g., the capacity profile can guide usage of a protocol offering scavenger-type congestion control).<a href="#section-3-2" class="pilcrow">¶</a></p>
 <p id="section-3-3">The implementation stores these properties as a part of the Preconnection object for use during connection establishment. For Selection Properties that are not provided by the application, the implementation uses the default values specified in the Transport Services API (<span>[<a href="#I-D.ietf-taps-interface" class="cite xref">I-D.ietf-taps-interface</a>]</span>).<a href="#section-3-3" class="pilcrow">¶</a></p>
 <div id="configuration-time-errors">
 <section id="section-3.1">
         <h3 id="name-configuration-time-errors">
 <a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-configuration-time-errors" class="section-name selfRef">Configuration-time errors</a>
         </h3>
-<p id="section-3.1-1">The Transport Services system should have a list of supported protocols available, which each have transport features reflecting the capabilities of the protocol. Once an application specifies its Transport Properties, the Transport Services system matches the required and prohibited properties against the transport features of the available protocols (see <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-taps-interface-24#section-6.2" class="relref">Section 6.2</a> of [<a href="#I-D.ietf-taps-interface" class="cite xref">I-D.ietf-taps-interface</a>]</span> for the definition of property preferences).<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.1-1">The Transport Services system should have a list of supported protocols available, which each have transport features reflecting the capabilities of the protocol. Once an application specifies its Transport Properties, the Transport Services system matches the required and prohibited properties against the transport features of the available protocols (see <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-taps-interface-25#section-6.2" class="relref">Section 6.2</a> of [<a href="#I-D.ietf-taps-interface" class="cite xref">I-D.ietf-taps-interface</a>]</span> for the definition of property preferences).<a href="#section-3.1-1" class="pilcrow">¶</a></p>
 <p id="section-3.1-2">In the following cases, failure should be detected during pre-establishment:<a href="#section-3.1-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-3.1-3.1">
@@ -1458,7 +1458,7 @@ Aggregate [Endpoint Identifier: www.example.com:443] [Interface: Any]   [Protoco
 </div>
 <p id="section-4-7">Any one of these sub-entries on the aggregate connection attempt would satisfy the original application intent. The concern of this section is the algorithm defining which of these options to try, when, and in what order.<a href="#section-4-7" class="pilcrow">¶</a></p>
 <p id="section-4-8">During Candidate Gathering (<a href="#gathering" class="auto internal xref">Section 4.2</a>), an implementation prunes and sorts branches according
-to the Selection Property preferences (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-taps-interface-24#section-6.2" class="relref">Section 6.2</a> of [<a href="#I-D.ietf-taps-interface" class="cite xref">I-D.ietf-taps-interface</a>]</span>.
+to the Selection Property preferences (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-taps-interface-25#section-6.2" class="relref">Section 6.2</a> of [<a href="#I-D.ietf-taps-interface" class="cite xref">I-D.ietf-taps-interface</a>]</span>.
 It first excludes all protocols and paths that match a Prohibit property or do not
 match all Require properties. Then it will sort branches according to Preferred
 properties, Avoided properties, and possibly other criteria.<a href="#section-4-8" class="pilcrow">¶</a></p>
@@ -1677,7 +1677,7 @@ Prefer adapting to paths to determine the highest available capacity, based on t
 </li>
           </ul>
 <p id="section-4.1.3-4">As another example, branch sorting can also be influenced by bounds on the send or receive rate (Selection Properties <code>minSendRate</code> / <code>minRecvRate</code> / <code>maxSendRate</code> / <code>maxRecvRate</code>): if the application indicates a bound on the expected send or receive bitrate, an implementation may prefer a path that can likely provide the desired bandwidth, based on cached maximum throughput, see <a href="#performance-caches" class="auto internal xref">Section 9.2</a>. The application may know the send or receive bitrate from metadata in adaptive HTTP streaming, such as MPEG-DASH.<a href="#section-4.1.3-4" class="pilcrow">¶</a></p>
-<p id="section-4.1.3-5">Implementations process the Properties (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-taps-interface-24#section-6.2" class="relref">Section 6.2</a> of [<a href="#I-D.ietf-taps-interface" class="cite xref">I-D.ietf-taps-interface</a>]</span>) in the following order: Prohibit, Require, Prefer, Avoid.
+<p id="section-4.1.3-5">Implementations process the Properties (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-taps-interface-25#section-6.2" class="relref">Section 6.2</a> of [<a href="#I-D.ietf-taps-interface" class="cite xref">I-D.ietf-taps-interface</a>]</span>) in the following order: Prohibit, Require, Prefer, Avoid.
 If Selection Properties contain any prohibited properties, the implementation should first purge branches containing nodes with these properties. For required properties, it should only keep branches that satisfy these requirements. Finally, it should order the branches according to the preferred properties, and finally use any avoided properties as a tiebreaker.
 When ordering branches, an implementation can give more weight to properties that the application has explicitly set, than to the properties that are default.<a href="#section-4.1.3-5" class="pilcrow">¶</a></p>
 <p id="section-4.1.3-6">The available protocols and paths on a specific system and in a specific context can change; therefore, the result of sorting and the outcome of racing may vary, even when using the same Selection and Connection Properties. However, an implementation ought to provide a consistent outcome to applications, e.g., by preferring protocols and paths that are already used by existing Connections that specified similar Properties.<a href="#section-4.1.3-6" class="pilcrow">¶</a></p>
@@ -1779,7 +1779,7 @@ When ordering branches, an implementation can give more weight to properties tha
         <h3 id="name-completing-establishment">
 <a href="#section-4.4" class="section-number selfRef">4.4. </a><a href="#name-completing-establishment" class="section-name selfRef">Completing Establishment</a>
         </h3>
-<p id="section-4.4-1">The process of connection establishment completes when one leaf node of the tree has successfully completed negotiation with the Remote Endpoint, or else all nodes of the tree have failed to connect. The first leaf node to complete its connection is then used by the application to send and receive data. This is signalled to the application using the <code>Ready</code> event in the API (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-taps-interface-24#section-7.1" class="relref">Section 7.1</a> of [<a href="#I-D.ietf-taps-interface" class="cite xref">I-D.ietf-taps-interface</a>]</span>).<a href="#section-4.4-1" class="pilcrow">¶</a></p>
+<p id="section-4.4-1">The process of connection establishment completes when one leaf node of the tree has successfully completed negotiation with the Remote Endpoint, or else all nodes of the tree have failed to connect. The first leaf node to complete its connection is then used by the application to send and receive data. This is signalled to the application using the <code>Ready</code> event in the API (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-taps-interface-25#section-7.1" class="relref">Section 7.1</a> of [<a href="#I-D.ietf-taps-interface" class="cite xref">I-D.ietf-taps-interface</a>]</span>).<a href="#section-4.4-1" class="pilcrow">¶</a></p>
 <p id="section-4.4-2">Successes and failures of a given attempt should be reported up to parent nodes (towards the root of the tree). For example, in the following case, if 1.1.1 fails to connect, it reports the failure to 1.1. Since 1.1 has no other child nodes, it also has failed and reports that failure to 1. Because 1.2 has not yet failed, 1 is not considered to have failed. Since 1.2 has not yet started, it is started and the process continues. Similarly, if 1.1.1 successfully connects, then it marks 1.1 as connected, which propagates to the root node 1. At this point, the Connection as a whole is considered to be successfully connected and ready to process application data.<a href="#section-4.4-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.4-3">
 <pre>
@@ -2022,7 +2022,7 @@ implementation or the application itself. The Message Framer refers to the objec
 or function within the main Connection implementation that delivers events
 to the custom framer implementation whenever data is ready to be parsed or framed.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
 <p id="section-6.1-2">The API examples in this section use the notation conventions for the Transport
-Services API defined in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-taps-interface-24#section-1.1" class="relref">Section 1.1</a> of [<a href="#I-D.ietf-taps-interface" class="cite xref">I-D.ietf-taps-interface</a>]</span>.<a href="#section-6.1-2" class="pilcrow">¶</a></p>
+Services API defined in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-taps-interface-25#section-1.1" class="relref">Section 1.1</a> of [<a href="#I-D.ietf-taps-interface" class="cite xref">I-D.ietf-taps-interface</a>]</span>.<a href="#section-6.1-2" class="pilcrow">¶</a></p>
 <p id="section-6.1-3">The Transport Services Implementation needs to ensure that all of the
 events and actions taken on a Message Framer are synchronized to ensure
 consistent behavior. For example, some of the actions defined below (such as
@@ -2092,7 +2092,7 @@ MessageFramer.StartPassthrough()
 <a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-sender-side-message-framing" class="section-name selfRef">Sender-side Message Framing</a>
         </h3>
 <p id="section-6.2-1">Message Framers generate an event whenever a Connection sends a new Message. The parameters to the event
-align with the <code>Send</code> action in the API (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-taps-interface-24#section-9.2" class="relref">Section 9.2</a> of [<a href="#I-D.ietf-taps-interface" class="cite xref">I-D.ietf-taps-interface</a>]</span>).<a href="#section-6.2-1" class="pilcrow">¶</a></p>
+align with the <code>Send</code> action in the API (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-taps-interface-25#section-9.2" class="relref">Section 9.2</a> of [<a href="#I-D.ietf-taps-interface" class="cite xref">I-D.ietf-taps-interface</a>]</span>).<a href="#section-6.2-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-6.2-2">
 <pre>
                         MessageFramer
@@ -2124,7 +2124,7 @@ Message data.<a href="#section-6.2-5" class="pilcrow">¶</a></p>
 <p id="section-6.3-1">In order to parse a received flow of data into Messages, the Message Framer
 notifies the framer implementation whenever new data is available to parse.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
 <p id="section-6.3-2">The parameters to the events and calls for receiving data with a framer
-align with the <code>Receive</code> action in the API (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-taps-interface-24#section-9.3" class="relref">Section 9.3</a> of [<a href="#I-D.ietf-taps-interface" class="cite xref">I-D.ietf-taps-interface</a>]</span>).<a href="#section-6.3-2" class="pilcrow">¶</a></p>
+align with the <code>Receive</code> action in the API (<span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-taps-interface-25#section-9.3" class="relref">Section 9.3</a> of [<a href="#I-D.ietf-taps-interface" class="cite xref">I-D.ietf-taps-interface</a>]</span>).<a href="#section-6.3-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-6.3-3">
 <pre>
 MessageFramer -&gt; HandleReceivedData&lt;connection&gt;
@@ -2783,7 +2783,7 @@ Thanks also to Stuart Cheshire, Josh Graessley, David Schinazi, and Eric Kinnear
 <dd class="break"></dd>
 <dt id="I-D.ietf-taps-interface">[I-D.ietf-taps-interface]</dt>
         <dd>
-<span class="refAuthor">Trammell, B.</span>, <span class="refAuthor">Welzl, M.</span>, <span class="refAuthor">Enghardt, R.</span>, <span class="refAuthor">Fairhurst, G.</span>, <span class="refAuthor">Kühlewind, M.</span>, <span class="refAuthor">Perkins, C.</span>, <span class="refAuthor">Tiesel, P. S.</span>, and <span class="refAuthor">T. Pauly</span>, <span class="refTitle">"An Abstract Application Layer Interface to Transport Services"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-taps-interface-24</span>, <time datetime="2023-12-14" class="refDate">14 December 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-taps-interface-24">https://datatracker.ietf.org/doc/html/draft-ietf-taps-interface-24</a>&gt;</span>. </dd>
+<span class="refAuthor">Trammell, B.</span>, <span class="refAuthor">Welzl, M.</span>, <span class="refAuthor">Enghardt, R.</span>, <span class="refAuthor">Fairhurst, G.</span>, <span class="refAuthor">Kühlewind, M.</span>, <span class="refAuthor">Perkins, C.</span>, <span class="refAuthor">Tiesel, P. S.</span>, and <span class="refAuthor">T. Pauly</span>, <span class="refTitle">"An Abstract Application Layer Interface to Transport Services"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-taps-interface-25</span>, <time datetime="2024-01-29" class="refDate">29 January 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-taps-interface-25">https://datatracker.ietf.org/doc/html/draft-ietf-taps-interface-25</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC7413">[RFC7413]</dt>
         <dd>

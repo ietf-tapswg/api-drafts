@@ -24,18 +24,18 @@ BSD sockets API as the common interface to the
 transport layer, in an environment where endpoints could select from
 multiple network paths and potential transport protocols. 
     " name="description">
-<meta content="xml2rfc 3.19.1" name="generator">
+<meta content="xml2rfc 3.20.0" name="generator">
 <meta content="Internet-Draft" name="keyword">
 <meta content="draft-ietf-taps-interface-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.19.1
-    Python 3.11.6
+  xml2rfc 3.20.0
+    Python 3.11.8
     ConfigArgParse 1.7
     google-i18n-address 3.1.0
     intervaltree 3.1.0
     Jinja2 3.1.2
     lxml 4.9.3
-    platformdirs 4.1.0
+    platformdirs 4.2.0
     pycountry 22.3.5
     PyYAML 6.0.1
     requests 2.31.0
@@ -1040,11 +1040,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">TAPS Interface</td>
-<td class="right">January 2024</td>
+<td class="right">March 2024</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Trammell, et al.</td>
-<td class="center">Expires 2 August 2024</td>
+<td class="center">Expires 13 September 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1057,12 +1057,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-ietf-taps-interface-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-01-30" class="published">30 January 2024</time>
+<time datetime="2024-03-12" class="published">12 March 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-08-02">2 August 2024</time></dd>
+<dd class="expires"><time datetime="2024-09-13">13 September 2024</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1134,7 +1134,7 @@ multiple network paths and potential transport protocols.<a href="#section-abstr
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 2 August 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 13 September 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1665,7 +1665,7 @@ implementing platform.<a href="#section-1.1-15" class="pilcrow">¶</a></p>
             <p id="section-1.1-17.4.1">String: Instances are represented in UTF-8.<a href="#section-1.1-17.4.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-1.1-17.5">
-            <p id="section-1.1-17.5.1">IP Address: An IPv4 or IPv6 address <span>[<a href="#RFC5952" class="cite xref">RFC5952</a>]</span>.<a href="#section-1.1-17.5.1" class="pilcrow">¶</a></p>
+            <p id="section-1.1-17.5.1">IP Address: An IPv4 <span>[<a href="#RFC791" class="cite xref">RFC791</a>]</span> or IPv6 <span>[<a href="#RFC4291" class="cite xref">RFC4291</a>]</span> address.<a href="#section-1.1-17.5.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-1.1-17.6">
             <p id="section-1.1-17.6.1">Enumeration: A family of types in which each instance takes one of a fixed,
@@ -2287,7 +2287,7 @@ RemoteSpecifier.WithService("https")
 </div>
 <ul class="normal">
 <li class="normal" id="section-6.1-11.1">
-            <p id="section-6.1-11.1.1">IP address (IPv4 or IPv6 address):<a href="#section-6.1-11.1.1" class="pilcrow">¶</a></p>
+            <p id="section-6.1-11.1.1">IP address (an IPv4 or IPv6 address type; note that the examples here show the human-readable form of the IP addresses, but the functions can take a binary encoding of the addresses):<a href="#section-6.1-11.1.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <div class="alignLeft art-text artwork" id="section-6.1-12">
@@ -2302,7 +2302,7 @@ RemoteSpecifier.WithIPAddress(2001:db8:4920:e29d:a420:7461:7073:a)
 </div>
 <ul class="normal">
 <li class="normal" id="section-6.1-14.1">
-            <p id="section-6.1-14.1.1">Interface name (string), e.g., to qualify link-local addresses (see <a href="#ifspec" class="auto internal xref">Section 6.1.2</a> for details):<a href="#section-6.1-14.1.1" class="pilcrow">¶</a></p>
+            <p id="section-6.1-14.1.1">Interface identifier (which can be a string name or other platform-specific identifier), e.g., to qualify link-local addresses (see <a href="#ifspec" class="auto internal xref">Section 6.1.2</a> for details):<a href="#section-6.1-14.1.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <div class="alignLeft art-text artwork" id="section-6.1-15">
@@ -6155,6 +6155,10 @@ and for contributing text, e.g., on multicast.<a href="#section-14-5" class="pil
         <dd>
 <span class="refAuthor">Rosenberg, J.</span>, <span class="refAuthor">Schulzrinne, H.</span>, <span class="refAuthor">Camarillo, G.</span>, <span class="refAuthor">Johnston, A.</span>, <span class="refAuthor">Peterson, J.</span>, <span class="refAuthor">Sparks, R.</span>, <span class="refAuthor">Handley, M.</span>, and <span class="refAuthor">E. Schooler</span>, <span class="refTitle">"SIP: Session Initiation Protocol"</span>, <span class="seriesInfo">RFC 3261</span>, <span class="seriesInfo">DOI 10.17487/RFC3261</span>, <time datetime="2002-06" class="refDate">June 2002</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc3261">https://www.rfc-editor.org/rfc/rfc3261</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC4291">[RFC4291]</dt>
+        <dd>
+<span class="refAuthor">Hinden, R.</span> and <span class="refAuthor">S. Deering</span>, <span class="refTitle">"IP Version 6 Addressing Architecture"</span>, <span class="seriesInfo">RFC 4291</span>, <span class="seriesInfo">DOI 10.17487/RFC4291</span>, <time datetime="2006-02" class="refDate">February 2006</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc4291">https://www.rfc-editor.org/rfc/rfc4291</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC4594">[RFC4594]</dt>
         <dd>
 <span class="refAuthor">Babiarz, J.</span>, <span class="refAuthor">Chan, K.</span>, and <span class="refAuthor">F. Baker</span>, <span class="refTitle">"Configuration Guidelines for DiffServ Service Classes"</span>, <span class="seriesInfo">RFC 4594</span>, <span class="seriesInfo">DOI 10.17487/RFC4594</span>, <time datetime="2006-08" class="refDate">August 2006</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc4594">https://www.rfc-editor.org/rfc/rfc4594</a>&gt;</span>. </dd>
@@ -6171,10 +6175,6 @@ and for contributing text, e.g., on multicast.<a href="#section-14-5" class="pil
         <dd>
 <span class="refAuthor">Baker, F.</span>, <span class="refAuthor">Polk, J.</span>, and <span class="refAuthor">M. Dolly</span>, <span class="refTitle">"A Differentiated Services Code Point (DSCP) for Capacity-Admitted Traffic"</span>, <span class="seriesInfo">RFC 5865</span>, <span class="seriesInfo">DOI 10.17487/RFC5865</span>, <time datetime="2010-05" class="refDate">May 2010</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc5865">https://www.rfc-editor.org/rfc/rfc5865</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="RFC5952">[RFC5952]</dt>
-        <dd>
-<span class="refAuthor">Kawamura, S.</span> and <span class="refAuthor">M. Kawashima</span>, <span class="refTitle">"A Recommendation for IPv6 Address Text Representation"</span>, <span class="seriesInfo">RFC 5952</span>, <span class="seriesInfo">DOI 10.17487/RFC5952</span>, <time datetime="2010-08" class="refDate">August 2010</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc5952">https://www.rfc-editor.org/rfc/rfc5952</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="RFC7478">[RFC7478]</dt>
         <dd>
 <span class="refAuthor">Holmberg, C.</span>, <span class="refAuthor">Hakansson, S.</span>, and <span class="refAuthor">G. Eriksson</span>, <span class="refTitle">"Web Real-Time Communication Use Cases and Requirements"</span>, <span class="seriesInfo">RFC 7478</span>, <span class="seriesInfo">DOI 10.17487/RFC7478</span>, <time datetime="2015-03" class="refDate">March 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7478">https://www.rfc-editor.org/rfc/rfc7478</a>&gt;</span>. </dd>
@@ -6186,6 +6186,10 @@ and for contributing text, e.g., on multicast.<a href="#section-14-5" class="pil
 <dt id="RFC7657">[RFC7657]</dt>
         <dd>
 <span class="refAuthor">Black, D., Ed.</span> and <span class="refAuthor">P. Jones</span>, <span class="refTitle">"Differentiated Services (Diffserv) and Real-Time Communication"</span>, <span class="seriesInfo">RFC 7657</span>, <span class="seriesInfo">DOI 10.17487/RFC7657</span>, <time datetime="2015-11" class="refDate">November 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7657">https://www.rfc-editor.org/rfc/rfc7657</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC791">[RFC791]</dt>
+        <dd>
+<span class="refAuthor">Postel, J.</span>, <span class="refTitle">"Internet Protocol"</span>, <span class="seriesInfo">STD 5</span>, <span class="seriesInfo">RFC 791</span>, <span class="seriesInfo">DOI 10.17487/RFC0791</span>, <time datetime="1981-09" class="refDate">September 1981</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc791">https://www.rfc-editor.org/rfc/rfc791</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC8084">[RFC8084]</dt>
         <dd>
