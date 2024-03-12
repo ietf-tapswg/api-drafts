@@ -24,18 +24,18 @@ BSD sockets API as the common interface to the
 transport layer, in an environment where endpoints could select from
 multiple network paths and potential transport protocols. 
     " name="description">
-<meta content="xml2rfc 3.19.1" name="generator">
+<meta content="xml2rfc 3.20.0" name="generator">
 <meta content="Internet-Draft" name="keyword">
 <meta content="draft-ietf-taps-interface-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.19.1
-    Python 3.11.6
+  xml2rfc 3.20.0
+    Python 3.11.8
     ConfigArgParse 1.7
     google-i18n-address 3.1.0
     intervaltree 3.1.0
     Jinja2 3.1.2
     lxml 4.9.3
-    platformdirs 4.1.0
+    platformdirs 4.2.0
     pycountry 22.3.5
     PyYAML 6.0.1
     requests 2.31.0
@@ -1040,11 +1040,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">TAPS Interface</td>
-<td class="right">January 2024</td>
+<td class="right">March 2024</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Trammell, et al.</td>
-<td class="center">Expires 30 July 2024</td>
+<td class="center">Expires 13 September 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1057,12 +1057,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-ietf-taps-interface-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-01-27" class="published">27 January 2024</time>
+<time datetime="2024-03-12" class="published">12 March 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-07-30">30 July 2024</time></dd>
+<dd class="expires"><time datetime="2024-09-13">13 September 2024</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1134,7 +1134,7 @@ multiple network paths and potential transport protocols.<a href="#section-abstr
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 30 July 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 13 September 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1296,25 +1296,28 @@ multiple network paths and potential transport protocols.<a href="#section-abstr
                 <p id="section-toc.1-1.6.2.3.1"><a href="#section-6.3" class="auto internal xref">6.3</a>.  <a href="#name-specifying-security-paramet" class="internal xref">Specifying Security Parameters and Callbacks</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.3.2.1">
-                    <p id="section-toc.1-1.6.2.3.2.1.1"><a href="#section-6.3.1" class="auto internal xref">6.3.1</a>.  <a href="#name-certificate-bundles" class="internal xref">Certificate bundles</a></p>
+                    <p id="section-toc.1-1.6.2.3.2.1.1"><a href="#section-6.3.1" class="auto internal xref">6.3.1</a>.  <a href="#name-allowed-security-protocols" class="internal xref">Allowed security protocols</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.3.2.2">
-                    <p id="section-toc.1-1.6.2.3.2.2.1"><a href="#section-6.3.2" class="auto internal xref">6.3.2</a>.  <a href="#name-pinned-server-certificate" class="internal xref">Pinned server certificate</a></p>
+                    <p id="section-toc.1-1.6.2.3.2.2.1"><a href="#section-6.3.2" class="auto internal xref">6.3.2</a>.  <a href="#name-certificate-bundles" class="internal xref">Certificate bundles</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.3.2.3">
-                    <p id="section-toc.1-1.6.2.3.2.3.1"><a href="#section-6.3.3" class="auto internal xref">6.3.3</a>.  <a href="#name-application-layer-protocol-" class="internal xref">Application-layer protocol negotiation</a></p>
+                    <p id="section-toc.1-1.6.2.3.2.3.1"><a href="#section-6.3.3" class="auto internal xref">6.3.3</a>.  <a href="#name-pinned-server-certificate" class="internal xref">Pinned server certificate</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.3.2.4">
-                    <p id="section-toc.1-1.6.2.3.2.4.1"><a href="#section-6.3.4" class="auto internal xref">6.3.4</a>.  <a href="#name-groups-ciphersuites-and-sig" class="internal xref">Groups, ciphersuites, and signature algorithms</a></p>
+                    <p id="section-toc.1-1.6.2.3.2.4.1"><a href="#section-6.3.4" class="auto internal xref">6.3.4</a>.  <a href="#name-application-layer-protocol-" class="internal xref">Application-layer protocol negotiation</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.3.2.5">
-                    <p id="section-toc.1-1.6.2.3.2.5.1"><a href="#section-6.3.5" class="auto internal xref">6.3.5</a>.  <a href="#name-session-cache-options" class="internal xref">Session cache options</a></p>
+                    <p id="section-toc.1-1.6.2.3.2.5.1"><a href="#section-6.3.5" class="auto internal xref">6.3.5</a>.  <a href="#name-groups-ciphersuites-and-sig" class="internal xref">Groups, ciphersuites, and signature algorithms</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.3.2.6">
-                    <p id="section-toc.1-1.6.2.3.2.6.1"><a href="#section-6.3.6" class="auto internal xref">6.3.6</a>.  <a href="#name-pre-shared-key" class="internal xref">Pre-shared key</a></p>
+                    <p id="section-toc.1-1.6.2.3.2.6.1"><a href="#section-6.3.6" class="auto internal xref">6.3.6</a>.  <a href="#name-session-cache-options" class="internal xref">Session cache options</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.3.2.7">
-                    <p id="section-toc.1-1.6.2.3.2.7.1"><a href="#section-6.3.7" class="auto internal xref">6.3.7</a>.  <a href="#name-connection-establishment-ca" class="internal xref">Connection Establishment Callbacks</a></p>
+                    <p id="section-toc.1-1.6.2.3.2.7.1"><a href="#section-6.3.7" class="auto internal xref">6.3.7</a>.  <a href="#name-pre-shared-key" class="internal xref">Pre-shared key</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.3.2.8">
+                    <p id="section-toc.1-1.6.2.3.2.8.1"><a href="#section-6.3.8" class="auto internal xref">6.3.8</a>.  <a href="#name-connection-establishment-ca" class="internal xref">Connection Establishment Callbacks</a></p>
 </li>
                 </ul>
 </li>
@@ -1662,7 +1665,7 @@ implementing platform.<a href="#section-1.1-15" class="pilcrow">¶</a></p>
             <p id="section-1.1-17.4.1">String: Instances are represented in UTF-8.<a href="#section-1.1-17.4.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-1.1-17.5">
-            <p id="section-1.1-17.5.1">IP Address: An IPv4 or IPv6 address <span>[<a href="#RFC5952" class="cite xref">RFC5952</a>]</span>.<a href="#section-1.1-17.5.1" class="pilcrow">¶</a></p>
+            <p id="section-1.1-17.5.1">IP Address: An IPv4 <span>[<a href="#RFC791" class="cite xref">RFC791</a>]</span> or IPv6 <span>[<a href="#RFC4291" class="cite xref">RFC4291</a>]</span> address.<a href="#section-1.1-17.5.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-1.1-17.6">
             <p id="section-1.1-17.6.1">Enumeration: A family of types in which each instance takes one of a fixed,
@@ -2253,79 +2256,69 @@ to several different IP addresses on different hosts.<a href="#section-6.1-3" cl
 <p id="section-6.1-4">An Endpoint object can be configured with the following identifiers:<a href="#section-6.1-4" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-6.1-5.1">
-            <p id="section-6.1-5.1.1">FQDN (string containing a Fully Qualified Domain Name):<a href="#section-6.1-5.1.1" class="pilcrow">¶</a></p>
+            <p id="section-6.1-5.1.1">HostName (string):<a href="#section-6.1-5.1.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <div class="alignLeft art-text artwork" id="section-6.1-6">
 <pre>
-RemoteSpecifier.FQDN("example.com")
+RemoteSpecifier.WithHostName("example.com")
 </pre><a href="#section-6.1-6" class="pilcrow">¶</a>
 </div>
 <ul class="normal">
 <li class="normal" id="section-6.1-7.1">
-            <p id="section-6.1-7.1.1">HostName (string that gets qualified while resolving, e.g., using DNS search domains):<a href="#section-6.1-7.1.1" class="pilcrow">¶</a></p>
+            <p id="section-6.1-7.1.1">Port (a 16-bit unsigned Integer):<a href="#section-6.1-7.1.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <div class="alignLeft art-text artwork" id="section-6.1-8">
 <pre>
-RemoteSpecifier.WithHostName("example.com")
+RemoteSpecifier.WithPort(443)
 </pre><a href="#section-6.1-8" class="pilcrow">¶</a>
 </div>
 <ul class="normal">
 <li class="normal" id="section-6.1-9.1">
-            <p id="section-6.1-9.1.1">Port (a 16-bit unsigned Integer):<a href="#section-6.1-9.1.1" class="pilcrow">¶</a></p>
+            <p id="section-6.1-9.1.1">Service (an identifier string that maps to a port; either a service
+name associated with a port number, from https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml, or a DNS SRV service name to be resolved):<a href="#section-6.1-9.1.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <div class="alignLeft art-text artwork" id="section-6.1-10">
 <pre>
-RemoteSpecifier.WithPort(443)
+RemoteSpecifier.WithService("https")
 </pre><a href="#section-6.1-10" class="pilcrow">¶</a>
 </div>
 <ul class="normal">
 <li class="normal" id="section-6.1-11.1">
-            <p id="section-6.1-11.1.1">Service (an identifier string that maps to a port; either a service
-name associated with a port number, from https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml, or a DNS SRV service name to be resolved):<a href="#section-6.1-11.1.1" class="pilcrow">¶</a></p>
+            <p id="section-6.1-11.1.1">IP address (an IPv4 or IPv6 address type; note that the examples here show the human-readable form of the IP addresses, but the functions can take a binary encoding of the addresses):<a href="#section-6.1-11.1.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <div class="alignLeft art-text artwork" id="section-6.1-12">
 <pre>
-RemoteSpecifier.WithService("https")
+RemoteSpecifier.WithIPAddress(192.0.2.21)
 </pre><a href="#section-6.1-12" class="pilcrow">¶</a>
 </div>
-<ul class="normal">
-<li class="normal" id="section-6.1-13.1">
-            <p id="section-6.1-13.1.1">IP address (IPv4 or IPv6 address):<a href="#section-6.1-13.1.1" class="pilcrow">¶</a></p>
-</li>
-        </ul>
-<div class="alignLeft art-text artwork" id="section-6.1-14">
-<pre>
-RemoteSpecifier.WithIPAddress(192.0.2.21)
-</pre><a href="#section-6.1-14" class="pilcrow">¶</a>
-</div>
-<div class="alignLeft art-text artwork" id="section-6.1-15">
+<div class="alignLeft art-text artwork" id="section-6.1-13">
 <pre>
 RemoteSpecifier.WithIPAddress(2001:db8:4920:e29d:a420:7461:7073:a)
-</pre><a href="#section-6.1-15" class="pilcrow">¶</a>
+</pre><a href="#section-6.1-13" class="pilcrow">¶</a>
 </div>
 <ul class="normal">
-<li class="normal" id="section-6.1-16.1">
-            <p id="section-6.1-16.1.1">Interface name (string), e.g., to qualify link-local addresses (see <a href="#ifspec" class="auto internal xref">Section 6.1.2</a> for details):<a href="#section-6.1-16.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-6.1-14.1">
+            <p id="section-6.1-14.1.1">Interface identifier (which can be a string name or other platform-specific identifier), e.g., to qualify link-local addresses (see <a href="#ifspec" class="auto internal xref">Section 6.1.2</a> for details):<a href="#section-6.1-14.1.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<div class="alignLeft art-text artwork" id="section-6.1-17">
+<div class="alignLeft art-text artwork" id="section-6.1-15">
 <pre>
 LocalSpecifier.WithInterface("en0")
-</pre><a href="#section-6.1-17" class="pilcrow">¶</a>
+</pre><a href="#section-6.1-15" class="pilcrow">¶</a>
 </div>
-<p id="section-6.1-18">The <code>Resolve</code> action on a Preconnection can be used to obtain a list of
-available local interfaces.<a href="#section-6.1-18" class="pilcrow">¶</a></p>
-<p id="section-6.1-19">Note that an IPv6 address specified with a scope zone ID (e.g. <code>fe80::2001:db8%en0</code>)
-is equivalent to <code>WithIPAddress</code> with an unscoped address and <code>WithInterface </code> together.<a href="#section-6.1-19" class="pilcrow">¶</a></p>
-<p id="section-6.1-20">Applications creating Endpoint objects using <code>WithHostName</code> should consider using fully-qualified
-domain names (FQDNs) instead. Not providing an FQDN will result in the Transport Services Implementation
+<p id="section-6.1-16">The <code>Resolve</code> action on a Preconnection can be used to obtain a list of
+available local interfaces.<a href="#section-6.1-16" class="pilcrow">¶</a></p>
+<p id="section-6.1-17">Note that an IPv6 address specified with a scope zone ID (e.g. <code>fe80::2001:db8%en0</code>)
+is equivalent to <code>WithIPAddress</code> with an unscoped address and <code>WithInterface </code> together.<a href="#section-6.1-17" class="pilcrow">¶</a></p>
+<p id="section-6.1-18">Applications creating Endpoint objects using <code>WithHostName</code> SHOULD provide fully-qualified
+domain names (FQDNs). Not providing an FQDN will result in the Transport Services Implementation
 needing to use DNS search domains for name resolution, which might lead to inconsistent or unpredictable
-behavior.<a href="#section-6.1-20" class="pilcrow">¶</a></p>
-<p id="section-6.1-21">The design of the API MUST NOT permit an Endpoint object to be configured with multiple Endpoint Identifiers of the same type.
+behavior.<a href="#section-6.1-18" class="pilcrow">¶</a></p>
+<p id="section-6.1-19">The design of the API MUST NOT permit an Endpoint object to be configured with multiple Endpoint Identifiers of the same type.
 For example, an Endpoint object cannot specify two IP addresses. Two separate IP addresses
 are represented as two Endpoint objects. If a Preconnection specifies a Remote
 Endpoint with a specific IP address set, it will only establish Connections to
@@ -2333,13 +2326,13 @@ that IP address. If, on the other hand, a Remote Endpoint specifies a hostname
 but no addresses, the Transport Services Implementation can perform name resolution and attempt
 using any address derived from the original hostname of the Remote Endpoint.
 Note that multiple Remote Endpoints can be added to a Preconnection, as discussed
-in <a href="#add-endpoints" class="auto internal xref">Section 7.5</a>.<a href="#section-6.1-21" class="pilcrow">¶</a></p>
-<p id="section-6.1-22">The Transport Services system resolves names internally, when the <code>Initiate</code>,
+in <a href="#add-endpoints" class="auto internal xref">Section 7.5</a>.<a href="#section-6.1-19" class="pilcrow">¶</a></p>
+<p id="section-6.1-20">The Transport Services system resolves names internally, when the <code>Initiate</code>,
 <code>Listen</code>, or <code>Rendezvous</code> method is called to establish a Connection. Privacy
-considerations for the timing of this resolution are given in <a href="#privacy-security" class="auto internal xref">Section 13</a>.<a href="#section-6.1-22" class="pilcrow">¶</a></p>
-<p id="section-6.1-23">The <code>Resolve</code> action on a Preconnection can be used by the application to force
+considerations for the timing of this resolution are given in <a href="#privacy-security" class="auto internal xref">Section 13</a>.<a href="#section-6.1-20" class="pilcrow">¶</a></p>
+<p id="section-6.1-21">The <code>Resolve</code> action on a Preconnection can be used by the application to force
 early binding when required, for example with some Network Address Translator
-(NAT) traversal protocols (see <a href="#rendezvous" class="auto internal xref">Section 7.3</a>).<a href="#section-6.1-23" class="pilcrow">¶</a></p>
+(NAT) traversal protocols (see <a href="#rendezvous" class="auto internal xref">Section 7.3</a>).<a href="#section-6.1-21" class="pilcrow">¶</a></p>
 <div id="using-multicast-endpoints">
 <section id="section-6.1.1">
           <h4 id="name-using-multicast-endpoints">
@@ -3402,7 +3395,9 @@ configuration and actively during a handshake.<a href="#section-6.3-8" class="pi
 <p id="section-6.3-9">The set of security parameters defined here is not exhaustive, but illustrative.
 Implementations SHOULD expose an equivalent to the parameters listed below to allow for
 sufficient configuration of security parameters, but the details are expected
-to vary based on platform and implementation constraints.<a href="#section-6.3-9" class="pilcrow">¶</a></p>
+to vary based on platform and implementation constraints. Applications MUST be able
+to constrain the security protocols and versions that the Transport Services System
+will use.<a href="#section-6.3-9" class="pilcrow">¶</a></p>
 <p id="section-6.3-10">Representation of security parameters in implementations ought to parallel
 that chosen for Transport Property names as suggested in <a href="#scope-of-interface-defn" class="auto internal xref">Section 5</a>.<a href="#section-6.3-10" class="pilcrow">¶</a></p>
 <p id="section-6.3-11">Connections that use Transport Services SHOULD use security in general. However, for
@@ -3420,57 +3415,50 @@ SecurityParameters := NewDisabledSecurityParameters()
 SecurityParameters := NewOpportunisticSecurityParameters()
 </pre><a href="#section-6.3-12" class="pilcrow">¶</a>
 </div>
-<div id="certificate-bundles">
+<div id="allowed-security-protocols">
 <section id="section-6.3.1">
-          <h4 id="name-certificate-bundles">
-<a href="#section-6.3.1" class="section-number selfRef">6.3.1. </a><a href="#name-certificate-bundles" class="section-name selfRef">Certificate bundles</a>
+          <h4 id="name-allowed-security-protocols">
+<a href="#section-6.3.1" class="section-number selfRef">6.3.1. </a><a href="#name-allowed-security-protocols" class="section-name selfRef">Allowed security protocols</a>
           </h4>
 <span class="break"></span><dl class="dlParallel" id="section-6.3.1-1">
-            <dt id="section-6.3.1-1.1">Names:</dt>
+            <dt id="section-6.3.1-1.1">Name:</dt>
             <dd style="margin-left: 1.5em" id="section-6.3.1-1.2">
-              <p id="section-6.3.1-1.2.1">serverCertificate, clientCertificate<a href="#section-6.3.1-1.2.1" class="pilcrow">¶</a></p>
+              <p id="section-6.3.1-1.2.1">allowedSecurityProtocols<a href="#section-6.3.1-1.2.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-6.3.1-1.3">Type:</dt>
             <dd style="margin-left: 1.5em" id="section-6.3.1-1.4">
-              <p id="section-6.3.1-1.4.1">Array of certificate objects<a href="#section-6.3.1-1.4.1" class="pilcrow">¶</a></p>
+              <p id="section-6.3.1-1.4.1">Implementation-specific enumeration of security protocol names and/or versions.<a href="#section-6.3.1-1.4.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-6.3.1-1.5">Default:</dt>
             <dd style="margin-left: 1.5em" id="section-6.3.1-1.6">
-              <p id="section-6.3.1-1.6.1">Empty array<a href="#section-6.3.1-1.6.1" class="pilcrow">¶</a></p>
+              <p id="section-6.3.1-1.6.1">Implementation-specific best available security protocols<a href="#section-6.3.1-1.6.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 </dl>
-<p id="section-6.3.1-2">One or more certificate bundles identifying the Local Endpoint, whether
-as a server certificate or a client certificate. Multiple bundles may
-be provided to allow selection among different protocol stacks that may
-require differently formatted bundles. The form and format of the
-certificate bundle is implementation-specific. Note that if the private
-keys associated with a bundle are not available, e.g., since they are stored in hardware
-security modules (HSMs), handshake callbacks are necessary. See below for details.<a href="#section-6.3.1-2" class="pilcrow">¶</a></p>
+<p id="section-6.3.1-2">This property allows applications to restrict which security protocols and security protocol versions can be used in the protocol stack. Applications MUST be able to constrain the security protocols used by this or an equivalent mechanism, in order to prevent the use of security protocols with unknown or weak security properties.<a href="#section-6.3.1-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-6.3.1-3">
 <pre>
-SecurityParameters.Set(serverCertificate, myCertificateBundle[])
-SecurityParameters.Set(clientCertificate, myCertificateBundle[])
+SecurityParameters.Set(allowedSecurityProtocols, [ tls_1_2, tls_1_3 ])
 </pre><a href="#section-6.3.1-3" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
-<div id="pinned-server-certificate">
+<div id="certificate-bundles">
 <section id="section-6.3.2">
-          <h4 id="name-pinned-server-certificate">
-<a href="#section-6.3.2" class="section-number selfRef">6.3.2. </a><a href="#name-pinned-server-certificate" class="section-name selfRef">Pinned server certificate</a>
+          <h4 id="name-certificate-bundles">
+<a href="#section-6.3.2" class="section-number selfRef">6.3.2. </a><a href="#name-certificate-bundles" class="section-name selfRef">Certificate bundles</a>
           </h4>
 <span class="break"></span><dl class="dlParallel" id="section-6.3.2-1">
-            <dt id="section-6.3.2-1.1">Name:</dt>
+            <dt id="section-6.3.2-1.1">Names:</dt>
             <dd style="margin-left: 1.5em" id="section-6.3.2-1.2">
-              <p id="section-6.3.2-1.2.1">pinnedServerCertificate<a href="#section-6.3.2-1.2.1" class="pilcrow">¶</a></p>
+              <p id="section-6.3.2-1.2.1">serverCertificate, clientCertificate<a href="#section-6.3.2-1.2.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-6.3.2-1.3">Type:</dt>
             <dd style="margin-left: 1.5em" id="section-6.3.2-1.4">
-              <p id="section-6.3.2-1.4.1">Array of certificate chain objects<a href="#section-6.3.2-1.4.1" class="pilcrow">¶</a></p>
+              <p id="section-6.3.2-1.4.1">Array of certificate objects<a href="#section-6.3.2-1.4.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-6.3.2-1.5">Default:</dt>
@@ -3479,65 +3467,68 @@ SecurityParameters.Set(clientCertificate, myCertificateBundle[])
 </dd>
           <dd class="break"></dd>
 </dl>
-<p id="section-6.3.2-2">Zero or more certificate chains to use as pinned server
-certificates, such that connecting will fail if the presented server
-certificate does not match one of the supplied pinned certificates.
-The form and format of the certificate chain is implementation-specific.<a href="#section-6.3.2-2" class="pilcrow">¶</a></p>
+<p id="section-6.3.2-2">One or more certificate bundles identifying the Local Endpoint, whether
+as a server certificate or a client certificate. Multiple bundles may
+be provided to allow selection among different protocol stacks that may
+require differently formatted bundles. The form and format of the
+certificate bundle is implementation-specific. Note that if the private
+keys associated with a bundle are not available, e.g., since they are stored in hardware
+security modules (HSMs), handshake callbacks are necessary. See below for details.<a href="#section-6.3.2-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-6.3.2-3">
 <pre>
-SecurityParameters.Set(pinnedServerCertificate, yourCertificateChain[])
+SecurityParameters.Set(serverCertificate, myCertificateBundle[])
+SecurityParameters.Set(clientCertificate, myCertificateBundle[])
 </pre><a href="#section-6.3.2-3" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
-<div id="application-layer-protocol-negotiation">
+<div id="pinned-server-certificate">
 <section id="section-6.3.3">
-          <h4 id="name-application-layer-protocol-">
-<a href="#section-6.3.3" class="section-number selfRef">6.3.3. </a><a href="#name-application-layer-protocol-" class="section-name selfRef">Application-layer protocol negotiation</a>
+          <h4 id="name-pinned-server-certificate">
+<a href="#section-6.3.3" class="section-number selfRef">6.3.3. </a><a href="#name-pinned-server-certificate" class="section-name selfRef">Pinned server certificate</a>
           </h4>
 <span class="break"></span><dl class="dlParallel" id="section-6.3.3-1">
             <dt id="section-6.3.3-1.1">Name:</dt>
             <dd style="margin-left: 1.5em" id="section-6.3.3-1.2">
-              <p id="section-6.3.3-1.2.1">alpn<a href="#section-6.3.3-1.2.1" class="pilcrow">¶</a></p>
+              <p id="section-6.3.3-1.2.1">pinnedServerCertificate<a href="#section-6.3.3-1.2.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-6.3.3-1.3">Type:</dt>
             <dd style="margin-left: 1.5em" id="section-6.3.3-1.4">
-              <p id="section-6.3.3-1.4.1">Array of Strings<a href="#section-6.3.3-1.4.1" class="pilcrow">¶</a></p>
+              <p id="section-6.3.3-1.4.1">Array of certificate chain objects<a href="#section-6.3.3-1.4.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-6.3.3-1.5">Default:</dt>
             <dd style="margin-left: 1.5em" id="section-6.3.3-1.6">
-              <p id="section-6.3.3-1.6.1">Automatic selection<a href="#section-6.3.3-1.6.1" class="pilcrow">¶</a></p>
+              <p id="section-6.3.3-1.6.1">Empty array<a href="#section-6.3.3-1.6.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 </dl>
-<p id="section-6.3.3-2">Application-layer protocol negotiation (ALPN) values: used to indicate which
-application-layer protocols are negotiated by the security protocol layer.
-See <span>[<a href="#ALPN" class="cite xref">ALPN</a>]</span> for definition of the ALPN field. Note that the Transport
-Services System can provide ALPN values automatically, based on
-the protocols being used, if not explicitly specified by the application.<a href="#section-6.3.3-2" class="pilcrow">¶</a></p>
+<p id="section-6.3.3-2">Zero or more certificate chains to use as pinned server
+certificates, such that connecting will fail if the presented server
+certificate does not match one of the supplied pinned certificates.
+The form and format of the certificate chain is implementation-specific.<a href="#section-6.3.3-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-6.3.3-3">
 <pre>
-SecurityParameters.Set(alpn, ["h2"])
+SecurityParameters.Set(pinnedServerCertificate, yourCertificateChain[])
 </pre><a href="#section-6.3.3-3" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
-<div id="groups-ciphersuites-and-signature-algorithms">
+<div id="application-layer-protocol-negotiation">
 <section id="section-6.3.4">
-          <h4 id="name-groups-ciphersuites-and-sig">
-<a href="#section-6.3.4" class="section-number selfRef">6.3.4. </a><a href="#name-groups-ciphersuites-and-sig" class="section-name selfRef">Groups, ciphersuites, and signature algorithms</a>
+          <h4 id="name-application-layer-protocol-">
+<a href="#section-6.3.4" class="section-number selfRef">6.3.4. </a><a href="#name-application-layer-protocol-" class="section-name selfRef">Application-layer protocol negotiation</a>
           </h4>
 <span class="break"></span><dl class="dlParallel" id="section-6.3.4-1">
-            <dt id="section-6.3.4-1.1">Names:</dt>
+            <dt id="section-6.3.4-1.1">Name:</dt>
             <dd style="margin-left: 1.5em" id="section-6.3.4-1.2">
-              <p id="section-6.3.4-1.2.1">supportedGroup, ciphersuite, signatureAlgorithm<a href="#section-6.3.4-1.2.1" class="pilcrow">¶</a></p>
+              <p id="section-6.3.4-1.2.1">alpn<a href="#section-6.3.4-1.2.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-6.3.4-1.3">Types:</dt>
+<dt id="section-6.3.4-1.3">Type:</dt>
             <dd style="margin-left: 1.5em" id="section-6.3.4-1.4">
-              <p id="section-6.3.4-1.4.1">Arrays of implementation-specific enumerations<a href="#section-6.3.4-1.4.1" class="pilcrow">¶</a></p>
+              <p id="section-6.3.4-1.4.1">Array of Strings<a href="#section-6.3.4-1.4.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-6.3.4-1.5">Default:</dt>
@@ -3546,32 +3537,32 @@ SecurityParameters.Set(alpn, ["h2"])
 </dd>
           <dd class="break"></dd>
 </dl>
-<p id="section-6.3.4-2">These are used to restrict what cryptographic parameters
-are used by underlying transport security protocols. When not specified,
-these algorithms should use known and safe defaults for the system.<a href="#section-6.3.4-2" class="pilcrow">¶</a></p>
+<p id="section-6.3.4-2">Application-layer protocol negotiation (ALPN) values: used to indicate which
+application-layer protocols are negotiated by the security protocol layer.
+See <span>[<a href="#ALPN" class="cite xref">ALPN</a>]</span> for definition of the ALPN field. Note that the Transport
+Services System can provide ALPN values automatically, based on
+the protocols being used, if not explicitly specified by the application.<a href="#section-6.3.4-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-6.3.4-3">
 <pre>
-SecurityParameters.Set(supportedGroup, secp256r1)
-SecurityParameters.Set(ciphersuite, TLS_AES_128_GCM_SHA256)
-SecurityParameters.Set(signatureAlgorithm, ecdsa_secp256r1_sha256)
+SecurityParameters.Set(alpn, ["h2"])
 </pre><a href="#section-6.3.4-3" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
-<div id="session-cache-options">
+<div id="groups-ciphersuites-and-signature-algorithms">
 <section id="section-6.3.5">
-          <h4 id="name-session-cache-options">
-<a href="#section-6.3.5" class="section-number selfRef">6.3.5. </a><a href="#name-session-cache-options" class="section-name selfRef">Session cache options</a>
+          <h4 id="name-groups-ciphersuites-and-sig">
+<a href="#section-6.3.5" class="section-number selfRef">6.3.5. </a><a href="#name-groups-ciphersuites-and-sig" class="section-name selfRef">Groups, ciphersuites, and signature algorithms</a>
           </h4>
 <span class="break"></span><dl class="dlParallel" id="section-6.3.5-1">
             <dt id="section-6.3.5-1.1">Names:</dt>
             <dd style="margin-left: 1.5em" id="section-6.3.5-1.2">
-              <p id="section-6.3.5-1.2.1">maxCachedSessions, cachedSessionLifetimeSeconds<a href="#section-6.3.5-1.2.1" class="pilcrow">¶</a></p>
+              <p id="section-6.3.5-1.2.1">supportedGroup, ciphersuite, signatureAlgorithm<a href="#section-6.3.5-1.2.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-6.3.5-1.3">Type:</dt>
+<dt id="section-6.3.5-1.3">Types:</dt>
             <dd style="margin-left: 1.5em" id="section-6.3.5-1.4">
-              <p id="section-6.3.5-1.4.1">Integer<a href="#section-6.3.5-1.4.1" class="pilcrow">¶</a></p>
+              <p id="section-6.3.5-1.4.1">Arrays of implementation-specific enumerations<a href="#section-6.3.5-1.4.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-6.3.5-1.5">Default:</dt>
@@ -3580,90 +3571,124 @@ SecurityParameters.Set(signatureAlgorithm, ecdsa_secp256r1_sha256)
 </dd>
           <dd class="break"></dd>
 </dl>
-<p id="section-6.3.5-2">These values are used to tune session cache capacity and lifetime, and
-can be extended to include other policies.<a href="#section-6.3.5-2" class="pilcrow">¶</a></p>
+<p id="section-6.3.5-2">These are used to restrict what cryptographic parameters
+are used by underlying transport security protocols. When not specified,
+these algorithms should use known and safe defaults for the system.<a href="#section-6.3.5-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-6.3.5-3">
 <pre>
-SecurityParameters.Set(maxCachedSessions, 16)
-SecurityParameters.Set(cachedSessionLifetimeSeconds, 3600)
+SecurityParameters.Set(supportedGroup, secp256r1)
+SecurityParameters.Set(ciphersuite, TLS_AES_128_GCM_SHA256)
+SecurityParameters.Set(signatureAlgorithm, ecdsa_secp256r1_sha256)
 </pre><a href="#section-6.3.5-3" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
-<div id="pre-shared-key">
+<div id="session-cache-options">
 <section id="section-6.3.6">
-          <h4 id="name-pre-shared-key">
-<a href="#section-6.3.6" class="section-number selfRef">6.3.6. </a><a href="#name-pre-shared-key" class="section-name selfRef">Pre-shared key</a>
+          <h4 id="name-session-cache-options">
+<a href="#section-6.3.6" class="section-number selfRef">6.3.6. </a><a href="#name-session-cache-options" class="section-name selfRef">Session cache options</a>
           </h4>
 <span class="break"></span><dl class="dlParallel" id="section-6.3.6-1">
-            <dt id="section-6.3.6-1.1">Name:</dt>
+            <dt id="section-6.3.6-1.1">Names:</dt>
             <dd style="margin-left: 1.5em" id="section-6.3.6-1.2">
-              <p id="section-6.3.6-1.2.1">preSharedKey<a href="#section-6.3.6-1.2.1" class="pilcrow">¶</a></p>
+              <p id="section-6.3.6-1.2.1">maxCachedSessions, cachedSessionLifetimeSeconds<a href="#section-6.3.6-1.2.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-6.3.6-1.3">Type:</dt>
             <dd style="margin-left: 1.5em" id="section-6.3.6-1.4">
-              <p id="section-6.3.6-1.4.1">Key and identity (platform-specific)<a href="#section-6.3.6-1.4.1" class="pilcrow">¶</a></p>
+              <p id="section-6.3.6-1.4.1">Integer<a href="#section-6.3.6-1.4.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-6.3.6-1.5">Default:</dt>
             <dd style="margin-left: 1.5em" id="section-6.3.6-1.6">
-              <p id="section-6.3.6-1.6.1">None<a href="#section-6.3.6-1.6.1" class="pilcrow">¶</a></p>
+              <p id="section-6.3.6-1.6.1">Automatic selection<a href="#section-6.3.6-1.6.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 </dl>
-<p id="section-6.3.6-2">Used to install pre-shared keying material established
-out-of-band. Each instance of pre-shared keying material is associated with some identity
-that typically identifies its use or has some protocol-specific meaning to the
-Remote Endpoint. Note that use of a pre-shared key will tend to select a single
-security protocol, and therefore directly select a single underlying protocol stack.
-A Transport Services API could express <code>None</code> in an environment-typical way, e.g., as a Union type or special value.<a href="#section-6.3.6-2" class="pilcrow">¶</a></p>
+<p id="section-6.3.6-2">These values are used to tune session cache capacity and lifetime, and
+can be extended to include other policies.<a href="#section-6.3.6-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-6.3.6-3">
 <pre>
-SecurityParameters.Set(preSharedKey, key, myIdentity)
+SecurityParameters.Set(maxCachedSessions, 16)
+SecurityParameters.Set(cachedSessionLifetimeSeconds, 3600)
 </pre><a href="#section-6.3.6-3" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
-<div id="connection-establishment-callbacks">
+<div id="pre-shared-key">
 <section id="section-6.3.7">
-          <h4 id="name-connection-establishment-ca">
-<a href="#section-6.3.7" class="section-number selfRef">6.3.7. </a><a href="#name-connection-establishment-ca" class="section-name selfRef">Connection Establishment Callbacks</a>
+          <h4 id="name-pre-shared-key">
+<a href="#section-6.3.7" class="section-number selfRef">6.3.7. </a><a href="#name-pre-shared-key" class="section-name selfRef">Pre-shared key</a>
           </h4>
-<p id="section-6.3.7-1">Security decisions, especially pertaining to trust, are not static. Once configured,
+<span class="break"></span><dl class="dlParallel" id="section-6.3.7-1">
+            <dt id="section-6.3.7-1.1">Name:</dt>
+            <dd style="margin-left: 1.5em" id="section-6.3.7-1.2">
+              <p id="section-6.3.7-1.2.1">preSharedKey<a href="#section-6.3.7-1.2.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-6.3.7-1.3">Type:</dt>
+            <dd style="margin-left: 1.5em" id="section-6.3.7-1.4">
+              <p id="section-6.3.7-1.4.1">Key and identity (platform-specific)<a href="#section-6.3.7-1.4.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-6.3.7-1.5">Default:</dt>
+            <dd style="margin-left: 1.5em" id="section-6.3.7-1.6">
+              <p id="section-6.3.7-1.6.1">None<a href="#section-6.3.7-1.6.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+</dl>
+<p id="section-6.3.7-2">Used to install pre-shared keying material established
+out-of-band. Each instance of pre-shared keying material is associated with some identity
+that typically identifies its use or has some protocol-specific meaning to the
+Remote Endpoint. Note that use of a pre-shared key will tend to select a single
+security protocol, and therefore directly select a single underlying protocol stack.
+A Transport Services API could express <code>None</code> in an environment-typical way, e.g., as a Union type or special value.<a href="#section-6.3.7-2" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-6.3.7-3">
+<pre>
+SecurityParameters.Set(preSharedKey, key, myIdentity)
+</pre><a href="#section-6.3.7-3" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="connection-establishment-callbacks">
+<section id="section-6.3.8">
+          <h4 id="name-connection-establishment-ca">
+<a href="#section-6.3.8" class="section-number selfRef">6.3.8. </a><a href="#name-connection-establishment-ca" class="section-name selfRef">Connection Establishment Callbacks</a>
+          </h4>
+<p id="section-6.3.8-1">Security decisions, especially pertaining to trust, are not static. Once configured,
 parameters can also be supplied during Connection establishment. These are best
 handled as client-provided callbacks.
 Callbacks block the progress of the Connection establishment, which distinguishes them
 from other events in the transport system. How callbacks and events are implemented is specific to each implementation.
-Security handshake callbacks that could be invoked during Connection establishment include:<a href="#section-6.3.7-1" class="pilcrow">¶</a></p>
+Security handshake callbacks that could be invoked during Connection establishment include:<a href="#section-6.3.8-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-6.3.7-2.1">
-              <p id="section-6.3.7-2.1.1">Trust verification callback: Invoked when a Remote Endpoint's trust must be verified before the
+<li class="normal" id="section-6.3.8-2.1">
+              <p id="section-6.3.8-2.1.1">Trust verification callback: Invoked when a Remote Endpoint's trust must be verified before the
 handshake protocol can continue. For example, the application could verify an X.509 certificate
-as described in <span>[<a href="#RFC5280" class="cite xref">RFC5280</a>]</span>.<a href="#section-6.3.7-2.1.1" class="pilcrow">¶</a></p>
+as described in <span>[<a href="#RFC5280" class="cite xref">RFC5280</a>]</span>.<a href="#section-6.3.8-2.1.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
-<div class="alignLeft art-text artwork" id="section-6.3.7-3">
+<div class="alignLeft art-text artwork" id="section-6.3.8-3">
 <pre>
 TrustCallback := NewCallback({
   // Handle trust, return the result
 })
 SecurityParameters.SetTrustVerificationCallback(TrustCallback)
-</pre><a href="#section-6.3.7-3" class="pilcrow">¶</a>
+</pre><a href="#section-6.3.8-3" class="pilcrow">¶</a>
 </div>
 <ul class="normal">
-<li class="normal" id="section-6.3.7-4.1">
-              <p id="section-6.3.7-4.1.1">Identity challenge callback: Invoked when a private key operation is required, e.g., when
-local authentication is requested by a Remote Endpoint.<a href="#section-6.3.7-4.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-6.3.8-4.1">
+              <p id="section-6.3.8-4.1.1">Identity challenge callback: Invoked when a private key operation is required, e.g., when
+local authentication is requested by a Remote Endpoint.<a href="#section-6.3.8-4.1.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
-<div class="alignLeft art-text artwork" id="section-6.3.7-5">
+<div class="alignLeft art-text artwork" id="section-6.3.8-5">
 <pre>
 ChallengeCallback := NewCallback({
   // Handle challenge
 })
 SecurityParameters.SetIdentityChallengeCallback(ChallengeCallback)
-</pre><a href="#section-6.3.7-5" class="pilcrow">¶</a>
+</pre><a href="#section-6.3.8-5" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
@@ -6130,6 +6155,10 @@ and for contributing text, e.g., on multicast.<a href="#section-14-5" class="pil
         <dd>
 <span class="refAuthor">Rosenberg, J.</span>, <span class="refAuthor">Schulzrinne, H.</span>, <span class="refAuthor">Camarillo, G.</span>, <span class="refAuthor">Johnston, A.</span>, <span class="refAuthor">Peterson, J.</span>, <span class="refAuthor">Sparks, R.</span>, <span class="refAuthor">Handley, M.</span>, and <span class="refAuthor">E. Schooler</span>, <span class="refTitle">"SIP: Session Initiation Protocol"</span>, <span class="seriesInfo">RFC 3261</span>, <span class="seriesInfo">DOI 10.17487/RFC3261</span>, <time datetime="2002-06" class="refDate">June 2002</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc3261">https://www.rfc-editor.org/rfc/rfc3261</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC4291">[RFC4291]</dt>
+        <dd>
+<span class="refAuthor">Hinden, R.</span> and <span class="refAuthor">S. Deering</span>, <span class="refTitle">"IP Version 6 Addressing Architecture"</span>, <span class="seriesInfo">RFC 4291</span>, <span class="seriesInfo">DOI 10.17487/RFC4291</span>, <time datetime="2006-02" class="refDate">February 2006</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc4291">https://www.rfc-editor.org/rfc/rfc4291</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC4594">[RFC4594]</dt>
         <dd>
 <span class="refAuthor">Babiarz, J.</span>, <span class="refAuthor">Chan, K.</span>, and <span class="refAuthor">F. Baker</span>, <span class="refTitle">"Configuration Guidelines for DiffServ Service Classes"</span>, <span class="seriesInfo">RFC 4594</span>, <span class="seriesInfo">DOI 10.17487/RFC4594</span>, <time datetime="2006-08" class="refDate">August 2006</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc4594">https://www.rfc-editor.org/rfc/rfc4594</a>&gt;</span>. </dd>
@@ -6146,10 +6175,6 @@ and for contributing text, e.g., on multicast.<a href="#section-14-5" class="pil
         <dd>
 <span class="refAuthor">Baker, F.</span>, <span class="refAuthor">Polk, J.</span>, and <span class="refAuthor">M. Dolly</span>, <span class="refTitle">"A Differentiated Services Code Point (DSCP) for Capacity-Admitted Traffic"</span>, <span class="seriesInfo">RFC 5865</span>, <span class="seriesInfo">DOI 10.17487/RFC5865</span>, <time datetime="2010-05" class="refDate">May 2010</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc5865">https://www.rfc-editor.org/rfc/rfc5865</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="RFC5952">[RFC5952]</dt>
-        <dd>
-<span class="refAuthor">Kawamura, S.</span> and <span class="refAuthor">M. Kawashima</span>, <span class="refTitle">"A Recommendation for IPv6 Address Text Representation"</span>, <span class="seriesInfo">RFC 5952</span>, <span class="seriesInfo">DOI 10.17487/RFC5952</span>, <time datetime="2010-08" class="refDate">August 2010</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc5952">https://www.rfc-editor.org/rfc/rfc5952</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="RFC7478">[RFC7478]</dt>
         <dd>
 <span class="refAuthor">Holmberg, C.</span>, <span class="refAuthor">Hakansson, S.</span>, and <span class="refAuthor">G. Eriksson</span>, <span class="refTitle">"Web Real-Time Communication Use Cases and Requirements"</span>, <span class="seriesInfo">RFC 7478</span>, <span class="seriesInfo">DOI 10.17487/RFC7478</span>, <time datetime="2015-03" class="refDate">March 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7478">https://www.rfc-editor.org/rfc/rfc7478</a>&gt;</span>. </dd>
@@ -6161,6 +6186,10 @@ and for contributing text, e.g., on multicast.<a href="#section-14-5" class="pil
 <dt id="RFC7657">[RFC7657]</dt>
         <dd>
 <span class="refAuthor">Black, D., Ed.</span> and <span class="refAuthor">P. Jones</span>, <span class="refTitle">"Differentiated Services (Diffserv) and Real-Time Communication"</span>, <span class="seriesInfo">RFC 7657</span>, <span class="seriesInfo">DOI 10.17487/RFC7657</span>, <time datetime="2015-11" class="refDate">November 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7657">https://www.rfc-editor.org/rfc/rfc7657</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC791">[RFC791]</dt>
+        <dd>
+<span class="refAuthor">Postel, J.</span>, <span class="refTitle">"Internet Protocol"</span>, <span class="seriesInfo">STD 5</span>, <span class="seriesInfo">RFC 791</span>, <span class="seriesInfo">DOI 10.17487/RFC0791</span>, <time datetime="1981-09" class="refDate">September 1981</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc791">https://www.rfc-editor.org/rfc/rfc791</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC8084">[RFC8084]</dt>
         <dd>
