@@ -217,7 +217,7 @@ We also make use of the following basic types:
 - Integer: Instances take integer values.
 - Numeric: Instances take real number values.
 - String: Instances are represented in UTF-8.
-- IP Address: An IPv4 or IPv6 address {{?RFC5952}}.
+- IP Address: An IPv4 {{?RFC791}} or IPv6 {{?RFC4291}} address.
 - Enumeration: A family of types in which each instance takes one of a fixed,
   predefined set of values specific to a given enumerated type.
 - Tuple: An ordered grouping of multiple value types, represented as a
@@ -742,7 +742,7 @@ name associated with a port number, from https://www.iana.org/assignments/servic
 RemoteSpecifier.WithService("https")
 ~~~
 
-- IP address (IPv4 or IPv6 address):
+- IP address (an IPv4 or IPv6 address type; note that the examples here show the human-readable form of the IP addresses, but the functions can take a binary encoding of the addresses):
 
 ~~~
 RemoteSpecifier.WithIPAddress(192.0.2.21)
@@ -752,7 +752,7 @@ RemoteSpecifier.WithIPAddress(192.0.2.21)
 RemoteSpecifier.WithIPAddress(2001:db8:4920:e29d:a420:7461:7073:a)
 ~~~
 
-- Interface name (string), e.g., to qualify link-local addresses (see {{ifspec}} for details):
+- Interface identifier (which can be a string name or other platform-specific identifier), e.g., to qualify link-local addresses (see {{ifspec}} for details):
 
 ~~~
 LocalSpecifier.WithInterface("en0")
